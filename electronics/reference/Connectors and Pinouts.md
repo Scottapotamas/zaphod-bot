@@ -89,10 +89,10 @@ Molex MiniFit-Jr 	Crimp - 39-00-0078
 
 ### Pinout
 
-Pin 1 		GND
+Pin 1 		VCC
 Pin 2 		GND
 Pin 3 		VCC
-Pin 4 		VCC
+Pin 4 		GND
 
 ## Control Connector
 
