@@ -1,4 +1,5 @@
 EESchema Schematic File Version 4
+LIBS:zaphod-controller-cache
 EELAYER 26 0
 EELAYER END
 $Descr A4 11693 8268
@@ -632,7 +633,7 @@ Wire Wire Line
 	9850 4950 10000 4950
 Wire Wire Line
 	9850 4950 9850 5450
-Text Label 4050 1875 0    50   ~ 0
+Text Label 4050 1400 0    50   ~ 0
 HLFB-
 Text Label 4775 2500 0    50   ~ 0
 INPUTB-
@@ -668,9 +669,9 @@ Connection ~ 4575 2100
 Wire Wire Line
 	5125 2400 4475 2400
 Wire Wire Line
-	4475 2400 4475 1875
+	4475 2400 4475 1400
 Wire Wire Line
-	4475 1875 3975 1875
+	4475 1400 3975 1400
 $Comp
 L Transistor_Array:ULN2803A U?
 U 1 1 5AC9AE17
@@ -838,42 +839,6 @@ F 3 "" H 1700 1075 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L appli_resistor:1K_1005M R?
-U 1 1 5ADD079C
-P 1700 1425
-F 0 "R?" H 1627 1240 50  0000 R CNN
-F 1 "1K_1005M" H 1627 1320 35  0000 R CNN
-F 2 "Applidyne_Resistor:RESC1005X40N" V 1810 1275 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2111203.pdf" V 1835 1275 20  0001 C CNN
-F 4 "VISHAY" V 1885 1275 20  0001 C CNN "manf"
-F 5 "CRCW04021K00FKED" V 1910 1275 20  0001 C CNN "manf#"
-F 6 "Element14" V 1935 1275 20  0001 C CNN "Supplier"
-F 7 "1469669" V 1960 1275 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/vishay/crcw040210k0fked/res-thick-film-10k-1-0-063w-0402/dp/1469669" V 1985 1275 20  0001 C CNN "Supplier URL"
-F 9 "0.09" V 2010 1275 20  0001 C CNN "Supplier Price"
-F 10 "10" V 2035 1275 20  0001 C CNN "Supplier Price Break"
-	1    1700 1425
-	1    0    0    1   
-$EndComp
-$Comp
-L appli_capacitor:1NF_X7R_1005M C?
-U 1 1 5ADE8189
-P 1700 1800
-F 0 "C?" H 1622 1665 50  0000 R CNN
-F 1 "1NF_X7R_1005M" H 1622 1745 35  0000 R CNN
-F 2 "Applidyne_Capacitor:CAPC1005X60N" V 1815 1700 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2205255.pdf" V 1840 1700 20  0001 C CNN
-F 4 "KEMET" V 1890 1700 20  0001 C CNN "manf"
-F 5 "C0402C102K5RACTU" V 1915 1700 20  0001 C CNN "manf#"
-F 6 "Element14" V 1940 1700 20  0001 C CNN "Supplier"
-F 7 "1414573" V 1965 1700 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/kemet/c0402c102k5ractu/cap-mlcc-x7r-1nf-50v-0402/dp/1414573" V 1990 1700 20  0001 C CNN "Supplier URL"
-F 9 "0.015" V 2015 1700 20  0001 C CNN "Supplier Price"
-F 10 "100" V 2040 1700 20  0001 C CNN "Supplier Price Break"
-	1    1700 1800
-	1    0    0    1   
-$EndComp
-$Comp
 L appli_power:+12V #PWR?
 U 1 1 5AE4BE30
 P 2250 1100
@@ -920,43 +885,7 @@ Wire Wire Line
 Wire Wire Line
 	1700 1125 1700 1075
 Wire Wire Line
-	2250 1200 2250 1175
-$Comp
-L appli_capacitor:100NF_X7R_1005M C?
-U 1 1 5AE9B1E2
-P 2675 1175
-F 0 "C?" V 2482 1075 50  0000 C CNN
-F 1 "100NF_X7R_1005M" V 2562 1075 35  0000 C CNN
-F 2 "Applidyne_Capacitor:CAPC1005X60N" V 2790 1075 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1936565.pdf" V 2815 1075 20  0001 C CNN
-F 4 "TDK" V 2865 1075 20  0001 C CNN "manf"
-F 5 "CGA2B3X7R1H104K050BB" V 2890 1075 20  0001 C CNN "manf#"
-F 6 "Element14" V 2915 1075 20  0001 C CNN "Supplier"
-F 7 "2210822" V 2940 1075 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/tdk/cga2b3x7r1h104k050bb/cap-mlcc-x7r-100nf-50v-0402/dp/2210822" V 2965 1075 20  0001 C CNN "Supplier URL"
-F 9 "0.087" V 2990 1075 20  0001 C CNN "Supplier Price"
-F 10 "100" V 3015 1075 20  0001 C CNN "Supplier Price Break"
-	1    2675 1175
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	2475 1175 2250 1175
-Connection ~ 2250 1175
-Wire Wire Line
-	2250 1175 2250 1100
-Wire Wire Line
-	2675 1175 2775 1175
-$Comp
-L appli_power:GND #PWR?
-U 1 1 5AEC2FEA
-P 2775 1175
-F 0 "#PWR?" H 2775 925 50  0001 C CNN
-F 1 "GND" V 2780 1047 50  0000 R CNN
-F 2 "" H 2775 1175 60  0000 C CNN
-F 3 "" H 2775 1175 60  0000 C CNN
-	1    2775 1175
-	0    -1   -1   0   
-$EndComp
+	750  1025 750  1050
 Wire Wire Line
 	2450 1400 3150 1400
 Wire Wire Line
@@ -973,4 +902,102 @@ Wire Wire Line
 	9200 1675 10000 1675
 Wire Wire Line
 	9200 4850 10000 4850
+$Comp
+L appli_resistor:1K00_1608M R?
+U 1 1 5ABC9A87
+P 1700 1425
+F 0 "R?" H 1628 1240 50  0000 R CNN
+F 1 "1K00_1608M" H 1628 1320 35  0000 R CNN
+F 2 "RESC1608*" V 1810 1275 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 1835 1275 20  0001 C CNN
+F 4 "MULTICOMP" V 1885 1275 20  0001 C CNN "manf"
+F 5 "MCHP03W8F1001T5E" V 1910 1275 20  0001 C CNN "manf#"
+F 6 "Element14" V 1935 1275 20  0001 C CNN "Supplier"
+F 7 "1576283" V 1960 1275 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/multicomp/mchp03w8f1001t5e/resistor-thick-film-1k-0-125w/dp/1576283" V 1985 1275 20  0001 C CNN "Supplier URL"
+F 9 "0.011" V 2010 1275 20  0001 C CNN "Supplier Price"
+F 10 "50+" V 2035 1275 20  0001 C CNN "Supplier Price Break"
+	1    1700 1425
+	1    0    0    1   
+$EndComp
+$Comp
+L appli_capacitor:1NF_X7R_1608M C?
+U 1 1 5ABDA8BB
+P 1700 1800
+F 0 "C?" H 1622 1665 50  0000 R CNN
+F 1 "1NF_X7R_1608M" H 1622 1745 35  0000 R CNN
+F 2 "CAPC1608*" V 1815 1700 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1679506.pdf" V 1840 1700 20  0001 C CNN
+F 4 "AVX" V 1890 1700 20  0001 C CNN "manf"
+F 5 "06031C102KAT2A" V 1915 1700 20  0001 C CNN "manf#"
+F 6 "Element14" V 1940 1700 20  0001 C CNN "Supplier"
+F 7 "1833874" V 1965 1700 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/avx/06031c102kat2a/cap-mlcc-x7r-1nf-100v-0603/dp/1833874?ost=1833874" V 1990 1700 20  0001 C CNN "Supplier URL"
+F 9 "0.004" V 2015 1700 20  0001 C CNN "Supplier Price"
+F 10 "10" V 2040 1700 20  0001 C CNN "Supplier Price Break"
+	1    1700 1800
+	1    0    0    1   
+$EndComp
+$Comp
+L appli_capacitor:100NF_X7R_1608M C?
+U 1 1 5ABF1105
+P 750 825
+F 0 "C?" H 828 760 50  0000 L CNN
+F 1 "100NF_X7R_1608M" H 828 680 35  0000 L CNN
+F 2 "CAPC1608*" V 865 725 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 890 725 20  0001 C CNN
+F 4 "KEMET" V 940 725 20  0001 C CNN "manf"
+F 5 "C0603C104K5RACAUTO" V 965 725 20  0001 C CNN "manf#"
+F 6 "Element14" V 990 725 20  0001 C CNN "Supplier"
+F 7 "2070398" V 1015 725 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 1040 725 20  0001 C CNN "Supplier URL"
+F 9 "0.011" V 1065 725 20  0001 C CNN "Supplier Price"
+F 10 "1" V 1090 725 20  0001 C CNN "Supplier Price Break"
+	1    750  825 
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_resistor:1K00_1608M R?
+U 1 1 5ABF1233
+P 3150 1800
+F 0 "R?" H 3077 1615 50  0000 R CNN
+F 1 "1K00_1608M" H 3077 1695 35  0000 R CNN
+F 2 "RESC1608*" V 3260 1650 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 3285 1650 20  0001 C CNN
+F 4 "MULTICOMP" V 3335 1650 20  0001 C CNN "manf"
+F 5 "MCHP03W8F1001T5E" V 3360 1650 20  0001 C CNN "manf#"
+F 6 "Element14" V 3385 1650 20  0001 C CNN "Supplier"
+F 7 "1576283" V 3410 1650 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/multicomp/mchp03w8f1001t5e/resistor-thick-film-1k-0-125w/dp/1576283" V 3435 1650 20  0001 C CNN "Supplier URL"
+F 9 "0.011" V 3460 1650 20  0001 C CNN "Supplier Price"
+F 10 "50+" V 3485 1650 20  0001 C CNN "Supplier Price Break"
+	1    3150 1800
+	-1   0    0    1   
+$EndComp
+Wire Wire Line
+	2250 1100 2250 1200
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5AC0C492
+P 750 1050
+F 0 "#PWR?" H 750 800 50  0001 C CNN
+F 1 "GND" H 755 877 50  0000 C CNN
+F 2 "" H 750 1050 60  0000 C CNN
+F 3 "" H 750 1050 60  0000 C CNN
+	1    750  1050
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_power:+12V #PWR?
+U 1 1 5AC11C0D
+P 750 775
+F 0 "#PWR?" H 750 625 50  0001 C CNN
+F 1 "+12V" H 765 948 50  0000 C CNN
+F 2 "" H 750 775 60  0000 C CNN
+F 3 "" H 750 775 60  0000 C CNN
+	1    750  775 
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	750  775  750  825 
 $EndSCHEMATC
