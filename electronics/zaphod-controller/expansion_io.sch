@@ -811,4 +811,77 @@ Text Notes 1250 1250 0    50   ~ 0
 To be used with LED drivers, servos or motors/pumps
 Text Notes 1325 3425 0    50   ~ 0
 Provide 2 optocoupled input/output pairs.\nPair 0 is UART capable, Pair 1 is CAN capable.
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5B002BDB
+P 3775 4850
+F 0 "#PWR?" H 3775 4600 50  0001 C CNN
+F 1 "GND" H 3780 4677 50  0000 C CNN
+F 2 "" H 3775 4850 60  0000 C CNN
+F 3 "" H 3775 4850 60  0000 C CNN
+	1    3775 4850
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_power:+3.3V #PWR?
+U 1 1 5B002C6A
+P 3600 3975
+F 0 "#PWR?" H 3600 3935 30  0001 C CNN
+F 1 "+3.3V" H 3609 4113 30  0000 C CNN
+F 2 "" H 3600 3975 60  0000 C CNN
+F 3 "" H 3600 3975 60  0000 C CNN
+	1    3600 3975
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_power:+12V #PWR?
+U 1 1 5B002CC8
+P 3925 4000
+F 0 "#PWR?" H 3925 3850 50  0001 C CNN
+F 1 "+12V" H 3940 4173 50  0000 C CNN
+F 2 "" H 3925 4000 60  0000 C CNN
+F 3 "" H 3925 4000 60  0000 C CNN
+	1    3925 4000
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_connector_wurth:SOCKET_01X07 P?
+U 1 1 5B002FA3
+P 4450 4525
+F 0 "P?" H 4527 4566 50  0000 L CNN
+F 1 "SOCKET_01X07" H 4527 4475 50  0000 L CNN
+F 2 "Applidyne_Connector_Wurth:61300711821" V 4625 4525 50  0001 C CNN
+F 3 "http://katalog.we-online.de/em/datasheet/6130xx11821.pdf" V 5400 4575 50  0001 C CNN
+F 4 "WURTH" H 4450 4075 60  0001 C CNN "manf"
+F 5 "61300711821" H 4450 3975 60  0001 C CNN "manf#"
+F 6 "Distrelec" H 4450 3875 60  0001 C CNN "Supplier"
+F 7 "300-24-879" H 4450 3800 60  0001 C CNN "Supplier Part No"
+F 8 "https://www.distrelec.biz/en/single-row-straight-without-shroud-female-header-7p-female-wuerth-elektronik-61300711821/p/30024879" H 4450 3700 60  0001 C CNN "Supplier URL"
+F 9 "0.39" H 4450 3600 60  0001 C CNN "Supplier Price"
+F 10 "1" H 4450 3500 60  0001 C CNN "Supplier Price Break"
+	1    4450 4525
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_opto:6N135 IC?
+U 1 1 5B0079A2
+P 3500 5625
+F 0 "IC?" H 3500 6029 40  0000 C CNN
+F 1 "6N135" H 3500 5953 40  0000 C CNN
+F 2 "DIP8" H 3500 5885 30  0000 C CIN
+F 3 "http://www.semicon.toshiba.co.jp/docs/datasheet/en/Opto/6N135_6N136_en_datasheet_071001.pdf" H 3500 5908 60  0001 C CNN
+	1    3500 5625
+	-1   0    0    -1  
+$EndComp
+$Comp
+L appli_opto:6N135 IC?
+U 1 1 5B007CC3
+P 3500 6350
+F 0 "IC?" H 3500 6754 40  0000 C CNN
+F 1 "6N135" H 3500 6678 40  0000 C CNN
+F 2 "DIP8" H 3500 6610 30  0000 C CIN
+F 3 "http://www.semicon.toshiba.co.jp/docs/datasheet/en/Opto/6N135_6N136_en_datasheet_071001.pdf" H 3500 6633 60  0001 C CNN
+	1    3500 6350
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
