@@ -27,13 +27,14 @@ Side Goals: Look awesome.
 ## General nice-to-haves
 
 - Onboard NTC for temperature monitoring
+- Expansion NTC's to monitor IPC-3 power supply temperature, etc.
 - PWM Fan output for cooling
-- Consider voltage and current sensing on each servo output rail (INA219 i2c perhaps?).
+- Consider input voltage, and current sensing on each servo output rail.
 - SWD Connection with ARM CORTEX 5x2 pin female 1.25mm pitch.
-- Use high speed optocouplers for all motor connections for best noise immunity
+- Ensure high reliability, robust IO and isolate where practical.
+- Expansion PWM outputs for end affector upgrades/changes in the future (pumps/servos etc)
+- Expansion UART and/or CANBUS for external interfacing.
 - Terminal over UART is nicer than USB for debugging.
-- Consider full speed USB PHY
-- Consider Ethernet connection?
 - Testpoints for scope/function generator
 - TTL level lines could use 2.54mm 4x2 connectors for Saleae logic analyser connection (step+dir+enable+hlfb).
 - Consider onboard RTC battery connection.
@@ -45,6 +46,10 @@ Side Goals: Look awesome.
 
 ## Outputs
 
-- 3x Output 75V Connectors
-- 3x Output IO Connectors
-- Ideally, status/state LEDS on important pins for visual debugging.
+- 3x Motor Connectors (power + control connectors)
+- Status/state LEDS on important pins for visual debugging.
+- External UART
+- External USB
+- External IO
+
+- Bonus for 4th motor output if 4th axis expansion is considered
