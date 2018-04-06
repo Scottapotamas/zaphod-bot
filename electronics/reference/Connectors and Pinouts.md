@@ -19,8 +19,9 @@ Connect E-Stop to IPC-3 PSU
 IEC320 Connector 	Fused with DPST switch (no backlight)
 Spade Terminals		
 Ring Terminal 		
-240V Fuse 			M205 Quick Blow Fuse 4A
-Emergency Stop		ABB Compact Head Mushroom - 40mm Panel Mount - 1SFA619550R1041 
+240IEC320V Fuse 			M205 Quick Blow Fuse 4A
+
+https://www.jaycar.com.au/iec-fuse-chassis-male-power-plug-with-switch/p/PP4003
 
 ### Wire
 
