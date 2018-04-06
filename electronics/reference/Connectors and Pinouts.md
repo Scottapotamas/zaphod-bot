@@ -45,7 +45,7 @@ Molex MicroFit?		Crimp - 39-00-0039
 
 ### Wire
 
-From E-STOP mushroom (2.5mm^2 3-core)
+From IEC switch unit (2.5mm^2 3-core)
 
 ### Pinout
 
@@ -83,6 +83,9 @@ Connect motor to main PCB
 Molex MiniFit-Jr 	4-Way - 39-01-3045
 Molex MiniFit-Jr 	Crimp - 39-00-0078
 
+https://au.rs-online.com/web/p/pcb-connector-housings/6704575/
+https://au.rs-online.com/web/p/pcb-connector-contacts/2155887
+
 ### Wire
 
 16AWG 		Red
@@ -103,6 +106,9 @@ Connect to main PCB.
 
 Molex MiniFit-Jr 	8-Way - 39-01-3085
 Molex MiniFit-Jr 	Crimp - 39-00-0078
+
+https://au.rs-online.com/web/p/pcb-connector-housings/8428197/
+https://au.rs-online.com/web/p/pcb-connector-contacts/2155887
 
 ### Wire
 
