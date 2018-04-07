@@ -10,16 +10,14 @@ I'd like to sleeve each wire/bundle as well, but we'll see how much time I have.
 
 # Mains Input Connection
 
-Connect output of holder to E-Stop button.
-
-Connect E-Stop to IPC-3 PSU
+Connect output of holder to IPC-3 PSU.
 
 ### Parts
 
 IEC320 Connector 	Fused with DPST switch (no backlight)
 Spade Terminals		
-Ring Terminal 		
-240IEC320V Fuse 			M205 Quick Blow Fuse 4A
+Ring Terminal 		For grounding connection(s)
+240IEC320V Fuse 	M205 Quick Blow Fuse 4A
 
 https://www.jaycar.com.au/iec-fuse-chassis-male-power-plug-with-switch/p/PP4003
 
