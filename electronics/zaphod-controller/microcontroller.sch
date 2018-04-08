@@ -1431,9 +1431,9 @@ Text Notes 7900 5950 0    50   ~ 0
 EXT_0 is UART capable
 Text Notes 8750 5800 2    50   ~ 0
 EXT_1 is CAN capable\n(with added tranceiver)
-Text GLabel 9550 5700 0    50   Input ~ 0
-EXT_OUTPUT_1
 Text GLabel 9550 5800 0    50   Output ~ 0
+EXT_OUTPUT_1
+Text GLabel 9550 5700 0    50   Input ~ 0
 EXT_INPUT_1
 Wire Wire Line
 	9550 5700 9750 5700

@@ -795,18 +795,14 @@ Text Notes 12600 7850 0    79   ~ 16
 Buzzer
 Text Notes 11875 8075 0    50   ~ 0
 Used for potential indication of state/warnings
-Text GLabel 1425 4175 0    50   Input ~ 0
+Text GLabel 1250 6025 0    50   Output ~ 0
 EXT_INPUT_0
-Text GLabel 1425 5150 0    50   Input ~ 0
+Text GLabel 1250 4650 0    50   Input ~ 0
 EXT_OUTPUT_1
-Text GLabel 1400 5300 0    50   Output ~ 0
+Text GLabel 1250 6225 0    50   Output ~ 0
 EXT_INPUT_1
-Text GLabel 1425 3775 0    50   Output ~ 0
+Text GLabel 1250 4450 0    50   Input ~ 0
 EXT_OUTPUT_0
-Text Notes 1750 3925 0    50   ~ 0
-EXT_0 is UART capable
-Text Notes 2650 5400 2    50   ~ 0
-EXT_1 is CAN capable\n(with added tranceiver)
 Text Notes 1250 1250 0    50   ~ 0
 To be used with LED drivers, servos or motors/pumps
 Text Notes 1325 3425 0    50   ~ 0
@@ -814,74 +810,250 @@ Provide 2 optocoupled input/output pairs.\nPair 0 is UART capable, Pair 1 is CAN
 $Comp
 L appli_power:GND #PWR?
 U 1 1 5B002BDB
-P 3775 4850
-F 0 "#PWR?" H 3775 4600 50  0001 C CNN
-F 1 "GND" H 3780 4677 50  0000 C CNN
-F 2 "" H 3775 4850 60  0000 C CNN
-F 3 "" H 3775 4850 60  0000 C CNN
-	1    3775 4850
+P 4725 4700
+F 0 "#PWR?" H 4725 4450 50  0001 C CNN
+F 1 "GND" H 4730 4527 50  0000 C CNN
+F 2 "" H 4725 4700 60  0000 C CNN
+F 3 "" H 4725 4700 60  0000 C CNN
+	1    4725 4700
 	1    0    0    -1  
 $EndComp
 $Comp
 L appli_power:+3.3V #PWR?
 U 1 1 5B002C6A
-P 3600 3975
-F 0 "#PWR?" H 3600 3935 30  0001 C CNN
-F 1 "+3.3V" H 3609 4113 30  0000 C CNN
-F 2 "" H 3600 3975 60  0000 C CNN
-F 3 "" H 3600 3975 60  0000 C CNN
-	1    3600 3975
+P 4550 3825
+F 0 "#PWR?" H 4550 3785 30  0001 C CNN
+F 1 "+3.3V" H 4559 3963 30  0000 C CNN
+F 2 "" H 4550 3825 60  0000 C CNN
+F 3 "" H 4550 3825 60  0000 C CNN
+	1    4550 3825
 	1    0    0    -1  
 $EndComp
 $Comp
 L appli_power:+12V #PWR?
 U 1 1 5B002CC8
-P 3925 4000
-F 0 "#PWR?" H 3925 3850 50  0001 C CNN
-F 1 "+12V" H 3940 4173 50  0000 C CNN
-F 2 "" H 3925 4000 60  0000 C CNN
-F 3 "" H 3925 4000 60  0000 C CNN
-	1    3925 4000
+P 4875 3850
+F 0 "#PWR?" H 4875 3700 50  0001 C CNN
+F 1 "+12V" H 4890 4023 50  0000 C CNN
+F 2 "" H 4875 3850 60  0000 C CNN
+F 3 "" H 4875 3850 60  0000 C CNN
+	1    4875 3850
 	1    0    0    -1  
 $EndComp
 $Comp
-L appli_connector_wurth:SOCKET_01X07 P?
-U 1 1 5B002FA3
-P 4450 4525
-F 0 "P?" H 4527 4566 50  0000 L CNN
-F 1 "SOCKET_01X07" H 4527 4475 50  0000 L CNN
-F 2 "Applidyne_Connector_Wurth:61300711821" V 4625 4525 50  0001 C CNN
-F 3 "http://katalog.we-online.de/em/datasheet/6130xx11821.pdf" V 5400 4575 50  0001 C CNN
-F 4 "WURTH" H 4450 4075 60  0001 C CNN "manf"
-F 5 "61300711821" H 4450 3975 60  0001 C CNN "manf#"
-F 6 "Distrelec" H 4450 3875 60  0001 C CNN "Supplier"
-F 7 "300-24-879" H 4450 3800 60  0001 C CNN "Supplier Part No"
-F 8 "https://www.distrelec.biz/en/single-row-straight-without-shroud-female-header-7p-female-wuerth-elektronik-61300711821/p/30024879" H 4450 3700 60  0001 C CNN "Supplier URL"
-F 9 "0.39" H 4450 3600 60  0001 C CNN "Supplier Price"
-F 10 "1" H 4450 3500 60  0001 C CNN "Supplier Price Break"
-	1    4450 4525
+L appli_opto:ACPL-K63L IC?
+U 1 1 5ACB1CBF
+P 2300 4550
+F 0 "IC?" H 2300 5042 40  0000 C CNN
+F 1 "ACPL-K63L" H 2300 4966 40  0000 C CNN
+F 2 "SOIC127P1150X330-8L50*" H 2055 4100 30  0001 L CIN
+F 3 "http://www.avagotech.com/pages/en/optocouplers_plastic/plastic_digital_optocoupler/10_mbd_logic_gate/acpl-k63l-000e/" H 2300 4000 60  0001 C CNN
+F 4 "AVAGO TECHNOLOGIES" H 2350 3900 50  0001 C CNN "manf"
+F 5 "ACPL-K63L-000E" H 2300 3800 50  0001 C CNN "manf#"
+F 6 "Mouser" H 2300 3700 50  0001 C CNN "Supplier"
+F 7 "630-ACPL-K63L-000E" H 2300 3600 50  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Broadcom-Avago/ACPL-K63L-000E?qs=sGAEpiMZZMsx4%2fFVpd5sGVFruKLNNx5P" H 2300 3500 50  0001 C CNN "Supplier URL"
+F 9 "7.88" H 2300 3400 50  0001 C CNN "Supplier Price"
+F 10 "1" H 2300 3300 50  0001 C CNN "Supplier Price Break"
+	1    2300 4550
 	1    0    0    -1  
 $EndComp
 $Comp
-L appli_opto:6N135 IC?
-U 1 1 5B0079A2
-P 3500 5625
-F 0 "IC?" H 3500 6029 40  0000 C CNN
-F 1 "6N135" H 3500 5953 40  0000 C CNN
-F 2 "DIP8" H 3500 5885 30  0000 C CIN
-F 3 "http://www.semicon.toshiba.co.jp/docs/datasheet/en/Opto/6N135_6N136_en_datasheet_071001.pdf" H 3500 5908 60  0001 C CNN
-	1    3500 5625
+L appli_opto:ACPL-K63L IC?
+U 1 1 5ACB1D3B
+P 2325 6125
+F 0 "IC?" H 2325 6617 40  0000 C CNN
+F 1 "ACPL-K63L" H 2325 6541 40  0000 C CNN
+F 2 "SOIC127P1150X330-8L50*" H 2080 5675 30  0001 L CIN
+F 3 "http://www.avagotech.com/pages/en/optocouplers_plastic/plastic_digital_optocoupler/10_mbd_logic_gate/acpl-k63l-000e/" H 2325 5575 60  0001 C CNN
+F 4 "AVAGO TECHNOLOGIES" H 2375 5475 50  0001 C CNN "manf"
+F 5 "ACPL-K63L-000E" H 2325 5375 50  0001 C CNN "manf#"
+F 6 "Mouser" H 2325 5275 50  0001 C CNN "Supplier"
+F 7 "630-ACPL-K63L-000E" H 2325 5175 50  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Broadcom-Avago/ACPL-K63L-000E?qs=sGAEpiMZZMsx4%2fFVpd5sGVFruKLNNx5P" H 2325 5075 50  0001 C CNN "Supplier URL"
+F 9 "7.88" H 2325 4975 50  0001 C CNN "Supplier Price"
+F 10 "1" H 2325 4875 50  0001 C CNN "Supplier Price Break"
+	1    2325 6125
 	-1   0    0    -1  
 $EndComp
 $Comp
-L appli_opto:6N135 IC?
-U 1 1 5B007CC3
-P 3500 6350
-F 0 "IC?" H 3500 6754 40  0000 C CNN
-F 1 "6N135" H 3500 6678 40  0000 C CNN
-F 2 "DIP8" H 3500 6610 30  0000 C CIN
-F 3 "http://www.semicon.toshiba.co.jp/docs/datasheet/en/Opto/6N135_6N136_en_datasheet_071001.pdf" H 3500 6633 60  0001 C CNN
-	1    3500 6350
+L appli_resistor:220R_1608M R?
+U 1 1 5ACBAE28
+P 1700 4450
+F 0 "R?" V 1512 4300 50  0000 C CNN
+F 1 "220R_1608M" V 1592 4300 35  0000 C CNN
+F 2 "RESC1608*" V 1810 4300 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1729044.pdf" V 1835 4300 20  0001 C CNN
+F 4 "MULTICOMP" V 1885 4300 20  0001 C CNN "manf"
+F 5 "MCRE000124" V 1910 4300 20  0001 C CNN "manf#"
+F 6 "Element14" V 1935 4300 20  0001 C CNN "Supplier"
+F 7 "1711597" V 1960 4300 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/multicomp/mcre000124/res-thick-film-220r-1-0-05w-0201/dp/1711597" V 1985 4300 20  0001 C CNN "Supplier URL"
+F 9 "0.016" V 2010 4300 20  0001 C CNN "Supplier Price"
+F 10 "1" V 2035 4300 20  0001 C CNN "Supplier Price Break"
+	1    1700 4450
+	0    1    1    0   
+$EndComp
+$Comp
+L appli_resistor:220R_1608M R?
+U 1 1 5ACBAED5
+P 1700 4650
+F 0 "R?" V 1800 4500 50  0000 C CNN
+F 1 "220R_1608M" V 1875 4500 35  0000 C CNN
+F 2 "RESC1608*" V 1810 4500 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1729044.pdf" V 1835 4500 20  0001 C CNN
+F 4 "MULTICOMP" V 1885 4500 20  0001 C CNN "manf"
+F 5 "MCRE000124" V 1910 4500 20  0001 C CNN "manf#"
+F 6 "Element14" V 1935 4500 20  0001 C CNN "Supplier"
+F 7 "1711597" V 1960 4500 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/multicomp/mcre000124/res-thick-film-220r-1-0-05w-0201/dp/1711597" V 1985 4500 20  0001 C CNN "Supplier URL"
+F 9 "0.016" V 2010 4500 20  0001 C CNN "Supplier Price"
+F 10 "1" V 2035 4500 20  0001 C CNN "Supplier Price Break"
+	1    1700 4650
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	1700 4450 1950 4450
+Wire Wire Line
+	1950 4650 1700 4650
+Wire Wire Line
+	1250 4450 1400 4450
+Wire Wire Line
+	1400 4650 1250 4650
+Wire Wire Line
+	2650 4250 2800 4250
+Wire Wire Line
+	2800 4250 2800 4150
+Wire Wire Line
+	2650 4850 2800 4850
+Wire Wire Line
+	2800 4850 2800 4950
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5ACCB935
+P 2800 4950
+F 0 "#PWR?" H 2800 4700 50  0001 C CNN
+F 1 "GND" H 2805 4777 50  0000 C CNN
+F 2 "" H 2800 4950 60  0000 C CNN
+F 3 "" H 2800 4950 60  0000 C CNN
+	1    2800 4950
 	1    0    0    -1  
+$EndComp
+$Comp
+L appli_power:+3.3V #PWR?
+U 1 1 5ACCB976
+P 2800 4150
+F 0 "#PWR?" H 2800 4110 30  0001 C CNN
+F 1 "+3.3V" H 2809 4288 30  0000 C CNN
+F 2 "" H 2800 4150 60  0000 C CNN
+F 3 "" H 2800 4150 60  0000 C CNN
+	1    2800 4150
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_power:+3.3V #PWR?
+U 1 1 5ACCB9B7
+P 4300 4300
+F 0 "#PWR?" H 4300 4260 30  0001 C CNN
+F 1 "+3.3V" H 4309 4438 30  0000 C CNN
+F 2 "" H 4300 4300 60  0000 C CNN
+F 3 "" H 4300 4300 60  0000 C CNN
+	1    4300 4300
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5ACCBA34
+P 4300 4800
+F 0 "#PWR?" H 4300 4550 50  0001 C CNN
+F 1 "GND" H 4305 4627 50  0000 C CNN
+F 2 "" H 4300 4800 60  0000 C CNN
+F 3 "" H 4300 4800 60  0000 C CNN
+	1    4300 4800
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_capacitor:100NF_X7R_1608M C?
+U 1 1 5ACCBB7B
+P 4300 4450
+F 0 "C?" H 4378 4385 50  0000 L CNN
+F 1 "100NF_X7R_1608M" H 4378 4305 35  0000 L CNN
+F 2 "CAPC1608*" V 4415 4350 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 4440 4350 20  0001 C CNN
+F 4 "KEMET" V 4490 4350 20  0001 C CNN "manf"
+F 5 "C0603C104K5RACAUTO" V 4515 4350 20  0001 C CNN "manf#"
+F 6 "Element14" V 4540 4350 20  0001 C CNN "Supplier"
+F 7 "2070398" V 4565 4350 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 4590 4350 20  0001 C CNN "Supplier URL"
+F 9 "0.011" V 4615 4350 20  0001 C CNN "Supplier Price"
+F 10 "1" V 4640 4350 20  0001 C CNN "Supplier Price Break"
+	1    4300 4450
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4300 4300 4300 4450
+Wire Wire Line
+	4300 4650 4300 4800
+Wire Wire Line
+	2650 4650 3050 4650
+Wire Wire Line
+	2650 4450 3050 4450
+Text Notes 1325 3900 0    50   ~ 0
+220R at 3.3V from micro\nGives 9mA for strong safe activation.\n5mA min, 8-10mA recommended.
+Wire Wire Line
+	1950 4250 1850 4250
+Wire Wire Line
+	1850 4250 1850 4850
+Wire Wire Line
+	1850 4850 1950 4850
+Wire Wire Line
+	1850 4250 1850 4150
+Connection ~ 1850 4250
+$Comp
+L appli_power:+3.3V #PWR?
+U 1 1 5ACEDD92
+P 1850 4150
+F 0 "#PWR?" H 1850 4110 30  0001 C CNN
+F 1 "+3.3V" H 1859 4288 30  0000 C CNN
+F 2 "" H 1850 4150 60  0000 C CNN
+F 3 "" H 1850 4150 60  0000 C CNN
+	1    1850 4150
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_resistor:220R_1608M R?
+U 1 1 5ACB9C38
+P 3275 5875
+F 0 "R?" V 3087 5725 50  0000 C CNN
+F 1 "220R_1608M" V 3167 5725 35  0000 C CNN
+F 2 "RESC1608*" V 3385 5725 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1729044.pdf" V 3410 5725 20  0001 C CNN
+F 4 "MULTICOMP" V 3460 5725 20  0001 C CNN "manf"
+F 5 "MCRE000124" V 3485 5725 20  0001 C CNN "manf#"
+F 6 "Element14" V 3510 5725 20  0001 C CNN "Supplier"
+F 7 "1711597" V 3535 5725 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/multicomp/mcre000124/res-thick-film-220r-1-0-05w-0201/dp/1711597" V 3560 5725 20  0001 C CNN "Supplier URL"
+F 9 "0.016" V 3585 5725 20  0001 C CNN "Supplier Price"
+F 10 "1" V 3610 5725 20  0001 C CNN "Supplier Price Break"
+	1    3275 5875
+	0    1    1    0   
+$EndComp
+$Comp
+L appli_resistor:220R_1608M R?
+U 1 1 5ACB9CD8
+P 3300 6225
+F 0 "R?" V 3400 6075 50  0000 C CNN
+F 1 "220R_1608M" V 3475 6075 35  0000 C CNN
+F 2 "RESC1608*" V 3410 6075 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1729044.pdf" V 3435 6075 20  0001 C CNN
+F 4 "MULTICOMP" V 3485 6075 20  0001 C CNN "manf"
+F 5 "MCRE000124" V 3510 6075 20  0001 C CNN "manf#"
+F 6 "Element14" V 3535 6075 20  0001 C CNN "Supplier"
+F 7 "1711597" V 3560 6075 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/multicomp/mcre000124/res-thick-film-220r-1-0-05w-0201/dp/1711597" V 3585 6075 20  0001 C CNN "Supplier URL"
+F 9 "0.016" V 3610 6075 20  0001 C CNN "Supplier Price"
+F 10 "1" V 3635 6075 20  0001 C CNN "Supplier Price Break"
+	1    3300 6225
+	0    1    1    0   
 $EndComp
 $EndSCHEMATC
