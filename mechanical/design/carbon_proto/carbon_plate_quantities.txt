@@ -1,0 +1,8 @@
+Part Description	-	DRW Number	-	Qty
+
+Blank Plate		-	ZB-C-BLANK	-	5
+Exhaust Plate		-	ZB-C-VENT	-	2
+Electronics Fan Plate	-	ZB-C-FAN	-	2
+ 
+Effector Plate		-	ZB-C-EFR-S	-	2
+Effector Plate Open	-	ZB-C-EFR-O	-	2
