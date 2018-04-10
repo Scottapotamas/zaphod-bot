@@ -1,5 +1,4 @@
 EESchema Schematic File Version 4
-LIBS:zaphod-controller-cache
 EELAYER 26 0
 EELAYER END
 $Descr A3 16535 11693
@@ -839,42 +838,6 @@ F 2 "" H 4875 3850 60  0000 C CNN
 F 3 "" H 4875 3850 60  0000 C CNN
 	1    4875 3850
 	1    0    0    -1  
-$EndComp
-$Comp
-L appli_opto:ACPL-K63L IC?
-U 1 1 5ACB1CBF
-P 2300 4550
-F 0 "IC?" H 2300 5042 40  0000 C CNN
-F 1 "ACPL-K63L" H 2300 4966 40  0000 C CNN
-F 2 "SOIC127P1150X330-8L50*" H 2055 4100 30  0001 L CIN
-F 3 "http://www.avagotech.com/pages/en/optocouplers_plastic/plastic_digital_optocoupler/10_mbd_logic_gate/acpl-k63l-000e/" H 2300 4000 60  0001 C CNN
-F 4 "AVAGO TECHNOLOGIES" H 2350 3900 50  0001 C CNN "manf"
-F 5 "ACPL-K63L-000E" H 2300 3800 50  0001 C CNN "manf#"
-F 6 "Mouser" H 2300 3700 50  0001 C CNN "Supplier"
-F 7 "630-ACPL-K63L-000E" H 2300 3600 50  0001 C CNN "Supplier Part No"
-F 8 "https://au.mouser.com/ProductDetail/Broadcom-Avago/ACPL-K63L-000E?qs=sGAEpiMZZMsx4%2fFVpd5sGVFruKLNNx5P" H 2300 3500 50  0001 C CNN "Supplier URL"
-F 9 "7.88" H 2300 3400 50  0001 C CNN "Supplier Price"
-F 10 "1" H 2300 3300 50  0001 C CNN "Supplier Price Break"
-	1    2300 4550
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_opto:ACPL-K63L IC?
-U 1 1 5ACB1D3B
-P 2325 6125
-F 0 "IC?" H 2325 6617 40  0000 C CNN
-F 1 "ACPL-K63L" H 2325 6541 40  0000 C CNN
-F 2 "SOIC127P1150X330-8L50*" H 2080 5675 30  0001 L CIN
-F 3 "http://www.avagotech.com/pages/en/optocouplers_plastic/plastic_digital_optocoupler/10_mbd_logic_gate/acpl-k63l-000e/" H 2325 5575 60  0001 C CNN
-F 4 "AVAGO TECHNOLOGIES" H 2375 5475 50  0001 C CNN "manf"
-F 5 "ACPL-K63L-000E" H 2325 5375 50  0001 C CNN "manf#"
-F 6 "Mouser" H 2325 5275 50  0001 C CNN "Supplier"
-F 7 "630-ACPL-K63L-000E" H 2325 5175 50  0001 C CNN "Supplier Part No"
-F 8 "https://au.mouser.com/ProductDetail/Broadcom-Avago/ACPL-K63L-000E?qs=sGAEpiMZZMsx4%2fFVpd5sGVFruKLNNx5P" H 2325 5075 50  0001 C CNN "Supplier URL"
-F 9 "7.88" H 2325 4975 50  0001 C CNN "Supplier Price"
-F 10 "1" H 2325 4875 50  0001 C CNN "Supplier Price Break"
-	1    2325 6125
-	-1   0    0    -1  
 $EndComp
 $Comp
 L appli_resistor:220R_1608M R?
