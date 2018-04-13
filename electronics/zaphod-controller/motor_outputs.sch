@@ -2196,7 +2196,7 @@ F 10 "1" H 10600 9425 60  0001 C CNN "Supplier Price Break"
 	1    10600 10450
 	1    0    0    -1  
 $EndComp
-Text Notes 9500 8775 0    50   Italic 0
+Text Notes 9500 8775 0    50   ~ 0
 For use with scopes or logic analysers.
 Text Notes 5925 2100 0    63   ~ 0
 +75V\nGND\n+75V\nGND\n
