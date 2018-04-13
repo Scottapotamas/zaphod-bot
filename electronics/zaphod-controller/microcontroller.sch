@@ -1,4 +1,5 @@
 EESchema Schematic File Version 4
+LIBS:zaphod-controller-cache
 EELAYER 26 0
 EELAYER END
 $Descr A3 16535 11693
@@ -1539,24 +1540,6 @@ Wire Wire Line
 Wire Wire Line
 	4550 9775 4550 10150
 Connection ~ 4550 10150
-$Comp
-L appli_connector_wurth:CONN_01X05 P?
-U 1 1 5ADCD9EA
-P 1325 10350
-F 0 "P?" H 1244 10765 50  0000 C CNN
-F 1 "CONN_01X05" H 1244 10674 50  0000 C CNN
-F 2 "Applidyne_Connector_Wurth:61300511121" V 1500 10350 50  0001 C CNN
-F 3 "http://www.farnell.com/cad/2124416.pdf" H 1325 10000 50  0001 C CNN
-F 4 "WURTH" H 1325 9900 60  0001 C CNN "manf"
-F 5 "61300511121" H 1325 9800 60  0001 C CNN "manf#"
-F 6 "Element 14" H 1325 9700 60  0001 C CNN "Supplier"
-F 7 "2356157" H 1325 9625 60  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/wurth-elektronik/61300511121/header-2-54mm-pin-tht-vertical/dp/2356157" H 1325 9525 60  0001 C CNN "Supplier URL"
-F 9 "0.17" H 1325 9425 60  0001 C CNN "Supplier Price"
-F 10 "1" H 1325 9325 60  0001 C CNN "Supplier Price Break"
-	1    1325 10350
-	-1   0    0    -1  
-$EndComp
 Text Label 3400 10250 0    50   ~ 0
 USB_IN_D-
 Text Label 3400 10350 0    50   ~ 0
@@ -1572,7 +1555,7 @@ Wire Wire Line
 Wire Wire Line
 	3850 10550 3850 10700
 Wire Wire Line
-	3250 10550 3850 10550
+	3250 10550 3325 10550
 $Comp
 L appli_power:GND #PWR?
 U 1 1 5AE49081
@@ -1619,7 +1602,7 @@ Wire Wire Line
 Wire Wire Line
 	1725 10450 1525 10450
 Wire Wire Line
-	1525 10550 1725 10550
+	1525 10550 1650 10550
 Text Label 3400 10450 0    50   ~ 0
 USB_IN_ID
 Text Label 1725 10450 0    50   ~ 0
@@ -1812,4 +1795,46 @@ Text Notes 925  9725 0    50   ~ 0
 Header allows for LEMO connection etc
 Text Notes 4700 3400 0    79   ~ 16
 Boot1
+Text Notes 6400 7375 0    50   ~ 0
+Relies on internal pullups
+Text GLabel 1350 5400 0    50   BiDi ~ 0
+AUX_ANALOG_0
+Text GLabel 1350 5500 0    50   BiDi ~ 0
+AUX_ANALOG_1
+Wire Wire Line
+	1350 5400 1550 5400
+Wire Wire Line
+	1550 5500 1350 5500
+$Comp
+L appli_connector_jst:JST_GH_6_RA P?
+U 1 1 5AFC5AF8
+P 1325 10400
+F 0 "P?" H 1244 10865 50  0000 C CNN
+F 1 "JST_GH_6_RA" H 1244 10774 50  0000 C CNN
+F 2 "Applidyne_Connector_JST:SM06B-GHS-TB" H 1325 9200 50  0001 C CNN
+F 3 "http://docs-asia.electrocomponents.com/webdocs/10ce/0900766b810cef18.pdf" H 1325 9470 50  0001 C CNN
+F 4 "JST" H 1335 9990 60  0001 C CNN "manf"
+F 5 "SM06B-GHS-TB(LF)(SN)" H 1325 9900 60  0001 C CNN "manf#"
+F 6 "RS Online" H 1335 9790 60  0001 C CNN "Supplier"
+F 7 "752-1800" H 1335 9690 60  0001 C CNN "Supplier Part No"
+F 8 "http://au.rs-online.com/web/p/pcb-headers/7521800/" H 1325 9590 60  0001 C CNN "Supplier URL"
+F 9 "0.802" H 1325 9380 60  0001 C CNN "Supplier Price"
+F 10 "5" H 1325 9290 60  0001 C CNN "Supplier Price Break"
+	1    1325 10400
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	3250 10650 3325 10650
+Wire Wire Line
+	3325 10650 3325 10550
+Connection ~ 3325 10550
+Wire Wire Line
+	3325 10550 3850 10550
+Wire Wire Line
+	1525 10650 1650 10650
+Wire Wire Line
+	1650 10650 1650 10550
+Connection ~ 1650 10550
+Wire Wire Line
+	1650 10550 1725 10550
 $EndSCHEMATC

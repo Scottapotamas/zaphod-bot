@@ -1,4 +1,5 @@
 EESchema Schematic File Version 4
+LIBS:zaphod-controller-cache
 EELAYER 26 0
 EELAYER END
 $Descr A3 16535 11693
@@ -155,7 +156,7 @@ F 3 "" H 13450 9100 60  0000 C CNN
 	1    13450 9100
 	1    0    0    -1  
 $EndComp
-Text Notes 1275 1650 0    50   ~ 0
+Text Notes 1075 1450 0    50   ~ 0
 SABRE 2-pin connector
 $Comp
 L appli_resistor:130K_1608M R?
@@ -385,16 +386,14 @@ $EndComp
 $Comp
 L appli_power:+POWER #PWR0115
 U 1 1 5ABE3398
-P 4300 2075
-F 0 "#PWR0115" H 4300 2025 20  0001 C CNN
-F 1 "+POWER" H 4303 2213 30  0000 C CNN
-F 2 "" H 4300 2075 60  0000 C CNN
-F 3 "" H 4300 2075 60  0000 C CNN
-	1    4300 2075
+P 4000 1550
+F 0 "#PWR0115" H 4000 1500 20  0001 C CNN
+F 1 "+POWER" H 4003 1688 30  0000 C CNN
+F 2 "" H 4000 1550 60  0000 C CNN
+F 3 "" H 4000 1550 60  0000 C CNN
+	1    4000 1550
 	1    0    0    -1  
 $EndComp
-Text Notes 3175 1625 0    50   ~ 0
-Fuse?
 $Comp
 L appli_capacitor:100NF_X7R_1608M C?
 U 1 1 5B03FF12
@@ -1053,4 +1052,39 @@ Wire Wire Line
 Wire Wire Line
 	6400 4350 6675 4350
 Connection ~ 6400 4350
+$Comp
+L appli_connector_molex:MOLEX_43160-0102 P?
+U 1 1 5AD2F837
+P 1400 1900
+F 0 "P?" H 1319 2165 50  0000 C CNN
+F 1 "MOLEX_43160-0102" H 1319 2074 50  0000 C CNN
+F 2 "Applidyne_Connector_Molex:Molex_Sabre_43160-0102_VERT" V 1575 1900 50  0001 C CNN
+F 3 "https://www.molex.com/molex/products/datasheet.jsp?part=active/0431600102_PCB_HEADERS.xml" V 2350 1950 50  0001 C CNN
+F 4 "MOLEX" V 1675 1925 60  0001 C CNN "manf"
+F 5 "043160-0102" V 1775 1925 60  0001 C CNN "manf#"
+F 6 "DigiKey" V 1875 1925 60  0001 C CNN "Supplier"
+F 7 "WM18473-ND" V 1950 1925 60  0001 C CNN "Supplier Part No"
+F 8 "https://www.digikey.com.au/product-detail/en/0431600102/WM18473-ND/300106" V 2050 1925 60  0001 C CNN "Supplier URL"
+F 9 "1.66" V 2150 1925 60  0001 C CNN "Supplier Price"
+F 10 "1" V 2250 1925 60  0001 C CNN "Supplier Price Break"
+	1    1400 1900
+	-1   0    0    -1  
+$EndComp
+Wire Wire Line
+	1600 1850 2150 1850
+Wire Wire Line
+	1600 1950 2000 1950
+Wire Wire Line
+	2000 1950 2000 2000
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5AD4886E
+P 4000 2250
+F 0 "#PWR?" H 4000 2000 50  0001 C CNN
+F 1 "GND" H 4005 2077 50  0000 C CNN
+F 2 "" H 4000 2250 60  0000 C CNN
+F 3 "" H 4000 2250 60  0000 C CNN
+	1    4000 2250
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
