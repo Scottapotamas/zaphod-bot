@@ -77,24 +77,6 @@ Wire Wire Line
 	4975 1600 4975 1750
 Wire Wire Line
 	4975 1750 4825 1750
-$Comp
-L appli_special:ACS711KEXLT_15AB U?
-U 1 1 5AB955A4
-P 4325 1950
-F 0 "U?" H 4325 2415 50  0000 C CNN
-F 1 "ACS711KEXLT_15AB" H 4325 2324 50  0000 C CNN
-F 2 "Applidyne_QFN:ACS-EX-12" H 4325 1150 50  0001 C CNN
-F 3 "http://www.allegromicro.com/~/media/Files/Datasheets/ACS711-Datasheet.ashx" H 4325 850 50  0001 C CNN
-F 4 "Allegro MicroSystems" H 4325 1050 50  0001 C CNN "manf"
-F 5 "ACS711KEXLT-15AB-T" H 4325 950 50  0001 C CNN "manf#"
-F 6 "DigiKey" H 4325 750 50  0001 C CNN "Supplier"
-F 7 "620-1483-1-ND" H 4325 650 50  0001 C CNN "Suppler Part No"
-F 8 "https://www.digikey.com.au/product-detail/en/allegro-microsystems-llc/ACS711KEXLT-15AB-T/620-1483-1-ND/3868192" H 4325 550 50  0001 C CNN "Supplier URL"
-F 9 "1.90" H 4325 450 50  0001 C CNN "Supplier Price"
-F 10 "1" H 4325 350 50  0001 C CNN "Supplier Price Break"
-	1    4325 1950
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	4125 2450 4125 2500
 Wire Wire Line
@@ -262,24 +244,6 @@ Wire Wire Line
 	4975 3275 4975 3425
 Wire Wire Line
 	4975 3425 4825 3425
-$Comp
-L appli_special:ACS711KEXLT_15AB U?
-U 1 1 5AB9FC42
-P 4325 3625
-F 0 "U?" H 4325 4090 50  0000 C CNN
-F 1 "ACS711KEXLT_15AB" H 4325 3999 50  0000 C CNN
-F 2 "Applidyne_QFN:ACS-EX-12" H 4325 2825 50  0001 C CNN
-F 3 "http://www.allegromicro.com/~/media/Files/Datasheets/ACS711-Datasheet.ashx" H 4325 2525 50  0001 C CNN
-F 4 "Allegro MicroSystems" H 4325 2725 50  0001 C CNN "manf"
-F 5 "ACS711KEXLT-15AB-T" H 4325 2625 50  0001 C CNN "manf#"
-F 6 "DigiKey" H 4325 2425 50  0001 C CNN "Supplier"
-F 7 "620-1483-1-ND" H 4325 2325 50  0001 C CNN "Suppler Part No"
-F 8 "https://www.digikey.com.au/product-detail/en/allegro-microsystems-llc/ACS711KEXLT-15AB-T/620-1483-1-ND/3868192" H 4325 2225 50  0001 C CNN "Supplier URL"
-F 9 "1.90" H 4325 2125 50  0001 C CNN "Supplier Price"
-F 10 "1" H 4325 2025 50  0001 C CNN "Supplier Price Break"
-	1    4325 3625
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	4125 4125 4125 4175
 Wire Wire Line
@@ -423,24 +387,6 @@ Wire Wire Line
 	4975 4975 4975 5125
 Wire Wire Line
 	4975 5125 4825 5125
-$Comp
-L appli_special:ACS711KEXLT_15AB U?
-U 1 1 5ABA0CB5
-P 4325 5325
-F 0 "U?" H 4325 5790 50  0000 C CNN
-F 1 "ACS711KEXLT_15AB" H 4325 5699 50  0000 C CNN
-F 2 "Applidyne_QFN:ACS-EX-12" H 4325 4525 50  0001 C CNN
-F 3 "http://www.allegromicro.com/~/media/Files/Datasheets/ACS711-Datasheet.ashx" H 4325 4225 50  0001 C CNN
-F 4 "Allegro MicroSystems" H 4325 4425 50  0001 C CNN "manf"
-F 5 "ACS711KEXLT-15AB-T" H 4325 4325 50  0001 C CNN "manf#"
-F 6 "DigiKey" H 4325 4125 50  0001 C CNN "Supplier"
-F 7 "620-1483-1-ND" H 4325 4025 50  0001 C CNN "Suppler Part No"
-F 8 "https://www.digikey.com.au/product-detail/en/allegro-microsystems-llc/ACS711KEXLT-15AB-T/620-1483-1-ND/3868192" H 4325 3925 50  0001 C CNN "Supplier URL"
-F 9 "1.90" H 4325 3825 50  0001 C CNN "Supplier Price"
-F 10 "1" H 4325 3725 50  0001 C CNN "Supplier Price Break"
-	1    4325 5325
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	4125 5825 4125 5875
 Wire Wire Line
@@ -690,24 +636,6 @@ Wire Wire Line
 Wire Wire Line
 	4825 5325 5375 5325
 $Comp
-L appli_capacitor:100NF_X7R_1608M C?
-U 1 1 5ABF1105
-P 9950 2875
-F 0 "C?" H 10028 2810 50  0000 L CNN
-F 1 "100NF_X7R_1608M" H 10028 2730 35  0000 L CNN
-F 2 "CAPC1608*" V 10065 2775 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 10090 2775 20  0001 C CNN
-F 4 "KEMET" V 10140 2775 20  0001 C CNN "manf"
-F 5 "C0603C104K5RACAUTO" V 10165 2775 20  0001 C CNN "manf#"
-F 6 "Element14" V 10190 2775 20  0001 C CNN "Supplier"
-F 7 "2070398" V 10215 2775 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 10240 2775 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 10265 2775 20  0001 C CNN "Supplier Price"
-F 10 "1" V 10290 2775 20  0001 C CNN "Supplier Price Break"
-	1    9950 2875
-	-1   0    0    -1  
-$EndComp
-$Comp
 L appli_power:GND #PWR0156
 U 1 1 5AC0C492
 P 9950 3100
@@ -732,24 +660,6 @@ $EndComp
 Wire Wire Line
 	9950 2825 9950 2875
 $Comp
-L appli_capacitor:100NF_X7R_1608M C?
-U 1 1 5ABCECAE
-P 3675 3975
-F 0 "C?" H 3598 3840 50  0000 R CNN
-F 1 "100NF_X7R_1608M" H 3598 3920 35  0000 R CNN
-F 2 "CAPC1608*" V 3790 3875 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 3815 3875 20  0001 C CNN
-F 4 "KEMET" V 3865 3875 20  0001 C CNN "manf"
-F 5 "C0603C104K5RACAUTO" V 3890 3875 20  0001 C CNN "manf#"
-F 6 "Element14" V 3915 3875 20  0001 C CNN "Supplier"
-F 7 "2070398" V 3940 3875 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 3965 3875 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 3990 3875 20  0001 C CNN "Supplier Price"
-F 10 "1" V 4015 3875 20  0001 C CNN "Supplier Price Break"
-	1    3675 3975
-	1    0    0    1   
-$EndComp
-$Comp
 L appli_resistor:10K0_1608M R?
 U 1 1 5ABCEE82
 P 3425 3500
@@ -765,24 +675,6 @@ F 8 "http://au.element14.com/te-connectivity/crgh0603f10k/resistor-power-10k-0-2
 F 9 "0.02" V 3735 3350 20  0001 C CNN "Supplier Price"
 F 10 "10" V 3760 3350 20  0001 C CNN "Supplier Price Break"
 	1    3425 3500
-	1    0    0    1   
-$EndComp
-$Comp
-L appli_capacitor:100NF_X7R_1608M C?
-U 1 1 5ABCF127
-P 3675 2300
-F 0 "C?" H 3598 2165 50  0000 R CNN
-F 1 "100NF_X7R_1608M" H 3598 2245 35  0000 R CNN
-F 2 "CAPC1608*" V 3790 2200 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 3815 2200 20  0001 C CNN
-F 4 "KEMET" V 3865 2200 20  0001 C CNN "manf"
-F 5 "C0603C104K5RACAUTO" V 3890 2200 20  0001 C CNN "manf#"
-F 6 "Element14" V 3915 2200 20  0001 C CNN "Supplier"
-F 7 "2070398" V 3940 2200 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 3965 2200 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 3990 2200 20  0001 C CNN "Supplier Price"
-F 10 "1" V 4015 2200 20  0001 C CNN "Supplier Price Break"
-	1    3675 2300
 	1    0    0    1   
 $EndComp
 $Comp
@@ -819,24 +711,6 @@ F 8 "http://au.element14.com/te-connectivity/crgh0603f10k/resistor-power-10k-0-2
 F 9 "0.02" V 3735 5025 20  0001 C CNN "Supplier Price"
 F 10 "10" V 3760 5025 20  0001 C CNN "Supplier Price Break"
 	1    3425 5175
-	1    0    0    1   
-$EndComp
-$Comp
-L appli_capacitor:100NF_X7R_1608M C?
-U 1 1 5ABCF21D
-P 3675 5675
-F 0 "C?" H 3598 5540 50  0000 R CNN
-F 1 "100NF_X7R_1608M" H 3598 5620 35  0000 R CNN
-F 2 "CAPC1608*" V 3790 5575 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 3815 5575 20  0001 C CNN
-F 4 "KEMET" V 3865 5575 20  0001 C CNN "manf"
-F 5 "C0603C104K5RACAUTO" V 3890 5575 20  0001 C CNN "manf#"
-F 6 "Element14" V 3915 5575 20  0001 C CNN "Supplier"
-F 7 "2070398" V 3940 5575 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 3965 5575 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 3990 5575 20  0001 C CNN "Supplier Price"
-F 10 "1" V 4015 5575 20  0001 C CNN "Supplier Price Break"
-	1    3675 5675
 	1    0    0    1   
 $EndComp
 $Comp
@@ -898,24 +772,6 @@ Wire Wire Line
 	4975 6750 4975 6900
 Wire Wire Line
 	4975 6900 4825 6900
-$Comp
-L appli_special:ACS711KEXLT_15AB U?
-U 1 1 5ABEC581
-P 4325 7100
-F 0 "U?" H 4325 7565 50  0000 C CNN
-F 1 "ACS711KEXLT_15AB" H 4325 7474 50  0000 C CNN
-F 2 "Applidyne_QFN:ACS-EX-12" H 4325 6300 50  0001 C CNN
-F 3 "http://www.allegromicro.com/~/media/Files/Datasheets/ACS711-Datasheet.ashx" H 4325 6000 50  0001 C CNN
-F 4 "Allegro MicroSystems" H 4325 6200 50  0001 C CNN "manf"
-F 5 "ACS711KEXLT-15AB-T" H 4325 6100 50  0001 C CNN "manf#"
-F 6 "DigiKey" H 4325 5900 50  0001 C CNN "Supplier"
-F 7 "620-1483-1-ND" H 4325 5800 50  0001 C CNN "Suppler Part No"
-F 8 "https://www.digikey.com.au/product-detail/en/allegro-microsystems-llc/ACS711KEXLT-15AB-T/620-1483-1-ND/3868192" H 4325 5700 50  0001 C CNN "Supplier URL"
-F 9 "1.90" H 4325 5600 50  0001 C CNN "Supplier Price"
-F 10 "1" H 4325 5500 50  0001 C CNN "Supplier Price Break"
-	1    4325 7100
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	4125 7600 4125 7650
 Wire Wire Line
@@ -1003,24 +859,6 @@ F 8 "http://au.element14.com/te-connectivity/crgh0603f10k/resistor-power-10k-0-2
 F 9 "0.02" V 3735 6825 20  0001 C CNN "Supplier Price"
 F 10 "10" V 3760 6825 20  0001 C CNN "Supplier Price Break"
 	1    3425 6975
-	1    0    0    1   
-$EndComp
-$Comp
-L appli_capacitor:100NF_X7R_1608M C?
-U 1 1 5ABEC5D0
-P 3675 7450
-F 0 "C?" H 3598 7315 50  0000 R CNN
-F 1 "100NF_X7R_1608M" H 3598 7395 35  0000 R CNN
-F 2 "CAPC1608*" V 3790 7350 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 3815 7350 20  0001 C CNN
-F 4 "KEMET" V 3865 7350 20  0001 C CNN "manf"
-F 5 "C0603C104K5RACAUTO" V 3890 7350 20  0001 C CNN "manf#"
-F 6 "Element14" V 3915 7350 20  0001 C CNN "Supplier"
-F 7 "2070398" V 3940 7350 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 3965 7350 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 3990 7350 20  0001 C CNN "Supplier Price"
-F 10 "1" V 4015 7350 20  0001 C CNN "Supplier Price Break"
-	1    3675 7450
 	1    0    0    1   
 $EndComp
 $Comp
@@ -1211,24 +1049,6 @@ F 10 "BAV99" H 10400 1450 20  0001 C CNN "manf#"
 	1    0    0    -1  
 $EndComp
 $Comp
-L appli_capacitor:10NF_X7R_1608M C?
-U 1 1 5AC53ABE
-P 11150 1950
-F 0 "C?" H 11072 1815 50  0000 R CNN
-F 1 "10NF_X7R_1608M" H 11072 1895 35  0000 R CNN
-F 2 "CAPC1608*" V 11265 1850 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1679506.pdf" V 11290 1850 20  0001 C CNN
-F 4 "AVX" V 11340 1850 20  0001 C CNN "manf"
-F 5 "06033C103KAT2A" V 11365 1850 20  0001 C CNN "manf#"
-F 6 "Element14" V 11390 1850 20  0001 C CNN "Supplier"
-F 7 "2280646" V 11415 1850 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/avx/06033c103kat2a/cap-mlcc-x7r-10nf-25v-0603/dp/2280646" V 11440 1850 20  0001 C CNN "Supplier URL"
-F 9 "0.002" V 11465 1850 20  0001 C CNN "Supplier Price"
-F 10 "10" V 11490 1850 20  0001 C CNN "Supplier Price Break"
-	1    11150 1950
-	1    0    0    1   
-$EndComp
-$Comp
 L appli_resistor:100R_1608M R?
 U 1 1 5AC63736
 P 11050 1700
@@ -1347,24 +1167,6 @@ F 9 "1" H 10600 2075 20  0001 C CNN "Supplier Price Break"
 F 10 "BAV99" H 10600 2200 20  0001 C CNN "manf#"
 	1    10400 2450
 	1    0    0    -1  
-$EndComp
-$Comp
-L appli_capacitor:10NF_X7R_1608M C?
-U 1 1 5AD170D6
-P 11175 2700
-F 0 "C?" H 11097 2565 50  0000 R CNN
-F 1 "10NF_X7R_1608M" H 11097 2645 35  0000 R CNN
-F 2 "CAPC1608*" V 11290 2600 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1679506.pdf" V 11315 2600 20  0001 C CNN
-F 4 "AVX" V 11365 2600 20  0001 C CNN "manf"
-F 5 "06033C103KAT2A" V 11390 2600 20  0001 C CNN "manf#"
-F 6 "Element14" V 11415 2600 20  0001 C CNN "Supplier"
-F 7 "2280646" V 11440 2600 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/avx/06033c103kat2a/cap-mlcc-x7r-10nf-25v-0603/dp/2280646" V 11465 2600 20  0001 C CNN "Supplier URL"
-F 9 "0.002" V 11490 2600 20  0001 C CNN "Supplier Price"
-F 10 "10" V 11515 2600 20  0001 C CNN "Supplier Price Break"
-	1    11175 2700
-	1    0    0    1   
 $EndComp
 $Comp
 L appli_resistor:100R_1608M R?
@@ -1691,24 +1493,6 @@ Connection ~ 12475 6800
 Wire Wire Line
 	12475 6800 12475 6150
 $Comp
-L appli_capacitor:100NF_X7R_1608M C?
-U 1 1 5AF59873
-P 9950 6425
-F 0 "C?" H 10028 6360 50  0000 L CNN
-F 1 "100NF_X7R_1608M" H 10028 6280 35  0000 L CNN
-F 2 "CAPC1608*" V 10065 6325 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 10090 6325 20  0001 C CNN
-F 4 "KEMET" V 10140 6325 20  0001 C CNN "manf"
-F 5 "C0603C104K5RACAUTO" V 10165 6325 20  0001 C CNN "manf#"
-F 6 "Element14" V 10190 6325 20  0001 C CNN "Supplier"
-F 7 "2070398" V 10215 6325 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 10240 6325 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 10265 6325 20  0001 C CNN "Supplier Price"
-F 10 "1" V 10290 6325 20  0001 C CNN "Supplier Price Break"
-	1    9950 6425
-	-1   0    0    -1  
-$EndComp
-$Comp
 L appli_power:GND #PWR0175
 U 1 1 5AF5987A
 P 9950 6650
@@ -1764,24 +1548,6 @@ F 9 "1" H 10400 4875 20  0001 C CNN "Supplier Price Break"
 F 10 "BAV99" H 10400 5000 20  0001 C CNN "manf#"
 	1    10200 5250
 	1    0    0    -1  
-$EndComp
-$Comp
-L appli_capacitor:10NF_X7R_1608M C?
-U 1 1 5AF598A4
-P 11150 5500
-F 0 "C?" H 11072 5365 50  0000 R CNN
-F 1 "10NF_X7R_1608M" H 11072 5445 35  0000 R CNN
-F 2 "CAPC1608*" V 11265 5400 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1679506.pdf" V 11290 5400 20  0001 C CNN
-F 4 "AVX" V 11340 5400 20  0001 C CNN "manf"
-F 5 "06033C103KAT2A" V 11365 5400 20  0001 C CNN "manf#"
-F 6 "Element14" V 11390 5400 20  0001 C CNN "Supplier"
-F 7 "2280646" V 11415 5400 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/avx/06033c103kat2a/cap-mlcc-x7r-10nf-25v-0603/dp/2280646" V 11440 5400 20  0001 C CNN "Supplier URL"
-F 9 "0.002" V 11465 5400 20  0001 C CNN "Supplier Price"
-F 10 "10" V 11490 5400 20  0001 C CNN "Supplier Price Break"
-	1    11150 5500
-	1    0    0    1   
 $EndComp
 $Comp
 L appli_resistor:100R_1608M R?
@@ -1902,24 +1668,6 @@ F 9 "1" H 10600 5625 20  0001 C CNN "Supplier Price Break"
 F 10 "BAV99" H 10600 5750 20  0001 C CNN "manf#"
 	1    10400 6000
 	1    0    0    -1  
-$EndComp
-$Comp
-L appli_capacitor:10NF_X7R_1608M C?
-U 1 1 5AF59900
-P 11175 6250
-F 0 "C?" H 11097 6115 50  0000 R CNN
-F 1 "10NF_X7R_1608M" H 11097 6195 35  0000 R CNN
-F 2 "CAPC1608*" V 11290 6150 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1679506.pdf" V 11315 6150 20  0001 C CNN
-F 4 "AVX" V 11365 6150 20  0001 C CNN "manf"
-F 5 "06033C103KAT2A" V 11390 6150 20  0001 C CNN "manf#"
-F 6 "Element14" V 11415 6150 20  0001 C CNN "Supplier"
-F 7 "2280646" V 11440 6150 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/avx/06033c103kat2a/cap-mlcc-x7r-10nf-25v-0603/dp/2280646" V 11465 6150 20  0001 C CNN "Supplier URL"
-F 9 "0.002" V 11490 6150 20  0001 C CNN "Supplier Price"
-F 10 "10" V 11515 6150 20  0001 C CNN "Supplier Price Break"
-	1    11175 6250
-	1    0    0    1   
 $EndComp
 $Comp
 L appli_resistor:100R_1608M R?
@@ -2292,4 +2040,256 @@ Wire Wire Line
 Connection ~ 2300 1725
 Wire Wire Line
 	2300 1725 2150 1725
+$Comp
+L appli_analog_devices:ACS711KEXLT_15AB U?
+U 1 1 5AD62CC0
+P 4325 1950
+F 0 "U?" H 4325 2415 50  0000 C CNN
+F 1 "ACS711KEXLT_15AB" H 4325 2324 50  0000 C CNN
+F 2 "Applidyne_QFN:ACS-EX-12" H 4325 1150 50  0001 C CNN
+F 3 "http://www.allegromicro.com/~/media/Files/Datasheets/ACS711-Datasheet.ashx" H 4325 850 50  0001 C CNN
+F 4 "Allegro MicroSystems" H 4325 1050 50  0001 C CNN "manf"
+F 5 "ACS711KEXLT-15AB-T" H 4325 950 50  0001 C CNN "manf#"
+F 6 "DigiKey" H 4325 750 50  0001 C CNN "Supplier"
+F 7 "620-1483-1-ND" H 4325 650 50  0001 C CNN "Suppler Part No"
+F 8 "https://www.digikey.com.au/product-detail/en/allegro-microsystems-llc/ACS711KEXLT-15AB-T/620-1483-1-ND/3868192" H 4325 550 50  0001 C CNN "Supplier URL"
+F 9 "1.90" H 4325 450 50  0001 C CNN "Supplier Price"
+F 10 "1" H 4325 350 50  0001 C CNN "Supplier Price Break"
+	1    4325 1950
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_analog_devices:ACS711KEXLT_15AB U?
+U 1 1 5AD62F5D
+P 4325 3625
+F 0 "U?" H 4325 4090 50  0000 C CNN
+F 1 "ACS711KEXLT_15AB" H 4325 3999 50  0000 C CNN
+F 2 "Applidyne_QFN:ACS-EX-12" H 4325 2825 50  0001 C CNN
+F 3 "http://www.allegromicro.com/~/media/Files/Datasheets/ACS711-Datasheet.ashx" H 4325 2525 50  0001 C CNN
+F 4 "Allegro MicroSystems" H 4325 2725 50  0001 C CNN "manf"
+F 5 "ACS711KEXLT-15AB-T" H 4325 2625 50  0001 C CNN "manf#"
+F 6 "DigiKey" H 4325 2425 50  0001 C CNN "Supplier"
+F 7 "620-1483-1-ND" H 4325 2325 50  0001 C CNN "Suppler Part No"
+F 8 "https://www.digikey.com.au/product-detail/en/allegro-microsystems-llc/ACS711KEXLT-15AB-T/620-1483-1-ND/3868192" H 4325 2225 50  0001 C CNN "Supplier URL"
+F 9 "1.90" H 4325 2125 50  0001 C CNN "Supplier Price"
+F 10 "1" H 4325 2025 50  0001 C CNN "Supplier Price Break"
+	1    4325 3625
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_analog_devices:ACS711KEXLT_15AB U?
+U 1 1 5AD63019
+P 4325 5325
+F 0 "U?" H 4325 5790 50  0000 C CNN
+F 1 "ACS711KEXLT_15AB" H 4325 5699 50  0000 C CNN
+F 2 "Applidyne_QFN:ACS-EX-12" H 4325 4525 50  0001 C CNN
+F 3 "http://www.allegromicro.com/~/media/Files/Datasheets/ACS711-Datasheet.ashx" H 4325 4225 50  0001 C CNN
+F 4 "Allegro MicroSystems" H 4325 4425 50  0001 C CNN "manf"
+F 5 "ACS711KEXLT-15AB-T" H 4325 4325 50  0001 C CNN "manf#"
+F 6 "DigiKey" H 4325 4125 50  0001 C CNN "Supplier"
+F 7 "620-1483-1-ND" H 4325 4025 50  0001 C CNN "Suppler Part No"
+F 8 "https://www.digikey.com.au/product-detail/en/allegro-microsystems-llc/ACS711KEXLT-15AB-T/620-1483-1-ND/3868192" H 4325 3925 50  0001 C CNN "Supplier URL"
+F 9 "1.90" H 4325 3825 50  0001 C CNN "Supplier Price"
+F 10 "1" H 4325 3725 50  0001 C CNN "Supplier Price Break"
+	1    4325 5325
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_analog_devices:ACS711KEXLT_15AB U?
+U 1 1 5AD630C1
+P 4325 7100
+F 0 "U?" H 4325 7565 50  0000 C CNN
+F 1 "ACS711KEXLT_15AB" H 4325 7474 50  0000 C CNN
+F 2 "Applidyne_QFN:ACS-EX-12" H 4325 6300 50  0001 C CNN
+F 3 "http://www.allegromicro.com/~/media/Files/Datasheets/ACS711-Datasheet.ashx" H 4325 6000 50  0001 C CNN
+F 4 "Allegro MicroSystems" H 4325 6200 50  0001 C CNN "manf"
+F 5 "ACS711KEXLT-15AB-T" H 4325 6100 50  0001 C CNN "manf#"
+F 6 "DigiKey" H 4325 5900 50  0001 C CNN "Supplier"
+F 7 "620-1483-1-ND" H 4325 5800 50  0001 C CNN "Suppler Part No"
+F 8 "https://www.digikey.com.au/product-detail/en/allegro-microsystems-llc/ACS711KEXLT-15AB-T/620-1483-1-ND/3868192" H 4325 5700 50  0001 C CNN "Supplier URL"
+F 9 "1.90" H 4325 5600 50  0001 C CNN "Supplier Price"
+F 10 "1" H 4325 5500 50  0001 C CNN "Supplier Price Break"
+	1    4325 7100
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_capacitor:100n_X7R_1608M C?
+U 1 1 5AD634A8
+P 9950 6625
+F 0 "C?" H 9872 6490 50  0000 R CNN
+F 1 "100n_X7R_1608M" H 9872 6570 35  0000 R CNN
+F 2 "CAPC1608*" V 10065 6525 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 10090 6525 20  0001 C CNN
+F 4 "KEMET" V 10140 6525 20  0001 C CNN "manf"
+F 5 "C0603C104K5RACAUTO" V 10165 6525 20  0001 C CNN "manf#"
+F 6 "Element14" V 10190 6525 20  0001 C CNN "Supplier"
+F 7 "2070398" V 10215 6525 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 10240 6525 20  0001 C CNN "Supplier URL"
+F 9 "0.011" V 10265 6525 20  0001 C CNN "Supplier Price"
+F 10 "1" V 10290 6525 20  0001 C CNN "Supplier Price Break"
+	1    9950 6625
+	1    0    0    1   
+$EndComp
+$Comp
+L appli_capacitor:100n_X7R_1608M C?
+U 1 1 5AD7824F
+P 9950 3075
+F 0 "C?" H 9872 2940 50  0000 R CNN
+F 1 "100n_X7R_1608M" H 9872 3020 35  0000 R CNN
+F 2 "CAPC1608*" V 10065 2975 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 10090 2975 20  0001 C CNN
+F 4 "KEMET" V 10140 2975 20  0001 C CNN "manf"
+F 5 "C0603C104K5RACAUTO" V 10165 2975 20  0001 C CNN "manf#"
+F 6 "Element14" V 10190 2975 20  0001 C CNN "Supplier"
+F 7 "2070398" V 10215 2975 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 10240 2975 20  0001 C CNN "Supplier URL"
+F 9 "0.011" V 10265 2975 20  0001 C CNN "Supplier Price"
+F 10 "1" V 10290 2975 20  0001 C CNN "Supplier Price Break"
+	1    9950 3075
+	1    0    0    1   
+$EndComp
+$Comp
+L appli_capacitor:10n_X7R_1608M C?
+U 1 1 5AD78839
+P 11175 6250
+F 0 "C?" H 11098 6115 50  0000 R CNN
+F 1 "10n_X7R_1608M" H 11098 6195 35  0000 R CNN
+F 2 "CAPC1608*" V 11290 6150 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1679506.pdf" V 11315 6150 20  0001 C CNN
+F 4 "AVX" V 11365 6150 20  0001 C CNN "manf"
+F 5 "06033C103KAT2A" V 11390 6150 20  0001 C CNN "manf#"
+F 6 "Element14" V 11415 6150 20  0001 C CNN "Supplier"
+F 7 "2280646" V 11440 6150 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/avx/06033c103kat2a/cap-mlcc-x7r-10nf-25v-0603/dp/2280646" V 11465 6150 20  0001 C CNN "Supplier URL"
+F 9 "0.002" V 11490 6150 20  0001 C CNN "Supplier Price"
+F 10 "10" V 11515 6150 20  0001 C CNN "Supplier Price Break"
+	1    11175 6250
+	1    0    0    1   
+$EndComp
+$Comp
+L appli_capacitor:10n_X7R_1608M C?
+U 1 1 5AD78B16
+P 11150 5500
+F 0 "C?" H 11073 5365 50  0000 R CNN
+F 1 "10n_X7R_1608M" H 11073 5445 35  0000 R CNN
+F 2 "CAPC1608*" V 11265 5400 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1679506.pdf" V 11290 5400 20  0001 C CNN
+F 4 "AVX" V 11340 5400 20  0001 C CNN "manf"
+F 5 "06033C103KAT2A" V 11365 5400 20  0001 C CNN "manf#"
+F 6 "Element14" V 11390 5400 20  0001 C CNN "Supplier"
+F 7 "2280646" V 11415 5400 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/avx/06033c103kat2a/cap-mlcc-x7r-10nf-25v-0603/dp/2280646" V 11440 5400 20  0001 C CNN "Supplier URL"
+F 9 "0.002" V 11465 5400 20  0001 C CNN "Supplier Price"
+F 10 "10" V 11490 5400 20  0001 C CNN "Supplier Price Break"
+	1    11150 5500
+	1    0    0    1   
+$EndComp
+$Comp
+L appli_capacitor:10n_X7R_1608M C?
+U 1 1 5AD78BAE
+P 11150 1950
+F 0 "C?" H 11073 1815 50  0000 R CNN
+F 1 "10n_X7R_1608M" H 11073 1895 35  0000 R CNN
+F 2 "CAPC1608*" V 11265 1850 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1679506.pdf" V 11290 1850 20  0001 C CNN
+F 4 "AVX" V 11340 1850 20  0001 C CNN "manf"
+F 5 "06033C103KAT2A" V 11365 1850 20  0001 C CNN "manf#"
+F 6 "Element14" V 11390 1850 20  0001 C CNN "Supplier"
+F 7 "2280646" V 11415 1850 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/avx/06033c103kat2a/cap-mlcc-x7r-10nf-25v-0603/dp/2280646" V 11440 1850 20  0001 C CNN "Supplier URL"
+F 9 "0.002" V 11465 1850 20  0001 C CNN "Supplier Price"
+F 10 "10" V 11490 1850 20  0001 C CNN "Supplier Price Break"
+	1    11150 1950
+	1    0    0    1   
+$EndComp
+$Comp
+L appli_capacitor:10n_X7R_1608M C?
+U 1 1 5AD78FA9
+P 11175 2700
+F 0 "C?" H 11098 2565 50  0000 R CNN
+F 1 "10n_X7R_1608M" H 11098 2645 35  0000 R CNN
+F 2 "CAPC1608*" V 11290 2600 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1679506.pdf" V 11315 2600 20  0001 C CNN
+F 4 "AVX" V 11365 2600 20  0001 C CNN "manf"
+F 5 "06033C103KAT2A" V 11390 2600 20  0001 C CNN "manf#"
+F 6 "Element14" V 11415 2600 20  0001 C CNN "Supplier"
+F 7 "2280646" V 11440 2600 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/avx/06033c103kat2a/cap-mlcc-x7r-10nf-25v-0603/dp/2280646" V 11465 2600 20  0001 C CNN "Supplier URL"
+F 9 "0.002" V 11490 2600 20  0001 C CNN "Supplier Price"
+F 10 "10" V 11515 2600 20  0001 C CNN "Supplier Price Break"
+	1    11175 2700
+	1    0    0    1   
+$EndComp
+$Comp
+L appli_capacitor:100n_X7R_1608M C?
+U 1 1 5AD7A40B
+P 3675 3975
+F 0 "C?" H 3597 3840 50  0000 R CNN
+F 1 "100n_X7R_1608M" H 3597 3920 35  0000 R CNN
+F 2 "CAPC1608*" V 3790 3875 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 3815 3875 20  0001 C CNN
+F 4 "KEMET" V 3865 3875 20  0001 C CNN "manf"
+F 5 "C0603C104K5RACAUTO" V 3890 3875 20  0001 C CNN "manf#"
+F 6 "Element14" V 3915 3875 20  0001 C CNN "Supplier"
+F 7 "2070398" V 3940 3875 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 3965 3875 20  0001 C CNN "Supplier URL"
+F 9 "0.011" V 3990 3875 20  0001 C CNN "Supplier Price"
+F 10 "1" V 4015 3875 20  0001 C CNN "Supplier Price Break"
+	1    3675 3975
+	1    0    0    1   
+$EndComp
+$Comp
+L appli_capacitor:100n_X7R_1608M C?
+U 1 1 5AD7ABF8
+P 3675 5675
+F 0 "C?" H 3597 5540 50  0000 R CNN
+F 1 "100n_X7R_1608M" H 3597 5620 35  0000 R CNN
+F 2 "CAPC1608*" V 3790 5575 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 3815 5575 20  0001 C CNN
+F 4 "KEMET" V 3865 5575 20  0001 C CNN "manf"
+F 5 "C0603C104K5RACAUTO" V 3890 5575 20  0001 C CNN "manf#"
+F 6 "Element14" V 3915 5575 20  0001 C CNN "Supplier"
+F 7 "2070398" V 3940 5575 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 3965 5575 20  0001 C CNN "Supplier URL"
+F 9 "0.011" V 3990 5575 20  0001 C CNN "Supplier Price"
+F 10 "1" V 4015 5575 20  0001 C CNN "Supplier Price Break"
+	1    3675 5675
+	1    0    0    1   
+$EndComp
+$Comp
+L appli_capacitor:100n_X7R_1608M C?
+U 1 1 5AD7AC90
+P 3675 7450
+F 0 "C?" H 3597 7315 50  0000 R CNN
+F 1 "100n_X7R_1608M" H 3597 7395 35  0000 R CNN
+F 2 "CAPC1608*" V 3790 7350 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 3815 7350 20  0001 C CNN
+F 4 "KEMET" V 3865 7350 20  0001 C CNN "manf"
+F 5 "C0603C104K5RACAUTO" V 3890 7350 20  0001 C CNN "manf#"
+F 6 "Element14" V 3915 7350 20  0001 C CNN "Supplier"
+F 7 "2070398" V 3940 7350 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 3965 7350 20  0001 C CNN "Supplier URL"
+F 9 "0.011" V 3990 7350 20  0001 C CNN "Supplier Price"
+F 10 "1" V 4015 7350 20  0001 C CNN "Supplier Price Break"
+	1    3675 7450
+	1    0    0    1   
+$EndComp
+$Comp
+L appli_capacitor:100n_X7R_1608M C?
+U 1 1 5AD7AD30
+P 3675 2300
+F 0 "C?" H 3597 2165 50  0000 R CNN
+F 1 "100n_X7R_1608M" H 3597 2245 35  0000 R CNN
+F 2 "CAPC1608*" V 3790 2200 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 3815 2200 20  0001 C CNN
+F 4 "KEMET" V 3865 2200 20  0001 C CNN "manf"
+F 5 "C0603C104K5RACAUTO" V 3890 2200 20  0001 C CNN "manf#"
+F 6 "Element14" V 3915 2200 20  0001 C CNN "Supplier"
+F 7 "2070398" V 3940 2200 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 3965 2200 20  0001 C CNN "Supplier URL"
+F 9 "0.011" V 3990 2200 20  0001 C CNN "Supplier Price"
+F 10 "1" V 4015 2200 20  0001 C CNN "Supplier Price Break"
+	1    3675 2300
+	1    0    0    1   
+$EndComp
 $EndSCHEMATC

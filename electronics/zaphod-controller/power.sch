@@ -213,24 +213,6 @@ F 10 "10" V 12785 2250 20  0001 C CNN "Supplier Price Break"
 	1    0    0    1   
 $EndComp
 $Comp
-L appli_capacitor:100NF_X7R_1608M C?
-U 1 1 5ABC5DA8
-P 12800 2150
-F 0 "C?" H 12878 2085 50  0000 L CNN
-F 1 "100NF_X7R_1608M" H 12878 2005 35  0000 L CNN
-F 2 "CAPC1608*" V 12915 2050 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 12940 2050 20  0001 C CNN
-F 4 "KEMET" V 12990 2050 20  0001 C CNN "manf"
-F 5 "C0603C104K5RACAUTO" V 13015 2050 20  0001 C CNN "manf#"
-F 6 "Element14" V 13040 2050 20  0001 C CNN "Supplier"
-F 7 "2070398" V 13065 2050 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 13090 2050 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 13115 2050 20  0001 C CNN "Supplier Price"
-F 10 "1" V 13140 2050 20  0001 C CNN "Supplier Price Break"
-	1    12800 2150
-	1    0    0    -1  
-$EndComp
-$Comp
 L appli_power:+POWER #PWR0108
 U 1 1 5ABC5F0E
 P 12450 1250
@@ -394,78 +376,6 @@ F 3 "" H 4000 1550 60  0000 C CNN
 	1    4000 1550
 	1    0    0    -1  
 $EndComp
-$Comp
-L appli_capacitor:100NF_X7R_1608M C?
-U 1 1 5B03FF12
-P 6150 6600
-F 0 "C?" V 6025 6550 50  0000 R CNN
-F 1 "100NF_X7R_1608M" V 6275 6875 35  0000 R CNN
-F 2 "CAPC1608*" V 6265 6500 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 6290 6500 20  0001 C CNN
-F 4 "KEMET" V 6340 6500 20  0001 C CNN "manf"
-F 5 "C0603C104K5RACAUTO" V 6365 6500 20  0001 C CNN "manf#"
-F 6 "Element14" V 6390 6500 20  0001 C CNN "Supplier"
-F 7 "2070398" V 6415 6500 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 6440 6500 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 6465 6500 20  0001 C CNN "Supplier Price"
-F 10 "1" V 6490 6500 20  0001 C CNN "Supplier Price Break"
-	1    6150 6600
-	1    0    0    1   
-$EndComp
-$Comp
-L appli_capacitor:1UF_X7R_2012M C?
-U 1 1 5B040200
-P 8700 5000
-F 0 "C?" H 8622 4865 50  0000 R CNN
-F 1 "1UF_X7R_2012M" H 8622 4945 35  0000 R CNN
-F 2 "CAPC2012*" V 8815 4900 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2047889.pdf" V 8840 4900 20  0001 C CNN
-F 4 "MURATA" V 8890 4900 20  0001 C CNN "manf"
-F 5 "GRM21BR71C105KA01L" V 8915 4900 20  0001 C CNN "manf#"
-F 6 "Element14" V 8940 4900 20  0001 C CNN "Supplier"
-F 7 "9527710" V 8965 4900 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/murata/grm21br71c105ka01l/cap-mlcc-x7r-1uf-16v-0805/dp/9527710" V 8990 4900 20  0001 C CNN "Supplier URL"
-F 9 "0.224" V 9015 4900 20  0001 C CNN "Supplier Price"
-F 10 "1" V 9040 4900 20  0001 C CNN "Supplier Price Break"
-	1    8700 5000
-	1    0    0    1   
-$EndComp
-$Comp
-L appli_capacitor:330PF_X7R_1608M C?
-U 1 1 5B040331
-P 6500 6400
-F 0 "C?" V 6375 6250 50  0000 L CNN
-F 1 "330PF_X7R_1608M" V 6625 5925 35  0000 L CNN
-F 2 "CAPC1608*" V 6615 6300 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2068140.pdf" V 6640 6300 20  0001 C CNN
-F 4 "AVX" V 6690 6300 20  0001 C CNN "manf"
-F 5 "06035A331JAT2A" V 6715 6300 20  0001 C CNN "manf#"
-F 6 "Element14" V 6740 6300 20  0001 C CNN "Supplier"
-F 7 "316660" V 6765 6300 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/avx/06035a331jat2a/cap-mlcc-c0g-np0-330pf-50v-0603/dp/316660" V 6790 6300 20  0001 C CNN "Supplier URL"
-F 9 "0.21" V 6815 6300 20  0001 C CNN "Supplier Price"
-F 10 "10" V 6840 6300 20  0001 C CNN "Supplier Price Break"
-	1    6500 6400
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_capacitor:1UF_X7R_1608M C?
-U 1 1 5B040728
-P 4850 5150
-F 0 "C?" H 4772 5015 50  0000 R CNN
-F 1 "1UF_X7R_1608M" H 4772 5095 35  0000 R CNN
-F 2 "CAPC1608*" V 4965 5050 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2048611.pdf?_ga=1.116411968.774814437.1442284889" V 4990 5050 20  0001 C CNN
-F 4 "MURATA" V 5040 5050 20  0001 C CNN "manf"
-F 5 "GRM188R61H105KAALD" V 5065 5050 20  0001 C CNN "manf#"
-F 6 "Element14" V 5090 5050 20  0001 C CNN "Supplier"
-F 7 "1845736" V 5115 5050 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/murata/grm188r61h105kaald/cap-mlcc-x5r-1uf-50v-0603/dp/1845736" V 5140 5050 20  0001 C CNN "Supplier URL"
-F 9 "0.092" V 5165 5050 20  0001 C CNN "Supplier Price"
-F 10 "100" V 5190 5050 20  0001 C CNN "Supplier Price Break"
-	1    4850 5150
-	1    0    0    1   
-$EndComp
 Text Notes 10425 4825 0    50   ~ 0
 47uF electro
 $Comp
@@ -539,24 +449,6 @@ F 9 "0.02" V 4310 4850 20  0001 C CNN "Supplier Price"
 F 10 "100" V 4335 4850 20  0001 C CNN "Supplier Price Break"
 	1    4000 5000
 	-1   0    0    1   
-$EndComp
-$Comp
-L appli_capacitor:1UF_X7R_2012M C?
-U 1 1 5B044635
-P 7750 6125
-F 0 "C?" H 7828 6060 50  0000 L CNN
-F 1 "1UF_X7R_2012M" H 7828 5980 35  0000 L CNN
-F 2 "CAPC2012*" V 7865 6025 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2047889.pdf" V 7890 6025 20  0001 C CNN
-F 4 "MURATA" V 7940 6025 20  0001 C CNN "manf"
-F 5 "GRM21BR71C105KA01L" V 7965 6025 20  0001 C CNN "manf#"
-F 6 "Element14" V 7990 6025 20  0001 C CNN "Supplier"
-F 7 "9527710" V 8015 6025 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/murata/grm21br71c105ka01l/cap-mlcc-x7r-1uf-16v-0805/dp/9527710" V 8040 6025 20  0001 C CNN "Supplier URL"
-F 9 "0.224" V 8065 6025 20  0001 C CNN "Supplier Price"
-F 10 "1" V 8090 6025 20  0001 C CNN "Supplier Price Break"
-	1    7750 6125
-	1    0    0    -1  
 $EndComp
 Wire Wire Line
 	7500 5850 7750 5850
@@ -900,24 +792,6 @@ Wire Wire Line
 	8800 5350 9300 5350
 Wire Wire Line
 	7500 5250 8800 5250
-$Comp
-L appli_capacitor:1UF_X7R_2012M C?
-U 1 1 5B130DCA
-P 7550 6600
-F 0 "C?" H 7472 6465 50  0000 R CNN
-F 1 "1UF_X7R_2012M" H 7472 6545 35  0000 R CNN
-F 2 "CAPC2012*" V 7665 6500 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2047889.pdf" V 7690 6500 20  0001 C CNN
-F 4 "MURATA" V 7740 6500 20  0001 C CNN "manf"
-F 5 "GRM21BR71C105KA01L" V 7765 6500 20  0001 C CNN "manf#"
-F 6 "Element14" V 7790 6500 20  0001 C CNN "Supplier"
-F 7 "9527710" V 7815 6500 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/murata/grm21br71c105ka01l/cap-mlcc-x7r-1uf-16v-0805/dp/9527710" V 7840 6500 20  0001 C CNN "Supplier URL"
-F 9 "0.224" V 7865 6500 20  0001 C CNN "Supplier Price"
-F 10 "1" V 7890 6500 20  0001 C CNN "Supplier Price Break"
-	1    7550 6600
-	1    0    0    1   
-$EndComp
 Wire Wire Line
 	7500 4450 7550 4450
 Wire Wire Line
@@ -1019,24 +893,6 @@ F 3 "" H 4000 2250 60  0000 C CNN
 	1    4000 2250
 	1    0    0    -1  
 $EndComp
-$Comp
-L appli_resistor:0.01R_3216M R?
-U 1 1 5AD42A5D
-P 9600 5800
-F 0 "R?" H 9673 5685 50  0000 L CNN
-F 1 "0.01R_3216M" H 9673 5605 35  0000 L CNN
-F 2 "" V 9710 5650 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2049155.pdf?" V 9735 5650 20  0001 C CNN
-F 4 "Vishay" V 9785 5650 20  0001 C CNN "manf"
-F 5 "WSLP1206R0100FEA" V 9810 5650 20  0001 C CNN "manf#"
-F 6 "Element14" V 9835 5650 20  0001 C CNN "Supplier"
-F 7 "683-6215" V 9860 5650 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.rs-online.com/web/p/surface-mount-fixed-resistors/6836215" V 9885 5650 20  0001 C CNN "Supplier URL"
-F 9 "1.15" V 9910 5650 20  0001 C CNN "Supplier Price"
-F 10 "1" V 9935 5650 20  0001 C CNN "Supplier Price Break"
-	1    9600 5800
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	6400 6300 6150 6300
 Wire Wire Line
@@ -1077,8 +933,6 @@ F 10 "10" V 8135 4600 20  0001 C CNN "Supplier Price Break"
 	1    7800 4750
 	0    -1   -1   0   
 $EndComp
-Connection ~ 9600 5800
-Connection ~ 9600 6100
 Text Notes 9725 6250 0    50   ~ 0
 Route with Kelvin \nconnection
 $Comp
@@ -1134,42 +988,6 @@ F 9 "0.01" V 7635 6200 20  0001 C CNN "Supplier Price"
 F 10 "100" V 7660 6200 20  0001 C CNN "Supplier Price Break"
 	1    7325 6350
 	0    1    1    0   
-$EndComp
-$Comp
-L appli_capacitor:1500PF_X7R_1608M C?
-U 1 1 5ADE9DE3
-P 5250 6300
-F 0 "C?" H 5173 6165 50  0000 R CNN
-F 1 "1500PF_X7R_1608M" H 5173 6245 35  0000 R CNN
-F 2 "CAPC1608*" V 5365 6200 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1955686.pdf" V 5390 6200 20  0001 C CNN
-F 4 "MURATA" V 5440 6200 20  0001 C CNN "manf"
-F 5 "GRM188R71H152KA01D" V 5465 6200 20  0001 C CNN "manf#"
-F 6 "Element14" V 5490 6200 20  0001 C CNN "Supplier"
-F 7 "2494239RL" V 5515 6200 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/murata/grm188r71h152ka01d/cap-mlcc-x7r-1500pf-50v-0603/dp/2494239RL" V 5540 6200 20  0001 C CNN "Supplier URL"
-F 9 "0.209" V 5565 6200 20  0001 C CNN "Supplier Price"
-F 10 "10" V 5590 6200 20  0001 C CNN "Supplier Price Break"
-	1    5250 6300
-	1    0    0    1   
-$EndComp
-$Comp
-L appli_capacitor:15PF_X7R_1608M C?
-U 1 1 5ADFAAE4
-P 4500 5875
-F 0 "C?" H 4578 5810 50  0000 L CNN
-F 1 "15PF_X7R_1608M" H 4578 5730 35  0000 L CNN
-F 2 "CAPC1608*" V 4615 5775 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2291921.pdf" V 4640 5775 20  0001 C CNN
-F 4 "TDK" V 4690 5775 20  0001 C CNN "manf"
-F 5 "C1608C0G1H150J080AA" V 4715 5775 20  0001 C CNN "manf#"
-F 6 "Element14" V 4740 5775 20  0001 C CNN "Supplier"
-F 7 "1907286RL" V 4765 5775 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/tdk/c1608c0g1h150j080aa/cap-mlcc-c0g-np0-15pf-50v-0603/dp/1907286RL" V 4790 5775 20  0001 C CNN "Supplier URL"
-F 9 "0.0121" V 4815 5775 20  0001 C CNN "Supplier Price"
-F 10 "50" V 4840 5775 20  0001 C CNN "Supplier Price Break"
-	1    4500 5875
-	1    0    0    -1  
 $EndComp
 $Comp
 L appli_resistor:102K_1608M R?
@@ -1228,24 +1046,6 @@ $EndComp
 Text Notes 4775 4075 0    157  ~ 31
 check for 100V rated part requirements
 $Comp
-L appli_inductor:10.2uH_PA2050 L?
-U 1 1 5AD4F9B3
-P 10575 5050
-F 0 "L?" V 10388 4900 55  0000 C CNN
-F 1 "10.2uH_PA2050" V 10472 4900 35  0000 C CNN
-F 2 "Applidyne_Inductor:PULSE_PA2050" V 10690 4900 20  0001 C CNN
-F 3 "https://au.mouser.com/datasheet/2/336/-369081.pdf" V 10715 4900 20  0001 C CNN
-F 4 "PULSE ELECTRONICS" V 10765 4900 20  0001 C CNN "manf"
-F 5 "PA2050.103NL" V 11075 4900 20  0001 C CNN "manf#"
-F 6 "Mouser" V 10815 4900 20  0001 C CNN "Supplier"
-F 7 "673-PA2050.103NL" V 10975 4900 20  0001 C CNN "Supplier Part No"
-F 8 "https://au.mouser.com/ProductDetail/Pulse-Electronics/PA2050103NL" V 11025 4900 20  0001 C CNN "Supplier URL"
-F 9 "5.59" V 10890 4900 20  0001 C CNN "Supplier Price"
-F 10 "1" V 10915 4900 20  0001 C CNN "Supplier Price Break"
-	1    10575 5050
-	0    1    1    0   
-$EndComp
-$Comp
 L appli_power:PWR_FLAG #FLG?
 U 1 1 5AD551CC
 P 4075 8450
@@ -1277,5 +1077,205 @@ F 2 "" H 12575 5050 60  0000 C CNN
 F 3 "" H 12575 5050 60  0000 C CNN
 	1    12575 5050
 	1    0    0    -1  
+$EndComp
+$Comp
+L appli_capacitor:100n_X7R_1608M C?
+U 1 1 5ADBDD4B
+P 12800 2150
+F 0 "C?" H 12878 2085 50  0000 L CNN
+F 1 "100n_X7R_1608M" H 12878 2005 35  0000 L CNN
+F 2 "CAPC1608*" V 12915 2050 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 12940 2050 20  0001 C CNN
+F 4 "KEMET" V 12990 2050 20  0001 C CNN "manf"
+F 5 "C0603C104K5RACAUTO" V 13015 2050 20  0001 C CNN "manf#"
+F 6 "Element14" V 13040 2050 20  0001 C CNN "Supplier"
+F 7 "2070398" V 13065 2050 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 13090 2050 20  0001 C CNN "Supplier URL"
+F 9 "0.011" V 13115 2050 20  0001 C CNN "Supplier Price"
+F 10 "1" V 13140 2050 20  0001 C CNN "Supplier Price Break"
+	1    12800 2150
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_capacitor:1u_X7R_2012M C?
+U 1 1 5ADBE365
+P 7550 6600
+F 0 "C?" H 7473 6465 50  0000 R CNN
+F 1 "1u_X7R_2012M" H 7473 6545 35  0000 R CNN
+F 2 "CAPC2012*" V 7665 6500 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2047889.pdf" V 7690 6500 20  0001 C CNN
+F 4 "muRata" V 7740 6500 20  0001 C CNN "manf"
+F 5 "GRM21BR71C105KA01L" V 7765 6500 20  0001 C CNN "manf#"
+F 6 "Element14" V 7790 6500 20  0001 C CNN "Supplier"
+F 7 "9527710" V 7815 6500 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/murata/grm21br71c105ka01l/cap-mlcc-x7r-1uf-16v-0805/dp/9527710" V 7840 6500 20  0001 C CNN "Supplier URL"
+F 9 "0.224" V 7865 6500 20  0001 C CNN "Supplier Price"
+F 10 "1" V 7890 6500 20  0001 C CNN "Supplier Price Break"
+	1    7550 6600
+	1    0    0    1   
+$EndComp
+$Comp
+L appli_capacitor:1u_X7R_2012M C?
+U 1 1 5ADCA287
+P 7750 6325
+F 0 "C?" H 7672 6190 50  0000 R CNN
+F 1 "1u_X7R_2012M" H 7672 6270 35  0000 R CNN
+F 2 "CAPC2012*" V 7865 6225 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2047889.pdf" V 7890 6225 20  0001 C CNN
+F 4 "muRata" V 7940 6225 20  0001 C CNN "manf"
+F 5 "GRM21BR71C105KA01L" V 7965 6225 20  0001 C CNN "manf#"
+F 6 "Element14" V 7990 6225 20  0001 C CNN "Supplier"
+F 7 "9527710" V 8015 6225 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/murata/grm21br71c105ka01l/cap-mlcc-x7r-1uf-16v-0805/dp/9527710" V 8040 6225 20  0001 C CNN "Supplier URL"
+F 9 "0.224" V 8065 6225 20  0001 C CNN "Supplier Price"
+F 10 "1" V 8090 6225 20  0001 C CNN "Supplier Price Break"
+	1    7750 6325
+	-1   0    0    1   
+$EndComp
+$Comp
+L appli_capacitor:330p_X7R_1608M C?
+U 1 1 5ADCA53F
+P 6500 6400
+F 0 "C?" V 6375 6250 50  0000 L CNN
+F 1 "330p_X7R_1608M" V 6600 5900 35  0000 L CNN
+F 2 "CAPC1608*" V 6615 6300 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2068140.pdf" V 6640 6300 20  0001 C CNN
+F 4 "AVX" V 6690 6300 20  0001 C CNN "manf"
+F 5 "06035A331JAT2A" V 6715 6300 20  0001 C CNN "manf#"
+F 6 "Element14" V 6740 6300 20  0001 C CNN "Supplier"
+F 7 "316660" V 6765 6300 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/avx/06035a331jat2a/cap-mlcc-c0g-np0-330pf-50v-0603/dp/316660" V 6790 6300 20  0001 C CNN "Supplier URL"
+F 9 "0.21" V 6815 6300 20  0001 C CNN "Supplier Price"
+F 10 "10" V 6840 6300 20  0001 C CNN "Supplier Price Break"
+	1    6500 6400
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_capacitor:100n_X7R_1608M C?
+U 1 1 5ADCA97C
+P 6150 6400
+F 0 "C?" V 6025 6250 50  0000 L CNN
+F 1 "100n_X7R_1608M" V 6250 5925 35  0000 L CNN
+F 2 "CAPC1608*" V 6265 6300 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 6290 6300 20  0001 C CNN
+F 4 "KEMET" V 6340 6300 20  0001 C CNN "manf"
+F 5 "C0603C104K5RACAUTO" V 6365 6300 20  0001 C CNN "manf#"
+F 6 "Element14" V 6390 6300 20  0001 C CNN "Supplier"
+F 7 "2070398" V 6415 6300 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 6440 6300 20  0001 C CNN "Supplier URL"
+F 9 "0.011" V 6465 6300 20  0001 C CNN "Supplier Price"
+F 10 "1" V 6490 6300 20  0001 C CNN "Supplier Price Break"
+	1    6150 6400
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_capacitor:1n5_X7R_1608M C?
+U 1 1 5ADCAF13
+P 5250 6300
+F 0 "C?" H 5173 6165 50  0000 R CNN
+F 1 "1n5_X7R_1608M" H 5173 6245 35  0000 R CNN
+F 2 "CAPC1608*" V 5365 6200 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1955686.pdf" V 5390 6200 20  0001 C CNN
+F 4 "muRata" V 5440 6200 20  0001 C CNN "manf"
+F 5 "GRM188R71H152KA01D" V 5465 6200 20  0001 C CNN "manf#"
+F 6 "Element14" V 5490 6200 20  0001 C CNN "Supplier"
+F 7 "2494239RL" V 5515 6200 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/murata/grm188r71h152ka01d/cap-mlcc-x7r-1500pf-50v-0603/dp/2494239RL" V 5540 6200 20  0001 C CNN "Supplier URL"
+F 9 "0.209" V 5565 6200 20  0001 C CNN "Supplier Price"
+F 10 "10" V 5590 6200 20  0001 C CNN "Supplier Price Break"
+	1    5250 6300
+	1    0    0    1   
+$EndComp
+$Comp
+L appli_capacitor:15p_X7R_1608M C?
+U 1 1 5ADD6F55
+P 4500 5875
+F 0 "C?" H 4578 5810 50  0000 L CNN
+F 1 "15p_X7R_1608M" H 4578 5730 35  0000 L CNN
+F 2 "CAPC1608*" V 4615 5775 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2291921.pdf" V 4640 5775 20  0001 C CNN
+F 4 "TDK" V 4690 5775 20  0001 C CNN "manf"
+F 5 "C1608C0G1H150J080AA" V 4715 5775 20  0001 C CNN "manf#"
+F 6 "Element14" V 4740 5775 20  0001 C CNN "Supplier"
+F 7 "1907286RL" V 4765 5775 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/tdk/c1608c0g1h150j080aa/cap-mlcc-c0g-np0-15pf-50v-0603/dp/1907286RL" V 4790 5775 20  0001 C CNN "Supplier URL"
+F 9 "0.0121" V 4815 5775 20  0001 C CNN "Supplier Price"
+F 10 "50" V 4840 5775 20  0001 C CNN "Supplier Price Break"
+	1    4500 5875
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_capacitor:1u_X7R_1608M C?
+U 1 1 5ADD72D1
+P 4850 5150
+F 0 "C?" H 4773 5015 50  0000 R CNN
+F 1 "1u_X7R_1608M" H 4773 5095 35  0000 R CNN
+F 2 "CAPC1608*" V 4965 5050 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2048611.pdf?_ga=1.116411968.774814437.1442284889" V 4990 5050 20  0001 C CNN
+F 4 "muRata" V 5040 5050 20  0001 C CNN "manf"
+F 5 "GRM188R61H105KAALD" V 5065 5050 20  0001 C CNN "manf#"
+F 6 "Element14" V 5090 5050 20  0001 C CNN "Supplier"
+F 7 "1845736" V 5115 5050 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/murata/grm188r61h105kaald/cap-mlcc-x5r-1uf-50v-0603/dp/1845736" V 5140 5050 20  0001 C CNN "Supplier URL"
+F 9 "0.092" V 5165 5050 20  0001 C CNN "Supplier Price"
+F 10 "100" V 5190 5050 20  0001 C CNN "Supplier Price Break"
+	1    4850 5150
+	1    0    0    1   
+$EndComp
+$Comp
+L appli_capacitor:1u_X7R_2012M C?
+U 1 1 5ADD78B1
+P 8700 5000
+F 0 "C?" H 8623 4865 50  0000 R CNN
+F 1 "1u_X7R_2012M" H 8623 4945 35  0000 R CNN
+F 2 "CAPC2012*" V 8815 4900 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2047889.pdf" V 8840 4900 20  0001 C CNN
+F 4 "muRata" V 8890 4900 20  0001 C CNN "manf"
+F 5 "GRM21BR71C105KA01L" V 8915 4900 20  0001 C CNN "manf#"
+F 6 "Element14" V 8940 4900 20  0001 C CNN "Supplier"
+F 7 "9527710" V 8965 4900 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/murata/grm21br71c105ka01l/cap-mlcc-x7r-1uf-16v-0805/dp/9527710" V 8990 4900 20  0001 C CNN "Supplier URL"
+F 9 "0.224" V 9015 4900 20  0001 C CNN "Supplier Price"
+F 10 "1" V 9040 4900 20  0001 C CNN "Supplier Price Break"
+	1    8700 5000
+	1    0    0    1   
+$EndComp
+$Comp
+L appli_resistor:R01_3216M R?
+U 1 1 5ADD7A8A
+P 9600 5800
+F 0 "R?" H 9673 5685 50  0000 L CNN
+F 1 "R01_3216M" H 9673 5605 35  0000 L CNN
+F 2 "" V 9710 5650 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2049155.pdf?" V 9735 5650 20  0001 C CNN
+F 4 "Vishay" V 9785 5650 20  0001 C CNN "manf"
+F 5 "WSLP1206R0100FEA" V 9810 5650 20  0001 C CNN "manf#"
+F 6 "Element14" V 9835 5650 20  0001 C CNN "Supplier"
+F 7 "683-6215" V 9860 5650 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.rs-online.com/web/p/surface-mount-fixed-resistors/6836215" V 9885 5650 20  0001 C CNN "Supplier URL"
+F 9 "1.15" V 9910 5650 20  0001 C CNN "Supplier Price"
+F 10 "1" V 9935 5650 20  0001 C CNN "Supplier Price Break"
+	1    9600 5800
+	1    0    0    -1  
+$EndComp
+Connection ~ 9600 5800
+Connection ~ 9600 6100
+$Comp
+L appli_inductor:10u2_PA2050 L?
+U 1 1 5ADD7CF3
+P 10575 5050
+F 0 "L?" V 10388 4900 55  0000 C CNN
+F 1 "10u2_PA2050" V 10472 4900 35  0000 C CNN
+F 2 "Applidyne_Inductor:PULSE_PA2050" V 10690 4900 20  0001 C CNN
+F 3 "https://au.mouser.com/datasheet/2/336/-369081.pdf" V 10715 4900 20  0001 C CNN
+F 4 "PULSE ELECTRONICS" V 10765 4900 20  0001 C CNN "manf"
+F 5 "PA2050.103NL" V 11075 4900 20  0001 C CNN "manf#"
+F 6 "Mouser" V 10815 4900 20  0001 C CNN "Supplier"
+F 7 "673-PA2050.103NL" V 10975 4900 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Pulse-Electronics/PA2050103NL" V 11025 4900 20  0001 C CNN "Supplier URL"
+F 9 "5.59" V 10890 4900 20  0001 C CNN "Supplier Price"
+F 10 "1" V 10915 4900 20  0001 C CNN "Supplier Price Break"
+	1    10575 5050
+	0    1    1    0   
 $EndComp
 $EndSCHEMATC
