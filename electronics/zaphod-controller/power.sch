@@ -645,7 +645,7 @@ Connection ~ 8700 5050
 Wire Wire Line
 	8100 4750 8700 4750
 Wire Wire Line
-	10575 5050 10800 5050
+	10450 5050 10800 5050
 Wire Wire Line
 	9600 5500 9600 5800
 Wire Wire Line
@@ -687,12 +687,12 @@ Wire Wire Line
 $Comp
 L appli_power:+POWER #PWR?
 U 1 1 5B0E5346
-P 2900 4450
-F 0 "#PWR?" H 2900 4400 20  0001 C CNN
-F 1 "+POWER" H 2903 4588 30  0000 C CNN
-F 2 "" H 2900 4450 60  0000 C CNN
-F 3 "" H 2900 4450 60  0000 C CNN
-	1    2900 4450
+P 1550 4350
+F 0 "#PWR?" H 1550 4300 20  0001 C CNN
+F 1 "+POWER" H 1553 4488 30  0000 C CNN
+F 2 "" H 1550 4350 60  0000 C CNN
+F 3 "" H 1550 4350 60  0000 C CNN
+	1    1550 4350
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -759,7 +759,7 @@ Wire Wire Line
 Wire Wire Line
 	4000 4450 4850 4450
 Wire Wire Line
-	4000 4450 3800 4450
+	4000 4450 3300 4450
 Connection ~ 4000 4450
 Wire Wire Line
 	5200 4850 5900 4850
@@ -767,7 +767,7 @@ Wire Wire Line
 	9600 5100 9600 5050
 Connection ~ 9600 5050
 Wire Wire Line
-	9600 5050 10275 5050
+	9600 5050 10150 5050
 $Comp
 L appli_power:+12V #PWR?
 U 1 1 5B1AC942
@@ -786,8 +786,6 @@ Wire Wire Line
 	7550 4450 7850 4450
 Wire Wire Line
 	7550 6850 7550 6600
-Text Notes 3150 5350 0    50   ~ 0
-Input caps
 Wire Wire Line
 	7750 5850 7850 5850
 Connection ~ 7750 5850
@@ -857,24 +855,6 @@ F 3 "" H 6500 6850 60  0000 C CNN
 $EndComp
 Wire Wire Line
 	6800 6850 6800 6200
-$Comp
-L appli_resistor:2K2_1608M R?
-U 1 1 5ADAD352
-P 7800 4750
-F 0 "R?" V 7675 4600 50  0000 C CNN
-F 1 "2K2_1608M" V 7600 4600 35  0000 C CNN
-F 2 "RESC1608*" V 7910 4600 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2310790.pdf" V 7935 4600 20  0001 C CNN
-F 4 "VISHAY" V 7985 4600 20  0001 C CNN "manf"
-F 5 "CRCW06032K20FKEA" V 8010 4600 20  0001 C CNN "manf#"
-F 6 "Element14" V 8035 4600 20  0001 C CNN "Supplier"
-F 7 "1469765" V 8060 4600 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/vishay/crcw06032k20fkea/res-thick-film-2k2-1-0-1w-0603/dp/1469765" V 8085 4600 20  0001 C CNN "Supplier URL"
-F 9 "0.062" V 8110 4600 20  0001 C CNN "Supplier Price"
-F 10 "10" V 8135 4600 20  0001 C CNN "Supplier Price Break"
-	1    7800 4750
-	0    -1   -1   0   
-$EndComp
 Text Notes 9725 6250 0    50   ~ 0
 Route with Kelvin \nconnection
 $Comp
@@ -1205,19 +1185,19 @@ Connection ~ 9600 6100
 $Comp
 L appli_inductor:10u2_PA2050 L?
 U 1 1 5ADD7CF3
-P 10575 5050
-F 0 "L?" V 10388 4900 55  0000 C CNN
-F 1 "10u2_PA2050" V 10472 4900 35  0000 C CNN
-F 2 "Applidyne_Inductor:PULSE_PA2050" V 10690 4900 20  0001 C CNN
-F 3 "https://au.mouser.com/datasheet/2/336/-369081.pdf" V 10715 4900 20  0001 C CNN
-F 4 "PULSE ELECTRONICS" V 10765 4900 20  0001 C CNN "manf"
-F 5 "PA2050.103NL" V 11075 4900 20  0001 C CNN "manf#"
-F 6 "Mouser" V 10815 4900 20  0001 C CNN "Supplier"
-F 7 "673-PA2050.103NL" V 10975 4900 20  0001 C CNN "Supplier Part No"
-F 8 "https://au.mouser.com/ProductDetail/Pulse-Electronics/PA2050103NL" V 11025 4900 20  0001 C CNN "Supplier URL"
-F 9 "5.59" V 10890 4900 20  0001 C CNN "Supplier Price"
-F 10 "1" V 10915 4900 20  0001 C CNN "Supplier Price Break"
-	1    10575 5050
+P 10450 5050
+F 0 "L?" V 10263 4900 55  0000 C CNN
+F 1 "10u2_PA2050" V 10347 4900 35  0000 C CNN
+F 2 "Applidyne_Inductor:PULSE_PA2050" V 10565 4900 20  0001 C CNN
+F 3 "https://au.mouser.com/datasheet/2/336/-369081.pdf" V 10590 4900 20  0001 C CNN
+F 4 "PULSE ELECTRONICS" V 10640 4900 20  0001 C CNN "manf"
+F 5 "PA2050.103NL" V 10950 4900 20  0001 C CNN "manf#"
+F 6 "Mouser" V 10690 4900 20  0001 C CNN "Supplier"
+F 7 "673-PA2050.103NL" V 10850 4900 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Pulse-Electronics/PA2050103NL" V 10900 4900 20  0001 C CNN "Supplier URL"
+F 9 "5.59" V 10765 4900 20  0001 C CNN "Supplier Price"
+F 10 "1" V 10790 4900 20  0001 C CNN "Supplier Price Break"
+	1    10450 5050
 	0    1    1    0   
 $EndComp
 Wire Wire Line
@@ -1524,19 +1504,199 @@ $EndComp
 $Comp
 L appli_capacitor:47u_ELEC_100V_1350X1350M C?
 U 1 1 5AE30345
-P 1575 5350
-F 0 "C?" H 1653 5285 50  0000 L CNN
-F 1 "47u_ELEC_100V_1350X1350M" H 1653 5205 35  0000 L CNN
-F 2 "Applidyne_Capacitor:CAPAE1350X1350D1490DD450L470N" V 1690 5250 20  0001 C CNN
-F 3 "https://au.mouser.com/datasheet/2/315/ABA0000C1181-947564.pdf" V 1715 5250 20  0001 C CNN
-F 4 "PANASONIC" V 1765 5250 20  0001 C CNN "manf"
-F 5 "EEV-FK2A470Q" V 1790 5250 20  0001 C CNN "manf#"
-F 6 "Mouser" V 1815 5250 20  0001 C CNN "Supplier"
-F 7 "667-EEV-FK2A470Q" V 1840 5250 20  0001 C CNN "Supplier Part No"
-F 8 "https://au.mouser.com/productdetail/?qs=f%252bPvLx1Hi0lKaMF67jB0og%3D%3D" V 1865 5250 20  0001 C CNN "Supplier URL"
-F 9 "1.66" V 1890 5250 20  0001 C CNN "Supplier Price"
-F 10 "1" V 1915 5250 20  0001 C CNN "Supplier Price Break"
-	1    1575 5350
+P 1550 5350
+F 0 "C?" H 1375 5250 50  0000 L CNN
+F 1 "47u_ELEC_100V_1350X1350M" V 1675 4850 35  0000 L CNN
+F 2 "Applidyne_Capacitor:CAPAE1350X1350D1490DD450L470N" V 1665 5250 20  0001 C CNN
+F 3 "https://au.mouser.com/datasheet/2/315/ABA0000C1181-947564.pdf" V 1690 5250 20  0001 C CNN
+F 4 "PANASONIC" V 1740 5250 20  0001 C CNN "manf"
+F 5 "EEV-FK2A470Q" V 1765 5250 20  0001 C CNN "manf#"
+F 6 "Mouser" V 1790 5250 20  0001 C CNN "Supplier"
+F 7 "667-EEV-FK2A470Q" V 1815 5250 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/productdetail/?qs=f%252bPvLx1Hi0lKaMF67jB0og%3D%3D" V 1840 5250 20  0001 C CNN "Supplier URL"
+F 9 "1.66" V 1865 5250 20  0001 C CNN "Supplier Price"
+F 10 "1" V 1890 5250 20  0001 C CNN "Supplier Price Break"
+	1    1550 5350
 	1    0    0    -1  
+$EndComp
+$Comp
+L appli_capacitor:2u2_X7R_4532M C?
+U 1 1 5AE32FC1
+P 2100 5350
+F 0 "C?" H 1925 5250 50  0000 L CNN
+F 1 "2u2_X7R_4532M" V 2225 5025 35  0000 L CNN
+F 2 "Applidyne_Capacitor:CAPC4532X180N" V 2215 5250 20  0001 C CNN
+F 3 "https://au.mouser.com/datasheet/2/400/lcc_commercial_highvoltage_en-520036.pdf" V 2240 5250 20  0001 C CNN
+F 4 "TDK" V 2290 5250 20  0001 C CNN "manf"
+F 5 "C4532X7R2A225M230KA" V 2315 5250 20  0001 C CNN "manf#"
+F 6 "Mouser" V 2340 5250 20  0001 C CNN "Supplier"
+F 7 "810-C4532X7R2A225M" V 2365 5250 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/TDK/C4532X7R2A225M230KA" V 2390 5250 20  0001 C CNN "Supplier URL"
+F 9 "1.41" V 2415 5250 20  0001 C CNN "Supplier Price"
+F 10 "10" V 2440 5250 20  0001 C CNN "Supplier Price Break"
+	1    2100 5350
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_capacitor:2u2_X7R_4532M C?
+U 1 1 5AE33709
+P 2500 5350
+F 0 "C?" H 2325 5250 50  0000 L CNN
+F 1 "2u2_X7R_4532M" V 2625 5025 35  0000 L CNN
+F 2 "Applidyne_Capacitor:CAPC4532X180N" V 2615 5250 20  0001 C CNN
+F 3 "https://au.mouser.com/datasheet/2/400/lcc_commercial_highvoltage_en-520036.pdf" V 2640 5250 20  0001 C CNN
+F 4 "TDK" V 2690 5250 20  0001 C CNN "manf"
+F 5 "C4532X7R2A225M230KA" V 2715 5250 20  0001 C CNN "manf#"
+F 6 "Mouser" V 2740 5250 20  0001 C CNN "Supplier"
+F 7 "810-C4532X7R2A225M" V 2765 5250 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/TDK/C4532X7R2A225M230KA" V 2790 5250 20  0001 C CNN "Supplier URL"
+F 9 "1.41" V 2815 5250 20  0001 C CNN "Supplier Price"
+F 10 "10" V 2840 5250 20  0001 C CNN "Supplier Price Break"
+	1    2500 5350
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_capacitor:2u2_X7R_4532M C?
+U 1 1 5AE33795
+P 2900 5350
+F 0 "C?" H 2725 5250 50  0000 L CNN
+F 1 "2u2_X7R_4532M" V 3025 5025 35  0000 L CNN
+F 2 "Applidyne_Capacitor:CAPC4532X180N" V 3015 5250 20  0001 C CNN
+F 3 "https://au.mouser.com/datasheet/2/400/lcc_commercial_highvoltage_en-520036.pdf" V 3040 5250 20  0001 C CNN
+F 4 "TDK" V 3090 5250 20  0001 C CNN "manf"
+F 5 "C4532X7R2A225M230KA" V 3115 5250 20  0001 C CNN "manf#"
+F 6 "Mouser" V 3140 5250 20  0001 C CNN "Supplier"
+F 7 "810-C4532X7R2A225M" V 3165 5250 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/TDK/C4532X7R2A225M230KA" V 3190 5250 20  0001 C CNN "Supplier URL"
+F 9 "1.41" V 3215 5250 20  0001 C CNN "Supplier Price"
+F 10 "10" V 3240 5250 20  0001 C CNN "Supplier Price Break"
+	1    2900 5350
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_capacitor:2u2_X7R_4532M C?
+U 1 1 5AE3382F
+P 3300 5350
+F 0 "C?" H 3125 5250 50  0000 L CNN
+F 1 "2u2_X7R_4532M" V 3425 5025 35  0000 L CNN
+F 2 "Applidyne_Capacitor:CAPC4532X180N" V 3415 5250 20  0001 C CNN
+F 3 "https://au.mouser.com/datasheet/2/400/lcc_commercial_highvoltage_en-520036.pdf" V 3440 5250 20  0001 C CNN
+F 4 "TDK" V 3490 5250 20  0001 C CNN "manf"
+F 5 "C4532X7R2A225M230KA" V 3515 5250 20  0001 C CNN "manf#"
+F 6 "Mouser" V 3540 5250 20  0001 C CNN "Supplier"
+F 7 "810-C4532X7R2A225M" V 3565 5250 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/TDK/C4532X7R2A225M230KA" V 3590 5250 20  0001 C CNN "Supplier URL"
+F 9 "1.41" V 3615 5250 20  0001 C CNN "Supplier Price"
+F 10 "10" V 3640 5250 20  0001 C CNN "Supplier Price Break"
+	1    3300 5350
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	1550 5350 1550 4450
+Connection ~ 1550 4450
+Wire Wire Line
+	1550 4450 1550 4350
+Wire Wire Line
+	2100 5350 2100 4450
+Connection ~ 2100 4450
+Wire Wire Line
+	2100 4450 1550 4450
+Wire Wire Line
+	2500 5350 2500 4450
+Connection ~ 2500 4450
+Wire Wire Line
+	2500 4450 2100 4450
+Wire Wire Line
+	2900 5350 2900 4450
+Connection ~ 2900 4450
+Wire Wire Line
+	2900 4450 2500 4450
+Wire Wire Line
+	3300 5350 3300 4450
+Connection ~ 3300 4450
+Wire Wire Line
+	3300 4450 2900 4450
+Wire Wire Line
+	3300 5550 3300 6850
+Wire Wire Line
+	2900 5550 2900 6850
+Wire Wire Line
+	2500 5550 2500 6850
+Wire Wire Line
+	2100 5550 2100 6850
+Wire Wire Line
+	1550 5550 1550 6850
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5AE7973A
+P 3300 6850
+F 0 "#PWR?" H 3300 6600 50  0001 C CNN
+F 1 "GND" H 3305 6677 50  0000 C CNN
+F 2 "" H 3300 6850 60  0000 C CNN
+F 3 "" H 3300 6850 60  0000 C CNN
+	1    3300 6850
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5AE797A7
+P 2900 6850
+F 0 "#PWR?" H 2900 6600 50  0001 C CNN
+F 1 "GND" H 2905 6677 50  0000 C CNN
+F 2 "" H 2900 6850 60  0000 C CNN
+F 3 "" H 2900 6850 60  0000 C CNN
+	1    2900 6850
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5AE79814
+P 2500 6850
+F 0 "#PWR?" H 2500 6600 50  0001 C CNN
+F 1 "GND" H 2505 6677 50  0000 C CNN
+F 2 "" H 2500 6850 60  0000 C CNN
+F 3 "" H 2500 6850 60  0000 C CNN
+	1    2500 6850
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5AE79881
+P 2100 6850
+F 0 "#PWR?" H 2100 6600 50  0001 C CNN
+F 1 "GND" H 2105 6677 50  0000 C CNN
+F 2 "" H 2100 6850 60  0000 C CNN
+F 3 "" H 2100 6850 60  0000 C CNN
+	1    2100 6850
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5AE798EE
+P 1550 6850
+F 0 "#PWR?" H 1550 6600 50  0001 C CNN
+F 1 "GND" H 1555 6677 50  0000 C CNN
+F 2 "" H 1550 6850 60  0000 C CNN
+F 3 "" H 1550 6850 60  0000 C CNN
+	1    1550 6850
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_resistor:2R2_1608M R?
+U 1 1 5AEA5393
+P 7800 4750
+F 0 "R?" V 7925 4600 50  0000 C CNN
+F 1 "2R2_1608M" V 8000 4600 35  0000 C CNN
+F 2 "RESC1608*" V 7910 4600 20  0001 C CNN
+F 3 "http://industrial.panasonic.com/www-cgi/jvcr13pz.cgi?E+PZ+3+AOA0005+ERJS06J821V+7+WW" V 7935 4600 20  0001 C CNN
+F 4 "PANASONIC" V 7985 4600 20  0001 C CNN "manf"
+F 5 "ERJ-S03J2R2V" V 8010 4600 20  0001 C CNN "manf#"
+F 6 "Mouser" V 8035 4600 20  0001 C CNN "Supplier"
+F 7 "667-ERJ-S03J2R2V" V 8060 4600 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Panasonic/ERJ-S03J2R2V" V 8085 4600 20  0001 C CNN "Supplier URL"
+F 9 "0.084" V 8110 4600 20  0001 C CNN "Supplier Price"
+F 10 "50" V 8135 4600 20  0001 C CNN "Supplier Price Break"
+	1    7800 4750
+	0    -1   1    0   
 $EndComp
 $EndSCHEMATC
