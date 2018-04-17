@@ -335,12 +335,12 @@ Text Notes 14325 2250 0    50   ~ 0
 $Comp
 L appli_power:+12V #PWR0112
 U 1 1 5ABE329D
-P 12200 5050
-F 0 "#PWR0112" H 12200 4900 50  0001 C CNN
-F 1 "+12V" H 12215 5223 50  0000 C CNN
-F 2 "" H 12200 5050 60  0000 C CNN
-F 3 "" H 12200 5050 60  0000 C CNN
-	1    12200 5050
+P 12800 5050
+F 0 "#PWR0112" H 12800 4900 50  0001 C CNN
+F 1 "+12V" H 12815 5223 50  0000 C CNN
+F 2 "" H 12800 5050 60  0000 C CNN
+F 3 "" H 12800 5050 60  0000 C CNN
+	1    12800 5050
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -376,8 +376,6 @@ F 3 "" H 4000 1550 60  0000 C CNN
 	1    4000 1550
 	1    0    0    -1  
 $EndComp
-Text Notes 10425 4825 0    50   ~ 0
-47uF electro
 $Comp
 L appli_resistor:0R_1608M R?
 U 1 1 5B040E00
@@ -435,27 +433,27 @@ $EndComp
 $Comp
 L appli_resistor:1M_1608M R?
 U 1 1 5B0412F7
-P 4000 5000
-F 0 "R?" H 3927 4815 50  0000 R CNN
-F 1 "1M_1608M" H 3927 4895 35  0000 R CNN
-F 2 "RESC1608*" V 4110 4850 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1720486.pdf" V 4135 4850 20  0001 C CNN
-F 4 "VISHAY DRALORIC" V 4185 4850 20  0001 C CNN "manf"
-F 5 "CRCW06031M00FKEA" V 4210 4850 20  0001 C CNN "manf#"
-F 6 "Element14" V 4235 4850 20  0001 C CNN "Supplier"
-F 7 "1469746" V 4260 4850 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/vishay-draloric/crcw06031m00fkea/product-range-aec-q200-crcw-series/dp/1469746" V 4285 4850 20  0001 C CNN "Supplier URL"
-F 9 "0.02" V 4310 4850 20  0001 C CNN "Supplier Price"
-F 10 "100" V 4335 4850 20  0001 C CNN "Supplier Price Break"
-	1    4000 5000
+P 4000 5075
+F 0 "R?" H 3927 4890 50  0000 R CNN
+F 1 "1M_1608M" H 3927 4970 35  0000 R CNN
+F 2 "RESC1608*" V 4110 4925 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1720486.pdf" V 4135 4925 20  0001 C CNN
+F 4 "VISHAY DRALORIC" V 4185 4925 20  0001 C CNN "manf"
+F 5 "CRCW06031M00FKEA" V 4210 4925 20  0001 C CNN "manf#"
+F 6 "Element14" V 4235 4925 20  0001 C CNN "Supplier"
+F 7 "1469746" V 4260 4925 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/vishay-draloric/crcw06031m00fkea/product-range-aec-q200-crcw-series/dp/1469746" V 4285 4925 20  0001 C CNN "Supplier URL"
+F 9 "0.02" V 4310 4925 20  0001 C CNN "Supplier Price"
+F 10 "100" V 4335 4925 20  0001 C CNN "Supplier Price Break"
+	1    4000 5075
 	-1   0    0    1   
 $EndComp
 Wire Wire Line
 	7500 5850 7750 5850
 Wire Wire Line
-	7750 5850 7750 6125
+	7750 5850 7750 6100
 Wire Wire Line
-	7750 6325 7750 6850
+	7750 6300 7750 6850
 $Comp
 L appli_power:GND #PWR?
 U 1 1 5B047597
@@ -537,25 +535,17 @@ Wire Wire Line
 	5200 4500 5200 4450
 Wire Wire Line
 	5200 4450 5900 4450
-Text Notes 4900 4800 1    50   ~ 0
-diode >
 Connection ~ 5200 4450
 Wire Wire Line
 	5200 4850 4850 4850
 Wire Wire Line
 	4850 4850 4850 4950
 Wire Wire Line
-	4850 5150 4850 5200
-Wire Wire Line
 	5900 5150 5650 5150
 Wire Wire Line
-	5650 5150 5650 5250
+	5650 5150 5650 5350
 Wire Wire Line
-	5650 5250 4000 5250
-Wire Wire Line
-	4000 5250 4000 5000
-Wire Wire Line
-	4000 5350 4000 5600
+	5650 5350 4000 5350
 Wire Wire Line
 	5250 6375 5250 6300
 Wire Wire Line
@@ -590,9 +580,9 @@ F 3 "" H 5250 6850 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5775 5850 5775 5950
+	5800 5850 5800 5950
 Wire Wire Line
-	5775 6250 5775 6375
+	5800 6250 5800 6375
 $Comp
 L appli_regulator:LM5116 U?
 U 1 1 5B07707D
@@ -612,34 +602,30 @@ F 10 "1" H 7025 4025 20  0001 L CNN "Supplier Price Break"
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4000 5350 5900 5350
-Wire Wire Line
 	5250 6375 5450 6375
 Wire Wire Line
-	5775 5850 5900 5850
+	5800 5850 5900 5850
 Wire Wire Line
 	5900 5650 5450 5650
 Wire Wire Line
 	5450 5650 5450 6375
 Connection ~ 5450 6375
 Wire Wire Line
-	5450 6375 5775 6375
+	5450 6375 5800 6375
 $Comp
 L appli_power:+12V #PWR?
 U 1 1 5B089A4B
-P 5775 5825
-F 0 "#PWR?" H 5775 5675 50  0001 C CNN
-F 1 "+12V" H 5625 5875 50  0000 C CNN
-F 2 "" H 5775 5825 60  0000 C CNN
-F 3 "" H 5775 5825 60  0000 C CNN
-	1    5775 5825
+P 5800 5825
+F 0 "#PWR?" H 5800 5675 50  0001 C CNN
+F 1 "+12V" H 5650 5875 50  0000 C CNN
+F 2 "" H 5800 5825 60  0000 C CNN
+F 3 "" H 5800 5825 60  0000 C CNN
+	1    5800 5825
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	5775 5825 5775 5850
-Connection ~ 5775 5850
-Text Notes 7925 4475 0    50   ~ 0
-diode >
+	5800 5825 5800 5850
+Connection ~ 5800 5850
 Wire Wire Line
 	8700 4750 8700 4450
 Wire Wire Line
@@ -650,27 +636,7 @@ Connection ~ 8700 4750
 Wire Wire Line
 	8700 5000 8700 5050
 Wire Wire Line
-	8700 4450 8300 4450
-$Comp
-L appli_transistor:2N7002P Q?
-U 1 1 5B0B7AAF
-P 9500 4800
-F 0 "Q?" H 9691 4846 50  0000 L CNN
-F 1 "2N7002P" H 9691 4755 50  0000 L CNN
-F 2 "SOT23" H 9700 4700 50  0001 L CIN
-F 3 "http://docs-asia.electrocomponents.com/webdocs/1385/0900766b813856ab.pdf" H 7870 4530 50  0001 L CNN
-F 4 "Fairchild" H 9500 4300 60  0001 C CNN "manf"
-F 5 " 2N7002,215" H 9500 4180 60  0001 C CNN "manf#"
-F 6 "RS Online" H 9500 4080 60  0001 C CNN "Supplier"
-F 7 "http://au.rs-online.com/web/p/mosfet-transistors/4367379/" H 9500 3960 60  0001 C CNN "Supplier URL"
-F 8 " 436-7379" H 9500 3830 60  0001 C CNN "Supplier Part No"
-F 9 "0.232" H 9500 3710 60  0001 C CNN "Supplier Price"
-F 10 "25" H 9500 3580 60  0001 C CNN "Supplier Price Break"
-	1    9500 4800
-	1    0    0    -1  
-$EndComp
-Text Notes 9775 4625 0    50   ~ 0
-CHANGE
+	8700 4450 8050 4450
 Wire Wire Line
 	7500 5050 8700 5050
 Wire Wire Line
@@ -679,29 +645,7 @@ Connection ~ 8700 5050
 Wire Wire Line
 	8100 4750 8700 4750
 Wire Wire Line
-	10575 5050 12200 5050
-Text Notes 10775 5275 0    50   ~ 0
-caps
-$Comp
-L appli_transistor:2N7002P Q?
-U 1 1 5B0CB451
-P 9500 5300
-F 0 "Q?" H 9691 5346 50  0000 L CNN
-F 1 "2N7002P" H 9691 5255 50  0000 L CNN
-F 2 "SOT23" H 9700 5200 50  0001 L CIN
-F 3 "http://docs-asia.electrocomponents.com/webdocs/1385/0900766b813856ab.pdf" H 7870 5030 50  0001 L CNN
-F 4 "Fairchild" H 9500 4800 60  0001 C CNN "manf"
-F 5 " 2N7002,215" H 9500 4680 60  0001 C CNN "manf#"
-F 6 "RS Online" H 9500 4580 60  0001 C CNN "Supplier"
-F 7 "http://au.rs-online.com/web/p/mosfet-transistors/4367379/" H 9500 4460 60  0001 C CNN "Supplier URL"
-F 8 " 436-7379" H 9500 4330 60  0001 C CNN "Supplier Part No"
-F 9 "0.232" H 9500 4210 60  0001 C CNN "Supplier Price"
-F 10 "25" H 9500 4080 60  0001 C CNN "Supplier Price Break"
-	1    9500 5300
-	1    0    0    -1  
-$EndComp
-Text Notes 9850 5275 0    50   ~ 0
-CHANGE
+	10575 5050 10800 5050
 Wire Wire Line
 	9600 5500 9600 5800
 Wire Wire Line
@@ -809,11 +753,11 @@ F 3 "" H 7550 6850 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	4000 5900 4000 6700
+	4000 5900 4000 6850
 Wire Wire Line
-	4000 4700 4000 4450
+	4000 4775 4000 4450
 Wire Wire Line
-	4000 4450 5200 4450
+	4000 4450 4850 4450
 Wire Wire Line
 	4000 4450 3800 4450
 Connection ~ 4000 4450
@@ -824,8 +768,6 @@ Wire Wire Line
 Connection ~ 9600 5050
 Wire Wire Line
 	9600 5050 10275 5050
-Wire Wire Line
-	9600 5050 9600 5000
 $Comp
 L appli_power:+12V #PWR?
 U 1 1 5B1AC942
@@ -841,7 +783,7 @@ Wire Wire Line
 	7550 6350 7550 4450
 Connection ~ 7550 4450
 Wire Wire Line
-	7550 4450 7800 4450
+	7550 4450 7850 4450
 Wire Wire Line
 	7550 6850 7550 6600
 Text Notes 3150 5350 0    50   ~ 0
@@ -956,19 +898,19 @@ $EndComp
 $Comp
 L appli_resistor:10K7_1608M R?
 U 1 1 5ADD30A8
-P 5775 5950
-F 0 "R?" H 5848 5835 50  0000 L CNN
-F 1 "10K7_1608M" H 5848 5755 35  0000 L CNN
-F 2 "RESC1608*" V 5885 5800 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1911175.pdf" V 5910 5800 20  0001 C CNN
-F 4 "PANASONIC" V 5960 5800 20  0001 C CNN "manf"
-F 5 "ERJ3EKF1072V" V 5985 5800 20  0001 C CNN "manf#"
-F 6 "Element14" V 6010 5800 20  0001 C CNN "Supplier"
-F 7 "2303193" V 6035 5800 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/panasonic-electronic-components/erj3ekf1072v/res-thick-film-10k7-1-0-1w-0603/dp/2303193" V 6060 5800 20  0001 C CNN "Supplier URL"
-F 9 "0.014" V 6085 5800 20  0001 C CNN "Supplier Price"
-F 10 "5" V 6110 5800 20  0001 C CNN "Supplier Price Break"
-	1    5775 5950
+P 5800 5950
+F 0 "R?" H 5873 5835 50  0000 L CNN
+F 1 "10K7_1608M" H 5873 5755 35  0000 L CNN
+F 2 "RESC1608*" V 5910 5800 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1911175.pdf" V 5935 5800 20  0001 C CNN
+F 4 "PANASONIC" V 5985 5800 20  0001 C CNN "manf"
+F 5 "ERJ3EKF1072V" V 6010 5800 20  0001 C CNN "manf#"
+F 6 "Element14" V 6035 5800 20  0001 C CNN "Supplier"
+F 7 "2303193" V 6060 5800 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/panasonic-electronic-components/erj3ekf1072v/res-thick-film-10k7-1-0-1w-0603/dp/2303193" V 6085 5800 20  0001 C CNN "Supplier URL"
+F 9 "0.014" V 6110 5800 20  0001 C CNN "Supplier Price"
+F 10 "5" V 6135 5800 20  0001 C CNN "Supplier Price Break"
+	1    5800 5950
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -1070,12 +1012,12 @@ $EndComp
 $Comp
 L appli_power:PWR_FLAG #FLG?
 U 1 1 5AD5527D
-P 12575 5050
-F 0 "#FLG?" H 12575 5100 30  0001 C CNN
-F 1 "PWR_FLAG" H 12575 5183 30  0000 C CNN
-F 2 "" H 12575 5050 60  0000 C CNN
-F 3 "" H 12575 5050 60  0000 C CNN
-	1    12575 5050
+P 12675 4525
+F 0 "#FLG?" H 12675 4575 30  0001 C CNN
+F 1 "PWR_FLAG" H 12675 4658 30  0000 C CNN
+F 2 "" H 12675 4525 60  0000 C CNN
+F 3 "" H 12675 4525 60  0000 C CNN
+	1    12675 4525
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -1117,19 +1059,19 @@ $EndComp
 $Comp
 L appli_capacitor:1u_X7R_2012M C?
 U 1 1 5ADCA287
-P 7750 6325
-F 0 "C?" H 7672 6190 50  0000 R CNN
-F 1 "1u_X7R_2012M" H 7672 6270 35  0000 R CNN
-F 2 "CAPC2012*" V 7865 6225 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2047889.pdf" V 7890 6225 20  0001 C CNN
-F 4 "muRata" V 7940 6225 20  0001 C CNN "manf"
-F 5 "GRM21BR71C105KA01L" V 7965 6225 20  0001 C CNN "manf#"
-F 6 "Element14" V 7990 6225 20  0001 C CNN "Supplier"
-F 7 "9527710" V 8015 6225 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/murata/grm21br71c105ka01l/cap-mlcc-x7r-1uf-16v-0805/dp/9527710" V 8040 6225 20  0001 C CNN "Supplier URL"
-F 9 "0.224" V 8065 6225 20  0001 C CNN "Supplier Price"
-F 10 "1" V 8090 6225 20  0001 C CNN "Supplier Price Break"
-	1    7750 6325
+P 7750 6300
+F 0 "C?" H 7672 6165 50  0000 R CNN
+F 1 "1u_X7R_2012M" H 7672 6245 35  0000 R CNN
+F 2 "CAPC2012*" V 7865 6200 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2047889.pdf" V 7890 6200 20  0001 C CNN
+F 4 "muRata" V 7940 6200 20  0001 C CNN "manf"
+F 5 "GRM21BR71C105KA01L" V 7965 6200 20  0001 C CNN "manf#"
+F 6 "Element14" V 7990 6200 20  0001 C CNN "Supplier"
+F 7 "9527710" V 8015 6200 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/murata/grm21br71c105ka01l/cap-mlcc-x7r-1uf-16v-0805/dp/9527710" V 8040 6200 20  0001 C CNN "Supplier URL"
+F 9 "0.224" V 8065 6200 20  0001 C CNN "Supplier Price"
+F 10 "1" V 8090 6200 20  0001 C CNN "Supplier Price Break"
+	1    7750 6300
 	-1   0    0    1   
 $EndComp
 $Comp
@@ -1277,5 +1219,324 @@ F 9 "5.59" V 10890 4900 20  0001 C CNN "Supplier Price"
 F 10 "1" V 10915 4900 20  0001 C CNN "Supplier Price Break"
 	1    10575 5050
 	0    1    1    0   
+$EndComp
+Wire Wire Line
+	9600 5050 9600 5000
+$Comp
+L appli_device:200V_350mW_SOT23 D?
+U 1 1 5AD656F9
+P 7950 4450
+F 0 "D?" H 7950 4245 50  0000 C CNN
+F 1 "200V_350mW_SOT23" H 7950 4336 50  0000 C CNN
+F 2 "Applidyne_SOT:SOT95P240X110-3L16N" H 7950 4300 20  0001 C CNN
+F 3 "https://au.mouser.com/datasheet/2/68/cmpd2003s_3c_4c-55024.pdf" H 7950 4275 20  0001 C CNN
+F 4 "Central Semiconductor" H 7950 4225 20  0001 C CNN "manf"
+F 5 "CMPD2003C-TR" H 7950 4200 20  0001 C CNN "manf#"
+F 6 "Mouser" H 7950 4175 20  0001 C CNN "Supplier"
+F 7 "610-CMPD2003CTR" H 7950 4150 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Central-Semiconductor/CMPD2003C-TR" H 7950 4125 20  0001 C CNN "Supplier URL"
+F 9 "0.59" H 7950 4100 20  0001 C CNN "Supplier Price"
+F 10 "1" H 7950 4075 20  0001 C CNN "Supplier Price Break"
+	1    7950 4450
+	-1   0    0    1   
+$EndComp
+$Comp
+L appli_device:200V_350mW_SOT23 D?
+U 1 1 5AD65862
+P 4850 4650
+F 0 "D?" V 4800 4425 50  0000 L CNN
+F 1 "200V_350mW_SOT23" V 4900 3825 50  0000 L CNN
+F 2 "Applidyne_SOT:SOT95P240X110-3L16N" H 4850 4500 20  0001 C CNN
+F 3 "https://au.mouser.com/datasheet/2/68/cmpd2003s_3c_4c-55024.pdf" H 4850 4475 20  0001 C CNN
+F 4 "Central Semiconductor" H 4850 4425 20  0001 C CNN "manf"
+F 5 "CMPD2003C-TR" H 4850 4400 20  0001 C CNN "manf#"
+F 6 "Mouser" H 4850 4375 20  0001 C CNN "Supplier"
+F 7 "610-CMPD2003CTR" H 4850 4350 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Central-Semiconductor/CMPD2003C-TR" H 4850 4325 20  0001 C CNN "Supplier URL"
+F 9 "0.59" H 4850 4300 20  0001 C CNN "Supplier Price"
+F 10 "1" H 4850 4275 20  0001 C CNN "Supplier Price Break"
+	1    4850 4650
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	4850 4850 4850 4750
+Connection ~ 4850 4850
+Wire Wire Line
+	4850 4550 4850 4450
+Connection ~ 4850 4450
+Wire Wire Line
+	4850 4450 5200 4450
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5AD7AEE5
+P 5200 5225
+F 0 "#PWR?" H 5200 4975 50  0001 C CNN
+F 1 "GND" H 5350 5175 50  0000 C CNN
+F 2 "" H 5200 5225 60  0000 C CNN
+F 3 "" H 5200 5225 60  0000 C CNN
+	1    5200 5225
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5200 5200 5200 5225
+Wire Wire Line
+	4000 5350 4000 5075
+Wire Wire Line
+	4000 5450 5800 5450
+Wire Wire Line
+	5800 5450 5800 5350
+Wire Wire Line
+	4000 5450 4000 5600
+Wire Wire Line
+	5800 5350 5900 5350
+Wire Wire Line
+	4850 5225 5200 5225
+Wire Wire Line
+	4850 5150 4850 5225
+Connection ~ 5200 5225
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5ADCECDF
+P 4000 6850
+F 0 "#PWR?" H 4000 6600 50  0001 C CNN
+F 1 "GND" H 4005 6677 50  0000 C CNN
+F 2 "" H 4000 6850 60  0000 C CNN
+F 3 "" H 4000 6850 60  0000 C CNN
+	1    4000 6850
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_transistor:Si7852DP Q?
+U 1 1 5ADE3674
+P 9500 4800
+F 0 "Q?" H 9691 4846 50  0000 L CNN
+F 1 "Si7852DP" H 9691 4755 50  0000 L CNN
+F 2 "Applidyne_SON:SON127P490X575X90-9T313X381N" H 9700 4700 50  0001 L CIN
+F 3 "https://au.mouser.com/datasheet/2/427/si7852dp-241219.pdf" H 7870 4530 50  0001 L CNN
+F 4 "Vishay" H 9500 4300 60  0001 C CNN "manf"
+F 5 "SI7852DP-T1-GE3" H 9500 4180 60  0001 C CNN "manf#"
+F 6 "Mouser" H 9500 4080 60  0001 C CNN "Supplier"
+F 7 "781-SI7852DP-GE3" H 9500 3830 60  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Vishay-Siliconix/SI7852DP-T1-GE3" H 9500 3960 60  0001 C CNN "Supplier URL"
+F 9 "4.1" H 9500 3710 60  0001 C CNN "Supplier Price"
+F 10 "1" H 9500 3580 60  0001 C CNN "Supplier Price Break"
+	1    9500 4800
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_transistor:Si7852DP Q?
+U 1 1 5ADE380B
+P 9500 5300
+F 0 "Q?" H 9691 5346 50  0000 L CNN
+F 1 "Si7852DP" H 9691 5255 50  0000 L CNN
+F 2 "Applidyne_SON:SON127P490X575X90-9T313X381N" H 9700 5200 50  0001 L CIN
+F 3 "https://au.mouser.com/datasheet/2/427/si7852dp-241219.pdf" H 7870 5030 50  0001 L CNN
+F 4 "Vishay" H 9500 4800 60  0001 C CNN "manf"
+F 5 "SI7852DP-T1-GE3" H 9500 4680 60  0001 C CNN "manf#"
+F 6 "Mouser" H 9500 4580 60  0001 C CNN "Supplier"
+F 7 "781-SI7852DP-GE3" H 9500 4330 60  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Vishay-Siliconix/SI7852DP-T1-GE3" H 9500 4460 60  0001 C CNN "Supplier URL"
+F 9 "4.1" H 9500 4210 60  0001 C CNN "Supplier Price"
+F 10 "1" H 9500 4080 60  0001 C CNN "Supplier Price Break"
+	1    9500 5300
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_capacitor:22u_X7R_3225M C?
+U 1 1 5ADF1E40
+P 12400 5550
+F 0 "C?" H 12225 5450 50  0000 L CNN
+F 1 "22u_X7R_3225M" V 12525 5250 35  0000 L CNN
+F 2 "CAPC3225*" V 12515 5450 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2111999.pdf?_ga=1.157172477.774814437.1442284889" V 12540 5450 20  0001 C CNN
+F 4 "muRata" V 12590 5450 20  0001 C CNN "manf"
+F 5 "C1210C226K3RACTU" V 12615 5450 20  0001 C CNN "manf#"
+F 6 "Element14" V 12640 5450 20  0001 C CNN "Supplier"
+F 7 "2473550" V 12665 5450 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/kemet/c1210c226k3ractu/cap-mlcc-x7r-22uf-25v-1210/dp/2473550" V 12690 5450 20  0001 C CNN "Supplier URL"
+F 9 "1.02" V 12715 5450 20  0001 C CNN "Supplier Price"
+F 10 "50" V 12740 5450 20  0001 C CNN "Supplier Price Break"
+	1    12400 5550
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_capacitor:47u_TANT_7343M C?
+U 1 1 5ADF1FAB
+P 10800 5550
+F 0 "C?" H 10600 5450 50  0000 L CNN
+F 1 "47u_TANT_7343M" V 10925 5225 35  0000 L CNN
+F 2 "CAPPM7343*" V 10915 5450 20  0001 C CNN
+F 3 "https://au.mouser.com/datasheet/2/212/Datasheet-T520D476M016ATE035-1079046.pdf" V 10940 5450 20  0001 C CNN
+F 4 "KEMET" V 10990 5450 20  0001 C CNN "manf"
+F 5 "T520D476M016ATE035" V 11015 5450 20  0001 C CNN "manf#"
+F 6 "Mouser" V 11040 5450 20  0001 C CNN "Supplier"
+F 7 "80-T520D476M16E35" V 11065 5450 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/?qs=23lJVmSKTBTa5vz24B8T6A%3D%3D" V 11090 5450 20  0001 C CNN "Supplier URL"
+F 9 "3.07" V 11115 5450 20  0001 C CNN "Supplier Price"
+F 10 "10" V 11140 5450 20  0001 C CNN "Supplier Price Break"
+	1    10800 5550
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_capacitor:47u_TANT_7343M C?
+U 1 1 5ADF2433
+P 11200 5550
+F 0 "C?" H 11000 5450 50  0000 L CNN
+F 1 "47u_TANT_7343M" V 11325 5225 35  0000 L CNN
+F 2 "CAPPM7343*" V 11315 5450 20  0001 C CNN
+F 3 "https://au.mouser.com/datasheet/2/212/Datasheet-T520D476M016ATE035-1079046.pdf" V 11340 5450 20  0001 C CNN
+F 4 "KEMET" V 11390 5450 20  0001 C CNN "manf"
+F 5 "T520D476M016ATE035" V 11415 5450 20  0001 C CNN "manf#"
+F 6 "Mouser" V 11440 5450 20  0001 C CNN "Supplier"
+F 7 "80-T520D476M16E35" V 11465 5450 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/?qs=23lJVmSKTBTa5vz24B8T6A%3D%3D" V 11490 5450 20  0001 C CNN "Supplier URL"
+F 9 "3.07" V 11515 5450 20  0001 C CNN "Supplier Price"
+F 10 "10" V 11540 5450 20  0001 C CNN "Supplier Price Break"
+	1    11200 5550
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_capacitor:47u_TANT_7343M C?
+U 1 1 5ADF24BD
+P 11600 5550
+F 0 "C?" H 11400 5450 50  0000 L CNN
+F 1 "47u_TANT_7343M" V 11725 5225 35  0000 L CNN
+F 2 "CAPPM7343*" V 11715 5450 20  0001 C CNN
+F 3 "https://au.mouser.com/datasheet/2/212/Datasheet-T520D476M016ATE035-1079046.pdf" V 11740 5450 20  0001 C CNN
+F 4 "KEMET" V 11790 5450 20  0001 C CNN "manf"
+F 5 "T520D476M016ATE035" V 11815 5450 20  0001 C CNN "manf#"
+F 6 "Mouser" V 11840 5450 20  0001 C CNN "Supplier"
+F 7 "80-T520D476M16E35" V 11865 5450 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/?qs=23lJVmSKTBTa5vz24B8T6A%3D%3D" V 11890 5450 20  0001 C CNN "Supplier URL"
+F 9 "3.07" V 11915 5450 20  0001 C CNN "Supplier Price"
+F 10 "10" V 11940 5450 20  0001 C CNN "Supplier Price Break"
+	1    11600 5550
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_capacitor:47u_TANT_7343M C?
+U 1 1 5ADF2543
+P 12000 5550
+F 0 "C?" H 11800 5450 50  0000 L CNN
+F 1 "47u_TANT_7343M" V 12125 5225 35  0000 L CNN
+F 2 "CAPPM7343*" V 12115 5450 20  0001 C CNN
+F 3 "https://au.mouser.com/datasheet/2/212/Datasheet-T520D476M016ATE035-1079046.pdf" V 12140 5450 20  0001 C CNN
+F 4 "KEMET" V 12190 5450 20  0001 C CNN "manf"
+F 5 "T520D476M016ATE035" V 12215 5450 20  0001 C CNN "manf#"
+F 6 "Mouser" V 12240 5450 20  0001 C CNN "Supplier"
+F 7 "80-T520D476M16E35" V 12265 5450 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/?qs=23lJVmSKTBTa5vz24B8T6A%3D%3D" V 12290 5450 20  0001 C CNN "Supplier URL"
+F 9 "3.07" V 12315 5450 20  0001 C CNN "Supplier Price"
+F 10 "10" V 12340 5450 20  0001 C CNN "Supplier Price Break"
+	1    12000 5550
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	10800 5550 10800 5050
+Connection ~ 10800 5050
+Wire Wire Line
+	10800 5050 11200 5050
+Wire Wire Line
+	11200 5550 11200 5050
+Connection ~ 11200 5050
+Wire Wire Line
+	11200 5050 11600 5050
+Wire Wire Line
+	11600 5550 11600 5050
+Connection ~ 11600 5050
+Wire Wire Line
+	11600 5050 12000 5050
+Wire Wire Line
+	12000 5550 12000 5050
+Connection ~ 12000 5050
+Wire Wire Line
+	12000 5050 12400 5050
+Wire Wire Line
+	12400 5550 12400 5050
+Connection ~ 12400 5050
+Wire Wire Line
+	12400 5050 12800 5050
+Wire Wire Line
+	12400 5750 12400 6850
+Wire Wire Line
+	12000 5750 12000 6850
+Wire Wire Line
+	11600 5750 11600 6850
+Wire Wire Line
+	11200 5750 11200 6850
+Wire Wire Line
+	10800 5750 10800 6850
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5AE2FCFB
+P 10800 6850
+F 0 "#PWR?" H 10800 6600 50  0001 C CNN
+F 1 "GND" H 10805 6677 50  0000 C CNN
+F 2 "" H 10800 6850 60  0000 C CNN
+F 3 "" H 10800 6850 60  0000 C CNN
+	1    10800 6850
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5AE2FD65
+P 11200 6850
+F 0 "#PWR?" H 11200 6600 50  0001 C CNN
+F 1 "GND" H 11205 6677 50  0000 C CNN
+F 2 "" H 11200 6850 60  0000 C CNN
+F 3 "" H 11200 6850 60  0000 C CNN
+	1    11200 6850
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5AE2FDC8
+P 11600 6850
+F 0 "#PWR?" H 11600 6600 50  0001 C CNN
+F 1 "GND" H 11605 6677 50  0000 C CNN
+F 2 "" H 11600 6850 60  0000 C CNN
+F 3 "" H 11600 6850 60  0000 C CNN
+	1    11600 6850
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5AE2FE2B
+P 12000 6850
+F 0 "#PWR?" H 12000 6600 50  0001 C CNN
+F 1 "GND" H 12005 6677 50  0000 C CNN
+F 2 "" H 12000 6850 60  0000 C CNN
+F 3 "" H 12000 6850 60  0000 C CNN
+	1    12000 6850
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5AE2FE8E
+P 12400 6850
+F 0 "#PWR?" H 12400 6600 50  0001 C CNN
+F 1 "GND" H 12405 6677 50  0000 C CNN
+F 2 "" H 12400 6850 60  0000 C CNN
+F 3 "" H 12400 6850 60  0000 C CNN
+	1    12400 6850
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_capacitor:47u_ELEC_100V_1350X1350M C?
+U 1 1 5AE30345
+P 1575 5350
+F 0 "C?" H 1653 5285 50  0000 L CNN
+F 1 "47u_ELEC_100V_1350X1350M" H 1653 5205 35  0000 L CNN
+F 2 "Applidyne_Capacitor:CAPAE1350X1350D1490DD450L470N" V 1690 5250 20  0001 C CNN
+F 3 "https://au.mouser.com/datasheet/2/315/ABA0000C1181-947564.pdf" V 1715 5250 20  0001 C CNN
+F 4 "PANASONIC" V 1765 5250 20  0001 C CNN "manf"
+F 5 "EEV-FK2A470Q" V 1790 5250 20  0001 C CNN "manf#"
+F 6 "Mouser" V 1815 5250 20  0001 C CNN "Supplier"
+F 7 "667-EEV-FK2A470Q" V 1840 5250 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/productdetail/?qs=f%252bPvLx1Hi0lKaMF67jB0og%3D%3D" V 1865 5250 20  0001 C CNN "Supplier URL"
+F 9 "1.66" V 1890 5250 20  0001 C CNN "Supplier Price"
+F 10 "1" V 1915 5250 20  0001 C CNN "Supplier Price Break"
+	1    1575 5350
+	1    0    0    -1  
 $EndComp
 $EndSCHEMATC
