@@ -14,13 +14,13 @@ Comment2 ""
 Comment3 ""
 Comment4 ""
 $EndDescr
-Text Notes 1800 1150 0    79   ~ 16
-75V Input Power
-Text Notes 12600 900  0    79   ~ 16
+Text Notes 2675 1525 0    118  ~ 24
+75VDC Input Power
+Text Notes 12350 1675 0    118  ~ 24
 Input Voltage Monitoring
 Text Notes 6025 3450 0    118  ~ 24
 12V Regulation
-Text Notes 1950 7825 0    79   ~ 16
+Text Notes 6000 8125 0    118  ~ 24
 3.3V Regulation
 Text Notes 13375 8600 0    79   ~ 16
 Testpoints
@@ -156,181 +156,181 @@ F 3 "" H 13450 9100 60  0000 C CNN
 	1    13450 9100
 	1    0    0    -1  
 $EndComp
-Text Notes 1075 1450 0    50   ~ 0
+Text Notes 1950 1825 0    50   ~ 0
 SABRE 2-pin connector
 $Comp
 L appli_resistor:130K_1608M R?
 U 1 1 5ABC59BC
-P 12450 1600
-F 0 "R?" H 12378 1415 50  0000 R CNN
-F 1 "130K_1608M" H 12378 1495 35  0000 R CNN
-F 2 "RESC1608*" V 12560 1450 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2059623.pdf" V 12585 1450 20  0001 C CNN
-F 4 "PANASONIC" V 12635 1450 20  0001 C CNN "manf"
-F 5 "ERJ3GEYJ134V" V 12660 1450 20  0001 C CNN "manf#"
-F 6 "Element14" V 12685 1450 20  0001 C CNN "Supplier"
-F 7 "2059658" V 12710 1450 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/panasonic-electronic-components/erj3geyj134v/res-thick-film-130k-5-0-1w-0603/dp/2059658" V 12735 1450 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 12760 1450 20  0001 C CNN "Supplier Price"
-F 10 "50" V 12785 1450 20  0001 C CNN "Supplier Price Break"
-	1    12450 1600
+P 12200 2375
+F 0 "R?" H 12128 2190 50  0000 R CNN
+F 1 "130K_1608M" H 12128 2270 35  0000 R CNN
+F 2 "RESC1608*" V 12310 2225 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2059623.pdf" V 12335 2225 20  0001 C CNN
+F 4 "PANASONIC" V 12385 2225 20  0001 C CNN "manf"
+F 5 "ERJ3GEYJ134V" V 12410 2225 20  0001 C CNN "manf#"
+F 6 "Element14" V 12435 2225 20  0001 C CNN "Supplier"
+F 7 "2059658" V 12460 2225 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/panasonic-electronic-components/erj3geyj134v/res-thick-film-130k-5-0-1w-0603/dp/2059658" V 12485 2225 20  0001 C CNN "Supplier URL"
+F 9 "0.011" V 12510 2225 20  0001 C CNN "Supplier Price"
+F 10 "50" V 12535 2225 20  0001 C CNN "Supplier Price Break"
+	1    12200 2375
 	1    0    0    1   
 $EndComp
 $Comp
 L appli_resistor:130K_1608M R?
 U 1 1 5ABC5A8A
-P 12450 2000
-F 0 "R?" H 12378 1815 50  0000 R CNN
-F 1 "130K_1608M" H 12378 1895 35  0000 R CNN
-F 2 "RESC1608*" V 12560 1850 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2059623.pdf" V 12585 1850 20  0001 C CNN
-F 4 "PANASONIC" V 12635 1850 20  0001 C CNN "manf"
-F 5 "ERJ3GEYJ134V" V 12660 1850 20  0001 C CNN "manf#"
-F 6 "Element14" V 12685 1850 20  0001 C CNN "Supplier"
-F 7 "2059658" V 12710 1850 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/panasonic-electronic-components/erj3geyj134v/res-thick-film-130k-5-0-1w-0603/dp/2059658" V 12735 1850 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 12760 1850 20  0001 C CNN "Supplier Price"
-F 10 "50" V 12785 1850 20  0001 C CNN "Supplier Price Break"
-	1    12450 2000
+P 12200 2775
+F 0 "R?" H 12128 2590 50  0000 R CNN
+F 1 "130K_1608M" H 12128 2670 35  0000 R CNN
+F 2 "RESC1608*" V 12310 2625 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2059623.pdf" V 12335 2625 20  0001 C CNN
+F 4 "PANASONIC" V 12385 2625 20  0001 C CNN "manf"
+F 5 "ERJ3GEYJ134V" V 12410 2625 20  0001 C CNN "manf#"
+F 6 "Element14" V 12435 2625 20  0001 C CNN "Supplier"
+F 7 "2059658" V 12460 2625 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/panasonic-electronic-components/erj3geyj134v/res-thick-film-130k-5-0-1w-0603/dp/2059658" V 12485 2625 20  0001 C CNN "Supplier URL"
+F 9 "0.011" V 12510 2625 20  0001 C CNN "Supplier Price"
+F 10 "50" V 12535 2625 20  0001 C CNN "Supplier Price Break"
+	1    12200 2775
 	1    0    0    1   
 $EndComp
 $Comp
 L appli_resistor:10K0_1608M R?
 U 1 1 5ABC5BF5
-P 12450 2400
-F 0 "R?" H 12377 2285 50  0000 R CNN
-F 1 "10K0_1608M" H 12377 2205 35  0000 R CNN
-F 2 "RESC1608*" V 12560 2250 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 12585 2250 20  0001 C CNN
-F 4 "TE CONNECTIVITY" V 12635 2250 20  0001 C CNN "manf"
-F 5 "CRGH0603F10K" V 12660 2250 20  0001 C CNN "manf#"
-F 6 "Element14" V 12685 2250 20  0001 C CNN "Supplier"
-F 7 "2332016" V 12710 2250 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/te-connectivity/crgh0603f10k/resistor-power-10k-0-2w-1-0603/dp/2332016" V 12735 2250 20  0001 C CNN "Supplier URL"
-F 9 "0.02" V 12760 2250 20  0001 C CNN "Supplier Price"
-F 10 "10" V 12785 2250 20  0001 C CNN "Supplier Price Break"
-	1    12450 2400
+P 12200 3175
+F 0 "R?" H 12127 3060 50  0000 R CNN
+F 1 "10K0_1608M" H 12127 2980 35  0000 R CNN
+F 2 "RESC1608*" V 12310 3025 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 12335 3025 20  0001 C CNN
+F 4 "TE CONNECTIVITY" V 12385 3025 20  0001 C CNN "manf"
+F 5 "CRGH0603F10K" V 12410 3025 20  0001 C CNN "manf#"
+F 6 "Element14" V 12435 3025 20  0001 C CNN "Supplier"
+F 7 "2332016" V 12460 3025 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/te-connectivity/crgh0603f10k/resistor-power-10k-0-2w-1-0603/dp/2332016" V 12485 3025 20  0001 C CNN "Supplier URL"
+F 9 "0.02" V 12510 3025 20  0001 C CNN "Supplier Price"
+F 10 "10" V 12535 3025 20  0001 C CNN "Supplier Price Break"
+	1    12200 3175
 	1    0    0    1   
 $EndComp
 $Comp
 L appli_power:+POWER #PWR0108
 U 1 1 5ABC5F0E
-P 12450 1250
-F 0 "#PWR0108" H 12450 1200 20  0001 C CNN
-F 1 "+POWER" H 12453 1388 30  0000 C CNN
-F 2 "" H 12450 1250 60  0000 C CNN
-F 3 "" H 12450 1250 60  0000 C CNN
-	1    12450 1250
+P 12200 2025
+F 0 "#PWR0108" H 12200 1975 20  0001 C CNN
+F 1 "+POWER" H 12203 2163 30  0000 C CNN
+F 2 "" H 12200 2025 60  0000 C CNN
+F 3 "" H 12200 2025 60  0000 C CNN
+	1    12200 2025
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	12450 1250 12450 1300
+	12200 2025 12200 2075
 Wire Wire Line
-	12450 1600 12450 1700
+	12200 2375 12200 2475
 Wire Wire Line
-	12450 2000 12450 2050
+	12200 2775 12200 2825
 Wire Wire Line
-	12800 2150 12800 2050
+	12550 2925 12550 2825
 Wire Wire Line
-	12800 2050 12450 2050
-Connection ~ 12450 2050
+	12550 2825 12200 2825
+Connection ~ 12200 2825
 Wire Wire Line
-	12450 2050 12450 2100
+	12200 2825 12200 2875
 Wire Wire Line
-	12450 2400 12450 2450
+	12200 3175 12200 3225
 $Comp
 L appli_power:GND #PWR0109
 U 1 1 5ABC61AD
-P 12450 2500
-F 0 "#PWR0109" H 12450 2250 50  0001 C CNN
-F 1 "GND" H 12455 2327 50  0000 C CNN
-F 2 "" H 12450 2500 60  0000 C CNN
-F 3 "" H 12450 2500 60  0000 C CNN
-	1    12450 2500
+P 12200 3275
+F 0 "#PWR0109" H 12200 3025 50  0001 C CNN
+F 1 "GND" H 12205 3102 50  0000 C CNN
+F 2 "" H 12200 3275 60  0000 C CNN
+F 3 "" H 12200 3275 60  0000 C CNN
+	1    12200 3275
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	12800 2350 12800 2450
+	12550 3125 12550 3225
 Wire Wire Line
-	12800 2450 12450 2450
-Connection ~ 12450 2450
+	12550 3225 12200 3225
+Connection ~ 12200 3225
 Wire Wire Line
-	12450 2450 12450 2500
+	12200 3225 12200 3275
 Wire Wire Line
-	12800 2050 13450 2050
-Connection ~ 12800 2050
+	12550 2825 13200 2825
+Connection ~ 12550 2825
 $Comp
 L appli_device:BAV99 D?
 U 1 1 5ABC7E1F
-P 13450 2050
-F 0 "D?" H 13558 2096 50  0000 L CNN
-F 1 "BAV99" H 13558 2005 50  0000 L CNN
-F 2 "SOT23" H 13650 1900 20  0001 C CNN
-F 3 "http://datasheet.octopart.com/BAV99-/T3-NXP-datasheet-5318834.pdf" H 13650 1875 20  0001 C CNN
-F 4 "NXP" H 13650 1825 20  0001 C CNN "manf"
-F 5 "RS Online" H 13650 1775 20  0001 C CNN "Supplier"
-F 6 " 544-4534" H 13650 1750 20  0001 C CNN "Supplier Part No"
-F 7 "http://au.rs-online.com/web/p/rectifier-schottky-diodes/5444534/" H 13650 1725 20  0001 C CNN "Supplier URL"
-F 8 "0.045" H 13650 1700 20  0001 C CNN "Supplier Price"
-F 9 "1" H 13650 1675 20  0001 C CNN "Supplier Price Break"
-F 10 "BAV99" H 13650 1800 20  0001 C CNN "manf#"
-	1    13450 2050
+P 13200 2825
+F 0 "D?" H 13308 2871 50  0000 L CNN
+F 1 "BAV99" H 13308 2780 50  0000 L CNN
+F 2 "SOT23" H 13400 2675 20  0001 C CNN
+F 3 "http://datasheet.octopart.com/BAV99-/T3-NXP-datasheet-5318834.pdf" H 13400 2650 20  0001 C CNN
+F 4 "NXP" H 13400 2600 20  0001 C CNN "manf"
+F 5 "RS Online" H 13400 2550 20  0001 C CNN "Supplier"
+F 6 " 544-4534" H 13400 2525 20  0001 C CNN "Supplier Part No"
+F 7 "http://au.rs-online.com/web/p/rectifier-schottky-diodes/5444534/" H 13400 2500 20  0001 C CNN "Supplier URL"
+F 8 "0.045" H 13400 2475 20  0001 C CNN "Supplier Price"
+F 9 "1" H 13400 2450 20  0001 C CNN "Supplier Price Break"
+F 10 "BAV99" H 13400 2575 20  0001 C CNN "manf#"
+	1    13200 2825
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	13450 2300 13450 2500
+	13200 3075 13200 3275
 Wire Wire Line
-	13450 1800 13450 1725
+	13200 2575 13200 2500
 $Comp
 L appli_power:GND #PWR0110
 U 1 1 5ABC81D7
-P 13450 2500
-F 0 "#PWR0110" H 13450 2250 50  0001 C CNN
-F 1 "GND" H 13455 2327 50  0000 C CNN
-F 2 "" H 13450 2500 60  0000 C CNN
-F 3 "" H 13450 2500 60  0000 C CNN
-	1    13450 2500
+P 13200 3275
+F 0 "#PWR0110" H 13200 3025 50  0001 C CNN
+F 1 "GND" H 13205 3102 50  0000 C CNN
+F 2 "" H 13200 3275 60  0000 C CNN
+F 3 "" H 13200 3275 60  0000 C CNN
+	1    13200 3275
 	1    0    0    -1  
 $EndComp
 $Comp
 L appli_power:+3.3V #PWR0111
 U 1 1 5ABC8212
-P 13450 1725
-F 0 "#PWR0111" H 13450 1685 30  0001 C CNN
-F 1 "+3.3V" H 13459 1863 30  0000 C CNN
-F 2 "" H 13450 1725 60  0000 C CNN
-F 3 "" H 13450 1725 60  0000 C CNN
-	1    13450 1725
+P 13200 2500
+F 0 "#PWR0111" H 13200 2460 30  0001 C CNN
+F 1 "+3.3V" H 13209 2638 30  0000 C CNN
+F 2 "" H 13200 2500 60  0000 C CNN
+F 3 "" H 13200 2500 60  0000 C CNN
+	1    13200 2500
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	13450 2050 13875 2050
-Connection ~ 13450 2050
+	13200 2825 13625 2825
+Connection ~ 13200 2825
 $Comp
 L appli_resistor:1K00_1608M R?
 U 1 1 5ABC8785
-P 14175 2050
-F 0 "R?" V 13987 1900 50  0000 C CNN
-F 1 "1K00_1608M" V 14067 1900 35  0000 C CNN
-F 2 "RESC1608*" V 14285 1900 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 14310 1900 20  0001 C CNN
-F 4 "MULTICOMP" V 14360 1900 20  0001 C CNN "manf"
-F 5 "MCHP03W8F1001T5E" V 14385 1900 20  0001 C CNN "manf#"
-F 6 "Element14" V 14410 1900 20  0001 C CNN "Supplier"
-F 7 "1576283" V 14435 1900 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/multicomp/mchp03w8f1001t5e/resistor-thick-film-1k-0-125w/dp/1576283" V 14460 1900 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 14485 1900 20  0001 C CNN "Supplier Price"
-F 10 "50+" V 14510 1900 20  0001 C CNN "Supplier Price Break"
-	1    14175 2050
+P 13925 2825
+F 0 "R?" V 13737 2675 50  0000 C CNN
+F 1 "1K00_1608M" V 13817 2675 35  0000 C CNN
+F 2 "RESC1608*" V 14035 2675 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 14060 2675 20  0001 C CNN
+F 4 "MULTICOMP" V 14110 2675 20  0001 C CNN "manf"
+F 5 "MCHP03W8F1001T5E" V 14135 2675 20  0001 C CNN "manf#"
+F 6 "Element14" V 14160 2675 20  0001 C CNN "Supplier"
+F 7 "1576283" V 14185 2675 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/multicomp/mchp03w8f1001t5e/resistor-thick-film-1k-0-125w/dp/1576283" V 14210 2675 20  0001 C CNN "Supplier URL"
+F 9 "0.011" V 14235 2675 20  0001 C CNN "Supplier Price"
+F 10 "50+" V 14260 2675 20  0001 C CNN "Supplier Price Break"
+	1    13925 2825
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	14175 2050 14325 2050
-Text GLabel 14325 2050 2    50   Output ~ 0
+	13925 2825 14075 2825
+Text GLabel 14075 2825 2    50   Output ~ 0
 VOLTAGE_INPUT
-Text Notes 12950 1400 0    50   ~ 0
+Text Notes 12700 2175 0    50   ~ 0
 Teknic IPC-3/5 outputs 75VDC nominal.\nDivider is 27:1, so 75V = 2.78.\nProvides enough overhead for sensing 90VDC.
-Text Notes 14325 2250 0    50   ~ 0
+Text Notes 14075 3025 0    50   ~ 0
 27:1 ratio
 $Comp
 L appli_power:+12V #PWR0112
@@ -346,34 +346,34 @@ $EndComp
 $Comp
 L appli_power:+12V #PWR0113
 U 1 1 5ABE32C3
-P 1175 8400
-F 0 "#PWR0113" H 1175 8250 50  0001 C CNN
-F 1 "+12V" H 1190 8573 50  0000 C CNN
-F 2 "" H 1175 8400 60  0000 C CNN
-F 3 "" H 1175 8400 60  0000 C CNN
-	1    1175 8400
+P 5225 8700
+F 0 "#PWR0113" H 5225 8550 50  0001 C CNN
+F 1 "+12V" H 5240 8873 50  0000 C CNN
+F 2 "" H 5225 8700 60  0000 C CNN
+F 3 "" H 5225 8700 60  0000 C CNN
+	1    5225 8700
 	1    0    0    -1  
 $EndComp
 $Comp
 L appli_power:+3.3V #PWR0114
 U 1 1 5ABE331C
-P 3825 8400
-F 0 "#PWR0114" H 3825 8360 30  0001 C CNN
-F 1 "+3.3V" H 3834 8538 30  0000 C CNN
-F 2 "" H 3825 8400 60  0000 C CNN
-F 3 "" H 3825 8400 60  0000 C CNN
-	1    3825 8400
+P 7875 8700
+F 0 "#PWR0114" H 7875 8660 30  0001 C CNN
+F 1 "+3.3V" H 7884 8838 30  0000 C CNN
+F 2 "" H 7875 8700 60  0000 C CNN
+F 3 "" H 7875 8700 60  0000 C CNN
+	1    7875 8700
 	1    0    0    -1  
 $EndComp
 $Comp
 L appli_power:+POWER #PWR0115
 U 1 1 5ABE3398
-P 4000 1550
-F 0 "#PWR0115" H 4000 1500 20  0001 C CNN
-F 1 "+POWER" H 4003 1688 30  0000 C CNN
-F 2 "" H 4000 1550 60  0000 C CNN
-F 3 "" H 4000 1550 60  0000 C CNN
-	1    4000 1550
+P 3025 2200
+F 0 "#PWR0115" H 3025 2150 20  0001 C CNN
+F 1 "+POWER" H 3028 2338 30  0000 C CNN
+F 2 "" H 3025 2200 60  0000 C CNN
+F 3 "" H 3025 2200 60  0000 C CNN
+	1    3025 2200
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -783,36 +783,36 @@ Wire Wire Line
 $Comp
 L appli_connector_molex:MOLEX_43160-0102 P?
 U 1 1 5AD2F837
-P 1400 1900
-F 0 "P?" H 1319 2165 50  0000 C CNN
-F 1 "MOLEX_43160-0102" H 1319 2074 50  0000 C CNN
-F 2 "Applidyne_Connector_Molex:Molex_Sabre_43160-0102_VERT" V 1575 1900 50  0001 C CNN
-F 3 "https://www.molex.com/molex/products/datasheet.jsp?part=active/0431600102_PCB_HEADERS.xml" V 2350 1950 50  0001 C CNN
-F 4 "MOLEX" V 1675 1925 60  0001 C CNN "manf"
-F 5 "043160-0102" V 1775 1925 60  0001 C CNN "manf#"
-F 6 "DigiKey" V 1875 1925 60  0001 C CNN "Supplier"
-F 7 "WM18473-ND" V 1950 1925 60  0001 C CNN "Supplier Part No"
-F 8 "https://www.digikey.com.au/product-detail/en/0431600102/WM18473-ND/300106" V 2050 1925 60  0001 C CNN "Supplier URL"
-F 9 "1.66" V 2150 1925 60  0001 C CNN "Supplier Price"
-F 10 "1" V 2250 1925 60  0001 C CNN "Supplier Price Break"
-	1    1400 1900
+P 2275 2300
+F 0 "P?" H 2194 2565 50  0000 C CNN
+F 1 "MOLEX_43160-0102" H 2194 2474 50  0000 C CNN
+F 2 "Applidyne_Connector_Molex:Molex_Sabre_43160-0102_VERT" V 2450 2300 50  0001 C CNN
+F 3 "https://www.molex.com/molex/products/datasheet.jsp?part=active/0431600102_PCB_HEADERS.xml" V 3225 2350 50  0001 C CNN
+F 4 "MOLEX" V 2550 2325 60  0001 C CNN "manf"
+F 5 "043160-0102" V 2650 2325 60  0001 C CNN "manf#"
+F 6 "DigiKey" V 2750 2325 60  0001 C CNN "Supplier"
+F 7 "WM18473-ND" V 2825 2325 60  0001 C CNN "Supplier Part No"
+F 8 "https://www.digikey.com.au/product-detail/en/0431600102/WM18473-ND/300106" V 2925 2325 60  0001 C CNN "Supplier URL"
+F 9 "1.66" V 3025 2325 60  0001 C CNN "Supplier Price"
+F 10 "1" V 3125 2325 60  0001 C CNN "Supplier Price Break"
+	1    2275 2300
 	-1   0    0    -1  
 $EndComp
 Wire Wire Line
-	1600 1850 2150 1850
+	2475 2250 3025 2250
 Wire Wire Line
-	1600 1950 2000 1950
+	2475 2350 2950 2350
 Wire Wire Line
-	2000 1950 2000 2000
+	2950 2350 2950 2400
 $Comp
 L appli_power:GND #PWR?
 U 1 1 5AD4886E
-P 4000 2250
-F 0 "#PWR?" H 4000 2000 50  0001 C CNN
-F 1 "GND" H 4005 2077 50  0000 C CNN
-F 2 "" H 4000 2250 60  0000 C CNN
-F 3 "" H 4000 2250 60  0000 C CNN
-	1    4000 2250
+P 2950 2400
+F 0 "#PWR?" H 2950 2150 50  0001 C CNN
+F 1 "GND" H 2955 2227 50  0000 C CNN
+F 2 "" H 2950 2400 60  0000 C CNN
+F 3 "" H 2950 2400 60  0000 C CNN
+	1    2950 2400
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -950,23 +950,23 @@ $EndComp
 $Comp
 L appli_power:PWR_FLAG #FLG?
 U 1 1 5AD551CC
-P 4075 8450
-F 0 "#FLG?" H 4075 8500 30  0001 C CNN
-F 1 "PWR_FLAG" H 4075 8583 30  0000 C CNN
-F 2 "" H 4075 8450 60  0000 C CNN
-F 3 "" H 4075 8450 60  0000 C CNN
-	1    4075 8450
+P 8125 8750
+F 0 "#FLG?" H 8125 8800 30  0001 C CNN
+F 1 "PWR_FLAG" H 8125 8883 30  0000 C CNN
+F 2 "" H 8125 8750 60  0000 C CNN
+F 3 "" H 8125 8750 60  0000 C CNN
+	1    8125 8750
 	1    0    0    -1  
 $EndComp
 $Comp
 L appli_power:PWR_FLAG #FLG?
 U 1 1 5AD55228
-P 4325 1550
-F 0 "#FLG?" H 4325 1600 30  0001 C CNN
-F 1 "PWR_FLAG" H 4325 1683 30  0000 C CNN
-F 2 "" H 4325 1550 60  0000 C CNN
-F 3 "" H 4325 1550 60  0000 C CNN
-	1    4325 1550
+P 3350 2200
+F 0 "#FLG?" H 3350 2250 30  0001 C CNN
+F 1 "PWR_FLAG" H 3350 2333 30  0000 C CNN
+F 2 "" H 3350 2200 60  0000 C CNN
+F 3 "" H 3350 2200 60  0000 C CNN
+	1    3350 2200
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -983,19 +983,19 @@ $EndComp
 $Comp
 L appli_capacitor:100n_X7R_1608M C?
 U 1 1 5ADBDD4B
-P 12800 2150
-F 0 "C?" H 12878 2085 50  0000 L CNN
-F 1 "100n_X7R_1608M" H 12878 2005 35  0000 L CNN
-F 2 "CAPC1608*" V 12915 2050 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 12940 2050 20  0001 C CNN
-F 4 "KEMET" V 12990 2050 20  0001 C CNN "manf"
-F 5 "C0603C104K5RACAUTO" V 13015 2050 20  0001 C CNN "manf#"
-F 6 "Element14" V 13040 2050 20  0001 C CNN "Supplier"
-F 7 "2070398" V 13065 2050 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 13090 2050 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 13115 2050 20  0001 C CNN "Supplier Price"
-F 10 "1" V 13140 2050 20  0001 C CNN "Supplier Price Break"
-	1    12800 2150
+P 12550 2925
+F 0 "C?" H 12628 2860 50  0000 L CNN
+F 1 "100n_X7R_1608M" H 12628 2780 35  0000 L CNN
+F 2 "CAPC1608*" V 12665 2825 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 12690 2825 20  0001 C CNN
+F 4 "KEMET" V 12740 2825 20  0001 C CNN "manf"
+F 5 "C0603C104K5RACAUTO" V 12765 2825 20  0001 C CNN "manf#"
+F 6 "Element14" V 12790 2825 20  0001 C CNN "Supplier"
+F 7 "2070398" V 12815 2825 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 12840 2825 20  0001 C CNN "Supplier URL"
+F 9 "0.011" V 12865 2825 20  0001 C CNN "Supplier Price"
+F 10 "1" V 12890 2825 20  0001 C CNN "Supplier Price Break"
+	1    12550 2925
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -2678,6 +2678,15 @@ E6 01 00 00 44 0B 31 0F 00 00 20 5A 88 79 00 00 00 D1 FA 7F BB 3D 2E 65 19 60 2C
 49 45 4E 44 AE 42 60 82 
 EndData
 $EndBitmap
-Text Notes 14025 5075 0    59   ~ 12
+Text Notes 14025 5075 0    79   ~ 16
 Layout Recommendation
+Wire Wire Line
+	3025 2200 3025 2250
+Wire Wire Line
+	3025 2250 3350 2250
+Wire Wire Line
+	3350 2250 3350 2200
+Connection ~ 3025 2250
+Text Notes 3850 2150 0    50   ~ 0
+Consider input protection (what?)
 $EndSCHEMATC

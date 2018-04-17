@@ -346,7 +346,7 @@ Text Notes 3000 3475 0    79   ~ 16
 Boot0
 Text GLabel 1500 1650 0    50   Output ~ 0
 BOOT0
-Text GLabel 2700 4025 0    50   Output ~ 0
+Text GLabel 2700 4050 0    50   Output ~ 0
 BOOT0
 Wire Wire Line
 	2275 8250 2275 8100
@@ -810,9 +810,9 @@ F 10 "5" H 3800 3560 20  0001 C CNN "Supplier Price Break"
 	0    -1   -1   0   
 $EndComp
 Wire Wire Line
-	2700 4025 2925 4025
+	2700 4050 2925 4050
 Wire Wire Line
-	3500 4025 3500 4500
+	3500 4050 3500 4500
 Wire Wire Line
 	3500 4500 3800 4500
 Wire Wire Line
@@ -820,10 +820,10 @@ Wire Wire Line
 Wire Wire Line
 	2925 4475 2925 4400
 Wire Wire Line
-	2925 4100 2925 4025
-Connection ~ 2925 4025
+	2925 4100 2925 4050
+Connection ~ 2925 4050
 Wire Wire Line
-	2925 4025 3500 4025
+	2925 4050 3500 4050
 Text GLabel 3400 7550 0    50   Input ~ 0
 STATUS_0
 Text GLabel 4200 7550 0    50   Input ~ 0
@@ -848,7 +848,7 @@ Text GLabel 7000 10500 2    50   BiDi ~ 0
 USB_D+
 Text GLabel 1350 6000 0    50   Input ~ 0
 USB_OTG_ID
-Text GLabel 5775 10850 2    50   Output ~ 0
+Text GLabel 7000 10850 2    50   Output ~ 0
 USB_OTG_ID
 Text GLabel 1350 5900 0    50   Input ~ 0
 USB_VBUS
@@ -1006,7 +1006,7 @@ Wire Wire Line
 	4200 7550 4250 7550
 Wire Wire Line
 	3400 7550 3450 7550
-Text GLabel 4850 3950 0    50   Output ~ 0
+Text GLabel 4500 4050 0    50   Output ~ 0
 BOOT1
 Text Notes 3850 9200 0    79   ~ 16
 USB Connection
@@ -1790,4 +1790,70 @@ F 10 "1" V 4890 10550 20  0001 C CNN "Supplier Price Break"
 	1    4550 10650
 	1    0    0    1   
 $EndComp
+NoConn ~ 1550 5800
+NoConn ~ 9750 1450
+NoConn ~ 9750 1550
+NoConn ~ 9750 2250
+NoConn ~ 9750 2350
+NoConn ~ 9750 4350
+NoConn ~ 9750 4450
+NoConn ~ 9750 6500
+NoConn ~ 9750 6600
+NoConn ~ 9750 6700
+NoConn ~ 9750 6800
+NoConn ~ 9750 8050
+NoConn ~ 9750 8150
+NoConn ~ 9750 9050
+NoConn ~ 9750 9150
+NoConn ~ 9750 9550
+$Comp
+L appli_test_points:PROBE_PAD TEST?
+U 1 1 5B154596
+P 4550 4050
+F 0 "TEST?" H 4550 3950 60  0001 C CNN
+F 1 "PROBE_PAD" V 4428 4227 60  0000 L CNN
+F 2 "" H 4450 3850 60  0000 C CNN
+F 3 "" H 4550 3950 60  0000 C CNN
+F 4 "N/A" H 4550 3500 60  0001 C CNN "manf"
+F 5 "N/A" H 4550 3400 60  0001 C CNN "manf#"
+F 6 "N/A" H 4550 3300 60  0001 C CNN "Supplier"
+F 7 "#" H 4550 3200 60  0001 C CNN "Supplier URL"
+F 8 "0" H 4550 3600 60  0001 C CNN "Supplier Price"
+F 9 "0" H 4550 3700 60  0001 C CNN "Supplier Price Break"
+F 10 "DNP" V 4534 4227 60  0000 L CNN "Installed"
+	1    4550 4050
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	4500 4050 4550 4050
+Text Label 5900 10850 0    50   ~ 0
+USB_IN_ID
+$Comp
+L appli_resistor:100R_1608M R?
+U 1 1 5B185956
+P 6700 10850
+F 0 "R?" V 6512 10700 50  0000 C CNN
+F 1 "100R_1608M" V 6592 10700 35  0000 C CNN
+F 2 "RESC1608*" V 6810 10700 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" V 6835 10700 20  0001 C CNN
+F 4 "MULTICOMP" V 6885 10700 20  0001 C CNN "manf"
+F 5 "MC0063W06035100R" V 6910 10700 20  0001 C CNN "manf#"
+F 6 "Element14" V 6935 10700 20  0001 C CNN "Supplier"
+F 7 "9331689" V 6960 10700 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/multicomp/mc0063w06035100r/product-range-mc-series/dp/9331689" V 6985 10700 20  0001 C CNN "Supplier URL"
+F 9 "0.022" V 7010 10700 20  0001 C CNN "Supplier Price"
+F 10 "50" V 7035 10700 20  0001 C CNN "Supplier Price Break"
+	1    6700 10850
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	7000 10850 6700 10850
+Wire Wire Line
+	5900 10850 6400 10850
+Text Notes 5975 11050 0    50   ~ 0
+Provides OTG sensing on the micro
+Text Notes 7650 11000 0    50   ~ 0
+OTG contexts aren't expected for this board.\nTherefore 5V switched supply not included.\nIt's up to a potential OTG device to have a power supply provided\nwhich will likely require a custom cable with 12->5V regulator.
+Text Notes 7000 10325 0    50   ~ 0
+Route differentially
 $EndSCHEMATC
