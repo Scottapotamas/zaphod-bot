@@ -43,53 +43,53 @@ Delta-Bot Control Electronics
 Text Notes 4300 1375 0    79   ~ 0
 Handles supervisory and control tasks for the delta-robot.\nDesigned to reduce wiring complexity and improve functionality.
 Text Notes 1525 2450 0    50   ~ 0
-Input 75VDC from Teknic IPC-3 PSU.\nFilter/protection requirements are minimal.\nProvide regulated 12V for IO Logic Level/Fan/etc.\nProvide regulated 3.3V for microcontroller etc.
+Input 75VDC from Teknic IPC PSU.\nFilter/protection requirements are minimal.\nProvide regulated 12V for IO Logic Level/Fan/etc.\nProvide regulated 3.3V for microcontroller etc.
 Text Notes 3925 2425 0    50   ~ 0
 STM32 microcontroller.\nHandles sampling input sensors, aux outputs.\nGenerates 4x sets of step/direction control signals.\nInterfacing etc for PC/Phone UI.
 Text Notes 1575 4500 0    50   ~ 0
 Output connectors to Clearpath SDSK servos.\nOutput power and data connectors (optocoupled).\nMotor status line input circuit.\nPer-servo current monitoring.
 Text Notes 3900 4500 0    50   ~ 0
-Output for PWM controlled fan, external temp probes.\nGeneric load drivers for high power end affector accessories.\nOptocoupled outputs for external device control.\nOptocoupled inputs for inbound control.
+Output for PWM controlled fan, external temp probes.\nGeneric outputs for internal or end affector accessories.\nOptocoupled outputs for external device control.\nOptocoupled inputs for inbound control.
 $Comp
-L appli_mount:MNT_M3_PLATED MNT?
+L appli_mount:MNT_M3_PLATED MNT1
 U 1 1 5AB8A4A1
 P 8175 4500
-F 0 "MNT?" H 8328 4500 47  0000 L CNN
+F 0 "MNT1" H 8328 4500 47  0000 L CNN
 F 1 "MNT_M3_PLATED" H 8328 4413 47  0000 L CNN
-F 2 "MTGP650H330" H 8175 4675 47  0001 C CNN
+F 2 "Applidyne_Mount:MTGP650H330" H 8175 4675 47  0001 C CNN
 F 3 "" H 8175 4500 60  0000 C CNN
 	1    8175 4500
 	1    0    0    -1  
 $EndComp
 $Comp
-L appli_mount:MNT_M3_PLATED MNT?
+L appli_mount:MNT_M3_PLATED MNT4
 U 1 1 5AB8A580
 P 9075 4500
-F 0 "MNT?" H 9228 4500 47  0000 L CNN
+F 0 "MNT4" H 9228 4500 47  0000 L CNN
 F 1 "MNT_M3_PLATED" H 9228 4413 47  0000 L CNN
-F 2 "MTGP650H330" H 9075 4675 47  0001 C CNN
+F 2 "Applidyne_Mount:MTGP650H330" H 9075 4675 47  0001 C CNN
 F 3 "" H 9075 4500 60  0000 C CNN
 	1    9075 4500
 	1    0    0    -1  
 $EndComp
 $Comp
-L appli_mount:MNT_M3_PLATED MNT?
+L appli_mount:MNT_M3_PLATED MNT2
 U 1 1 5AB8A632
 P 8175 5050
-F 0 "MNT?" H 8328 5050 47  0000 L CNN
+F 0 "MNT2" H 8328 5050 47  0000 L CNN
 F 1 "MNT_M3_PLATED" H 8328 4963 47  0000 L CNN
-F 2 "MTGP650H330" H 8175 5225 47  0001 C CNN
+F 2 "Applidyne_Mount:MTGP650H330" H 8175 5225 47  0001 C CNN
 F 3 "" H 8175 5050 60  0000 C CNN
 	1    8175 5050
 	1    0    0    -1  
 $EndComp
 $Comp
-L appli_mount:MNT_M3_PLATED MNT?
+L appli_mount:MNT_M3_PLATED MNT5
 U 1 1 5AB8A664
 P 9075 5050
-F 0 "MNT?" H 9228 5050 47  0000 L CNN
+F 0 "MNT5" H 9228 5050 47  0000 L CNN
 F 1 "MNT_M3_PLATED" H 9228 4963 47  0000 L CNN
-F 2 "MTGP650H330" H 9075 5225 47  0001 C CNN
+F 2 "Applidyne_Mount:MTGP650H330" H 9075 5225 47  0001 C CNN
 F 3 "" H 9075 5050 60  0000 C CNN
 	1    9075 5050
 	1    0    0    -1  
@@ -107,23 +107,23 @@ Wire Wire Line
 Wire Wire Line
 	9075 5350 9075 5250
 $Comp
-L appli_mount:MNT_M3_PLATED MNT?
+L appli_mount:MNT_M3_PLATED MNT3
 U 1 1 5AB8A85C
 P 8175 5575
-F 0 "MNT?" H 8328 5575 47  0000 L CNN
+F 0 "MNT3" H 8328 5575 47  0000 L CNN
 F 1 "MNT_M3_PLATED" H 8328 5488 47  0000 L CNN
-F 2 "MTGP650H330" H 8175 5750 47  0001 C CNN
+F 2 "Applidyne_Mount:MTGP650H330" H 8175 5750 47  0001 C CNN
 F 3 "" H 8175 5575 60  0000 C CNN
 	1    8175 5575
 	1    0    0    -1  
 $EndComp
 $Comp
-L appli_mount:MNT_M3_PLATED MNT?
+L appli_mount:MNT_M3_PLATED MNT6
 U 1 1 5AB8A863
 P 9075 5575
-F 0 "MNT?" H 9228 5575 47  0000 L CNN
+F 0 "MNT6" H 9228 5575 47  0000 L CNN
 F 1 "MNT_M3_PLATED" H 9228 5488 47  0000 L CNN
-F 2 "MTGP650H330" H 9075 5750 47  0001 C CNN
+F 2 "Applidyne_Mount:MTGP650H330" H 9075 5750 47  0001 C CNN
 F 3 "" H 9075 5575 60  0000 C CNN
 	1    9075 5575
 	1    0    0    -1  
@@ -187,45 +187,45 @@ eUI logo
 Text Notes 8525 2400 0    50   ~ 0
 hh reference
 $Comp
-L appli_fiducial:FIDUCIAL FID?
+L appli_fiducial:FIDUCIAL FID1
 U 1 1 5AB8B482
 P 8175 3425
-F 0 "FID?" H 8328 3469 47  0000 L CNN
+F 0 "FID1" H 8328 3469 47  0000 L CNN
 F 1 "FIDUCIAL" H 8328 3382 47  0000 L CNN
-F 2 "FID*" H 8175 3600 47  0001 C CNN
+F 2 "Applidyne_Fiducial:FID100X200" H 8175 3600 47  0001 C CNN
 F 3 "" H 8175 3425 60  0000 C CNN
 	1    8175 3425
 	1    0    0    -1  
 $EndComp
 $Comp
-L appli_fiducial:FIDUCIAL FID?
+L appli_fiducial:FIDUCIAL FID3
 U 1 1 5AB8B51B
 P 9075 3425
-F 0 "FID?" H 9228 3469 47  0000 L CNN
+F 0 "FID3" H 9228 3469 47  0000 L CNN
 F 1 "FIDUCIAL" H 9228 3382 47  0000 L CNN
-F 2 "FID*" H 9075 3600 47  0001 C CNN
+F 2 "Applidyne_Fiducial:FID100X200" H 9075 3600 47  0001 C CNN
 F 3 "" H 9075 3425 60  0000 C CNN
 	1    9075 3425
 	1    0    0    -1  
 $EndComp
 $Comp
-L appli_fiducial:FIDUCIAL FID?
+L appli_fiducial:FIDUCIAL FID2
 U 1 1 5AB8B644
 P 8175 3750
-F 0 "FID?" H 8328 3794 47  0000 L CNN
+F 0 "FID2" H 8328 3794 47  0000 L CNN
 F 1 "FIDUCIAL" H 8328 3707 47  0000 L CNN
-F 2 "FID*" H 8175 3925 47  0001 C CNN
+F 2 "Applidyne_Fiducial:FID100X200" H 8175 3925 47  0001 C CNN
 F 3 "" H 8175 3750 60  0000 C CNN
 	1    8175 3750
 	1    0    0    -1  
 $EndComp
 $Comp
-L appli_fiducial:FIDUCIAL FID?
+L appli_fiducial:FIDUCIAL FID4
 U 1 1 5AB8B67C
 P 9075 3750
-F 0 "FID?" H 9228 3794 47  0000 L CNN
+F 0 "FID4" H 9228 3794 47  0000 L CNN
 F 1 "FIDUCIAL" H 9228 3707 47  0000 L CNN
-F 2 "FID*" H 9075 3925 47  0001 C CNN
+F 2 "Applidyne_Fiducial:FID100X200" H 9075 3925 47  0001 C CNN
 F 3 "" H 9075 3750 60  0000 C CNN
 	1    9075 3750
 	1    0    0    -1  
@@ -233,10 +233,10 @@ $EndComp
 Text Notes 9525 2400 0    50   ~ 0
 75V Present
 $Comp
-L Graphic:SYM_Flash_Small #SYM?
+L Graphic:SYM_Flash_Small #SYM1
 U 1 1 5AB8BC9D
 P 9725 2700
-F 0 "#SYM?" V 9635 2700 50  0001 C CNN
+F 0 "#SYM1" V 9635 2700 50  0001 C CNN
 F 1 "SYM_Flash_Small" V 9815 2700 50  0001 C CNN
 F 2 "Symbol:Symbol_Highvoltage_Type2_CopperTop_Small" H 9725 2675 50  0001 C CNN
 F 3 "~" H 10125 2600 50  0001 C CNN
