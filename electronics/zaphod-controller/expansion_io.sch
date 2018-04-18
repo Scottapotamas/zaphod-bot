@@ -472,7 +472,7 @@ Wire Wire Line
 	14150 4250 13950 4250
 Wire Wire Line
 	13650 4250 13500 4250
-Text Notes 9225 6550 0    50   ~ 0
+Text Notes 10375 6075 0    50   ~ 0
 https://electronics.stackexchange.com/questions/153846/arduino-how-to-read-and-control-the-speed-of-a-12v-four-wire-fan
 Text Notes 14700 4150 0    50   Italic 0
 TODO CONNECTOR
@@ -891,13 +891,13 @@ $EndComp
 $Comp
 L appli_power:+12V #PWR?
 U 1 1 5AD29E22
-P 8000 5200
-F 0 "#PWR?" H 8000 5050 50  0001 C CNN
-F 1 "+12V" H 8015 5373 50  0000 C CNN
-F 2 "" H 8000 5200 60  0000 C CNN
-F 3 "" H 8000 5200 60  0000 C CNN
-	1    8000 5200
-	1    0    0    -1  
+P 7150 6150
+F 0 "#PWR?" H 7150 6000 50  0001 C CNN
+F 1 "+12V" V 7150 6400 50  0000 C CNN
+F 2 "" H 7150 6150 60  0000 C CNN
+F 3 "" H 7150 6150 60  0000 C CNN
+	1    7150 6150
+	0    -1   -1   0   
 $EndComp
 $Comp
 L appli_power:GND #PWR?
@@ -1285,24 +1285,6 @@ F 10 "5" H 3600 3140 60  0001 C CNN "Supplier Price Break"
 	1    3600 4250
 	1    0    0    -1  
 $EndComp
-$Comp
-L appli_connector_jst:JST_GH_6_RA P?
-U 1 1 5AD83FAD
-P 6900 4150
-F 0 "P?" H 6978 4191 50  0000 L CNN
-F 1 "JST_GH_6_RA" H 6978 4100 50  0000 L CNN
-F 2 "Applidyne_Connector_JST:SM06B-GHS-TB" H 6900 2950 50  0001 C CNN
-F 3 "http://docs-asia.electrocomponents.com/webdocs/10ce/0900766b810cef18.pdf" H 6900 3220 50  0001 C CNN
-F 4 "JST" H 6910 3740 60  0001 C CNN "manf"
-F 5 "SM06B-GHS-TB(LF)(SN)" H 6900 3650 60  0001 C CNN "manf#"
-F 6 "RS Online" H 6910 3540 60  0001 C CNN "Supplier"
-F 7 "752-1800" H 6910 3440 60  0001 C CNN "Supplier Part No"
-F 8 "http://au.rs-online.com/web/p/pcb-headers/7521800/" H 6900 3340 60  0001 C CNN "Supplier URL"
-F 9 "0.802" H 6900 3130 60  0001 C CNN "Supplier Price"
-F 10 "5" H 6900 3040 60  0001 C CNN "Supplier Price Break"
-	1    6900 4150
-	1    0    0    -1  
-$EndComp
 Text GLabel 4700 5250 0    50   BiDi ~ 0
 I2C_SDA
 Text GLabel 4700 4200 0    50   BiDi ~ 0
@@ -1426,10 +1408,6 @@ Text Notes 4725 875  0    79   ~ 16
 Internal Expansion Serial
 Text Notes 4600 1400 0    50   ~ 0
 I2C and Serial Expansion for internal or end effector use.\nAllows for sensors, or daughterboards etc.\nI2C pullup are provided on this board.
-Wire Wire Line
-	6650 3750 6650 3900
-Wire Wire Line
-	6650 3900 6700 3900
 Wire Wire Line
 	6700 4400 6650 4400
 Wire Wire Line
@@ -1707,21 +1685,11 @@ Wire Wire Line
 Wire Wire Line
 	5850 5250 5850 5300
 Wire Wire Line
-	6700 4100 6300 4100
-Wire Wire Line
-	6300 4100 6300 3150
-Wire Wire Line
-	5850 3150 6300 3150
-Wire Wire Line
-	6700 4000 6400 4000
-Wire Wire Line
 	6400 4000 6400 2100
 Wire Wire Line
 	5850 2100 6400 2100
 Wire Wire Line
 	5850 4200 6700 4200
-Wire Wire Line
-	6700 4300 6300 4300
 Wire Wire Line
 	6300 4300 6300 5250
 Wire Wire Line
@@ -1732,23 +1700,23 @@ Connection ~ 4950 5250
 $Comp
 L appli_power:+3.3V #PWR?
 U 1 1 5AF06D31
-P 8325 5275
-F 0 "#PWR?" H 8325 5235 30  0001 C CNN
-F 1 "+3.3V" H 8334 5413 30  0000 C CNN
-F 2 "" H 8325 5275 60  0000 C CNN
-F 3 "" H 8325 5275 60  0000 C CNN
-	1    8325 5275
-	1    0    0    -1  
+P 7150 6550
+F 0 "#PWR?" H 7150 6510 30  0001 C CNN
+F 1 "+3.3V" V 7150 6725 30  0000 C CNN
+F 2 "" H 7150 6550 60  0000 C CNN
+F 3 "" H 7150 6550 60  0000 C CNN
+	1    7150 6550
+	0    -1   -1   0   
 $EndComp
 $Comp
 L appli_power:GND #PWR?
 U 1 1 5AF06DAE
-P 8150 5525
-F 0 "#PWR?" H 8150 5275 50  0001 C CNN
-F 1 "GND" H 8155 5352 50  0000 C CNN
-F 2 "" H 8150 5525 60  0000 C CNN
-F 3 "" H 8150 5525 60  0000 C CNN
-	1    8150 5525
+P 7450 6750
+F 0 "#PWR?" H 7450 6500 50  0001 C CNN
+F 1 "GND" H 7455 6577 50  0000 C CNN
+F 2 "" H 7450 6750 60  0000 C CNN
+F 3 "" H 7450 6750 60  0000 C CNN
+	1    7450 6750
 	1    0    0    -1  
 $EndComp
 Text Notes 7425 8275 0    50   ~ 0
@@ -1873,24 +1841,6 @@ Wire Wire Line
 	12650 8550 12750 8550
 Wire Wire Line
 	12750 8650 12650 8650
-$Comp
-L appli_connector_jst:JST_GH_6_RA P?
-U 1 1 5AFC4EBE
-P 4950 8675
-F 0 "P?" H 5028 8716 50  0000 L CNN
-F 1 "JST_GH_6_RA" H 5028 8625 50  0000 L CNN
-F 2 "Applidyne_Connector_JST:SM06B-GHS-TB" H 4950 7475 50  0001 C CNN
-F 3 "http://docs-asia.electrocomponents.com/webdocs/10ce/0900766b810cef18.pdf" H 4950 7745 50  0001 C CNN
-F 4 "JST" H 4960 8265 60  0001 C CNN "manf"
-F 5 "SM06B-GHS-TB(LF)(SN)" H 4950 8175 60  0001 C CNN "manf#"
-F 6 "RS Online" H 4960 8065 60  0001 C CNN "Supplier"
-F 7 "752-1800" H 4960 7965 60  0001 C CNN "Supplier Part No"
-F 8 "http://au.rs-online.com/web/p/pcb-headers/7521800/" H 4950 7865 60  0001 C CNN "Supplier URL"
-F 9 "0.802" H 4950 7655 60  0001 C CNN "Supplier Price"
-F 10 "5" H 4950 7565 60  0001 C CNN "Supplier Price Break"
-	1    4950 8675
-	1    0    0    -1  
-$EndComp
 $Comp
 L appli_transistor:2N7002P Q?
 U 1 1 5B0B1DE7
@@ -2064,17 +2014,6 @@ Wire Wire Line
 	9450 9800 9600 9800
 Wire Wire Line
 	9450 9700 9600 9700
-$Comp
-L appli_power:GND #PWR?
-U 1 1 5B1F1541
-P 8325 5700
-F 0 "#PWR?" H 8325 5450 50  0001 C CNN
-F 1 "GND" H 8330 5527 50  0000 C CNN
-F 2 "" H 8325 5700 60  0000 C CNN
-F 3 "" H 8325 5700 60  0000 C CNN
-	1    8325 5700
-	1    0    0    -1  
-$EndComp
 Text Notes 13500 9150 0    118  ~ 24
 TODO find correct buzzer\n
 Text Notes 9150 8925 0    50   ~ 0
@@ -2104,17 +2043,6 @@ Wire Wire Line
 Connection ~ 12850 4450
 Wire Wire Line
 	12850 4450 14150 4450
-$Comp
-L appli_power:+3.3V #PWR?
-U 1 1 5B346C15
-P 12850 3800
-F 0 "#PWR?" H 12850 3760 30  0001 C CNN
-F 1 "+3.3V" H 12859 3938 30  0000 C CNN
-F 2 "" H 12850 3800 60  0000 C CNN
-F 3 "" H 12850 3800 60  0000 C CNN
-	1    12850 3800
-	1    0    0    -1  
-$EndComp
 $Comp
 L appli_capacitor:1n_X7R_1608M C?
 U 1 1 5ADB3DC4
@@ -2474,5 +2402,117 @@ F 9 "0.486" V 14260 4100 20  0001 C CNN "Supplier Price"
 F 10 "10" V 14285 4100 20  0001 C CNN "Supplier Price Break"
 	1    13950 4250
 	0    1    1    0   
+$EndComp
+$Comp
+L appli_power:+5V #PWR?
+U 1 1 5B4D5FB5
+P 7150 6350
+F 0 "#PWR?" H 7150 6200 50  0001 C CNN
+F 1 "+5V" V 7165 6478 50  0000 L CNN
+F 2 "" H 7150 6350 60  0000 C CNN
+F 3 "" H 7150 6350 60  0000 C CNN
+	1    7150 6350
+	0    -1   -1   0   
+$EndComp
+Wire Wire Line
+	6700 4300 6300 4300
+Wire Wire Line
+	5850 3150 6300 3150
+Wire Wire Line
+	6300 4100 6300 3150
+Wire Wire Line
+	6650 3750 6650 3900
+Wire Wire Line
+	6700 4100 6300 4100
+Wire Wire Line
+	6700 4000 6400 4000
+Wire Wire Line
+	6650 3900 6700 3900
+$Comp
+L appli_connector_jst:JST_GH_6_RA P?
+U 1 1 5AD83FAD
+P 6900 4150
+F 0 "P?" H 6978 4191 50  0000 L CNN
+F 1 "JST_GH_6_RA" H 6978 4100 50  0000 L CNN
+F 2 "Applidyne_Connector_JST:SM06B-GHS-TB" H 6900 2950 50  0001 C CNN
+F 3 "http://docs-asia.electrocomponents.com/webdocs/10ce/0900766b810cef18.pdf" H 6900 3220 50  0001 C CNN
+F 4 "JST" H 6910 3740 60  0001 C CNN "manf"
+F 5 "SM06B-GHS-TB(LF)(SN)" H 6900 3650 60  0001 C CNN "manf#"
+F 6 "RS Online" H 6910 3540 60  0001 C CNN "Supplier"
+F 7 "752-1800" H 6910 3440 60  0001 C CNN "Supplier Part No"
+F 8 "http://au.rs-online.com/web/p/pcb-headers/7521800/" H 6900 3340 60  0001 C CNN "Supplier URL"
+F 9 "0.802" H 6900 3130 60  0001 C CNN "Supplier Price"
+F 10 "5" H 6900 3040 60  0001 C CNN "Supplier Price Break"
+	1    6900 4150
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_connector_wurth:CONN_01X06 P?
+U 1 1 5B5370D4
+P 9800 9850
+F 0 "P?" H 9878 9891 50  0000 L CNN
+F 1 "CONN_01X06" H 9878 9800 50  0000 L CNN
+F 2 "Applidyne_Connector_Wurth:61300611121" V 9975 9850 50  0001 C CNN
+F 3 "http://www.farnell.com/cad/2124416.pdf" H 9800 9500 50  0001 C CNN
+F 4 "WURTH" H 9800 9400 60  0001 C CNN "manf"
+F 5 "61300611121" H 9800 9300 60  0001 C CNN "manf#"
+F 6 "Element 14" H 9800 9200 60  0001 C CNN "Supplier"
+F 7 "2356158" H 9800 9125 60  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/wurth-elektronik/61300611121/header-2-54mm-pin-tht-vertical/dp/2356158" H 9800 9025 60  0001 C CNN "Supplier URL"
+F 9 "0.17" H 9800 8925 60  0001 C CNN "Supplier Price"
+F 10 "1" H 9800 8825 60  0001 C CNN "Supplier Price Break"
+	1    9800 9850
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_connector_wurth:CONN_01X06 P?
+U 1 1 5B58B350
+P 7875 6400
+F 0 "P?" H 7953 6441 50  0000 L CNN
+F 1 "CONN_01X06" H 7953 6350 50  0000 L CNN
+F 2 "Applidyne_Connector_Wurth:61300611121" V 8050 6400 50  0001 C CNN
+F 3 "http://www.farnell.com/cad/2124416.pdf" H 7875 6050 50  0001 C CNN
+F 4 "WURTH" H 7875 5950 60  0001 C CNN "manf"
+F 5 "61300611121" H 7875 5850 60  0001 C CNN "manf#"
+F 6 "Element 14" H 7875 5750 60  0001 C CNN "Supplier"
+F 7 "2356158" H 7875 5675 60  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/wurth-elektronik/61300611121/header-2-54mm-pin-tht-vertical/dp/2356158" H 7875 5575 60  0001 C CNN "Supplier URL"
+F 9 "0.17" H 7875 5475 60  0001 C CNN "Supplier Price"
+F 10 "1" H 7875 5375 60  0001 C CNN "Supplier Price Break"
+	1    7875 6400
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7675 6150 7150 6150
+Wire Wire Line
+	7675 6250 7450 6250
+Wire Wire Line
+	7450 6250 7450 6450
+Wire Wire Line
+	7675 6450 7450 6450
+Connection ~ 7450 6450
+Wire Wire Line
+	7450 6450 7450 6650
+Wire Wire Line
+	7675 6650 7450 6650
+Connection ~ 7450 6650
+Wire Wire Line
+	7450 6650 7450 6750
+Wire Wire Line
+	7675 6350 7150 6350
+Wire Wire Line
+	7675 6550 7150 6550
+Text Notes 7150 5825 0    79   ~ 16
+Power Outputs
+$Comp
+L appli_power:+5V #PWR?
+U 1 1 5B665B8C
+P 12850 3800
+F 0 "#PWR?" H 12850 3650 50  0001 C CNN
+F 1 "+5V" H 12865 3973 50  0000 C CNN
+F 2 "" H 12850 3800 60  0000 C CNN
+F 3 "" H 12850 3800 60  0000 C CNN
+	1    12850 3800
+	1    0    0    -1  
 $EndComp
 $EndSCHEMATC
