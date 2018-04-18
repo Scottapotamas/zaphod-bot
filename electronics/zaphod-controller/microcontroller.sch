@@ -233,42 +233,6 @@ Wire Wire Line
 	2375 7700 2150 7700
 NoConn ~ 2150 8000
 NoConn ~ 1550 8100
-$Comp
-L appli_resistor:1K00_1608M R?
-U 1 1 5AC88EB7
-P 3450 7650
-F 0 "R?" H 3523 7535 50  0000 L CNN
-F 1 "1K00_1608M" H 3523 7455 35  0000 L CNN
-F 2 "RESC1608*" V 3560 7500 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 3585 7500 20  0001 C CNN
-F 4 "MULTICOMP" V 3635 7500 20  0001 C CNN "manf"
-F 5 "MCHP03W8F1001T5E" V 3660 7500 20  0001 C CNN "manf#"
-F 6 "Element14" V 3685 7500 20  0001 C CNN "Supplier"
-F 7 "1576283" V 3710 7500 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/multicomp/mchp03w8f1001t5e/resistor-thick-film-1k-0-125w/dp/1576283" V 3735 7500 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 3760 7500 20  0001 C CNN "Supplier Price"
-F 10 "50+" V 3785 7500 20  0001 C CNN "Supplier Price Break"
-	1    3450 7650
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_resistor:1K00_1608M R?
-U 1 1 5AC88F65
-P 4250 7650
-F 0 "R?" H 4323 7535 50  0000 L CNN
-F 1 "1K00_1608M" H 4323 7455 35  0000 L CNN
-F 2 "RESC1608*" V 4360 7500 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 4385 7500 20  0001 C CNN
-F 4 "MULTICOMP" V 4435 7500 20  0001 C CNN "manf"
-F 5 "MCHP03W8F1001T5E" V 4460 7500 20  0001 C CNN "manf#"
-F 6 "Element14" V 4485 7500 20  0001 C CNN "Supplier"
-F 7 "1576283" V 4510 7500 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/multicomp/mchp03w8f1001t5e/resistor-thick-film-1k-0-125w/dp/1576283" V 4535 7500 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 4560 7500 20  0001 C CNN "Supplier Price"
-F 10 "50+" V 4585 7500 20  0001 C CNN "Supplier Price Break"
-	1    4250 7650
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	4250 7650 4250 7550
 Wire Wire Line
@@ -1036,24 +1000,6 @@ Wire Wire Line
 	9750 8350 9550 8350
 Wire Wire Line
 	9550 8250 9750 8250
-$Comp
-L appli_resistor:1K00_1608M R?
-U 1 1 5AE52A2D
-P 5050 7650
-F 0 "R?" H 5123 7535 50  0000 L CNN
-F 1 "1K00_1608M" H 5123 7455 35  0000 L CNN
-F 2 "RESC1608*" V 5160 7500 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 5185 7500 20  0001 C CNN
-F 4 "MULTICOMP" V 5235 7500 20  0001 C CNN "manf"
-F 5 "MCHP03W8F1001T5E" V 5260 7500 20  0001 C CNN "manf#"
-F 6 "Element14" V 5285 7500 20  0001 C CNN "Supplier"
-F 7 "1576283" V 5310 7500 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/multicomp/mchp03w8f1001t5e/resistor-thick-film-1k-0-125w/dp/1576283" V 5335 7500 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 5360 7500 20  0001 C CNN "Supplier Price"
-F 10 "50+" V 5385 7500 20  0001 C CNN "Supplier Price Break"
-	1    5050 7650
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	5050 7650 5050 7550
 Wire Wire Line
@@ -1856,4 +1802,58 @@ Text Notes 7650 11000 0    50   ~ 0
 OTG contexts aren't expected for this board.\nTherefore 5V switched supply not included.\nIt's up to a potential OTG device to have a power supply provided\nwhich will likely require a custom cable with 12->5V regulator.
 Text Notes 7000 10325 0    50   ~ 0
 Route differentially
+$Comp
+L appli_resistor:1K_QUAD_ARRAY_1608M R?
+U 1 1 5AEB0D9E
+P 3450 7650
+F 0 "R?" H 3535 7535 50  0000 L CNN
+F 1 "1K_QUAD_ARRAY_1608M" H 3535 7455 35  0000 L CNN
+F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 3665 7500 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1885635.pdf" V 3690 7500 20  0001 C CNN
+F 4 "BOURNS" V 3740 7500 20  0001 C CNN "manf"
+F 5 "CAY16-102J4LF" V 3765 7500 20  0001 C CNN "manf#"
+F 6 "Element14" V 3790 7500 20  0001 C CNN "Supplier"
+F 7 "1770133" V 3815 7500 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 3840 7500 20  0001 C CNN "Supplier URL"
+F 9 "0.073" V 3865 7500 20  0001 C CNN "Supplier Price"
+F 10 "50" V 3890 7500 20  0001 C CNN "Supplier Price Break"
+	1    3450 7650
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_resistor:1K_QUAD_ARRAY_1608M R?
+U 2 1 5AEB102F
+P 4250 7650
+F 0 "R?" H 4335 7535 50  0000 L CNN
+F 1 "1K_QUAD_ARRAY_1608M" H 4335 7455 35  0000 L CNN
+F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 4465 7500 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1885635.pdf" V 4490 7500 20  0001 C CNN
+F 4 "BOURNS" V 4540 7500 20  0001 C CNN "manf"
+F 5 "CAY16-102J4LF" V 4565 7500 20  0001 C CNN "manf#"
+F 6 "Element14" V 4590 7500 20  0001 C CNN "Supplier"
+F 7 "1770133" V 4615 7500 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 4640 7500 20  0001 C CNN "Supplier URL"
+F 9 "0.073" V 4665 7500 20  0001 C CNN "Supplier Price"
+F 10 "50" V 4690 7500 20  0001 C CNN "Supplier Price Break"
+	2    4250 7650
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_resistor:1K_QUAD_ARRAY_1608M R?
+U 3 1 5AEB10A9
+P 5050 7650
+F 0 "R?" H 5135 7535 50  0000 L CNN
+F 1 "1K_QUAD_ARRAY_1608M" H 5135 7455 35  0000 L CNN
+F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 5265 7500 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1885635.pdf" V 5290 7500 20  0001 C CNN
+F 4 "BOURNS" V 5340 7500 20  0001 C CNN "manf"
+F 5 "CAY16-102J4LF" V 5365 7500 20  0001 C CNN "manf#"
+F 6 "Element14" V 5390 7500 20  0001 C CNN "Supplier"
+F 7 "1770133" V 5415 7500 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 5440 7500 20  0001 C CNN "Supplier URL"
+F 9 "0.073" V 5465 7500 20  0001 C CNN "Supplier Price"
+F 10 "50" V 5490 7500 20  0001 C CNN "Supplier Price Break"
+	3    5050 7650
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC

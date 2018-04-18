@@ -103,7 +103,7 @@ NC->GND for \nbetter EMI per DS
 Text Notes 1400 1500 0    50   ~ 0
 90mV/A sensitivity.\n3.3V/2 = 0A
 Wire Wire Line
-	3825 1850 2950 1850
+	3825 1850 2900 1850
 Wire Wire Line
 	3825 1950 3425 1950
 $Comp
@@ -131,9 +131,7 @@ Text GLabel 2150 1950 0    50   Output ~ 0
 Text Notes 1300 2300 0    50   ~ 0
 FAULT latches low when\ncurrent > 15A rating
 Wire Wire Line
-	2950 1850 2950 1725
-Wire Wire Line
-	2950 1725 2900 1725
+	2900 1850 2900 1725
 $Comp
 L appli_power:GND #PWR0140
 U 1 1 5AB9A0AB
@@ -266,7 +264,7 @@ Connection ~ 4225 4175
 Wire Wire Line
 	4225 4175 4325 4175
 Wire Wire Line
-	3825 3525 2975 3525
+	3825 3525 2900 3525
 Wire Wire Line
 	3825 3625 3425 3625
 $Comp
@@ -292,9 +290,7 @@ MOTOR_2_CURRENT
 Text GLabel 2150 3625 0    50   Output ~ 0
 ~MOTOR_2_OC
 Wire Wire Line
-	2975 3525 2975 3375
-Wire Wire Line
-	2975 3375 2925 3375
+	2900 3525 2900 3375
 $Comp
 L appli_power:GND #PWR0146
 U 1 1 5AB9FC76
@@ -853,45 +849,41 @@ $EndComp
 $Comp
 L appli_resistor:1K_QUAD_ARRAY_1608M R?
 U 1 1 5ABFA3D0
-P 2900 1725
-F 0 "R?" V 2700 1575 50  0000 C CNN
-F 1 "1K_QUAD_ARRAY_1608M" V 2780 1575 35  0000 C CNN
-F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 3115 1575 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1885635.pdf" V 3140 1575 20  0001 C CNN
-F 4 "BOURNS" V 3190 1575 20  0001 C CNN "manf"
-F 5 "CAY16-102J4LF" V 3215 1575 20  0001 C CNN "manf#"
-F 6 "Element14" V 3240 1575 20  0001 C CNN "Supplier"
-F 7 "1770133" V 3265 1575 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 3290 1575 20  0001 C CNN "Supplier URL"
-F 9 "0.073" V 3315 1575 20  0001 C CNN "Supplier Price"
-F 10 "50" V 3340 1575 20  0001 C CNN "Supplier Price Break"
-	1    2900 1725
+P 2600 1725
+F 0 "R?" V 2400 1575 50  0000 C CNN
+F 1 "1K_QUAD_ARRAY_1608M" V 2480 1575 35  0000 C CNN
+F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 2815 1575 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1885635.pdf" V 2840 1575 20  0001 C CNN
+F 4 "BOURNS" V 2890 1575 20  0001 C CNN "manf"
+F 5 "CAY16-102J4LF" V 2915 1575 20  0001 C CNN "manf#"
+F 6 "Element14" V 2940 1575 20  0001 C CNN "Supplier"
+F 7 "1770133" V 2965 1575 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 2990 1575 20  0001 C CNN "Supplier URL"
+F 9 "0.073" V 3015 1575 20  0001 C CNN "Supplier Price"
+F 10 "50" V 3040 1575 20  0001 C CNN "Supplier Price Break"
+	1    2600 1725
 	0    1    1    0   
 $EndComp
-Wire Wire Line
-	2600 1725 2300 1725
 $Comp
 L appli_resistor:1K_QUAD_ARRAY_1608M R?
 U 2 1 5AC34563
-P 2925 3375
-F 0 "R?" V 2725 3225 50  0000 C CNN
-F 1 "1K_QUAD_ARRAY_1608M" V 2805 3225 35  0000 C CNN
-F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 3140 3225 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1885635.pdf" V 3165 3225 20  0001 C CNN
-F 4 "BOURNS" V 3215 3225 20  0001 C CNN "manf"
-F 5 "CAY16-102J4LF" V 3240 3225 20  0001 C CNN "manf#"
-F 6 "Element14" V 3265 3225 20  0001 C CNN "Supplier"
-F 7 "1770133" V 3290 3225 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 3315 3225 20  0001 C CNN "Supplier URL"
-F 9 "0.073" V 3340 3225 20  0001 C CNN "Supplier Price"
-F 10 "50" V 3365 3225 20  0001 C CNN "Supplier Price Break"
-	2    2925 3375
+P 2600 3375
+F 0 "R?" V 2400 3225 50  0000 C CNN
+F 1 "1K_QUAD_ARRAY_1608M" V 2480 3225 35  0000 C CNN
+F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 2815 3225 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1885635.pdf" V 2840 3225 20  0001 C CNN
+F 4 "BOURNS" V 2890 3225 20  0001 C CNN "manf"
+F 5 "CAY16-102J4LF" V 2915 3225 20  0001 C CNN "manf#"
+F 6 "Element14" V 2940 3225 20  0001 C CNN "Supplier"
+F 7 "1770133" V 2965 3225 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 2990 3225 20  0001 C CNN "Supplier URL"
+F 9 "0.073" V 3015 3225 20  0001 C CNN "Supplier Price"
+F 10 "50" V 3040 3225 20  0001 C CNN "Supplier Price Break"
+	2    2600 3375
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	2625 3375 2300 3375
-Wire Wire Line
-	3825 5225 2975 5225
+	3825 5225 2900 5225
 Wire Wire Line
 	3425 5325 2150 5325
 Text GLabel 2150 5075 0    50   Output ~ 0
@@ -899,31 +891,27 @@ MOTOR_3_CURRENT
 Text GLabel 2150 5325 0    50   Output ~ 0
 ~MOTOR_3_OC
 Wire Wire Line
-	2975 5225 2975 5075
-Wire Wire Line
-	2975 5075 2925 5075
+	2900 5225 2900 5075
 $Comp
 L appli_resistor:1K_QUAD_ARRAY_1608M R?
 U 3 1 5AC4DF5E
-P 2925 5075
-F 0 "R?" V 2725 4925 50  0000 C CNN
-F 1 "1K_QUAD_ARRAY_1608M" V 2805 4925 35  0000 C CNN
-F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 3140 4925 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1885635.pdf" V 3165 4925 20  0001 C CNN
-F 4 "BOURNS" V 3215 4925 20  0001 C CNN "manf"
-F 5 "CAY16-102J4LF" V 3240 4925 20  0001 C CNN "manf#"
-F 6 "Element14" V 3265 4925 20  0001 C CNN "Supplier"
-F 7 "1770133" V 3290 4925 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 3315 4925 20  0001 C CNN "Supplier URL"
-F 9 "0.073" V 3340 4925 20  0001 C CNN "Supplier Price"
-F 10 "50" V 3365 4925 20  0001 C CNN "Supplier Price Break"
-	3    2925 5075
+P 2600 5075
+F 0 "R?" V 2400 4925 50  0000 C CNN
+F 1 "1K_QUAD_ARRAY_1608M" V 2480 4925 35  0000 C CNN
+F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 2815 4925 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1885635.pdf" V 2840 4925 20  0001 C CNN
+F 4 "BOURNS" V 2890 4925 20  0001 C CNN "manf"
+F 5 "CAY16-102J4LF" V 2915 4925 20  0001 C CNN "manf#"
+F 6 "Element14" V 2940 4925 20  0001 C CNN "Supplier"
+F 7 "1770133" V 2965 4925 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 2990 4925 20  0001 C CNN "Supplier URL"
+F 9 "0.073" V 3015 4925 20  0001 C CNN "Supplier Price"
+F 10 "50" V 3040 4925 20  0001 C CNN "Supplier Price Break"
+	3    2600 5075
 	0    1    1    0   
 $EndComp
 Wire Wire Line
-	2625 5075 2300 5075
-Wire Wire Line
-	3825 7000 2975 7000
+	3825 7000 2900 7000
 Wire Wire Line
 	3425 7100 2150 7100
 Text GLabel 2150 6850 0    50   Output ~ 0
@@ -931,29 +919,25 @@ MOTOR_4_CURRENT
 Text GLabel 2150 7100 0    50   Output ~ 0
 ~MOTOR_4_OC
 Wire Wire Line
-	2975 7000 2975 6850
-Wire Wire Line
-	2975 6850 2925 6850
+	2900 7000 2900 6850
 $Comp
 L appli_resistor:1K_QUAD_ARRAY_1608M R?
 U 4 1 5AC54726
-P 2925 6850
-F 0 "R?" V 2725 6700 50  0000 C CNN
-F 1 "1K_QUAD_ARRAY_1608M" V 2805 6700 35  0000 C CNN
-F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 3140 6700 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1885635.pdf" V 3165 6700 20  0001 C CNN
-F 4 "BOURNS" V 3215 6700 20  0001 C CNN "manf"
-F 5 "CAY16-102J4LF" V 3240 6700 20  0001 C CNN "manf#"
-F 6 "Element14" V 3265 6700 20  0001 C CNN "Supplier"
-F 7 "1770133" V 3290 6700 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 3315 6700 20  0001 C CNN "Supplier URL"
-F 9 "0.073" V 3340 6700 20  0001 C CNN "Supplier Price"
-F 10 "50" V 3365 6700 20  0001 C CNN "Supplier Price Break"
-	4    2925 6850
+P 2600 6850
+F 0 "R?" V 2400 6700 50  0000 C CNN
+F 1 "1K_QUAD_ARRAY_1608M" V 2480 6700 35  0000 C CNN
+F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 2815 6700 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1885635.pdf" V 2840 6700 20  0001 C CNN
+F 4 "BOURNS" V 2890 6700 20  0001 C CNN "manf"
+F 5 "CAY16-102J4LF" V 2915 6700 20  0001 C CNN "manf#"
+F 6 "Element14" V 2940 6700 20  0001 C CNN "Supplier"
+F 7 "1770133" V 2965 6700 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 2990 6700 20  0001 C CNN "Supplier URL"
+F 9 "0.073" V 3015 6700 20  0001 C CNN "Supplier Price"
+F 10 "50" V 3040 6700 20  0001 C CNN "Supplier Price Break"
+	4    2600 6850
 	0    1    1    0   
 $EndComp
-Wire Wire Line
-	2625 6850 2300 6850
 Connection ~ 3425 5325
 Connection ~ 3425 7100
 Text GLabel 10100 1700 0    50   Output ~ 0
@@ -1929,95 +1913,75 @@ Text Notes 5925 2100 0    63   ~ 0
 $Comp
 L appli_test_points:CLIP_HOOK_PURPLE TEST?
 U 1 1 5ACEAC98
-P 2300 3150
-F 0 "TEST?" V 2231 3328 39  0000 L CNN
-F 1 "CLIP_HOOK_PURPLE" H 2350 3150 39  0001 L TNN
-F 2 "Applidyne_Test:KEYSTONE_5119" H 2350 3100 39  0001 L TNN
-F 3 "http://www.farnell.com/datasheets/1703983.pdf" H 2350 2950 39  0001 L BNN
-F 4 "KEYSTONE" H 2350 3050 39  0001 L TNN "manf"
-F 5 "5119" H 2350 2900 39  0001 L BNN "manf#"
-F 6 "Element14" H 2350 2850 39  0001 L BNN "Supplier"
-F 7 "2501305" H 2350 2800 39  0001 L BNN "Supplier Part No"
-F 8 "http://au.element14.com/keystone/5119/test-point-pcb-purple-through/dp/2501305" H 2350 2750 39  0001 L BNN "Supplier URL"
-F 9 "0.3" H 2350 2700 39  0001 L BNN "Supplier Price"
-F 10 "1" H 2350 2650 39  0001 L BNN "Suppier Price Break"
-	1    2300 3150
+P 2900 3150
+F 0 "TEST?" V 2831 3328 39  0000 L CNN
+F 1 "CLIP_HOOK_PURPLE" H 2950 3150 39  0001 L TNN
+F 2 "Applidyne_Test:KEYSTONE_5119" H 2950 3100 39  0001 L TNN
+F 3 "http://www.farnell.com/datasheets/1703983.pdf" H 2950 2950 39  0001 L BNN
+F 4 "KEYSTONE" H 2950 3050 39  0001 L TNN "manf"
+F 5 "5119" H 2950 2900 39  0001 L BNN "manf#"
+F 6 "Element14" H 2950 2850 39  0001 L BNN "Supplier"
+F 7 "2501305" H 2950 2800 39  0001 L BNN "Supplier Part No"
+F 8 "http://au.element14.com/keystone/5119/test-point-pcb-purple-through/dp/2501305" H 2950 2750 39  0001 L BNN "Supplier URL"
+F 9 "0.3" H 2950 2700 39  0001 L BNN "Supplier Price"
+F 10 "1" H 2950 2650 39  0001 L BNN "Suppier Price Break"
+	1    2900 3150
 	0    1    1    0   
 $EndComp
-Wire Wire Line
-	2300 3150 2300 3375
-Connection ~ 2300 3375
-Wire Wire Line
-	2300 3375 2150 3375
 $Comp
 L appli_test_points:CLIP_HOOK_PURPLE TEST?
 U 1 1 5ACFDF96
-P 2300 4850
-F 0 "TEST?" V 2231 5028 39  0000 L CNN
-F 1 "CLIP_HOOK_PURPLE" H 2350 4850 39  0001 L TNN
-F 2 "Applidyne_Test:KEYSTONE_5119" H 2350 4800 39  0001 L TNN
-F 3 "http://www.farnell.com/datasheets/1703983.pdf" H 2350 4650 39  0001 L BNN
-F 4 "KEYSTONE" H 2350 4750 39  0001 L TNN "manf"
-F 5 "5119" H 2350 4600 39  0001 L BNN "manf#"
-F 6 "Element14" H 2350 4550 39  0001 L BNN "Supplier"
-F 7 "2501305" H 2350 4500 39  0001 L BNN "Supplier Part No"
-F 8 "http://au.element14.com/keystone/5119/test-point-pcb-purple-through/dp/2501305" H 2350 4450 39  0001 L BNN "Supplier URL"
-F 9 "0.3" H 2350 4400 39  0001 L BNN "Supplier Price"
-F 10 "1" H 2350 4350 39  0001 L BNN "Suppier Price Break"
-	1    2300 4850
+P 2900 4850
+F 0 "TEST?" V 2831 5028 39  0000 L CNN
+F 1 "CLIP_HOOK_PURPLE" H 2950 4850 39  0001 L TNN
+F 2 "Applidyne_Test:KEYSTONE_5119" H 2950 4800 39  0001 L TNN
+F 3 "http://www.farnell.com/datasheets/1703983.pdf" H 2950 4650 39  0001 L BNN
+F 4 "KEYSTONE" H 2950 4750 39  0001 L TNN "manf"
+F 5 "5119" H 2950 4600 39  0001 L BNN "manf#"
+F 6 "Element14" H 2950 4550 39  0001 L BNN "Supplier"
+F 7 "2501305" H 2950 4500 39  0001 L BNN "Supplier Part No"
+F 8 "http://au.element14.com/keystone/5119/test-point-pcb-purple-through/dp/2501305" H 2950 4450 39  0001 L BNN "Supplier URL"
+F 9 "0.3" H 2950 4400 39  0001 L BNN "Supplier Price"
+F 10 "1" H 2950 4350 39  0001 L BNN "Suppier Price Break"
+	1    2900 4850
 	0    1    1    0   
 $EndComp
 $Comp
 L appli_test_points:CLIP_HOOK_PURPLE TEST?
 U 1 1 5AD11933
-P 2300 6625
-F 0 "TEST?" V 2231 6803 39  0000 L CNN
-F 1 "CLIP_HOOK_PURPLE" H 2350 6625 39  0001 L TNN
-F 2 "Applidyne_Test:KEYSTONE_5119" H 2350 6575 39  0001 L TNN
-F 3 "http://www.farnell.com/datasheets/1703983.pdf" H 2350 6425 39  0001 L BNN
-F 4 "KEYSTONE" H 2350 6525 39  0001 L TNN "manf"
-F 5 "5119" H 2350 6375 39  0001 L BNN "manf#"
-F 6 "Element14" H 2350 6325 39  0001 L BNN "Supplier"
-F 7 "2501305" H 2350 6275 39  0001 L BNN "Supplier Part No"
-F 8 "http://au.element14.com/keystone/5119/test-point-pcb-purple-through/dp/2501305" H 2350 6225 39  0001 L BNN "Supplier URL"
-F 9 "0.3" H 2350 6175 39  0001 L BNN "Supplier Price"
-F 10 "1" H 2350 6125 39  0001 L BNN "Suppier Price Break"
-	1    2300 6625
+P 2900 6625
+F 0 "TEST?" V 2831 6803 39  0000 L CNN
+F 1 "CLIP_HOOK_PURPLE" H 2950 6625 39  0001 L TNN
+F 2 "Applidyne_Test:KEYSTONE_5119" H 2950 6575 39  0001 L TNN
+F 3 "http://www.farnell.com/datasheets/1703983.pdf" H 2950 6425 39  0001 L BNN
+F 4 "KEYSTONE" H 2950 6525 39  0001 L TNN "manf"
+F 5 "5119" H 2950 6375 39  0001 L BNN "manf#"
+F 6 "Element14" H 2950 6325 39  0001 L BNN "Supplier"
+F 7 "2501305" H 2950 6275 39  0001 L BNN "Supplier Part No"
+F 8 "http://au.element14.com/keystone/5119/test-point-pcb-purple-through/dp/2501305" H 2950 6225 39  0001 L BNN "Supplier URL"
+F 9 "0.3" H 2950 6175 39  0001 L BNN "Supplier Price"
+F 10 "1" H 2950 6125 39  0001 L BNN "Suppier Price Break"
+	1    2900 6625
 	0    1    1    0   
 $EndComp
-Wire Wire Line
-	2300 6625 2300 6850
-Connection ~ 2300 6850
-Wire Wire Line
-	2300 6850 2150 6850
-Wire Wire Line
-	2300 4850 2300 5075
-Connection ~ 2300 5075
-Wire Wire Line
-	2300 5075 2150 5075
 $Comp
 L appli_test_points:CLIP_HOOK_PURPLE TEST?
 U 1 1 5AD4DDF1
-P 2300 1500
-F 0 "TEST?" V 2231 1678 39  0000 L CNN
-F 1 "CLIP_HOOK_PURPLE" H 2350 1500 39  0001 L TNN
-F 2 "Applidyne_Test:KEYSTONE_5119" H 2350 1450 39  0001 L TNN
-F 3 "http://www.farnell.com/datasheets/1703983.pdf" H 2350 1300 39  0001 L BNN
-F 4 "KEYSTONE" H 2350 1400 39  0001 L TNN "manf"
-F 5 "5119" H 2350 1250 39  0001 L BNN "manf#"
-F 6 "Element14" H 2350 1200 39  0001 L BNN "Supplier"
-F 7 "2501305" H 2350 1150 39  0001 L BNN "Supplier Part No"
-F 8 "http://au.element14.com/keystone/5119/test-point-pcb-purple-through/dp/2501305" H 2350 1100 39  0001 L BNN "Supplier URL"
-F 9 "0.3" H 2350 1050 39  0001 L BNN "Supplier Price"
-F 10 "1" H 2350 1000 39  0001 L BNN "Suppier Price Break"
-	1    2300 1500
+P 2900 1500
+F 0 "TEST?" V 2831 1678 39  0000 L CNN
+F 1 "CLIP_HOOK_PURPLE" H 2950 1500 39  0001 L TNN
+F 2 "Applidyne_Test:KEYSTONE_5119" H 2950 1450 39  0001 L TNN
+F 3 "http://www.farnell.com/datasheets/1703983.pdf" H 2950 1300 39  0001 L BNN
+F 4 "KEYSTONE" H 2950 1400 39  0001 L TNN "manf"
+F 5 "5119" H 2950 1250 39  0001 L BNN "manf#"
+F 6 "Element14" H 2950 1200 39  0001 L BNN "Supplier"
+F 7 "2501305" H 2950 1150 39  0001 L BNN "Supplier Part No"
+F 8 "http://au.element14.com/keystone/5119/test-point-pcb-purple-through/dp/2501305" H 2950 1100 39  0001 L BNN "Supplier URL"
+F 9 "0.3" H 2950 1050 39  0001 L BNN "Supplier Price"
+F 10 "1" H 2950 1000 39  0001 L BNN "Suppier Price Break"
+	1    2900 1500
 	0    1    1    0   
 $EndComp
-Wire Wire Line
-	2300 1500 2300 1725
-Connection ~ 2300 1725
-Wire Wire Line
-	2300 1725 2150 1725
 $Comp
 L appli_analog_devices:ACS711KEXLT_15AB U?
 U 1 1 5AD62CC0
@@ -4040,7 +4004,7 @@ AD 00 00 00 00 49 45 4E 44 AE 42 60 82
 EndData
 $EndBitmap
 $Bitmap
-Pos 6075 8650
+Pos 4950 8975
 Scale 1.000000
 Data
 89 50 4E 47 0D 0A 1A 0A 00 00 00 0D 49 48 44 52 00 00 03 35 00 00 00 E8 08 02 00 00 00 59 C6 5D 
@@ -4921,4 +4885,32 @@ F 10 "1" H 10850 5500 50  0001 C CNN "Supplier Price Break"
 	1    10850 7200
 	1    0    0    -1  
 $EndComp
+Wire Wire Line
+	2150 6850 2300 6850
+Wire Wire Line
+	2150 5075 2300 5075
+Wire Wire Line
+	2150 3375 2300 3375
+Wire Wire Line
+	2150 1725 2300 1725
+Wire Wire Line
+	2900 1500 2900 1725
+Connection ~ 2900 1725
+Wire Wire Line
+	2900 1725 2600 1725
+Wire Wire Line
+	2900 3150 2900 3375
+Connection ~ 2900 3375
+Wire Wire Line
+	2900 3375 2600 3375
+Wire Wire Line
+	2900 4850 2900 5075
+Connection ~ 2900 5075
+Wire Wire Line
+	2900 5075 2600 5075
+Wire Wire Line
+	2900 6625 2900 6850
+Connection ~ 2900 6850
+Wire Wire Line
+	2900 6850 2600 6850
 $EndSCHEMATC
