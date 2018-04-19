@@ -167,7 +167,7 @@ U 1 1 5AB9CF32
 P 13225 2650
 F 0 "P11" H 13200 3250 50  0000 L CNN
 F 1 "MOLEX_MINIFIT_JR_2x4_WAY" H 13200 3150 35  0000 L CNN
-F 2 "Applidyne_Connector_Molex:Molex_MiniFit-JR-5569-08A2_2x04x4.20mm_Angled" V 13400 2650 20  0001 C CNN
+F 2 "Applidyne_Connector_Molex:Molex_Mini-Fit_Jr_5566-08A_2x04_P4.20mm_Vertical" V 13400 2650 20  0001 C CNN
 F 3 "https://www.molex.com/pdm_docs/sd/1724470002_sd.pdf" V 13425 2650 20  0001 C CNN
 F 4 "MOLEX" V 13475 2650 20  0001 C CNN "manf"
 F 5 "172447-0208" V 13500 2650 20  0001 C CNN "manf#"
@@ -495,7 +495,7 @@ U 1 1 5ACB982C
 P 13225 3600
 F 0 "P12" H 13303 3630 50  0000 L CNN
 F 1 "MOLEX_MINIFIT_JR_2x4_WAY" H 13303 3550 35  0000 L CNN
-F 2 "Applidyne_Connector_Molex:Molex_MiniFit-JR-5569-08A2_2x04x4.20mm_Angled" V 13400 3600 20  0001 C CNN
+F 2 "Applidyne_Connector_Molex:Molex_Mini-Fit_Jr_5566-08A_2x04_P4.20mm_Vertical" V 13400 3600 20  0001 C CNN
 F 3 "https://www.molex.com/pdm_docs/sd/1724470002_sd.pdf" V 13425 3600 20  0001 C CNN
 F 4 "MOLEX" V 13475 3600 20  0001 C CNN "manf"
 F 5 "172447-0208" V 13500 3600 20  0001 C CNN "manf#"
@@ -1280,7 +1280,7 @@ U 1 1 5AF59803
 P 13225 6200
 F 0 "P13" H 13200 6800 50  0000 L CNN
 F 1 "MOLEX_MINIFIT_JR_2x4_WAY" H 13200 6700 35  0000 L CNN
-F 2 "Applidyne_Connector_Molex:Molex_MiniFit-JR-5569-08A2_2x04x4.20mm_Angled" V 13400 6200 20  0001 C CNN
+F 2 "Applidyne_Connector_Molex:Molex_Mini-Fit_Jr_5566-08A_2x04_P4.20mm_Vertical" V 13400 6200 20  0001 C CNN
 F 3 "https://www.molex.com/pdm_docs/sd/1724470002_sd.pdf" V 13425 6200 20  0001 C CNN
 F 4 "MOLEX" V 13475 6200 20  0001 C CNN "manf"
 F 5 "172447-0208" V 13500 6200 20  0001 C CNN "manf#"
@@ -1335,7 +1335,7 @@ U 1 1 5AF5982C
 P 13225 7150
 F 0 "P14" H 13303 7180 50  0000 L CNN
 F 1 "MOLEX_MINIFIT_JR_2x4_WAY" H 13303 7100 35  0000 L CNN
-F 2 "Applidyne_Connector_Molex:Molex_MiniFit-JR-5569-08A2_2x04x4.20mm_Angled" V 13400 7150 20  0001 C CNN
+F 2 "Applidyne_Connector_Molex:Molex_Mini-Fit_Jr_5566-08A_2x04_P4.20mm_Vertical" V 13400 7150 20  0001 C CNN
 F 3 "https://www.molex.com/pdm_docs/sd/1724470002_sd.pdf" V 13425 7150 20  0001 C CNN
 F 4 "MOLEX" V 13475 7150 20  0001 C CNN "manf"
 F 5 "172447-0208" V 13500 7150 20  0001 C CNN "manf#"
