@@ -243,8 +243,6 @@ Wire Wire Line
 	4250 7950 4250 8050
 Wire Wire Line
 	4250 8450 4250 8550
-Wire Wire Line
-	3450 8450 3450 8550
 $Comp
 L appli_power:GND #PWR0118
 U 1 1 5AC893EF
@@ -1876,4 +1874,6 @@ F 10 "50" V 5815 8575 20  0001 C CNN "Supplier Price Break"
 $EndComp
 NoConn ~ 5375 8725
 NoConn ~ 5375 9025
+Wire Wire Line
+	3450 8450 3450 8550
 $EndSCHEMATC
