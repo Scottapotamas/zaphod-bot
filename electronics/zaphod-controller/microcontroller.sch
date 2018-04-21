@@ -163,10 +163,10 @@ F 10 "10" H 5050 7260 60  0001 C CNN "Supplier Price Break"
 	0    -1   -1   0   
 $EndComp
 $Comp
-L appli_device:LED_RED_1608M D3
+L appli_device:LED_RED_1608M D24
 U 1 1 5ABC1210
 P 3450 8250
-F 0 "D3" H 3500 8375 50  0000 R CNN
+F 0 "D24" H 3500 8375 50  0000 R CNN
 F 1 "LED_RED_1608M" H 3650 8050 50  0000 R CNN
 F 2 "Applidyne_LED:LEDC1608X80L40N" H 3450 8450 50  0001 C CNN
 F 3 "http://www.farnell.com/datasheets/1720200.pdf" H 3450 8040 50  0001 C CNN

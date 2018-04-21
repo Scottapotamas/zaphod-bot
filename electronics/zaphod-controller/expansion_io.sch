@@ -2352,26 +2352,6 @@ F 10 "50" V 11890 2100 20  0001 C CNN "Supplier Price Break"
 	0    1    1    0   
 $EndComp
 $Comp
-L appli_resistor:1K_QUAD_ARRAY_1608M R57
-U 4 1 5AE8396A
-P 15350 2625
-F 0 "R57" V 15150 2475 50  0000 C CNN
-F 1 "1K_QUAD_ARRAY_1608M" V 15230 2475 35  0000 C CNN
-F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 15565 2475 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1885635.pdf" V 15590 2475 20  0001 C CNN
-F 4 "BOURNS" V 15640 2475 20  0001 C CNN "manf"
-F 5 "CAY16-102J4LF" V 15665 2475 20  0001 C CNN "manf#"
-F 6 "Element14" V 15690 2475 20  0001 C CNN "Supplier"
-F 7 "1770133" V 15715 2475 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 15740 2475 20  0001 C CNN "Supplier URL"
-F 9 "0.073" V 15765 2475 20  0001 C CNN "Supplier Price"
-F 10 "50" V 15790 2475 20  0001 C CNN "Supplier Price Break"
-	4    15350 2625
-	0    1    1    0   
-$EndComp
-NoConn ~ 15350 2625
-NoConn ~ 15050 2625
-$Comp
 L appli_resistor:10K_QUAD_ARRAY_1608M R58
 U 1 1 5AEAE552
 P 9850 2300
