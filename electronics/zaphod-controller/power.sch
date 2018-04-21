@@ -1128,20 +1128,20 @@ Connection ~ 11900 4025
 $Comp
 L appli_inductor:10u2_PA2050 L3
 U 1 1 5ADD7CF3
-P 12850 2850
-F 0 "L3" V 12663 2700 55  0000 C CNN
-F 1 "10u2_PA2050" V 12747 2700 35  0000 C CNN
-F 2 "Applidyne_Inductor:PULSE_PA2050" V 12965 2700 20  0001 C CNN
-F 3 "https://au.mouser.com/datasheet/2/336/-369081.pdf" V 12990 2700 20  0001 C CNN
-F 4 "PULSE ELECTRONICS" V 13040 2700 20  0001 C CNN "manf"
-F 5 "PA2050.103NL" V 13350 2700 20  0001 C CNN "manf#"
-F 6 "Mouser" V 13090 2700 20  0001 C CNN "Supplier"
-F 7 "673-PA2050.103NL" V 13250 2700 20  0001 C CNN "Supplier Part No"
-F 8 "https://au.mouser.com/ProductDetail/Pulse-Electronics/PA2050103NL" V 13300 2700 20  0001 C CNN "Supplier URL"
-F 9 "5.59" V 13165 2700 20  0001 C CNN "Supplier Price"
-F 10 "1" V 13190 2700 20  0001 C CNN "Supplier Price Break"
-	1    12850 2850
-	0    1    1    0   
+P 12550 2850
+F 0 "L3" V 12363 2700 55  0000 C CNN
+F 1 "10u2_PA2050" V 12447 2700 35  0000 C CNN
+F 2 "Applidyne_Inductor:PULSE_PA2050" V 12665 2700 20  0001 C CNN
+F 3 "https://au.mouser.com/datasheet/2/336/-369081.pdf" V 12690 2700 20  0001 C CNN
+F 4 "PULSE ELECTRONICS" V 12740 2700 20  0001 C CNN "manf"
+F 5 "PA2050.103NL" V 13050 2700 20  0001 C CNN "manf#"
+F 6 "Mouser" V 12790 2700 20  0001 C CNN "Supplier"
+F 7 "673-PA2050.103NL" V 12950 2700 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Pulse-Electronics/PA2050103NL" V 13000 2700 20  0001 C CNN "Supplier URL"
+F 9 "5.59" V 12865 2700 20  0001 C CNN "Supplier Price"
+F 10 "1" V 12890 2700 20  0001 C CNN "Supplier Price Break"
+	1    12550 2850
+	0    -1   1    0   
 $EndComp
 Wire Wire Line
 	11900 2850 11900 2800
@@ -1165,7 +1165,7 @@ F 10 "1" H 10250 1875 20  0001 C CNN "Supplier Price Break"
 $EndComp
 $Comp
 L appli_device:200V_350mW_SOT23 D2
-U 1 1 5AD65862
+U 2 1 5AD65862
 P 7150 2450
 F 0 "D2" V 7100 2225 50  0000 L CNN
 F 1 "200V_350mW_SOT23" V 7200 1625 50  0000 L CNN
@@ -1178,7 +1178,7 @@ F 7 "610-CMPD2003CTR" H 7150 2150 20  0001 C CNN "Supplier Part No"
 F 8 "https://au.mouser.com/ProductDetail/Central-Semiconductor/CMPD2003C-TR" H 7150 2125 20  0001 C CNN "Supplier URL"
 F 9 "0.59" H 7150 2100 20  0001 C CNN "Supplier Price"
 F 10 "1" H 7150 2075 20  0001 C CNN "Supplier Price Break"
-	1    7150 2450
+	2    7150 2450
 	0    1    1    0   
 $EndComp
 Wire Wire Line
