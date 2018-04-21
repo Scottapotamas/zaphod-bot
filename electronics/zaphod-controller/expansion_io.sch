@@ -269,24 +269,6 @@ Wire Wire Line
 	11600 4050 11600 4100
 Wire Wire Line
 	11600 4600 11600 4800
-$Comp
-L appli_resistor:1K00_1608M R59
-U 1 1 5AD11EAB
-P 11400 4350
-F 0 "R59" V 11212 4200 50  0000 C CNN
-F 1 "1K00_1608M" V 11292 4200 35  0000 C CNN
-F 2 "Applidyne_Resistor:RESC1608X50N" V 11510 4200 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 11535 4200 20  0001 C CNN
-F 4 "MULTICOMP" V 11585 4200 20  0001 C CNN "manf"
-F 5 "MCHP03W8F1001T5E" V 11610 4200 20  0001 C CNN "manf#"
-F 6 "Element14" V 11635 4200 20  0001 C CNN "Supplier"
-F 7 "1576283" V 11660 4200 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/multicomp/mchp03w8f1001t5e/resistor-thick-film-1k-0-125w/dp/1576283" V 11685 4200 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 11710 4200 20  0001 C CNN "Supplier Price"
-F 10 "50+" V 11735 4200 20  0001 C CNN "Supplier Price Break"
-	1    11400 4350
-	0    1    1    0   
-$EndComp
 Wire Wire Line
 	10975 4350 11100 4350
 Wire Wire Line
@@ -2459,10 +2441,10 @@ Connection ~ 5850 5250
 Connection ~ 5850 2100
 Connection ~ 5850 3150
 $Comp
-L appli_resistor:NTC_10K_1608M TH?
+L appli_resistor:NTC_10K_1608M TH2
 U 1 1 5ADB606F
 P 11850 1900
-F 0 "TH?" H 11948 1785 50  0000 L CNN
+F 0 "TH2" H 11948 1785 50  0000 L CNN
 F 1 "NTC_10K_1608M" H 11948 1705 35  0000 L CNN
 F 2 "Applidyne_Resistor:RESC1608X50N" V 12000 1760 20  0001 C CNN
 F 3 "http://au.rs-online.com/webdocs/1423/0900766b81423c04.pdf" V 12025 1760 20  0001 C CNN
@@ -2475,5 +2457,23 @@ F 9 "0.327" V 12200 1760 20  0001 C CNN "Supplier Price"
 F 10 "25" V 12225 1760 20  0001 C CNN "Supplier Price Break"
 	1    11850 1900
 	1    0    0    -1  
+$EndComp
+$Comp
+L appli_resistor:1K_QUAD_ARRAY_1608M R29
+U 1 1 5B1D2AA5
+P 11100 4350
+F 0 "R29" V 10900 4100 50  0000 L CNN
+F 1 "1K_QUAD_ARRAY_1608M" V 10975 3925 35  0000 L CNN
+F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 11315 4200 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1885635.pdf" V 11340 4200 20  0001 C CNN
+F 4 "BOURNS" V 11390 4200 20  0001 C CNN "manf"
+F 5 "CAY16-102J4LF" V 11415 4200 20  0001 C CNN "manf#"
+F 6 "Element14" V 11440 4200 20  0001 C CNN "Supplier"
+F 7 "1770133" V 11465 4200 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 11490 4200 20  0001 C CNN "Supplier URL"
+F 9 "0.073" V 11515 4200 20  0001 C CNN "Supplier Price"
+F 10 "50" V 11540 4200 20  0001 C CNN "Supplier Price Break"
+	1    11100 4350
+	0    -1   1    0   
 $EndComp
 $EndSCHEMATC

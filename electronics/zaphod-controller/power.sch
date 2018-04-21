@@ -4694,20 +4694,20 @@ $EndBitmap
 $Comp
 L appli_resistor:1K_QUAD_ARRAY_1608M R57
 U 4 1 5ADF5819
-P 2800 6200
-F 0 "R57" V 2600 6050 50  0000 C CNN
-F 1 "1K_QUAD_ARRAY_1608M" V 2680 6050 35  0000 C CNN
-F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 3015 6050 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1885635.pdf" V 3040 6050 20  0001 C CNN
-F 4 "BOURNS" V 3090 6050 20  0001 C CNN "manf"
-F 5 "CAY16-102J4LF" V 3115 6050 20  0001 C CNN "manf#"
-F 6 "Element14" V 3140 6050 20  0001 C CNN "Supplier"
-F 7 "1770133" V 3165 6050 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 3190 6050 20  0001 C CNN "Supplier URL"
-F 9 "0.073" V 3215 6050 20  0001 C CNN "Supplier Price"
-F 10 "50" V 3240 6050 20  0001 C CNN "Supplier Price Break"
-	4    2800 6200
-	0    1    1    0   
+P 2500 6200
+F 0 "R57" V 2300 6050 50  0000 C CNN
+F 1 "1K_QUAD_ARRAY_1608M" V 2380 6050 35  0000 C CNN
+F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 2715 6050 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1885635.pdf" V 2740 6050 20  0001 C CNN
+F 4 "BOURNS" V 2790 6050 20  0001 C CNN "manf"
+F 5 "CAY16-102J4LF" V 2815 6050 20  0001 C CNN "manf#"
+F 6 "Element14" V 2840 6050 20  0001 C CNN "Supplier"
+F 7 "1770133" V 2865 6050 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 2890 6050 20  0001 C CNN "Supplier URL"
+F 9 "0.073" V 2915 6050 20  0001 C CNN "Supplier Price"
+F 10 "50" V 2940 6050 20  0001 C CNN "Supplier Price Break"
+	4    2500 6200
+	0    -1   1    0   
 $EndComp
 Wire Wire Line
 	6550 8250 6550 8450

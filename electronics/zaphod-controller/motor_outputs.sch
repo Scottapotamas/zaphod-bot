@@ -164,19 +164,19 @@ $EndComp
 $Comp
 L appli_connector_molex:MOLEX_MINIFIT_JR_2x4_WAY P11
 U 1 1 5AB9CF32
-P 13225 2650
-F 0 "P11" H 13200 3250 50  0000 L CNN
-F 1 "MOLEX_MINIFIT_JR_2x4_WAY" H 13200 3150 35  0000 L CNN
-F 2 "Applidyne_Connector_Molex:Molex_Mini-Fit_Jr_5566-08A_2x04_P4.20mm_Vertical" V 13400 2650 20  0001 C CNN
-F 3 "https://www.molex.com/pdm_docs/sd/1724470002_sd.pdf" V 13425 2650 20  0001 C CNN
-F 4 "MOLEX" V 13475 2650 20  0001 C CNN "manf"
-F 5 "172447-0208" V 13500 2650 20  0001 C CNN "manf#"
-F 6 "Mouser" V 13525 2650 20  0001 C CNN "Supplier"
-F 7 "538-172447-0208" V 13550 2650 20  0001 C CNN "Supplier Part No"
-F 8 "https://au.mouser.com/ProductDetail/Molex/172447-0208?qs=sGAEpiMZZMvc81WFyF5Edkd3jpEQlJBQt6f989MIPuM%3d" V 13575 2650 20  0001 C CNN "Supplier URL"
-F 9 "1.78" V 13600 2650 20  0001 C CNN "Supplier Price"
-F 10 "1" V 13625 2650 20  0001 C CNN "Supplier Price Break"
-	1    13225 2650
+P 13200 2650
+F 0 "P11" H 13175 3250 50  0000 L CNN
+F 1 "MOLEX_MINIFIT_JR_2x4_WAY" H 13175 3150 35  0000 L CNN
+F 2 "Applidyne_Connector_Molex:Molex_Mini-Fit_Jr_5566-08A_2x04_P4.20mm_Vertical" V 13375 2650 20  0001 C CNN
+F 3 "https://www.molex.com/pdm_docs/sd/1724470002_sd.pdf" V 13400 2650 20  0001 C CNN
+F 4 "MOLEX" V 13450 2650 20  0001 C CNN "manf"
+F 5 "172447-0208" V 13475 2650 20  0001 C CNN "manf#"
+F 6 "Mouser" V 13500 2650 20  0001 C CNN "Supplier"
+F 7 "538-172447-0208" V 13525 2650 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Molex/172447-0208?qs=sGAEpiMZZMvc81WFyF5Edkd3jpEQlJBQt6f989MIPuM%3d" V 13550 2650 20  0001 C CNN "Supplier URL"
+F 9 "1.78" V 13575 2650 20  0001 C CNN "Supplier Price"
+F 10 "1" V 13600 2650 20  0001 C CNN "Supplier Price Break"
+	1    13200 2650
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
@@ -464,13 +464,13 @@ F 3 "" H 12475 2150 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	13025 2400 12475 2400
+	13000 2400 12475 2400
 Wire Wire Line
-	13025 2500 12475 2500
+	13000 2500 12475 2500
 Wire Wire Line
 	12475 2500 12475 2400
 Wire Wire Line
-	13025 2600 12475 2600
+	13000 2600 12475 2600
 Wire Wire Line
 	12475 2600 12475 2500
 Connection ~ 12475 2500
@@ -478,72 +478,54 @@ Wire Wire Line
 	12475 2400 12475 2300
 Connection ~ 12475 2400
 Wire Wire Line
-	13025 2700 12250 2700
+	13000 2700 12250 2700
 Wire Wire Line
 	12250 2700 12250 1700
 Wire Wire Line
 	12250 1700 11875 1700
 Wire Wire Line
-	12050 3000 13025 3000
+	12050 3000 13000 3000
 Wire Wire Line
-	11950 2900 13025 2900
+	11950 2900 13000 2900
 Wire Wire Line
-	11850 2800 13025 2800
+	11850 2800 13000 2800
 $Comp
 L appli_connector_molex:MOLEX_MINIFIT_JR_2x4_WAY P12
 U 1 1 5ACB982C
-P 13225 3600
-F 0 "P12" H 13303 3630 50  0000 L CNN
-F 1 "MOLEX_MINIFIT_JR_2x4_WAY" H 13303 3550 35  0000 L CNN
-F 2 "Applidyne_Connector_Molex:Molex_Mini-Fit_Jr_5566-08A_2x04_P4.20mm_Vertical" V 13400 3600 20  0001 C CNN
-F 3 "https://www.molex.com/pdm_docs/sd/1724470002_sd.pdf" V 13425 3600 20  0001 C CNN
-F 4 "MOLEX" V 13475 3600 20  0001 C CNN "manf"
-F 5 "172447-0208" V 13500 3600 20  0001 C CNN "manf#"
-F 6 "Mouser" V 13525 3600 20  0001 C CNN "Supplier"
-F 7 "538-172447-0208" V 13550 3600 20  0001 C CNN "Supplier Part No"
-F 8 "https://au.mouser.com/ProductDetail/Molex/172447-0208?qs=sGAEpiMZZMvc81WFyF5Edkd3jpEQlJBQt6f989MIPuM%3d" V 13575 3600 20  0001 C CNN "Supplier URL"
-F 9 "1.78" V 13600 3600 20  0001 C CNN "Supplier Price"
-F 10 "1" V 13625 3600 20  0001 C CNN "Supplier Price Break"
-	1    13225 3600
+P 13200 3500
+F 0 "P12" H 13278 3530 50  0000 L CNN
+F 1 "MOLEX_MINIFIT_JR_2x4_WAY" H 13278 3450 35  0000 L CNN
+F 2 "Applidyne_Connector_Molex:Molex_Mini-Fit_Jr_5566-08A_2x04_P4.20mm_Vertical" V 13375 3500 20  0001 C CNN
+F 3 "https://www.molex.com/pdm_docs/sd/1724470002_sd.pdf" V 13400 3500 20  0001 C CNN
+F 4 "MOLEX" V 13450 3500 20  0001 C CNN "manf"
+F 5 "172447-0208" V 13475 3500 20  0001 C CNN "manf#"
+F 6 "Mouser" V 13500 3500 20  0001 C CNN "Supplier"
+F 7 "538-172447-0208" V 13525 3500 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Molex/172447-0208?qs=sGAEpiMZZMvc81WFyF5Edkd3jpEQlJBQt6f989MIPuM%3d" V 13550 3500 20  0001 C CNN "Supplier URL"
+F 9 "1.78" V 13575 3500 20  0001 C CNN "Supplier Price"
+F 10 "1" V 13600 3500 20  0001 C CNN "Supplier Price Break"
+	1    13200 3500
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	13025 3350 12475 3350
+	13000 3250 12475 3250
 Wire Wire Line
-	13025 3450 12475 3450
-Wire Wire Line
-	12475 3450 12475 3350
-Wire Wire Line
-	13025 3550 12475 3550
-Wire Wire Line
-	12475 3550 12475 3450
-Connection ~ 12475 3450
+	13000 3350 12475 3350
 Wire Wire Line
 	12475 3350 12475 3250
+Wire Wire Line
+	13000 3450 12475 3450
+Wire Wire Line
+	12475 3450 12475 3350
 Connection ~ 12475 3350
+Wire Wire Line
+	12475 3250 12475 3150
+Connection ~ 12475 3250
 Connection ~ 12475 2600
 Wire Wire Line
-	13025 3250 12475 3250
+	13000 3150 12475 3150
 Wire Wire Line
-	13025 3650 12150 3650
-Wire Wire Line
-	13025 3750 11250 3750
-Wire Wire Line
-	11250 3850 13025 3850
-Wire Wire Line
-	13025 3950 11250 3950
-Wire Wire Line
-	12050 3000 12050 3650
-Wire Wire Line
-	12050 3650 11250 3650
-Wire Wire Line
-	11250 3550 11950 3550
-Wire Wire Line
-	11950 3550 11950 2900
-Wire Wire Line
-	11250 3450 11850 3450
-Wire Wire Line
-	11850 3450 11850 2800
+	13000 3550 12150 3550
 Wire Wire Line
 	11250 3250 11650 3250
 Wire Wire Line
@@ -566,10 +548,6 @@ Wire Wire Line
 Wire Wire Line
 	10450 3650 10100 3650
 Wire Wire Line
-	10450 3750 10100 3750
-Wire Wire Line
-	10450 3850 10100 3850
-Wire Wire Line
 	10450 3950 10100 3950
 Wire Wire Line
 	10850 4350 10850 4400
@@ -587,33 +565,33 @@ $EndComp
 Wire Wire Line
 	12150 2450 11875 2450
 Wire Wire Line
-	12150 2450 12150 3650
+	12150 2450 12150 3550
 Text Notes 13325 3050 0    63   ~ 0
 HLFB+\nINPUTB+\nINPUTA+\nENABLE+\nHLFB-\nINPUTB-\nINPUTA-\nENABLE-\n
-Text GLabel 10100 3550 0    50   Input ~ 0
+Text GLabel 10100 4050 0    50   Input ~ 0
 SERVO1_A
-Text GLabel 10100 3450 0    50   Input ~ 0
+Text GLabel 10100 4150 0    50   Input ~ 0
 SERVO1_B
-Text GLabel 10100 3650 0    50   Input ~ 0
-SERVO1_EN
-Text GLabel 10100 3850 0    50   Input ~ 0
-SERVO2_A
-Text GLabel 10100 3750 0    50   Input ~ 0
-SERVO2_B
 Text GLabel 10100 3950 0    50   Input ~ 0
+SERVO1_EN
+Text GLabel 10100 3550 0    50   Input ~ 0
+SERVO2_A
+Text GLabel 10100 3650 0    50   Input ~ 0
+SERVO2_B
+Text GLabel 10100 3450 0    50   Input ~ 0
 SERVO2_EN
 Text GLabel 10100 2450 0    50   Output ~ 0
 SERVO2_HLFB
 Wire Wire Line
 	9950 3075 9950 3100
 Wire Wire Line
-	13025 2300 12475 2300
+	13000 2300 12475 2300
 Connection ~ 12475 2300
 Wire Wire Line
 	12475 2300 12475 2150
-Connection ~ 12475 3250
+Connection ~ 12475 3150
 Wire Wire Line
-	12475 3250 12475 2600
+	12475 3150 12475 2600
 Wire Wire Line
 	4825 3625 5375 3625
 Wire Wire Line
@@ -1272,24 +1250,22 @@ F 10 "100" V 12210 2300 20  0001 C CNN "Supplier Price Break"
 	1    11875 2450
 	0    1    1    0   
 $EndComp
-NoConn ~ 10450 4050
-NoConn ~ 10450 4150
 $Comp
 L appli_connector_molex:MOLEX_MINIFIT_JR_2x4_WAY P13
 U 1 1 5AF59803
-P 13225 6200
-F 0 "P13" H 13200 6800 50  0000 L CNN
-F 1 "MOLEX_MINIFIT_JR_2x4_WAY" H 13200 6700 35  0000 L CNN
-F 2 "Applidyne_Connector_Molex:Molex_Mini-Fit_Jr_5566-08A_2x04_P4.20mm_Vertical" V 13400 6200 20  0001 C CNN
-F 3 "https://www.molex.com/pdm_docs/sd/1724470002_sd.pdf" V 13425 6200 20  0001 C CNN
-F 4 "MOLEX" V 13475 6200 20  0001 C CNN "manf"
-F 5 "172447-0208" V 13500 6200 20  0001 C CNN "manf#"
-F 6 "Mouser" V 13525 6200 20  0001 C CNN "Supplier"
-F 7 "538-172447-0208" V 13550 6200 20  0001 C CNN "Supplier Part No"
-F 8 "https://au.mouser.com/ProductDetail/Molex/172447-0208?qs=sGAEpiMZZMvc81WFyF5Edkd3jpEQlJBQt6f989MIPuM%3d" V 13575 6200 20  0001 C CNN "Supplier URL"
-F 9 "1.78" V 13600 6200 20  0001 C CNN "Supplier Price"
-F 10 "1" V 13625 6200 20  0001 C CNN "Supplier Price Break"
-	1    13225 6200
+P 13200 6200
+F 0 "P13" H 13175 6800 50  0000 L CNN
+F 1 "MOLEX_MINIFIT_JR_2x4_WAY" H 13175 6700 35  0000 L CNN
+F 2 "Applidyne_Connector_Molex:Molex_Mini-Fit_Jr_5566-08A_2x04_P4.20mm_Vertical" V 13375 6200 20  0001 C CNN
+F 3 "https://www.molex.com/pdm_docs/sd/1724470002_sd.pdf" V 13400 6200 20  0001 C CNN
+F 4 "MOLEX" V 13450 6200 20  0001 C CNN "manf"
+F 5 "172447-0208" V 13475 6200 20  0001 C CNN "manf#"
+F 6 "Mouser" V 13500 6200 20  0001 C CNN "Supplier"
+F 7 "538-172447-0208" V 13525 6200 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Molex/172447-0208?qs=sGAEpiMZZMvc81WFyF5Edkd3jpEQlJBQt6f989MIPuM%3d" V 13550 6200 20  0001 C CNN "Supplier URL"
+F 9 "1.78" V 13575 6200 20  0001 C CNN "Supplier Price"
+F 10 "1" V 13600 6200 20  0001 C CNN "Supplier Price Break"
+	1    13200 6200
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -1304,13 +1280,13 @@ F 3 "" H 12475 5700 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	13025 5950 12475 5950
+	13000 5950 12475 5950
 Wire Wire Line
-	13025 6050 12475 6050
+	13000 6050 12475 6050
 Wire Wire Line
 	12475 6050 12475 5950
 Wire Wire Line
-	13025 6150 12475 6150
+	13000 6150 12475 6150
 Wire Wire Line
 	12475 6150 12475 6050
 Connection ~ 12475 6050
@@ -1318,72 +1294,54 @@ Wire Wire Line
 	12475 5950 12475 5850
 Connection ~ 12475 5950
 Wire Wire Line
-	13025 6250 12250 6250
+	13000 6250 12250 6250
 Wire Wire Line
 	12250 6250 12250 5250
 Wire Wire Line
 	12250 5250 11875 5250
 Wire Wire Line
-	12050 6550 13025 6550
+	12050 6550 13000 6550
 Wire Wire Line
-	11950 6450 13025 6450
+	11950 6450 13000 6450
 Wire Wire Line
-	11850 6350 13025 6350
+	11850 6350 13000 6350
 $Comp
 L appli_connector_molex:MOLEX_MINIFIT_JR_2x4_WAY P14
 U 1 1 5AF5982C
-P 13225 7150
-F 0 "P14" H 13303 7180 50  0000 L CNN
-F 1 "MOLEX_MINIFIT_JR_2x4_WAY" H 13303 7100 35  0000 L CNN
-F 2 "Applidyne_Connector_Molex:Molex_Mini-Fit_Jr_5566-08A_2x04_P4.20mm_Vertical" V 13400 7150 20  0001 C CNN
-F 3 "https://www.molex.com/pdm_docs/sd/1724470002_sd.pdf" V 13425 7150 20  0001 C CNN
-F 4 "MOLEX" V 13475 7150 20  0001 C CNN "manf"
-F 5 "172447-0208" V 13500 7150 20  0001 C CNN "manf#"
-F 6 "Mouser" V 13525 7150 20  0001 C CNN "Supplier"
-F 7 "538-172447-0208" V 13550 7150 20  0001 C CNN "Supplier Part No"
-F 8 "https://au.mouser.com/ProductDetail/Molex/172447-0208?qs=sGAEpiMZZMvc81WFyF5Edkd3jpEQlJBQt6f989MIPuM%3d" V 13575 7150 20  0001 C CNN "Supplier URL"
-F 9 "1.78" V 13600 7150 20  0001 C CNN "Supplier Price"
-F 10 "1" V 13625 7150 20  0001 C CNN "Supplier Price Break"
-	1    13225 7150
+P 13200 7050
+F 0 "P14" H 13278 7080 50  0000 L CNN
+F 1 "MOLEX_MINIFIT_JR_2x4_WAY" H 13278 7000 35  0000 L CNN
+F 2 "Applidyne_Connector_Molex:Molex_Mini-Fit_Jr_5566-08A_2x04_P4.20mm_Vertical" V 13375 7050 20  0001 C CNN
+F 3 "https://www.molex.com/pdm_docs/sd/1724470002_sd.pdf" V 13400 7050 20  0001 C CNN
+F 4 "MOLEX" V 13450 7050 20  0001 C CNN "manf"
+F 5 "172447-0208" V 13475 7050 20  0001 C CNN "manf#"
+F 6 "Mouser" V 13500 7050 20  0001 C CNN "Supplier"
+F 7 "538-172447-0208" V 13525 7050 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Molex/172447-0208?qs=sGAEpiMZZMvc81WFyF5Edkd3jpEQlJBQt6f989MIPuM%3d" V 13550 7050 20  0001 C CNN "Supplier URL"
+F 9 "1.78" V 13575 7050 20  0001 C CNN "Supplier Price"
+F 10 "1" V 13600 7050 20  0001 C CNN "Supplier Price Break"
+	1    13200 7050
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	13025 6900 12475 6900
+	13000 6800 12475 6800
 Wire Wire Line
-	13025 7000 12475 7000
-Wire Wire Line
-	12475 7000 12475 6900
-Wire Wire Line
-	13025 7100 12475 7100
-Wire Wire Line
-	12475 7100 12475 7000
-Connection ~ 12475 7000
+	13000 6900 12475 6900
 Wire Wire Line
 	12475 6900 12475 6800
+Wire Wire Line
+	13000 7000 12475 7000
+Wire Wire Line
+	12475 7000 12475 6900
 Connection ~ 12475 6900
+Wire Wire Line
+	12475 6800 12475 6700
+Connection ~ 12475 6800
 Connection ~ 12475 6150
 Wire Wire Line
-	13025 6800 12475 6800
+	13000 6700 12475 6700
 Wire Wire Line
-	13025 7200 12150 7200
-Wire Wire Line
-	13025 7300 11250 7300
-Wire Wire Line
-	11250 7400 13025 7400
-Wire Wire Line
-	13025 7500 11250 7500
-Wire Wire Line
-	12050 6550 12050 7200
-Wire Wire Line
-	12050 7200 11250 7200
-Wire Wire Line
-	11250 7100 11950 7100
-Wire Wire Line
-	11950 7100 11950 6450
-Wire Wire Line
-	11250 7000 11850 7000
-Wire Wire Line
-	11850 7000 11850 6350
+	13000 7100 12150 7100
 Wire Wire Line
 	11250 6800 11650 6800
 Wire Wire Line
@@ -1406,10 +1364,6 @@ Wire Wire Line
 Wire Wire Line
 	10450 7200 10100 7200
 Wire Wire Line
-	10450 7300 10100 7300
-Wire Wire Line
-	10450 7400 10100 7400
-Wire Wire Line
 	10450 7500 10100 7500
 Wire Wire Line
 	10850 7900 10850 7950
@@ -1427,33 +1381,33 @@ $EndComp
 Wire Wire Line
 	12150 6000 11875 6000
 Wire Wire Line
-	12150 6000 12150 7200
+	12150 6000 12150 7100
 Text Notes 13325 6600 0    63   ~ 0
 HLFB+\nINPUTB+\nINPUTA+\nENABLE+\nHLFB-\nINPUTB-\nINPUTA-\nENABLE-\n
-Text GLabel 10100 7100 0    50   Input ~ 0
+Text GLabel 10100 7600 0    50   Input ~ 0
 SERVO3_A
-Text GLabel 10100 7000 0    50   Input ~ 0
+Text GLabel 10100 7700 0    50   Input ~ 0
 SERVO3_B
-Text GLabel 10100 7200 0    50   Input ~ 0
-SERVO3_EN
-Text GLabel 10100 7400 0    50   Input ~ 0
-SERVO4_A
-Text GLabel 10100 7300 0    50   Input ~ 0
-SERVO4_B
 Text GLabel 10100 7500 0    50   Input ~ 0
+SERVO3_EN
+Text GLabel 10100 7100 0    50   Input ~ 0
+SERVO4_A
+Text GLabel 10100 7200 0    50   Input ~ 0
+SERVO4_B
+Text GLabel 10100 7000 0    50   Input ~ 0
 SERVO4_EN
 Text GLabel 10100 6000 0    50   Output ~ 0
 SERVO4_HLFB
 Wire Wire Line
 	9950 6625 9950 6650
 Wire Wire Line
-	13025 5850 12475 5850
+	13000 5850 12475 5850
 Connection ~ 12475 5850
 Wire Wire Line
 	12475 5850 12475 5700
-Connection ~ 12475 6800
+Connection ~ 12475 6700
 Wire Wire Line
-	12475 6800 12475 6150
+	12475 6700 12475 6150
 $Comp
 L appli_power:GND #PWR0175
 U 1 1 5AF5987A
@@ -1762,8 +1716,6 @@ F 10 "100" V 12210 5850 20  0001 C CNN "Supplier Price Break"
 	1    11875 6000
 	0    1    1    0   
 $EndComp
-NoConn ~ 10450 7600
-NoConn ~ 10450 7700
 Text Notes 13450 1825 0    50   Italic 0
 Servo IO are optocouplers suitable for 5-24V switched logic.\n12V logic is used. Servo IO self-limits current.\n\nInputs (and Enable) require min 9mA.\nULN2803 is a octal NPN (darlington) driver.\n\nOutput is user-configurable.\nBehaves like a NPN (also has internal current limit).\nIn ASG or EN modes, acts as a HIGH = GOOD status flag.\nIn velocity or torque mode, outputs 45Hz squarewave.\n50% duty = 0, 5% = -MAX, 95% = +MAX
 Text Notes 9175 4500 0    50   Italic 0
@@ -1910,78 +1862,6 @@ Text Notes 9500 8775 0    50   ~ 0
 For use with scopes or logic analysers.
 Text Notes 5925 2100 0    63   ~ 0
 +75V\nGND\n+75V\nGND\n
-$Comp
-L appli_test_points:CLIP_HOOK_PURPLE TEST10
-U 1 1 5ACEAC98
-P 2900 3150
-F 0 "TEST10" V 2831 3328 39  0000 L CNN
-F 1 "CLIP_HOOK_PURPLE" H 2950 3150 39  0001 L TNN
-F 2 "Applidyne_Test:KEYSTONE_5119" H 2950 3100 39  0001 L TNN
-F 3 "http://www.farnell.com/datasheets/1703983.pdf" H 2950 2950 39  0001 L BNN
-F 4 "KEYSTONE" H 2950 3050 39  0001 L TNN "manf"
-F 5 "5119" H 2950 2900 39  0001 L BNN "manf#"
-F 6 "Element14" H 2950 2850 39  0001 L BNN "Supplier"
-F 7 "2501305" H 2950 2800 39  0001 L BNN "Supplier Part No"
-F 8 "http://au.element14.com/keystone/5119/test-point-pcb-purple-through/dp/2501305" H 2950 2750 39  0001 L BNN "Supplier URL"
-F 9 "0.3" H 2950 2700 39  0001 L BNN "Supplier Price"
-F 10 "1" H 2950 2650 39  0001 L BNN "Suppier Price Break"
-	1    2900 3150
-	0    1    1    0   
-$EndComp
-$Comp
-L appli_test_points:CLIP_HOOK_PURPLE TEST11
-U 1 1 5ACFDF96
-P 2900 4850
-F 0 "TEST11" V 2831 5028 39  0000 L CNN
-F 1 "CLIP_HOOK_PURPLE" H 2950 4850 39  0001 L TNN
-F 2 "Applidyne_Test:KEYSTONE_5119" H 2950 4800 39  0001 L TNN
-F 3 "http://www.farnell.com/datasheets/1703983.pdf" H 2950 4650 39  0001 L BNN
-F 4 "KEYSTONE" H 2950 4750 39  0001 L TNN "manf"
-F 5 "5119" H 2950 4600 39  0001 L BNN "manf#"
-F 6 "Element14" H 2950 4550 39  0001 L BNN "Supplier"
-F 7 "2501305" H 2950 4500 39  0001 L BNN "Supplier Part No"
-F 8 "http://au.element14.com/keystone/5119/test-point-pcb-purple-through/dp/2501305" H 2950 4450 39  0001 L BNN "Supplier URL"
-F 9 "0.3" H 2950 4400 39  0001 L BNN "Supplier Price"
-F 10 "1" H 2950 4350 39  0001 L BNN "Suppier Price Break"
-	1    2900 4850
-	0    1    1    0   
-$EndComp
-$Comp
-L appli_test_points:CLIP_HOOK_PURPLE TEST12
-U 1 1 5AD11933
-P 2900 6625
-F 0 "TEST12" V 2831 6803 39  0000 L CNN
-F 1 "CLIP_HOOK_PURPLE" H 2950 6625 39  0001 L TNN
-F 2 "Applidyne_Test:KEYSTONE_5119" H 2950 6575 39  0001 L TNN
-F 3 "http://www.farnell.com/datasheets/1703983.pdf" H 2950 6425 39  0001 L BNN
-F 4 "KEYSTONE" H 2950 6525 39  0001 L TNN "manf"
-F 5 "5119" H 2950 6375 39  0001 L BNN "manf#"
-F 6 "Element14" H 2950 6325 39  0001 L BNN "Supplier"
-F 7 "2501305" H 2950 6275 39  0001 L BNN "Supplier Part No"
-F 8 "http://au.element14.com/keystone/5119/test-point-pcb-purple-through/dp/2501305" H 2950 6225 39  0001 L BNN "Supplier URL"
-F 9 "0.3" H 2950 6175 39  0001 L BNN "Supplier Price"
-F 10 "1" H 2950 6125 39  0001 L BNN "Suppier Price Break"
-	1    2900 6625
-	0    1    1    0   
-$EndComp
-$Comp
-L appli_test_points:CLIP_HOOK_PURPLE TEST9
-U 1 1 5AD4DDF1
-P 2900 1500
-F 0 "TEST9" V 2831 1678 39  0000 L CNN
-F 1 "CLIP_HOOK_PURPLE" H 2950 1500 39  0001 L TNN
-F 2 "Applidyne_Test:KEYSTONE_5119" H 2950 1450 39  0001 L TNN
-F 3 "http://www.farnell.com/datasheets/1703983.pdf" H 2950 1300 39  0001 L BNN
-F 4 "KEYSTONE" H 2950 1400 39  0001 L TNN "manf"
-F 5 "5119" H 2950 1250 39  0001 L BNN "manf#"
-F 6 "Element14" H 2950 1200 39  0001 L BNN "Supplier"
-F 7 "2501305" H 2950 1150 39  0001 L BNN "Supplier Part No"
-F 8 "http://au.element14.com/keystone/5119/test-point-pcb-purple-through/dp/2501305" H 2950 1100 39  0001 L BNN "Supplier URL"
-F 9 "0.3" H 2950 1050 39  0001 L BNN "Supplier Price"
-F 10 "1" H 2950 1000 39  0001 L BNN "Suppier Price Break"
-	1    2900 1500
-	0    1    1    0   
-$EndComp
 $Comp
 L appli_analog_devices:ACS711KEXLT_15AB U6
 U 1 1 5AD62CC0
@@ -4850,24 +4730,6 @@ $EndComp
 Wire Wire Line
 	10100 10800 10400 10800
 $Comp
-L appli_transistor:ULN2003A U10
-U 1 1 5AD8B34E
-P 10850 3650
-F 0 "U10" H 10850 4317 50  0000 C CNN
-F 1 "ULN2003A" H 10850 4226 50  0000 C CNN
-F 2 "Applidyne_SOIC:SOIC127P1030X265-18L87N" H 10000 1800 50  0001 L CNN
-F 3 "http://www.ti.com/lit/ds/symlink/uln2803a.pdf" H 10850 2450 50  0001 C CNN
-F 4 "TI" H 10850 2650 50  0001 C CNN "manf"
-F 5 "ULN2803ADW" H 10850 2550 50  0001 C CNN "manf#"
-F 6 "Mouser" H 10850 2350 50  0001 C CNN "Supplier"
-F 7 "595-ULN2803ADW" H 10850 2250 50  0001 C CNN "Supplier Part No"
-F 8 "https://au.mouser.com/ProductDetail/Texas-Instruments/ULN2803ADW?qs=sGAEpiMZZMsIeRsI8taJinMjxaUZ2pFz" H 10850 2150 50  0001 C CNN "Supplier URL"
-F 9 "2.02" H 10850 2050 50  0001 C CNN "Supplier Price"
-F 10 "1" H 10850 1950 50  0001 C CNN "Supplier Price Break"
-	1    10850 3650
-	1    0    0    -1  
-$EndComp
-$Comp
 L appli_transistor:ULN2003A U11
 U 1 1 5ADA06D9
 P 10850 7200
@@ -4894,23 +4756,93 @@ Wire Wire Line
 Wire Wire Line
 	2150 1725 2300 1725
 Wire Wire Line
-	2900 1500 2900 1725
-Connection ~ 2900 1725
-Wire Wire Line
 	2900 1725 2600 1725
-Wire Wire Line
-	2900 3150 2900 3375
-Connection ~ 2900 3375
 Wire Wire Line
 	2900 3375 2600 3375
 Wire Wire Line
-	2900 4850 2900 5075
-Connection ~ 2900 5075
-Wire Wire Line
 	2900 5075 2600 5075
 Wire Wire Line
-	2900 6625 2900 6850
-Connection ~ 2900 6850
-Wire Wire Line
 	2900 6850 2600 6850
+Wire Wire Line
+	11850 4150 11250 4150
+Wire Wire Line
+	11850 2800 11850 4150
+Wire Wire Line
+	11250 4050 11950 4050
+Wire Wire Line
+	11950 2900 11950 4050
+Wire Wire Line
+	12050 3950 11250 3950
+Wire Wire Line
+	12050 3000 12050 3950
+Wire Wire Line
+	13000 3650 11250 3650
+Wire Wire Line
+	13000 3750 11650 3750
+Wire Wire Line
+	11650 3750 11650 3550
+Wire Wire Line
+	13000 3850 11550 3850
+NoConn ~ 11250 3850
+NoConn ~ 11250 3750
+$Comp
+L appli_transistor:ULN2003A U10
+U 1 1 5AD8B34E
+P 10850 3650
+F 0 "U10" H 10850 4317 50  0000 C CNN
+F 1 "ULN2003A" H 10850 4226 50  0000 C CNN
+F 2 "Applidyne_SOIC:SOIC127P1030X265-18L87N" H 10000 1800 50  0001 L CNN
+F 3 "http://www.ti.com/lit/ds/symlink/uln2803a.pdf" H 10850 2450 50  0001 C CNN
+F 4 "TI" H 10850 2650 50  0001 C CNN "manf"
+F 5 "ULN2803ADW" H 10850 2550 50  0001 C CNN "manf#"
+F 6 "Mouser" H 10850 2350 50  0001 C CNN "Supplier"
+F 7 "595-ULN2803ADW" H 10850 2250 50  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Texas-Instruments/ULN2803ADW?qs=sGAEpiMZZMsIeRsI8taJinMjxaUZ2pFz" H 10850 2150 50  0001 C CNN "Supplier URL"
+F 9 "2.02" H 10850 2050 50  0001 C CNN "Supplier Price"
+F 10 "1" H 10850 1950 50  0001 C CNN "Supplier Price Break"
+	1    10850 3650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	10450 4050 10100 4050
+Wire Wire Line
+	10450 4150 10100 4150
+Wire Wire Line
+	11850 7700 11250 7700
+Wire Wire Line
+	11850 6350 11850 7700
+Wire Wire Line
+	11250 7600 11950 7600
+Wire Wire Line
+	11950 6450 11950 7600
+Wire Wire Line
+	12050 7500 11250 7500
+Wire Wire Line
+	12050 6550 12050 7500
+Wire Wire Line
+	13000 7300 11650 7300
+Wire Wire Line
+	11650 7300 11650 7100
+Wire Wire Line
+	11650 7100 11250 7100
+Wire Wire Line
+	13000 7400 11550 7400
+Wire Wire Line
+	11550 7400 11550 7000
+Wire Wire Line
+	10100 7600 10450 7600
+Wire Wire Line
+	10450 7700 10100 7700
+NoConn ~ 11250 7300
+NoConn ~ 11250 7400
+Wire Wire Line
+	11650 3550 11250 3550
+Wire Wire Line
+	11550 3450 11250 3450
+Wire Wire Line
+	11550 3450 11550 3850
+Wire Wire Line
+	11550 7000 11250 7000
+Wire Wire Line
+	11250 7200 13000 7200
 $EndSCHEMATC
