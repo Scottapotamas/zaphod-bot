@@ -23,7 +23,7 @@ Fan Control Circuit
 Text Notes 11725 1225 0    79   ~ 16
 Temperature Sensors
 Text Notes 11275 1525 0    50   ~ 0
-Expansion temp sensor 0
+Onboard PSU Temp
 Text Notes 9375 1525 0    50   ~ 0
 On-board temp sensor
 Text Notes 7850 7975 0    79   ~ 16
@@ -44,24 +44,6 @@ F 8 "http://au.rs-online.com/web/p/thermistors/6197740/" V 10175 1760 20  0001 C
 F 9 "0.327" V 10200 1760 20  0001 C CNN "Supplier Price"
 F 10 "25" V 10225 1760 20  0001 C CNN "Supplier Price Break"
 	1    9850 1900
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_connector_wurth:CONN_01X02 P21
-U 1 1 5ABC2851
-P 12150 2050
-F 0 "P21" H 12228 2091 50  0000 L CNN
-F 1 "CONN_01X02" H 12228 2000 50  0000 L CNN
-F 2 "Applidyne_Connector_Wurth:61300211121" V 12325 2050 50  0001 C CNN
-F 3 "http://www.farnell.com/cad/2124416.pdf" V 13100 2100 50  0001 C CNN
-F 4 "WURTH" V 12425 2075 60  0001 C CNN "manf"
-F 5 "61300211121" V 12525 2075 60  0001 C CNN "manf#"
-F 6 "Element 14" V 12625 2075 60  0001 C CNN "Supplier"
-F 7 "2356153" V 12700 2075 60  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/wurth-elektronik/61300211121/header-2-54mm-pin-tht-vertical/dp/2356153" V 12800 2075 60  0001 C CNN "Supplier URL"
-F 9 "0.17" V 12900 2075 60  0001 C CNN "Supplier Price"
-F 10 "1" V 13000 2075 60  0001 C CNN "Supplier Price Break"
-	1    12150 2050
 	1    0    0    -1  
 $EndComp
 $Comp
@@ -155,13 +137,9 @@ Wire Wire Line
 Wire Wire Line
 	11150 2250 11000 2250
 Wire Wire Line
-	11850 2100 11950 2100
+	11850 2200 11850 2250
 Wire Wire Line
-	11850 2100 11850 2250
-Wire Wire Line
-	11950 2000 11850 2000
-Wire Wire Line
-	11850 1800 11850 2000
+	11850 1800 11850 1900
 Text GLabel 9000 2250 0    50   Output ~ 0
 TEMP_PCB
 Text GLabel 11000 2250 0    50   Output ~ 0
@@ -2480,4 +2458,22 @@ $EndComp
 Connection ~ 5850 5250
 Connection ~ 5850 2100
 Connection ~ 5850 3150
+$Comp
+L appli_resistor:NTC_10K_1608M TH?
+U 1 1 5ADB606F
+P 11850 1900
+F 0 "TH?" H 11948 1785 50  0000 L CNN
+F 1 "NTC_10K_1608M" H 11948 1705 35  0000 L CNN
+F 2 "Applidyne_Resistor:RESC1608X50N" V 12000 1760 20  0001 C CNN
+F 3 "http://au.rs-online.com/webdocs/1423/0900766b81423c04.pdf" V 12025 1760 20  0001 C CNN
+F 4 "MURATA" V 12075 1760 20  0001 C CNN "manf"
+F 5 "NCP18XH103J03RB" V 12100 1770 20  0001 C CNN "manf#"
+F 6 "RS Online" V 12125 1760 20  0001 C CNN "Supplier"
+F 7 "619-7740" V 12150 1760 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.rs-online.com/web/p/thermistors/6197740/" V 12175 1760 20  0001 C CNN "Supplier URL"
+F 9 "0.327" V 12200 1760 20  0001 C CNN "Supplier Price"
+F 10 "25" V 12225 1760 20  0001 C CNN "Supplier Price Break"
+	1    11850 1900
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC
