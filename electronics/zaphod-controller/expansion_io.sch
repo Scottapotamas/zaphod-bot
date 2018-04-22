@@ -417,10 +417,10 @@ Wire Wire Line
 Text Notes 10375 6075 0    50   ~ 0
 https://electronics.stackexchange.com/questions/153846/arduino-how-to-read-and-control-the-speed-of-a-12v-four-wire-fan
 $Comp
-L appli_connector_wurth:CONN_01X02 P22
+L appli_connector_wurth:CONN_01X02 P18
 U 1 1 5AC12FC5
 P 14350 2050
-F 0 "P22" H 14428 2091 50  0000 L CNN
+F 0 "P18" H 14428 2091 50  0000 L CNN
 F 1 "CONN_01X02" H 14428 2000 50  0000 L CNN
 F 2 "Applidyne_Connector_Wurth:61300211121" V 14525 2050 50  0001 C CNN
 F 3 "http://www.farnell.com/cad/2124416.pdf" V 15300 2100 50  0001 C CNN
@@ -515,87 +515,16 @@ Text Notes 12575 7750 0    79   ~ 16
 Buzzer
 Text Notes 11850 7975 0    50   ~ 0
 Used for potential indication of state/warnings
-Text GLabel 1575 9950 0    50   Output ~ 0
+Text GLabel 1675 9425 0    50   Output ~ 0
 EXT_INPUT_0
 Text GLabel 1675 8800 0    50   Input ~ 0
 EXT_OUTPUT_1
-Text GLabel 1575 10150 0    50   Output ~ 0
+Text GLabel 1675 9625 0    50   Output ~ 0
 EXT_INPUT_1
 Text GLabel 1675 8600 0    50   Input ~ 0
 EXT_OUTPUT_0
 Text Notes 2675 7575 0    50   ~ 0
 Provide 2 optocoupled input/output pairs.\nPair 0 is UART capable, Pair 1 is CAN capable.
-$Comp
-L appli_power:GND #PWR083
-U 1 1 5B002BDB
-P 5000 10125
-F 0 "#PWR083" H 5000 9875 50  0001 C CNN
-F 1 "GND" H 5005 9952 50  0000 C CNN
-F 2 "" H 5000 10125 60  0000 C CNN
-F 3 "" H 5000 10125 60  0000 C CNN
-	1    5000 10125
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_power:+3.3V #PWR082
-U 1 1 5B002C6A
-P 4975 9575
-F 0 "#PWR082" H 4975 9535 30  0001 C CNN
-F 1 "+3.3V" H 4984 9713 30  0000 C CNN
-F 2 "" H 4975 9575 60  0000 C CNN
-F 3 "" H 4975 9575 60  0000 C CNN
-	1    4975 9575
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_power:+12V #PWR084
-U 1 1 5B002CC8
-P 5300 9600
-F 0 "#PWR084" H 5300 9450 50  0001 C CNN
-F 1 "+12V" H 5315 9773 50  0000 C CNN
-F 2 "" H 5300 9600 60  0000 C CNN
-F 3 "" H 5300 9600 60  0000 C CNN
-	1    5300 9600
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	2125 8600 2375 8600
-Wire Wire Line
-	2375 8800 2125 8800
-Wire Wire Line
-	1675 8600 1825 8600
-Wire Wire Line
-	1825 8800 1675 8800
-Wire Wire Line
-	3075 8400 3225 8400
-Wire Wire Line
-	3225 8400 3225 8300
-Wire Wire Line
-	3075 9000 3225 9000
-Wire Wire Line
-	3225 9000 3225 9100
-$Comp
-L appli_power:GND #PWR070
-U 1 1 5ACCB935
-P 3225 9100
-F 0 "#PWR070" H 3225 8850 50  0001 C CNN
-F 1 "GND" H 3230 8927 50  0000 C CNN
-F 2 "" H 3225 9100 60  0000 C CNN
-F 3 "" H 3225 9100 60  0000 C CNN
-	1    3225 9100
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_power:+3.3V #PWR069
-U 1 1 5ACCB976
-P 3225 8300
-F 0 "#PWR069" H 3225 8260 30  0001 C CNN
-F 1 "+3.3V" H 3234 8438 30  0000 C CNN
-F 2 "" H 3225 8300 60  0000 C CNN
-F 3 "" H 3225 8300 60  0000 C CNN
-	1    3225 8300
-	1    0    0    -1  
-$EndComp
 $Comp
 L appli_power:+3.3V #PWR072
 U 1 1 5ACCB9B7
@@ -622,41 +551,17 @@ Wire Wire Line
 	4575 9725 4575 9875
 Wire Wire Line
 	4575 10075 4575 10225
-Wire Wire Line
-	3075 8800 3475 8800
-Wire Wire Line
-	3075 8600 3475 8600
 Text Notes 2675 7850 0    50   ~ 0
 220R at 3.3V from micro gives 9mA for strong safe activation.\n5mA min, 8-10mA recommended.
-Wire Wire Line
-	2375 8400 2275 8400
-Wire Wire Line
-	2275 8400 2275 9000
-Wire Wire Line
-	2275 9000 2375 9000
-Wire Wire Line
-	2275 8400 2275 8300
-Connection ~ 2275 8400
-$Comp
-L appli_power:+3.3V #PWR063
-U 1 1 5ACEDD92
-P 2275 8300
-F 0 "#PWR063" H 2275 8260 30  0001 C CNN
-F 1 "+3.3V" H 2284 8438 30  0000 C CNN
-F 2 "" H 2275 8300 60  0000 C CNN
-F 3 "" H 2275 8300 60  0000 C CNN
-	1    2275 8300
-	1    0    0    -1  
-$EndComp
 $Comp
 L appli_power:+12V #PWR091
 U 1 1 5AD29E22
-P 7150 6100
-F 0 "#PWR091" H 7150 5950 50  0001 C CNN
-F 1 "+12V" V 7150 6350 50  0000 C CNN
-F 2 "" H 7150 6100 60  0000 C CNN
-F 3 "" H 7150 6100 60  0000 C CNN
-	1    7150 6100
+P 7450 6100
+F 0 "#PWR091" H 7450 5950 50  0001 C CNN
+F 1 "+12V" V 7450 6350 50  0000 C CNN
+F 2 "" H 7450 6100 60  0000 C CNN
+F 3 "" H 7450 6100 60  0000 C CNN
+	1    7450 6100
 	0    -1   -1   0   
 $EndComp
 Text GLabel 1400 5250 0    50   BiDi ~ 0
@@ -1329,24 +1234,13 @@ Connection ~ 4950 5250
 $Comp
 L appli_power:+3.3V #PWR093
 U 1 1 5AF06D31
-P 7150 6600
-F 0 "#PWR093" H 7150 6560 30  0001 C CNN
-F 1 "+3.3V" V 7150 6775 30  0000 C CNN
-F 2 "" H 7150 6600 60  0000 C CNN
-F 3 "" H 7150 6600 60  0000 C CNN
-	1    7150 6600
+P 7450 6300
+F 0 "#PWR093" H 7450 6260 30  0001 C CNN
+F 1 "+3.3V" V 7450 6525 30  0000 C CNN
+F 2 "" H 7450 6300 60  0000 C CNN
+F 3 "" H 7450 6300 60  0000 C CNN
+	1    7450 6300
 	0    -1   -1   0   
-$EndComp
-$Comp
-L appli_power:GND #PWR094
-U 1 1 5AF06DAE
-P 7450 6750
-F 0 "#PWR094" H 7450 6500 50  0001 C CNN
-F 1 "GND" H 7455 6577 50  0000 C CNN
-F 2 "" H 7450 6750 60  0000 C CNN
-F 3 "" H 7450 6750 60  0000 C CNN
-	1    7450 6750
-	1    0    0    -1  
 $EndComp
 Text Notes 7425 8275 0    50   ~ 0
 Expansion Header for ESP8266/32 or BLE module.\nProvide USART with external power control.
@@ -1963,12 +1857,12 @@ $EndComp
 $Comp
 L appli_power:+5V #PWR092
 U 1 1 5B4D5FB5
-P 7150 6350
-F 0 "#PWR092" H 7150 6200 50  0001 C CNN
-F 1 "+5V" V 7165 6478 50  0000 L CNN
-F 2 "" H 7150 6350 60  0000 C CNN
-F 3 "" H 7150 6350 60  0000 C CNN
-	1    7150 6350
+P 7450 6200
+F 0 "#PWR092" H 7450 6050 50  0001 C CNN
+F 1 "+5V" V 7450 6350 50  0000 L CNN
+F 2 "" H 7450 6200 60  0000 C CNN
+F 3 "" H 7450 6200 60  0000 C CNN
+	1    7450 6200
 	0    -1   -1   0   
 $EndComp
 Wire Wire Line
@@ -1985,24 +1879,6 @@ Wire Wire Line
 	6700 4000 6500 4000
 Wire Wire Line
 	6650 3900 6700 3900
-$Comp
-L appli_connector_jst:JST_GH_6_RA P16
-U 1 1 5AD83FAD
-P 6900 4150
-F 0 "P16" H 6978 4191 50  0000 L CNN
-F 1 "JST_GH_6_RA" H 6978 4100 50  0000 L CNN
-F 2 "Applidyne_Connector_JST:SM06B-GHS-TB" H 6900 2950 50  0001 C CNN
-F 3 "http://docs-asia.electrocomponents.com/webdocs/10ce/0900766b810cef18.pdf" H 6900 3220 50  0001 C CNN
-F 4 "JST" H 6910 3740 60  0001 C CNN "manf"
-F 5 "SM06B-GHS-TB(LF)(SN)" H 6900 3650 60  0001 C CNN "manf#"
-F 6 "RS Online" H 6910 3540 60  0001 C CNN "Supplier"
-F 7 "752-1800" H 6910 3440 60  0001 C CNN "Supplier Part No"
-F 8 "http://au.rs-online.com/web/p/pcb-headers/7521800/" H 6900 3340 60  0001 C CNN "Supplier URL"
-F 9 "0.802" H 6900 3130 60  0001 C CNN "Supplier Price"
-F 10 "5" H 6900 3040 60  0001 C CNN "Supplier Price Break"
-	1    6900 4150
-	1    0    0    -1  
-$EndComp
 $Comp
 L appli_connector_wurth:CONN_01X06 P20
 U 1 1 5B5370D4
@@ -2022,11 +1898,11 @@ F 10 "1" H 9800 8825 60  0001 C CNN "Supplier Price Break"
 	1    0    0    -1  
 $EndComp
 Wire Wire Line
-	7675 6100 7150 6100
+	7800 6100 7450 6100
 Wire Wire Line
-	7675 6350 7150 6350
+	7800 6200 7450 6200
 Wire Wire Line
-	7675 6600 7150 6600
+	7800 6300 7450 6300
 Text Notes 7150 5825 0    79   ~ 16
 Power Outputs
 $Comp
@@ -2041,78 +1917,10 @@ F 3 "" H 12850 3800 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L appli_connector_wurth:CONN_01X02 P17
-U 1 1 5ADECF05
-P 7875 6150
-F 0 "P17" H 7953 6191 50  0000 L CNN
-F 1 "CONN_01X02" H 7953 6100 50  0000 L CNN
-F 2 "Applidyne_Connector_Wurth:61300211121" V 8050 6150 50  0001 C CNN
-F 3 "http://www.farnell.com/cad/2124416.pdf" V 8825 6200 50  0001 C CNN
-F 4 "WURTH" V 8150 6175 60  0001 C CNN "manf"
-F 5 "61300211121" V 8250 6175 60  0001 C CNN "manf#"
-F 6 "Element 14" V 8350 6175 60  0001 C CNN "Supplier"
-F 7 "2356153" V 8425 6175 60  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/wurth-elektronik/61300211121/header-2-54mm-pin-tht-vertical/dp/2356153" V 8525 6175 60  0001 C CNN "Supplier URL"
-F 9 "0.17" V 8625 6175 60  0001 C CNN "Supplier Price"
-F 10 "1" V 8725 6175 60  0001 C CNN "Supplier Price Break"
-	1    7875 6150
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_connector_wurth:CONN_01X02 P18
-U 1 1 5ADECFED
-P 7875 6400
-F 0 "P18" H 7953 6441 50  0000 L CNN
-F 1 "CONN_01X02" H 7953 6350 50  0000 L CNN
-F 2 "Applidyne_Connector_Wurth:61300211121" V 8050 6400 50  0001 C CNN
-F 3 "http://www.farnell.com/cad/2124416.pdf" V 8825 6450 50  0001 C CNN
-F 4 "WURTH" V 8150 6425 60  0001 C CNN "manf"
-F 5 "61300211121" V 8250 6425 60  0001 C CNN "manf#"
-F 6 "Element 14" V 8350 6425 60  0001 C CNN "Supplier"
-F 7 "2356153" V 8425 6425 60  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/wurth-elektronik/61300211121/header-2-54mm-pin-tht-vertical/dp/2356153" V 8525 6425 60  0001 C CNN "Supplier URL"
-F 9 "0.17" V 8625 6425 60  0001 C CNN "Supplier Price"
-F 10 "1" V 8725 6425 60  0001 C CNN "Supplier Price Break"
-	1    7875 6400
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_connector_wurth:CONN_01X02 P19
-U 1 1 5ADED0A1
-P 7875 6650
-F 0 "P19" H 7953 6691 50  0000 L CNN
-F 1 "CONN_01X02" H 7953 6600 50  0000 L CNN
-F 2 "Applidyne_Connector_Wurth:61300211121" V 8050 6650 50  0001 C CNN
-F 3 "http://www.farnell.com/cad/2124416.pdf" V 8825 6700 50  0001 C CNN
-F 4 "WURTH" V 8150 6675 60  0001 C CNN "manf"
-F 5 "61300211121" V 8250 6675 60  0001 C CNN "manf#"
-F 6 "Element 14" V 8350 6675 60  0001 C CNN "Supplier"
-F 7 "2356153" V 8425 6675 60  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/wurth-elektronik/61300211121/header-2-54mm-pin-tht-vertical/dp/2356153" V 8525 6675 60  0001 C CNN "Supplier URL"
-F 9 "0.17" V 8625 6675 60  0001 C CNN "Supplier Price"
-F 10 "1" V 8725 6675 60  0001 C CNN "Supplier Price Break"
-	1    7875 6650
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	7675 6700 7450 6700
-Wire Wire Line
-	7450 6700 7450 6750
-Wire Wire Line
-	7675 6450 7450 6450
-Connection ~ 7450 6700
-Wire Wire Line
-	7675 6200 7450 6200
-Wire Wire Line
-	7450 6200 7450 6450
-Connection ~ 7450 6450
-Wire Wire Line
-	7450 6450 7450 6700
-$Comp
-L appli_connector_molex:MOLEX_KK2.54_1x4_WAY_FAN P23
+L appli_connector_molex:MOLEX_KK2.54_1x4_WAY_FAN P19
 U 1 1 5AE7A351
 P 14350 4300
-F 0 "P23" H 14428 4330 50  0000 L CNN
+F 0 "P19" H 14428 4330 50  0000 L CNN
 F 1 "MOLEX_KK2.54_1x4_WAY_FAN" H 14428 4250 35  0000 L CNN
 F 2 "Applidyne_Connector_Molex:MOLEX_47053-1000" V 14525 4300 20  0001 C CNN
 F 3 "https://au.mouser.com/datasheet/2/276/0470531000_PCB_HEADERS-146351.pdf" V 14550 4300 20  0001 C CNN
@@ -2196,24 +2004,6 @@ F 8 "http://au.element14.com/panasonic-electronic-components/exb38v221jv/resisto
 F 9 "0.081" V 2800 5115 20  0001 C CNN "Supplier Price"
 F 10 "1" V 2825 5115 20  0001 C CNN "Supplier Price Break"
 	4    2400 5250
-	0    1    1    0   
-$EndComp
-$Comp
-L appli_resistor:220R_QUAD_ARRAY_1608M R49
-U 1 1 5AE7F5CF
-P 2400 6300
-F 0 "R49" V 2200 6150 50  0000 C CNN
-F 1 "220R_QUAD_ARRAY_1608M" V 2280 6150 35  0000 C CNN
-F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 2600 6165 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2085571.pdf" V 2625 6165 20  0001 C CNN
-F 4 "PANASONIC" V 2675 6165 20  0001 C CNN "manf"
-F 5 "EXB38V221JV" V 2700 6165 20  0001 C CNN "manf#"
-F 6 "Element14" V 2725 6165 20  0001 C CNN "Supplier"
-F 7 "2060094" V 2750 6165 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/panasonic-electronic-components/exb38v221jv/resistor-cvex-array-0603x4-220r/dp/2060094" V 2775 6165 20  0001 C CNN "Supplier URL"
-F 9 "0.081" V 2800 6165 20  0001 C CNN "Supplier Price"
-F 10 "1" V 2825 6165 20  0001 C CNN "Supplier Price Break"
-	1    2400 6300
 	0    1    1    0   
 $EndComp
 $Comp
@@ -2488,4 +2278,137 @@ F 3 "" H 3450 3800 60  0000 C CNN
 	1    3450 3800
 	1    0    0    -1  
 $EndComp
+$Comp
+L appli_connector_molex:MOLEX_NANOFIT_2x3_WAY P17
+U 1 1 5AF939B2
+P 8000 6350
+F 0 "P17" H 8077 6380 50  0000 L CNN
+F 1 "MOLEX_NANOFIT_2x3_WAY" H 8077 6300 35  0000 L CNN
+F 2 "Applidyne_Connector_Molex:Molex_Nano-Fit_105310-xx06_2x03_VERT" V 8175 6350 20  0001 C CNN
+F 3 "https://www.molex.com/molex/products/datasheet.jsp?part=active/1053101204_PCB_HEADERS.xml&channel=Products&Lang=en-US" V 8200 6350 20  0001 C CNN
+F 4 "MOLEX" V 8250 6350 20  0001 C CNN "manf"
+F 5 "105310-1204" V 8275 6350 20  0001 C CNN "manf#"
+F 6 "Mouser" V 8300 6350 20  0001 C CNN "Supplier"
+F 7 "538-105310-1106" V 8325 6350 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Molex/105310-1106" V 8350 6350 20  0001 C CNN "Supplier URL"
+F 9 "1.81" V 8375 6350 20  0001 C CNN "Supplier Price"
+F 10 "1" V 8400 6350 20  0001 C CNN "Supplier Price Break"
+	1    8000 6350
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_power:GND #PWR094
+U 1 1 5AF06DAE
+P 7400 6700
+F 0 "#PWR094" H 7400 6450 50  0001 C CNN
+F 1 "GND" H 7405 6527 50  0000 C CNN
+F 2 "" H 7400 6700 60  0000 C CNN
+F 3 "" H 7400 6700 60  0000 C CNN
+	1    7400 6700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	7400 6700 7400 6600
+Wire Wire Line
+	7400 6400 7800 6400
+Wire Wire Line
+	7800 6500 7400 6500
+Connection ~ 7400 6500
+Wire Wire Line
+	7400 6500 7400 6400
+Wire Wire Line
+	7800 6600 7400 6600
+Connection ~ 7400 6600
+Wire Wire Line
+	7400 6600 7400 6500
+$Comp
+L appli_connector_molex:MOLEX_NANOFIT_1x6_WAY P16
+U 1 1 5B00C8A6
+P 6900 4150
+F 0 "P16" H 6977 4180 50  0000 L CNN
+F 1 "MOLEX_NANOFIT_1x6_WAY" H 6977 4100 35  0000 L CNN
+F 2 "Applidyne_Connector_Molex:Molex_Nano-Fit_105309-xx06_1x06_VERT" V 7075 4150 20  0001 C CNN
+F 3 "https://www.molex.com/molex/products/datasheet.jsp?part=active/1053091106_PCB_HEADERS.xml" V 7100 4150 20  0001 C CNN
+F 4 "MOLEX" V 7150 4150 20  0001 C CNN "manf"
+F 5 "105313-1106" V 7175 4150 20  0001 C CNN "manf#"
+F 6 "Mouser" V 7200 4150 20  0001 C CNN "Supplier"
+F 7 "538-105309-1106" V 7225 4150 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Molex/105309-1106" V 7250 4150 20  0001 C CNN "Supplier URL"
+F 9 "1.74" V 7275 4150 20  0001 C CNN "Supplier Price"
+F 10 "1" V 7300 4150 20  0001 C CNN "Supplier Price Break"
+	1    6900 4150
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_resistor:22R_1608M R49
+U 1 1 5B01397A
+P 2400 6300
+F 0 "R49" V 2212 6150 50  0000 C CNN
+F 1 "22R_1608M" V 2292 6150 35  0000 C CNN
+F 2 "Applidyne_Resistor:RESC1608X50N" V 2510 6150 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" V 2535 6150 20  0001 C CNN
+F 4 "MULTICOMP" V 2585 6150 20  0001 C CNN "manf"
+F 5 "MC0063W060314R22" V 2610 6150 20  0001 C CNN "manf#"
+F 6 "Element14" V 2635 6150 20  0001 C CNN "Supplier"
+F 7 "2141539" V 2660 6150 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/multicomp/mc0063w060314r22/res-thick-film-4r22-1-0-063w-0603/dp/2141539" V 2685 6150 20  0001 C CNN "Supplier URL"
+F 9 "0.015" V 2710 6150 20  0001 C CNN "Supplier Price"
+F 10 "1" V 2735 6150 20  0001 C CNN "Supplier Price Break"
+	1    2400 6300
+	0    1    1    0   
+$EndComp
+$Comp
+L appli_connector_molex:MOLEX_NANOFIT_2x5_WAY P21
+U 1 1 5B019139
+P 4150 8800
+F 0 "P21" H 4227 8730 50  0000 L CNN
+F 1 "MOLEX_NANOFIT_2x5_WAY" H 4227 8650 35  0000 L CNN
+F 2 "Applidyne_Connector_Molex:Molex_Nano-Fit_105310-xx10_2x05_VERT" V 4325 8800 20  0001 C CNN
+F 3 "https://www.molex.com/molex/products/datasheet.jsp?part=active/1053101110_PCB_HEADERS.xml" V 4350 8800 20  0001 C CNN
+F 4 "MOLEX" V 4400 8800 20  0001 C CNN "manf"
+F 5 "105310-1110" V 4425 8800 20  0001 C CNN "manf#"
+F 6 "Mouser" V 4450 8800 20  0001 C CNN "Supplier"
+F 7 "538-105310-1110" V 4475 8800 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Molex/105310-1110" V 4500 8800 20  0001 C CNN "Supplier URL"
+F 9 "2.65" V 4525 8800 20  0001 C CNN "Supplier Price"
+F 10 "1" V 4550 8800 20  0001 C CNN "Supplier Price Break"
+	1    4150 8800
+	1    0    0    -1  
+$EndComp
+Text GLabel 3300 8450 0    50   Input ~ 0
+LEMO_USB_VBUS
+Text GLabel 3300 8950 0    50   Input ~ 0
+LEMO_USB_ID
+Text GLabel 3300 8650 0    50   Input ~ 0
+LEMO_USB_D+
+Text GLabel 3300 8550 0    50   Input ~ 0
+LEMO_USB_D-
+Wire Wire Line
+	3300 8450 3950 8450
+Wire Wire Line
+	3950 8550 3300 8550
+Wire Wire Line
+	3300 8650 3950 8650
+Wire Wire Line
+	3300 8950 3950 8950
+$Comp
+L appli_power:GND #PWR?
+U 1 1 5B0D591B
+P 3825 9500
+F 0 "#PWR?" H 3825 9250 50  0001 C CNN
+F 1 "GND" H 3830 9327 50  0000 C CNN
+F 2 "" H 3825 9500 60  0000 C CNN
+F 3 "" H 3825 9500 60  0000 C CNN
+	1    3825 9500
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3950 9050 3825 9050
+Wire Wire Line
+	3825 9050 3825 9150
+Wire Wire Line
+	3950 9150 3825 9150
+Connection ~ 3825 9150
+Wire Wire Line
+	3825 9150 3825 9500
 $EndSCHEMATC

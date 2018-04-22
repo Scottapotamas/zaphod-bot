@@ -1133,24 +1133,6 @@ Connection ~ 8800 5150
 Wire Wire Line
 	8800 4750 8550 4750
 Connection ~ 8800 4750
-$Comp
-L appli_usb:USB_MICRO_B_SMD_2 J?1
-U 1 1 5AD25E9B
-P 3050 10400
-F 0 "J?1" H 3039 10937 60  0000 C CNN
-F 1 "USB_MICRO_B_SMD_2" H 3039 10831 60  0000 C CNN
-F 2 "Applidyne_USB:MOLEX_47346-0001" H 3050 9800 60  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2214755.pdf" H 3050 9900 60  0001 C CNN
-F 4 "Molex" H 3050 9700 60  0001 C CNN "manf"
-F 5 "47346-0001" H 3050 9590 60  0001 C CNN "manf#"
-F 6 "Element 14" H 3050 9480 60  0001 C CNN "Supplier"
-F 7 "1568026" H 3060 9390 60  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/molex/47346-0001/micro-usb-2-0-type-b-receptacle/dp/1568026" H 3050 9290 60  0001 C CNN "Supplier URL"
-F 9 "1.5" H 3050 9180 60  0001 C CNN "Supplier Price"
-F 10 "10" H 3050 9060 60  0001 C CNN "Supplier Price Break"
-	1    3050 10400
-	-1   0    0    -1  
-$EndComp
 Wire Wire Line
 	4750 10250 3250 10250
 Wire Wire Line
@@ -1208,31 +1190,10 @@ Text Label 3400 10350 0    50   ~ 0
 USB_IN_D+
 Text Label 3400 10150 0    50   ~ 0
 USB_IN_VBUS
-Text Label 3400 10550 0    50   ~ 0
-USB_IN_GND
 Wire Wire Line
 	3250 10150 4100 10150
 Wire Wire Line
-	3850 10550 3850 10700
-Wire Wire Line
-	3250 10550 3325 10550
-$Comp
-L appli_power:GND #PWR043
-U 1 1 5AE49081
-P 3850 10700
-F 0 "#PWR043" H 3850 10450 50  0001 C CNN
-F 1 "GND" H 3855 10527 50  0000 C CNN
-F 2 "" H 3850 10700 60  0000 C CNN
-F 3 "" H 3850 10700 60  0000 C CNN
-	1    3850 10700
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
 	4400 10150 4550 10150
-Text Label 3400 10450 0    50   ~ 0
-USB_IN_ID
-Wire Wire Line
-	3250 10450 3400 10450
 $Comp
 L appli_resistor:4K7_1608M R33
 U 1 1 5AF03289
@@ -1391,13 +1352,6 @@ Wire Wire Line
 	1350 5400 1550 5400
 Wire Wire Line
 	1550 5500 1350 5500
-Wire Wire Line
-	3250 10650 3325 10650
-Wire Wire Line
-	3325 10650 3325 10550
-Connection ~ 3325 10550
-Wire Wire Line
-	3325 10550 3850 10550
 $Comp
 L appli_capacitor:100n_X7R_1608M C38
 U 1 1 5AD8D1A3
@@ -1755,8 +1709,6 @@ F 10 "DNP" V 4534 4227 60  0000 L CNN "Installed"
 $EndComp
 Wire Wire Line
 	4500 4050 4550 4050
-Text Label 5900 10850 0    50   ~ 0
-USB_IN_ID
 $Comp
 L appli_resistor:100R_1608M R32
 U 1 1 5B185956
@@ -1855,4 +1807,12 @@ Wire Wire Line
 	8900 6700 8900 6650
 Wire Wire Line
 	8900 6650 8850 6650
+Text GLabel 3250 10150 0    50   Input ~ 0
+LEMO_USB_VBUS
+Text GLabel 5900 10850 0    50   Input ~ 0
+LEMO_USB_ID
+Text GLabel 3250 10350 0    50   Input ~ 0
+LEMO_USB_D+
+Text GLabel 3250 10250 0    50   Input ~ 0
+LEMO_USB_D-
 $EndSCHEMATC
