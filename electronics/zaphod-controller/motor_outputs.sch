@@ -826,7 +826,7 @@ F 10 "10" V 3760 6825 20  0001 C CNN "Supplier Price Break"
 $EndComp
 $Comp
 L appli_resistor:1K_QUAD_ARRAY_1608M R35
-U 1 1 5ABFA3D0
+U 4 1 5ABFA3D0
 P 2600 1725
 F 0 "R35" V 2400 1575 50  0000 C CNN
 F 1 "1K_QUAD_ARRAY_1608M" V 2480 1575 35  0000 C CNN
@@ -839,12 +839,12 @@ F 7 "1770133" V 2965 1575 20  0001 C CNN "Supplier Part No"
 F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 2990 1575 20  0001 C CNN "Supplier URL"
 F 9 "0.073" V 3015 1575 20  0001 C CNN "Supplier Price"
 F 10 "50" V 3040 1575 20  0001 C CNN "Supplier Price Break"
-	1    2600 1725
+	4    2600 1725
 	0    1    1    0   
 $EndComp
 $Comp
 L appli_resistor:1K_QUAD_ARRAY_1608M R35
-U 2 1 5AC34563
+U 3 1 5AC34563
 P 2600 3375
 F 0 "R35" V 2400 3225 50  0000 C CNN
 F 1 "1K_QUAD_ARRAY_1608M" V 2480 3225 35  0000 C CNN
@@ -857,7 +857,7 @@ F 7 "1770133" V 2965 3225 20  0001 C CNN "Supplier Part No"
 F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 2990 3225 20  0001 C CNN "Supplier URL"
 F 9 "0.073" V 3015 3225 20  0001 C CNN "Supplier Price"
 F 10 "50" V 3040 3225 20  0001 C CNN "Supplier Price Break"
-	2    2600 3375
+	3    2600 3375
 	0    1    1    0   
 $EndComp
 Wire Wire Line
@@ -872,7 +872,7 @@ Wire Wire Line
 	2900 5225 2900 5075
 $Comp
 L appli_resistor:1K_QUAD_ARRAY_1608M R35
-U 3 1 5AC4DF5E
+U 2 1 5AC4DF5E
 P 2600 5075
 F 0 "R35" V 2400 4925 50  0000 C CNN
 F 1 "1K_QUAD_ARRAY_1608M" V 2480 4925 35  0000 C CNN
@@ -885,7 +885,7 @@ F 7 "1770133" V 2965 4925 20  0001 C CNN "Supplier Part No"
 F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 2990 4925 20  0001 C CNN "Supplier URL"
 F 9 "0.073" V 3015 4925 20  0001 C CNN "Supplier Price"
 F 10 "50" V 3040 4925 20  0001 C CNN "Supplier Price Break"
-	3    2600 5075
+	2    2600 5075
 	0    1    1    0   
 $EndComp
 Wire Wire Line
@@ -900,7 +900,7 @@ Wire Wire Line
 	2900 7000 2900 6850
 $Comp
 L appli_resistor:1K_QUAD_ARRAY_1608M R35
-U 4 1 5AC54726
+U 1 1 5AC54726
 P 2600 6850
 F 0 "R35" V 2400 6700 50  0000 C CNN
 F 1 "1K_QUAD_ARRAY_1608M" V 2480 6700 35  0000 C CNN
@@ -913,7 +913,7 @@ F 7 "1770133" V 2965 6700 20  0001 C CNN "Supplier Part No"
 F 8 "http://au.element14.com/bourns/cay16-102j4lf/resistor-array-4-1k-1206-5-smd/dp/1770133?CMP=GRHB-OCTOPART" V 2990 6700 20  0001 C CNN "Supplier URL"
 F 9 "0.073" V 3015 6700 20  0001 C CNN "Supplier Price"
 F 10 "50" V 3040 6700 20  0001 C CNN "Supplier Price Break"
-	4    2600 6850
+	1    2600 6850
 	0    1    1    0   
 $EndComp
 Connection ~ 3425 5325

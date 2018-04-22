@@ -643,19 +643,19 @@ Text GLabel 9550 3350 0    50   Input ~ 0
 TEMP_PCB
 Text GLabel 9550 3450 0    50   Input ~ 0
 TEMP_EXT_0
-Text GLabel 9550 3750 0    50   Input ~ 0
-MOTOR_1_CURRENT
-Text GLabel 8825 8700 0    50   Input ~ 0
-~MOTOR_1_OC
 Text GLabel 9550 3850 0    50   Input ~ 0
+MOTOR_1_CURRENT
+Text GLabel 8800 8900 0    50   Input ~ 0
+~MOTOR_1_OC
+Text GLabel 9550 3750 0    50   Input ~ 0
 MOTOR_2_CURRENT
-Text GLabel 8825 8900 0    50   Input ~ 0
+Text GLabel 8800 8700 0    50   Input ~ 0
 ~MOTOR_2_OC
-Text GLabel 1350 5600 0    50   Input ~ 0
+Text GLabel 1350 5700 0    50   Input ~ 0
 MOTOR_3_CURRENT
 Text GLabel 9550 1100 0    50   Input ~ 0
 ~MOTOR_3_OC
-Text GLabel 1350 5700 0    50   Input ~ 0
+Text GLabel 1350 5600 0    50   Input ~ 0
 MOTOR_4_CURRENT
 Text GLabel 9550 950  0    50   Input ~ 0
 ~MOTOR_4_OC
@@ -869,13 +869,13 @@ Wire Wire Line
 Wire Wire Line
 	8900 8750 8900 8700
 Wire Wire Line
-	8900 8700 8825 8700
+	8900 8700 8800 8700
 Wire Wire Line
 	9750 8850 8900 8850
 Wire Wire Line
 	8900 8850 8900 8900
 Wire Wire Line
-	8900 8900 8825 8900
+	8900 8900 8800 8900
 Wire Wire Line
 	9550 8950 9750 8950
 Wire Wire Line
