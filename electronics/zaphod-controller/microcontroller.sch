@@ -645,11 +645,11 @@ Text GLabel 9550 3450 0    50   Input ~ 0
 TEMP_EXT_0
 Text GLabel 9550 3850 0    50   Input ~ 0
 MOTOR_1_CURRENT
-Text GLabel 8800 8900 0    50   Input ~ 0
+Text GLabel 1325 5800 0    50   Input ~ 0
 ~MOTOR_1_OC
 Text GLabel 9550 3750 0    50   Input ~ 0
 MOTOR_2_CURRENT
-Text GLabel 8800 8700 0    50   Input ~ 0
+Text GLabel 9550 6800 0    50   Input ~ 0
 ~MOTOR_2_OC
 Text GLabel 1350 5700 0    50   Input ~ 0
 MOTOR_3_CURRENT
@@ -864,18 +864,6 @@ Wire Wire Line
 	9700 1050 9700 950 
 Wire Wire Line
 	9700 950  9550 950 
-Wire Wire Line
-	9750 8750 8900 8750
-Wire Wire Line
-	8900 8750 8900 8700
-Wire Wire Line
-	8900 8700 8800 8700
-Wire Wire Line
-	9750 8850 8900 8850
-Wire Wire Line
-	8900 8850 8900 8900
-Wire Wire Line
-	8900 8900 8800 8900
 Wire Wire Line
 	9550 8950 9750 8950
 Wire Wire Line
@@ -1734,7 +1722,6 @@ F 10 "1" V 4890 10550 20  0001 C CNN "Supplier Price Break"
 	1    4550 10650
 	1    0    0    1   
 $EndComp
-NoConn ~ 1550 5800
 NoConn ~ 9750 1450
 NoConn ~ 9750 1550
 NoConn ~ 9750 2250
@@ -1743,8 +1730,6 @@ NoConn ~ 9750 4350
 NoConn ~ 9750 4450
 NoConn ~ 9750 6500
 NoConn ~ 9750 6600
-NoConn ~ 9750 6700
-NoConn ~ 9750 6800
 NoConn ~ 9750 8050
 NoConn ~ 9750 8150
 NoConn ~ 9750 9050
@@ -1856,4 +1841,9 @@ F 10 "50" V 5490 7500 20  0001 C CNN "Supplier Price Break"
 $EndComp
 Wire Wire Line
 	3450 8450 3450 8550
+Wire Wire Line
+	1550 5800 1325 5800
+Wire Wire Line
+	9550 6800 9750 6800
+NoConn ~ 9750 6700
 $EndSCHEMATC
