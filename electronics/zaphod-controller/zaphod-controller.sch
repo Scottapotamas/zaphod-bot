@@ -62,17 +62,6 @@ F 3 "" H 8175 4500 60  0000 C CNN
 	1    0    0    -1  
 $EndComp
 $Comp
-L appli_mount:MNT_M3_PLATED MNT4
-U 1 1 5AB8A580
-P 9075 4500
-F 0 "MNT4" H 9228 4500 47  0000 L CNN
-F 1 "MNT_M3_PLATED" H 9228 4413 47  0000 L CNN
-F 2 "Applidyne_Mount:MTGP650H330" H 9075 4675 47  0001 C CNN
-F 3 "" H 9075 4500 60  0000 C CNN
-	1    9075 4500
-	1    0    0    -1  
-$EndComp
-$Comp
 L appli_mount:MNT_M3_PLATED MNT2
 U 1 1 5AB8A632
 P 8175 5050
@@ -83,29 +72,10 @@ F 3 "" H 8175 5050 60  0000 C CNN
 	1    8175 5050
 	1    0    0    -1  
 $EndComp
-$Comp
-L appli_mount:MNT_M3_PLATED MNT5
-U 1 1 5AB8A664
-P 9075 5050
-F 0 "MNT5" H 9228 5050 47  0000 L CNN
-F 1 "MNT_M3_PLATED" H 9228 4963 47  0000 L CNN
-F 2 "Applidyne_Mount:MTGP650H330" H 9075 5225 47  0001 C CNN
-F 3 "" H 9075 5050 60  0000 C CNN
-	1    9075 5050
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	8175 4700 8175 4800
 Wire Wire Line
-	8175 4800 9075 4800
-Wire Wire Line
-	9075 4800 9075 4700
-Wire Wire Line
 	8175 5350 8175 5250
-Wire Wire Line
-	8175 5350 9075 5350
-Wire Wire Line
-	9075 5350 9075 5250
 $Comp
 L appli_mount:MNT_M3_PLATED MNT3
 U 1 1 5AB8A85C
@@ -117,32 +87,8 @@ F 3 "" H 8175 5575 60  0000 C CNN
 	1    8175 5575
 	1    0    0    -1  
 $EndComp
-$Comp
-L appli_mount:MNT_M3_PLATED MNT6
-U 1 1 5AB8A863
-P 9075 5575
-F 0 "MNT6" H 9228 5575 47  0000 L CNN
-F 1 "MNT_M3_PLATED" H 9228 5488 47  0000 L CNN
-F 2 "Applidyne_Mount:MTGP650H330" H 9075 5750 47  0001 C CNN
-F 3 "" H 9075 5575 60  0000 C CNN
-	1    9075 5575
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	8175 5775 8175 5900
-Wire Wire Line
-	8175 5900 9075 5900
-Wire Wire Line
-	9075 5900 9075 5775
-Wire Wire Line
-	9075 5350 9225 5350
-Connection ~ 9075 5350
-Wire Wire Line
-	9075 4800 9225 4800
-Connection ~ 9075 4800
-Wire Wire Line
-	9075 5900 9225 5900
-Connection ~ 9075 5900
 $Comp
 L appli_power:GND #PWR0101
 U 1 1 5AB8ABC2
@@ -184,8 +130,8 @@ Text Notes 8500 2200 0    98   ~ 20
 Artwork
 Text Notes 7650 2375 0    50   ~ 0
 eUI logo
-Text Notes 8525 2400 0    50   ~ 0
-hh reference
+Text Notes 8500 2400 0    50   ~ 0
+HH Reference
 $Comp
 L appli_fiducial:FIDUCIAL FID1
 U 1 1 5AB8B482
@@ -243,4 +189,21 @@ F 3 "~" H 10125 2600 50  0001 C CNN
 	1    9725 2700
 	1    0    0    -1  
 $EndComp
+$Comp
+L appli_logo:LOGO LOGO1
+U 1 1 5AE808C1
+P 8700 2650
+F 0 "LOGO1" H 8878 2650 47  0000 L CNN
+F 1 "LOGO" H 8700 2375 47  0001 C CNN
+F 2 "Applidyne_Logo:PANIC_LOGO890X810" H 8700 2450 47  0001 C CNN
+F 3 "" H 8700 2650 60  0000 C CNN
+	1    8700 2650
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	8175 5350 9225 5350
+Wire Wire Line
+	8175 4800 9225 4800
+Wire Wire Line
+	8175 5900 9225 5900
 $EndSCHEMATC

@@ -645,11 +645,11 @@ Text GLabel 9550 3450 0    50   Input ~ 0
 TEMP_EXT_0
 Text GLabel 9550 3850 0    50   Input ~ 0
 MOTOR_1_CURRENT
-Text GLabel 1325 5800 0    50   Input ~ 0
+Text GLabel 8850 6850 0    50   Input ~ 0
 ~MOTOR_1_OC
 Text GLabel 9550 3750 0    50   Input ~ 0
 MOTOR_2_CURRENT
-Text GLabel 9550 6800 0    50   Input ~ 0
+Text GLabel 8850 6650 0    50   Input ~ 0
 ~MOTOR_2_OC
 Text GLabel 1350 5700 0    50   Input ~ 0
 MOTOR_3_CURRENT
@@ -1844,6 +1844,15 @@ Wire Wire Line
 Wire Wire Line
 	1550 5800 1325 5800
 Wire Wire Line
-	9550 6800 9750 6800
-NoConn ~ 9750 6700
+	8850 6850 8900 6850
+Wire Wire Line
+	8900 6850 8900 6800
+Wire Wire Line
+	8900 6800 9750 6800
+Wire Wire Line
+	9750 6700 8900 6700
+Wire Wire Line
+	8900 6700 8900 6650
+Wire Wire Line
+	8900 6650 8850 6650
 $EndSCHEMATC

@@ -659,17 +659,6 @@ F 3 "" H 7150 6100 60  0000 C CNN
 	1    7150 6100
 	0    -1   -1   0   
 $EndComp
-$Comp
-L appli_power:GND #PWR071
-U 1 1 5AD29E9F
-P 3350 4600
-F 0 "#PWR071" H 3350 4350 50  0001 C CNN
-F 1 "GND" H 3355 4427 50  0000 C CNN
-F 2 "" H 3350 4600 60  0000 C CNN
-F 3 "" H 3350 4600 60  0000 C CNN
-	1    3350 4600
-	1    0    0    -1  
-$EndComp
 Text GLabel 1400 5250 0    50   BiDi ~ 0
 AUX_ANALOG_0
 Text GLabel 1400 6300 0    50   BiDi ~ 0
@@ -955,24 +944,6 @@ Connection ~ 2550 6300
 Wire Wire Line
 	1650 6300 1400 6300
 Connection ~ 1650 6300
-$Comp
-L appli_connector_jst:JST_GH_6_RA P15
-U 1 1 5AD83EAF
-P 3600 4250
-F 0 "P15" H 3678 4291 50  0000 L CNN
-F 1 "JST_GH_6_RA" H 3678 4200 50  0000 L CNN
-F 2 "Applidyne_Connector_JST:SM06B-GHS-TB" H 3600 3050 50  0001 C CNN
-F 3 "http://docs-asia.electrocomponents.com/webdocs/10ce/0900766b810cef18.pdf" H 3600 3320 50  0001 C CNN
-F 4 "JST" H 3610 3840 60  0001 C CNN "manf"
-F 5 "SM06B-GHS-TB(LF)(SN)" H 3600 3750 60  0001 C CNN "manf#"
-F 6 "RS Online" H 3610 3640 60  0001 C CNN "Supplier"
-F 7 "752-1800" H 3610 3540 60  0001 C CNN "Supplier Part No"
-F 8 "http://au.rs-online.com/web/p/pcb-headers/7521800/" H 3600 3440 60  0001 C CNN "Supplier URL"
-F 9 "0.802" H 3600 3230 60  0001 C CNN "Supplier Price"
-F 10 "5" H 3600 3140 60  0001 C CNN "Supplier Price Break"
-	1    3600 4250
-	1    0    0    -1  
-$EndComp
 Text GLabel 4700 5250 0    50   BiDi ~ 0
 I2C_SDA
 Text GLabel 4700 4200 0    50   BiDi ~ 0
@@ -1045,35 +1016,23 @@ Wire Wire Line
 	1650 2100 1400 2100
 Connection ~ 1650 2100
 Wire Wire Line
-	3400 4100 3000 4100
+	3100 4100 3100 3150
 Wire Wire Line
-	3000 4100 3000 3150
+	2550 3150 3100 3150
 Wire Wire Line
-	2550 3150 3000 3150
+	3200 4000 3200 2100
 Wire Wire Line
-	3400 4000 3100 4000
+	2550 2100 3200 2100
 Wire Wire Line
-	3100 4000 3100 2100
+	2550 4200 3500 4200
 Wire Wire Line
-	2550 2100 3100 2100
+	3100 4500 3100 5250
 Wire Wire Line
-	2550 4200 3400 4200
+	2550 5250 3100 5250
 Wire Wire Line
-	3400 4300 3000 4300
+	3200 4600 3200 6300
 Wire Wire Line
-	3000 4300 3000 5250
-Wire Wire Line
-	2550 5250 3000 5250
-Wire Wire Line
-	3400 4400 3100 4400
-Wire Wire Line
-	3100 4400 3100 6300
-Wire Wire Line
-	2550 6300 3100 6300
-Wire Wire Line
-	3350 4600 3350 4500
-Wire Wire Line
-	3350 4500 3400 4500
+	2550 6300 3200 6300
 Text Notes 4725 875  0    79   ~ 16
 Internal Expansion Serial
 Text Notes 4600 1400 0    50   ~ 0
@@ -2312,78 +2271,6 @@ F 10 "50" V 11890 2100 20  0001 C CNN "Supplier Price Break"
 	0    1    1    0   
 $EndComp
 $Comp
-L appli_resistor:10K_QUAD_ARRAY_1608M R58
-U 1 1 5AEAE552
-P 9850 2300
-F 0 "R58" H 9935 2185 50  0000 L CNN
-F 1 "10K_QUAD_ARRAY_1608M" H 9935 2105 35  0000 L CNN
-F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 10020 2160 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2158867.pdf" V 10045 2160 20  0001 C CNN
-F 4 "BI TECHNOLOGIES" V 10095 2160 20  0001 C CNN "manf"
-F 5 "BCN164A103J7" V 10120 2160 20  0001 C CNN "manf#"
-F 6 "Element14" V 10145 2160 20  0001 C CNN "Supplier"
-F 7 "1782670" V 10170 2160 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/bi-technologies-tt-electronics/bcn164a103j7/resistor-resistor-array-4-10kohm/dp/1782670" V 10195 2160 20  0001 C CNN "Supplier URL"
-F 9 "0.2" V 10220 2160 20  0001 C CNN "Supplier Price"
-F 10 "1" V 10245 2160 20  0001 C CNN "Supplier Price Break"
-	1    9850 2300
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_resistor:10K_QUAD_ARRAY_1608M R58
-U 2 1 5AEAE856
-P 11850 2300
-F 0 "R58" H 11935 2185 50  0000 L CNN
-F 1 "10K_QUAD_ARRAY_1608M" H 11935 2105 35  0000 L CNN
-F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 12020 2160 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2158867.pdf" V 12045 2160 20  0001 C CNN
-F 4 "BI TECHNOLOGIES" V 12095 2160 20  0001 C CNN "manf"
-F 5 "BCN164A103J7" V 12120 2160 20  0001 C CNN "manf#"
-F 6 "Element14" V 12145 2160 20  0001 C CNN "Supplier"
-F 7 "1782670" V 12170 2160 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/bi-technologies-tt-electronics/bcn164a103j7/resistor-resistor-array-4-10kohm/dp/1782670" V 12195 2160 20  0001 C CNN "Supplier URL"
-F 9 "0.2" V 12220 2160 20  0001 C CNN "Supplier Price"
-F 10 "1" V 12245 2160 20  0001 C CNN "Supplier Price Break"
-	2    11850 2300
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_resistor:10K_QUAD_ARRAY_1608M R58
-U 3 1 5AEAE90A
-P 14050 2300
-F 0 "R58" H 14135 2185 50  0000 L CNN
-F 1 "10K_QUAD_ARRAY_1608M" H 14135 2105 35  0000 L CNN
-F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 14220 2160 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2158867.pdf" V 14245 2160 20  0001 C CNN
-F 4 "BI TECHNOLOGIES" V 14295 2160 20  0001 C CNN "manf"
-F 5 "BCN164A103J7" V 14320 2160 20  0001 C CNN "manf#"
-F 6 "Element14" V 14345 2160 20  0001 C CNN "Supplier"
-F 7 "1782670" V 14370 2160 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/bi-technologies-tt-electronics/bcn164a103j7/resistor-resistor-array-4-10kohm/dp/1782670" V 14395 2160 20  0001 C CNN "Supplier URL"
-F 9 "0.2" V 14420 2160 20  0001 C CNN "Supplier Price"
-F 10 "1" V 14445 2160 20  0001 C CNN "Supplier Price Break"
-	3    14050 2300
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_resistor:10K_QUAD_ARRAY_1608M R58
-U 4 1 5AEAE9C4
-P 15350 2975
-F 0 "R58" V 15150 2825 50  0000 C CNN
-F 1 "10K_QUAD_ARRAY_1608M" V 15230 2825 35  0000 C CNN
-F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 15520 2835 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2158867.pdf" V 15545 2835 20  0001 C CNN
-F 4 "BI TECHNOLOGIES" V 15595 2835 20  0001 C CNN "manf"
-F 5 "BCN164A103J7" V 15620 2835 20  0001 C CNN "manf#"
-F 6 "Element14" V 15645 2835 20  0001 C CNN "Supplier"
-F 7 "1782670" V 15670 2835 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/bi-technologies-tt-electronics/bcn164a103j7/resistor-resistor-array-4-10kohm/dp/1782670" V 15695 2835 20  0001 C CNN "Supplier URL"
-F 9 "0.2" V 15720 2835 20  0001 C CNN "Supplier Price"
-F 10 "1" V 15745 2835 20  0001 C CNN "Supplier Price Break"
-	4    15350 2975
-	0    1    1    0   
-$EndComp
-$Comp
 L appli_resistor:100R_1608M R51
 U 1 1 5ADB7F7E
 P 5700 3150
@@ -2475,5 +2362,130 @@ F 9 "0.073" V 11515 4200 20  0001 C CNN "Supplier Price"
 F 10 "50" V 11540 4200 20  0001 C CNN "Supplier Price Break"
 	1    11100 4350
 	0    -1   1    0   
+$EndComp
+$Comp
+L appli_resistor:10K0_1608M R4
+U 1 1 5AE7B8D9
+P 9850 2300
+F 0 "R4" H 9923 2185 50  0000 L CNN
+F 1 "10K0_1608M" H 9923 2105 35  0000 L CNN
+F 2 "Applidyne_Resistor:RESC1608X50N" V 9960 2150 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 9985 2150 20  0001 C CNN
+F 4 "TE CONNECTIVITY" V 10035 2150 20  0001 C CNN "manf"
+F 5 "CRGH0603F10K" V 10060 2150 20  0001 C CNN "manf#"
+F 6 "Element14" V 10085 2150 20  0001 C CNN "Supplier"
+F 7 "2332016" V 10110 2150 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/te-connectivity/crgh0603f10k/resistor-power-10k-0-2w-1-0603/dp/2332016" V 10135 2150 20  0001 C CNN "Supplier URL"
+F 9 "0.02" V 10160 2150 20  0001 C CNN "Supplier Price"
+F 10 "10" V 10185 2150 20  0001 C CNN "Supplier Price Break"
+	1    9850 2300
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_resistor:10K0_1608M R58
+U 1 1 5AE7C23D
+P 11850 2300
+F 0 "R58" H 11923 2185 50  0000 L CNN
+F 1 "10K0_1608M" H 11923 2105 35  0000 L CNN
+F 2 "Applidyne_Resistor:RESC1608X50N" V 11960 2150 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 11985 2150 20  0001 C CNN
+F 4 "TE CONNECTIVITY" V 12035 2150 20  0001 C CNN "manf"
+F 5 "CRGH0603F10K" V 12060 2150 20  0001 C CNN "manf#"
+F 6 "Element14" V 12085 2150 20  0001 C CNN "Supplier"
+F 7 "2332016" V 12110 2150 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/te-connectivity/crgh0603f10k/resistor-power-10k-0-2w-1-0603/dp/2332016" V 12135 2150 20  0001 C CNN "Supplier URL"
+F 9 "0.02" V 12160 2150 20  0001 C CNN "Supplier Price"
+F 10 "10" V 12185 2150 20  0001 C CNN "Supplier Price Break"
+	1    11850 2300
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_resistor:10K0_1608M R59
+U 1 1 5AE7C88F
+P 14050 2300
+F 0 "R59" H 14123 2185 50  0000 L CNN
+F 1 "10K0_1608M" H 14123 2105 35  0000 L CNN
+F 2 "Applidyne_Resistor:RESC1608X50N" V 14160 2150 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 14185 2150 20  0001 C CNN
+F 4 "TE CONNECTIVITY" V 14235 2150 20  0001 C CNN "manf"
+F 5 "CRGH0603F10K" V 14260 2150 20  0001 C CNN "manf#"
+F 6 "Element14" V 14285 2150 20  0001 C CNN "Supplier"
+F 7 "2332016" V 14310 2150 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/te-connectivity/crgh0603f10k/resistor-power-10k-0-2w-1-0603/dp/2332016" V 14335 2150 20  0001 C CNN "Supplier URL"
+F 9 "0.02" V 14360 2150 20  0001 C CNN "Supplier Price"
+F 10 "10" V 14385 2150 20  0001 C CNN "Supplier Price Break"
+	1    14050 2300
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_connector_molex:MOLEX_NANOFIT_2x4_WAY P15
+U 1 1 5AE9292E
+P 3700 4250
+F 0 "P15" H 3625 4725 50  0000 L CNN
+F 1 "MOLEX_NANOFIT_2x4_WAY" V 3850 3950 35  0000 L CNN
+F 2 "Applidyne_Connector_Molex:Molex_Nano-Fit_105310-xx08_2x04_VERT" V 3875 4250 20  0001 C CNN
+F 3 "https://www.molex.com/molex/products/datasheet.jsp?part=active/0039281083_PCB_HEADERS.xml&channel=Products&Lang=en-US" V 3900 4250 20  0001 C CNN
+F 4 "MOLEX" V 3950 4250 20  0001 C CNN "manf"
+F 5 "105310-1108" V 3975 4250 20  0001 C CNN "manf#"
+F 6 "Mouser" V 4000 4250 20  0001 C CNN "Supplier"
+F 7 "538-105310-1108" V 4025 4250 20  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Molex/105310-1108" V 4050 4250 20  0001 C CNN "Supplier URL"
+F 9 "2.26" V 4075 4250 20  0001 C CNN "Supplier Price"
+F 10 "1" V 4100 4250 20  0001 C CNN "Supplier Price Break"
+	1    3700 4250
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3200 4000 3500 4000
+Wire Wire Line
+	3100 4100 3500 4100
+Wire Wire Line
+	3500 4300 3300 4300
+Wire Wire Line
+	3300 4300 3300 4700
+Wire Wire Line
+	3200 4600 3500 4600
+Wire Wire Line
+	3500 4500 3100 4500
+Wire Wire Line
+	3500 3900 3300 3900
+Wire Wire Line
+	3300 3900 3300 3800
+$Comp
+L appli_power:+12V #PWR0198
+U 1 1 5AF6E25B
+P 3300 3800
+F 0 "#PWR0198" H 3300 3650 50  0001 C CNN
+F 1 "+12V" V 3300 4050 50  0000 C CNN
+F 2 "" H 3300 3800 60  0000 C CNN
+F 3 "" H 3300 3800 60  0000 C CNN
+	1    3300 3800
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_power:GND #PWR0199
+U 1 1 5AF6E896
+P 3300 4700
+F 0 "#PWR0199" H 3300 4450 50  0001 C CNN
+F 1 "GND" H 3305 4527 50  0000 C CNN
+F 2 "" H 3300 4700 60  0000 C CNN
+F 3 "" H 3300 4700 60  0000 C CNN
+	1    3300 4700
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	3500 4400 3450 4400
+Wire Wire Line
+	3450 4400 3450 3800
+$Comp
+L appli_power:+3.3V #PWR0200
+U 1 1 5AF8BA97
+P 3450 3800
+F 0 "#PWR0200" H 3450 3760 30  0001 C CNN
+F 1 "+3.3V" V 3450 3975 30  0000 C CNN
+F 2 "" H 3450 3800 60  0000 C CNN
+F 3 "" H 3450 3800 60  0000 C CNN
+	1    3450 3800
+	1    0    0    -1  
 $EndComp
 $EndSCHEMATC
