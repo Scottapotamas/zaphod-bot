@@ -1605,8 +1605,6 @@ $EndComp
 Wire Wire Line
 	3450 8450 3450 8550
 Wire Wire Line
-	1550 5800 1325 5800
-Wire Wire Line
 	8850 6850 8900 6850
 Wire Wire Line
 	8900 6850 8900 6800
@@ -1618,4 +1616,5 @@ Wire Wire Line
 	8900 6700 8900 6650
 Wire Wire Line
 	8900 6650 8850 6650
+NoConn ~ 1550 5800
 $EndSCHEMATC
