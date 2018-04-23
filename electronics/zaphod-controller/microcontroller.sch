@@ -804,13 +804,7 @@ Wire Wire Line
 	1350 6200 1550 6200
 Wire Wire Line
 	1350 6100 1550 6100
-Text GLabel 7000 10100 2    50   BiDi ~ 0
-USB_D-
-Text GLabel 7000 10500 2    50   BiDi ~ 0
-USB_D+
 Text GLabel 1350 6000 0    50   Input ~ 0
-USB_OTG_ID
-Text GLabel 7000 10850 2    50   Output ~ 0
 USB_OTG_ID
 Text GLabel 1350 5900 0    50   Input ~ 0
 USB_VBUS
@@ -818,8 +812,6 @@ Wire Wire Line
 	1350 6000 1550 6000
 Wire Wire Line
 	1550 5900 1350 5900
-Text GLabel 4750 9775 2    50   Output ~ 0
-USB_VBUS
 Text GLabel 9550 1250 0    50   Output ~ 0
 BOOT1
 $Comp
@@ -916,50 +908,12 @@ Wire Wire Line
 	1350 5600 1550 5600
 Wire Wire Line
 	1550 5700 1350 5700
-$Comp
-L appli_resistor:22R_1608M R30
-U 1 1 5ADC7AC1
-P 6700 10100
-F 0 "R30" V 6512 9950 50  0000 C CNN
-F 1 "22R_1608M" V 6592 9950 35  0000 C CNN
-F 2 "Applidyne_Resistor:RESC1608X50N" V 6810 9950 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1788326.pdf" V 6835 9950 20  0001 C CNN
-F 4 "MULTICOMP" V 6885 9950 20  0001 C CNN "manf"
-F 5 "MC0063W060314R22" V 6910 9950 20  0001 C CNN "manf#"
-F 6 "Element14" V 6935 9950 20  0001 C CNN "Supplier"
-F 7 "2141539" V 6960 9950 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/multicomp/mc0063w060314r22/res-thick-film-4r22-1-0-063w-0603/dp/2141539" V 6985 9950 20  0001 C CNN "Supplier URL"
-F 9 "0.015" V 7010 9950 20  0001 C CNN "Supplier Price"
-F 10 "1" V 7035 9950 20  0001 C CNN "Supplier Price Break"
-	1    6700 10100
-	0    1    1    0   
-$EndComp
-$Comp
-L appli_resistor:22R_1608M R31
-U 1 1 5ADC7BE4
-P 6700 10500
-F 0 "R31" V 6512 10350 50  0000 C CNN
-F 1 "22R_1608M" V 6592 10350 35  0000 C CNN
-F 2 "Applidyne_Resistor:RESC1608X50N" V 6810 10350 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1788326.pdf" V 6835 10350 20  0001 C CNN
-F 4 "MULTICOMP" V 6885 10350 20  0001 C CNN "manf"
-F 5 "MC0063W060314R22" V 6910 10350 20  0001 C CNN "manf#"
-F 6 "Element14" V 6935 10350 20  0001 C CNN "Supplier"
-F 7 "2141539" V 6960 10350 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/multicomp/mc0063w060314r22/res-thick-film-4r22-1-0-063w-0603/dp/2141539" V 6985 10350 20  0001 C CNN "Supplier URL"
-F 9 "0.015" V 7010 10350 20  0001 C CNN "Supplier Price"
-F 10 "1" V 7035 10350 20  0001 C CNN "Supplier Price Break"
-	1    6700 10500
-	0    1    1    0   
-$EndComp
 Wire Wire Line
 	4200 7550 4250 7550
 Wire Wire Line
 	3400 7550 3450 7550
 Text GLabel 4500 4050 0    50   Output ~ 0
 BOOT1
-Text Notes 3850 9200 0    79   ~ 16
-USB Connection
 Wire Wire Line
 	9550 4650 9750 4650
 Text GLabel 1350 6500 0    50   Output ~ 0
@@ -1133,67 +1087,6 @@ Connection ~ 8800 5150
 Wire Wire Line
 	8800 4750 8550 4750
 Connection ~ 8800 4750
-Wire Wire Line
-	4750 10250 3250 10250
-Wire Wire Line
-	3250 10350 4750 10350
-Wire Wire Line
-	6150 10250 6250 10250
-Wire Wire Line
-	6250 10250 6250 10100
-Wire Wire Line
-	6250 10100 6400 10100
-Wire Wire Line
-	6150 10350 6250 10350
-Wire Wire Line
-	6250 10350 6250 10500
-Wire Wire Line
-	6250 10500 6400 10500
-Wire Wire Line
-	7000 10500 6700 10500
-Wire Wire Line
-	6700 10100 7000 10100
-$Comp
-L appli_power:GND #PWR044
-U 1 1 5AD65CD6
-P 4700 10775
-F 0 "#PWR044" H 4700 10525 50  0001 C CNN
-F 1 "GND" H 4705 10602 50  0000 C CNN
-F 2 "" H 4700 10775 60  0000 C CNN
-F 3 "" H 4700 10775 60  0000 C CNN
-	1    4700 10775
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	4750 10450 4700 10450
-Wire Wire Line
-	4700 10450 4700 10700
-Wire Wire Line
-	4700 10700 4550 10700
-Wire Wire Line
-	4550 10700 4550 10650
-Wire Wire Line
-	4700 10775 4700 10700
-Connection ~ 4700 10700
-Wire Wire Line
-	4550 10450 4550 10150
-Wire Wire Line
-	4550 10150 4750 10150
-Wire Wire Line
-	4750 9775 4550 9775
-Wire Wire Line
-	4550 9775 4550 10150
-Connection ~ 4550 10150
-Text Label 3400 10250 0    50   ~ 0
-USB_IN_D-
-Text Label 3400 10350 0    50   ~ 0
-USB_IN_D+
-Text Label 3400 10150 0    50   ~ 0
-USB_IN_VBUS
-Wire Wire Line
-	3250 10150 4100 10150
-Wire Wire Line
-	4400 10150 4550 10150
 $Comp
 L appli_resistor:4K7_1608M R33
 U 1 1 5AF03289
@@ -1622,60 +1515,6 @@ F 10 "1" V 8890 5050 20  0001 C CNN "Supplier Price Break"
 	1    8550 5150
 	0    1    1    0   
 $EndComp
-$Comp
-L appli_device:USBLC6 U5
-U 1 1 5AD9092E
-P 5450 10300
-F 0 "U5" H 5450 10737 60  0000 C CNN
-F 1 "USBLC6" H 5450 10631 60  0000 C CNN
-F 2 "Applidyne_SOT:SOT95P280X145-6L50N" H 5450 10300 60  0001 C CNN
-F 3 "http://docs-asia.electrocomponents.com/webdocs/07bd/0900766b807bd47e.pdf" H 5470 9950 60  0001 C CNN
-F 4 "ST" H 5450 9710 60  0001 C CNN "manf"
-F 5 "USBLC6-2SC6" H 5450 9610 60  0001 C CNN "manf#"
-F 6 "RS Online" H 5460 9500 60  0001 C CNN "Supplier"
-F 7 " 624-7693" H 5450 9400 60  0001 C CNN "Supplier Part No"
-F 8 "http://au.rs-online.com/web/p/tvs-diodes/6247693/" H 5450 9310 60  0001 C CNN "Supplier URL"
-F 9 "0.59" H 5450 9200 60  0001 C CNN "Supplier Price"
-F 10 "10" H 5450 9100 60  0001 C CNN "Supplier Price Break"
-	1    5450 10300
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_fuse:0.5A_1210L_PTC F1
-U 1 1 5AD90B64
-P 4400 10150
-F 0 "F1" V 4212 10000 50  0000 C CNN
-F 1 "0.5A_1210L_PTC" V 4292 10000 35  0000 C CNN
-F 2 "Applidyne_Fuse:FUSC3225X85L50N" V 4510 10000 20  0001 C CNN
-F 3 "http://docs-asia.electrocomponents.com/webdocs/1420/0900766b8142082b.pdf" V 4535 10000 20  0001 C CNN
-F 4 "LittelFuse" V 4585 10000 20  0001 C CNN "manf"
-F 5 " 1210L050YR" V 4610 10000 20  0001 C CNN "manf#"
-F 6 "RS Online" V 4635 10000 20  0001 C CNN "Supplier"
-F 7 "787-4202" V 4660 10000 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.rs-online.com/web/p/resettable-surface-mount-fuses/7874202/" V 4685 10000 20  0001 C CNN "Supplier URL"
-F 9 "0.486" V 4710 10000 20  0001 C CNN "Supplier Price"
-F 10 "10" V 4735 10000 20  0001 C CNN "Supplier Price Break"
-	1    4400 10150
-	0    1    1    0   
-$EndComp
-$Comp
-L appli_capacitor:100n_X7R_1608M C39
-U 1 1 5AD91282
-P 4550 10650
-F 0 "C39" H 4472 10515 50  0000 R CNN
-F 1 "100n_X7R_1608M" H 4472 10595 35  0000 R CNN
-F 2 "Applidyne_Capacitor:CAPC1608X90N" V 4665 10550 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 4690 10550 20  0001 C CNN
-F 4 "KEMET" V 4740 10550 20  0001 C CNN "manf"
-F 5 "C0603C104K5RACAUTO" V 4765 10550 20  0001 C CNN "manf#"
-F 6 "Element14" V 4790 10550 20  0001 C CNN "Supplier"
-F 7 "2070398" V 4815 10550 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 4840 10550 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 4865 10550 20  0001 C CNN "Supplier Price"
-F 10 "1" V 4890 10550 20  0001 C CNN "Supplier Price Break"
-	1    4550 10650
-	1    0    0    1   
-$EndComp
 NoConn ~ 9750 1450
 NoConn ~ 9750 1550
 NoConn ~ 9750 2250
@@ -1709,34 +1548,6 @@ F 10 "DNP" V 4534 4227 60  0000 L CNN "Installed"
 $EndComp
 Wire Wire Line
 	4500 4050 4550 4050
-$Comp
-L appli_resistor:100R_1608M R32
-U 1 1 5B185956
-P 6700 10850
-F 0 "R32" V 6512 10700 50  0000 C CNN
-F 1 "100R_1608M" V 6592 10700 35  0000 C CNN
-F 2 "Applidyne_Resistor:RESC1608X50N" V 6810 10700 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1788326.pdf" V 6835 10700 20  0001 C CNN
-F 4 "MULTICOMP" V 6885 10700 20  0001 C CNN "manf"
-F 5 "MC0063W06035100R" V 6910 10700 20  0001 C CNN "manf#"
-F 6 "Element14" V 6935 10700 20  0001 C CNN "Supplier"
-F 7 "9331689" V 6960 10700 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/multicomp/mc0063w06035100r/product-range-mc-series/dp/9331689" V 6985 10700 20  0001 C CNN "Supplier URL"
-F 9 "0.022" V 7010 10700 20  0001 C CNN "Supplier Price"
-F 10 "50" V 7035 10700 20  0001 C CNN "Supplier Price Break"
-	1    6700 10850
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	7000 10850 6700 10850
-Wire Wire Line
-	5900 10850 6400 10850
-Text Notes 5975 11050 0    50   ~ 0
-Provides OTG sensing on the micro
-Text Notes 7650 11000 0    50   ~ 0
-OTG contexts aren't expected for this board.\nTherefore 5V switched supply not included.\nIt's up to a potential OTG device to have a power supply provided\nwhich will likely require a custom cable with 12->5V regulator.
-Text Notes 7000 10325 0    50   ~ 0
-Route differentially
 $Comp
 L appli_resistor:1K_QUAD_ARRAY_1608M R29
 U 2 1 5AEB0D9E
@@ -1807,12 +1618,4 @@ Wire Wire Line
 	8900 6700 8900 6650
 Wire Wire Line
 	8900 6650 8850 6650
-Text GLabel 3250 10150 0    50   Input ~ 0
-LEMO_USB_VBUS
-Text GLabel 5900 10850 0    50   Input ~ 0
-LEMO_USB_ID
-Text GLabel 3250 10350 0    50   Input ~ 0
-LEMO_USB_D+
-Text GLabel 3250 10250 0    50   Input ~ 0
-LEMO_USB_D-
 $EndSCHEMATC
