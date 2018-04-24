@@ -523,8 +523,6 @@ Text GLabel 1600 10300 0    50   Output ~ 0
 EXT_INPUT_1
 Text GLabel 1600 8900 0    50   Input ~ 0
 EXT_OUTPUT_0
-Text Notes 3650 6400 0    50   ~ 0
-Provide 2 optocoupled input/output pairs.\nPair 0 is UART capable, Pair 1 is CAN capable.\nUSB FS connection is galvanically isolated.
 Text Notes 4250 10950 0    50   ~ 0
 220R at 3.3V from micro gives 9mA for strong activation.\n5mA min, 8-10mA recommended in datasheet.
 $Comp
@@ -1793,24 +1791,6 @@ F 10 "50" V 14040 5400 20  0001 C CNN "Supplier Price Break"
 	1    0    0    1   
 $EndComp
 $Comp
-L appli_capacitor:100n_X7R_1608M C65
-U 1 1 5ADBB9EC
-P 4650 7925
-F 0 "C65" V 4775 7900 50  0000 R CNN
-F 1 "100n_X7R_1608M" V 4525 8050 35  0000 R CNN
-F 2 "Applidyne_Capacitor:CAPC1608X90N" V 4765 7825 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 4790 7825 20  0001 C CNN
-F 4 "KEMET" V 4840 7825 20  0001 C CNN "manf"
-F 5 "C0603C104K5RACAUTO" V 4865 7825 20  0001 C CNN "manf#"
-F 6 "Element14" V 4890 7825 20  0001 C CNN "Supplier"
-F 7 "2070398" V 4915 7825 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 4940 7825 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 4965 7825 20  0001 C CNN "Supplier Price"
-F 10 "1" V 4990 7825 20  0001 C CNN "Supplier Price Break"
-	1    4650 7925
-	-1   0    0    1   
-$EndComp
-$Comp
 L appli_fuse:0.5A_1210L_PTC F2
 U 1 1 5ADD9F16
 P 13950 4250
@@ -2331,139 +2311,8 @@ F 10 "1" V 7500 7650 20  0001 C CNN "Supplier Price Break"
 	1    7100 7650
 	1    0    0    -1  
 $EndComp
-Text GLabel 1450 6750 0    50   Input ~ 0
-LEMO_USB_VBUS
-Text GLabel 1325 7500 0    50   Input ~ 0
-USB_D+
-Text GLabel 1325 7400 0    50   Input ~ 0
-USB_D-
 Wire Wire Line
-	5400 7300 6900 7300
-Wire Wire Line
-	6300 7800 6900 7800
-Wire Wire Line
-	6900 7900 6500 7900
-Wire Wire Line
-	6900 8000 6700 8000
-Wire Wire Line
-	6700 8000 6700 8350
-$Comp
-L appli_special:ADUM3160 U?
-U 1 1 5AE099EB
-P 3250 7050
-F 0 "U?" H 3250 7587 60  0000 C CNN
-F 1 "ADUM3160" H 3250 7481 60  0000 C CNN
-F 2 "Applidyne_SOIC:SOIC127P1032X265-16L87N" H 3250 5800 60  0001 C CNN
-F 3 "http://www.analog.com/media/en/technical-documentation/data-sheets/ADuM3160.pdf" H 3250 5925 60  0001 C CNN
-F 4 "Analog Devices" H 3250 5685 60  0001 C CNN "manf"
-F 5 "ADUM3160BRWZ" H 3260 5575 60  0001 C CNN "manf#"
-F 6 "Mouser" H 3250 5465 60  0001 C CNN "Supplier"
-F 7 "584-ADUM3160BRWZ-R" H 3250 5355 60  0001 C CNN "Supplier Part No"
-F 8 "https://au.mouser.com/ProductDetail/Analog-Devices/ADUM3160BRWZ-RL" H 3250 5255 60  0001 C CNN "Supplier URL"
-F 9 "9.47" H 3250 5135 60  0001 C CNN "Supplier Price"
-F 10 "1" H 3260 5025 60  0001 C CNN "Supplier Price Break"
-	1    3250 7050
-	-1   0    0    -1  
-$EndComp
-Text Label 5900 7500 0    50   ~ 0
-ISOLATED_D+
-Text Label 5900 7400 0    50   ~ 0
-ISOLATED_D-
-Wire Wire Line
-	1450 7400 1325 7400
-Wire Wire Line
-	1325 7500 1450 7500
-$Comp
-L appli_resistor:22R_1608M R30
-U 1 1 5AE71DC9
-P 1750 7400
-F 0 "R30" V 1562 7250 50  0000 C CNN
-F 1 "22R_1608M" V 1642 7250 35  0000 C CNN
-F 2 "Applidyne_Resistor:RESC1608X50N" V 1860 7250 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1788326.pdf" V 1885 7250 20  0001 C CNN
-F 4 "MULTICOMP" V 1935 7250 20  0001 C CNN "manf"
-F 5 "MC0063W060314R22" V 1960 7250 20  0001 C CNN "manf#"
-F 6 "Element14" V 1985 7250 20  0001 C CNN "Supplier"
-F 7 "2141539" V 2010 7250 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/multicomp/mc0063w060314r22/res-thick-film-4r22-1-0-063w-0603/dp/2141539" V 2035 7250 20  0001 C CNN "Supplier URL"
-F 9 "0.015" V 2060 7250 20  0001 C CNN "Supplier Price"
-F 10 "1" V 2085 7250 20  0001 C CNN "Supplier Price Break"
-	1    1750 7400
-	0    1    1    0   
-$EndComp
-$Comp
-L appli_resistor:22R_1608M R31
-U 1 1 5AE71DD7
-P 1750 7500
-F 0 "R31" V 1850 7350 50  0000 C CNN
-F 1 "22R_1608M" V 1925 7350 35  0000 C CNN
-F 2 "Applidyne_Resistor:RESC1608X50N" V 1860 7350 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1788326.pdf" V 1885 7350 20  0001 C CNN
-F 4 "MULTICOMP" V 1935 7350 20  0001 C CNN "manf"
-F 5 "MC0063W060314R22" V 1960 7350 20  0001 C CNN "manf#"
-F 6 "Element14" V 1985 7350 20  0001 C CNN "Supplier"
-F 7 "2141539" V 2010 7350 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/multicomp/mc0063w060314r22/res-thick-film-4r22-1-0-063w-0603/dp/2141539" V 2035 7350 20  0001 C CNN "Supplier URL"
-F 9 "0.015" V 2060 7350 20  0001 C CNN "Supplier Price"
-F 10 "1" V 2085 7350 20  0001 C CNN "Supplier Price Break"
-	1    1750 7500
-	0    1    1    0   
-$EndComp
-Text GLabel 5950 7800 0    50   Output ~ 0
-USB_OTG_ID
-$Comp
-L appli_resistor:100R_1608M R32
-U 1 1 5AEA8133
-P 6000 7800
-F 0 "R32" V 5812 7650 50  0000 C CNN
-F 1 "100R_1608M" V 5892 7650 35  0000 C CNN
-F 2 "Applidyne_Resistor:RESC1608X50N" V 6110 7650 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1788326.pdf" V 6135 7650 20  0001 C CNN
-F 4 "MULTICOMP" V 6185 7650 20  0001 C CNN "manf"
-F 5 "MC0063W06035100R" V 6210 7650 20  0001 C CNN "manf#"
-F 6 "Element14" V 6235 7650 20  0001 C CNN "Supplier"
-F 7 "9331689" V 6260 7650 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/multicomp/mc0063w06035100r/product-range-mc-series/dp/9331689" V 6285 7650 20  0001 C CNN "Supplier URL"
-F 9 "0.022" V 6310 7650 20  0001 C CNN "Supplier Price"
-F 10 "50" V 6335 7650 20  0001 C CNN "Supplier Price Break"
-	1    6000 7800
-	0    -1   -1   0   
-$EndComp
-Text Notes 5650 7050 0    50   ~ 0
-OTG contexts aren't expected for this board.\nTherefore 5V supply not included on USBVDD.\n\nHowever for future-proofing, OTG-ID is pinned.\nOTG device must self-power (out of normal USB spec)\nI can't forsee any HOST apps that need isolation (RF, HID).\nThere isn't room on the 9-pin LEMO for ID
-Wire Wire Line
-	1750 7400 2300 7400
-Wire Wire Line
-	2300 7500 1750 7500
-Wire Wire Line
-	3450 7900 3450 7950
-Wire Wire Line
-	3450 7950 3550 7950
-Wire Wire Line
-	3550 7950 3550 7900
-Wire Wire Line
-	3050 7900 3050 7950
-Wire Wire Line
-	3050 7950 2950 7950
-Wire Wire Line
-	2950 7950 2950 7900
-Wire Wire Line
-	2950 7950 2950 8050
-Connection ~ 2950 7950
-Wire Wire Line
-	3550 7950 3550 8050
-Connection ~ 3550 7950
-$Comp
-L appli_power:GND #PWR?
-U 1 1 5AF4CE29
-P 2950 8050
-F 0 "#PWR?" H 2950 7800 50  0001 C CNN
-F 1 "GND" H 2955 7877 50  0000 C CNN
-F 2 "" H 2950 8050 60  0000 C CNN
-F 3 "" H 2950 8050 60  0000 C CNN
-	1    2950 8050
-	1    0    0    -1  
-$EndComp
+	4900 7800 6900 7800
 $Comp
 L appli_power:GNDA #PWR?
 U 1 1 5AF4D359
@@ -2475,222 +2324,6 @@ F 3 "" H 6500 8350 60  0000 C CNN
 	1    6500 8350
 	1    0    0    -1  
 $EndComp
-$Comp
-L appli_power:GNDA #PWR?
-U 1 1 5AF4D3F9
-P 3550 8050
-F 0 "#PWR?" H 3550 7800 50  0001 C CNN
-F 1 "GNDA" H 3555 7877 50  0000 C CNN
-F 2 "" H 3550 8050 60  0000 C CNN
-F 3 "" H 3550 8050 60  0000 C CNN
-	1    3550 8050
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	5400 7300 5400 6800
-Wire Wire Line
-	5400 6800 4650 6800
-Wire Wire Line
-	4200 7200 4250 7200
-Wire Wire Line
-	4250 7200 4250 7100
-Wire Wire Line
-	4250 6900 4200 6900
-Wire Wire Line
-	4200 7100 4250 7100
-Connection ~ 4250 7100
-Wire Wire Line
-	4250 7100 4250 6900
-Wire Wire Line
-	2300 7200 2250 7200
-Wire Wire Line
-	2250 7200 2250 7100
-Wire Wire Line
-	2250 7100 2300 7100
-Wire Wire Line
-	2250 7100 2250 6900
-Wire Wire Line
-	2250 6900 2300 6900
-Connection ~ 2250 7100
-Wire Wire Line
-	1925 6800 2300 6800
-Wire Wire Line
-	1925 6800 1925 6700
-$Comp
-L appli_power:+3.3V #PWR?
-U 1 1 5B029998
-P 1925 6700
-F 0 "#PWR?" H 1925 6660 30  0001 C CNN
-F 1 "+3.3V" H 1934 6838 30  0000 C CNN
-F 2 "" H 1925 6700 60  0000 C CNN
-F 3 "" H 1925 6700 60  0000 C CNN
-	1    1925 6700
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_resistor:22R_1608M R?
-U 1 1 5B029FC4
-P 5150 7400
-F 0 "R?" V 4962 7250 50  0000 C CNN
-F 1 "22R_1608M" V 5042 7250 35  0000 C CNN
-F 2 "Applidyne_Resistor:RESC1608X50N" V 5260 7250 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1788326.pdf" V 5285 7250 20  0001 C CNN
-F 4 "MULTICOMP" V 5335 7250 20  0001 C CNN "manf"
-F 5 "MC0063W060314R22" V 5360 7250 20  0001 C CNN "manf#"
-F 6 "Element14" V 5385 7250 20  0001 C CNN "Supplier"
-F 7 "2141539" V 5410 7250 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/multicomp/mc0063w060314r22/res-thick-film-4r22-1-0-063w-0603/dp/2141539" V 5435 7250 20  0001 C CNN "Supplier URL"
-F 9 "0.015" V 5460 7250 20  0001 C CNN "Supplier Price"
-F 10 "1" V 5485 7250 20  0001 C CNN "Supplier Price Break"
-	1    5150 7400
-	0    1    1    0   
-$EndComp
-$Comp
-L appli_resistor:22R_1608M R?
-U 1 1 5B02A07C
-P 5150 7500
-F 0 "R?" V 5250 7350 50  0000 C CNN
-F 1 "22R_1608M" V 5325 7350 35  0000 C CNN
-F 2 "Applidyne_Resistor:RESC1608X50N" V 5260 7350 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1788326.pdf" V 5285 7350 20  0001 C CNN
-F 4 "MULTICOMP" V 5335 7350 20  0001 C CNN "manf"
-F 5 "MC0063W060314R22" V 5360 7350 20  0001 C CNN "manf#"
-F 6 "Element14" V 5385 7350 20  0001 C CNN "Supplier"
-F 7 "2141539" V 5410 7350 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/multicomp/mc0063w060314r22/res-thick-film-4r22-1-0-063w-0603/dp/2141539" V 5435 7350 20  0001 C CNN "Supplier URL"
-F 9 "0.015" V 5460 7350 20  0001 C CNN "Supplier Price"
-F 10 "1" V 5485 7350 20  0001 C CNN "Supplier Price Break"
-	1    5150 7500
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	4850 7500 4200 7500
-Wire Wire Line
-	4200 7400 4850 7400
-Wire Wire Line
-	5150 7400 6900 7400
-Wire Wire Line
-	6900 7500 5150 7500
-$Comp
-L appli_capacitor:100n_X7R_1608M C?
-U 1 1 5B0749D9
-P 4250 7925
-F 0 "C?" V 4375 7900 50  0000 R CNN
-F 1 "100n_X7R_1608M" V 4125 8050 35  0000 R CNN
-F 2 "Applidyne_Capacitor:CAPC1608X90N" V 4365 7825 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 4390 7825 20  0001 C CNN
-F 4 "KEMET" V 4440 7825 20  0001 C CNN "manf"
-F 5 "C0603C104K5RACAUTO" V 4465 7825 20  0001 C CNN "manf#"
-F 6 "Element14" V 4490 7825 20  0001 C CNN "Supplier"
-F 7 "2070398" V 4515 7825 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 4540 7825 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 4565 7825 20  0001 C CNN "Supplier Price"
-F 10 "1" V 4590 7825 20  0001 C CNN "Supplier Price Break"
-	1    4250 7925
-	-1   0    0    1   
-$EndComp
-Wire Wire Line
-	4650 6800 4650 7725
-Connection ~ 4650 6800
-Wire Wire Line
-	4650 6800 4200 6800
-Wire Wire Line
-	4650 7925 4650 8050
-Wire Wire Line
-	4250 7925 4250 8050
-$Comp
-L appli_power:GNDA #PWR?
-U 1 1 5B16B9D7
-P 4250 8050
-F 0 "#PWR?" H 4250 7800 50  0001 C CNN
-F 1 "GNDA" H 4255 7877 50  0000 C CNN
-F 2 "" H 4250 8050 60  0000 C CNN
-F 3 "" H 4250 8050 60  0000 C CNN
-	1    4250 8050
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_power:GNDA #PWR?
-U 1 1 5B16BA74
-P 4650 8050
-F 0 "#PWR?" H 4650 7800 50  0001 C CNN
-F 1 "GNDA" H 4655 7877 50  0000 C CNN
-F 2 "" H 4650 8050 60  0000 C CNN
-F 3 "" H 4650 8050 60  0000 C CNN
-	1    4650 8050
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_capacitor:100n_X7R_1608M C39
-U 1 1 5B1BE782
-P 1925 7925
-F 0 "C39" V 2050 7900 50  0000 R CNN
-F 1 "100n_X7R_1608M" V 1800 8050 35  0000 R CNN
-F 2 "Applidyne_Capacitor:CAPC1608X90N" V 2040 7825 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 2065 7825 20  0001 C CNN
-F 4 "KEMET" V 2115 7825 20  0001 C CNN "manf"
-F 5 "C0603C104K5RACAUTO" V 2140 7825 20  0001 C CNN "manf#"
-F 6 "Element14" V 2165 7825 20  0001 C CNN "Supplier"
-F 7 "2070398" V 2190 7825 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 2215 7825 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 2240 7825 20  0001 C CNN "Supplier Price"
-F 10 "1" V 2265 7825 20  0001 C CNN "Supplier Price Break"
-	1    1925 7925
-	-1   0    0    1   
-$EndComp
-$Comp
-L appli_power:GND #PWR?
-U 1 1 5B221FC4
-P 1925 8050
-F 0 "#PWR?" H 1925 7800 50  0001 C CNN
-F 1 "GND" H 1930 7877 50  0000 C CNN
-F 2 "" H 1925 8050 60  0000 C CNN
-F 3 "" H 1925 8050 60  0000 C CNN
-	1    1925 8050
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_capacitor:100n_X7R_1608M C?
-U 1 1 5B2354E1
-P 2250 7925
-F 0 "C?" V 2350 7875 50  0000 R CNN
-F 1 "100n_X7R_1608M" V 2125 8050 35  0000 R CNN
-F 2 "Applidyne_Capacitor:CAPC1608X90N" V 2365 7825 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1732728.pdf" V 2390 7825 20  0001 C CNN
-F 4 "KEMET" V 2440 7825 20  0001 C CNN "manf"
-F 5 "C0603C104K5RACAUTO" V 2465 7825 20  0001 C CNN "manf#"
-F 6 "Element14" V 2490 7825 20  0001 C CNN "Supplier"
-F 7 "2070398" V 2515 7825 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/kemet/c0603c104k5racauto/cap-mlcc-x7r-100nf-50v-0603/dp/2070398" V 2540 7825 20  0001 C CNN "Supplier URL"
-F 9 "0.011" V 2565 7825 20  0001 C CNN "Supplier Price"
-F 10 "1" V 2590 7825 20  0001 C CNN "Supplier Price Break"
-	1    2250 7925
-	-1   0    0    1   
-$EndComp
-Wire Wire Line
-	2250 7725 2250 7200
-Connection ~ 2250 7200
-Wire Wire Line
-	2250 7925 2250 8050
-$Comp
-L appli_power:GND #PWR?
-U 1 1 5B2D0AE4
-P 2250 8050
-F 0 "#PWR?" H 2250 7800 50  0001 C CNN
-F 1 "GND" H 2255 7877 50  0000 C CNN
-F 2 "" H 2250 8050 60  0000 C CNN
-F 3 "" H 2250 8050 60  0000 C CNN
-	1    2250 8050
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	1925 6800 1925 7725
-Wire Wire Line
-	1925 7925 1925 8050
-Wire Wire Line
-	4250 7200 4250 7725
-Connection ~ 4250 7200
-Connection ~ 1925 6800
 $Comp
 L appli_opto:ACPL-K63L IC?
 U 1 1 5B71BC6B
@@ -3270,10 +2903,6 @@ Wire Wire Line
 	7100 9450 7500 9450
 Text Notes 6600 9300 0    50   ~ 0
 Bypass caps:\n1 per opto, 1 per inverter
-Wire Wire Line
-	5950 7800 6000 7800
-Text Label 5900 7300 0    50   ~ 0
-ISOLATED_USBVDD
 Text Label 5900 7600 0    50   ~ 0
 ISO_T1
 Text Label 5900 7700 0    50   ~ 0
@@ -3282,21 +2911,32 @@ Text Label 5900 8100 0    50   ~ 0
 ISO_R1
 Text Label 5900 8200 0    50   ~ 0
 ISO_R2
-$Comp
-L appli_power:GND #PWR?
-U 1 1 5C3EE38C
-P 6700 8350
-F 0 "#PWR?" H 6700 8100 50  0001 C CNN
-F 1 "GND" H 6705 8177 50  0000 C CNN
-F 2 "" H 6700 8350 60  0000 C CNN
-F 3 "" H 6700 8350 60  0000 C CNN
-	1    6700 8350
-	1    0    0    -1  
-$EndComp
-Wire Wire Line
-	6500 8350 6500 7900
-Text Label 6350 7800 0    50   ~ 0
-ID_SPARE
-Text Notes 6100 8950 0    79   ~ 16
+Text Notes 4850 8850 0    79   ~ 16
 Output IO isn't fully isolated\nShares ground with device.
+Wire Wire Line
+	4900 7300 6900 7300
+Wire Wire Line
+	6900 7400 4900 7400
+Wire Wire Line
+	6900 7500 4900 7500
+Text GLabel 4900 7300 0    50   Output ~ 0
+ISOLATED_USB_VDD
+Text GLabel 4900 7400 0    50   BiDi ~ 0
+ISOLATED_D-
+Text GLabel 4900 7500 0    50   BiDi ~ 0
+ISOLATED_D+
+Text GLabel 4900 7800 0    50   UnSpc ~ 0
+ID_SPARE
+Text Notes 3600 6500 0    50   ~ 0
+Provide 2 optocoupled input/output pairs.\nPair 0 is UART capable, Pair 1 is CAN capable.\nUSB FS connection is galvanically isolated.\nSee microcontroller page for USB circuit.
+Text Notes 2900 7800 0    50   ~ 0
+ID isn't exposed on external LEMO.\nNOT ISOLATED, FUTUREPROOFING ONLY
+Text GLabel 4900 7900 0    50   Input ~ 0
+ISOLATED_USB_GND
+Wire Wire Line
+	4900 7900 6900 7900
+Wire Wire Line
+	6500 8350 6500 8000
+Wire Wire Line
+	6500 8000 6900 8000
 $EndSCHEMATC
