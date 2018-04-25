@@ -2410,11 +2410,11 @@ Wire Wire Line
 	7200 7400 4900 7400
 Wire Wire Line
 	7200 7500 4900 7500
-Text GLabel 4900 7300 0    50   Output ~ 0
+Text GLabel 4900 7900 0    50   Output ~ 0
 ISOLATED_USB_VDD
-Text GLabel 4900 7400 0    50   BiDi ~ 0
-ISOLATED_D-
 Text GLabel 4900 7500 0    50   BiDi ~ 0
+ISOLATED_D-
+Text GLabel 4900 7400 0    50   BiDi ~ 0
 ISOLATED_D+
 Text GLabel 4900 7800 0    50   UnSpc ~ 0
 ID_SPARE
@@ -2422,7 +2422,7 @@ Text Notes 3650 7050 0    50   ~ 0
 USB FS connection is galvanically isolated.\nSee microcontroller page for USB circuit.\n\nProvide 2 isolated input/output pairs.\nPair 0 is UART capable, Pair 1 is CAN capable.\nPins can be used as normal IO.\nIsolation IC provides internal isolated supply
 Text Notes 2900 7800 0    50   ~ 0
 ID not exposed on external LEMO.\nNOT ISOLATED, FUTUREPROOFING ONLY
-Text GLabel 4900 7900 0    50   Input ~ 0
+Text GLabel 4900 7300 0    50   Input ~ 0
 ISOLATED_USB_GND
 Wire Wire Line
 	4900 7900 7200 7900
@@ -2793,46 +2793,4 @@ F 10 "50" V 5035 9350 20  0001 C CNN "Supplier Price Break"
 	1    4700 9500
 	1    0    0    -1  
 $EndComp
-$Comp
-L appli_test_points:CLIP_HOOK_GREY TEST7
-U 1 1 5AE6937B
-P 6750 10500
-F 0 "TEST7" V 6681 10678 39  0000 L CNN
-F 1 "CLIP_HOOK_GREY" H 6800 10500 39  0001 L TNN
-F 2 "Applidyne_Test:KEYSTONE_5118" H 6800 10450 39  0001 L TNN
-F 3 "http://www.farnell.com/datasheets/1703983.pdf" H 6800 10300 39  0001 L BNN
-F 4 "KEYSTONE" H 6800 10400 39  0001 L TNN "manf"
-F 5 "5118" H 6800 10250 39  0001 L BNN "manf#"
-F 6 "Element14" H 6800 10200 39  0001 L BNN "Supplier"
-F 7 "2501304" H 6800 10150 39  0001 L BNN "Supplier Part No"
-F 8 "http://au.element14.com/keystone/5118/test-point-pcb-grey-through-hole/dp/2501304" H 6800 10100 39  0001 L BNN "Supplier URL"
-F 9 "0.3" H 6800 10050 39  0001 L BNN "Supplier Price"
-F 10 "1" H 6800 10000 39  0001 L BNN "Suppier Price Break"
-	1    6750 10500
-	0    1    1    0   
-$EndComp
-$Comp
-L appli_test_points:CLIP_HOOK_GREEN TEST6
-U 1 1 5AE6972C
-P 6750 8700
-F 0 "TEST6" V 6681 8878 39  0000 L CNN
-F 1 "CLIP_HOOK_GREEN" H 6800 8700 39  0001 L TNN
-F 2 "Applidyne_Test:KEYSTONE_5116" H 6800 8650 39  0001 L TNN
-F 3 "http://www.farnell.com/datasheets/1703983.pdf" H 6800 8500 39  0001 L BNN
-F 4 "KEYSTONE" H 6800 8600 39  0001 L TNN "manf"
-F 5 "5116" H 6800 8450 39  0001 L BNN "manf#"
-F 6 "Element14" H 6800 8400 39  0001 L BNN "Supplier"
-F 7 "2501301" H 6800 8350 39  0001 L BNN "Supplier Part No"
-F 8 "http://au.element14.com/keystone/5115/test-point-pcb-green-through-hole/dp/2501301" H 6800 8300 39  0001 L BNN "Supplier URL"
-F 9 "0.28" H 6800 8250 39  0001 L BNN "Supplier Price"
-F 10 "10" H 6800 8200 39  0001 L BNN "Suppier Price Break"
-	1    6750 8700
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	6750 8700 5950 8700
-Connection ~ 5950 8700
-Wire Wire Line
-	6750 10500 6500 10500
-Connection ~ 6500 10500
 $EndSCHEMATC
