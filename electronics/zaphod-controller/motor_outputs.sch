@@ -1720,146 +1720,6 @@ Text Notes 13450 1825 0    50   Italic 0
 Servo IO are optocouplers suitable for 5-24V switched logic.\n12V logic is used. Servo IO self-limits current.\n\nInputs (and Enable) require min 9mA.\nULN2803 is a octal NPN (darlington) driver.\n\nOutput is user-configurable.\nBehaves like a NPN (also has internal current limit).\nIn ASG or EN modes, acts as a HIGH = GOOD status flag.\nIn velocity or torque mode, outputs 45Hz squarewave.\n50% duty = 0, 5% = -MAX, 95% = +MAX
 Text Notes 9175 4500 0    50   Italic 0
 ULN2803 includes series resistors.\nAccepts 3.3V logic direct from micro.
-Text GLabel 10100 9150 0    50   Input ~ 0
-SERVO1_A
-Text GLabel 10100 9050 0    50   Input ~ 0
-SERVO1_B
-Text GLabel 10100 9250 0    50   Input ~ 0
-SERVO1_EN
-Text GLabel 10100 9600 0    50   Input ~ 0
-SERVO2_A
-Text GLabel 10100 9500 0    50   Input ~ 0
-SERVO2_B
-Text GLabel 10100 9700 0    50   Input ~ 0
-SERVO2_EN
-Text GLabel 10100 10050 0    50   Input ~ 0
-SERVO3_A
-Text GLabel 10100 9950 0    50   Input ~ 0
-SERVO3_B
-Text GLabel 10100 10150 0    50   Input ~ 0
-SERVO3_EN
-Text GLabel 10100 10500 0    50   Input ~ 0
-SERVO4_A
-Text GLabel 10100 10400 0    50   Input ~ 0
-SERVO4_B
-Text GLabel 10100 10600 0    50   Input ~ 0
-SERVO4_EN
-Text Notes 9300 8575 0    118  ~ 24
-Servo Data Logic Debug
-Wire Wire Line
-	10100 9050 10400 9050
-Wire Wire Line
-	10400 9150 10100 9150
-Wire Wire Line
-	10100 9250 10400 9250
-Wire Wire Line
-	10400 9500 10100 9500
-Wire Wire Line
-	10400 9600 10100 9600
-Wire Wire Line
-	10100 9700 10400 9700
-Wire Wire Line
-	10100 9950 10400 9950
-Wire Wire Line
-	10400 10050 10100 10050
-Wire Wire Line
-	10100 10150 10400 10150
-Wire Wire Line
-	10400 10400 10100 10400
-Wire Wire Line
-	10100 10500 10400 10500
-Wire Wire Line
-	10400 10600 10100 10600
-$Comp
-L appli_connector_wurth:CONN_01X04 P6
-U 1 1 5B115C4D
-P 10600 9100
-F 0 "P6" H 10678 9141 50  0000 L CNN
-F 1 "CONN_01X04" H 10678 9050 50  0000 L CNN
-F 2 "Applidyne_Connector_Wurth:61300411121" V 10775 9100 50  0001 C CNN
-F 3 "http://www.farnell.com/cad/2124416.pdf" H 10600 8775 50  0001 C CNN
-F 4 "WURTH" H 10600 8650 60  0001 C CNN "manf"
-F 5 "61300411121" H 10600 8550 60  0001 C CNN "manf#"
-F 6 "Element 14" H 10600 8450 60  0001 C CNN "Supplier"
-F 7 "2356155" H 10600 8375 60  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/wurth-elektronik/61300411121/header-2-54mm-pin-tht-vertical/dp/2356155" H 10600 8275 60  0001 C CNN "Supplier URL"
-F 9 "0.125" H 10600 8175 60  0001 C CNN "Supplier Price"
-F 10 "1" H 10600 8075 60  0001 C CNN "Supplier Price Break"
-	1    10600 9100
-	1    0    0    -1  
-$EndComp
-Text GLabel 10100 8950 0    50   Output ~ 0
-SERVO1_HLFB
-Text GLabel 10100 9400 0    50   Output ~ 0
-SERVO2_HLFB
-Text GLabel 10100 9850 0    50   Output ~ 0
-SERVO3_HLFB
-Text GLabel 10100 10300 0    50   Output ~ 0
-SERVO4_HLFB
-Wire Wire Line
-	10100 8950 10400 8950
-Wire Wire Line
-	10100 9400 10400 9400
-Wire Wire Line
-	10100 9850 10400 9850
-Wire Wire Line
-	10100 10300 10400 10300
-$Comp
-L appli_connector_wurth:CONN_01X04 P7
-U 1 1 5B161F6C
-P 10600 9550
-F 0 "P7" H 10678 9591 50  0000 L CNN
-F 1 "CONN_01X04" H 10678 9500 50  0000 L CNN
-F 2 "Applidyne_Connector_Wurth:61300411121" V 10775 9550 50  0001 C CNN
-F 3 "http://www.farnell.com/cad/2124416.pdf" H 10600 9225 50  0001 C CNN
-F 4 "WURTH" H 10600 9100 60  0001 C CNN "manf"
-F 5 "61300411121" H 10600 9000 60  0001 C CNN "manf#"
-F 6 "Element 14" H 10600 8900 60  0001 C CNN "Supplier"
-F 7 "2356155" H 10600 8825 60  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/wurth-elektronik/61300411121/header-2-54mm-pin-tht-vertical/dp/2356155" H 10600 8725 60  0001 C CNN "Supplier URL"
-F 9 "0.125" H 10600 8625 60  0001 C CNN "Supplier Price"
-F 10 "1" H 10600 8525 60  0001 C CNN "Supplier Price Break"
-	1    10600 9550
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_connector_wurth:CONN_01X04 P8
-U 1 1 5B161FF4
-P 10600 10000
-F 0 "P8" H 10678 10041 50  0000 L CNN
-F 1 "CONN_01X04" H 10678 9950 50  0000 L CNN
-F 2 "Applidyne_Connector_Wurth:61300411121" V 10775 10000 50  0001 C CNN
-F 3 "http://www.farnell.com/cad/2124416.pdf" H 10600 9675 50  0001 C CNN
-F 4 "WURTH" H 10600 9550 60  0001 C CNN "manf"
-F 5 "61300411121" H 10600 9450 60  0001 C CNN "manf#"
-F 6 "Element 14" H 10600 9350 60  0001 C CNN "Supplier"
-F 7 "2356155" H 10600 9275 60  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/wurth-elektronik/61300411121/header-2-54mm-pin-tht-vertical/dp/2356155" H 10600 9175 60  0001 C CNN "Supplier URL"
-F 9 "0.125" H 10600 9075 60  0001 C CNN "Supplier Price"
-F 10 "1" H 10600 8975 60  0001 C CNN "Supplier Price Break"
-	1    10600 10000
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_connector_wurth:CONN_01X04 P9
-U 1 1 5B162086
-P 10600 10450
-F 0 "P9" H 10678 10491 50  0000 L CNN
-F 1 "CONN_01X04" H 10678 10400 50  0000 L CNN
-F 2 "Applidyne_Connector_Wurth:61300411121" V 10775 10450 50  0001 C CNN
-F 3 "http://www.farnell.com/cad/2124416.pdf" H 10600 10125 50  0001 C CNN
-F 4 "WURTH" H 10600 10000 60  0001 C CNN "manf"
-F 5 "61300411121" H 10600 9900 60  0001 C CNN "manf#"
-F 6 "Element 14" H 10600 9800 60  0001 C CNN "Supplier"
-F 7 "2356155" H 10600 9725 60  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/wurth-elektronik/61300411121/header-2-54mm-pin-tht-vertical/dp/2356155" H 10600 9625 60  0001 C CNN "Supplier URL"
-F 9 "0.125" H 10600 9525 60  0001 C CNN "Supplier Price"
-F 10 "1" H 10600 9425 60  0001 C CNN "Supplier Price Break"
-	1    10600 10450
-	1    0    0    -1  
-$EndComp
-Text Notes 9500 8775 0    50   ~ 0
-For use with scopes or logic analysers.
 Text Notes 5925 2100 0    63   ~ 0
 +75V\nGND\n+75V\nGND\n
 $Comp
@@ -4699,37 +4559,6 @@ D4 41 FF 19 00 00 00 C0 6D EC 82 BD 06 53 B7 DD 45 72 73 B6 9C BD B8 7D 9E 0C F4
 EndData
 $EndBitmap
 $Comp
-L appli_connector_wurth:CONN_01X01 P10
-U 1 1 5B66877C
-P 10600 10800
-F 0 "P10" H 10678 10841 50  0000 L CNN
-F 1 "CONN_01X01" H 10678 10750 50  0000 L CNN
-F 2 "Applidyne_Connector_Wurth:61300111121" V 10775 10800 50  0001 C CNN
-F 3 "http://www.farnell.com/cad/2124416.pdf" V 10850 10800 50  0001 C CNN
-F 4 "WURTH" V 10950 10800 60  0001 C CNN "manf"
-F 5 "61300111121" V 11050 10800 60  0001 C CNN "manf#"
-F 6 "Element 14" V 11150 10800 60  0001 C CNN "Supplier"
-F 7 "2356152" V 11225 10800 60  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/wurth-elektronik/61300111121/header-2-54mm-pin-tht-vertical/dp/2356152" V 11325 10800 60  0001 C CNN "Supplier URL"
-F 9 "0.17" V 11425 10800 60  0001 C CNN "Supplier Price"
-F 10 "1" V 11525 10800 60  0001 C CNN "Supplier Price Break"
-	1    10600 10800
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_power:GND #PWR052
-U 1 1 5B668A1E
-P 10100 10800
-F 0 "#PWR052" H 10100 10550 50  0001 C CNN
-F 1 "GND" V 10105 10672 50  0000 R CNN
-F 2 "" H 10100 10800 60  0000 C CNN
-F 3 "" H 10100 10800 60  0000 C CNN
-	1    10100 10800
-	0    1    1    0   
-$EndComp
-Wire Wire Line
-	10100 10800 10400 10800
-$Comp
 L appli_transistor:ULN2003A U11
 U 1 1 5ADA06D9
 P 10850 7200
@@ -4845,4 +4674,12 @@ Wire Wire Line
 	11550 7000 11250 7000
 Wire Wire Line
 	11250 7200 13000 7200
+Text Label 4950 1950 0    50   ~ 0
+M1_PWR
+Text Label 4950 3625 0    50   ~ 0
+M2_PWR
+Text Label 4950 5325 0    50   ~ 0
+M3_PWR
+Text Label 4950 7100 0    50   ~ 0
+M4_PWR
 $EndSCHEMATC
