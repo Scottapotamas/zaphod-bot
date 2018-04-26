@@ -2793,4 +2793,22 @@ F 10 "50" V 5035 9350 20  0001 C CNN "Supplier Price Break"
 	1    4700 9500
 	1    0    0    -1  
 $EndComp
+$Comp
+L appli_special:PKMCS0909E4000-R1 LS1
+U 1 1 5AEAD741
+P 14675 8275
+F 0 "LS1" H 14923 8338 60  0000 L CNN
+F 1 "PKMCS0909E4000-R1" H 14923 8232 60  0000 L CNN
+F 2 "Applidyne_Special:MURATA_PKMCS0909E4000" H 14675 7925 60  0001 C CNN
+F 3 "https://www.murata.com/en-us/api/pdfdownloadapi?cate=&partno=PKMCS0909E4000-R1" H 14675 8035 60  0001 C CNN
+F 4 "muRata" H 14685 7805 60  0001 C CNN "manf"
+F 5 "PKMCS0909E4000-R1" H 14675 7695 60  0001 C CNN "manf#"
+F 6 "Mouser" H 14675 7595 60  0001 C CNN "Supplier"
+F 7 "81-PKMCS0909E4000-R1" H 14675 7505 60  0001 C CNN "Supplier Part No"
+F 8 "https://au.mouser.com/ProductDetail/Murata-Electronics/PKMCS0909E4000-R1" H 14675 7415 60  0001 C CNN "Supplier URL"
+F 9 "2.63" H 14675 7305 60  0001 C CNN "Supplier Price"
+F 10 "1" H 14675 7205 60  0001 C CNN "Supplier Price Break"
+	1    14675 8275
+	1    0    0    -1  
+$EndComp
 $EndSCHEMATC

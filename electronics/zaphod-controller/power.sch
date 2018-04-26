@@ -4001,7 +4001,7 @@ $EndComp
 Wire Wire Line
 	2350 9925 2350 9800
 Text Notes 2200 9550 0    50   ~ 0
-3V3 REG
+5V REG
 $Comp
 L appli_power:+5V #PWR02
 U 1 1 5B33BB29
