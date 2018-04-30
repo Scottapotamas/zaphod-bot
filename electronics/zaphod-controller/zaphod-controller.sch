@@ -5,11 +5,11 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 5
-Title ""
-Date ""
-Rev ""
-Comp ""
-Comment1 ""
+Title "Delta Overview"
+Date "2018-04-30"
+Rev "1.0"
+Comp "Scott Rapson"
+Comment1 "April 2018"
 Comment2 ""
 Comment3 ""
 Comment4 ""
@@ -126,7 +126,7 @@ Text Notes 7050 4325 0    98   ~ 20
 Mechanical Mounts
 Text Notes 9625 4325 0    98   ~ 20
 Fiducials
-Text Notes 8475 1800 0    98   ~ 20
+Text Notes 8475 1700 0    98   ~ 20
 Artwork
 Text Notes 7350 1975 0    50   ~ 0
 DONT PANIC

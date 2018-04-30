@@ -10,10 +10,17 @@
   )
 
   (page A4)
+  (title_block
+    (title "Delta-Bot Control Electronics")
+    (date 2018-04-30)
+    (rev 1.0)
+    (company "Scott Rapson")
+  )
+
   (layers
     (0 F.Cu signal)
-    (1 In1.Cu signal hide)
-    (2 In2.Cu signal hide)
+    (1 In1.Cu signal)
+    (2 In2.Cu signal)
     (31 B.Cu signal)
     (34 B.Paste user)
     (35 F.Paste user)
@@ -63,7 +70,7 @@
     (aux_axis_origin 50 50)
     (visible_elements 7FFDFFFF)
     (pcbplotparams
-      (layerselection 0x010fc_ffffffff)
+      (layerselection 0x313fc_ffffffff)
       (usegerberextensions false)
       (usegerberattributes false)
       (usegerberadvancedattributes false)
@@ -86,9 +93,9 @@
       (subtractmaskfromsilk false)
       (outputformat 1)
       (mirror false)
-      (drillshape 1)
+      (drillshape 0)
       (scaleselection 1)
-      (outputdirectory ./))
+      (outputdirectory Outputs/manf_exports/))
   )
 
   (net 0 "")

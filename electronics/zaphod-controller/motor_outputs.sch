@@ -6,10 +6,10 @@ $Descr A3 16535 11693
 encoding utf-8
 Sheet 4 5
 Title "Servo Interfaces"
-Date ""
-Rev ""
-Comp ""
-Comment1 ""
+Date "2018-04-30"
+Rev "1.0"
+Comp "Scott Rapson"
+Comment1 "April 2018"
 Comment2 ""
 Comment3 ""
 Comment4 ""
@@ -4682,4 +4682,6 @@ Text Label 4950 5325 0    50   ~ 0
 M3_PWR
 Text Label 4950 7100 0    50   ~ 0
 M4_PWR
+Text Notes 3500 1250 0    50   ~ 0
+Current monitoring is added for some extra visibility
 $EndSCHEMATC
