@@ -1450,8 +1450,6 @@ F 3 "" H 10350 9400 60  0000 C CNN
 	1    10350 9400
 	1    0    0    -1  
 $EndComp
-Wire Wire Line
-	11000 8800 11600 8800
 $Comp
 L appli_power:+3.3V #PWR096
 U 1 1 5B15AAFC
@@ -1489,8 +1487,6 @@ Wire Wire Line
 	11450 9000 11600 9000
 Wire Wire Line
 	11450 8900 11600 8900
-Text Notes 12275 7125 0    118  ~ 24
-TODO find correct buzzer\n
 Text Notes 11150 8125 0    50   ~ 0
 Rated to 1A
 $Comp
@@ -1887,78 +1883,6 @@ F 10 "1" V 14750 4300 20  0001 C CNN "Supplier Price Break"
 	1    0    0    -1  
 $EndComp
 $Comp
-L appli_resistor:220R_QUAD_ARRAY_1608M R48
-U 1 1 5AE7D204
-P 2400 1600
-F 0 "R48" V 2200 1450 50  0000 C CNN
-F 1 "220R_QUAD_ARRAY_1608M" V 2280 1450 35  0000 C CNN
-F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 2600 1465 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2085571.pdf" V 2625 1465 20  0001 C CNN
-F 4 "PANASONIC" V 2675 1465 20  0001 C CNN "manf"
-F 5 "EXB38V221JV" V 2700 1465 20  0001 C CNN "manf#"
-F 6 "Element14" V 2725 1465 20  0001 C CNN "Supplier"
-F 7 "2060094" V 2750 1465 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/panasonic-electronic-components/exb38v221jv/resistor-cvex-array-0603x4-220r/dp/2060094" V 2775 1465 20  0001 C CNN "Supplier URL"
-F 9 "0.081" V 2800 1465 20  0001 C CNN "Supplier Price"
-F 10 "1" V 2825 1465 20  0001 C CNN "Supplier Price Break"
-	1    2400 1600
-	0    1    1    0   
-$EndComp
-$Comp
-L appli_resistor:220R_QUAD_ARRAY_1608M R48
-U 2 1 5AE7DA01
-P 2400 2650
-F 0 "R48" V 2200 2500 50  0000 C CNN
-F 1 "220R_QUAD_ARRAY_1608M" V 2280 2500 35  0000 C CNN
-F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 2600 2515 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2085571.pdf" V 2625 2515 20  0001 C CNN
-F 4 "PANASONIC" V 2675 2515 20  0001 C CNN "manf"
-F 5 "EXB38V221JV" V 2700 2515 20  0001 C CNN "manf#"
-F 6 "Element14" V 2725 2515 20  0001 C CNN "Supplier"
-F 7 "2060094" V 2750 2515 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/panasonic-electronic-components/exb38v221jv/resistor-cvex-array-0603x4-220r/dp/2060094" V 2775 2515 20  0001 C CNN "Supplier URL"
-F 9 "0.081" V 2800 2515 20  0001 C CNN "Supplier Price"
-F 10 "1" V 2825 2515 20  0001 C CNN "Supplier Price Break"
-	2    2400 2650
-	0    1    1    0   
-$EndComp
-$Comp
-L appli_resistor:220R_QUAD_ARRAY_1608M R48
-U 3 1 5AE7DAB3
-P 2400 3700
-F 0 "R48" V 2200 3550 50  0000 C CNN
-F 1 "220R_QUAD_ARRAY_1608M" V 2280 3550 35  0000 C CNN
-F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 2600 3565 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2085571.pdf" V 2625 3565 20  0001 C CNN
-F 4 "PANASONIC" V 2675 3565 20  0001 C CNN "manf"
-F 5 "EXB38V221JV" V 2700 3565 20  0001 C CNN "manf#"
-F 6 "Element14" V 2725 3565 20  0001 C CNN "Supplier"
-F 7 "2060094" V 2750 3565 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/panasonic-electronic-components/exb38v221jv/resistor-cvex-array-0603x4-220r/dp/2060094" V 2775 3565 20  0001 C CNN "Supplier URL"
-F 9 "0.081" V 2800 3565 20  0001 C CNN "Supplier Price"
-F 10 "1" V 2825 3565 20  0001 C CNN "Supplier Price Break"
-	3    2400 3700
-	0    1    1    0   
-$EndComp
-$Comp
-L appli_resistor:220R_QUAD_ARRAY_1608M R48
-U 4 1 5AE7DB69
-P 2400 4750
-F 0 "R48" V 2200 4600 50  0000 C CNN
-F 1 "220R_QUAD_ARRAY_1608M" V 2280 4600 35  0000 C CNN
-F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 2600 4615 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/2085571.pdf" V 2625 4615 20  0001 C CNN
-F 4 "PANASONIC" V 2675 4615 20  0001 C CNN "manf"
-F 5 "EXB38V221JV" V 2700 4615 20  0001 C CNN "manf#"
-F 6 "Element14" V 2725 4615 20  0001 C CNN "Supplier"
-F 7 "2060094" V 2750 4615 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/panasonic-electronic-components/exb38v221jv/resistor-cvex-array-0603x4-220r/dp/2060094" V 2775 4615 20  0001 C CNN "Supplier URL"
-F 9 "0.081" V 2800 4615 20  0001 C CNN "Supplier Price"
-F 10 "1" V 2825 4615 20  0001 C CNN "Supplier Price Break"
-	4    2400 4750
-	0    1    1    0   
-$EndComp
-$Comp
 L appli_resistor:1K_QUAD_ARRAY_1608M R57
 U 1 1 5AE830B2
 P 9450 2250
@@ -2104,60 +2028,6 @@ F 9 "0.073" V 11515 4200 20  0001 C CNN "Supplier Price"
 F 10 "50" V 11540 4200 20  0001 C CNN "Supplier Price Break"
 	1    11100 4350
 	0    -1   1    0   
-$EndComp
-$Comp
-L appli_resistor:10K0_1608M R4
-U 1 1 5AE7B8D9
-P 9850 2300
-F 0 "R4" H 9923 2185 50  0000 L CNN
-F 1 "10K0_1608M" H 9923 2105 35  0000 L CNN
-F 2 "Applidyne_Resistor:RESC1608X50N" V 9960 2150 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 9985 2150 20  0001 C CNN
-F 4 "TE CONNECTIVITY" V 10035 2150 20  0001 C CNN "manf"
-F 5 "CRGH0603F10K" V 10060 2150 20  0001 C CNN "manf#"
-F 6 "Element14" V 10085 2150 20  0001 C CNN "Supplier"
-F 7 "2332016" V 10110 2150 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/te-connectivity/crgh0603f10k/resistor-power-10k-0-2w-1-0603/dp/2332016" V 10135 2150 20  0001 C CNN "Supplier URL"
-F 9 "0.02" V 10160 2150 20  0001 C CNN "Supplier Price"
-F 10 "10" V 10185 2150 20  0001 C CNN "Supplier Price Break"
-	1    9850 2300
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_resistor:10K0_1608M R58
-U 1 1 5AE7C23D
-P 11850 2300
-F 0 "R58" H 11923 2185 50  0000 L CNN
-F 1 "10K0_1608M" H 11923 2105 35  0000 L CNN
-F 2 "Applidyne_Resistor:RESC1608X50N" V 11960 2150 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 11985 2150 20  0001 C CNN
-F 4 "TE CONNECTIVITY" V 12035 2150 20  0001 C CNN "manf"
-F 5 "CRGH0603F10K" V 12060 2150 20  0001 C CNN "manf#"
-F 6 "Element14" V 12085 2150 20  0001 C CNN "Supplier"
-F 7 "2332016" V 12110 2150 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/te-connectivity/crgh0603f10k/resistor-power-10k-0-2w-1-0603/dp/2332016" V 12135 2150 20  0001 C CNN "Supplier URL"
-F 9 "0.02" V 12160 2150 20  0001 C CNN "Supplier Price"
-F 10 "10" V 12185 2150 20  0001 C CNN "Supplier Price Break"
-	1    11850 2300
-	1    0    0    -1  
-$EndComp
-$Comp
-L appli_resistor:10K0_1608M R59
-U 1 1 5AE7C88F
-P 14050 2300
-F 0 "R59" H 14123 2185 50  0000 L CNN
-F 1 "10K0_1608M" H 14123 2105 35  0000 L CNN
-F 2 "Applidyne_Resistor:RESC1608X50N" V 14160 2150 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 14185 2150 20  0001 C CNN
-F 4 "TE CONNECTIVITY" V 14235 2150 20  0001 C CNN "manf"
-F 5 "CRGH0603F10K" V 14260 2150 20  0001 C CNN "manf#"
-F 6 "Element14" V 14285 2150 20  0001 C CNN "Supplier"
-F 7 "2332016" V 14310 2150 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/te-connectivity/crgh0603f10k/resistor-power-10k-0-2w-1-0603/dp/2332016" V 14335 2150 20  0001 C CNN "Supplier URL"
-F 9 "0.02" V 14360 2150 20  0001 C CNN "Supplier Price"
-F 10 "10" V 14385 2150 20  0001 C CNN "Supplier Price Break"
-	1    14050 2300
-	1    0    0    -1  
 $EndComp
 $Comp
 L appli_connector_molex:MOLEX_NANOFIT_2x4_WAY P15
@@ -2350,24 +2220,6 @@ F 10 "1" V 5490 9900 20  0001 C CNN "Supplier Price Break"
 $EndComp
 Text Notes 8125 3650 0    50   ~ 0
 Regulated outputs
-$Comp
-L appli_resistor:220R_1608M R49
-U 1 1 5BB82F4C
-P 2400 5800
-F 0 "R49" V 2212 5650 50  0000 C CNN
-F 1 "220R_1608M" V 2292 5650 35  0000 C CNN
-F 2 "Applidyne_Resistor:RESC1608X50N" V 2510 5650 20  0001 C CNN
-F 3 "http://www.farnell.com/datasheets/1729044.pdf" V 2535 5650 20  0001 C CNN
-F 4 "MULTICOMP" V 2585 5650 20  0001 C CNN "manf"
-F 5 "MCRE000124" V 2610 5650 20  0001 C CNN "manf#"
-F 6 "Element14" V 2635 5650 20  0001 C CNN "Supplier"
-F 7 "1711597" V 2660 5650 20  0001 C CNN "Supplier Part No"
-F 8 "http://au.element14.com/multicomp/mcre000124/res-thick-film-220r-1-0-05w-0201/dp/1711597" V 2685 5650 20  0001 C CNN "Supplier URL"
-F 9 "0.016" V 2710 5650 20  0001 C CNN "Supplier Price"
-F 10 "1" V 2735 5650 20  0001 C CNN "Supplier Price Break"
-	1    2400 5800
-	0    1    1    0   
-$EndComp
 $Comp
 L appli_capacitor:100n_X7R_1608M C76
 U 1 1 5BCCDEA9
@@ -2810,5 +2662,171 @@ F 9 "2.63" H 14675 7305 60  0001 C CNN "Supplier Price"
 F 10 "1" H 14675 7205 60  0001 C CNN "Supplier Price Break"
 	1    14675 8275
 	1    0    0    -1  
+$EndComp
+$Comp
+L appli_fuse:0.5A_1210L_PTC F1
+U 1 1 5AE9AF64
+P 11475 8800
+F 0 "F1" V 11287 8650 50  0000 C CNN
+F 1 "0.5A_1210L_PTC" V 11367 8650 35  0000 C CNN
+F 2 "Applidyne_Fuse:FUSC3225X85L50N" V 11585 8650 20  0001 C CNN
+F 3 "http://docs-asia.electrocomponents.com/webdocs/1420/0900766b8142082b.pdf" V 11610 8650 20  0001 C CNN
+F 4 "LittelFuse" V 11660 8650 20  0001 C CNN "manf"
+F 5 " 1210L050YR" V 11685 8650 20  0001 C CNN "manf#"
+F 6 "RS Online" V 11710 8650 20  0001 C CNN "Supplier"
+F 7 "787-4202" V 11735 8650 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.rs-online.com/web/p/resettable-surface-mount-fuses/7874202/" V 11760 8650 20  0001 C CNN "Supplier URL"
+F 9 "0.486" V 11785 8650 20  0001 C CNN "Supplier Price"
+F 10 "10" V 11810 8650 20  0001 C CNN "Supplier Price Break"
+	1    11475 8800
+	0    1    1    0   
+$EndComp
+Wire Wire Line
+	11475 8800 11600 8800
+Wire Wire Line
+	11175 8800 11000 8800
+$Comp
+L appli_resistor:2K40_1608M R4
+U 1 1 5AEE3D59
+P 9850 2300
+F 0 "R4" H 9923 2185 50  0000 L CNN
+F 1 "2K40_1608M" H 9923 2105 35  0000 L CNN
+F 2 "Applidyne_Resistor:RESC1608X50N" V 9960 2150 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" V 9985 2150 20  0001 C CNN
+F 4 "MULTICOMP" V 10035 2150 20  0001 C CNN "manf"
+F 5 "MC0063W060312K4" V 10060 2150 20  0001 C CNN "manf#"
+F 6 "Element14" V 10085 2150 20  0001 C CNN "Supplier"
+F 7 "9330879" V 10110 2150 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/multicomp/mc0063w060312k4/resistor-2k4-0-063w-1-0603/dp/9330879" V 10135 2150 20  0001 C CNN "Supplier URL"
+F 9 "0.0011" V 10160 2150 20  0001 C CNN "Supplier Price"
+F 10 "1" V 10185 2150 20  0001 C CNN "Supplier Price Break"
+	1    9850 2300
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_resistor:2K40_1608M R58
+U 1 1 5AEE43BB
+P 11850 2300
+F 0 "R58" H 11923 2185 50  0000 L CNN
+F 1 "2K40_1608M" H 11923 2105 35  0000 L CNN
+F 2 "Applidyne_Resistor:RESC1608X50N" V 11960 2150 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" V 11985 2150 20  0001 C CNN
+F 4 "MULTICOMP" V 12035 2150 20  0001 C CNN "manf"
+F 5 "MC0063W060312K4" V 12060 2150 20  0001 C CNN "manf#"
+F 6 "Element14" V 12085 2150 20  0001 C CNN "Supplier"
+F 7 "9330879" V 12110 2150 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/multicomp/mc0063w060312k4/resistor-2k4-0-063w-1-0603/dp/9330879" V 12135 2150 20  0001 C CNN "Supplier URL"
+F 9 "0.0011" V 12160 2150 20  0001 C CNN "Supplier Price"
+F 10 "1" V 12185 2150 20  0001 C CNN "Supplier Price Break"
+	1    11850 2300
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_resistor:2K40_1608M R59
+U 1 1 5AEE47D5
+P 14050 2300
+F 0 "R59" H 14123 2185 50  0000 L CNN
+F 1 "2K40_1608M" H 14123 2105 35  0000 L CNN
+F 2 "Applidyne_Resistor:RESC1608X50N" V 14160 2150 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1788326.pdf" V 14185 2150 20  0001 C CNN
+F 4 "MULTICOMP" V 14235 2150 20  0001 C CNN "manf"
+F 5 "MC0063W060312K4" V 14260 2150 20  0001 C CNN "manf#"
+F 6 "Element14" V 14285 2150 20  0001 C CNN "Supplier"
+F 7 "9330879" V 14310 2150 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/multicomp/mc0063w060312k4/resistor-2k4-0-063w-1-0603/dp/9330879" V 14335 2150 20  0001 C CNN "Supplier URL"
+F 9 "0.0011" V 14360 2150 20  0001 C CNN "Supplier Price"
+F 10 "1" V 14385 2150 20  0001 C CNN "Supplier Price Break"
+	1    14050 2300
+	1    0    0    -1  
+$EndComp
+$Comp
+L appli_resistor:47R_QUAD_ARRAY_1608M R48
+U 1 1 5AEE71A2
+P 2400 1600
+F 0 "R48" V 2200 1450 50  0000 C CNN
+F 1 "47R_QUAD_ARRAY_1608M" V 2280 1450 35  0000 C CNN
+F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 2600 1465 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2085571.pdf" V 2625 1465 20  0001 C CNN
+F 4 "PANASONIC" V 2675 1465 20  0001 C CNN "manf"
+F 5 "EXBV8V470JV" V 2700 1465 20  0001 C CNN "manf#"
+F 6 "Element14" V 2725 1465 20  0001 C CNN "Supplier"
+F 7 "2060155" V 2750 1465 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/panasonic-electronic-components/exbv8v105jv/resistor-ccav-array-0603x4-1mr/dp/2060175" V 2775 1465 20  0001 C CNN "Supplier URL"
+F 9 "0.132" V 2800 1465 20  0001 C CNN "Supplier Price"
+F 10 "1" V 2825 1465 20  0001 C CNN "Supplier Price Break"
+	1    2400 1600
+	0    1    1    0   
+$EndComp
+$Comp
+L appli_resistor:47R_QUAD_ARRAY_1608M R48
+U 2 1 5AEFE8B4
+P 2400 2650
+F 0 "R48" V 2200 2500 50  0000 C CNN
+F 1 "47R_QUAD_ARRAY_1608M" V 2280 2500 35  0000 C CNN
+F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 2600 2515 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2085571.pdf" V 2625 2515 20  0001 C CNN
+F 4 "PANASONIC" V 2675 2515 20  0001 C CNN "manf"
+F 5 "EXBV8V470JV" V 2700 2515 20  0001 C CNN "manf#"
+F 6 "Element14" V 2725 2515 20  0001 C CNN "Supplier"
+F 7 "2060155" V 2750 2515 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/panasonic-electronic-components/exbv8v105jv/resistor-ccav-array-0603x4-1mr/dp/2060175" V 2775 2515 20  0001 C CNN "Supplier URL"
+F 9 "0.132" V 2800 2515 20  0001 C CNN "Supplier Price"
+F 10 "1" V 2825 2515 20  0001 C CNN "Supplier Price Break"
+	2    2400 2650
+	0    1    1    0   
+$EndComp
+$Comp
+L appli_resistor:47R_QUAD_ARRAY_1608M R48
+U 3 1 5AEFEAA3
+P 2400 3700
+F 0 "R48" V 2200 3550 50  0000 C CNN
+F 1 "47R_QUAD_ARRAY_1608M" V 2280 3550 35  0000 C CNN
+F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 2600 3565 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2085571.pdf" V 2625 3565 20  0001 C CNN
+F 4 "PANASONIC" V 2675 3565 20  0001 C CNN "manf"
+F 5 "EXBV8V470JV" V 2700 3565 20  0001 C CNN "manf#"
+F 6 "Element14" V 2725 3565 20  0001 C CNN "Supplier"
+F 7 "2060155" V 2750 3565 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/panasonic-electronic-components/exbv8v105jv/resistor-ccav-array-0603x4-1mr/dp/2060175" V 2775 3565 20  0001 C CNN "Supplier URL"
+F 9 "0.132" V 2800 3565 20  0001 C CNN "Supplier Price"
+F 10 "1" V 2825 3565 20  0001 C CNN "Supplier Price Break"
+	3    2400 3700
+	0    1    1    0   
+$EndComp
+$Comp
+L appli_resistor:47R_QUAD_ARRAY_1608M R48
+U 4 1 5AEFED56
+P 2400 4750
+F 0 "R48" V 2200 4600 50  0000 C CNN
+F 1 "47R_QUAD_ARRAY_1608M" V 2280 4600 35  0000 C CNN
+F 2 "Applidyne_Resistor:R_Array_Concave_4x1608M" V 2600 4615 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/2085571.pdf" V 2625 4615 20  0001 C CNN
+F 4 "PANASONIC" V 2675 4615 20  0001 C CNN "manf"
+F 5 "EXBV8V470JV" V 2700 4615 20  0001 C CNN "manf#"
+F 6 "Element14" V 2725 4615 20  0001 C CNN "Supplier"
+F 7 "2060155" V 2750 4615 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/panasonic-electronic-components/exbv8v105jv/resistor-ccav-array-0603x4-1mr/dp/2060175" V 2775 4615 20  0001 C CNN "Supplier URL"
+F 9 "0.132" V 2800 4615 20  0001 C CNN "Supplier Price"
+F 10 "1" V 2825 4615 20  0001 C CNN "Supplier Price Break"
+	4    2400 4750
+	0    1    1    0   
+$EndComp
+$Comp
+L appli_resistor:10R_1608M R49
+U 1 1 5AEFFB3A
+P 2400 5800
+F 0 "R49" V 2212 5650 50  0000 C CNN
+F 1 "10R_1608M" V 2292 5650 35  0000 C CNN
+F 2 "Applidyne_Resistor:RESC1608X50N" V 2510 5650 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 2535 5650 20  0001 C CNN
+F 4 "MULTICOMP" V 2585 5650 20  0001 C CNN "manf"
+F 5 "MCHP03W8F100JT5E" V 2610 5650 20  0001 C CNN "manf#"
+F 6 "Element14" V 2635 5650 20  0001 C CNN "Supplier"
+F 7 "1576250" V 2660 5650 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/multicomp/mchp03w8f100jt5e/res-thick-film-10r-1-0-125w-0603/dp/1576250" V 2685 5650 20  0001 C CNN "Supplier URL"
+F 9 "0.025" V 2710 5650 20  0001 C CNN "Supplier Price"
+F 10 "1" V 2735 5650 20  0001 C CNN "Supplier Price Break"
+	1    2400 5800
+	0    1    1    0   
 $EndComp
 $EndSCHEMATC
