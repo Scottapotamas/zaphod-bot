@@ -51,21 +51,35 @@
 #include "stm32f4xx_hal.h"
 #include "adc.h"
 #include "dma.h"
-#include "i2c.h"
-#include "iwdg.h"
-#include "tim.h"
-#include "usart.h"
 #include "usb_device.h"
-#include "gpio.h"
 
 /* USER CODE BEGIN Includes */
+#include "global.h"
+#include "qassert.h"
+#include "app_tasks.h"
+#include "app_hardware.h"
+#include "status.h"
+#include "hal_gpio.h"
+#include "hal_watchdog.h"
+#include "hal_system_speed.h"
+
+/* Assert printout requirements */
+#include <string.h>
+#include <stdarg.h>
+#include "hal_uart.h"
+#include "hal_delay.h"
 
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-/* Private variables ---------------------------------------------------------*/
+
+#if defined(NASSERT) || defined(NDEBUG)
+	#if defined( USE_FULL_ASSERT ) || (USE_FULL_ASSERT > 0)
+		#error "You are building a RELEASE version while STM HAL library ASSERTs are still enabled!"
+	#endif
+#endif
 
 /* USER CODE END PV */
 
@@ -105,29 +119,33 @@ int main(void)
   SystemClock_Config();
 
   /* USER CODE BEGIN SysInit */
+  app_hardware_init();
 
   /* USER CODE END SysInit */
 
   /* Initialize all configured peripherals */
-  MX_GPIO_Init();
+//  MX_GPIO_Init();
   MX_DMA_Init();
   MX_ADC1_Init();
-  MX_I2C2_Init();
-  MX_IWDG_Init();
-  MX_TIM1_Init();
-  MX_TIM2_Init();
-  MX_TIM3_Init();
-  MX_TIM4_Init();
-  MX_TIM5_Init();
-  MX_TIM9_Init();
-  MX_TIM10_Init();
-  MX_TIM11_Init();
-  MX_TIM12_Init();
-  MX_UART5_Init();
-  MX_USART1_UART_Init();
-  MX_USART2_UART_Init();
+//  MX_I2C2_Init();
+//  MX_IWDG_Init();
+//  MX_TIM1_Init();
+//  MX_TIM2_Init();
+//  MX_TIM3_Init();
+//  MX_TIM4_Init();
+//  MX_TIM5_Init();
+//  MX_TIM9_Init();
+//  MX_TIM10_Init();
+//  MX_TIM11_Init();
+//  MX_TIM12_Init();
+//  MX_UART5_Init();
+//  MX_USART1_UART_Init();
+//  MX_USART2_UART_Init();
   MX_USB_DEVICE_Init();
+
   /* USER CODE BEGIN 2 */
+  app_tasks_init();
+  PERMIT();
 
   /* USER CODE END 2 */
 
@@ -136,10 +154,18 @@ int main(void)
   while (1)
   {
 
-  /* USER CODE END WHILE */
+/* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
-
+      /* Run a dispatch cycle for the application event handlers */
+      if( !app_tasks_run() )
+      {
+          status_red(false);
+          hal_watchdog_refresh();
+          hal_system_speed_sleep();
+      }
+      hal_watchdog_refresh();
+      status_red(true);
   }
   /* USER CODE END 3 */
 
@@ -204,6 +230,38 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void onAssert__( const char * file,
+                 unsigned     line,
+                 const char * fmt,
+                 ... )
+{
+    va_list args;
+    char message[32];
+    int len;
+    memset( message, 0, sizeof(message) );
+
+    /* Format the printf part */
+    if( fmt && ( strlen( fmt ) > 0 ) )
+    {
+        va_start( args, fmt );
+        len = vsnprintf( message, sizeof(message), fmt, args );
+        va_end( args );
+    }
+
+	/* Show assert in terminal  */
+    //hal_uart_printf_direct( HAL_UART_PORT_MAIN, "ASSERT: %s, line %d (%s)\r\n\r\n", file, line, message );
+
+    /* Blinking lights while we wait for the watch dog to bite */
+    status_red( true );
+    status_green( false );
+
+    while (1)
+    {
+        hal_delay_ms( 100 );
+        status_red_toggle();
+        status_green_toggle();
+    }
+}
 
 /* USER CODE END 4 */
 

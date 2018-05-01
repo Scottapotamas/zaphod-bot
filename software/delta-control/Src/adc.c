@@ -49,8 +49,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "adc.h"
-
-#include "gpio.h"
 #include "dma.h"
 
 /* USER CODE BEGIN 0 */
