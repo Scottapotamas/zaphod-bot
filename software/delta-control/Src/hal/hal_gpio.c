@@ -67,25 +67,25 @@ const HalGpioDef_t HalGpioHardwareMap[] =
 {
     /* --- IO --- */
 
-    [ _AUX_GPIO_0          ] = { .type = TYPE_I2C, .mode = MODE_INPUT,  .port = PORT_U33, .pin = PIN_4, .initial = 0 },
-    [ _AUX_GPIO_1          ] = { .type = TYPE_I2C, .mode = MODE_INPUT,  .port = PORT_U33, .pin = PIN_5, .initial = 0 },
-    [ _AUX_GPIO_2          ] = { .type = TYPE_I2C, .mode = MODE_INPUT,  .port = PORT_U33, .pin = PIN_6, .initial = 0 },
-    [ _AUX_GPIO_3          ] = { .type = TYPE_I2C, .mode = MODE_INPUT,  .port = PORT_U33, .pin = PIN_7, .initial = 0 },
+    [ _AUX_GPIO_0          ] = { .mode = MODE_INPUT,  .port = PORT_B, .pin = PIN_4, .initial = 0 },
+    [ _AUX_GPIO_1          ] = { .mode = MODE_INPUT,  .port = PORT_B, .pin = PIN_5, .initial = 0 },
+    [ _AUX_GPIO_2          ] = { .mode = MODE_INPUT,  .port = PORT_B, .pin = PIN_6, .initial = 0 },
+    [ _AUX_GPIO_3          ] = { .mode = MODE_INPUT,  .port = PORT_B, .pin = PIN_7, .initial = 0 },
 
     /* --- STATUS LEDS --- */
 
-    [ _STATUS_0          ] = { .type = TYPE_GPIO, .mode = MODE_OUT_PP, .port = PORT_A, .pin = PIN_6, .initial = 0 },
-    [ _STATUS_1          ] = { .type = TYPE_GPIO, .mode = MODE_OUT_PP, .port = PORT_A, .pin = PIN_7, .initial = 0 },
-    [ _STATUS_2          ] = { .type = TYPE_GPIO, .mode = MODE_OUT_PP, .port = PORT_A, .pin = PIN_8, .initial = 0 },
+    [ _STATUS_0          ] = { .mode = MODE_OUT_PP, .port = PORT_A, .pin = PIN_6, .initial = 0 },
+    [ _STATUS_1          ] = { .mode = MODE_OUT_PP, .port = PORT_A, .pin = PIN_7, .initial = 0 },
+    [ _STATUS_2          ] = { .mode = MODE_OUT_PP, .port = PORT_A, .pin = PIN_8, .initial = 0 },
 
     /* --- USB VBUS --- */
 
-    [ _USB_PWR_EN        ] = { .type = TYPE_GPIO, .mode = MODE_OUT_PP,   .port = PORT_C, .pin = PIN_4, .initial = 0 },
+    [ _USB_PWR_EN        ] = { .mode = MODE_OUT_PP,   .port = PORT_C, .pin = PIN_4, .initial = 0 },
 
     /* --- BUTTONS --- */
 
-    [ _BTN_0             ] = { .type = TYPE_GPIO, .mode = MODE_INPUT, .port = PORT_C, .pin = PIN_7 },
-    [ _BTN_1             ] = { .type = TYPE_GPIO, .mode = MODE_INPUT, .port = PORT_A, .pin = PIN_15 },
+    [ _BTN_0             ] = { .mode = MODE_INPUT, .port = PORT_C, .pin = PIN_7 },
+    [ _BTN_1             ] = { .mode = MODE_INPUT, .port = PORT_A, .pin = PIN_15 },
 
 };
 

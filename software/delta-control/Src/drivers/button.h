@@ -14,17 +14,14 @@
 /* ----- Defines ------------------------------------------------------------ */
 
 #define BTN_LEFT        _BV(0)
-#define BTN_MIDLE       _BV(1)
-#define BTN_RIGHT       _BV(2)
-#define BTN_POWER       _BV(3)
+#define BTN_RIGHT       _BV(1)
 
 /* -------------------------------------------------------------------------- */
 
 typedef enum
 {
-    BUTTON_PATTERN_EMERGENCY_SHUTDOWN = ( BTN_LEFT | BTN_MIDLE | BTN_RIGHT ),
-    BUTTON_PATTERN_HIBERNATE          = ( BTN_LEFT | BTN_MIDLE | 0         ),
-    BUTTON_PATTERN_FIRMWARE_UPDATE    = ( BTN_LEFT | 0         | BTN_RIGHT ),
+    BUTTON_PATTERN_EMERGENCY_SHUTDOWN = ( BTN_LEFT | BTN_RIGHT ),
+    BUTTON_PATTERN_HIBERNATE          = ( BTN_LEFT | 0         ),
 } ButtonPattern_t;
 
 /* ----- Types ------------------------------------------------------------- */

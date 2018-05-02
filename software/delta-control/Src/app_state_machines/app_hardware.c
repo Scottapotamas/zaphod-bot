@@ -8,7 +8,7 @@
 #include "status.h"
 #include "hal_gpio.h"
 #include "hal_watchdog.h"
-#include "system_speed.h"
+#include "hal_system_speed.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -22,7 +22,7 @@ app_hardware_init( void )
     hal_watchdog_init( 20000 );
 
     /* Init the CPU manager DWT */
-    system_speed_init();
+    hal_system_speed_init();
 
     /* Continue basic I/O setup */
     status_green( true );

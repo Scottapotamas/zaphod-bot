@@ -16,28 +16,13 @@ extern "C" {
 /* ----- Defines ------------------------------------------------------------ */
 
 /** Readability macros to remind us which is a HIGH level or LOW level */
-
 #define GPIO_HIGH       true
 #define GPIO_LOW        false
 
 /** Map the pin number into a bit mask */
-
 #define HAL_GPIO_PIN_MASK( pin_nr )   ((uint16_t)(1U << ( pin_nr )))
 
-/* ----- Types ------------------------------------------------------------- */
-
-/** Define if this GPIO is operational, internal or via I2C */
-
-typedef enum
-{
-    TYPE_NONE = 0,
-    TYPE_GPIO,
-    TYPE_I2C,
-} HalGpioType_t;
-
-
 /** Port Number */
-
 typedef enum
 {
     PORT_A = (0),
@@ -48,13 +33,9 @@ typedef enum
     PORT_F = (5),
     PORT_G = (6),
     PORT_H = (7),
-    PORT_U10,
-    PORT_U19,
-    PORT_U33,
 } HalGpioPortNr_t;
 
 /** Pin Numbers */
-
 typedef enum
 {
     PIN_0,
@@ -77,10 +58,9 @@ typedef enum
 
 typedef struct
 {
-    unsigned type    : 2;      /* GPIO or I2C */
     unsigned mode    : 2;      /* GPIO Mode (Input, Output Push Pull, etc. ) */
     unsigned port    : 4;      /* GPIO Port */
-    unsigned pin     : 5;      /* Pin Number within port or i2C device */
+    unsigned pin     : 5;      /* Pin Number within port */
     unsigned initial : 1;      /* Initialisation level for outputs */
 } HalGpioDef_t;
 
