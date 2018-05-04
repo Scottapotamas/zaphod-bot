@@ -8,32 +8,33 @@
 
 #include "hal_adc.h"
 #include "hal_dma.h"
+#include "hal_gpio.h"
 
 #include "qassert.h"
 #include "app_config.h"
 #include "average_short.h"
 
-/* -------------------------------------------------------------------------- */
+/* ---------------- Lower Level Peripheral ---------------------------------- */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
-PRIVATE uint32_t	hal_channels[] = 	{
-										ADC_CHANNEL_15,
-										ADC_CHANNEL_14,
-										ADC_CHANNEL_7,
-										ADC_CHANNEL_6,
-										ADC_CHANNEL_13,
-										ADC_CHANNEL_10,
-										ADC_CHANNEL_11,
-										ADC_CHANNEL_12,
-										ADC_CHANNEL_TEMPSENSOR,
-										ADC_CHANNEL_VREFINT,
-										};
+PRIVATE uint32_t hal_channels[] = 	{
+									ADC_CHANNEL_15,
+									ADC_CHANNEL_14,
+									ADC_CHANNEL_7,
+									ADC_CHANNEL_6,
+									ADC_CHANNEL_13,
+									ADC_CHANNEL_10,
+									ADC_CHANNEL_11,
+									ADC_CHANNEL_12,
+									ADC_CHANNEL_TEMPSENSOR,
+									ADC_CHANNEL_VREFINT,
+									};
 
-/* ------------------------- Average ---------------------------------------- */
+/* ---------------- Higher Level Processing ---------------------------------- */
 
 typedef struct
 {
@@ -166,7 +167,7 @@ hal_adc_start( HalAdcInput_t input, uint16_t poll_rate_ms )
     /* Set the interval to poll this */
     adc_rate[input] = poll_rate_ms;
 
-    /* Check if ADC1 needs enabling */
+    /* Check if ADC needs enabling */
     bool enabled = false;
     hal_adc1.rate = UINT16_MAX;
     for( uint8_t chan = HAL_ADC_INPUT_M1_CURRENT;
@@ -204,7 +205,6 @@ hal_adc_stop( HalAdcInput_t input )
     /* If channel is OFF, scan for ADC controller to switch off */
     if( adc_enabled[input] == 0 )
     {
-        /* ADC 1 */
         bool enabled = false;
         for( uint8_t chan = HAL_ADC_INPUT_M1_CURRENT;
                      chan < HAL_ADC_INPUT_VREFINT;
@@ -234,7 +234,6 @@ hal_adc_stop( HalAdcInput_t input )
 PUBLIC void
 hal_adc_tick( void )
 {
-    /* ADC 1 */
     if( hal_adc1.running )
     {
         if( hal_adc1.done )
@@ -286,45 +285,26 @@ void HAL_ADC_ErrorCallback( ADC_HandleTypeDef* hadc __attribute__((unused)) )
 //This is called by the depths of the STM32 HAL, and this function overrides ST's weakly defined one.
 void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
 {
-  GPIO_InitTypeDef GPIO_InitStruct;
-  if(adcHandle->Instance==ADC1)
+  if( adcHandle->Instance == ADC1 )
   {
     /* ADC1 clock enable */
     __HAL_RCC_ADC1_CLK_ENABLE();
 
-    /**ADC1 GPIO Configuration
-    PC0     ------> ADC1_IN10
-    PC1     ------> ADC1_IN11
-    PC2     ------> ADC1_IN12
-    PC3     ------> ADC1_IN13
-    PA6     ------> ADC1_IN6
-    PA7     ------> ADC1_IN7
-    PC4     ------> ADC1_IN14
-    PC5     ------> ADC1_IN15
-    */
-    GPIO_InitStruct.Pin = TEMP_PCB_Pin|TEMP_EXT_0_Pin|TEMP_EXT_1_Pin|V_SENSE_Pin
-                          |MOTOR_2_CURRENT_Pin|MOTOR_1_CURRENT_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+    //Initalise the GPIO as analog mode if they haven't been already
+    	//this should be done as part of the default setup in the hal_gpio called during the hardware setup
 
-    GPIO_InitStruct.Pin = MOTOR_4_CURRENT_Pin|MOTOR_3_CURRENT_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    //ADC1 DMA setup
+    hdma_adc1.Instance 					= DMA2_Stream0;
+    hdma_adc1.Init.Channel 				= DMA_CHANNEL_0;
+    hdma_adc1.Init.Direction 			= DMA_PERIPH_TO_MEMORY;
+    hdma_adc1.Init.PeriphInc 			= DMA_PINC_DISABLE;
+    hdma_adc1.Init.MemInc 				= DMA_MINC_ENABLE;
+    hdma_adc1.Init.PeriphDataAlignment 	= DMA_PDATAALIGN_WORD;
+    hdma_adc1.Init.MemDataAlignment 	= DMA_MDATAALIGN_WORD;
+    hdma_adc1.Init.Mode 				= DMA_CIRCULAR;
+    hdma_adc1.Init.Priority 			= DMA_PRIORITY_LOW;
+    hdma_adc1.Init.FIFOMode 			= DMA_FIFOMODE_DISABLE;
 
-    /* ADC1 DMA Init */
-    /* ADC1 Init */
-    hdma_adc1.Instance = DMA2_Stream0;
-    hdma_adc1.Init.Channel = DMA_CHANNEL_0;
-    hdma_adc1.Init.Direction = DMA_PERIPH_TO_MEMORY;
-    hdma_adc1.Init.PeriphInc = DMA_PINC_DISABLE;
-    hdma_adc1.Init.MemInc = DMA_MINC_ENABLE;
-    hdma_adc1.Init.PeriphDataAlignment = DMA_PDATAALIGN_WORD;
-    hdma_adc1.Init.MemDataAlignment = DMA_MDATAALIGN_WORD;
-    hdma_adc1.Init.Mode = DMA_CIRCULAR;
-    hdma_adc1.Init.Priority = DMA_PRIORITY_LOW;
-    hdma_adc1.Init.FIFOMode = DMA_FIFOMODE_DISABLE;
     if (HAL_DMA_Init(&hdma_adc1) != HAL_OK)
     {
       _Error_Handler(__FILE__, __LINE__);
@@ -332,32 +312,28 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
 
     __HAL_LINKDMA(adcHandle, DMA_Handle, hdma_adc1);
   }
+
 }
 
 //Also called in depths of the STM32 HAL, overrides ST's weakly defined one.
 void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 {
-  if(adcHandle->Instance==ADC1)
+  if( adcHandle->Instance == ADC1 )
   {
-    /* Peripheral clock disable */
+    //Disable the ADC clock
     __HAL_RCC_ADC1_CLK_DISABLE();
 
-    /**ADC1 GPIO Configuration
-    PC0     ------> ADC1_IN10
-    PC1     ------> ADC1_IN11
-    PC2     ------> ADC1_IN12
-    PC3     ------> ADC1_IN13
-    PA6     ------> ADC1_IN6
-    PA7     ------> ADC1_IN7
-    PC4     ------> ADC1_IN14
-    PC5     ------> ADC1_IN15
-    */
-    HAL_GPIO_DeInit(GPIOC, TEMP_PCB_Pin|TEMP_EXT_0_Pin|TEMP_EXT_1_Pin|V_SENSE_Pin
-                          |MOTOR_2_CURRENT_Pin|MOTOR_1_CURRENT_Pin);
+    //De-init IO
+    hal_gpio_disable_pin( _SERVO_1_CURRENT	);
+    hal_gpio_disable_pin( _SERVO_2_CURRENT	);
+    hal_gpio_disable_pin( _SERVO_3_CURRENT	);
+    hal_gpio_disable_pin( _SERVO_4_CURRENT	);
+    hal_gpio_disable_pin( _TEMP_PCB_AMBIENT	);
+    hal_gpio_disable_pin( _TEMP_PCB_PSU		);
+    hal_gpio_disable_pin( _TEMP_EXTERNAL	);
+    hal_gpio_disable_pin( _VOLTAGE_SENSE	);
 
-    HAL_GPIO_DeInit(GPIOA, MOTOR_4_CURRENT_Pin|MOTOR_3_CURRENT_Pin);
-
-    /* ADC1 DMA DeInit */
+    //Detach the DMA handler
     HAL_DMA_DeInit(adcHandle->DMA_Handle);
   }
 }
