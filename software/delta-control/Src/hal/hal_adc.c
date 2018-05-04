@@ -20,6 +20,19 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 ADC_HandleTypeDef hadc1;
 DMA_HandleTypeDef hdma_adc1;
 
+PRIVATE uint32_t	hal_channels[] = 	{
+										ADC_CHANNEL_15,
+										ADC_CHANNEL_14,
+										ADC_CHANNEL_7,
+										ADC_CHANNEL_6,
+										ADC_CHANNEL_13,
+										ADC_CHANNEL_10,
+										ADC_CHANNEL_11,
+										ADC_CHANNEL_12,
+										ADC_CHANNEL_TEMPSENSOR,
+										ADC_CHANNEL_VREFINT,
+										};
+
 /* ------------------------- Average ---------------------------------------- */
 
 typedef struct
@@ -44,6 +57,7 @@ PRIVATE HalAdcState_t  hal_adc1;
 PUBLIC void
 hal_adc_init( void )
 {
+	//setup the higher level handling of ADC readings
 	memset( &hal_adc1,     0, sizeof( hal_adc1 ) );
 	memset( &adc_peaks,    0, sizeof( adc_peaks ) );
 	memset( &adc_rate,     0, sizeof( adc_rate ) );
@@ -52,137 +66,53 @@ hal_adc_init( void )
 	memset( &adc_channels, 0, sizeof( adc_channels ) );
 	memset( &adc_averages, 0, sizeof( adc_averages ) );
 
-	average_short_init( &adc_averages[HAL_ADC_INPUT_VREFINT], 32 );
-
+	average_short_init( &adc_averages[HAL_ADC_INPUT_VREFINT], 	  32 );
 	average_short_init( &adc_averages[HAL_ADC_INPUT_M1_CURRENT],  32 );
 	average_short_init( &adc_averages[HAL_ADC_INPUT_M2_CURRENT],  32 );
 	average_short_init( &adc_averages[HAL_ADC_INPUT_M3_CURRENT],  32 );
 	average_short_init( &adc_averages[HAL_ADC_INPUT_M4_CURRENT],  32 );
 	average_short_init( &adc_averages[HAL_ADC_INPUT_VOLT_SENSE],  32 );
-
 	average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_PCB],    32 );
 	average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_REG],    32 );
 	average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_EXT],    32 );
 	average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_INTERNAL], 32 );
 
-	//start cubemx generated adc setup
+	//Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
+	hadc1.Instance 						= ADC1;
+	hadc1.Init.ClockPrescaler 			= ADC_CLOCK_SYNC_PCLK_DIV4;
+	hadc1.Init.Resolution 				= ADC_RESOLUTION_12B;
+	hadc1.Init.ScanConvMode 			= DISABLE;
+	hadc1.Init.ContinuousConvMode 		= ENABLE;
+	hadc1.Init.DiscontinuousConvMode 	= DISABLE;
+	hadc1.Init.ExternalTrigConvEdge 	= ADC_EXTERNALTRIGCONVEDGE_NONE;
+	hadc1.Init.ExternalTrigConv 		= ADC_SOFTWARE_START;
+	hadc1.Init.DataAlign 				= ADC_DATAALIGN_RIGHT;
+	hadc1.Init.NbrOfConversion 			= 10;
+	hadc1.Init.DMAContinuousRequests 	= ENABLE;
+	hadc1.Init.EOCSelection 			= ADC_EOC_SEQ_CONV;
 
+	//Initialise the ADC peripheral
+	if (HAL_ADC_Init(&hadc1) != HAL_OK)
+	{
+		_Error_Handler(__FILE__, __LINE__);
+	}
+
+	//Configure each ADC channel with its rank in the sequencer, speed, etc.
 	ADC_ChannelConfTypeDef sConfig;
 
-	    /**Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
-	    */
-	  hadc1.Instance = ADC1;
-	  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
-	  hadc1.Init.Resolution = ADC_RESOLUTION_12B;
-	  hadc1.Init.ScanConvMode = DISABLE;
-	  hadc1.Init.ContinuousConvMode = ENABLE;
-	  hadc1.Init.DiscontinuousConvMode = DISABLE;
-	  hadc1.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
-	  hadc1.Init.ExternalTrigConv = ADC_SOFTWARE_START;
-	  hadc1.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-	  hadc1.Init.NbrOfConversion = 10;
-	  hadc1.Init.DMAContinuousRequests = ENABLE;
-	  hadc1.Init.EOCSelection = ADC_EOC_SEQ_CONV;
-	  if (HAL_ADC_Init(&hadc1) != HAL_OK)
-	  {
-	    _Error_Handler(__FILE__, __LINE__);
-	  }
+	for(int hal_config_channel = 1;
+			hal_config_channel < HAL_ADC_INPUT_NUM;
+			hal_config_channel++)
+	{
+		sConfig.Rank = hal_config_channel;
+		sConfig.Channel = hal_channels[hal_config_channel];
+		sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
 
-	    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-	    */
-	  sConfig.Channel = ADC_CHANNEL_15;
-	  sConfig.Rank = 1;
-	  sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
-	  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-	  {
-	    _Error_Handler(__FILE__, __LINE__);
-	  }
-
-	    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-	    */
-	  sConfig.Channel = ADC_CHANNEL_14;
-	  sConfig.Rank = 2;
-	  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-	  {
-	    _Error_Handler(__FILE__, __LINE__);
-	  }
-
-	    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-	    */
-	  sConfig.Channel = ADC_CHANNEL_7;
-	  sConfig.Rank = 3;
-	  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-	  {
-	    _Error_Handler(__FILE__, __LINE__);
-	  }
-
-	    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-	    */
-	  sConfig.Channel = ADC_CHANNEL_6;
-	  sConfig.Rank = 4;
-	  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-	  {
-	    _Error_Handler(__FILE__, __LINE__);
-	  }
-
-	    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-	    */
-	  sConfig.Channel = ADC_CHANNEL_13;
-	  sConfig.Rank = 5;
-	  sConfig.SamplingTime = ADC_SAMPLETIME_28CYCLES;
-	  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-	  {
-	    _Error_Handler(__FILE__, __LINE__);
-	  }
-
-	    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-	    */
-	  sConfig.Channel = ADC_CHANNEL_10;
-	  sConfig.Rank = 6;
-	  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-	  {
-	    _Error_Handler(__FILE__, __LINE__);
-	  }
-
-	    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-	    */
-	  sConfig.Channel = ADC_CHANNEL_11;
-	  sConfig.Rank = 7;
-	  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-	  {
-	    _Error_Handler(__FILE__, __LINE__);
-	  }
-
-	    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-	    */
-	  sConfig.Channel = ADC_CHANNEL_12;
-	  sConfig.Rank = 8;
-	  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-	  {
-	    _Error_Handler(__FILE__, __LINE__);
-	  }
-
-	    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-	    */
-	  sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
-	  sConfig.Rank = 9;
-	  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-	  {
-	    _Error_Handler(__FILE__, __LINE__);
-	  }
-
-	    /**Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
-	    */
-	  sConfig.Channel = ADC_CHANNEL_VREFINT;
-	  sConfig.Rank = 10;
-	  if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-	  {
-	    _Error_Handler(__FILE__, __LINE__);
-	  }
-
-	  //end cubemx adc setup
-
-
+		if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+		{
+			_Error_Handler(__FILE__, __LINE__);
+		}
+	}
 
 }
 
@@ -353,7 +283,7 @@ void HAL_ADC_ErrorCallback( ADC_HandleTypeDef* hadc __attribute__((unused)) )
     //asm("nop");
 }
 
-
+//This is called by the depths of the STM32 HAL, and this function overrides ST's weakly defined one.
 void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
 {
   GPIO_InitTypeDef GPIO_InitStruct;
@@ -404,6 +334,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
   }
 }
 
+//Also called in depths of the STM32 HAL, overrides ST's weakly defined one.
 void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)
 {
   if(adcHandle->Instance==ADC1)
