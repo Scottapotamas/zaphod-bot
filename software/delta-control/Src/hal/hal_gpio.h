@@ -158,6 +158,14 @@ hal_gpio_write_pin( HalGpioPortPin_t gpio_port_pin_nr, bool on );
 PUBLIC void
 hal_gpio_toggle_pin( HalGpioPortPin_t gpio_port_pin_nr );
 
+/* -------------------------------------------------------------------------- */
+
+/** Disable pin */
+
+PUBLIC void
+hal_gpio_disable_pin( HalGpioPortPin_t gpio_port_pin_nr );
+
+
 /* ----- End ---------------------------------------------------------------- */
 
 #ifdef __cplusplus

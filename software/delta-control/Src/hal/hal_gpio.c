@@ -57,6 +57,12 @@ hal_gpio_init_as_output_pp( HalGpioPortNr_t port_nr,
                                 HalGpioPinNr_t  pin_nr,
                                 bool            initial_state );
 
+/** De-init */
+
+PRIVATE void
+hal_gpio_deinit( HalGpioPortNr_t port_nr,
+                                HalGpioPinNr_t  pin_nr );
+
 /* ----- Private Data ------------------------------------------------------- */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
@@ -243,6 +249,18 @@ hal_gpio_toggle_pin( HalGpioPortPin_t gpio_port_pin_nr )
     HAL_GPIO_TogglePin( hal_gpio_mcu_port( m->port ), HAL_GPIO_PIN_MASK( m->pin ) );
 }
 
+/* -------------------------------------------------------------------------- */
+
+/** @brief Toggle the I/O pin */
+
+PUBLIC void
+hal_gpio_disable_pin( HalGpioPortPin_t gpio_port_pin_nr )
+{
+    const HalGpioDef_t *m = &HalGpioHardwareMap[gpio_port_pin_nr];
+
+    hal_gpio_deinit( m->port, m->pin );
+}
+
 /* ----- Private Function Implementations ----------------------------------- */
 
 
@@ -383,5 +401,17 @@ hal_gpio_init_as_output_pp( HalGpioPortNr_t port_nr,
                        HAL_GPIO_PIN_MASK( pin_nr ),
 					   initial_state ? GPIO_PIN_SET : GPIO_PIN_RESET );
 }
+
+/* -------------------------------------------------------------------------- */
+
+/** @brief Configure as output */
+
+PRIVATE void
+hal_gpio_deinit( HalGpioPortNr_t port_nr,
+                                HalGpioPinNr_t  pin_nr )
+{
+    HAL_GPIO_DeInit( hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ));
+}
+
 
 /* ----- End ---------------------------------------------------------------- */
