@@ -49,7 +49,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "adc.h"
-#include "dma.h"
+#include "hal_dma.h"
 
 /* USER CODE BEGIN 0 */
 

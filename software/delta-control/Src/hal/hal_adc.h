@@ -13,22 +13,26 @@ extern "C" {
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
+#include "stm32f4xx_hal.h"
 
 /* ----- Types ------------------------------------------------------------- */
 
 typedef enum
 {
-    HAL_ADC_INPUT_VBACKUPBAT,   /* ADC1 - RANK 1 */
-    HAL_ADC_INPUT_VREFINT,      /* ADC1 - RANK 2 */
-    HAL_ADC_INPUT_TEMPERATURE,  /* ADC1 - RANK 3 */
-    HAL_ADC_INPUT_PWR_I5,       /* ADC1 - RANK 4 */
-    HAL_ADC_INPUT_PWR_I3V3,     /* ADC1 - RANK 5 */
-    HAL_ADC_INPUT_M1_CURRENT,   /* ADC3 - RANK 1 */
-    HAL_ADC_INPUT_M2_CURRENT,   /* ADC3 - RANK 2 */
-    HAL_ADC_INPUT_PWR_VBAT,     /* ADC3 - RANK 3 */
-    HAL_ADC_INPUT_SPARE,        /* ADC3 - RANK 4 */
+    HAL_ADC_INPUT_M1_CURRENT,   /* ADC1-15 - RANK 1 */
+    HAL_ADC_INPUT_M2_CURRENT,   /* ADC1-14 - RANK 2 */
+    HAL_ADC_INPUT_M3_CURRENT,  	/* ADC1-7 - RANK 3 */
+    HAL_ADC_INPUT_M4_CURRENT,   /* ADC1-6 - RANK 4 */
+    HAL_ADC_INPUT_VOLT_SENSE,   /* ADC1-13 - RANK 5 */
+    HAL_ADC_INPUT_TEMP_PCB,   	/* ADC1-10 - RANK 1 */
+    HAL_ADC_INPUT_TEMP_REG,   	/* ADC1-11 - RANK 2 */
+    HAL_ADC_INPUT_TEMP_EXT,     /* ADC1-12 - RANK 3 */
+	HAL_ADC_INPUT_TEMP_INTERNAL,  /* ADC1-TEMP - RANK 4 */
+	HAL_ADC_INPUT_VREFINT,        /* ADC1-VREF - RANK 4 */
     HAL_ADC_INPUT_NUM
 } HalAdcInput_t;
+
+extern ADC_HandleTypeDef hadc1;
 
 /* ------------------------- Functions Prototypes --------------------------- */
 
@@ -81,6 +85,12 @@ hal_adc_stop( HalAdcInput_t input );
 
 PUBLIC void
 hal_adc_tick( void );
+
+/* -------------------------------------------------------------------------- */
+
+/** STM32 HAL error callback */
+
+extern void _Error_Handler(char *, int);
 
 /* ------------------------- End -------------------------------------------- */
 

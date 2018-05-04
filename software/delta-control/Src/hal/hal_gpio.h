@@ -70,7 +70,7 @@ typedef enum
 /** Configure all internal default I/O configurations */
 
 PUBLIC void
-hal_gpio_configure_mcu_defaults( void );
+hal_gpio_configure_defaults( void );
 
 /* -------------------------------------------------------------------------- */
 

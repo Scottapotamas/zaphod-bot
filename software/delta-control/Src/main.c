@@ -49,17 +49,13 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f4xx_hal.h"
-#include "adc.h"
-#include "dma.h"
 #include "usb_device.h"
 
-/* USER CODE BEGIN Includes */
 #include "global.h"
 #include "qassert.h"
 #include "app_tasks.h"
 #include "app_hardware.h"
 #include "status.h"
-#include "hal_gpio.h"
 #include "hal_watchdog.h"
 #include "hal_system_speed.h"
 
@@ -69,11 +65,7 @@
 #include "hal_uart.h"
 #include "hal_delay.h"
 
-/* USER CODE END Includes */
-
 /* Private variables ---------------------------------------------------------*/
-
-/* USER CODE BEGIN PV */
 
 #if defined(NASSERT) || defined(NDEBUG)
 	#if defined( USE_FULL_ASSERT ) || (USE_FULL_ASSERT > 0)
@@ -81,94 +73,43 @@
 	#endif
 #endif
 
-/* USER CODE END PV */
-
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 
-/* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
-/* USER CODE END PFP */
-
-/* USER CODE BEGIN 0 */
-
-/* USER CODE END 0 */
-
-/**
-  * @brief  The application entry point.
-  *
-  * @retval None
-  */
+//application entry point from startup_stm32f429xx.s
 int main(void)
 {
-  /* USER CODE BEGIN 1 */
+	//Reset peripherals, init flash etc
+	HAL_Init();
 
-  /* USER CODE END 1 */
+	//Setup the system clock
+	SystemClock_Config();
 
-  /* MCU Configuration----------------------------------------------------------*/
+	//Initialise IO, peripherals etc
+	app_hardware_init();
 
-  /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
-  HAL_Init();
+	//USB handling
+	MX_USB_DEVICE_Init();
 
-  /* USER CODE BEGIN Init */
+	//start the task handler
+	app_tasks_init();
 
-  /* USER CODE END Init */
+	//allow interrupts
+	PERMIT();
 
-  /* Configure the system clock */
-  SystemClock_Config();
-
-  /* USER CODE BEGIN SysInit */
-  app_hardware_init();
-
-  /* USER CODE END SysInit */
-
-  /* Initialize all configured peripherals */
-//  MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_ADC1_Init();
-//  MX_I2C2_Init();
-//  MX_IWDG_Init();
-//  MX_TIM1_Init();
-//  MX_TIM2_Init();
-//  MX_TIM3_Init();
-//  MX_TIM4_Init();
-//  MX_TIM5_Init();
-//  MX_TIM9_Init();
-//  MX_TIM10_Init();
-//  MX_TIM11_Init();
-//  MX_TIM12_Init();
-//  MX_UART5_Init();
-//  MX_USART1_UART_Init();
-//  MX_USART2_UART_Init();
-  MX_USB_DEVICE_Init();
-
-  /* USER CODE BEGIN 2 */
-  app_tasks_init();
-  PERMIT();
-
-  /* USER CODE END 2 */
-
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-
-/* USER CODE END WHILE */
-
-  /* USER CODE BEGIN 3 */
-      /* Run a dispatch cycle for the application event handlers */
-      if( !app_tasks_run() )
-      {
-          status_red(false);
-          hal_watchdog_refresh();
-          hal_system_speed_sleep();
-      }
-      hal_watchdog_refresh();
-      status_red(true);
-  }
-  /* USER CODE END 3 */
-
+	while(1)
+	{
+		if( !app_tasks_run() )
+		{
+			status_red(false);
+			hal_watchdog_refresh();
+			hal_system_speed_sleep();
+		}
+		hal_watchdog_refresh();
+		status_red(true);
+	}
 }
 
 /**
@@ -229,7 +170,6 @@ void SystemClock_Config(void)
   HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
-/* USER CODE BEGIN 4 */
 void onAssert__( const char * file,
                  unsigned     line,
                  const char * fmt,
@@ -251,8 +191,9 @@ void onAssert__( const char * file,
 	/* Show assert in terminal  */
     //hal_uart_printf_direct( HAL_UART_PORT_MAIN, "ASSERT: %s, line %d (%s)\r\n\r\n", file, line, message );
 
-    /* Blinking lights while we wait for the watch dog to bite */
+    // Blinking lights while we wait for the watch dog to bite
     status_red( true );
+    status_yellow( true );
     status_green( false );
 
     while (1)
@@ -263,8 +204,6 @@ void onAssert__( const char * file,
     }
 }
 
-/* USER CODE END 4 */
-
 /**
   * @brief  This function is executed in case of error occurrence.
   * @param  file: The file name as string.
@@ -273,12 +212,9 @@ void onAssert__( const char * file,
   */
 void _Error_Handler(char *file, int line)
 {
-  /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
   while(1)
   {
   }
-  /* USER CODE END Error_Handler_Debug */
 }
 
 #ifdef  USE_FULL_ASSERT
@@ -297,13 +233,5 @@ void assert_failed(uint8_t* file, uint32_t line)
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
-
-/**
-  * @}
-  */
-
-/**
-  * @}
-  */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

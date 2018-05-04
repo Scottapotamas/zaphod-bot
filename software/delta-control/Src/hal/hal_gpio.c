@@ -92,7 +92,7 @@ const HalGpioDef_t HalGpioHardwareMap[] =
 /* ----- Public Function Implementations ------------------------------------ */
 
 PUBLIC void
-hal_gpio_configure_mcu_defaults( void )
+hal_gpio_configure_defaults( void )
 {
     for( HalGpioPortPin_t portpin = 0;
                           portpin < _NUMBER_OF_GPIO_PORT_PINS;
