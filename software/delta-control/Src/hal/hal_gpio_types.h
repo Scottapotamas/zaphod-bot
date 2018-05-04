@@ -58,7 +58,7 @@ typedef enum
 
 typedef struct
 {
-    unsigned mode    : 2;      /* GPIO Mode (Input, Output Push Pull, etc. ) */
+    unsigned mode    : 3;      /* GPIO Mode (Analog, Input, Output Push Pull, etc. ) */
     unsigned port    : 4;      /* GPIO Port */
     unsigned pin     : 5;      /* Pin Number within port */
     unsigned initial : 1;      /* Initialisation level for outputs */
