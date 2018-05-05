@@ -20,7 +20,18 @@ extern "C" {
   * tents of degrees C. Note the function can return values below 0 degrees!
   */
 PUBLIC float
-hal_temperature_degrees_C( uint32_t raw_adc );
+hal_temperature_micro_degrees_C( uint32_t raw_adc );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC float
+hal_temperature_pcb_degrees_C( uint32_t raw_adc );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC float
+hal_temperature_ext_degrees_C( uint32_t raw_adc );
+
 
 /* ----- End ---------------------------------------------------------------- */
 
