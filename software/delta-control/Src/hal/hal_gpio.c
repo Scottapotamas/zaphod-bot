@@ -78,9 +78,9 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 const HalGpioDef_t HalGpioHardwareMap[] =
 {
 		/* --- INTERNAL EXPANSION IO --- */
-		[ _AUX_PWM_0               ]   = { .mode = MODE_OUT_PP,    .port = PORT_A, .pin = PIN_15, .initial = 0 },
-		[ _AUX_PWM_1               ]   = { .mode = MODE_OUT_PP,    .port = PORT_B, .pin = PIN_15, .initial = 0 },
-		[ _AUX_PWM_2               ]   = { .mode = MODE_OUT_PP,    .port = PORT_B, .pin = PIN_14, .initial = 0 },
+		[ _AUX_PWM_0               ]   = { .mode = MODE_AF_PP,    .port = PORT_A, .pin = PIN_15, .initial = 0 },
+		[ _AUX_PWM_1               ]   = { .mode = MODE_AF_PP,    .port = PORT_B, .pin = PIN_15, .initial = 0 },
+		[ _AUX_PWM_2               ]   = { .mode = MODE_AF_PP,    .port = PORT_B, .pin = PIN_14, .initial = 0 },
 		[ _AUX_ANALOG_0            ]   = { .mode = MODE_INPUT,     .port = PORT_A, .pin = PIN_4,  .initial = 0 },
 		[ _AUX_ANALOG_1            ]   = { .mode = MODE_INPUT,     .port = PORT_A, .pin = PIN_5,  .initial = 0 },
 
@@ -131,28 +131,28 @@ const HalGpioDef_t HalGpioHardwareMap[] =
 		[ _SERVO_1_A               ]   = { .mode = MODE_OUT_PP,    .port = PORT_C, .pin = PIN_8,  .initial = 0 },
 		[ _SERVO_1_B               ]   = { .mode = MODE_OUT_PP,    .port = PORT_C, .pin = PIN_9,  .initial = 0 },
 		[ _SERVO_1_ENABLE          ]   = { .mode = MODE_OUT_PP,    .port = PORT_C, .pin = PIN_7,  .initial = 0 },
-		[ _SERVO_1_HLFB            ]   = { .mode = MODE_INPUT,     .port = PORT_C, .pin = PIN_6,  .initial = 0 },
+		[ _SERVO_1_HLFB            ]   = { .mode = MODE_AF_PP,     .port = PORT_C, .pin = PIN_6,  .initial = 0 },
 		[ _SERVO_1_CURRENT         ]   = { .mode = MODE_ANALOG,    .port = PORT_C, .pin = PIN_5,  .initial = 0 },
 		[ _SERVO_1_CURRENT_FAULT   ]   = { .mode = MODE_INPUT,     .port = PORT_D, .pin = PIN_11, .initial = 0 },
 
 		[ _SERVO_2_A               ]   = { .mode = MODE_OUT_PP,    .port = PORT_D, .pin = PIN_14, .initial = 0 },
 		[ _SERVO_2_B               ]   = { .mode = MODE_OUT_PP,    .port = PORT_D, .pin = PIN_15, .initial = 0 },
 		[ _SERVO_2_ENABLE          ]   = { .mode = MODE_OUT_PP,    .port = PORT_D, .pin = PIN_13, .initial = 0 },
-		[ _SERVO_2_HLFB            ]   = { .mode = MODE_INPUT,     .port = PORT_D, .pin = PIN_12, .initial = 0 },
+		[ _SERVO_2_HLFB            ]   = { .mode = MODE_AF_PP,     .port = PORT_D, .pin = PIN_12, .initial = 0 },
 		[ _SERVO_2_CURRENT         ]   = { .mode = MODE_ANALOG,    .port = PORT_C, .pin = PIN_4,  .initial = 0 },
 		[ _SERVO_2_CURRENT_FAULT   ]   = { .mode = MODE_INPUT,     .port = PORT_D, .pin = PIN_10, .initial = 0 },
 
 		[ _SERVO_3_A               ]   = { .mode = MODE_OUT_PP,    .port = PORT_E, .pin = PIN_13, .initial = 0 },
 		[ _SERVO_3_B               ]   = { .mode = MODE_OUT_PP,    .port = PORT_E, .pin = PIN_14, .initial = 0 },
 		[ _SERVO_3_ENABLE          ]   = { .mode = MODE_OUT_PP,    .port = PORT_E, .pin = PIN_12, .initial = 0 },
-		[ _SERVO_3_HLFB            ]   = { .mode = MODE_INPUT,     .port = PORT_E, .pin = PIN_9,  .initial = 0 },
+		[ _SERVO_3_HLFB            ]   = { .mode = MODE_AF_PP,     .port = PORT_E, .pin = PIN_9,  .initial = 0 },
 		[ _SERVO_3_CURRENT         ]   = { .mode = MODE_ANALOG,    .port = PORT_A, .pin = PIN_7,  .initial = 0 },
 		[ _SERVO_3_CURRENT_FAULT   ]   = { .mode = MODE_INPUT,     .port = PORT_B, .pin = PIN_1,  .initial = 0 },
 
 		[ _SERVO_4_A               ]   = { .mode = MODE_OUT_PP,    .port = PORT_A, .pin = PIN_2, .initial = 0 },
 		[ _SERVO_4_B               ]   = { .mode = MODE_OUT_PP,    .port = PORT_A, .pin = PIN_3, .initial = 0 },
 		[ _SERVO_4_ENABLE          ]   = { .mode = MODE_OUT_PP,    .port = PORT_A, .pin = PIN_1, .initial = 0 },
-		[ _SERVO_4_HLFB            ]   = { .mode = MODE_INPUT,     .port = PORT_A, .pin = PIN_0, .initial = 0 },
+		[ _SERVO_4_HLFB            ]   = { .mode = MODE_AF_PP,     .port = PORT_A, .pin = PIN_0, .initial = 0 },
 		[ _SERVO_4_CURRENT         ]   = { .mode = MODE_ANALOG,    .port = PORT_A, .pin = PIN_6, .initial = 0 },
 		[ _SERVO_4_CURRENT_FAULT   ]   = { .mode = MODE_INPUT,     .port = PORT_B, .pin = PIN_0, .initial = 0 },
 };
@@ -208,9 +208,40 @@ hal_gpio_init( HalGpioPortPin_t gpio_port_pin_nr,
         case MODE_OUT_PP:
             hal_gpio_init_as_output_pp( m->port, m->pin, initial_state );
             break;
+
+        case MODE_AF_PP:
+        	//todo decide if we should do anything for defaults, or force the other 'driver' to request pin setups
+        	break;
     }
 
 }
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+hal_gpio_init_alternate( HalGpioPortPin_t 	gpio_port_pin_nr,
+               	   	   	 uint32_t    		mode,
+						 uint32_t    		alternative_function,
+						 uint32_t    		speed )
+{
+    const HalGpioDef_t *m = &HalGpioHardwareMap[gpio_port_pin_nr];
+
+    ENSURE( m->port <= PORT_H );
+    ENSURE( m->pin <= PIN_15 );
+
+    //hal_gpio_mcu_rcc_clock_enable( m->port );
+
+    GPIO_InitTypeDef GPIO_InitStruct;
+
+    GPIO_InitStruct.Pin = HAL_GPIO_PIN_MASK( m->pin );
+    GPIO_InitStruct.Mode = mode;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = speed;
+    GPIO_InitStruct.Alternate = alternative_function;
+    HAL_GPIO_Init(hal_gpio_mcu_port( m->port ), &GPIO_InitStruct);
+
+}
+
 
 /* -------------------------------------------------------------------------- */
 

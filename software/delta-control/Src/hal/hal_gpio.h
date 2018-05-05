@@ -28,11 +28,12 @@ extern "C" {
 
 typedef enum
 {
-    MODE_INPUT = 0, /* Normal input */
-    MODE_INPUT_PU,  /* Input with pullup */
-	MODE_ANALOG,	/* Analog input mode */
-    MODE_OUT_PP,    /* Push-Pull Output */
-    MODE_OUT_OD     /* Open drain Output */
+    MODE_INPUT = 0, // Normal input
+    MODE_INPUT_PU,  // Input with pullup
+	MODE_ANALOG,	// Analog input mode
+    MODE_OUT_PP,    // Push-Pull Output
+    MODE_OUT_OD,    // Open drain Output
+	MODE_AF_PP,		// Push-Pull alternative function
 } HalGpioMode_t;
 
 /** Enum with all the GPIO pins defined. See schematic for more detail */
@@ -136,6 +137,16 @@ hal_gpio_configure_defaults( void );
 
 PUBLIC void
 hal_gpio_init( HalGpioPortPin_t gpio_port_pin_nr, HalGpioMode_t mode, bool initial );
+
+/* -------------------------------------------------------------------------- */
+
+/** Allow more manual configuration of alternative functions, while wrapping the pin/port def */
+
+PUBLIC void
+hal_gpio_init_alternate( HalGpioPortPin_t 	gpio_port_pin_nr,
+               	   	   	 uint32_t    		mode,
+						 uint32_t    		alternative_function,
+						 uint32_t    		speed );
 
 /* -------------------------------------------------------------------------- */
 

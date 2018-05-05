@@ -7,8 +7,6 @@ extern "C" {
 
 /* ----- System Includes ---------------------------------------------------- */
 
-#include <stdint.h>
-
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
@@ -17,44 +15,37 @@ extern "C" {
 
 typedef enum
 {
-    HAL_PWM_CHANNEL_1,
-    HAL_PWM_CHANNEL_2,
-} HalPwmChannel_t;
+    HLFB_SERVO_1,
+	HLFB_SERVO_2,
+	HLFB_SERVO_3,
+	HLFB_SERVO_4
+} hlfb_timer;
+
+typedef enum
+{
+    PWM_TIM_FAN,
+	PWM_TIM_BUZZER,
+	PWM_TIM_AUX_0,
+	PWM_TIM_AUX_1,
+	PWM_TIM_AUX_2
+} pwm_output_timer;
 
 /* ----- Public Functions -------------------------------------------------- */
 
-/** Init TIM9 for PWM mode */
-
 PUBLIC void
-hal_pwm_init( uint32_t pwm_frequency_Hz );
+hal_pwm_setup_hlfb( uint8_t servo_number );
 
 /* -------------------------------------------------------------------------- */
 
-/** Stop and deinit TIM9 for when done with PWM mode */
-
 PUBLIC void
-hal_pwm_deinit( void );
+hal_pwm_setup_ic(void);
 
 /* -------------------------------------------------------------------------- */
 
-/** Start PWM on the indicatd channel */
-
 PUBLIC void
-hal_pwm_start( HalPwmChannel_t channel );
+hal_pwm_setup_output(uint8_t pwm_output, uint16_t frequency, uint8_t duty_cycle);
 
 /* -------------------------------------------------------------------------- */
-
-/** Set PWM on the indicatd channel to the indicated percentage */
-
-PUBLIC void
-hal_pwm_set( HalPwmChannel_t channel, uint8_t percentage );
-
-/* -------------------------------------------------------------------------- */
-
-/** Stop PWM on the indicatd channel */
-
-PUBLIC void
-hal_pwm_stop( HalPwmChannel_t channel );
 
 /* ----- End ---------------------------------------------------------------- */
 
