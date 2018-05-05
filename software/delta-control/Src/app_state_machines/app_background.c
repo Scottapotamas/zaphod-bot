@@ -30,12 +30,19 @@ app_background( void )
 {
     if( timer_ms_is_expired( &button_timer ) )
     {
+        if( button_pattern_match( BUTTON_PATTERN_EMERGENCY_SHUTDOWN ) )
+        {
+            //stop the motors now
+        	//todo work out a ESTOP scheme that doesn't rely on a double-button combo
+
+        }
+
     	timer_ms_start( &button_timer, 50 );
     }
 
     /* Scan buttons */
     button_process();
-
+    buzzer_process();
 }
 
 /* ----- End ---------------------------------------------------------------- */
