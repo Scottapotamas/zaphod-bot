@@ -9,7 +9,7 @@
 #include "button.h"
 #include "hal_button.h"
 #include "timer_ms.h"
-
+#include "buzzer.h"
 /* -------------------------------------------------------------------------- */
 
 PRIVATE timer_ms_t button_timer = 0;

@@ -10,6 +10,7 @@
 #include "hal_watchdog.h"
 #include "hal_system_speed.h"
 #include "status.h"
+#include "buzzer.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -33,6 +34,9 @@ app_hardware_init( void )
     hal_systick_init();
     hal_dma_init();
     hal_adc_init();
+
+    buzzer_init();
+
 }
 
 /* ----- End ---------------------------------------------------------------- */
