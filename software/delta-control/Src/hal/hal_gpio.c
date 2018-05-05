@@ -1,12 +1,12 @@
-/* ----- Module include ----------------------------------------------------- */
+/* ----- System includes ----------------------------------------------------- */
 
-#include "hal_gpio.h"
 
 /* ----- Local Includes ----------------------------------------------------- */
 
-#include "stm32f4xx_hal.h"
+#include "hal_gpio.h"
 #include "hal_gpio_types.h"
 #include "qassert.h"
+#include "stm32f4xx_hal.h"
 
 /* ----- Types -------------------------------------------------------------- */
 

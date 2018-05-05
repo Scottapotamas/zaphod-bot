@@ -1,13 +1,10 @@
 /* ----- System Includes ---------------------------------------------------- */
 
-#include <stdint.h>
-#include <stdbool.h>
-
 /* ----- Local Includes ----------------------------------------------------- */
 
+#include "hal_delay.h"
 #include "global.h"
 #include "qassert.h"
-#include "hal_delay.h"
 #include "stm32f4xx_hal.h"
 
 /* -------------------------------------------------------------------------- */

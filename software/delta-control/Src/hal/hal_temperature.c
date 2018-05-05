@@ -1,14 +1,11 @@
 /* ----- System Includes ---------------------------------------------------- */
 
-#include <stdbool.h>
 #include <math.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 
-#include "global.h"
-#include "qassert.h"
 #include "hal_temperature.h"
-#include "hal_adc.h"
+#include "qassert.h"
 #include "stm32f4xx_hal.h"
 
 /* -------------------------------------------------------------------------- */

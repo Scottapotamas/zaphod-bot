@@ -3,9 +3,6 @@
 
 /* ----- System Includes ---------------------------------------------------- */
 
-#include <stdint.h>
-#include <stdbool.h>
-
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"

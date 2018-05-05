@@ -7,9 +7,6 @@ extern "C" {
 
 /* ----- System Includes ---------------------------------------------------- */
 
-#include <stdint.h>
-#include <stdbool.h>
-
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "stm32f4xx_hal.h"

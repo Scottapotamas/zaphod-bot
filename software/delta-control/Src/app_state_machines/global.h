@@ -44,7 +44,7 @@ typedef union                           ///< Allow mapping int16 to uint16
 
 /* -------------------------------------------------------------------------- */
 
-/** Return true when the targer processor is big endian */
+/** Return true when the target processor is big endian */
 #define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
 
 /* -------------------------------------------------------------------------- */
@@ -91,7 +91,7 @@ typedef union                           ///< Allow mapping int16 to uint16
 
 //! \def FORBID()
 /// Disable interrupts
-#ifdef STM32F407xx
+#ifdef STM32F429xx
 #define FORBID()                    __disable_irq()
 #else
 #define FORBID()
@@ -99,7 +99,7 @@ typedef union                           ///< Allow mapping int16 to uint16
 
 //! \def PERMIT()
 /// Enable interrupts
-#ifdef STM32F407xx
+#ifdef STM32F429xx
 #define PERMIT()                    __enable_irq()
 #else
 #define PERMIT()
@@ -109,7 +109,7 @@ typedef union                           ///< Allow mapping int16 to uint16
 //! \def CRITICAL_SECTION_START()
 /// Save the current interrupt state and then disable interrupts to
 /// enter a critical region of code.
-#ifdef STM32F407xx
+#ifdef STM32F429xx
 #define CRITICAL_SECTION_VAR()    uint8_t cpuSR
 #else
 #define CRITICAL_SECTION_VAR()
@@ -118,7 +118,7 @@ typedef union                           ///< Allow mapping int16 to uint16
 //! \def CRITICAL_SECTION_START()
 /// Save the current interrupt state and then disable interrupts to
 /// enter a critical region of code.
-#ifdef STM32F407xx
+#ifdef STM32F429xx
 #define CRITICAL_SECTION_START()              \
         do {                                  \
           asm (                               \
@@ -134,7 +134,7 @@ typedef union                           ///< Allow mapping int16 to uint16
 //! \def CRITICAL_SECTION_END()
 /// Exit critical section of code and restore interrupt state
 /// to what it was before \ref CRITICAL_SECTION_START.
-#ifdef STM32F407xx
+#ifdef STM32F429xx
 #define CRITICAL_SECTION_END()               \
         do{                                   \
           asm (                               \
@@ -154,15 +154,12 @@ typedef union                           ///< Allow mapping int16 to uint16
 /// when hunting for exceptions.
 #define ATOMIC(_protected_code_) do                             \
                                  {                              \
-                                     CRITICAL_SECTION_VAR();    \
                                      CRITICAL_SECTION_START();  \
                                      _protected_code_;          \
                                      CRITICAL_SECTION_END();    \
                                  } while(0)
 
 /* ----- End ------------~--------------------------------------------------- */
-
-
 #ifdef    __cplusplus
 }
 #endif

@@ -6,9 +6,9 @@
 
 /* ----- Local Includes ----------------------------------------------------- */
 
+#include "average_float.h"
 #include "global.h"
 #include "qassert.h"
-#include "average_float.h"
 
 /* -------------------------------------------------------------------------- */
 

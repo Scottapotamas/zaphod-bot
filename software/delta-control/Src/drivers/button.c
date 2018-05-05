@@ -1,11 +1,11 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
+#include "button.h"
 #include "global.h"
 #include "qassert.h"
+
 #include "app_times.h"
 #include "hal_systick.h"
-#include "button.h"
-#include "hal_button.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
