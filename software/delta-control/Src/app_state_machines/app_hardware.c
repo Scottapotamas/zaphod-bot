@@ -11,7 +11,7 @@
 #include "hal_system_speed.h"
 #include "status.h"
 #include "buzzer.h"
-
+#include "fan.h"
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -36,7 +36,7 @@ app_hardware_init( void )
     hal_adc_init();
 
     buzzer_init();
-
+    fan_init();
 }
 
 /* ----- End ---------------------------------------------------------------- */

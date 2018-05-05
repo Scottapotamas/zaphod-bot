@@ -10,6 +10,7 @@
 #include "hal_button.h"
 #include "timer_ms.h"
 #include "buzzer.h"
+#include "fan.h"
 /* -------------------------------------------------------------------------- */
 
 PRIVATE timer_ms_t button_timer = 0;
@@ -43,6 +44,7 @@ app_background( void )
     /* Scan buttons */
     button_process();
     buzzer_process();
+    fan_process();
 }
 
 /* ----- End ---------------------------------------------------------------- */
