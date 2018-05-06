@@ -87,7 +87,8 @@ fan_process( void )
             STATE_ENTRY_ACTION
 
 				//set PWM to 100% for configurable short period
-				hal_pwm_set( FAN_FREQUENCY_HZ, 100 );
+            	hal_pwm_setup_output( PWM_TIM_FAN, FAN_FREQUENCY_HZ, 100 );
+
             	me->startup_timer = hal_systick_get_ms();
             	me->speed = 100;
 
@@ -106,15 +107,15 @@ fan_process( void )
         case FAN_STATE_ON:
             STATE_ENTRY_ACTION
 
-            hal_pwm_set( FAN_FREQUENCY_HZ, me->set_speed );
-            me->speed = me->set_speed;
+				hal_pwm_setup_output( PWM_TIM_FAN, FAN_FREQUENCY_HZ, me->set_speed );
+				me->speed = me->set_speed;
 
             STATE_TRANSITION_TEST
 
 				//speed change req while running
 				if( me->set_speed != me->speed )
 				{
-					hal_pwm_set( FAN_FREQUENCY_HZ, me->set_speed );
+					hal_pwm_setup_output( PWM_TIM_FAN, FAN_FREQUENCY_HZ, me->set_speed );
 					me->speed = me->set_speed;
 				}
 
@@ -137,7 +138,7 @@ fan_process( void )
 
             STATE_EXIT_ACTION
 
-               hal_pwm_set( 0, 0 );
+            	hal_pwm_setup_output( PWM_TIM_FAN, 0, 0 );
 
             STATE_END
             break;
