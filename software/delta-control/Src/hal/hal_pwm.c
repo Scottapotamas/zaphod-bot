@@ -70,22 +70,22 @@ void hal_pwm_setup_hlfb(uint8_t servo_number)
 	TIM_HandleTypeDef* tim_handle = 0;
 
 	switch (servo_number) {
-		case HLFB_SERVO_1:
+		case _HLFB_SERVO_1:
 			tim_handle = &htim3;
 			tim_handle->Instance = TIM3;
 			break;
 
-		case HLFB_SERVO_2:
+		case _HLFB_SERVO_2:
 			tim_handle = &htim4;
 			tim_handle->Instance = TIM4;
 			break;
 
-		case HLFB_SERVO_3:
+		case _HLFB_SERVO_3:
 			tim_handle = &htim1;
 			tim_handle->Instance = TIM1;
 			break;
 
-		case HLFB_SERVO_4:
+		case _HLFB_SERVO_4:
 			tim_handle = &htim5;
 			tim_handle->Instance = TIM5;
 			break;
@@ -156,7 +156,7 @@ void hal_pwm_setup_hlfb(uint8_t servo_number)
 	}
 
 
-	if(servo_number == HLFB_SERVO_3 )
+	if(servo_number == _HLFB_SERVO_3 )
 	{
 		TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
 
@@ -233,27 +233,27 @@ void hal_pwm_setup_output(uint8_t pwm_output, uint16_t frequency, uint8_t duty_c
 
 	switch(pwm_output)
 	{
-		case PWM_TIM_FAN:
+		case _PWM_TIM_FAN:
 			tim_handle = &htim10;
 			tim_handle->Instance = TIM10;
 			break;
 
-		case PWM_TIM_BUZZER:
+		case _PWM_TIM_BUZZER:
 			tim_handle = &htim11;
 			tim_handle->Instance = TIM11;
 			break;
 
-		case PWM_TIM_AUX_0:
+		case _PWM_TIM_AUX_0:
 			tim_handle = &htim2;
 			tim_handle->Instance = TIM2;
 			break;
 
-		case PWM_TIM_AUX_1:
+		case _PWM_TIM_AUX_1:
 			tim_handle = &htim12;
 			tim_handle->Instance = TIM12;
 			break;
 
-		case PWM_TIM_AUX_2:
+		case _PWM_TIM_AUX_2:
 			tim_handle = &htim12;
 			tim_handle->Instance = TIM12;
 			break;
@@ -265,7 +265,7 @@ void hal_pwm_setup_output(uint8_t pwm_output, uint16_t frequency, uint8_t duty_c
 	tim_handle->Init.ClockDivision 	= TIM_CLOCKDIVISION_DIV1;
 
 	//no base for AUX outputs (according to cubeMX export)?
-	if( pwm_output == PWM_TIM_FAN || pwm_output == PWM_TIM_BUZZER )
+	if( pwm_output == _PWM_TIM_FAN || pwm_output == _PWM_TIM_BUZZER )
 	{
 		if (HAL_TIM_Base_Init(tim_handle) != HAL_OK)
 		{
@@ -279,7 +279,7 @@ void hal_pwm_setup_output(uint8_t pwm_output, uint16_t frequency, uint8_t duty_c
 	}
 
 	//TIM2 has master config according to cubemx output
-	if( pwm_output == PWM_TIM_AUX_0)
+	if( pwm_output == _PWM_TIM_AUX_0)
 	{
 		TIM_MasterConfigTypeDef sMasterConfig;
 
@@ -301,7 +301,7 @@ void hal_pwm_setup_output(uint8_t pwm_output, uint16_t frequency, uint8_t duty_c
 
 	//todo see if tim12 is happy having a full setup repeated for Ch2 output, or if Ch1 and Ch2 need to be done at same time.
 	//aux2 is on ch1, everything else is on ch1
-	if( pwm_output == PWM_TIM_AUX_2)
+	if( pwm_output == _PWM_TIM_AUX_2)
 	{
 		if (HAL_TIM_PWM_ConfigChannel(tim_handle, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
 		{

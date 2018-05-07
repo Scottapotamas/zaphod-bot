@@ -15,20 +15,23 @@ extern "C" {
 
 typedef enum
 {
-    HLFB_SERVO_1,
-	HLFB_SERVO_2,
-	HLFB_SERVO_3,
-	HLFB_SERVO_4
-} hlfb_timer;
+    _HLFB_SERVO_1,
+	_HLFB_SERVO_2,
+	_HLFB_SERVO_3,
+	_HLFB_SERVO_4,
+	_HLFB_SERVO_NUM
+} HLFBTimerDef_t;
 
 typedef enum
 {
-    PWM_TIM_FAN,
-	PWM_TIM_BUZZER,
-	PWM_TIM_AUX_0,
-	PWM_TIM_AUX_1,
-	PWM_TIM_AUX_2
-} pwm_output_timer;
+    _PWM_TIM_FAN,
+	_PWM_TIM_BUZZER,
+	_PWM_TIM_AUX_0,
+	_PWM_TIM_AUX_1,
+	_PWM_TIM_AUX_2,
+	_PWM_NUMBER_TIMERS
+} PWMOutputTimerDef_t;
+
 
 /* ----- Public Functions -------------------------------------------------- */
 

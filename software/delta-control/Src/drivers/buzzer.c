@@ -89,7 +89,7 @@ buzzer_process( void )
             STATE_ENTRY_ACTION
 
                 buzzer.timer = hal_systick_get_ms();
-            	hal_pwm_setup_output( PWM_TIM_BUZZER, buzzer.frequency, 50 );
+            	hal_pwm_setup_output( _PWM_TIM_BUZZER, buzzer.frequency, 50 );
 
             STATE_TRANSITION_TEST
 
@@ -100,7 +100,7 @@ buzzer_process( void )
 
             STATE_EXIT_ACTION
 
-        		hal_pwm_setup_output( PWM_TIM_BUZZER, 0, 0 );
+        		hal_pwm_setup_output( _PWM_TIM_BUZZER, 0, 0 );
 
             STATE_END
             break;
