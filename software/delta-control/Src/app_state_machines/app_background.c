@@ -11,6 +11,8 @@
 #include "timer_ms.h"
 #include "buzzer.h"
 #include "fan.h"
+#include "clearpath.h"
+
 /* -------------------------------------------------------------------------- */
 
 PRIVATE timer_ms_t button_timer = 0;
@@ -41,10 +43,18 @@ app_background( void )
     	timer_ms_start( &button_timer, 50 );
     }
 
-    /* Scan buttons */
     button_process();
     buzzer_process();
     fan_process();
+
+    servo_process( _CLEARPATH_1 );
+    servo_process( _CLEARPATH_2 );
+    servo_process( _CLEARPATH_3 );
+
+#ifdef EXPANSION_SERVO
+    servo_process( _CLEARPATH_4 );
+#endif
+
 }
 
 /* ----- End ---------------------------------------------------------------- */

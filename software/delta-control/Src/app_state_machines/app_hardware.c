@@ -12,6 +12,8 @@
 #include "status.h"
 #include "buzzer.h"
 #include "fan.h"
+#include "clearpath.h"
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -37,6 +39,16 @@ app_hardware_init( void )
 
     buzzer_init();
     fan_init();
+
+    //delta main servo motor handlers
+    servo_init( _CLEARPATH_1 );
+    servo_init( _CLEARPATH_2 );
+    servo_init( _CLEARPATH_3 );
+
+#ifdef EXPANSION_SERVO
+    servo_init( _CLEARPATH_4 );
+#endif
+
 }
 
 /* ----- End ---------------------------------------------------------------- */
