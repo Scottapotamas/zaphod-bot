@@ -5,8 +5,6 @@
 extern "C" {
 #endif
 
-/* ----- System Includes ---------------------------------------------------- */
-
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
@@ -22,11 +20,6 @@ hal_voltage_V( uint32_t raw_adc );
 
 PUBLIC float
 hal_current_A( uint32_t raw_adc );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC float
-hal_power_W( float current, float voltage );
 
 /* ----- End ---------------------------------------------------------------- */
 

@@ -12,6 +12,7 @@
 #include "status.h"
 #include "buzzer.h"
 #include "fan.h"
+#include "sensors.h"
 #include "clearpath.h"
 
 /* -------------------------------------------------------------------------- */
@@ -39,6 +40,7 @@ app_hardware_init( void )
 
     buzzer_init();
     fan_init();
+    sensors_init();
 
     //delta main servo motor handlers
     servo_init( _CLEARPATH_1 );

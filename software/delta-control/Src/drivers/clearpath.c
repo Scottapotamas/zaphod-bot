@@ -5,18 +5,17 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "clearpath.h"
+#include "sensors.h"
+
 #include "hal_systick.h"
 #include "hal_delay.h"
 #include "hal_gpio.h"
-#include "hal_adc.h"
 #include "hal_pwm.h"
-#include "hal_power.h"
 
 #include "global.h"
 #include "qassert.h"
 #include "simple_state_machine.h"
 #include "app_times.h"
-
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -39,10 +38,9 @@
 #define SERVO_HOMING_NULL_PERIODS_ALLOWED 	2
 
 //Error evaluation parameters
-#define SERVO_IDLE_CURRENT_ALERT_A 			1.0f	//~70W
-#define SERVO_PEAK_CURRENT_A 				2.85f	//~220W
-#define SERVO_IDLE_SETTLE_MS				70
-#define SERVO_IDLE_CURRENT_TRIP_MS			400
+#define SERVO_IDLE_POWER_ALERT_W 			40
+#define SERVO_IDLE_SETTLE_MS				30
+#define SERVO_IDLE_POWER_TRIP_MS			400
 
 #define SERVO_OC_FAULT	false
 #define SERVO_OC_OK		true
@@ -277,8 +275,8 @@ servo_process( ClearpathServoInstance_t servo )
             	//allow some time for the motor to decelerate before we worry about excessive no-motion loads
 				if( hal_systick_get_ms() - me->timer > SERVO_IDLE_SETTLE_MS )
 				{
-	            	//check if the motor has been drawing higher than expected current while stationary
-	            	if( hal_adc_read_peak( ServoHardwareMap[servo].adc_current) > SERVO_IDLE_CURRENT_ALERT_A )
+	            	//check if the motor has been drawing higher than expected power while stationary
+	            	if( sensors_servo_W( ServoHardwareMap[servo].adc_current ) > SERVO_IDLE_POWER_ALERT_W )
 	            	{
 	            		//something might be wrong, watch it more closely
 						STATE_NEXT( SERVO_STATE_IDLE_HIGH_LOAD );
@@ -308,11 +306,11 @@ servo_process( ClearpathServoInstance_t servo )
 					STATE_NEXT( SERVO_STATE_ACTIVE );
 				}
 
-            	//read the smoothed current draw, we expect some load due to end effector or forces imparted from extra-axis movements
-				if( hal_adc_read_avg( ServoHardwareMap[servo].adc_current) > SERVO_IDLE_CURRENT_ALERT_A )
+            	//read the smoothed power draw, we expect some load due to end effector or forces imparted from extra-axis movements
+				if( sensors_servo_W( ServoHardwareMap[servo].adc_current ) > SERVO_IDLE_POWER_ALERT_W )
 				{
 					//been measuring a pretty high load for a while now
-					if( ( hal_systick_get_ms() - me->timer ) > SERVO_IDLE_CURRENT_TRIP_MS )
+					if( ( hal_systick_get_ms() - me->timer ) > SERVO_IDLE_POWER_TRIP_MS )
 					{
 						//shutdown for safety
 						STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
@@ -321,7 +319,7 @@ servo_process( ClearpathServoInstance_t servo )
 				else
 				{
 					//if we've been under the alert threshold for a while, return to the idle state
-					if( ( hal_systick_get_ms() - me->timer ) > SERVO_IDLE_CURRENT_TRIP_MS )
+					if( ( hal_systick_get_ms() - me->timer ) > SERVO_IDLE_POWER_TRIP_MS )
 					{
 						STATE_NEXT( SERVO_STATE_IDLE );
 					}

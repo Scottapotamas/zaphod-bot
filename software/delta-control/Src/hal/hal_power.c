@@ -1,5 +1,3 @@
-/* ----- System Includes ---------------------------------------------------- */
-
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "hal_power.h"
@@ -25,15 +23,6 @@ hal_current_A( uint32_t raw_adc )
     //Current sense voltage is +-90mV/+-A, where 0A is at VCC/2
     //Calc sense IC output voltage (remove 0A offset bias), convert to amps
     return ( Vsense - ( 3.3f / 2.0f ) ) / 0.090f;
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC float
-hal_power_W( float current, float voltage )
-{
-
-    return  current * voltage;
 }
 
 /* ----- End ---------------------------------------------------------------- */
