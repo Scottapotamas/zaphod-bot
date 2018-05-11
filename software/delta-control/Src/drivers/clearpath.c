@@ -121,7 +121,9 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] =
 								.adc_current = HAL_ADC_INPUT_M4_CURRENT, .pin_oc_fault = _SERVO_4_CURRENT_FAULT },
 };
 
-PRIVATE uint16_t convert_angle_steps(float shaft_angle);
+PRIVATE uint16_t 	convert_angle_steps( float shaft_angle );
+
+PRIVATE float 		convert_steps_angle( uint16_t steps );
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -161,6 +163,22 @@ servo_set_target_angle( ClearpathServoInstance_t servo, float angle_degrees )
     Servo_t *me = &clearpath[servo];
 
     me->angle_target_steps = convert_angle_steps( angle_degrees );
+}
+
+PUBLIC float
+servo_get_current_angle( ClearpathServoInstance_t servo)
+{
+	Servo_t *me = &clearpath[servo];
+
+	return convert_steps_angle( me->angle_current_steps );
+}
+
+PUBLIC bool
+servo_get_move_done( ClearpathServoInstance_t servo)
+{
+	Servo_t *me = &clearpath[servo];
+
+	return ( me->angle_current_steps == me->angle_target_steps ) ? true : false;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -381,9 +399,14 @@ servo_process( ClearpathServoInstance_t servo )
 /* -------------------------------------------------------------------------- */
 
 PRIVATE uint16_t
-convert_angle_steps(float shaft_angle)
+convert_angle_steps( float shaft_angle )
 {
 	return shaft_angle * SERVO_STEPS_PER_REV;
 }
 
+PRIVATE float
+convert_steps_angle( uint16_t steps )
+{
+	return (float)steps / SERVO_STEPS_PER_REV;
+}
 /* ----- End ---------------------------------------------------------------- */
