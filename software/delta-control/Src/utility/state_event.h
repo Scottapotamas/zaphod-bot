@@ -43,7 +43,7 @@ struct Dynamic
 {
     unsigned poolId:2;      ///< Pool number from which event was allocated
                             ///< (allows up to 3 pools to be used)
-    unsigned useCount:6;    ///< Number of times the event was alreay propagated
+    unsigned useCount:6;    ///< Number of times the event was already propagated
                             ///< (up to the number of tasks)
 };
 

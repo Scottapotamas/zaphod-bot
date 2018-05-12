@@ -1,5 +1,5 @@
-#ifndef CLEARPATH_H
-#define CLEARPATH_H
+#ifndef KINEMATICS_H
+#define KINEMATICS_H
 
 /* ----- Local Includes ----------------------------------------------------- */
 
@@ -28,4 +28,4 @@ kinematics_angle_to_point( JointAngles_t input, CartesianPoint_t *output );
 
 /* -------------------------------------------------------------------------- */
 
-#endif /* CLEARPATH_H */
+#endif /* KINEMATICS_H */

@@ -4,7 +4,6 @@
 
 /* ----- Local Includes ----------------------------------------------------- */
 #include "kinematics.h"
-#include "clearpath.h"
 
 #include "global.h"
 #include "qassert.h"
