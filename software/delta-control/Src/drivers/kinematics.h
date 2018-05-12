@@ -4,6 +4,7 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
+#include "kinematics_types.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -16,13 +17,14 @@ kinematics_init( void );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC uint8_t
-kinematics_angle_to_point( void );
+PUBLIC KinematicsSolution_t
+kinematics_point_to_angle( CartesianPoint_t input, JointAngles_t *output );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC uint8_t
-kinematics_point_to_angle( void );
+PUBLIC KinematicsSolution_t
+kinematics_angle_to_point( JointAngles_t input, CartesianPoint_t *output );
+
 
 /* -------------------------------------------------------------------------- */
 

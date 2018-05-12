@@ -25,11 +25,15 @@ float sin30;
 float cos120;
 float tan60;
 float tan30;
-float dtr;
+
+float deg_to_rad;
+
+//cache common calculations
+float t;
 
 /* ----- Private Variables -------------------------------------------------- */
 
-PRIVATE uint16_t
+PRIVATE KinematicsSolution_t
 delta_angle_plane_calc( float x0, float y0, float z0, float *theta );
 
 
@@ -45,51 +49,47 @@ kinematics_init( )
 	cos120 = -0.5f;
 	tan60  = sqrt3;
 	tan30  = 1 / sqrt3;
-    dtr = M_PI / 180.0f;
+
+	//cache common calculations
+    deg_to_rad = M_PI / 180.0f;
+    t = ( f-e ) * tan30/2;
 
 }
 
 /* -------------------------------------------------------------------------- */
 
 /*
- * Accept a x/y/z input from the motion planner
+ * Accept a x/y/z cartesian input, write into provided pointer to angle structure
+ * Returns 0 when OK, 1 for error
  *
  * Calculate the output motor angles with an IK solver
  * Bounds checks to ensure motors aren't being commanded past their practical limits
  * Set the target angles for the clearpath driver to then handle.
+ *
+ * Returns status
  */
 
-PUBLIC uint8_t
-kinematics_point_to_angle( void )
+PUBLIC KinematicsSolution_t
+kinematics_point_to_angle( CartesianPoint_t input, JointAngles_t *output )
 {
-	// inverse kinematics: (x0, y0, z0) -> (theta1, theta2, theta3)
-	// returned status: 0 = OK, -1 = invalid position
-	uint32_t x0 = 0;
-	uint32_t y0 = 0;
-	uint32_t z0 = 0;
+    uint8_t status = delta_angle_plane_calc( input.x, input.y, input.z, &output->a1 );
 
-    float theta1 = 0;
-    float theta2 = 0;
-    float theta3 = 0;
-
-    uint8_t status = delta_angle_plane_calc( x0, y0, z0, &theta1 );
-
-    if (status == 0)
+    if (status == _SOLUTION_VALID)
     {
     	// rotate +120 degrees
-    	status = delta_angle_plane_calc( 	x0*cos120 + y0*sin120,
-    										y0*cos120 - x0*sin120,
-											z0,
-											&theta2   );
+    	status = delta_angle_plane_calc( 	input.x*cos120 + input.y*sin120,
+    										input.y*cos120 - input.x*sin120,
+											input.z,
+											&output->a2   );
     }
 
-    if (status == 0)
+    if (status == _SOLUTION_VALID)
     {
     	// rotate -120 degrees
-    	status = delta_angle_plane_calc( 	x0*cos120 - y0*sin120,
-    										y0*cos120 + x0*sin120,
-											z0,
-											&theta3 );
+    	status = delta_angle_plane_calc( 	input.x*cos120 - input.y*sin120,
+    										input.y*cos120 + input.x*sin120,
+											input.z,
+											&output->a3 );
     }
 
      return status;
@@ -98,41 +98,32 @@ kinematics_point_to_angle( void )
 /* -------------------------------------------------------------------------- */
 
 /*
- * Accept a a/b/c angle input
+ * Accept angle 1,2,3 input, write into provided pointer to cartesian point structure
+ * Returns 0 when OK, 1 for error
  *
  * Calculate the cartesian co-ordinates with the FK solver
  * Emit the XYZ co-ordinates
  */
 
-PUBLIC uint8_t
-kinematics_angle_to_point( void )
+PUBLIC KinematicsSolution_t
+kinematics_angle_to_point( JointAngles_t input, CartesianPoint_t *output )
 {
-	float theta1 = 0;
-	float theta2 = 0;
-	float theta3 = 0;
+    input.a1 *= deg_to_rad;
+    input.a2 *= deg_to_rad;
+    input.a3 *= deg_to_rad;
 
-	uint32_t x0 = 0;
-	uint32_t y0 = 0;
-	uint32_t z0 = 0;
+    float y1 = -( t + rf*cos(input.a1) );
+    float z1 = -rf * sin(input.a1);
 
-    float t = ( f-e ) * tan30/2;
-
-    theta1 *= dtr;
-    theta2 *= dtr;
-    theta3 *= dtr;
-
-    float y1 = -( t + rf*cos(theta1) );
-    float z1 = -rf * sin(theta1);
-
-    float y2 = ( t + rf*cos(theta2) ) * sin30;
+    float y2 = ( t + rf*cos(input.a2) ) * sin30;
     float x2 = y2 * tan60;
-    float z2 = -rf * sin(theta2);
+    float z2 = -rf * sin(input.a2);
 
-    float y3 = (t + rf*cos(theta3)) * sin30;
+    float y3 = ( t + rf*cos(input.a3) ) * sin30;
     float x3 = -y3 * tan60;
-    float z3 = -rf * sin(theta3);
+    float z3 = -rf * sin(input.a3);
 
-    float dnm = (y2-y1)*x3-(y3-y1)*x2;
+    float dnm = (y2-y1)*x3 - (y3-y1)*x2;
 
     float w1 = y1*y1 + z1*z1;
     float w2 = x2*x2 + y2*y2 + z2*z2;
@@ -156,20 +147,20 @@ kinematics_angle_to_point( void )
 
     if (d < 0)
     {
-    	return -1; // impossible point
+    	return _SOLUTION_ERROR;
     }
 
-    z0 = -(float)0.5*(b+sqrt(d))/a;
-    x0 = (a1*z0 + b1) / dnm;
-    y0 = (a2*z0 + b2) / dnm;
+    output->z = -(float)0.5*(b+sqrt(d))/a;
+    output->x = (a1*output->z + b1) / dnm;
+    output->y = (a2*output->z + b2) / dnm;
 
-    return 0;
+    return _SOLUTION_VALID;
 }
 
 /* -------------------------------------------------------------------------- */
 
 // helper functions, calculates angle theta1 (for YZ-pane)
-PRIVATE uint16_t
+PRIVATE KinematicsSolution_t
 delta_angle_plane_calc(float x0, float y0, float z0, float *theta)
 {
     float y1 = -0.5 * 0.57735 * f; 		// f/2 * tg 30
@@ -180,11 +171,11 @@ delta_angle_plane_calc(float x0, float y0, float z0, float *theta)
     float b = ( y1 - y0 ) / z0;
 
     // discriminant
-    float d = -( a+b*y1 )*( a+b * y1 ) + rf*( b*b * rf+rf );
+    float d = -( a+b * y1 )*( a+b * y1 ) + rf*( b*b * rf+rf );
 
     if (d < 0)
     {
-    	return -1; // impossible point
+    	return _SOLUTION_ERROR;
     }
 
     float yj = ( y1 - a*b - sqrt(d) ) / ( b*b + 1 ); // choose the outer point
@@ -192,7 +183,7 @@ delta_angle_plane_calc(float x0, float y0, float z0, float *theta)
 
     *theta = 180.0 * atan( -zj/(y1 - yj) ) / M_PI + ( (yj > y1) ? 180.0 : 0.0 );
 
-    return 0;
+    return _SOLUTION_VALID;
 }
 
 /* ----- End ---------------------------------------------------------------- */
