@@ -86,22 +86,22 @@ const HalGpioDef_t HalGpioHardwareMap[] =
 
 		[ _AUX_SCL                 ]   = { .mode = MODE_INPUT,     .port = PORT_B, .pin = PIN_10, .initial = 0 },
 		[ _AUX_SDA                 ]   = { .mode = MODE_INPUT,     .port = PORT_B, .pin = PIN_11, .initial = 0 },
-		[ _AUX_UART_TX             ]   = { .mode = MODE_INPUT,     .port = PORT_B, .pin = PIN_6,  .initial = 0 },
-		[ _AUX_UART_RX             ]   = { .mode = MODE_INPUT,     .port = PORT_B, .pin = PIN_7,  .initial = 0 },
+		[ _AUX_UART_TX             ]   = { .mode = MODE_AF_PP,     .port = PORT_B, .pin = PIN_6,  .initial = 0 },
+		[ _AUX_UART_RX             ]   = { .mode = MODE_AF_PP,     .port = PORT_B, .pin = PIN_7,  .initial = 0 },
 
 		/* --- EXTERNAL EXPANSION IO --- */
-		[ _EXT_INPUT_0             ]   = { .mode = MODE_INPUT,     .port = PORT_D, .pin = PIN_2,  .initial = 0 },
-		[ _EXT_OUTPUT_0            ]   = { .mode = MODE_OUT_PP,    .port = PORT_C, .pin = PIN_12, .initial = 0 },
+		[ _EXT_INPUT_0             ]   = { .mode = MODE_AF_PP,     .port = PORT_D, .pin = PIN_2,  .initial = 0 },
+		[ _EXT_OUTPUT_0            ]   = { .mode = MODE_AF_PP,     .port = PORT_C, .pin = PIN_12, .initial = 0 },
 
 		[ _EXT_INPUT_1             ]   = { .mode = MODE_INPUT,     .port = PORT_D, .pin = PIN_0, .initial = 0 },
 		[ _EXT_OUTPUT_1            ]   = { .mode = MODE_OUT_PP,    .port = PORT_D, .pin = PIN_1, .initial = 0 },
 
 		/* --- EXPANSION CARD --- */
 		[ _CARD_POWER_EN           ]   = { .mode = MODE_OUT_PP,    .port = PORT_D, .pin = PIN_7, .initial = 0 },
-		[ _CARD_UART_RX            ]   = { .mode = MODE_INPUT,     .port = PORT_D, .pin = PIN_6, .initial = 0 },
-		[ _CARD_UART_TX            ]   = { .mode = MODE_INPUT,     .port = PORT_D, .pin = PIN_5, .initial = 0 },
-		[ _CARD_UART_CTS           ]   = { .mode = MODE_OUT_PP,    .port = PORT_D, .pin = PIN_3, .initial = 0 },
-		[ _CARD_UART_RTS           ]   = { .mode = MODE_OUT_PP,    .port = PORT_D, .pin = PIN_4, .initial = 0 },
+		[ _CARD_UART_RX            ]   = { .mode = MODE_AF_PP,     .port = PORT_D, .pin = PIN_6, .initial = 0 },
+		[ _CARD_UART_TX            ]   = { .mode = MODE_AF_PP,     .port = PORT_D, .pin = PIN_5, .initial = 0 },
+		[ _CARD_UART_CTS           ]   = { .mode = MODE_AF_PP,     .port = PORT_D, .pin = PIN_3, .initial = 0 },
+		[ _CARD_UART_RTS           ]   = { .mode = MODE_AF_PP,     .port = PORT_D, .pin = PIN_4, .initial = 0 },
 
 		/* --- ONBOARD MISC --- */
 		[ _BUZZER                  ]   = { .mode = MODE_OUT_PP,    .port = PORT_B, .pin = PIN_9, .initial = 0 },
@@ -222,7 +222,8 @@ PUBLIC void
 hal_gpio_init_alternate( HalGpioPortPin_t 	gpio_port_pin_nr,
                	   	   	 uint32_t    		mode,
 						 uint32_t    		alternative_function,
-						 uint32_t    		speed )
+						 uint32_t    		speed,
+						 uint32_t    		pull)
 {
     const HalGpioDef_t *m = &HalGpioHardwareMap[gpio_port_pin_nr];
 
@@ -235,7 +236,7 @@ hal_gpio_init_alternate( HalGpioPortPin_t 	gpio_port_pin_nr,
 
     GPIO_InitStruct.Pin = HAL_GPIO_PIN_MASK( m->pin );
     GPIO_InitStruct.Mode = mode;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Pull = pull; //GPIO_NOPULL
     GPIO_InitStruct.Speed = speed;
     GPIO_InitStruct.Alternate = alternative_function;
     HAL_GPIO_Init(hal_gpio_mcu_port( m->port ), &GPIO_InitStruct);

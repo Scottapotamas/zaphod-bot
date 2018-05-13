@@ -9,6 +9,7 @@
 #include "global.h"
 #include "qassert.h"
 #include "hal_uart.h"
+#include "hal_gpio.h"
 #include "stm32f4xx_hal.h"
 #include "fifo.h"
 
@@ -18,8 +19,12 @@
 
 /* ----- Defines ------------------------------------------------------------ */
 
-#define  HAL_UART_RX_FIFO_SIZE       256
-#define  HAL_UART_TX_FIFO_SIZE      1500
+#define  HAL_UART_RX_FIFO_SIZE      256
+#define  HAL_UART_TX_FIFO_SIZE      256
+
+#define UART_EXTERNAL_BAUD	115200
+#define UART_INTERNAL_BAUD	115200
+#define UART_MODULE_BAUD	115200
 
 /* ----- Types -------------------------------------------------------------- */
 
@@ -40,11 +45,11 @@ PRIVATE HalUart_t hal_uart[HAL_UART_NUM_PORTS];
 
 /* ----- Private Functions -------------------------------------------------- */
 
-//PRIVATE void
-//hal_usart_irq_handler( HalUart_t * h );
+PRIVATE void
+hal_uart_init_usart1_io_and_isr( void );
 
-//PRIVATE HalUart_t *
-//hal_uart_port( USART_TypeDef * usart );
+PRIVATE void
+hal_uart_deinit_usart1_io_and_isr( void );
 
 PRIVATE void
 hal_uart_init_usart2_io_and_isr( void );
@@ -53,26 +58,15 @@ PRIVATE void
 hal_uart_deinit_usart2_io_and_isr( void );
 
 PRIVATE void
-hal_uart_init_usart3_io_and_isr( void );
+hal_uart_init_uart5_io_and_isr( void );
 
 PRIVATE void
-hal_uart_deinit_usart3_io_and_isr( void );
-
-PRIVATE void
-hal_uart_init_uart4_io_and_isr( void );
-
-PRIVATE void
-hal_uart_deinit_uart4_io_and_isr( void );
-
-PRIVATE void
-hal_uart_init_usart6_io_and_isr( void );
-
-PRIVATE void
-hal_uart_deinit_usart6_io_and_isr( void );
+hal_uart_deinit_uart5_io_and_isr( void );
 
 /* -------------------------------------------------------------------------- */
 /* --- UART INTERFACE                                                     --- */
 /* -------------------------------------------------------------------------- */
+
 
 PUBLIC void
 hal_uart_init( HalUartPort_t port )
@@ -82,37 +76,34 @@ hal_uart_init( HalUartPort_t port )
 
     switch( port )
     {
-        case HAL_UART_PORT_CAMERA:
-            h->port = HAL_UART_PORT_CAMERA;
+        case HAL_UART_PORT_EXTERNAL:
+            h->port = HAL_UART_PORT_EXTERNAL;
             fifo_init( &h->tx_fifo, h->tx_buffer, HAL_UART_TX_FIFO_SIZE );
             fifo_init( &h->rx_fifo, h->rx_buffer, HAL_UART_RX_FIFO_SIZE );
 
-            h->usart.Instance = USART3;
-                    hal_uart_set_baudrate( h->port, 38400 );
-                    hal_uart_init_usart3_io_and_isr();
-
+            h->usart.Instance = UART5;
+			hal_uart_set_baudrate( h->port, UART_EXTERNAL_BAUD );
+			hal_uart_init_uart5_io_and_isr();
             break;
 
-        case HAL_UART_PORT_AUXILIARY_A:
-            h->port = HAL_UART_PORT_AUXILIARY_A;
+        case HAL_UART_PORT_INTERNAL:
+            h->port = HAL_UART_PORT_INTERNAL;
             fifo_init( &h->tx_fifo, h->tx_buffer, HAL_UART_TX_FIFO_SIZE );
             fifo_init( &h->rx_fifo, h->rx_buffer, HAL_UART_RX_FIFO_SIZE );
 
-                    h->usart.Instance = USART6;
-                    hal_uart_set_baudrate( h->port, 115200 );
-                    hal_uart_init_usart6_io_and_isr();
-
+			h->usart.Instance = USART1;
+			hal_uart_set_baudrate( h->port, UART_INTERNAL_BAUD );
+			hal_uart_init_usart1_io_and_isr();
             break;
 
-        case HAL_UART_PORT_AUXILIARY_B:
-            h->port = HAL_UART_PORT_AUXILIARY_B;
+        case HAL_UART_PORT_MODULE:
+            h->port = HAL_UART_PORT_MODULE;
             fifo_init( &h->tx_fifo, h->tx_buffer, HAL_UART_TX_FIFO_SIZE );
             fifo_init( &h->rx_fifo, h->rx_buffer, HAL_UART_RX_FIFO_SIZE );
 
-                    h->usart.Instance = USART2;
-                    hal_uart_set_baudrate( h->port, 115200 );
-                    hal_uart_init_usart2_io_and_isr();
-
+			h->usart.Instance = USART2;
+			hal_uart_set_baudrate( h->port, UART_MODULE_BAUD );
+			hal_uart_init_usart2_io_and_isr();
             break;
 
         default:
@@ -125,36 +116,30 @@ hal_uart_init( HalUartPort_t port )
 PUBLIC void
 hal_uart_deinit( HalUartPort_t port )
 {
-    HalUart_t * h = &hal_uart[port];
-    switch( port )
-    {
-        case HAL_UART_PORT_CAMERA:
-            h->port = HAL_UART_PORT_CAMERA;
+	HalUart_t * h = &hal_uart[port];
+	switch( port )
+	{
+		case HAL_UART_PORT_EXTERNAL:
+			h->port = HAL_UART_PORT_EXTERNAL;
+			h->usart.Instance = UART5;
+			hal_uart_deinit_uart5_io_and_isr();
+			break;
 
-                    h->usart.Instance = USART3;
-                    hal_uart_deinit_usart3_io_and_isr();
+		case HAL_UART_PORT_INTERNAL:
+			h->port = HAL_UART_PORT_INTERNAL;
+			h->usart.Instance = USART1;
+			hal_uart_deinit_usart1_io_and_isr();
+			break;
 
-            break;
+		case HAL_UART_PORT_MODULE:
+			h->port = HAL_UART_PORT_MODULE;
+			h->usart.Instance = USART2;
+			hal_uart_deinit_usart2_io_and_isr();
+			break;
 
-        case HAL_UART_PORT_AUXILIARY_A:
-            h->port = HAL_UART_PORT_AUXILIARY_A;
-
-                    h->usart.Instance = USART6;
-                    hal_uart_deinit_usart6_io_and_isr();
-
-            break;
-
-        case HAL_UART_PORT_AUXILIARY_B:
-            h->port = HAL_UART_PORT_AUXILIARY_B;
-
-                    h->usart.Instance = USART2;
-                    hal_uart_deinit_usart2_io_and_isr();
-
-            break;
-
-        default:
-            break;
-    }
+		default:
+			break;
+	}
 }
 
 /* -------------------------------------------------------------------------- */
@@ -411,44 +396,46 @@ hal_uart_read( HalUartPort_t port, uint8_t * data, uint32_t maxlength )
 
 /* -------------------------------------------------------------------------- */
 
-//PUBLIC void HAL_UART_MspInit( UART_HandleTypeDef *huart )
-//{
-//    switch( huart )
-//    {
-//        case 0:
-//            break;
-//    }
-//}
+PRIVATE void
+hal_uart_init_usart1_io_and_isr( void )
+{
+    __HAL_RCC_USART1_CLK_ENABLE();
+
+    hal_gpio_init_alternate( _AUX_UART_RX, GPIO_MODE_AF_PP, GPIO_AF7_USART1, GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLUP );
+    hal_gpio_init_alternate( _AUX_UART_TX, GPIO_MODE_AF_PP, GPIO_AF7_USART1, GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLUP );
+
+    // UART1 interrupt
+    HAL_NVIC_SetPriority( USART1_IRQn, 12, 0 );
+    HAL_NVIC_EnableIRQ( USART1_IRQn );
+}
 
 /* -------------------------------------------------------------------------- */
 
-//PUBLIC void HAL_UART_MspDeInit( UART_HandleTypeDef *huart )
-//{
-//
-//}
+PRIVATE void
+hal_uart_deinit_usart1_io_and_isr( void )
+{
+    HAL_NVIC_DisableIRQ( USART1_IRQn );
+
+    hal_gpio_disable_pin( _AUX_UART_RX );
+    hal_gpio_disable_pin( _AUX_UART_TX );
+
+    __HAL_RCC_USART2_CLK_DISABLE();
+}
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void
 hal_uart_init_usart2_io_and_isr( void )
 {
-    GPIO_InitTypeDef GPIO_InitStruct;
-
-    /* Peripheral clock enable */
     __HAL_RCC_USART2_CLK_ENABLE();
 
-    /**USART2 GPIO Configuration
-    PD8     ------> USART2_TX
-    PD9     ------> USART2_RX
-    */
-    GPIO_InitStruct.Pin       = GPIO_PIN_5|GPIO_PIN_6;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_PULLUP;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
-    HAL_GPIO_Init( GPIOD, &GPIO_InitStruct );
+    hal_gpio_init_alternate( _CARD_UART_RX, GPIO_MODE_AF_PP, GPIO_AF7_USART2, GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLUP );
+    hal_gpio_init_alternate( _CARD_UART_TX, GPIO_MODE_AF_PP, GPIO_AF7_USART2, GPIO_SPEED_FREQ_VERY_HIGH, GPIO_PULLUP );
 
-    /* UART3 interrupt Init */
+    hal_gpio_init_alternate( _CARD_UART_CTS, GPIO_MODE_AF_PP, GPIO_AF7_USART2, GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL );
+    hal_gpio_init_alternate( _CARD_UART_RTS, GPIO_MODE_AF_PP, GPIO_AF7_USART2, GPIO_SPEED_FREQ_VERY_HIGH, GPIO_NOPULL );
+
+    // USART2 interrupt
     HAL_NVIC_SetPriority( USART2_IRQn, 12, 0 );
     HAL_NVIC_EnableIRQ( USART2_IRQn );
 }
@@ -458,139 +445,42 @@ hal_uart_init_usart2_io_and_isr( void )
 PRIVATE void
 hal_uart_deinit_usart2_io_and_isr( void )
 {
-    /* UART3 interrupt DeInit */
     HAL_NVIC_DisableIRQ( USART2_IRQn );
 
-    /* Pins DeInit */
-    HAL_GPIO_DeInit( GPIOD, GPIO_PIN_5|GPIO_PIN_6 );
+    hal_gpio_disable_pin( _CARD_UART_RX );
+    hal_gpio_disable_pin( _CARD_UART_TX );
+    hal_gpio_disable_pin( _CARD_UART_CTS );
+    hal_gpio_disable_pin( _CARD_UART_RTS );
 
-    /* Peripheral clock enable */
     __HAL_RCC_USART2_CLK_DISABLE();
 }
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void
-hal_uart_init_usart3_io_and_isr( void )
+hal_uart_init_uart5_io_and_isr( void )
 {
-    GPIO_InitTypeDef GPIO_InitStruct;
+    __HAL_RCC_UART5_CLK_ENABLE();
 
-    /* Peripheral clock enable */
-    __HAL_RCC_USART3_CLK_ENABLE();
+    hal_gpio_init_alternate( _EXT_OUTPUT_0, GPIO_MODE_AF_PP, GPIO_AF8_UART5, GPIO_SPEED_FREQ_MEDIUM, GPIO_PULLUP );
+    hal_gpio_init_alternate( _EXT_INPUT_0, 	GPIO_MODE_AF_PP, GPIO_AF8_UART5, GPIO_SPEED_FREQ_MEDIUM, GPIO_PULLUP );
 
-    /* USART3 GPIO Configuration
-     *  PD8     ------> USART3_TX
-     *  PD9     ------> USART3_RX
-     */
-
-    GPIO_InitStruct.Pin       = GPIO_PIN_8|GPIO_PIN_9;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_PULLUP;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF7_USART3;
-    HAL_GPIO_Init( GPIOD, &GPIO_InitStruct );
-
-    /* UART3 interrupt Init */
-    HAL_NVIC_SetPriority( USART3_IRQn, 12, 0 );
-    HAL_NVIC_EnableIRQ( USART3_IRQn );
+    // UART5 interrupt
+    HAL_NVIC_SetPriority( UART5_IRQn, 12, 0 );
+    HAL_NVIC_EnableIRQ( UART5_IRQn );
 }
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void
-hal_uart_deinit_usart3_io_and_isr( void )
+hal_uart_deinit_uart5_io_and_isr( void )
 {
-    /* UART3 interrupt DeInit */
-    HAL_NVIC_DisableIRQ( USART3_IRQn );
+    HAL_NVIC_DisableIRQ( UART5_IRQn );
 
-    /* Pins DeInit */
-    HAL_GPIO_DeInit( GPIOD, GPIO_PIN_8 | GPIO_PIN_9 );
+    hal_gpio_disable_pin( _EXT_OUTPUT_0 );
+    hal_gpio_disable_pin( _EXT_INPUT_0 );
 
-    /* Peripheral clock enable */
-    __HAL_RCC_USART3_CLK_DISABLE();
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void
-hal_uart_init_uart4_io_and_isr( void )
-{
-    GPIO_InitTypeDef GPIO_InitStruct;
-
-    /* Peripheral clock enable */
-    __HAL_RCC_UART4_CLK_ENABLE();
-
-    /**UART4 GPIO Configuration
-    PC10     ------> UART4_TX
-    PC11     ------> UART4_RX
-    */
-    GPIO_InitStruct.Pin       = GPIO_PIN_10|GPIO_PIN_11;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_PULLUP;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
-    HAL_GPIO_Init( GPIOC, &GPIO_InitStruct );
-
-    /* UART4 interrupt Init */
-    HAL_NVIC_SetPriority( UART4_IRQn, 12, 0 );
-    HAL_NVIC_EnableIRQ( UART4_IRQn );
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void
-hal_uart_deinit_uart4_io_and_isr( void )
-{
-    /* UART4 interrupt DeInit */
-    HAL_NVIC_DisableIRQ( UART4_IRQn );
-
-    /* Pins DeInit */
-    HAL_GPIO_DeInit( GPIOC, GPIO_PIN_10|GPIO_PIN_11 );
-
-    /* Peripheral clock enable */
-    __HAL_RCC_UART4_CLK_DISABLE();
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void
-hal_uart_init_usart6_io_and_isr( void )
-{
-    GPIO_InitTypeDef GPIO_InitStruct;
-
-    /* Peripheral clock enable */
-    __HAL_RCC_USART6_CLK_ENABLE();
-
-    /** USART6 GPIO Configuration
-      *  PG9     ------> USART6_RX
-      *  PG14     ------> USART6_TX
-      */
-
-    GPIO_InitStruct.Pin       = GPIO_PIN_9|GPIO_PIN_14;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_PULLUP;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_LOW;
-    GPIO_InitStruct.Alternate = GPIO_AF8_USART6;
-    HAL_GPIO_Init( GPIOG, &GPIO_InitStruct );
-
-    /* UART3 interrupt Init */
-    HAL_NVIC_SetPriority( USART6_IRQn, 12, 0 );
-    HAL_NVIC_EnableIRQ( USART6_IRQn );
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void
-hal_uart_deinit_usart6_io_and_isr( void )
-{
-    /* UART6 interrupt DeInit */
-    HAL_NVIC_DisableIRQ( USART6_IRQn );
-
-    /* Pins DeInit */
-    HAL_GPIO_DeInit( GPIOG, GPIO_PIN_9|GPIO_PIN_14 );
-
-    /* Peripheral clock enable */
-    __HAL_RCC_USART6_CLK_DISABLE();
+    __HAL_RCC_UART5_CLK_DISABLE();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -649,6 +539,14 @@ hal_uart_port( USART_TypeDef * usart )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
+USART1_IRQHandler( void )
+{
+    hal_usart_irq_handler( hal_uart_port( USART1 ) );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
 USART2_IRQHandler( void )
 {
     hal_usart_irq_handler( hal_uart_port( USART2 ) );
@@ -657,26 +555,11 @@ USART2_IRQHandler( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-USART3_IRQHandler( void )
+UART5_IRQHandler( void )
 {
-    hal_usart_irq_handler( hal_uart_port( USART3 ) );
+    hal_usart_irq_handler( hal_uart_port( UART5 ) );
 }
 
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-UART4_IRQHandler( void )
-{
-    hal_usart_irq_handler( hal_uart_port( UART4 ) );
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-USART6_IRQHandler( void )
-{
-    hal_usart_irq_handler( hal_uart_port( USART6 ) );
-}
 
 /* ----- End ---------------------------------------------------------------- */
 

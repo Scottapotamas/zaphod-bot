@@ -141,10 +141,11 @@ hal_gpio_init( HalGpioPortPin_t gpio_port_pin_nr, HalGpioMode_t mode, bool initi
 /** Allow more manual configuration of alternative functions, while wrapping the pin/port def */
 
 PUBLIC void
-hal_gpio_init_alternate( HalGpioPortPin_t 	gpio_port_pin_nr,
-               	   	   	 uint32_t    		mode,
-						 uint32_t    		alternative_function,
-						 uint32_t    		speed );
+hal_gpio_init_alternate( HalGpioPortPin_t	gpio_port_pin_nr,
+               	   	   	 uint32_t			mode,
+						 uint32_t			alternative_function,
+						 uint32_t			speed,
+						 uint32_t			pull);
 
 /* -------------------------------------------------------------------------- */
 

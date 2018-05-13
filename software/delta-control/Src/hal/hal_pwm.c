@@ -329,28 +329,28 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* tim_pwmHandle)
 	{
 		__HAL_RCC_TIM1_CLK_ENABLE();
 
-		hal_gpio_init_alternate( _SERVO_3_HLFB, GPIO_MODE_AF_PP, GPIO_AF1_TIM1, GPIO_SPEED_FREQ_LOW );
+		hal_gpio_init_alternate( _SERVO_3_HLFB, GPIO_MODE_AF_PP, GPIO_AF1_TIM1, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
 	if( tim_pwmHandle->Instance == TIM3 )
 	{
 		__HAL_RCC_TIM3_CLK_ENABLE();
 
-		hal_gpio_init_alternate( _SERVO_1_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM3, GPIO_SPEED_FREQ_LOW );
+		hal_gpio_init_alternate( _SERVO_1_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM3, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
 	if( tim_pwmHandle->Instance == TIM4 )
 	{
 		__HAL_RCC_TIM4_CLK_ENABLE();
 
-		hal_gpio_init_alternate( _SERVO_2_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM4, GPIO_SPEED_FREQ_LOW );
+		hal_gpio_init_alternate( _SERVO_2_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM4, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
 	if( tim_pwmHandle->Instance == TIM5 )
 	{
 		__HAL_RCC_TIM5_CLK_ENABLE();
 
-		hal_gpio_init_alternate( _SERVO_4_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM5, GPIO_SPEED_FREQ_LOW );
+		hal_gpio_init_alternate( _SERVO_4_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM5, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
 	if( tim_pwmHandle->Instance == TIM2 )
@@ -399,23 +399,23 @@ HAL_TIM_MspPostInit( TIM_HandleTypeDef* htim )
 {
 	if( htim->Instance == TIM10 )
 	{
-		hal_gpio_init_alternate( _FAN_PWM, GPIO_MODE_AF_PP, GPIO_AF3_TIM10, GPIO_SPEED_FREQ_LOW );
+		hal_gpio_init_alternate( _FAN_PWM, GPIO_MODE_AF_PP, GPIO_AF3_TIM10, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
 	if( htim->Instance == TIM11 )
 	{
-		hal_gpio_init_alternate( _BUZZER, GPIO_MODE_AF_PP, GPIO_AF3_TIM11, GPIO_SPEED_FREQ_LOW );
+		hal_gpio_init_alternate( _BUZZER, GPIO_MODE_AF_PP, GPIO_AF3_TIM11, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
 	if( htim->Instance == TIM2 )
 	{
-		hal_gpio_init_alternate( _AUX_PWM_0, GPIO_MODE_AF_PP, GPIO_AF1_TIM2, GPIO_SPEED_FREQ_LOW );
+		hal_gpio_init_alternate( _AUX_PWM_0, GPIO_MODE_AF_PP, GPIO_AF1_TIM2, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
 	if( htim->Instance==TIM12 )
 	{
-		hal_gpio_init_alternate( _AUX_PWM_1, GPIO_MODE_AF_PP, GPIO_AF9_TIM12, GPIO_SPEED_FREQ_LOW );
-		hal_gpio_init_alternate( _AUX_PWM_2, GPIO_MODE_AF_PP, GPIO_AF9_TIM12, GPIO_SPEED_FREQ_LOW );
+		hal_gpio_init_alternate( _AUX_PWM_1, GPIO_MODE_AF_PP, GPIO_AF9_TIM12, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+		hal_gpio_init_alternate( _AUX_PWM_2, GPIO_MODE_AF_PP, GPIO_AF9_TIM12, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
 	  //unused servo A and B pins, used for potential step/direction outputs in future
