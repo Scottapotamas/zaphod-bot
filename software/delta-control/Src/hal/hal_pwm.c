@@ -4,14 +4,11 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "hal_pwm.h"
-#include "stm32f4xx_hal.h"
-#include "main.h"
-#include "qassert.h"
 #include "hal_gpio.h"
 
-/* ----- Defines ------------------------------------------------------------ */
+#include "stm32f4xx_hal.h"
 
-DEFINE_THIS_FILE;
+/* ----- Defines ------------------------------------------------------------ */
 
 #define FAN_PRESCALER		0
 #define FAN_PWM_PERIOD 		3359
