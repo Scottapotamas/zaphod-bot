@@ -8,6 +8,7 @@
 #include "simple_state_machine.h"
 #include "hal_pwm.h"
 #include "hal_systick.h"
+#include "sensors.h"
 
 /* ----- Private Types ------------------------------------------------------ */
 
@@ -36,6 +37,25 @@ PRIVATE Fan_t fan;
 #define FAN_STALL_FAULT_RPM 20
 #define FAN_FREQUENCY_HZ 25000UL
 
+typedef struct
+{
+    float temp;
+    uint8_t percentage;
+} FanControlPoint_t;
+
+PRIVATE FanControlPoint_t fan_curve[] =
+{
+	{ .temp = 5.0f, 	.percentage =	0 },
+    { .temp = 25.0f, 	.percentage =	0 },
+    { .temp = 35.0f, 	.percentage =	30 },
+    { .temp = 50.0f, 	.percentage =	60 },
+    { .temp = 60.0f, 	.percentage =	80 },
+    { .temp = 70.0f,	.percentage =	95 },
+};
+
+PRIVATE uint8_t
+fan_speed_at_temp( float temperature );
+
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
@@ -52,9 +72,7 @@ fan_set( uint8_t speed_percentage )
 	Fan_t *me = &fan;
 
 	//0-100% speed control over fan
-	me->set_speed = MAX( MIN(speed_percentage, 100), 0);
-
-    //STATE_INIT_INITIAL( FAN_STATE_ON );
+	me->set_speed = CLAMP(speed_percentage, 0, 100);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -72,6 +90,8 @@ fan_process( void )
 				//make sure fan is not spinning?
 
             STATE_TRANSITION_TEST
+
+				me->set_speed = fan_speed_at_temp( sensors_expansion_C() );
 
 				//once new target is established, trigger startup blip
                 if( me->set_speed > 0 )
@@ -112,6 +132,9 @@ fan_process( void )
 
             STATE_TRANSITION_TEST
 
+				//recalculate target speed based on temperature reading
+				me->set_speed = fan_speed_at_temp( sensors_expansion_C() );
+
 				//speed change req while running
 				if( me->set_speed != me->speed )
 				{
@@ -143,6 +166,38 @@ fan_process( void )
             STATE_END
             break;
     }
+}
+
+/* -------------------------------------------------------------------------- */
+
+// Calculate an appropriate fan speed percentage based on temperature lookup table.
+
+PRIVATE uint8_t
+fan_speed_at_temp( float temperature )
+{
+	//protect against out-of-bounds temperature inputs
+    if( temperature < fan_curve[ 0 ].temp )
+    {
+    	//temp is lower than lowest point in LUT
+        return 0.0;
+    }
+    else if( temperature > fan_curve[ DIM(fan_curve) - 1 ].temp )
+    {
+    	//temp exceeds max LUT value
+        return 100.0;
+    }
+
+    for( uint8_t i = 0; i < DIM(fan_curve) - 1; i++ )
+    {
+    	//within range between two rows of the LUT
+        if( temperature > fan_curve[ i ].temp && temperature <= fan_curve[ i + 1 ].temp )
+        {
+        	//linear interpolation for fan speed between the surrounding rows in LUT
+        	return fan_curve[ i ].percentage + ( ((temperature - fan_curve[ i ].temp)/(fan_curve[ i + 1 ].temp - fan_curve[ i ].temp)) * ( fan_curve[ i + 1 ].percentage - fan_curve[ i ].percentage ) ) ;
+        }
+    }
+
+    return 97;	// should have returned with a valid percentage by now, fail ON for safety.
 }
 
 /* ----- End ---------------------------------------------------------------- */
