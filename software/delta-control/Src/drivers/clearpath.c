@@ -27,9 +27,8 @@
 
 #define SERVO_STEPS_PER_REV					6400
 #define SERVO_ANGLE_PER_REV 				360
-#define SERVO_MIN_ANGLE 					10
-#define SERVO_MAX_ANGLE 					20
-#define SERVO_SOFT_LIMIT_DEPTH_STEPS		10
+#define SERVO_MIN_ANGLE 					10.0f
+#define SERVO_MAX_ANGLE 					20.0f
 
 //Homing parameters
 #define SERVO_INTERRUPTED_DISABLE_DELAY_MIN_MS 50
@@ -162,7 +161,8 @@ servo_set_target_angle( ClearpathServoInstance_t servo, float angle_degrees )
 {
     Servo_t *me = &clearpath[servo];
 
-    me->angle_target_steps = convert_angle_steps( angle_degrees );
+
+    me->angle_target_steps = convert_angle_steps( CLAMP(angle_degrees, SERVO_MIN_ANGLE, SERVO_MAX_ANGLE) );
 }
 
 PUBLIC float
