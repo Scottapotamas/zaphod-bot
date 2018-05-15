@@ -185,4 +185,40 @@ delta_angle_plane_calc(float x0, float y0, float z0, float *theta)
     return _SOLUTION_VALID;
 }
 
+/* -------------------------------------------------------------------------- */
+
+// p[0], p[1] are the two points in 3D space
+// rel_weight is the 0.0-1.0 percentage position on the line
+// the output pointer is the interpolated position on the line
+
+PUBLIC KinematicsSolution_t
+kinematics_line_to_point( CartesianPoint_t p[], size_t points, float pos_weight, CartesianPoint_t *output )
+{
+	if(points < 2)
+	{
+		// need 2 points for a line
+		return _SOLUTION_ERROR;
+	}
+
+	// exact start and end of splines don't need calculation as catmull curves _will_ pass through all points
+	if(pos_weight == 0.0f)
+	{
+		output = &p[0];
+		return _SOLUTION_VALID;
+	}
+
+	if(pos_weight == 1.0f)
+	{
+		output = &p[1];
+		return _SOLUTION_VALID;
+	}
+
+    // Linear interpolation between two points (lerp)
+	output->x = p[0].x + pos_weight*( p[1].x - p[0].x );
+	output->y = p[0].y + pos_weight*( p[1].y - p[0].y );
+	output->z = p[0].z + pos_weight*( p[1].z - p[0].z );
+
+    return _SOLUTION_VALID;
+}
+
 /* ----- End ---------------------------------------------------------------- */
