@@ -11,6 +11,8 @@
 
 #include "app_task_motion.h"
 
+#include "clearpath.h"
+#include "kinematics.h"
 
 /* ----- Private Function Definitions --------------------------------------- */
 
@@ -22,7 +24,7 @@ PRIVATE void AppTaskMotion_initial( AppTaskMotion *me,
 PRIVATE STATE AppTaskMotion_main( AppTaskMotion *me,
                                   const StateEvent *e );
 
-PRIVATE STATE AppTaskMotion_next_state( AppTaskMotion *me,
+PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me,
                                         const StateEvent *e );
 
 /* ----- Public Functions --------------------------------------------------- */
@@ -78,7 +80,7 @@ PRIVATE STATE AppTaskMotion_main( AppTaskMotion *me,
         }
 
         case STATE_INIT_SIGNAL:
-            STATE_INIT( &AppTaskMotion_next_state );
+            STATE_INIT( &AppTaskMotion_home );
             return 0;
 
     }
@@ -87,12 +89,17 @@ PRIVATE STATE AppTaskMotion_main( AppTaskMotion *me,
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE STATE AppTaskMotion_next_state( AppTaskMotion *me,
+PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me,
                                          	 const StateEvent *e )
 {
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
+
+        	//reset the motors and let them home
+        	servo_run_startup( _CLEARPATH_1 );
+        	servo_run_startup( _CLEARPATH_2 );
+        	servo_run_startup( _CLEARPATH_3 );
 
         	return 0;
 
