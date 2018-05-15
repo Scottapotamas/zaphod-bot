@@ -19,6 +19,7 @@
 /* Application Tasks */
 #include "app_task_supervisor.h"
 #include "app_task_communication.h"
+#include "app_task_motion.h"
 
 #include "button.h"
 #include "hal_button.h"
@@ -60,6 +61,9 @@ EventSubscribers eventSubscriberList[STATE_MAX_SIGNAL];
 
 AppTaskCommunication       appTaskCommunication;
 StateEvent *               appTaskCommunicationEventQueue[10];
+
+AppTaskMotion    		   appTaskMotion;
+StateEvent *               appTaskMotionEventQueue[20];
 
 AppTaskSupervisor          appTaskSupervisor;
 StateEvent *               appTaskSupervisorEventQueue[40];
@@ -112,6 +116,14 @@ void app_tasks_init( void )
                                  DIM(appTaskCommunicationEventQueue) );
 
     stateTaskerAddTask( &mainTasker, t, TASK_COMMUNICATION, "Comms" );
+    stateTaskerStartTask( &mainTasker, t );
+
+    //Handle communications (comms to computers/phones etc)
+    t = appTaskMotionCreate( &appTaskMotion,
+                             appTaskMotionEventQueue,
+                             DIM(appTaskMotionEventQueue) );
+
+    stateTaskerAddTask( &mainTasker, t, TASK_MOTION, "Plannner" );
     stateTaskerStartTask( &mainTasker, t );
 
     //Overseer task
