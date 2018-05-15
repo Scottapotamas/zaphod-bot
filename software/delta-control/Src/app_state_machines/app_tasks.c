@@ -18,6 +18,8 @@
 
 /* Application Tasks */
 #include "app_task_supervisor.h"
+#include "app_task_communication.h"
+
 #include "button.h"
 #include "hal_button.h"
 #include "hal_systick.h"
@@ -47,7 +49,7 @@ typedef ButtonEvent EventsSmallType;
 //typedef VC0706ResponseEvent EventsLargeType;
 
 // ~~~ Event Pool Storage ~~~
-EventsSmallType  eventsSmall[200];//  __attribute__ ((section (".ccmram")));
+EventsSmallType  eventsSmall[50];//  __attribute__ ((section (".ccmram")));
 //EventsMediumType eventsMedium[50];//  __attribute__ ((section (".ccmram")));
 //EventsLargeType  eventsLarge[25];//   __attribute__ ((section (".ccmram")));
 
@@ -56,11 +58,11 @@ EventSubscribers eventSubscriberList[STATE_MAX_SIGNAL];
 
 // ~~~ Task Control Blocks & Event Queues ~~~
 
-//AppTaskBatteryMonitor      appTaskBatteryMonitor;
-//StateEvent *               appTaskBatteryMonitorEventQueue[20];
+AppTaskCommunication       appTaskCommunication;
+StateEvent *               appTaskCommunicationEventQueue[10];
 
 AppTaskSupervisor          appTaskSupervisor;
-StateEvent *               appTaskSupervisorEventQueue[60];
+StateEvent *               appTaskSupervisorEventQueue[40];
 
 // ~~~ Tasker ~~~
 
@@ -104,15 +106,19 @@ void app_tasks_init( void )
 
     StateTask *t;
 
-//    t = appTaskMonitorCreate( &appTaskMonitor,
-//                              appTaskMonitorEventQueue,
-//                              DIM(appTaskMonitorEventQueue) );
-//    stateTaskerAddTask( &mainTasker, t, TASK_MONITOR, "Monitor" );
-//    stateTaskerStartTask( &mainTasker, t );
+    //Handle communications (comms to computers/phones etc)
+    t = appTaskCommunicationCreate( &appTaskCommunication,
+                                 appTaskCommunicationEventQueue,
+                                 DIM(appTaskCommunicationEventQueue) );
 
+    stateTaskerAddTask( &mainTasker, t, TASK_COMMUNICATION, "Comms" );
+    stateTaskerStartTask( &mainTasker, t );
+
+    //Overseer task
     t = appTaskSupervisorCreate( &appTaskSupervisor,
                                  appTaskSupervisorEventQueue,
                                  DIM(appTaskSupervisorEventQueue) );
+
     stateTaskerAddTask( &mainTasker, t, TASK_SUPERVISOR, "Super" );
     stateTaskerStartTask( &mainTasker, t );
 

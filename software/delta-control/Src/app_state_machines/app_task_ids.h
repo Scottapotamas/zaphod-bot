@@ -30,16 +30,13 @@ extern "C"
 
 enum AppTaskID
 {
-    TASK_IDLE = 0,      /* Default system IDLE */
+    TASK_IDLE = 0,      // Default system IDLE
 
+    TASK_SUPERVISOR, 		//High priority task that oversees the system
+    TASK_MOTION, 			//Handle the various communication stacks
+    TASK_COMMUNICATION, 	//Handle the various communication stacks
 
-    TASK_SUPERVISOR, /* High priority task that processes all the
-     incoming sensor samples and manages making
-     target decisions. In normal operation quite
-     busy processing and evaluating samples. */
-
-
-	TASK_MAX,   /* Last entry used to define the size of task table */
+	TASK_MAX,   // Last entry used to define the size of task table
 };
 
 /* ----- End ---------------------------------------------------------------- */
