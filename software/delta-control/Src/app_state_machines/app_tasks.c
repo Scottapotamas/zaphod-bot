@@ -45,13 +45,13 @@ EventPool  eventPool[3];
  *         You need to make sure that EventsLargeType corresponds to the
  *         biggest event that can be allocated.
  */
-typedef ButtonEvent EventsSmallType;
-//typedef TimeEvent           EventsMediumType;
-//typedef VC0706ResponseEvent EventsLargeType;
+typedef ButtonEvent			EventsSmallType;
+typedef MotionPlannerEvent	EventsMediumType;
+//typedef SerialResponseEvent EventsLargeType;
 
 // ~~~ Event Pool Storage ~~~
 EventsSmallType  eventsSmall[50];//  __attribute__ ((section (".ccmram")));
-//EventsMediumType eventsMedium[50];//  __attribute__ ((section (".ccmram")));
+EventsMediumType eventsMedium[50];//  __attribute__ ((section (".ccmram")));
 //EventsLargeType  eventsLarge[25];//   __attribute__ ((section (".ccmram")));
 
 // ~~~ Event Subscription Data ~~~
@@ -89,10 +89,10 @@ void app_tasks_init( void )
                                  DIM(eventsSmall),
                                  sizeof(EventsSmallType) ) != 0 );
 
-//    ALLEGE( eventPoolAddStorage( (StateEvent*)&eventsMedium,
-//                                 DIM(eventsMedium),
-//                                 sizeof(EventsMediumType) ) != 0 );
-//
+    ALLEGE( eventPoolAddStorage( (StateEvent*)&eventsMedium,
+                                 DIM(eventsMedium),
+                                 sizeof(EventsMediumType) ) != 0 );
+
 //    ALLEGE( eventPoolAddStorage( (StateEvent*)&eventsLarge,
 //                                 DIM(eventsLarge),
 //                                 sizeof(EventsLargeType) ) != 0 );

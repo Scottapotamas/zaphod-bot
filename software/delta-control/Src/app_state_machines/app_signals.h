@@ -33,6 +33,14 @@ enum AppSignals
     BUTTON_LONG_SIGNAL,             /* Long Key Press Event */
     BUTTON_RELEASED_SIGNAL,         /* Key Up Event */
 
+    /* Servo Signals */
+	MECHANISM_HOMED,		// all motors have homed without detected error
+	MECHANISM_ERROR,
+
+    /* Motion Handler Signals */
+	MOTION_REQUEST,        /* Provide movement information for queue processing */
+	MOTION_HEAD,           /* Start of a movement */
+	MOTION_TAIL,           /* End of a movement */
 
     /* Last Available Signal - Don't Remove This */
     STATE_MAX_SIGNAL

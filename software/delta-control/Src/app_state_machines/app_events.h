@@ -17,6 +17,7 @@ extern "C" {
 #include "state_task.h"
 #include "state_event.h"
 #include "button.h"
+#include "motion_types.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -45,6 +46,15 @@ typedef struct ButtonPressedEvent__
     StateEvent    super;             /**< Encapsulated event reference */
     ButtonId_t    id;                /**< ID number of button event */
 } ButtonPressedEvent;
+
+/* -------------------------------------------------------------------------- */
+
+/** Motion command */
+typedef struct MotionPlannerEvent__
+{
+    StateEvent	super;     // Encapsulated event reference
+    Movement_t	move;      // Movement details
+} MotionPlannerEvent;
 
 /* ----- End ---------------------------------------------------------------- */
 
