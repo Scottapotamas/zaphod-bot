@@ -1,5 +1,5 @@
-#ifndef KINEMATICS_H
-#define KINEMATICS_H
+#ifndef PATH_INTERPOLATOR_H
+#define PATH_INTERPOLATOR_H
 
 /* ----- Local Includes ----------------------------------------------------- */
 
@@ -18,14 +18,13 @@ kinematics_init( void );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC KinematicsSolution_t
-kinematics_point_to_angle( CartesianPoint_t input, JointAngles_t *output );
+path_lerp_line( CartesianPoint_t p[], size_t points, float pos_weight, CartesianPoint_t *output );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC KinematicsSolution_t
-kinematics_angle_to_point( JointAngles_t input, CartesianPoint_t *output );
-
+path_catmull_spline( CartesianPoint_t p[], size_t points, float pos_weight, CartesianPoint_t *output );
 
 /* -------------------------------------------------------------------------- */
 
-#endif /* KINEMATICS_H */
+#endif /* PATH_INTERPOLATOR_H */

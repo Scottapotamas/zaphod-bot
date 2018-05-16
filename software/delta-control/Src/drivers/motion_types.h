@@ -1,5 +1,5 @@
-#ifndef KINEMATICS_TYPES_H
-#define KINEMATICS_TYPES_H
+#ifndef MOTION_TYPES_H
+#define MOTION_TYPES_H
 
 /* ----- Local Includes ----------------------------------------------------- */
 
@@ -29,4 +29,4 @@ typedef enum
 
 /* -------------------------------------------------------------------------- */
 
-#endif /* KINEMATICS_TYPES_H */
+#endif /* MOTION_TYPES_H */
