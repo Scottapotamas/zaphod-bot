@@ -1,25 +1,76 @@
 /* ----- System Includes ---------------------------------------------------- */
 
+#include <string.h>
+
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "path_interpolator.h"
 #include "motion_types.h"
 
 #include "global.h"
+#include "simple_state_machine.h"
+#include "hal_systick.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
+typedef enum
+{
+    PLANNER_OFF,
+    PLANNER_ON,
+} PlanningState_t;
+
+typedef struct
+{
+	PlanningState_t   previousState;
+	PlanningState_t   currentState;
+	PlanningState_t   nextState;
+
+    uint32_t        timer;
+} MotionPlanner_t;
 
 /* ----- Private Variables -------------------------------------------------- */
 
+PRIVATE MotionPlanner_t planner;
 
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
 path_interpolator_init( )
 {
+    memset( &planner, 0, sizeof( planner ) );
 
 }
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+buzzer_process( void )
+{
+	MotionPlanner_t *me = &planner;
+
+    switch( me->currentState )
+    {
+        case PLANNER_OFF:
+            STATE_ENTRY_ACTION
+
+            STATE_TRANSITION_TEST
+
+            STATE_EXIT_ACTION
+            STATE_END
+            break;
+
+        case PLANNER_ON:
+            STATE_ENTRY_ACTION
+
+            STATE_TRANSITION_TEST
+
+            STATE_EXIT_ACTION
+
+            STATE_END
+            break;
+    }
+}
+
 
 /* -------------------------------------------------------------------------- */
 
