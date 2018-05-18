@@ -135,7 +135,15 @@ servo_get_move_done( ClearpathServoInstance_t servo)
 {
 	Servo_t *me = &clearpath[servo];
 
-	return ( me->angle_current_steps == me->angle_target_steps ) ? true : false;
+	return ( me->angle_current_steps == me->angle_target_steps );
+}
+
+PUBLIC bool
+servo_get_valid_home( ClearpathServoInstance_t servo)
+{
+	Servo_t *me = &clearpath[servo];
+
+	return ( me->enabled && me->home_complete );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -149,6 +157,10 @@ servo_process( ClearpathServoInstance_t servo )
     {
         case SERVO_STATE_INACTIVE:
             STATE_ENTRY_ACTION
+				hal_gpio_write_pin( ServoHardwareMap[servo].pin_enable, 	SERVO_DISABLE );
+				hal_gpio_write_pin( ServoHardwareMap[servo].pin_step, 		false );
+				hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, 	false );
+				me->enabled = SERVO_DISABLE;
 
             STATE_TRANSITION_TEST
 
@@ -164,6 +176,7 @@ servo_process( ClearpathServoInstance_t servo )
 				hal_gpio_write_pin( ServoHardwareMap[servo].pin_step, 		false );
 				hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, 	false );
 
+				me->enabled = SERVO_DISABLE;
 				me->timer = hal_systick_get_ms();
 
             STATE_TRANSITION_TEST

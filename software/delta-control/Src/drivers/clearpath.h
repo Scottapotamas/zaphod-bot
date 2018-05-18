@@ -43,6 +43,9 @@ servo_get_current_angle( ClearpathServoInstance_t servo);
 PUBLIC bool
 servo_get_move_done( ClearpathServoInstance_t servo);
 
+PUBLIC bool
+servo_get_valid_home( ClearpathServoInstance_t servo);
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void

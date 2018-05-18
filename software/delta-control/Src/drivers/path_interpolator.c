@@ -79,7 +79,7 @@ path_interpolator_process( void )
             	// time remaining is the allotted duration - time used (start to now), divide by the duration to get 0.0->1.0 progress
             	me->progress_percent = ( move->duration - ( me->movement_started - hal_systick_get_ms() ) ) / move->duration;
 
-            	if( me->progress_percent >= 1.0 )
+            	if( me->progress_percent > 0.999 )
             	{
             		//movement is complete, the planner can stop now
             		STATE_NEXT( PLANNER_OFF );
@@ -89,9 +89,9 @@ path_interpolator_process( void )
                 	switch( move->type )
                 	{
     					case _POINT_TRANSIT:
-    						target.x = move->points->x;
-    						target.y = move->points->y;
-    						target.z = move->points->z;
+    						target.x = move->points[0].x;
+    						target.y = move->points[0].y;
+    						target.z = move->points[0].z;
     						break;
 
     					case _LINE:

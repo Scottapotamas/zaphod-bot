@@ -65,8 +65,6 @@ PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __att
     eventSubscribe( (StateTask*)me, MOTION_HEAD );
     eventSubscribe( (StateTask*)me, MOTION_TAIL );
     eventSubscribe( (StateTask*)me, MOTION_REQUEST );
-    eventSubscribe( (StateTask*)me, MECHANISM_HOMED );
-    eventSubscribe( (StateTask*)me, MECHANISM_ERROR );
 
     STATE_INIT( &AppTaskMotion_main );
 }
@@ -102,24 +100,46 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
         	servo_run_startup( _CLEARPATH_1 );
         	servo_run_startup( _CLEARPATH_2 );
         	servo_run_startup( _CLEARPATH_3 );
+#ifdef EXPANSION_SERVO
+        	servo_run_startup( _CLEARPATH_4 );
+#endif
 
-            eventTimerStartOnce( &me->timer1,
+        	//check the motors every 500ms to see if they are homed
+        	eventTimerStartEvery( &me->timer1,
                                  (StateTask* )me,
                                  (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
-                                 MS_TO_TICKS( 5000 ) );
+                                 MS_TO_TICKS( SERVO_HOMING_SUPERVISOR_CHECK_MS ) );
 
-            // todo define homing check timeout elsewhere
         	return 0;
 
         case STATE_TIMEOUT1_SIGNAL:
 
-        	//todo supervisor to verify that the motors have all completed their driver level homing proceedure
+        	me->counter += servo_get_valid_home( _CLEARPATH_1 );
+        	me->counter += servo_get_valid_home( _CLEARPATH_2 );
+        	me->counter += servo_get_valid_home( _CLEARPATH_3 );
+        	me->counter += servo_get_valid_home( _CLEARPATH_4 );
 
-        	STATE_TRAN( AppTaskMotion_idle );
+        	if( me->counter == SERVO_COUNT )
+        	{
+                eventPublish( EVENT_NEW( StateEvent, MECHANISM_HOMED ) );
+            	STATE_TRAN( AppTaskMotion_idle );
+        	}
+        	else
+        	{
+        		//allow subsequent homing check retries
+        		if( me->retries++ > SERVO_HOMING_SUPERVISOR_RETRIES )
+        		{
+        			eventTimerStopIfActive(&me->timer1);
+        			eventPublish( EVENT_NEW( StateEvent, MECHANISM_ERROR ) );
+                	// todo work out what to do when they failed to home correctly
+
+        		}
+        	}
 
 			return 0;
 
 		case STATE_EXIT_SIGNAL:
+			eventTimerStopIfActive(&me->timer1);
 
 			return 0;
     }
@@ -137,6 +157,9 @@ PRIVATE STATE AppTaskMotion_idle( AppTaskMotion *me, const StateEvent *e )
         	return 0;
 
         case MOTION_REQUEST:
+
+        	STATE_TRAN( AppTaskMotion_run );
+
         	/*
         	Movement_t mv = ((MotionPlannerEvent*)e)->move;
             switch( mv.type )

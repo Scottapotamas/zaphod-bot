@@ -30,6 +30,8 @@ struct AppTaskMotion
     EventTimer		timer2;
 
     // ~~~ Task Variables ~~~
+    uint8_t 		counter;
+    uint8_t			retries;
 
 };
 
