@@ -6,17 +6,9 @@
 
 #include "app_times.h"
 #include "hal_systick.h"
+#include "simple_state_machine.h"
 
 /* ----- Defines ------------------------------------------------------------ */
-
-/* ~~~ Button State Machine Handling Macros ~~~ */
-
-#define STATE_INIT_INITIAL(s)           b->previousState = -1; b->currentState = (s); b->nextState = (s)
-#define STATE_ENTRY_ACTION              if ( b->currentState != b->previousState ) {
-#define STATE_TRANSITION_TEST           b->previousState = b->currentState; } else if ( b->nextState == b->currentState ) {
-#define STATE_EXIT_ACTION               } else if ( b->nextState != b->currentState ) {
-#define STATE_END                       b->currentState = b->nextState; }
-#define STATE_NEXT(s)                   b->nextState = (s)
 
 /* ~~~ Button State Machine Variables ~~~ */
 
@@ -48,12 +40,12 @@ PRIVATE Button_t    button[BUTTON_MAX] = { 0 }; /* Ensure clear at startup */
 PUBLIC bool
 button_init( ButtonId_t id, ButtonHandler_t handler )
 {
-    Button_t *b = &button[id];
+    Button_t *me = &button[id];
 
     CRITICAL_SECTION_VAR();
     CRITICAL_SECTION_START();
 
-    b->handler = handler;
+    me->handler = handler;
 
     bool pressed = hal_button_is_pressed(id);
 
@@ -97,17 +89,17 @@ button_process( void )
 {
     for( uint8_t i = 0; i < BUTTON_MAX; i++ )
     {
-        Button_t *b = &button[i];
+        Button_t *me = &button[i];
 
         /* Avoid running this when there is no handler present.
          * e.g. the timer tick may be running before we are fully
          * Initialised
          */
-        if( b->handler )
+        if( me->handler )
         {
             bool is_pressed = hal_button_is_pressed(i);
 
-            switch( b->currentState )
+            switch( me->currentState )
             {
                 case BUTTON_STATE_START:
                     STATE_ENTRY_ACTION
@@ -122,26 +114,26 @@ button_process( void )
 
                 case BUTTON_STATE_PRESSED:
                     STATE_ENTRY_ACTION
-                        b->StartTime = hal_systick_get_ms();
-                        if( b->handler )
+					    me->StartTime = hal_systick_get_ms();
+                        if( me->handler )
                         {
-                            b->handler( i, BUTTON_PRESS_TYPE_DOWN );
+                        	me->handler( i, BUTTON_PRESS_TYPE_DOWN );
                         }
                     STATE_TRANSITION_TEST
                         if( is_pressed )    /* Button still pressed */
                         {
-                            if( (hal_systick_get_ms() - b->StartTime) > TIME_BUTTON_LONG_PRESS )
+                            if( (hal_systick_get_ms() - me->StartTime) > TIME_BUTTON_LONG_PRESS )
                             {
-                                b->handler( i, BUTTON_PRESS_TYPE_LONG );
+                            	me->handler( i, BUTTON_PRESS_TYPE_LONG );
                                 STATE_NEXT( BUTTON_STATE_WAITRELEASE );
                             }
                         }
                         else if( ! is_pressed ) /* Button was released */
                         {
-                            if( (hal_systick_get_ms() - b->StartTime) > TIME_BUTTON_NORMAL_PRESS )
+                            if( (hal_systick_get_ms() - me->StartTime) > TIME_BUTTON_NORMAL_PRESS )
                             {
                                 /* Pressed longer than the minimum time */
-                                b->handler( i, BUTTON_PRESS_TYPE_NORMAL );
+                            	me->handler( i, BUTTON_PRESS_TYPE_NORMAL );
                                 STATE_NEXT( BUTTON_STATE_WAITRELEASE );
                             }
                             else
@@ -166,15 +158,15 @@ button_process( void )
                             STATE_NEXT( BUTTON_STATE_START );
                         }
                     STATE_EXIT_ACTION
-                        if( b->handler )
+                        if( me->handler )
                         {
-                            b->handler( i, BUTTON_PRESS_TYPE_UP );
+                        	me->handler( i, BUTTON_PRESS_TYPE_UP );
                         }
                     STATE_END
                     break;
             }
             /* Save current status */
-            b->lastStatus = is_pressed;
+            me->lastStatus = is_pressed;
         }
     }
 }
