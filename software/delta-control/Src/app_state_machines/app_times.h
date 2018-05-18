@@ -143,19 +143,57 @@ enum AppTimeoutsMs
 
 /* -------------------------------------------------------------------------- */
 
-enum AppCounters
+enum ServoDefines
 {
-    COUNT_MAX_USB_MOUNT_RETRIES              =     3U,
-    COUNT_CAMERA_COMMUNICATION_RETRIES       =    10U,
-    COUNT_CAMERA_POWER_RETRIES               =     3U,
-    COUNT_CAMERA_POWER_TRY_COUNT             =    30U,
-    COUNT_CAMERA_POWER_GOOD_COUNT            =     5U,
-    COUNT_POWER_OFF                          =    10U,
-    COUNT_HIBERNATE                          =    10U,
-    COUNT_ACTIVATING                         =    30U,
-    COUNT_ACTIVATING_FACTORY_MODE            =     5U,
-    COUNT_BATTERY_CHECKS                     =    20U,  /* Number of times averaging battery */
+
+#ifdef EXPANSION_SERVO
+	SERVO_COUNT					 			= 4U,
+#else
+	SERVO_COUNT					 			= 3U,
+#endif
+
+	//Clearpath motion range allowed by mechanism
+	SERVO_STEPS_PER_REV				= 6400U,
+	SERVO_ANGLE_PER_REV				= 360U,
+	SERVO_MIN_ANGLE					= 10U,
+	SERVO_MAX_ANGLE					= 20U,
+
+	//Homing parameters
+	SERVO_INTERRUPTED_DISABLE_DELAY_MIN_MS	= 50U,
+	SERVO_HOMING_MIN_MS 					= 100U,
+	SERVO_HOMING_MAX_MS 					= 5000U,
+	SERVO_HOMING_NULL_PERIODS_ALLOWED 		= 2U,
+	SERVO_HOMING_SUPERVISOR_CHECK_MS		= 500U,
+	SERVO_HOMING_SUPERVISOR_RETRIES			= (SERVO_HOMING_MAX_MS / SERVO_HOMING_SUPERVISOR_CHECK_MS) + 1,
+
+	//Clearpath will filter pulses shorter than 1us
+	//ULN2303 NPN driver has rise time of ~5ns, fall of ~10nsec
+	SERVO_PULSE_DURATION_US 				= 2U,
+
+	//Error evaluation parameters
+	SERVO_IDLE_POWER_ALERT_W 				= 40U,
+	SERVO_IDLE_SETTLE_MS					= 30U,
+	SERVO_IDLE_POWER_TRIP_MS				= 400U,
+	SERVO_OC_FAULT							= false,
+	SERVO_OC_OK								= true,
+
+	//Fault handling
+	SERVO_FAULT_LINGER_MS 					= 8000U,
+
+	//Clearpath input high = clockwise rotation. Alias against pin state
+	SERVO_DIR_CCW							= true,
+	SERVO_DIR_CW							= false,
+
+	//Clearpath EN high = enable/GO
+	SERVO_ENABLE							= true,
+	SERVO_DISABLE							= false,
 };
+
+
+
+
+
+
 
 /* ----------------------- End --------------------------------------------- */
 

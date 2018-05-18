@@ -19,49 +19,6 @@
 
 /* ----- Defines ------------------------------------------------------------ */
 
-/* ~~~ State Machine Handling Macros ~~~ */
-
-
-/* ~~~ State Machine Variables ~~~ */
-
-
-#define SERVO_STEPS_PER_REV					6400
-#define SERVO_ANGLE_PER_REV 				360
-#define SERVO_MIN_ANGLE 					10.0f
-#define SERVO_MAX_ANGLE 					20.0f
-
-//Homing parameters
-#define SERVO_INTERRUPTED_DISABLE_DELAY_MIN_MS 50
-#define SERVO_HOMING_MIN_MS 				100
-#define SERVO_HOMING_MAX_MS 				5000
-#define SERVO_HOMING_NULL_PERIODS_ALLOWED 	2
-
-//Error evaluation parameters
-#define SERVO_IDLE_POWER_ALERT_W 			40
-#define SERVO_IDLE_SETTLE_MS				30
-#define SERVO_IDLE_POWER_TRIP_MS			400
-
-#define SERVO_OC_FAULT	false
-#define SERVO_OC_OK		true
-
-//Fault handling
-#define SERVO_FAULT_LINGER_MS 				8000
-
-
-//Clearpath will filter pulses shorter than 1us
-//ULN2303 NPN driver has rise time of ~5ns, fall of ~10nsec
-#define SERVO_PULSE_DURATION_US 2
-
-
-//Clearpath input high = clockwise rotation. Alias direction against pin state
-#define SERVO_DIR_CCW	true
-#define SERVO_DIR_CW	false
-
-//Clearpath EN high = enable/GO
-#define SERVO_ENABLE	true
-#define SERVO_DISABLE	false
-
-
 typedef enum
 {
     SERVO_STATE_INACTIVE,
