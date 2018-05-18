@@ -9,6 +9,7 @@
 #include "hal_pwm.h"
 #include "hal_systick.h"
 #include "sensors.h"
+#include "app_times.h"
 
 /* ----- Private Types ------------------------------------------------------ */
 
@@ -32,10 +33,6 @@ typedef struct
 /* ----- Private Variables -------------------------------------------------- */
 
 PRIVATE Fan_t fan;
-
-#define FAN_STARTUP_TIME_MS 1000
-#define FAN_STALL_FAULT_RPM 20
-#define FAN_FREQUENCY_HZ 25000UL
 
 typedef struct
 {

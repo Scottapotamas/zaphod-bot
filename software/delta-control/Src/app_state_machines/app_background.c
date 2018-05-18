@@ -6,6 +6,7 @@
 #include "app_background.h"
 #include "event_subscribe.h"
 #include "app_signals.h"
+#include "app_times.h"
 #include "button.h"
 #include "hal_button.h"
 #include "timer_ms.h"
@@ -15,10 +16,6 @@
 #include "clearpath.h"
 
 /* -------------------------------------------------------------------------- */
-
-#define BACKGROUND_RATE_BUTTON_MS	50	//  20Hz
-#define BACKGROUND_RATE_BUZZER_MS	10	// 100Hz
-#define BACKGROUND_RATE_FAN_MS		250	//   4Hz
 
 PRIVATE timer_ms_t 	button_timer 	= 0;
 PRIVATE timer_ms_t 	buzzer_timer 	= 0;

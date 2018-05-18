@@ -158,6 +158,10 @@ PRIVATE STATE AppTaskMotion_idle( AppTaskMotion *me, const StateEvent *e )
 
         case MOTION_REQUEST:
 
+        	//grab the request and add it to the queue
+
+
+
         	STATE_TRAN( AppTaskMotion_run );
 
         	/*
