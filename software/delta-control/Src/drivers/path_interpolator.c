@@ -6,6 +6,8 @@
 
 #include "path_interpolator.h"
 #include "motion_types.h"
+#include "kinematics.h"
+#include "clearpath.h"
 
 #include "global.h"
 #include "simple_state_machine.h"
@@ -25,7 +27,10 @@ typedef struct
 	PlanningState_t   currentState;
 	PlanningState_t   nextState;
 
-    uint32_t        timer;
+	Movement_t	*	current_move;		// pointer to the current movement
+    uint32_t        movement_started;	// timestamp the start point
+    float        	progress_percent;	// calculated progress
+
 } MotionPlanner_t;
 
 /* ----- Private Variables -------------------------------------------------- */
@@ -44,7 +49,7 @@ path_interpolator_init( )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-buzzer_process( void )
+path_interpolator_process( void )
 {
 	MotionPlanner_t *me = &planner;
 
@@ -61,8 +66,51 @@ buzzer_process( void )
 
         case PLANNER_ON:
             STATE_ENTRY_ACTION
+				me->movement_started = hal_systick_get_ms();
 
             STATE_TRANSITION_TEST
+
+				Movement_t *move = me->current_move;
+
+            	CartesianPoint_t target 	= { 0, 0, 0 };	//target position in cartesian space
+            	JointAngles_t angle_target 	= { 0, 0, 0 };	//target motor shaft angle in degrees
+
+            	//calculate current target completion based on time
+            	// time remaining is the allotted duration - time used (start to now), divide by the duration to get 0.0->1.0 progress
+            	me->progress_percent = ( move->duration - ( me->movement_started - hal_systick_get_ms() ) ) / move->duration;
+
+            	if( me->progress_percent >= 1.0 )
+            	{
+            		//movement is complete, the planner can stop now
+            		STATE_NEXT( PLANNER_OFF );
+            	}
+            	else
+            	{
+                	switch( move->type )
+                	{
+    					case _POINT_TRANSIT:
+    						target.x = move->points->x;
+    						target.y = move->points->y;
+    						target.z = move->points->z;
+    						break;
+
+    					case _LINE:
+    						path_lerp_line( move->points, move->num_pts, me->progress_percent, &target );
+    						break;
+
+    					case _CATMULL_SPLINE:
+    						path_catmull_spline( move->points, move->num_pts, me->progress_percent, &target );
+    						break;
+                	}
+
+    				// Convert cartesian target to motor angles
+                	kinematics_point_to_angle( target, &angle_target );
+
+                	// Ask the motors to please move there
+                	servo_set_target_angle( _CLEARPATH_1, angle_target.a1 );
+                	servo_set_target_angle( _CLEARPATH_2, angle_target.a2 );
+                	servo_set_target_angle( _CLEARPATH_3, angle_target.a3 );
+            	}
 
             STATE_EXIT_ACTION
 

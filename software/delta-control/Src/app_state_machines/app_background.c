@@ -11,6 +11,7 @@
 #include "timer_ms.h"
 #include "buzzer.h"
 #include "fan.h"
+#include "path_interpolator.h"
 #include "clearpath.h"
 
 /* -------------------------------------------------------------------------- */
@@ -63,6 +64,8 @@ app_background( void )
     	timer_ms_start( &fan_timer, BACKGROUND_RATE_FAN_MS );
     }
 
+    //process any running movements and allow servo drivers to process commands
+    path_interpolator_process();
     servo_process( _CLEARPATH_1 );
     servo_process( _CLEARPATH_2 );
     servo_process( _CLEARPATH_3 );

@@ -17,6 +17,11 @@ kinematics_init( void );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC void
+path_interpolator_process( void );
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC KinematicsSolution_t
 path_lerp_line( CartesianPoint_t p[], size_t points, float pos_weight, CartesianPoint_t *output );
 
