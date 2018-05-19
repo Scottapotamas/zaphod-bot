@@ -26,7 +26,7 @@ General musings and tracking of user interface development.
 |              	| Add-in card state  	| If add-in card is powered or not          	|             	|
 |              	| Buzzer state       	| If buzzer is currently indicating or not  	| ?           	|
 | Motor X      	| State              	| Passive, Homing, Idle, Motion, Error      	|             	|
-|              	| Feedback Signal    	| -100% to +100% value for velocity|torque  	|             	|
+|              	| Feedback Signal    	| -100% to +100% value for velocity/torque  	|             	|
 |              	| Current Position   	| Internal tracked current position         	|             	|
 |              	| Target Position    	| Servo driver target                       	|             	|
 |              	| Power              	| Consumption in Watts                      	|             	|
