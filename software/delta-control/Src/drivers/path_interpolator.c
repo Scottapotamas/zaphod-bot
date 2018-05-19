@@ -37,6 +37,15 @@ typedef struct
 
 PRIVATE MotionPlanner_t planner;
 
+PRIVATE KinematicsSolution_t
+path_lerp_line( CartesianPoint_t p[], size_t points, float pos_weight, CartesianPoint_t *output );
+
+PRIVATE KinematicsSolution_t
+path_catmull_spline( CartesianPoint_t p[], size_t points, float pos_weight, CartesianPoint_t *output );
+
+PRIVATE KinematicsSolution_t
+path_quadratic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weight, CartesianPoint_t *output );
+
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
@@ -92,6 +101,8 @@ path_interpolator_process( void )
     						target.x = move->points[0].x;
     						target.y = move->points[0].y;
     						target.z = move->points[0].z;
+
+    						//todo break up the transit for transit time control
     						break;
 
     					case _LINE:
@@ -100,6 +111,10 @@ path_interpolator_process( void )
 
     					case _CATMULL_SPLINE:
     						path_catmull_spline( move->points, move->num_pts, me->progress_percent, &target );
+    						break;
+
+    					case _BEZIER_QUADRATIC:
+    						path_quadratic_bezier_curve( move->points, move->num_pts, me->progress_percent, &target );
     						break;
                 	}
 
@@ -126,7 +141,7 @@ path_interpolator_process( void )
 // rel_weight is the 0.0-1.0 percentage position on the line
 // the output pointer is the interpolated position on the line
 
-PUBLIC KinematicsSolution_t
+PRIVATE KinematicsSolution_t
 path_lerp_line( CartesianPoint_t p[], size_t points, float pos_weight, CartesianPoint_t *output )
 {
 	if(points < 2)
@@ -162,7 +177,7 @@ path_lerp_line( CartesianPoint_t p[], size_t points, float pos_weight, Cartesian
 // rel_weight is the 0.0-1.0 percentage position on the curve between p1 and p2
 // the output pointer is the interpolated position on the curve between p1 and p2
 
-PUBLIC KinematicsSolution_t
+PRIVATE KinematicsSolution_t
 path_catmull_spline( CartesianPoint_t p[], size_t points, float pos_weight, CartesianPoint_t *output )
 {
 	if(points < 4)
@@ -215,6 +230,45 @@ path_catmull_spline( CartesianPoint_t p[], size_t points, float pos_weight, Cart
 				(  -p[0].z   +   p[2].z ) * t +
 				( 2*p[0].z   - 5*p[1].z   + 4*p[2].z - p[3].z) * t2 +
 				(  -p[0].z   + 3*p[1].z   - 3*p[2].z + p[3].z) * t3 );
+
+    return _SOLUTION_VALID;
+}
+
+/* -------------------------------------------------------------------------- */
+
+// p[0], p[1], p[2] are the start, control and end points in 3D space
+// rel_weight is the 0.0-1.0 percentage position on the curve between p0 and p2
+// the output pointer is the interpolated position on the curve between p0 and p2
+
+PRIVATE KinematicsSolution_t
+path_quadratic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weight, CartesianPoint_t *output )
+{
+	if(points < 3)
+	{
+		// need 3 points for quadratic solution
+		return _SOLUTION_ERROR;
+	}
+
+	// exact start and end of bezier
+	if(pos_weight == 0.0f)
+	{
+		output = &p[0];
+		return _SOLUTION_VALID;
+	}
+
+	if(pos_weight == 1.0f)
+	{
+		output = &p[2];
+		return _SOLUTION_VALID;
+	}
+
+	// General form for a linear bezier curve
+
+	// B(t) = p0 + t(p1 - p0) = (1-t)p0 + t*p1 where 0 < t < 1
+
+	output->x = (1 - pos_weight) * (1 - pos_weight) * p[0].x + 2 * (1 - pos_weight) * pos_weight * p[1].x + pos_weight * pos_weight * p[2].x;
+	output->y = (1 - pos_weight) * (1 - pos_weight) * p[0].y + 2 * (1 - pos_weight) * pos_weight * p[1].y + pos_weight * pos_weight * p[2].y;
+	output->z = (1 - pos_weight) * (1 - pos_weight) * p[0].z + 2 * (1 - pos_weight) * pos_weight * p[1].z + pos_weight * pos_weight * p[2].z;
 
     return _SOLUTION_VALID;
 }

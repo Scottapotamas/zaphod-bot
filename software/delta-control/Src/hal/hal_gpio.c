@@ -1,17 +1,9 @@
-/* ----- System includes ----------------------------------------------------- */
-
-
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "hal_gpio.h"
 #include "hal_gpio_types.h"
 #include "qassert.h"
 #include "stm32f4xx_hal.h"
-
-/* ----- Types -------------------------------------------------------------- */
-
-/* ----- Private Function Declarations -------------------------------------- */
-
 
 /* ----- Private Function Declarations -------------------------------------- */
 
@@ -67,9 +59,7 @@ hal_gpio_deinit( HalGpioPortNr_t port_nr,
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
-
-
-/* ----- Grooming Trap MkIII I/O Map ---------------------------------------- */
+/* -----  I/O Map ----------------------------------------------------------- */
 
 /** For our own HAL GPIO layer, define enum labels that incorporate
  *  port and pin numbers combined in the one enum label.
