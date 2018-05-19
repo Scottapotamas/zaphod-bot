@@ -7,11 +7,14 @@
 
 /* ----- Defines ------------------------------------------------------------ */
 
+// Co-ordinate space in xyz, measured in microns.
+// This provides micron resolution positioning to 2147 meters...
+// for reference, 16-bit positioning would bound the axis to 65mm travel
 typedef struct
 {
-    uint32_t x;
-    uint32_t y;
-    uint32_t z;
+    int32_t x;
+    int32_t y;
+    int32_t z;
 } CartesianPoint_t;
 
 typedef struct
