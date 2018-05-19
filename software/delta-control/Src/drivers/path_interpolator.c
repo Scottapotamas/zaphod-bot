@@ -46,6 +46,9 @@ path_catmull_spline( CartesianPoint_t p[], size_t points, float pos_weight, Cart
 PRIVATE KinematicsSolution_t
 path_quadratic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weight, CartesianPoint_t *output );
 
+PRIVATE KinematicsSolution_t
+path_cubic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weight, CartesianPoint_t *output );
+
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
@@ -116,6 +119,11 @@ path_interpolator_process( void )
     					case _BEZIER_QUADRATIC:
     						path_quadratic_bezier_curve( move->points, move->num_pts, me->progress_percent, &target );
     						break;
+
+    					case _BEZIER_CUBIC:
+    						path_cubic_bezier_curve( move->points, move->num_pts, me->progress_percent, &target );
+    						break;
+
                 	}
 
     				// Convert cartesian target to motor angles
@@ -262,13 +270,68 @@ path_quadratic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weig
 		return _SOLUTION_VALID;
 	}
 
-	// General form for a linear bezier curve
+	// General form for a quadratic bezier curve
 
-	// B(t) = p0 + t(p1 - p0) = (1-t)p0 + t*p1 where 0 < t < 1
+	// B(t) = ((1-t)^2 * p0) + (2(1 - t) * t * p1) + (t^2 * p2) where 0 < t < 1
 
-	output->x = (1 - pos_weight) * (1 - pos_weight) * p[0].x + 2 * (1 - pos_weight) * pos_weight * p[1].x + pos_weight * pos_weight * p[2].x;
-	output->y = (1 - pos_weight) * (1 - pos_weight) * p[0].y + 2 * (1 - pos_weight) * pos_weight * p[1].y + pos_weight * pos_weight * p[2].y;
-	output->z = (1 - pos_weight) * (1 - pos_weight) * p[0].z + 2 * (1 - pos_weight) * pos_weight * p[1].z + pos_weight * pos_weight * p[2].z;
+	//cache oft-used values to improve read-ability
+	float t = pos_weight;
+	float tsq = t * t;
+
+	float omt = 1 - t;
+	float omt2 = omt * omt;
+
+	output->x = ( omt2 * p[0].x ) + ( 2 * omt * t * p[1].x ) + ( tsq * p[2].x );
+	output->y = ( omt2 * p[0].y ) + ( 2 * omt * t * p[1].y ) + ( tsq * p[2].y );
+	output->z = ( omt2 * p[0].z ) + ( 2 * omt * t * p[1].z ) + ( tsq * p[2].z );
+
+    return _SOLUTION_VALID;
+}
+
+/* -------------------------------------------------------------------------- */
+
+// p[0], p[1], p[2], p[3] are the start, control, control and end points in 3D space
+// rel_weight is the 0.0-1.0 percentage position on the curve between p0 and p2
+// the output pointer is the interpolated position on the curve between p0 and p2
+
+PRIVATE KinematicsSolution_t
+path_cubic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weight, CartesianPoint_t *output )
+{
+	if(points < 4)
+	{
+		// need 3 points for quadratic solution
+		return _SOLUTION_ERROR;
+	}
+
+	// exact start and end of bezier
+	if(pos_weight == 0.0f)
+	{
+		output = &p[0];
+		return _SOLUTION_VALID;
+	}
+
+	if(pos_weight == 1.0f)
+	{
+		output = &p[3];
+		return _SOLUTION_VALID;
+	}
+
+	// General form for a cubic bezier curve
+
+	// B(t) = ((1-t)^3 * p0) + (3(1 - t)^2 * t * P1) + (3(1-t)t^2 * P2) + (t^3 * P3) where 0 < t < 1
+
+	//cache oft-used values to improve read-ability
+	float t = pos_weight;
+	float tsq = t * t;
+	float tcu = tsq * t;
+
+	float omt = 1 - t;
+	float omt2 = omt * omt;
+	float omt3 = omt2 * omt;
+
+	output->x = ( omt3 * p[0].x ) + ( 3 * omt2 * t * p[1].x ) + ( 3 * omt * tsq * p[2].x ) + ( tcu * p[2].x );
+    output->y = ( omt3 * p[0].y ) + ( 3 * omt2 * t * p[1].y ) + ( 3 * omt * tsq * p[2].y ) + ( tcu * p[3].y );
+    output->z = ( omt3 * p[0].z ) + ( 3 * omt2 * t * p[1].z ) + ( 3 * omt * tsq * p[2].z ) + ( tcu * p[3].z );
 
     return _SOLUTION_VALID;
 }

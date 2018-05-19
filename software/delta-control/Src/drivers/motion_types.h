@@ -33,6 +33,7 @@ typedef enum {
 	_LINE,
 	_CATMULL_SPLINE,
 	_BEZIER_QUADRATIC,
+	_BEZIER_CUBIC,
 } MotionAdjective_t;
 
 typedef enum {
