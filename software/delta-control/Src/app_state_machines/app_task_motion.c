@@ -24,16 +24,18 @@ PRIVATE void 	AppTaskMotionConstructor( AppTaskMotion *me );
 
 PRIVATE void 	AppTaskMotion_initial	( AppTaskMotion *me, const StateEvent *e );
 PRIVATE STATE 	AppTaskMotion_main		( AppTaskMotion *me, const StateEvent *e );
-PRIVATE STATE 	AppTaskMotion_idle		( AppTaskMotion *me, const StateEvent *e );
 PRIVATE STATE 	AppTaskMotion_home		( AppTaskMotion *me, const StateEvent *e );
-PRIVATE STATE 	AppTaskMotion_run		( AppTaskMotion *me, const StateEvent *e );
+PRIVATE STATE 	AppTaskMotion_inactive	( AppTaskMotion *me, const StateEvent *e );
+PRIVATE STATE 	AppTaskMotion_active	( AppTaskMotion *me, const StateEvent *e );
 
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC StateTask *
-appTaskMotionCreate(  AppTaskMotion *me,
+appTaskMotionCreate(  AppTaskMotion 	*me,
 					  StateEvent        *eventQueueData[ ],
-					  const uint8_t     eventQueueSize )
+					  const uint8_t     eventQueueSize,
+					  StateEvent        *movementQueue[ ],
+					  const uint8_t     movementQueueSize)
 {
     // Clear all task data
     memset( me, 0, sizeof(AppTaskMotion) );
@@ -45,8 +47,8 @@ appTaskMotionCreate(  AppTaskMotion *me,
     return stateTaskCreate( (StateTask*)me,
                             eventQueueData,
                             eventQueueSize,
-                            0,
-                            0 );
+							movementQueue,
+							movementQueueSize );
 }
 
 /* ----- Private Functions -------------------------------------------------- */
@@ -78,42 +80,21 @@ PRIVATE STATE AppTaskMotion_main( AppTaskMotion *me, const StateEvent *e )
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-        {
+        	//disable servos
+        	servo_stop( _CLEARPATH_1 );
+        	servo_stop( _CLEARPATH_2 );
+        	servo_stop( _CLEARPATH_3 );
+        #ifdef EXPANSION_SERVO
+        	servo_stop( _CLEARPATH_4 );
+        #endif
+
+        	//todo don't home automatically
+        	STATE_TRAN( AppTaskMotion_home );
 
         	return 0;
-        }
 
-        case STATE_INIT_SIGNAL:
-            STATE_INIT( &AppTaskMotion_home );
-            return 0;
     }
     return (STATE)hsmTop;
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE STATE AppTaskMotion_idle( AppTaskMotion *me, const StateEvent *e )
-{
-    switch( e->signal )
-    {
-        case STATE_ENTRY_SIGNAL:
-
-        	return 0;
-
-        case MOTION_REQUEST:
-        	//want to do a movement, need to home first
-        	STATE_TRAN( AppTaskMotion_home );
-        	return 0;
-
-        case MOTION_STOP:
-        	//already stopped
-        	return 0;
-
-		case STATE_EXIT_SIGNAL:
-
-			return 0;
-    }
-    return (STATE)AppTaskMotion_main;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -150,7 +131,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
         	if( me->counter == SERVO_COUNT )
         	{
                 eventPublish( EVENT_NEW( StateEvent, MECHANISM_HOMED ) );
-            	STATE_TRAN( AppTaskMotion_run );
+            	STATE_TRAN( AppTaskMotion_inactive );
         	}
         	else
         	{
@@ -160,7 +141,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
         			eventTimerStopIfActive(&me->timer1);
         			eventPublish( EVENT_NEW( StateEvent, MECHANISM_ERROR ) );
                 	// todo work out what to do when they failed to home correctly
-                	STATE_TRAN( AppTaskMotion_idle );
+
         		}
         	}
 
@@ -171,21 +152,84 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
 			return 0;
     }
-    return (STATE)AppTaskMotion_main;
+    return (STATE)hsmTop;
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE STATE AppTaskMotion_run( AppTaskMotion *me, const StateEvent *e )
+PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
 {
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
 
+            // Check for queued events
+            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+
+        	return 0;
+
+        case STATE_STEP1_SIGNAL:
+        {
+            // Check the queue for pending movements
+        	MotionPlannerEvent * next = (MotionPlannerEvent*)eventQueueGet( &me->super.requestQueue );
+
+        	if( next )
+            {
+                /* Setup next movement */
+                me->mpe = *next;
+                eventPoolGarbageCollect( (StateEvent*)next );
+                STATE_TRAN( AppTaskMotion_active );
+            }
+            return 0;
+        }
+
+        case MOTION_REQUEST:
+			{
+				//want to do a movement, process immediately without the queue
+				MotionPlannerEvent *ape = (MotionPlannerEvent*)e;
+				me->mpe = *ape; /* Save event */
+				STATE_TRAN( AppTaskMotion_active );
+			}
+			return 0;
+
+    }
+    return (STATE)hsmTop;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
+{
+    switch( e->signal )
+    {
+		case STATE_ENTRY_SIGNAL:
+			{
+				Movement_t * current_move = &me->mpe.move;
+
+				//send the current movement pointer to the pathing engine
+				path_interpolator_set_objective( current_move );
+
+				//we expect the move to be completed within the specified duration
+				//check back with the pathing engine when that duration is up
+				eventTimerStartOnce( &me->timer1,
+									 (StateTask* )me,
+									 (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
+									 current_move->duration + 1 );
+			}
+			return 0;
+
+        case STATE_TIMEOUT1_SIGNAL:
+
+        	if( path_interpolator_get_progress() > 0.999 )
+        	{
+            	STATE_TRAN( AppTaskMotion_inactive );
+        	}
+
         	return 0;
 
         case MOTION_REQUEST:
         	{
+        		//already in motion, so add this one to the queue
 				MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
 
 				// Add the movement request to the queue if we have room
@@ -213,23 +257,15 @@ PRIVATE STATE AppTaskMotion_run( AppTaskMotion *me, const StateEvent *e )
 					next = eventQueueGet( &me->super.requestQueue );
 				}
 
-				//disable the servos
-	        	servo_stop( _CLEARPATH_1 );
-	        	servo_stop( _CLEARPATH_2 );
-	        	servo_stop( _CLEARPATH_3 );
-#ifdef EXPANSION_SERVO
-	        	servo_stop( _CLEARPATH_4 );
-#endif
-
-            	STATE_TRAN( AppTaskMotion_idle );
+            	STATE_TRAN( AppTaskMotion_inactive );
         	}
         	return 0;
 
-		case STATE_EXIT_SIGNAL:
-
-			return 0;
+        case STATE_EXIT_SIGNAL:
+            eventTimerStopIfActive( &me->timer1 );
+            return 0;
     }
-    return (STATE)AppTaskMotion_main;
+    return (STATE)hsmTop;
 }
 
 /* ----- End ---------------------------------------------------------------- */

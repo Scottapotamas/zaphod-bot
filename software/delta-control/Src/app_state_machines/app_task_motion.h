@@ -33,14 +33,18 @@ struct AppTaskMotion
     uint8_t 		counter;
     uint8_t			retries;
 
+    MotionPlannerEvent mpe;	//current movement to execute
+
 };
 
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC StateTask *
 appTaskMotionCreate( AppTaskMotion *me,
-                     StateEvent    *eventQueueData[],
-					 const uint8_t eventQueueSize );
+					 StateEvent    *eventQueueData[ ],
+					 const uint8_t eventQueueSize,
+					 StateEvent    *movementQueue[ ],
+					 const uint8_t movementQueueSize );
 
 /* ----- End ---------------------------------------------------------------- */
 

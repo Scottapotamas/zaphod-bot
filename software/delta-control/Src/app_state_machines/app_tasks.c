@@ -64,6 +64,7 @@ StateEvent *               appTaskCommunicationEventQueue[10];
 
 AppTaskMotion    		   appTaskMotion;
 StateEvent *               appTaskMotionEventQueue[20];
+StateEvent *               appTaskMotionQueue[10];
 
 AppTaskSupervisor          appTaskSupervisor;
 StateEvent *               appTaskSupervisorEventQueue[40];
@@ -118,10 +119,12 @@ void app_tasks_init( void )
     stateTaskerAddTask( &mainTasker, t, TASK_COMMUNICATION, "Comms" );
     stateTaskerStartTask( &mainTasker, t );
 
-    //Handle communications (comms to computers/phones etc)
+    //Handle motion controls
     t = appTaskMotionCreate( &appTaskMotion,
                              appTaskMotionEventQueue,
-                             DIM(appTaskMotionEventQueue) );
+                             DIM(appTaskMotionEventQueue),
+							 appTaskMotionQueue,
+							 DIM(appTaskMotionQueue) );
 
     stateTaskerAddTask( &mainTasker, t, TASK_MOTION, "Plannner" );
     stateTaskerStartTask( &mainTasker, t );
