@@ -30,7 +30,12 @@ servo_init( ClearpathServoInstance_t servo );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-servo_run_startup( ClearpathServoInstance_t servo );
+servo_start( ClearpathServoInstance_t servo );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+servo_stop( ClearpathServoInstance_t servo );
 
 /* -------------------------------------------------------------------------- */
 

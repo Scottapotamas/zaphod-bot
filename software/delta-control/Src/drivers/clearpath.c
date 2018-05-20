@@ -95,7 +95,7 @@ servo_init( ClearpathServoInstance_t servo )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-servo_run_startup( ClearpathServoInstance_t servo )
+servo_start( ClearpathServoInstance_t servo )
 {
     Servo_t *me = &clearpath[servo];
 
@@ -108,7 +108,21 @@ servo_run_startup( ClearpathServoInstance_t servo )
     	hal_delay_ms( SERVO_INTERRUPTED_DISABLE_DELAY_MIN_MS );
     }
 
+    //todo work out a better way to trigger homing actions
+
     STATE_NEXT( SERVO_STATE_HOMING );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+servo_stop( ClearpathServoInstance_t servo )
+{
+    Servo_t *me = &clearpath[servo];
+
+    //todo work out a better way to force a motor into an inactive state
+
+    STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
 }
 
 /* -------------------------------------------------------------------------- */
