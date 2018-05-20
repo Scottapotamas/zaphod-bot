@@ -52,10 +52,28 @@ path_cubic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weight, 
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_init( )
+path_interpolator_init( void )
 {
     memset( &planner, 0, sizeof( planner ) );
 
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+path_interpolator_set_objective( Movement_t	* movement_to_process )
+{
+	//todo accept a movement object and store inside the state for handling
+	planner.current_move = movement_to_process;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC float
+path_interpolator_get_progress( void )
+{
+
+	return planner.progress_percent;
 }
 
 /* -------------------------------------------------------------------------- */

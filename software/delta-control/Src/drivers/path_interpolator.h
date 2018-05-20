@@ -22,6 +22,14 @@ path_interpolator_process( void );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC void
+path_interpolator_set_objective( Movement_t	* movement_to_process );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC float
+path_interpolator_get_progress( void );
+
 /* -------------------------------------------------------------------------- */
 
 #endif /* PATH_INTERPOLATOR_H */
