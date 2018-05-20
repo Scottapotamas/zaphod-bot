@@ -24,8 +24,8 @@ PRIVATE void 	AppTaskMotionConstructor( AppTaskMotion *me );
 
 PRIVATE void 	AppTaskMotion_initial	( AppTaskMotion *me, const StateEvent *e );
 PRIVATE STATE 	AppTaskMotion_main		( AppTaskMotion *me, const StateEvent *e );
-PRIVATE STATE 	AppTaskMotion_home		( AppTaskMotion *me, const StateEvent *e );
 PRIVATE STATE 	AppTaskMotion_idle		( AppTaskMotion *me, const StateEvent *e );
+PRIVATE STATE 	AppTaskMotion_home		( AppTaskMotion *me, const StateEvent *e );
 PRIVATE STATE 	AppTaskMotion_run		( AppTaskMotion *me, const StateEvent *e );
 
 /* ----- Public Functions --------------------------------------------------- */
@@ -62,9 +62,11 @@ PRIVATE void AppTaskMotionConstructor( AppTaskMotion *me )
 // State Machine Initial State
 PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __attribute__((__unused__)) )
 {
+    eventSubscribe( (StateTask*)me, MOTION_REQUEST );
+    eventSubscribe( (StateTask*)me, MOTION_STOP );
+
     eventSubscribe( (StateTask*)me, MOTION_HEAD );
     eventSubscribe( (StateTask*)me, MOTION_TAIL );
-    eventSubscribe( (StateTask*)me, MOTION_REQUEST );
 
     STATE_INIT( &AppTaskMotion_main );
 }
@@ -90,6 +92,32 @@ PRIVATE STATE AppTaskMotion_main( AppTaskMotion *me, const StateEvent *e )
 
 /* -------------------------------------------------------------------------- */
 
+PRIVATE STATE AppTaskMotion_idle( AppTaskMotion *me, const StateEvent *e )
+{
+    switch( e->signal )
+    {
+        case STATE_ENTRY_SIGNAL:
+
+        	return 0;
+
+        case MOTION_REQUEST:
+        	//want to do a movement, need to home first
+        	STATE_TRAN( AppTaskMotion_home );
+        	return 0;
+
+        case MOTION_STOP:
+        	//already stopped
+        	return 0;
+
+		case STATE_EXIT_SIGNAL:
+
+			return 0;
+    }
+    return (STATE)AppTaskMotion_main;
+}
+
+/* -------------------------------------------------------------------------- */
+
 PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 {
     switch( e->signal )
@@ -97,11 +125,11 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
         case STATE_ENTRY_SIGNAL:
 
         	//reset the motors and let them home
-        	servo_run_startup( _CLEARPATH_1 );
-        	servo_run_startup( _CLEARPATH_2 );
-        	servo_run_startup( _CLEARPATH_3 );
+        	servo_start( _CLEARPATH_1 );
+        	servo_start( _CLEARPATH_2 );
+        	servo_start( _CLEARPATH_3 );
 #ifdef EXPANSION_SERVO
-        	servo_run_startup( _CLEARPATH_4 );
+        	servo_start( _CLEARPATH_4 );
 #endif
 
         	//check the motors every 500ms to see if they are homed
@@ -122,7 +150,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
         	if( me->counter == SERVO_COUNT )
         	{
                 eventPublish( EVENT_NEW( StateEvent, MECHANISM_HOMED ) );
-            	STATE_TRAN( AppTaskMotion_idle );
+            	STATE_TRAN( AppTaskMotion_run );
         	}
         	else
         	{
@@ -132,7 +160,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
         			eventTimerStopIfActive(&me->timer1);
         			eventPublish( EVENT_NEW( StateEvent, MECHANISM_ERROR ) );
                 	// todo work out what to do when they failed to home correctly
-
+                	STATE_TRAN( AppTaskMotion_idle );
         		}
         	}
 
@@ -148,7 +176,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE STATE AppTaskMotion_idle( AppTaskMotion *me, const StateEvent *e )
+PRIVATE STATE AppTaskMotion_run( AppTaskMotion *me, const StateEvent *e )
 {
     switch( e->signal )
     {
@@ -157,55 +185,47 @@ PRIVATE STATE AppTaskMotion_idle( AppTaskMotion *me, const StateEvent *e )
         	return 0;
 
         case MOTION_REQUEST:
+        	{
+				MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
 
-        	//grab the request and add it to the queue
+				// Add the movement request to the queue if we have room
+				if( eventQueueUsed( &me->super.requestQueue ) < 10 )	//10 queue size
+				{
+					if( mpe->move.duration)
+					{
+						eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
+					}
+				}
+				else
+				{
+					//queue full
+				}
+        	}
+        	return 0;
 
+        case MOTION_STOP:
+        	{
+				// Empty the queue
+				StateEvent * next = eventQueueGet( &me->super.requestQueue );
+				while( next )
+				{
+					eventPoolGarbageCollect( (StateEvent*)next );
+					next = eventQueueGet( &me->super.requestQueue );
+				}
 
+				//disable the servos
+	        	servo_stop( _CLEARPATH_1 );
+	        	servo_stop( _CLEARPATH_2 );
+	        	servo_stop( _CLEARPATH_3 );
+#ifdef EXPANSION_SERVO
+	        	servo_stop( _CLEARPATH_4 );
+#endif
 
-        	STATE_TRAN( AppTaskMotion_run );
-
-        	/*
-        	Movement_t mv = ((MotionPlannerEvent*)e)->move;
-            switch( mv.type )
-            {
-                case _POINT_TRANSIT:
-
-                	STATE_TRAN( AppTaskMotion_run );
-                	break;
-
-                case _LINE:
-
-                	break;
-
-                case _CATMULL_SPLINE:
-
-                	break;
-            }
-            */
+            	STATE_TRAN( AppTaskMotion_idle );
+        	}
         	return 0;
 
 		case STATE_EXIT_SIGNAL:
-
-			return 0;
-    }
-    return (STATE)AppTaskMotion_main;
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE STATE AppTaskMotion_run( AppTaskMotion *me, const StateEvent *e )
-{
-    switch( e->signal )
-    {
-        case STATE_ENTRY_SIGNAL:
-
-        	//publish that we are starting a movement
-
-        	return 0;
-
-		case STATE_EXIT_SIGNAL:
-
-			//publish that we have finished a movement
 
 			return 0;
     }

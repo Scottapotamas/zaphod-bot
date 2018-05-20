@@ -88,25 +88,26 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 		   switch( ((ButtonPressedEvent*)e)->id )
 		   {
 			   case BUTTON_0:
-                   //eventPublish( EVENT_NEW( StateEvent, MOTION_REQUEST ) );
+			   	   {
+			   		   MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
 
-				   /*
-		        	MotionPlannerEvent * motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
+			   		   if(motev)
+			   		   {
+			   			   motev->move.type = _POINT_TRANSIT;
+			   			   motev->move.type = _POS_ABSOLUTE;
+			   			   motev->move.duration = 650;
 
-			        motev->move.type = _POINT_TRANSIT;
-			        motev->move.type = _POS_ABSOLUTE;
-			        motev->move.duration = 650;
+			   			   CartesianPoint_t line[] = {
+			   					   {0, 0, 0},
+								   {50, 50, 50}
+			   			   };
 
-			        CartesianPoint_t line[] = {
-			        		{0, 0, 0},
-							{50, 50, 50}
-			        };
+			   			   motev->move.points = &line;
+			   			   motev->move.num_pts = 2;
 
-			        motev->move.points = line;
-			        motev->move.num_pts = 2;
-
-		            eventPublish( (StateEvent*)motev );
-				    */
+			   			   eventPublish( (StateEvent*)motev );
+			   		   }
+			   	   }
 				   return 0;
 
 			   default:
