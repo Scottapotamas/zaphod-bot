@@ -8,17 +8,21 @@ extern "C" {
 /* ----- Private State Functions Declarations ------------------------------- */
 
 PRIVATE void AppTaskSupervisorConstructor( AppTaskSupervisor *me );
-PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
-                                        const StateEvent *e );
 
-PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
-                                      const StateEvent *e );
+PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me, const StateEvent *e );
 
-PRIVATE STATE AppTaskSupervisor_load_config( AppTaskSupervisor *me,
-                                      const StateEvent *e );
+PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me, const StateEvent *e );
 
-PRIVATE void AppTaskSupervisorButtonEvent( ButtonId_t button,
-                                          ButtonPressType_t press_type );
+PRIVATE STATE AppTaskSupervisor_manual_mode( AppTaskSupervisor *me, const StateEvent *e );
+
+PRIVATE STATE AppTaskSupervisor_demo_mode( AppTaskSupervisor *me, const StateEvent *e );
+
+PRIVATE STATE AppTaskSupervisor_program_mode( AppTaskSupervisor *me, const StateEvent *e );
+
+PRIVATE STATE AppTaskSupervisor_serial_mode( AppTaskSupervisor *me, const StateEvent *e );
+
+
+PRIVATE void AppTaskSupervisorButtonEvent( ButtonId_t button, ButtonPressType_t press_type );
 
 /* ----- End ---------------------------------------------------------------- */
 

@@ -116,7 +116,7 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 		   break;
 
         case STATE_INIT_SIGNAL:
-            STATE_INIT( &AppTaskSupervisor_load_config );
+            STATE_INIT( &AppTaskSupervisor_manual_mode );
             return 0;
 
     }
@@ -125,7 +125,9 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE STATE AppTaskSupervisor_load_config( AppTaskSupervisor *me,
+// Manual movement control over end-effector
+
+PRIVATE STATE AppTaskSupervisor_manual_mode( AppTaskSupervisor *me,
                                          	 const StateEvent *e )
 {
     switch( e->signal )
@@ -134,9 +136,25 @@ PRIVATE STATE AppTaskSupervisor_load_config( AppTaskSupervisor *me,
 
         	return 0;
 
-        case STATE_TIMEOUT1_SIGNAL:
+		case STATE_EXIT_SIGNAL:
 
 			return 0;
+    }
+    return (STATE)AppTaskSupervisor_main;
+}
+
+/* -------------------------------------------------------------------------- */
+
+// Demonstration geometry profiles for showing off
+
+PRIVATE STATE AppTaskSupervisor_demo_mode( AppTaskSupervisor *me,
+                                         	 const StateEvent *e )
+{
+    switch( e->signal )
+    {
+        case STATE_ENTRY_SIGNAL:
+
+        	return 0;
 
 		case STATE_EXIT_SIGNAL:
 
@@ -145,6 +163,45 @@ PRIVATE STATE AppTaskSupervisor_load_config( AppTaskSupervisor *me,
     return (STATE)AppTaskSupervisor_main;
 }
 
+/* -------------------------------------------------------------------------- */
+
+// Accept program commands from the UI (as in, run a pre-generated program)
+
+PRIVATE STATE AppTaskSupervisor_program_mode( AppTaskSupervisor *me,
+                                         	 const StateEvent *e )
+{
+    switch( e->signal )
+    {
+        case STATE_ENTRY_SIGNAL:
+
+        	return 0;
+
+		case STATE_EXIT_SIGNAL:
+
+			return 0;
+    }
+    return (STATE)AppTaskSupervisor_main;
+}
+
+/* -------------------------------------------------------------------------- */
+
+// Accept movement commands from a serial device (not UI)
+
+PRIVATE STATE AppTaskSupervisor_serial_mode( AppTaskSupervisor *me,
+                                         	 const StateEvent *e )
+{
+    switch( e->signal )
+    {
+        case STATE_ENTRY_SIGNAL:
+
+        	return 0;
+
+		case STATE_EXIT_SIGNAL:
+
+			return 0;
+    }
+    return (STATE)AppTaskSupervisor_main;
+}
 
 /* -------------------------------------------------------------------------- */
 
