@@ -88,7 +88,7 @@ fan_process( void )
 
             STATE_TRANSITION_TEST
 
-				me->set_speed = fan_speed_at_temp( sensors_expansion_C() );
+				me->set_speed = fan_speed_at_temp( sensors_ambient_C() );
 
 				//once new target is established, trigger startup blip
                 if( me->set_speed > 0 )
@@ -130,7 +130,7 @@ fan_process( void )
             STATE_TRANSITION_TEST
 
 				//recalculate target speed based on temperature reading
-				me->set_speed = fan_speed_at_temp( sensors_expansion_C() );
+				me->set_speed = fan_speed_at_temp( sensors_ambient_C() );
 
 				//speed change req while running
 				if( me->set_speed != me->speed )

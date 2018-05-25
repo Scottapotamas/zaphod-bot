@@ -13,7 +13,7 @@
 PUBLIC void
 sensors_init( void )
 {
-
+	sensors_enable();	//todo move somewhere more suitable
 }
 
 /* -------------------------------------------------------------------------- */

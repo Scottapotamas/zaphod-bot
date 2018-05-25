@@ -89,7 +89,7 @@ PRIVATE STATE AppTaskMotion_main( AppTaskMotion *me, const StateEvent *e )
         #endif
 
         	//todo don't home automatically
-        	STATE_TRAN( AppTaskMotion_home );
+        	//STATE_TRAN( AppTaskMotion_home );
 
         	return 0;
 
