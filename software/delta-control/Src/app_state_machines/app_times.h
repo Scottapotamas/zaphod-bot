@@ -27,7 +27,7 @@ enum SystemDefines
 {
 	BACKGROUND_RATE_BUTTON_MS	= 50U,	//  20Hz
 	BACKGROUND_RATE_BUZZER_MS	= 10U,	// 100Hz
-	BACKGROUND_RATE_FAN_MS		= 250U,	//   4Hz
+	BACKGROUND_RATE_FAN_MS		= 500U,	//   2Hz
 };
 
 /* -------------------------------------------------------------------------- */

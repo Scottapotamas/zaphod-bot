@@ -13,7 +13,7 @@
 PUBLIC void
 sensors_init( void )
 {
-	sensors_enable();	//todo move somewhere more suitable
+
 }
 
 /* -------------------------------------------------------------------------- */
@@ -69,7 +69,6 @@ PUBLIC float
 sensors_12v_regulator_C( void )
 {
 	return hal_temperature_pcb_degrees_C( hal_adc_read_avg( HAL_ADC_INPUT_TEMP_REG ) );
-
 }
 
 PUBLIC float
