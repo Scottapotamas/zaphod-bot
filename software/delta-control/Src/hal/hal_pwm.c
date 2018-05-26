@@ -321,6 +321,47 @@ void hal_pwm_setup(PWMOutputTimerDef_t pwm_output, uint16_t frequency, uint8_t d
 	HAL_TIM_MspPostInit(tim_handle);
 }
 
+void hal_pwm_set(PWMOutputTimerDef_t pwm_output, uint8_t duty_cycle)
+{
+	TIM_HandleTypeDef* tim_handle = 0;
+
+	switch(pwm_output)
+	{
+		case _PWM_TIM_FAN:
+			tim_handle = &htim10;
+			tim_handle->Instance = TIM10;
+			break;
+
+		case _PWM_TIM_BUZZER:
+			tim_handle = &htim11;
+			tim_handle->Instance = TIM11;
+			break;
+
+		case _PWM_TIM_AUX_0:
+			tim_handle = &htim2;
+			tim_handle->Instance = TIM2;
+			break;
+
+		case _PWM_TIM_AUX_1:
+			tim_handle = &htim12;
+			tim_handle->Instance = TIM12;
+			break;
+
+		case _PWM_TIM_AUX_2:
+			tim_handle = &htim12;
+			tim_handle->Instance = TIM12;
+			break;
+		default:
+
+			break;
+	}
+
+	//todo make this work properly
+
+	__HAL_TIM_GET_AUTORELOAD(tim_handle); //gets the Period set for PWm
+	__HAL_TIM_SET_COMPARE(tim_handle, TIM_CHANNEL_1, duty_cycle); //sets the PWM duty cycle
+}
+
 /* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 

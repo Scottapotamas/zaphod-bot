@@ -46,7 +46,12 @@ hal_pwm_setup_ic(void);
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-hal_pwm_setup_output(uint8_t pwm_output, uint16_t frequency, uint8_t duty_cycle);
+hal_pwm_setup(PWMOutputTimerDef_t pwm_output, uint16_t frequency, uint8_t duty_cycle);
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+hal_pwm_set(PWMOutputTimerDef_t pwm_output, uint8_t duty_cycle);
 
 /* -------------------------------------------------------------------------- */
 
