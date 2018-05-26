@@ -217,7 +217,7 @@ void hal_pwm_setup_ic(void)
 
 }
 
-void hal_pwm_setup_output(uint8_t pwm_output, uint16_t frequency, uint8_t duty_cycle)
+void hal_pwm_setup(PWMOutputTimerDef_t pwm_output, uint16_t frequency, uint8_t duty_cycle)
 {
 	#define MAX_RELOAD               0xFFFF	//16-bit timer capability
 
@@ -253,6 +253,9 @@ void hal_pwm_setup_output(uint8_t pwm_output, uint16_t frequency, uint8_t duty_c
 		case _PWM_TIM_AUX_2:
 			tim_handle = &htim12;
 			tim_handle->Instance = TIM12;
+			break;
+		default:
+
 			break;
 	}
 
@@ -293,7 +296,7 @@ void hal_pwm_setup_output(uint8_t pwm_output, uint16_t frequency, uint8_t duty_c
 
 	sConfigOC.OCMode 				= TIM_OCMODE_PWM1;
 	sConfigOC.Pulse 				= duty_counts;
-	sConfigOC.OCPolarity 			= TIM_OCPOLARITY_HIGH;
+	sConfigOC.OCPolarity 			= TIM_OCPOLARITY_LOW;
 	sConfigOC.OCFastMode 			= TIM_OCFAST_DISABLE;
 
 	//todo see if tim12 is happy having a full setup repeated for Ch2 output, or if Ch1 and Ch2 need to be done at same time.
@@ -304,6 +307,7 @@ void hal_pwm_setup_output(uint8_t pwm_output, uint16_t frequency, uint8_t duty_c
 		{
 			_Error_Handler(__FILE__, __LINE__);
 		}
+		HAL_TIM_PWM_Start(tim_handle,TIM_CHANNEL_2);
 	}
 	else
 	{
@@ -311,6 +315,7 @@ void hal_pwm_setup_output(uint8_t pwm_output, uint16_t frequency, uint8_t duty_c
 		{
 			_Error_Handler(__FILE__, __LINE__);
 		}
+		HAL_TIM_PWM_Start(tim_handle,TIM_CHANNEL_1);
 	}
 
 	HAL_TIM_MspPostInit(tim_handle);
@@ -379,11 +384,13 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
 	if( tim_baseHandle->Instance == TIM10 )
 	{
 		__HAL_RCC_TIM10_CLK_ENABLE();
+		hal_gpio_init_alternate( _FAN_PWM, GPIO_MODE_AF_PP, GPIO_AF3_TIM10, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
 	if( tim_baseHandle->Instance == TIM11 )
 	{
 		__HAL_RCC_TIM11_CLK_ENABLE();
+		hal_gpio_init_alternate( _BUZZER, GPIO_MODE_AF_PP, GPIO_AF3_TIM11, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 }
 
