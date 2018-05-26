@@ -141,7 +141,6 @@ void hal_pwm_setup_hlfb(uint8_t servo_number)
 		_Error_Handler(__FILE__, __LINE__);
 	}
 
-
 	TIM_MasterConfigTypeDef sMasterConfig;
 
 	sMasterConfig.MasterOutputTrigger 		= TIM_TRGO_RESET;
@@ -272,6 +271,10 @@ void hal_pwm_setup(PWMOutputTimerDef_t pwm_output, uint16_t frequency, uint8_t d
 			_Error_Handler(__FILE__, __LINE__);
 		}
 	}
+
+//    TIM_ClockConfigTypeDef sClockSourceConfig;
+//    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+//    HAL_TIM_ConfigClockSource( tim_handle, &sClockSourceConfig );
 
 	if (HAL_TIM_PWM_Init(tim_handle) != HAL_OK)
 	{
@@ -463,8 +466,8 @@ HAL_TIM_MspPostInit( TIM_HandleTypeDef* htim )
 		hal_gpio_init_alternate( _AUX_PWM_2, GPIO_MODE_AF_PP, GPIO_AF9_TIM12, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
-	  //unused servo A and B pins, used for potential step/direction outputs in future
-	   /*
+	//unused servo A and B pins, used for potential step/direction outputs in future
+	/*
 	  if(htim->Instance==TIM1)
 	  {
 	    GPIO_InitStruct.Pin = SERVO_3_A_Pin|SERVO_3_B_Pin;
@@ -501,24 +504,25 @@ HAL_TIM_MspPostInit( TIM_HandleTypeDef* htim )
 	    GPIO_InitStruct.Alternate = GPIO_AF2_TIM5;
 	    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 	  }
-*/
+	 */
 
 }
 
 /* -------------------------------------------------------------------------- */
+
 PUBLIC void
 HAL_TIM_Base_MspDeInit( TIM_HandleTypeDef* tim_baseHandle )
 {
-  if(tim_baseHandle->Instance==TIM10)
-  {
-	__HAL_RCC_TIM10_CLK_DISABLE();
+	if(tim_baseHandle->Instance==TIM10)
+	{
+		__HAL_RCC_TIM10_CLK_DISABLE();
 
-  }
-  else if(tim_baseHandle->Instance==TIM11)
-  {
-	__HAL_RCC_TIM11_CLK_DISABLE();
+	}
+	else if(tim_baseHandle->Instance==TIM11)
+	{
+		__HAL_RCC_TIM11_CLK_DISABLE();
 
-  }
+	}
 }
 
 // TIM Group 3 - PWM Input

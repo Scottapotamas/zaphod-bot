@@ -13,6 +13,7 @@ extern "C" {
 
 /* ----- Types ------------------------------------------------------------- */
 
+//todo refactor HLFBinput to include the hall sensor input, general purpose PWM input
 typedef enum
 {
     _HLFB_SERVO_1,
