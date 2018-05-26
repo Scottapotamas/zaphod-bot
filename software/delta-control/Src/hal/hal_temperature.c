@@ -20,6 +20,11 @@
 PUBLIC float
 hal_temperature_micro_degrees_C( uint32_t raw_adc )
 {
+	if(raw_adc == 0)
+	{
+	  return -1000.0;
+	}
+
     float   Vsense = ( (float)raw_adc * 3.3f ) / 4096.0f;
 
     return  ( ( ( Vsense - V25 ) / AVG_SLOPE ) + 25.0f );
