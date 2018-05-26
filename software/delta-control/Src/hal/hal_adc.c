@@ -80,14 +80,14 @@ hal_adc_init( void )
 	hadc1.Instance 						= ADC1;
 	hadc1.Init.ClockPrescaler 			= ADC_CLOCK_SYNC_PCLK_DIV4;
 	hadc1.Init.Resolution 				= ADC_RESOLUTION_12B;
-	hadc1.Init.ScanConvMode 			= DISABLE;
+	hadc1.Init.ScanConvMode 			= ENABLE;
 	hadc1.Init.ContinuousConvMode 		= ENABLE;
 	hadc1.Init.DiscontinuousConvMode 	= DISABLE;
 	hadc1.Init.ExternalTrigConvEdge 	= ADC_EXTERNALTRIGCONVEDGE_NONE;
 	hadc1.Init.ExternalTrigConv 		= ADC_SOFTWARE_START;
 	hadc1.Init.DataAlign 				= ADC_DATAALIGN_RIGHT;
 	hadc1.Init.NbrOfConversion 			= 10;
-	hadc1.Init.DMAContinuousRequests 	= ENABLE;
+	hadc1.Init.DMAContinuousRequests 	= DISABLE;
 	hadc1.Init.EOCSelection 			= ADC_EOC_SEQ_CONV;
 
 	//Initialise the ADC peripheral
@@ -104,7 +104,7 @@ hal_adc_init( void )
 			hal_config_channel++)
 	{
 		sConfig.Rank = hal_config_channel;
-		sConfig.Channel = hal_channels[hal_config_channel];
+		sConfig.Channel = hal_channels[hal_config_channel - 1];
 		sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
 
 		if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
@@ -288,7 +288,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     /* ADC1 clock enable */
     __HAL_RCC_ADC1_CLK_ENABLE();
 
-    //Initalise the GPIO as analog mode if they haven't been already
+    //Initialise the GPIO as analog mode if they haven't been already
     	//this should be done as part of the default setup in the hal_gpio called during the hardware setup
 
     //ADC1 DMA setup
