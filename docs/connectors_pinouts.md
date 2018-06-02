@@ -89,6 +89,9 @@ This was cut from an older black 240-IEC cable.
 
 # Teknic Clearpath Motor(s)
 
+I bought ModDIY pre-crimped mini-fit cables to reduce the labour of individually sleeving these.  
+In hindsight, I should have provisioned a panel mount connector for the top plate, and had the full looms made up (including connectors) as the ModDIY cables had thick heatshrink that interferes with insertion into the housing, taking as long/longer than full DIY cables...
+
 ## Power Connector
 
 - Connect motor power to the main PCB.
