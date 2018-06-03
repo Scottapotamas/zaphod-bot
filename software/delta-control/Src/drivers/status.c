@@ -38,7 +38,7 @@ status_red_toggle( void )
 PUBLIC void
 status_yellow( bool on )
 {
-    hal_gpio_write_pin( _STATUS_2, on );
+    hal_gpio_write_pin( _STATUS_1, on );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -46,7 +46,7 @@ status_yellow( bool on )
 PUBLIC void
 status_yellow_toggle( void )
 {
-    hal_gpio_toggle_pin( _STATUS_2 );
+    hal_gpio_toggle_pin( _STATUS_1 );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -56,7 +56,7 @@ status_yellow_toggle( void )
 PUBLIC void
 status_green( bool on )
 {
-    hal_gpio_write_pin( _STATUS_1, on );
+    hal_gpio_write_pin( _STATUS_2, on );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -64,7 +64,7 @@ status_green( bool on )
 PUBLIC void
 status_green_toggle( void )
 {
-    hal_gpio_toggle_pin( _STATUS_1 );
+    hal_gpio_toggle_pin( _STATUS_2 );
 }
 
 /* ----- End ---------------------------------------------------------------- */
