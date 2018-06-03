@@ -260,6 +260,8 @@ https://www.aliexpress.com/item/10K-Precision-Epoxy-Thermistor-3435-NTC-Pack-of-
 
 2-pin 2.54mm pitch 'DuPont' connector
 
+I sleeved and heatshrinked over the plug. The thin nylon wires were a pain to manage.
+
 ### Wire
 
 Thermistor already comes pre-wired.
