@@ -105,8 +105,8 @@ const HalGpioDef_t HalGpioHardwareMap[] =
 		[ _VOLTAGE_SENSE           ]   = { .mode = MODE_ANALOG,    .port = PORT_C, .pin = PIN_3, .initial = 0 },
 
 		/* --- BUTTONS --- */
-		[ _BTN_0                   ]   = { .mode = MODE_INPUT,     .port = PORT_E, .pin = PIN_6,  .initial = 0 },
-		[ _BTN_1                   ]   = { .mode = MODE_INPUT,     .port = PORT_C, .pin = PIN_13, .initial = 0 },
+		[ _BTN_0                   ]   = { .mode = MODE_INPUT_PU,  .port = PORT_E, .pin = PIN_6,  .initial = 0 },
+		[ _BTN_1                   ]   = { .mode = MODE_INPUT_PU,  .port = PORT_C, .pin = PIN_13, .initial = 0 },
 
 		/* --- STATUS LEDS --- */
 		[ _STATUS_0                ]   = { .mode = MODE_OUT_PP,    .port = PORT_E, .pin = PIN_4, .initial = 0 },
