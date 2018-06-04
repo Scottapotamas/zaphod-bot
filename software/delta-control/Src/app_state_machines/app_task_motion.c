@@ -64,9 +64,10 @@ PRIVATE void AppTaskMotionConstructor( AppTaskMotion *me )
 // State Machine Initial State
 PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __attribute__((__unused__)) )
 {
-    eventSubscribe( (StateTask*)me, MOTION_REQUEST );
+    eventSubscribe( (StateTask*)me, MOTION_PREPARE );
     eventSubscribe( (StateTask*)me, MOTION_STOP );
 
+    eventSubscribe( (StateTask*)me, MOTION_REQUEST );
     eventSubscribe( (StateTask*)me, MOTION_HEAD );
     eventSubscribe( (StateTask*)me, MOTION_TAIL );
 
@@ -88,10 +89,12 @@ PRIVATE STATE AppTaskMotion_main( AppTaskMotion *me, const StateEvent *e )
         	servo_stop( _CLEARPATH_4 );
         #endif
 
-        	//todo don't home automatically
-        	//STATE_TRAN( AppTaskMotion_home );
-
         	return 0;
+
+        case MOTION_PREPARE:
+        	STATE_TRAN( AppTaskMotion_home );
+
+			return 0;
 
     }
     return (STATE)hsmTop;

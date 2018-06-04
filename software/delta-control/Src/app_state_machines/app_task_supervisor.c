@@ -83,7 +83,6 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
             //Todo actually do something in the supervisor state
             status_green(false);
             status_yellow(false);
-	   		eventPublish( EVENT_NEW( StateEvent, MOTION_PREPARE ) );
 
         	return 0;
         }
@@ -94,7 +93,7 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 			   case BUTTON_0:
 			   	   {
 			   		   buzzer_sound(1, 440, 150);
-
+				   		eventPublish( EVENT_NEW( StateEvent, MOTION_PREPARE ) );
 
 //			   		   MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
 //
