@@ -38,8 +38,9 @@ enum AppSignals
 	MECHANISM_ERROR,
 
     /* Motion Handler Signals */
-	MOTION_REQUEST,        /* Provide movement information for queue processing */
+	MOTION_PREPARE,
 	MOTION_STOP,           /* Stop current movement actions */
+	MOTION_REQUEST,        /* Provide movement information for queue processing */
 	MOTION_HEAD,           /* Start of a movement */
 	MOTION_TAIL,           /* End of a movement */
 

@@ -18,6 +18,7 @@
 #include "hal_uuid.h"
 #include "status.h"
 
+#include "buzzer.h"
 /* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
@@ -61,6 +62,7 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
                                         const StateEvent *e __attribute__((__unused__)) )
 {
 	button_init( BUTTON_0, AppTaskSupervisorButtonEvent );
+	button_init( BUTTON_1, AppTaskSupervisorButtonEvent );
 
     // Detect user activities
     eventSubscribe( (StateTask*)me, BUTTON_NORMAL_SIGNAL );
@@ -80,6 +82,8 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 
             //Todo actually do something in the supervisor state
             status_green(false);
+            status_yellow(false);
+	   		eventPublish( EVENT_NEW( StateEvent, MOTION_PREPARE ) );
 
         	return 0;
         }
@@ -89,24 +93,27 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 		   {
 			   case BUTTON_0:
 			   	   {
-			   		   MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
+			   		   buzzer_sound(1, 440, 150);
 
-			   		   if(motev)
-			   		   {
-			   			   motev->move.type = _POINT_TRANSIT;
-			   			   motev->move.type = _POS_ABSOLUTE;
-			   			   motev->move.duration = 650;
 
-			   			   CartesianPoint_t line[] = {
-			   					   {0, 0, 0},
-								   {50, 50, 50}
-			   			   };
-
-			   			   motev->move.points = &line;
-			   			   motev->move.num_pts = 2;
-
-			   			   eventPublish( (StateEvent*)motev );
-			   		   }
+//			   		   MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
+//
+//			   		   if(motev)
+//			   		   {
+//			   			   motev->move.type = _POINT_TRANSIT;
+//			   			   motev->move.type = _POS_ABSOLUTE;
+//			   			   motev->move.duration = 650;
+//
+//			   			   CartesianPoint_t line[] = {
+//			   					   {0, 0, 0},
+//								   {50, 50, 50}
+//			   			   };
+//
+//			   			   motev->move.points = &line;
+//			   			   motev->move.num_pts = 2;
+//
+//			   			   eventPublish( (StateEvent*)motev );
+//			   		   }
 			   	   }
 				   return 0;
 
