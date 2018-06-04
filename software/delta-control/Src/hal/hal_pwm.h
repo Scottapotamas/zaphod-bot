@@ -20,6 +20,7 @@ typedef enum
 	_HLFB_SERVO_2,
 	_HLFB_SERVO_3,
 	_HLFB_SERVO_4,
+	_FAN_HALL,
 	_HLFB_SERVO_NUM
 } HLFBTimerDef_t;
 
@@ -33,11 +34,18 @@ typedef enum
 	_PWM_NUMBER_TIMERS
 } PWMOutputTimerDef_t;
 
+typedef struct
+{
+	//todo update comments with correct units
+    uint16_t	frequency;	//frequency in
+    uint16_t	duty;		//duty cycle as
+} PWMInputData_t;
+
 
 /* ----- Public Functions -------------------------------------------------- */
 
 PUBLIC void
-hal_pwm_setup_hlfb( uint8_t servo_number );
+hal_pwm_capture( uint8_t servo_number );
 
 /* -------------------------------------------------------------------------- */
 
@@ -47,7 +55,7 @@ hal_pwm_setup_ic(void);
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-hal_pwm_setup(PWMOutputTimerDef_t pwm_output, uint16_t frequency, uint8_t duty_cycle);
+hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency, uint8_t duty_cycle);
 
 /* -------------------------------------------------------------------------- */
 

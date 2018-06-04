@@ -43,6 +43,15 @@
 extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
 extern DMA_HandleTypeDef hdma_adc1;
 
+//Timers allocated to servos (HLFB on CH1/2 as PWM input, A and B are ch 3, 4
+extern TIM_HandleTypeDef htim1;
+extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef htim4;
+extern TIM_HandleTypeDef htim5;
+
+//Fan
+extern TIM_HandleTypeDef htim9;
+
 /******************************************************************************/
 /*            Cortex-M4 Processor Interruption and Exception Handlers         */ 
 /******************************************************************************/
@@ -203,7 +212,6 @@ void DMA2_Stream0_IRQHandler(void)
   /* USER CODE END DMA2_Stream0_IRQn 0 */
   HAL_DMA_IRQHandler(&hdma_adc1);
   /* USER CODE BEGIN DMA2_Stream0_IRQn 1 */
-
   /* USER CODE END DMA2_Stream0_IRQn 1 */
 }
 
@@ -222,6 +230,27 @@ void OTG_FS_IRQHandler(void)
 }
 
 /* USER CODE BEGIN 1 */
+
+void TIM1_BRK_TIM9_IRQHandler( void )
+{
+	HAL_TIM_IRQHandler(&htim9);
+	HAL_TIM_IRQHandler(&htim1);
+}
+
+void TIM3_IRQHandler( void )
+{
+	HAL_TIM_IRQHandler(&htim3);
+}
+
+void TIM4_IRQHandler( void )
+{
+	HAL_TIM_IRQHandler(&htim4);
+}
+
+void TIM5_IRQHandler( void )
+{
+	HAL_TIM_IRQHandler( &htim5 );
+}
 
 /* USER CODE END 1 */
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/

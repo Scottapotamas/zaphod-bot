@@ -59,6 +59,7 @@ PUBLIC void
 fan_init( void )
 {
     memset( &fan, 0, sizeof( fan ) );
+    hal_pwm_capture(_FAN_HALL);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -85,7 +86,7 @@ fan_process( void )
             STATE_ENTRY_ACTION
 
 				//make sure fan is not spinning?
-        		hal_pwm_setup( _PWM_TIM_FAN, 0, 0 );
+        		hal_pwm_generation( _PWM_TIM_FAN, 0, 0 );
 
             STATE_TRANSITION_TEST
 
@@ -105,7 +106,7 @@ fan_process( void )
             STATE_ENTRY_ACTION
 
 				//set PWM to 100% for configurable short period
-            	hal_pwm_setup( _PWM_TIM_FAN, FAN_FREQUENCY_HZ, 100 );
+            	hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ, 100 );
 
             	me->startup_timer = hal_systick_get_ms();
             	me->speed = 100;
@@ -125,7 +126,7 @@ fan_process( void )
         case FAN_STATE_ON:
             STATE_ENTRY_ACTION
 
-				hal_pwm_setup( _PWM_TIM_FAN, FAN_FREQUENCY_HZ, me->set_speed );
+				hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ, me->set_speed );
 				me->speed = me->set_speed;
 
             STATE_TRANSITION_TEST
@@ -136,7 +137,7 @@ fan_process( void )
 				//speed change req while running
 				if( me->set_speed != me->speed )
 				{
-					hal_pwm_setup( _PWM_TIM_FAN, FAN_FREQUENCY_HZ, me->set_speed );
+					hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ, me->set_speed );
 					me->speed = me->set_speed;
 				}
 

@@ -55,6 +55,8 @@ TIM_HandleTypeDef htim11;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim12;
 
+PWMInputData_t input_results[ _HLFB_SERVO_NUM + 1 ];	//todo use updated inputs enum after refactor
+
 /* ----- Private Functions -------------------------------------------------- */
 
 PRIVATE void
@@ -62,11 +64,12 @@ HAL_TIM_MspPostInit( TIM_HandleTypeDef* htim );
 
 /* ----- Public Functions --------------------------------------------------- */
 
-void hal_pwm_setup_hlfb(uint8_t servo_number)
+void hal_pwm_capture(uint8_t servo_number)
 {
 	TIM_HandleTypeDef* tim_handle = 0;
 
-	switch (servo_number) {
+	switch (servo_number)
+	{
 		case _HLFB_SERVO_1:
 			tim_handle = &htim3;
 			tim_handle->Instance = TIM3;
@@ -86,11 +89,15 @@ void hal_pwm_setup_hlfb(uint8_t servo_number)
 			tim_handle = &htim5;
 			tim_handle->Instance = TIM5;
 			break;
+
+		case _FAN_HALL:
+			tim_handle = &htim9;
+			tim_handle->Instance = TIM9;
 	}
 
 	// Setup
 	//instance is set in above switch to reduce repetition
-	tim_handle->Init.Prescaler 			= 0;
+	tim_handle->Init.Prescaler 			= 839;
 	tim_handle->Init.Period 			= 0;
 	tim_handle->Init.CounterMode 		= TIM_COUNTERMODE_UP;
 	tim_handle->Init.ClockDivision 		= TIM_CLOCKDIVISION_DIV1;
@@ -170,9 +177,20 @@ void hal_pwm_setup_hlfb(uint8_t servo_number)
 		}
 	}
 
+	if( HAL_TIM_IC_Start_IT(tim_handle, TIM_CHANNEL_2) != HAL_OK )
+	{
+		Error_Handler();
+	}
+
+	if( HAL_TIM_IC_Start_IT(tim_handle, TIM_CHANNEL_1) != HAL_OK )
+	{
+		Error_Handler();
+	}
+
+
 	HAL_TIM_MspPostInit(tim_handle);
 }
-
+/*
 void hal_pwm_setup_ic(void)
 {
   TIM_SlaveConfigTypeDef sSlaveConfig;
@@ -214,9 +232,19 @@ void hal_pwm_setup_ic(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-}
+	if( HAL_TIM_IC_Start_IT(&htim9, TIM_CHANNEL_2) != HAL_OK )
+	{
+		Error_Handler();
+	}
 
-void hal_pwm_setup(PWMOutputTimerDef_t pwm_output, uint16_t frequency, uint8_t duty_cycle)
+	if( HAL_TIM_IC_Start_IT(&htim9, TIM_CHANNEL_1) != HAL_OK )
+	{
+		Error_Handler();
+	}
+}
+*/
+
+void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency, uint8_t duty_cycle)
 {
 	#define MAX_RELOAD               0xFFFF	//16-bit timer capability
 
@@ -409,15 +437,56 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* tim_pwmHandle)
 		__HAL_RCC_TIM12_CLK_ENABLE();
 	}
 
+    if( tim_pwmHandle->Instance == TIM9 )
+    {
+    	__HAL_RCC_TIM9_CLK_ENABLE();
+		hal_gpio_init_alternate( _FAN_HALL, GPIO_MODE_AF_PP, GPIO_AF3_TIM9, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+    }
 }
 
 // TIM Group 4 - Input Capture
 void HAL_TIM_IC_MspInit(TIM_HandleTypeDef* tim_icHandle)
 {
-    //enable peripheral clock
-    if( tim_icHandle->Instance == TIM9 )
+
+	if( tim_icHandle->Instance == TIM1 )
+	{
+		__HAL_RCC_TIM1_CLK_ENABLE();
+		hal_gpio_init_alternate( _SERVO_3_HLFB, GPIO_MODE_AF_PP, GPIO_AF1_TIM1, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+		HAL_NVIC_SetPriority( TIM1_CC_IRQn, 4, 1 );
+		HAL_NVIC_EnableIRQ( TIM1_CC_IRQn );
+		//todo work out if the interrupt assignment here is correct
+	}
+
+	if( tim_icHandle->Instance == TIM3 )
+	{
+		__HAL_RCC_TIM3_CLK_ENABLE();
+		hal_gpio_init_alternate( _SERVO_1_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM3, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+		HAL_NVIC_SetPriority( TIM3_IRQn, 4, 2 );
+		HAL_NVIC_EnableIRQ( TIM3_IRQn );
+	}
+
+	if( tim_icHandle->Instance == TIM4 )
+	{
+		__HAL_RCC_TIM4_CLK_ENABLE();
+		hal_gpio_init_alternate( _SERVO_2_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM4, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+		HAL_NVIC_SetPriority( TIM4_IRQn, 4, 3 );
+		HAL_NVIC_EnableIRQ( TIM4_IRQn );
+	}
+
+	if( tim_icHandle->Instance == TIM5 )
+	{
+		__HAL_RCC_TIM5_CLK_ENABLE();
+		hal_gpio_init_alternate( _SERVO_4_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM5, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+		HAL_NVIC_SetPriority( TIM5_IRQn, 4, 4 );
+		HAL_NVIC_EnableIRQ( TIM5_IRQn );
+	}
+
+	if( tim_icHandle->Instance == TIM9 )
     {
     	__HAL_RCC_TIM9_CLK_ENABLE();
+		hal_gpio_init_alternate( _FAN_HALL, GPIO_MODE_AF_PP, GPIO_AF3_TIM9, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+		HAL_NVIC_SetPriority( TIM1_BRK_TIM9_IRQn, 6, 3 );
+		HAL_NVIC_EnableIRQ( TIM1_BRK_TIM9_IRQn );
     }
 
 }
@@ -452,7 +521,7 @@ HAL_TIM_MspPostInit( TIM_HandleTypeDef* htim )
 
 	if( htim->Instance == TIM11 )
 	{
-		hal_gpio_init_alternate( _BUZZER, GPIO_MODE_AF_PP, GPIO_AF3_TIM11, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+//		hal_gpio_init_alternate( _BUZZER, GPIO_MODE_AF_PP, GPIO_AF3_TIM11, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
 	if( htim->Instance == TIM2 )
@@ -581,4 +650,59 @@ void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef* tim_icHandle)
 	}
 }
 
+/* -------------------------------------------------------------------------- */
+
+
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
+{
+	uint16_t capture_buffer = 0;
+	PWMInputData_t * result = 0;
+
+	//todo refactor pwm input names enum to improve readability of this section
+	/*
+	 * HLFB 1 - TIM3_1/2
+	 * HLFB 2 - TIM4_1/2
+	 * HLFB 3 - TIM1_1/2
+	 * HLFB 4 - TIM5_1/2
+	 * TACH   - TIM9_1
+	 */
+
+	if(htim->Instance==TIM1)
+	{
+		result = &input_results[2];
+	}
+	else if(htim->Instance==TIM3)
+	{
+		result = &input_results[0];
+	}
+	else if(htim->Instance==TIM4)
+	{
+		result = &input_results[1];
+	}
+	else if(htim->Instance==TIM5)
+	{
+		result = &input_results[3];
+	}
+	else if(htim->Instance==TIM9)
+	{
+		result = &input_results[4];
+	}
+
+	if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
+	{
+		capture_buffer = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_2);
+
+		if (capture_buffer != 0)
+		{
+			result->duty 		= ( HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1) * 100 ) / capture_buffer;
+			result->frequency 	= ( HAL_RCC_GetHCLKFreq() / 2 ) / capture_buffer;
+		}
+		else
+		{
+			result->duty 		= 0;
+			result->frequency 	= 0;
+		}
+	}
+}
 /* ----- End ---------------------------------------------------------------- */
