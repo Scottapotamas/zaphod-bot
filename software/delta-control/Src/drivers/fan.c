@@ -42,9 +42,9 @@ typedef struct
 
 PRIVATE FanControlPoint_t fan_curve[] =
 {
-	{ .temp = 5.0f, 	.percentage =	0 },
-    { .temp = 25.0f, 	.percentage =	0 },
-    { .temp = 35.0f, 	.percentage =	30 },
+	{ .temp = 19.0f, 	.percentage =	0 },
+    { .temp = 20.0f, 	.percentage =	30 },
+    { .temp = 35.0f, 	.percentage =	50 },
     { .temp = 50.0f, 	.percentage =	60 },
     { .temp = 60.0f, 	.percentage =	80 },
     { .temp = 70.0f,	.percentage =	95 },
@@ -90,7 +90,7 @@ fan_process( void )
 
             STATE_TRANSITION_TEST
 
-				me->set_speed = fan_speed_at_temp( sensors_ambient_C() );
+				me->set_speed = fan_speed_at_temp( sensors_expansion_C() );
 
 				//once new target is established, trigger startup blip
                 if( me->set_speed > 0 )
@@ -132,7 +132,7 @@ fan_process( void )
             STATE_TRANSITION_TEST
 
 				//recalculate target speed based on temperature reading
-				me->set_speed = fan_speed_at_temp( sensors_ambient_C() );
+				me->set_speed = fan_speed_at_temp( sensors_expansion_C() );
 
 				//speed change req while running
 				if( me->set_speed != me->speed )

@@ -28,8 +28,7 @@ app_background_init( void )
 {
 	timer_ms_start( &button_timer, 	BACKGROUND_RATE_BUTTON_MS );
 	timer_ms_start( &buzzer_timer, 	BACKGROUND_RATE_BUZZER_MS );
-	timer_ms_start( &fan_timer, 	BACKGROUND_RATE_FAN_MS );
-	sensors_enable();
+	timer_ms_start( &fan_timer, 	FAN_EVALUATE_TIME );
 
 }
 
@@ -59,7 +58,7 @@ app_background( void )
     if( timer_ms_is_expired( &fan_timer ) )
     {
         fan_process();
-    	timer_ms_start( &fan_timer, BACKGROUND_RATE_FAN_MS );
+    	timer_ms_start( &fan_timer, FAN_EVALUATE_TIME );
     }
 
     //process any running movements and allow servo drivers to process commands

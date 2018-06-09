@@ -27,13 +27,13 @@ enum SystemDefines
 {
 	BACKGROUND_RATE_BUTTON_MS	= 50U,	//  20Hz
 	BACKGROUND_RATE_BUZZER_MS	= 10U,	// 100Hz
-	BACKGROUND_RATE_FAN_MS		= 500U,	//   2Hz
 };
 
 /* -------------------------------------------------------------------------- */
 
 enum FanDefines
 {
+	FAN_EVALUATE_TIME		= 500U,	//   2Hz
 	FAN_STARTUP_TIME_MS		= 1000U,
 	FAN_STALL_FAULT_RPM		= 20U,
 	FAN_FREQUENCY_HZ		= 25000UL,
