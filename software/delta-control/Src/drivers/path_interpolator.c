@@ -28,6 +28,7 @@ typedef struct
 	PlanningState_t   nextState;
 
 	Movement_t	*	current_move;		// pointer to the current movement
+	bool			enable;				//if the planner is enabled
     uint32_t        movement_started;	// timestamp the start point
     float        	progress_percent;	// calculated progress
 
@@ -65,6 +66,7 @@ path_interpolator_set_objective( Movement_t	* movement_to_process )
 {
 	//todo accept a movement object and store inside the state for handling
 	planner.current_move = movement_to_process;
+	planner.enable = true;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -90,6 +92,11 @@ path_interpolator_process( void )
 
             STATE_TRANSITION_TEST
 
+			if(planner.enable)
+			{
+        		STATE_NEXT( PLANNER_ON );
+			}
+
             STATE_EXIT_ACTION
             STATE_END
             break;
@@ -97,7 +104,7 @@ path_interpolator_process( void )
         case PLANNER_ON:
             STATE_ENTRY_ACTION
 				me->movement_started = hal_systick_get_ms();
-
+            	me->progress_percent = 0;
             STATE_TRANSITION_TEST
 
 				Movement_t *move = me->current_move;
@@ -107,9 +114,10 @@ path_interpolator_process( void )
 
             	//calculate current target completion based on time
             	// time remaining is the allotted duration - time used (start to now), divide by the duration to get 0.0->1.0 progress
-            	me->progress_percent = ( move->duration - ( me->movement_started - hal_systick_get_ms() ) ) / move->duration;
+            	uint32_t time_used = hal_systick_get_ms() - me->movement_started;
+            	me->progress_percent = (float)( time_used ) / move->duration;
 
-            	if( me->progress_percent > 0.999 )
+            	if( me->progress_percent > 0.9999 )
             	{
             		//movement is complete, the planner can stop now
             		STATE_NEXT( PLANNER_OFF );
@@ -154,7 +162,7 @@ path_interpolator_process( void )
             	}
 
             STATE_EXIT_ACTION
-
+				planner.enable = false;
             STATE_END
             break;
     }
