@@ -126,10 +126,14 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
         case STATE_TIMEOUT1_SIGNAL:
 
+        	//check all the servos have homed successfully
+        	me->counter = 0;
         	me->counter += servo_get_valid_home( _CLEARPATH_1 );
         	me->counter += servo_get_valid_home( _CLEARPATH_2 );
         	me->counter += servo_get_valid_home( _CLEARPATH_3 );
+#ifdef EXPANSION_SERVO
         	me->counter += servo_get_valid_home( _CLEARPATH_4 );
+#endif
 
         	if( me->counter == SERVO_COUNT )
         	{
