@@ -220,7 +220,7 @@ hal_gpio_init_alternate( HalGpioPortPin_t 	gpio_port_pin_nr,
     ENSURE( m->port <= PORT_H );
     ENSURE( m->pin <= PIN_15 );
 
-    //hal_gpio_mcu_rcc_clock_enable( m->port );
+    hal_gpio_mcu_rcc_clock_enable( m->port );
 
     GPIO_InitTypeDef GPIO_InitStruct;
 
