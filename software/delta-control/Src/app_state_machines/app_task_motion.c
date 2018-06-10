@@ -154,6 +154,21 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
 			return 0;
 
+        case MOTION_REQUEST:
+        	{
+				MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
+
+				// Add the movement request to the queue if we have room
+				if( eventQueueUsed( &me->super.requestQueue ) < 10 )	//10 queue size
+				{
+					if( mpe->move.duration)
+					{
+						eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
+					}
+				}
+        	}
+        	return 0;
+
 		case STATE_EXIT_SIGNAL:
 			eventTimerStopIfActive(&me->timer1);
 

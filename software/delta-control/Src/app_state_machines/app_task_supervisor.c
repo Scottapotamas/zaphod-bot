@@ -92,30 +92,37 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 		   {
 			   case BUTTON_0:
 			   	   {
-			   		   buzzer_sound(1, 440, 150);
 				   		eventPublish( EVENT_NEW( StateEvent, MOTION_PREPARE ) );
 
-//			   		   MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
-//
-//			   		   if(motev)
-//			   		   {
-//			   			   motev->move.type = _POINT_TRANSIT;
-//			   			   motev->move.type = _POS_ABSOLUTE;
-//			   			   motev->move.duration = 650;
-//
-//			   			   CartesianPoint_t line[] = {
-//			   					   {0, 0, 0},
-//								   {50, 50, 50}
-//			   			   };
-//
-//			   			   motev->move.points = &line;
-//			   			   motev->move.num_pts = 2;
-//
-//			   			   eventPublish( (StateEvent*)motev );
-//			   		   }
 			   	   }
 				   return 0;
 
+			   case BUTTON_1:
+			   	   {
+			   		   MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
+
+			   		   if(motev)
+			   		   {
+			   			   motev->move.type = _LINE;
+			   			   motev->move.ref = _POS_ABSOLUTE;
+			   			   motev->move.duration = 650;
+
+			   			   //start
+			   			   motev->move.points[0].x = 0;
+			   			   motev->move.points[0].y = 0;
+			   			   motev->move.points[0].z = -150;
+
+			   			   //dest
+			   			   motev->move.points[1].x = 0;
+			   			   motev->move.points[1].y = 0;
+			   			   motev->move.points[1].z = -190;
+
+			   			   motev->move.num_pts = 2;
+
+			   			   eventPublish( (StateEvent*)motev );
+			   		   }
+			   	   }
+				   return 0;
 			   default:
 				   break;
 		   }
