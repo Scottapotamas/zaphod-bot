@@ -9,13 +9,15 @@
 #include "app_signals.h"
 #include "app_events.h"
 
+#include "hal_uart.h"
+#include "app_times.h"
+
 #include "app_task_communication.h"
 
 #include "electricui.h"
 #include <eui_serial_transport.h>
 
 #include "status.h"
-#include "hal_uart.h"
 
 /* ----- Private Function Definitions --------------------------------------- */
 
@@ -74,6 +76,8 @@ appTaskCommunicationCreate(  AppTaskCommunication *me,
 
     // Initialise State Machine State
     AppTaskCommunicationConstructor( me );
+
+    me->instance = instance;
 
     /* Initialise State Machine Task */
     return stateTaskCreate( (StateTask*)me,

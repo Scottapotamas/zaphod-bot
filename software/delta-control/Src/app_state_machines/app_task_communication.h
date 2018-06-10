@@ -30,15 +30,24 @@ struct AppTaskCommunication
     EventTimer		timer2;
 
     // ~~~ Task Variables ~~~
-
+     uint8_t	instance;	//port in use (internal, external, etc)
 };
+
+typedef enum {
+	INTERFACE_UART_MODULE,
+	INTERFACE_UART_INTERNAL,
+	INTERFACE_UART_EXTERNAL,
+	INTERFACE_USB,
+	INTERFACE_COUNT
+} CommunicationInstance_t;
 
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC StateTask *
 appTaskCommunicationCreate(	 AppTaskCommunication *me,
                          	 StateEvent        *eventQueueData[],
-							 const uint8_t     eventQueueSize );
+							 const uint8_t     eventQueueSize,
+							 const CommunicationInstance_t instance );
 
 /* ----- End ---------------------------------------------------------------- */
 

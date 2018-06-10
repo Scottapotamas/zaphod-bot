@@ -31,6 +31,15 @@ enum SystemDefines
 
 /* -------------------------------------------------------------------------- */
 
+enum CommunicationDefines
+{
+	MODULE_BAUD		= 115200,
+	INTERNAL_BAUD	= 115200,
+	EXTERNAL_BAUD	= 115200,
+};
+
+/* -------------------------------------------------------------------------- */
+
 enum FanDefines
 {
 	FAN_EVALUATE_TIME		= 500U,	//   2Hz

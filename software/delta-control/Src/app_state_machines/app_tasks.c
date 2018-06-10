@@ -114,7 +114,8 @@ void app_tasks_init( void )
     //Handle communications (comms to computers/phones etc)
     t = appTaskCommunicationCreate( &appTaskCommunication,
                                  appTaskCommunicationEventQueue,
-                                 DIM(appTaskCommunicationEventQueue) );
+                                 DIM(appTaskCommunicationEventQueue),
+								 INTERFACE_UART_MODULE );
 
     stateTaskerAddTask( &mainTasker, t, TASK_COMMUNICATION, "Comms" );
     stateTaskerStartTask( &mainTasker, t );
