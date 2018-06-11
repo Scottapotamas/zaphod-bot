@@ -9,15 +9,12 @@
 #include "app_signals.h"
 #include "app_events.h"
 
-#include "hal_uart.h"
-#include "app_times.h"
-
 #include "app_task_communication.h"
+#include "configuration.h"
+#include "hal_uart.h"
 
 #include "electricui.h"
 #include <eui_serial_transport.h>
-
-#include "status.h"
 
 /* ----- Private Function Definitions --------------------------------------- */
 
@@ -37,7 +34,6 @@ PRIVATE void AppTaskCommunication_rx_callback_uart( HalUartPort_t port, uint8_t 
 
 PRIVATE void AppTaskCommunication_rx_callback_cdc( uint8_t c );
 
-
 PRIVATE STATE AppTaskCommunication_main( AppTaskCommunication *me, const StateEvent *e );
 
 PRIVATE STATE AppTaskCommunication_electric_ui( AppTaskCommunication *me, const StateEvent *e );
@@ -46,29 +42,6 @@ eui_interface module_comms;
 eui_interface usb_comms;
 eui_interface internal_comms;
 eui_interface external_comms;
-
-PRIVATE void toggleLed();
-
-uint8_t   example_uint8   = 21;
-uint16_t  example_uint16  = 321;
-uint32_t  example_uint32  = 654321;
-float     example_float   = 3.14159;
-
-euiMessage_t dev_msg_store[] = {
-
-    {.msgID = "tgl", .type = TYPE_CALLBACK, .size = sizeof(toggleLed),      .payload = &toggleLed       },
-
-    //type examples
-    {.msgID = "ui8", .type = TYPE_UINT8,  .size = sizeof(example_uint8),  .payload = &example_uint8       },
-    {.msgID = "i16", .type = TYPE_UINT16, .size = sizeof(example_uint16), .payload = &example_uint16      },
-    {.msgID = "i32", .type = TYPE_UINT32, .size = sizeof(example_uint32), .payload = &example_uint32      },
-    {.msgID = "fPI", .type = TYPE_FLOAT,  .size = sizeof(example_float),  .payload = &example_float       },
-};
-
-void toggleLed()
-{
-  status_yellow_toggle();
-}
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -179,8 +152,8 @@ PRIVATE STATE AppTaskCommunication_electric_ui( AppTaskCommunication *me,
 			}
 
 			//eUI setup
-			setup_dev_msg(dev_msg_store, ARR_ELEM(dev_msg_store));
-			setup_identifier();
+        	configuration_electric_setup();	//get the configuration driver to setup access to variables
+			setup_identifier();				//specify this micro's UUID
 
         	return 0;
 
