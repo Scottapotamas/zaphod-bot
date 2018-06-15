@@ -4,56 +4,82 @@
 #include "electricui.h"
 #include "eui_serial_transport.h"
 
-/*
-| Group        	| Component          	| Task                                      	| Implemented 	|
-|--------------	|--------------------	|-------------------------------------------	|:-----------:	|
-| Fan Control  	| Speed %            	| Show current duty cycle                   	|             	|
-|              	| Speed RPM          	| Show current RPM                          	|             	|
-|              	| Fan Curve          	| Allow edits of temp/speed curve           	|             	|
-| Temperatures 	| PCB Ambient        	| In open-air part of PCB                   	|             	|
-|              	| PCB 12V Reg        	| Underneath 12V regulator                  	|             	|
-|              	| External Probe     	| Flying probe (near 75V PSU)               	|             	|
-| Motion       	| Status             	| Idle, homing, transit, line, spline, etc  	|             	|
-|              	| Cartesian Pos      	| (X, Y, Z) in 20.05mm format               	|             	|
-|              	| Angular Pos        	| Shaft angles in 34.5° format              	|             	|
-| Status       	| System State       	| Overall hardware status                   	|             	|
-|              	| LED 0              	| Indication matching onboard leds          	|             	|
-|              	| LED 1              	|                                           	|             	|
-|              	| LED 2              	|                                           	|             	|
-|              	| Button 0           	| State of button presses (accept UI press) 	|             	|
-|              	| Button 1           	|                                           	|             	|
-|              	| CPU Load %         	| Utilisation Stat                          	|             	|
-|              	| Micro Core Temp    	| Internal temperature sensor               	|             	|
-|              	| Add-in card state  	| If add-in card is powered or not          	|             	|
-| Motor X      	| State              	| Passive, Homing, Idle, Motion, Error      	|             	|
-|              	| Feedback Signal    	| -100% to +100% value for velocity/torque  	|             	|
-|              	| Current Position   	| Internal tracked current position         	|             	|
-|              	| Target Position    	| Servo driver target                       	|             	|
-|              	| Power              	| Consumption in Watts                      	|             	|
-|              	| Current            	| Draw in 1.25A format                      	|             	|
-|              	| Current Fault Flag 	| Indication from sense IC of OC event      	|             	|
-*/
+typedef struct
+{
+	uint8_t cpu_load;
+	float cpu_temp;
+	float input_voltage;
+	bool module_power;
+} SystemData_t;
 
-typedef struct {
+typedef struct
+{
+	uint8_t setpoint_percentage;
+	uint16_t speed_rpm;
+} FanData_t;
 
-} KinematicsOverview;
+typedef struct
+{
+	//todo add all points of fan curve here, or just a single?
+	uint8_t temperature;
+	uint8_t percentage;
+} FanCurve_t;
+
+typedef struct
+{
+	float pcb_ambient;
+	float pcb_regulator;
+	float external_probe;
+} TempData_t;
+
+typedef struct
+{
+	int32_t x;
+	int32_t y;
+	int32_t z;
+	uint8_t profile_type;
+	uint8_t move_progress;
+} KinematicsData_t;
+
+typedef struct
+{
+	bool enabled;
+	bool in_motion;
+	bool error;
+	float angle;
+	float current;
+	float power;
+} MotorData_t;
+
+
+SystemData_t sys_stats;
+FanData_t fan_stats;
+FanCurve_t fan_curve[5];
+TempData_t temp_sensors;
+
+KinematicsData_t motion_global;
+MotorData_t motion_servo_1;
+MotorData_t motion_servo_2;
+MotorData_t motion_servo_3;
+
 
 PRIVATE void toggleLed();
 
-uint8_t   example_uint8   = 21;
-uint16_t  example_uint16  = 321;
-uint32_t  example_uint32  = 654321;
-float     example_float   = 3.14159;
-
 euiMessage_t ui_variables[] = {
 
-    {.msgID = "tgl", .type = TYPE_CALLBACK, .size = sizeof(toggleLed),      .payload = &toggleLed       },
+    {.msgID = "tgl", .type = TYPE_CALLBACK, .size = sizeof(toggleLed), .payload = &toggleLed  },
 
     //type examples
-    {.msgID = "ui8", .type = TYPE_UINT8,  .size = sizeof(example_uint8),  .payload = &example_uint8       },
-    {.msgID = "i16", .type = TYPE_UINT16, .size = sizeof(example_uint16), .payload = &example_uint16      },
-    {.msgID = "i32", .type = TYPE_UINT32, .size = sizeof(example_uint32), .payload = &example_uint32      },
-    {.msgID = "fPI", .type = TYPE_FLOAT,  .size = sizeof(example_float),  .payload = &example_float       },
+    {.msgID = "sys", 	.type = TYPE_CUSTOM_MARKER, .size = sizeof(SystemData_t),  	.payload = &sys_stats       },
+    {.msgID = "fan", 	.type = TYPE_CUSTOM_MARKER, .size = sizeof(FanData_t), 		.payload = &fan_curve      	},
+    {.msgID = "curve", 	.type = TYPE_CUSTOM_MARKER, .size = sizeof(FanCurve_t), 	.payload = &example_uint32  },
+    {.msgID = "temp", 	.type = TYPE_CUSTOM_MARKER, .size = sizeof(TempData_t),  	.payload = &temp_sensors    },
+
+    {.msgID = "moStat",	.type = TYPE_CUSTOM_MARKER, .size = sizeof(KinematicsData_t),  	.payload = &motion_global },
+    {.msgID = "mo1", 	.type = TYPE_CUSTOM_MARKER, .size = sizeof(MotorData_t),  	.payload = &motion_servo_1    },
+    {.msgID = "mo2", 	.type = TYPE_CUSTOM_MARKER, .size = sizeof(MotorData_t),  	.payload = &motion_servo_2    },
+    {.msgID = "mo3", 	.type = TYPE_CUSTOM_MARKER, .size = sizeof(MotorData_t),  	.payload = &motion_servo_3    },
+
 };
 
 void toggleLed()
