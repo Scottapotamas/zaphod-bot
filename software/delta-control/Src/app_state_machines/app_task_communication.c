@@ -153,7 +153,6 @@ PRIVATE STATE AppTaskCommunication_electric_ui( AppTaskCommunication *me,
 
 			//eUI setup
         	configuration_electric_setup();	//get the configuration driver to setup access to variables
-			setup_identifier();				//specify this micro's UUID
 
         	return 0;
 
