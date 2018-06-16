@@ -132,8 +132,14 @@ servo_set_target_angle( ClearpathServoInstance_t servo, float angle_degrees )
 {
     Servo_t *me = &clearpath[servo];
 
-
-    me->angle_target_steps = convert_angle_steps( CLAMP(angle_degrees, SERVO_MIN_ANGLE, SERVO_MAX_ANGLE) );
+    if( angle_degrees > (SERVO_MIN_ANGLE * -1) && angle_degrees < SERVO_MAX_ANGLE)
+    {
+        me->angle_target_steps = convert_angle_steps( angle_degrees );
+    }
+    else
+    {
+    	//todo fail when angle outside range?
+    }
 }
 
 PUBLIC float
@@ -343,21 +349,22 @@ servo_process( ClearpathServoInstance_t servo )
 
             STATE_TRANSITION_TEST
 
-				//command the servo's target direction
-				if( me->angle_current_steps > me->angle_target_steps )
-				{
-					hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, SERVO_DIR_CCW );
-				}
-				else
-				{
-					hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, SERVO_DIR_CW );
-				}
-
             	//command rotation to move towards the target position
 				if( me->angle_current_steps != me->angle_target_steps )
 				{
-					//todo add 'multi-pulse' control with acceleration shaping?
+					//command the target direction
+					if( me->angle_current_steps < me->angle_target_steps )
+					{
+						hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, SERVO_DIR_CCW );
+						me->angle_current_steps++;
+					}
+					else
+					{
+						hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, SERVO_DIR_CW );
+						me->angle_current_steps--;
+					}
 
+					//todo add 'multi-pulse' control with acceleration shaping?
 					hal_gpio_toggle_pin( ServoHardwareMap[servo].pin_step );
 					hal_delay_us( SERVO_PULSE_DURATION_US );
 					hal_gpio_toggle_pin( ServoHardwareMap[servo].pin_step );
@@ -385,12 +392,22 @@ servo_process( ClearpathServoInstance_t servo )
 PRIVATE uint16_t
 convert_angle_steps( float shaft_angle )
 {
-	return shaft_angle * SERVO_STEPS_PER_REV;
+	/*
+	 * The kinematics output is an angle between -85 and +90, where 0 deg is when
+	 * the elbow-shaft link is parallel to the frame plate. Full range not available due
+	 * to physical limits on arm travel. Approx -65 to +60 is the safe working range.
+	 *
+	 * Servo steps are referenced to the homing point, which is the HW minimum -65,
+	 * therefore we need to convert the angle into steps, and apply the adequate offset.
+	 * The servo's range is approx 2300 counts.
+	 */
+
+	return (shaft_angle * SERVO_STEPS_PER_DEGREE) + ( SERVO_MIN_ANGLE * SERVO_STEPS_PER_DEGREE ) + SERVO_HOME_OFFSET;
 }
 
 PRIVATE float
 convert_steps_angle( uint16_t steps )
 {
-	return (float)steps / SERVO_STEPS_PER_REV;
+	return (float)steps / SERVO_STEPS_PER_DEGREE;
 }
 /* ----- End ---------------------------------------------------------------- */

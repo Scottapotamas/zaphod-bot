@@ -109,12 +109,12 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 			   			   //start
 			   			   motev->move.points[0].x = 0;
 			   			   motev->move.points[0].y = 0;
-			   			   motev->move.points[0].z = -150;
+			   			   motev->move.points[0].z = 0;
 
 			   			   //dest
 			   			   motev->move.points[1].x = 0;
 			   			   motev->move.points[1].y = 0;
-			   			   motev->move.points[1].z = -190;
+			   			   motev->move.points[1].z = MM_TO_MICRONS(5);
 
 			   			   motev->move.num_pts = 2;
 

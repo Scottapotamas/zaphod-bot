@@ -26,12 +26,13 @@ typedef struct
 
 typedef enum
 {
-	_SOLUTION_VALID,
-	_SOLUTION_ERROR,
+	SOLUTION_VALID,
+	SOLUTION_ERROR,
 } KinematicsSolution_t;
 
 
-typedef enum {
+typedef enum
+{
 	_POINT_TRANSIT = 0,
 	_LINE,
 	_CATMULL_SPLINE,
@@ -39,10 +40,13 @@ typedef enum {
 	_BEZIER_CUBIC,
 } MotionAdjective_t;
 
-typedef enum {
+typedef enum
+{
 	_POS_ABSOLUTE = 0,
 	_POS_RELATIVE,
 } MotionReference_t;
+
+#define MOVEMENT_POINTS_COUNT 4
 
 typedef struct
 {
@@ -50,7 +54,7 @@ typedef struct
 	MotionReference_t ref;	// MotionReference_t
     uint16_t duration;		// execution time in milliseconds
 
-    CartesianPoint_t* points;	//array of 3d points
+    CartesianPoint_t points[ MOVEMENT_POINTS_COUNT + 1 ];	//array of 3d points
     size_t num_pts;				//number of elements in points array
 } Movement_t;
 

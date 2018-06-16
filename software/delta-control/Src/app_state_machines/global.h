@@ -87,6 +87,14 @@ typedef union                           ///< Allow mapping int16 to uint16
 /** Return the clamped value of a variable between a low and a high value */
 #define CLAMP(X, LOW, HIGH)     (((X) > (HIGH)) ? (HIGH) : (((X) < (LOW)) ? (LOW) : (X)))
 
+/** Convert various units into microns */
+#define MM_TO_MICRONS(X)               ( X * 1000 )
+#define CM_TO_MICRONS(X)               ( X * 10000 )
+
+/** Convert microns into mm/cm */
+#define MICRONS_TO_MM(X)               ( X / 1000 )
+#define MICRONS_TO_CM(X)               ( X / 10000 )
+
 /* -------------------------------------------------------------------------- */
 
 //! \def FORBID()

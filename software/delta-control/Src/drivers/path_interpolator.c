@@ -156,6 +156,7 @@ path_interpolator_process( void )
                 	kinematics_point_to_angle( target, &angle_target );
 
                 	// Ask the motors to please move there
+
                 	servo_set_target_angle( _CLEARPATH_1, angle_target.a1 );
                 	servo_set_target_angle( _CLEARPATH_2, angle_target.a2 );
                 	servo_set_target_angle( _CLEARPATH_3, angle_target.a3 );
@@ -185,20 +186,20 @@ path_lerp_line( CartesianPoint_t p[], size_t points, float pos_weight, Cartesian
 	if(points < 2)
 	{
 		// need 2 points for a line
-		return _SOLUTION_ERROR;
+		return SOLUTION_ERROR;
 	}
 
 	// exact start and end of splines don't need calculation as catmull curves _will_ pass through all points
 	if(pos_weight == 0.0f)
 	{
 		output = &p[0];
-		return _SOLUTION_VALID;
+		return SOLUTION_VALID;
 	}
 
 	if(pos_weight == 1.0f)
 	{
 		output = &p[1];
-		return _SOLUTION_VALID;
+		return SOLUTION_VALID;
 	}
 
     // Linear interpolation between two points (lerp)
@@ -206,7 +207,7 @@ path_lerp_line( CartesianPoint_t p[], size_t points, float pos_weight, Cartesian
 	output->y = p[0].y + pos_weight*( p[1].y - p[0].y );
 	output->z = p[0].z + pos_weight*( p[1].z - p[0].z );
 
-    return _SOLUTION_VALID;
+    return SOLUTION_VALID;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -221,20 +222,20 @@ path_catmull_spline( CartesianPoint_t p[], size_t points, float pos_weight, Cart
 	if(points < 4)
 	{
 		// need 4 points for solution
-		return _SOLUTION_ERROR;
+		return SOLUTION_ERROR;
 	}
 
 	// exact start and end of splines don't need calculation as catmull curves _will_ pass through all points
 	if(pos_weight == 0.0f)
 	{
 		output = &p[1];
-		return _SOLUTION_VALID;	// todo add a 'end of range' flag?
+		return SOLUTION_VALID;	// todo add a 'end of range' flag?
 	}
 
 	if(pos_weight == 1.0f)
 	{
 		output = &p[2];
-		return _SOLUTION_VALID;
+		return SOLUTION_VALID;
 	}
 
     /* Derivation from http://www.mvps.org/directx/articles/catmull/
@@ -269,7 +270,7 @@ path_catmull_spline( CartesianPoint_t p[], size_t points, float pos_weight, Cart
 				( 2*p[0].z   - 5*p[1].z   + 4*p[2].z - p[3].z) * t2 +
 				(  -p[0].z   + 3*p[1].z   - 3*p[2].z + p[3].z) * t3 );
 
-    return _SOLUTION_VALID;
+    return SOLUTION_VALID;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -284,20 +285,20 @@ path_quadratic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weig
 	if(points < 3)
 	{
 		// need 3 points for quadratic solution
-		return _SOLUTION_ERROR;
+		return SOLUTION_ERROR;
 	}
 
 	// exact start and end of bezier
 	if(pos_weight == 0.0f)
 	{
 		output = &p[0];
-		return _SOLUTION_VALID;
+		return SOLUTION_VALID;
 	}
 
 	if(pos_weight == 1.0f)
 	{
 		output = &p[2];
-		return _SOLUTION_VALID;
+		return SOLUTION_VALID;
 	}
 
 	// General form for a quadratic bezier curve
@@ -315,7 +316,7 @@ path_quadratic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weig
 	output->y = ( omt2 * p[0].y ) + ( 2 * omt * t * p[1].y ) + ( tsq * p[2].y );
 	output->z = ( omt2 * p[0].z ) + ( 2 * omt * t * p[1].z ) + ( tsq * p[2].z );
 
-    return _SOLUTION_VALID;
+    return SOLUTION_VALID;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -330,20 +331,20 @@ path_cubic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weight, 
 	if(points < 4)
 	{
 		// need 3 points for quadratic solution
-		return _SOLUTION_ERROR;
+		return SOLUTION_ERROR;
 	}
 
 	// exact start and end of bezier
 	if(pos_weight == 0.0f)
 	{
 		output = &p[0];
-		return _SOLUTION_VALID;
+		return SOLUTION_VALID;
 	}
 
 	if(pos_weight == 1.0f)
 	{
 		output = &p[3];
-		return _SOLUTION_VALID;
+		return SOLUTION_VALID;
 	}
 
 	// General form for a cubic bezier curve
@@ -363,7 +364,7 @@ path_cubic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weight, 
     output->y = ( omt3 * p[0].y ) + ( 3 * omt2 * t * p[1].y ) + ( 3 * omt * tsq * p[2].y ) + ( tcu * p[3].y );
     output->z = ( omt3 * p[0].z ) + ( 3 * omt2 * t * p[1].z ) + ( 3 * omt * tsq * p[2].z ) + ( tcu * p[3].z );
 
-    return _SOLUTION_VALID;
+    return SOLUTION_VALID;
 }
 
 /* ----- End ---------------------------------------------------------------- */

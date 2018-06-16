@@ -5,18 +5,26 @@
 /* ----- Local Includes ----------------------------------------------------- */
 #include "kinematics.h"
 #include "motion_types.h"
-
 #include "global.h"
-#include "qassert.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
+//position offset
+//todo refactor using cartesian point type
+int32_t offset_x = MM_TO_MICRONS( 0 );
+int32_t offset_y = MM_TO_MICRONS( 0 );
+int32_t offset_z = MM_TO_MICRONS( 157 );
+
+//rotate the cartesian co-ordinate space
+int8_t rotate_x = 1;
+int8_t rotate_y = 1;
+int8_t rotate_z = -1;
 
 //delta geometry defines
-float f  = 50.0;    	// radius of motor shafts on base
-float rf = 180.0;    	// base joint to elbow joint distance
-float re = 330.0;    	// elbow joint to end affector joint
-float e  = 32.0;    	// end effector joint radius
+float f  = MM_TO_MICRONS( 50.0 );    // radius of motor shafts on base
+float rf = MM_TO_MICRONS( 180.0 );   // base joint to elbow joint distance
+float re = MM_TO_MICRONS( 330.0 );   // elbow joint to end affector joint
+float e  = MM_TO_MICRONS( 32.0 );    // end effector joint radius
 
 // cache common trig constants
 float sqrt3;
@@ -72,9 +80,14 @@ kinematics_init( void )
 PUBLIC KinematicsSolution_t
 kinematics_point_to_angle( CartesianPoint_t input, JointAngles_t *output )
 {
+	//offset the work-area position frame into the kinematics domain position
+	input.x = ( input.x + offset_x ) * rotate_x;
+	input.y = ( input.y + offset_y ) * rotate_y;
+	input.z = ( input.z + offset_z ) * rotate_z;
+
     uint8_t status = delta_angle_plane_calc( input.x, input.y, input.z, &output->a1 );
 
-    if (status == _SOLUTION_VALID)
+    if (status == SOLUTION_VALID)
     {
     	// rotate +120 degrees
     	status = delta_angle_plane_calc( 	input.x*cos120 + input.y*sin120,
@@ -83,7 +96,7 @@ kinematics_point_to_angle( CartesianPoint_t input, JointAngles_t *output )
 											&output->a2   );
     }
 
-    if (status == _SOLUTION_VALID)
+    if (status == SOLUTION_VALID)
     {
     	// rotate -120 degrees
     	status = delta_angle_plane_calc( 	input.x*cos120 - input.y*sin120,
@@ -147,14 +160,16 @@ kinematics_angle_to_point( JointAngles_t input, CartesianPoint_t *output )
 
     if (d < 0)
     {
-    	return _SOLUTION_ERROR;
+    	return SOLUTION_ERROR;
     }
 
     output->z = -(float)0.5*(b+sqrt(d))/a;
     output->x = (a1*output->z + b1) / dnm;
     output->y = (a2*output->z + b2) / dnm;
 
-    return _SOLUTION_VALID;
+    //todo correct the FK returned co-ordinates to undo the translations made in the IK stage
+
+    return SOLUTION_VALID;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -175,7 +190,7 @@ delta_angle_plane_calc(float x0, float y0, float z0, float *theta)
 
     if (d < 0)
     {
-    	return _SOLUTION_ERROR;
+    	return SOLUTION_ERROR;
     }
 
     float yj = ( y1 - a*b - sqrt(d) ) / ( b*b + 1 ); // choose the outer point
@@ -183,7 +198,7 @@ delta_angle_plane_calc(float x0, float y0, float z0, float *theta)
 
     *theta = 180.0 * atan( -zj/(y1 - yj) ) / M_PI + ( (yj > y1) ? 180.0 : 0.0 );
 
-    return _SOLUTION_VALID;
+    return SOLUTION_VALID;
 }
 
 /* ----- End ---------------------------------------------------------------- */
