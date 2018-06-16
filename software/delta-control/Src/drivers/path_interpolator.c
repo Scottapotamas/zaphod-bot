@@ -8,6 +8,7 @@
 #include "motion_types.h"
 #include "kinematics.h"
 #include "clearpath.h"
+#include "configuration.h"
 
 #include "global.h"
 #include "simple_state_machine.h"
@@ -74,7 +75,6 @@ path_interpolator_set_objective( Movement_t	* movement_to_process )
 PUBLIC float
 path_interpolator_get_progress( void )
 {
-
 	return planner.progress_percent;
 }
 
@@ -159,6 +159,10 @@ path_interpolator_process( void )
                 	servo_set_target_angle( _CLEARPATH_1, angle_target.a1 );
                 	servo_set_target_angle( _CLEARPATH_2, angle_target.a2 );
                 	servo_set_target_angle( _CLEARPATH_3, angle_target.a3 );
+
+                	//update the config/UI data based on these actions
+                	config_pub_position( target.x, target.y, target.z );
+                	config_pub_movement_data( move->type, me->progress_percent );
             	}
 
             STATE_EXIT_ACTION
