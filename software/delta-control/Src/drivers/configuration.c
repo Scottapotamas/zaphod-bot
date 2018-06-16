@@ -17,15 +17,14 @@ typedef struct
 
 	float input_voltage;	//voltage
 	bool module_enable;		//add-in card powered
-
 } SystemData_t;
 
 typedef struct
 {
-	char * build_branch;
-	char * build_info;
-	char * build_date;
-	char * build_time;
+	const char * build_branch;
+	const char * build_info;
+	const char * build_date;
+	const char * build_time;
 } BuildInfo_t;
 
 typedef struct
@@ -79,34 +78,25 @@ FanCurve_t 		fan_curve[5];
 TempData_t 		temp_sensors;
 
 MotionData_t 	motion_global;
-MotorData_t 	motion_servo_1;
-MotorData_t 	motion_servo_2;
-MotorData_t 	motion_servo_3;
+MotorData_t 	motion_servo[4];
 
-PRIVATE void toggleLed();
-
-euiMessage_t ui_variables[] = {
-
-    {.msgID = "tgl", .type = TYPE_CALLBACK, .size = sizeof(toggleLed), .payload = &toggleLed  },
-
-    //type examples
+euiMessage_t ui_variables[] =
+{
+    //higher level data
     {.msgID = "sys", 	.type = TYPE_CUSTOM, .size = sizeof(SystemData_t),  .payload = &sys_stats       },
     {.msgID = "fwb", 	.type = TYPE_CUSTOM, .size = sizeof(BuildInfo_t), 	.payload = &fw_info      	},
     {.msgID = "fan", 	.type = TYPE_CUSTOM, .size = sizeof(FanData_t), 	.payload = &fan_stats      	},
-    {.msgID = "curve", 	.type = TYPE_CUSTOM, .size = sizeof(FanCurve_t), 	.payload = &fan_curve  		},
+    {.msgID = "curve", 	.type = TYPE_CUSTOM, .size = sizeof(fan_curve), 	.payload = &fan_curve  		},
     {.msgID = "temp", 	.type = TYPE_CUSTOM, .size = sizeof(TempData_t),  	.payload = &temp_sensors 	},
 
+    //motion related information
     {.msgID = "moStat",	.type = TYPE_CUSTOM, .size = sizeof(MotionData_t), 	.payload = &motion_global 	},
-    {.msgID = "mo1", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo_1 	},
-    {.msgID = "mo2", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo_2 	},
-    {.msgID = "mo3", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo_3 	},
+    {.msgID = "mo1", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[0] },
+    {.msgID = "mo2", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[1] },
+    {.msgID = "mo3", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[2] },
+    {.msgID = "mo4", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[3] },
 
 };
-
-void toggleLed()
-{
-  status_yellow_toggle();
-}
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -117,6 +107,8 @@ configuration_init( void )
 
 
 }
+
+/* -------------------------------------------------------------------------- */
 
 PUBLIC void
 configuration_set_defaults( void )
@@ -130,6 +122,8 @@ configuration_set_defaults( void )
 
 }
 
+/* -------------------------------------------------------------------------- */
+
 PUBLIC void
 configuration_load( void )
 {
@@ -138,12 +132,16 @@ configuration_load( void )
 
 }
 
+/* -------------------------------------------------------------------------- */
+
 PUBLIC void
 configuration_save( void )
 {
 	//save settings to memory
 
 }
+
+/* -------------------------------------------------------------------------- */
 
 PUBLIC void
 configuration_electric_setup( void )
@@ -152,8 +150,136 @@ configuration_electric_setup( void )
 	setup_dev_msg(ui_variables, ARR_ELEM(ui_variables));
 }
 
-/* ----- Private Functions -------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
+// System Statistics and Settings
+
+PUBLIC void
+config_pub_cpu_load( uint8_t percent )
+{
+	sys_stats.cpu_load = percent;
+}
+
+PUBLIC void
+config_pub_cpu_clock( float clock )
+{
+	sys_stats.cpu_clock = clock;
+}
+
+PUBLIC void
+config_pub_cpu_temp( float temp )
+{
+	sys_stats.cpu_temp = temp;
+}
+
+PUBLIC void
+config_sensors_enable( bool enable )
+{
+	sys_stats.sensors_enable = enable;
+}
+
+void
+config_module_enable(bool enabled)
+{
+	sys_stats.module_enable = enabled;
+}
+
+PUBLIC void
+config_pub_input_voltage( float voltage )
+{
+	sys_stats.input_voltage = voltage;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+config_pub_fan_percentage( uint8_t percent )
+{
+	fan_stats.setpoint_percentage = percent;
+}
+
+PUBLIC void
+config_pub_fan_rpm( uint16_t rpm )
+{
+	fan_stats.speed_rpm = rpm;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+config_pub_temp_ambient( float temp )
+{
+	temp_sensors.pcb_ambient = temp;
+}
+
+PUBLIC void
+config_pub_temp_regulator( float temp )
+{
+	temp_sensors.pcb_regulator = temp;
+}
+
+PUBLIC void
+config_pub_temp_external( float temp )
+{
+	temp_sensors.external_probe = temp;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+config_pub_position( int32_t x, int32_t y, int32_t z )
+{
+	motion_global.x = x;
+	motion_global.y = y;
+	motion_global.z = z;
+}
+
+PUBLIC void
+config_pub_movement_data( uint8_t move_type, uint8_t progress )
+{
+	motion_global.profile_type = move_type;
+	motion_global.move_progress = progress;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+config_motor_enable( uint8_t servo, bool enable )
+{
+	motion_servo[servo].enabled = enable;
+}
+
+PUBLIC void
+config_motor_in_motion( uint8_t servo, bool moving )
+{
+	motion_servo[servo].in_motion = moving;
+}
+
+PUBLIC void
+config_motor_error( uint8_t servo, bool isError )
+{
+	motion_servo[servo].error = isError;
+}
+
+PUBLIC void
+config_motor_power( uint8_t servo, float watts )
+{
+	motion_servo[servo].power = watts;
+}
+
+PUBLIC void
+config_motor_current( uint8_t servo, float amps )
+{
+	motion_servo[servo].current = amps;
+}
+
+PUBLIC void
+config_motor_angle( uint8_t servo, float angle )
+{
+	motion_servo[servo].angle = angle;
+}
+
+/* ----- Private Functions -------------------------------------------------- */
 
 
 
