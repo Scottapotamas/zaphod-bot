@@ -5,6 +5,7 @@
 #include "hal_temperature.h"
 #include "hal_power.h"
 #include "hal_systick.h"
+#include "configuration.h"
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -33,7 +34,7 @@ sensors_enable( void )
 	hal_adc_start( HAL_ADC_INPUT_TEMP_EXT, 		20 );
 	hal_adc_start( HAL_ADC_INPUT_TEMP_INTERNAL, 20 );
 	hal_adc_start( HAL_ADC_INPUT_VREFINT, 		20 );
-
+	config_sensors_enable(true);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -53,6 +54,7 @@ sensors_disable( void )
 	hal_adc_stop( HAL_ADC_INPUT_TEMP_EXT 		);
 	hal_adc_stop( HAL_ADC_INPUT_TEMP_INTERNAL 	);
 	hal_adc_stop( HAL_ADC_INPUT_VREFINT			);
+	config_sensors_enable(false);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -62,26 +64,33 @@ sensors_disable( void )
 PUBLIC float
 sensors_ambient_C( void )
 {
-	return hal_temperature_pcb_degrees_C( hal_adc_read_avg( HAL_ADC_INPUT_TEMP_PCB ) );
+	float pcb_ambient_temp = hal_temperature_pcb_degrees_C( hal_adc_read_avg( HAL_ADC_INPUT_TEMP_PCB ) );
+	config_pub_temp_ambient( pcb_ambient_temp );
+	return pcb_ambient_temp;
 }
 
 PUBLIC float
 sensors_12v_regulator_C( void )
 {
-	return hal_temperature_pcb_degrees_C( hal_adc_read_avg( HAL_ADC_INPUT_TEMP_REG ) );
+	float pcb_regulator_temp = hal_temperature_pcb_degrees_C( hal_adc_read_avg( HAL_ADC_INPUT_TEMP_REG ) );
+	config_pub_temp_regulator( pcb_regulator_temp );
+	return pcb_regulator_temp;
 }
 
 PUBLIC float
 sensors_expansion_C( void )
 {
-	return hal_temperature_ext_degrees_C( hal_adc_read_avg( HAL_ADC_INPUT_TEMP_EXT ) );
-
+	float expansion_temp = hal_temperature_ext_degrees_C( hal_adc_read_avg( HAL_ADC_INPUT_TEMP_EXT ) );
+	config_pub_temp_external( expansion_temp );
+	return expansion_temp;
 }
 
 PUBLIC float
 sensors_microcontroller_C( void )
 {
-	return hal_temperature_micro_degrees_C( hal_adc_read_avg( HAL_ADC_INPUT_TEMP_INTERNAL ) );
+	float die_temp = hal_temperature_micro_degrees_C( hal_adc_read_avg( HAL_ADC_INPUT_TEMP_INTERNAL ) );
+	config_pub_cpu_temp( die_temp );
+	return die_temp;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -91,7 +100,9 @@ sensors_microcontroller_C( void )
 PUBLIC float
 sensors_input_V( void )
 {
-	return hal_voltage_V( hal_adc_read_avg( HAL_ADC_INPUT_VOLT_SENSE ) );
+	float input_voltage = hal_voltage_V( hal_adc_read_avg( HAL_ADC_INPUT_VOLT_SENSE ) );
+	config_pub_input_voltage( input_voltage );
+	return input_voltage;
 }
 
 PUBLIC float
