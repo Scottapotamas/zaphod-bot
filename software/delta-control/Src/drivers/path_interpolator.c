@@ -161,8 +161,8 @@ path_interpolator_process( void )
                 	servo_set_target_angle( _CLEARPATH_3, angle_target.a3 );
 
                 	//update the config/UI data based on these actions
-                	config_pub_position( target.x, target.y, target.z );
-                	config_pub_movement_data( move->type, me->progress_percent );
+                	config_set_position( target.x, target.y, target.z );
+                	config_set_movement_data( move->type, me->progress_percent );
             	}
 
             STATE_EXIT_ACTION

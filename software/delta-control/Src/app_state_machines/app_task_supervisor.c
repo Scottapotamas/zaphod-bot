@@ -15,10 +15,9 @@
 #include "app_task_supervisor.h"
 #include "app_task_supervisor_private.h"
 
-#include "hal_uuid.h"
 #include "status.h"
-
 #include "buzzer.h"
+
 /* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */

@@ -40,7 +40,7 @@ delta_angle_plane_calc( float x0, float y0, float z0, float *theta );
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
-kinematics_init( )
+kinematics_init( void )
 {
 	// calculate/cache common trig constants
 	sqrt3  = sqrt( 3.0f );

@@ -71,6 +71,9 @@ PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __att
     eventSubscribe( (StateTask*)me, MOTION_HEAD );
     eventSubscribe( (StateTask*)me, MOTION_TAIL );
 
+    kinematics_init();
+    path_interpolator_init();
+
     STATE_INIT( &AppTaskMotion_main );
 }
 

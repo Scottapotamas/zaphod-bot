@@ -33,13 +33,13 @@ configuration_electric_setup( void );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-config_pub_cpu_load( uint8_t percent );
+config_set_cpu_load( uint8_t percent );
 
 PUBLIC void
-config_pub_cpu_clock( float clock );
+config_set_cpu_clock( float clock );
 
 PUBLIC void
-config_pub_cpu_temp( float temp );
+config_set_cpu_temp( float temp );
 
 PUBLIC void
 config_sensors_enable( bool enable );
@@ -48,34 +48,34 @@ PUBLIC void
 config_module_enable( bool enable );
 
 PUBLIC void
-config_pub_input_voltage( float voltage );
+config_set_input_voltage( float voltage );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-config_pub_fan_percentage( uint8_t percent );
+config_set_fan_percentage( uint8_t percent );
 
 PUBLIC void
-config_pub_fan_rpm( uint16_t rpm );
+config_set_fan_rpm( uint16_t rpm );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-config_pub_temp_ambient( float temp );
+config_set_temp_ambient( float temp );
 
 PUBLIC void
-config_pub_temp_regulator( float temp );
+config_set_temp_regulator( float temp );
 
 PUBLIC void
-config_pub_temp_external( float temp );
+config_set_temp_external( float temp );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-config_pub_position( int32_t x, int32_t y, int32_t z );
+config_set_position( int32_t x, int32_t y, int32_t z );
 
 PUBLIC void
-config_pub_movement_data( uint8_t move_type, uint8_t progress );
+config_set_movement_data( uint8_t move_type, uint8_t progress );
 
 //todo add higher level movement mode?
 

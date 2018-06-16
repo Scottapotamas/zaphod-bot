@@ -146,7 +146,7 @@ fan_process( void )
 
             	//rotor stop detection
             	uint16_t fan_hall_rpm = 200;	//fake hall sensor value
-            	config_pub_fan_rpm(fan_hall_rpm);
+            	config_set_fan_rpm(fan_hall_rpm);
 
             	if( fan_hall_rpm < FAN_STALL_FAULT_RPM )
             	{
@@ -164,7 +164,7 @@ fan_process( void )
     }
 
 	hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ, me->speed );
-	config_pub_fan_percentage( me->speed );
+	config_set_fan_percentage( me->speed );
 }
 
 /* -------------------------------------------------------------------------- */

@@ -155,19 +155,19 @@ configuration_electric_setup( void )
 // System Statistics and Settings
 
 PUBLIC void
-config_pub_cpu_load( uint8_t percent )
+config_set_cpu_load( uint8_t percent )
 {
 	sys_stats.cpu_load = percent;
 }
 
 PUBLIC void
-config_pub_cpu_clock( float clock )
+config_set_cpu_clock( float clock )
 {
 	sys_stats.cpu_clock = clock;
 }
 
 PUBLIC void
-config_pub_cpu_temp( float temp )
+config_set_cpu_temp( float temp )
 {
 	sys_stats.cpu_temp = temp;
 }
@@ -185,7 +185,7 @@ config_module_enable(bool enabled)
 }
 
 PUBLIC void
-config_pub_input_voltage( float voltage )
+config_set_input_voltage( float voltage )
 {
 	sys_stats.input_voltage = voltage;
 }
@@ -193,13 +193,13 @@ config_pub_input_voltage( float voltage )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-config_pub_fan_percentage( uint8_t percent )
+config_set_fan_percentage( uint8_t percent )
 {
 	fan_stats.setpoint_percentage = percent;
 }
 
 PUBLIC void
-config_pub_fan_rpm( uint16_t rpm )
+config_set_fan_rpm( uint16_t rpm )
 {
 	fan_stats.speed_rpm = rpm;
 }
@@ -207,19 +207,19 @@ config_pub_fan_rpm( uint16_t rpm )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-config_pub_temp_ambient( float temp )
+config_set_temp_ambient( float temp )
 {
 	temp_sensors.pcb_ambient = temp;
 }
 
 PUBLIC void
-config_pub_temp_regulator( float temp )
+config_set_temp_regulator( float temp )
 {
 	temp_sensors.pcb_regulator = temp;
 }
 
 PUBLIC void
-config_pub_temp_external( float temp )
+config_set_temp_external( float temp )
 {
 	temp_sensors.external_probe = temp;
 }
@@ -227,7 +227,7 @@ config_pub_temp_external( float temp )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-config_pub_position( int32_t x, int32_t y, int32_t z )
+config_set_position( int32_t x, int32_t y, int32_t z )
 {
 	motion_global.x = x;
 	motion_global.y = y;
@@ -235,7 +235,7 @@ config_pub_position( int32_t x, int32_t y, int32_t z )
 }
 
 PUBLIC void
-config_pub_movement_data( uint8_t move_type, uint8_t progress )
+config_set_movement_data( uint8_t move_type, uint8_t progress )
 {
 	motion_global.profile_type = move_type;
 	motion_global.move_progress = progress;
