@@ -10,6 +10,7 @@
 #include "hal_systick.h"
 #include "sensors.h"
 #include "app_times.h"
+#include "configuration.h"
 
 /* ----- Private Types ------------------------------------------------------ */
 
@@ -59,7 +60,7 @@ PUBLIC void
 fan_init( void )
 {
     memset( &fan, 0, sizeof( fan ) );
-    hal_pwm_capture(_FAN_HALL);
+    hal_pwm_capture( _FAN_HALL );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -70,7 +71,7 @@ fan_set( uint8_t speed_percentage )
 	Fan_t *me = &fan;
 
 	//0-100% speed control over fan
-	me->set_speed = CLAMP(speed_percentage, 0, 100);
+	me->set_speed = CLAMP( speed_percentage, 0, 100 );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -86,7 +87,7 @@ fan_process( void )
             STATE_ENTRY_ACTION
 
 				//make sure fan is not spinning?
-        		hal_pwm_generation( _PWM_TIM_FAN, 0, 0 );
+				me->speed = 0;
 
             STATE_TRANSITION_TEST
 
@@ -106,10 +107,8 @@ fan_process( void )
             STATE_ENTRY_ACTION
 
 				//set PWM to 100% for configurable short period
-            	hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ, 100 );
-
+        		me->speed = 100;
             	me->startup_timer = hal_systick_get_ms();
-            	me->speed = 100;
 
             STATE_TRANSITION_TEST
 
@@ -126,7 +125,6 @@ fan_process( void )
         case FAN_STATE_ON:
             STATE_ENTRY_ACTION
 
-				hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ, me->set_speed );
 				me->speed = me->set_speed;
 
             STATE_TRANSITION_TEST
@@ -137,7 +135,6 @@ fan_process( void )
 				//speed change req while running
 				if( me->set_speed != me->speed )
 				{
-					hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ, me->set_speed );
 					me->speed = me->set_speed;
 				}
 
@@ -149,6 +146,7 @@ fan_process( void )
 
             	//rotor stop detection
             	uint16_t fan_hall_rpm = 200;	//fake hall sensor value
+            	config_pub_fan_rpm(fan_hall_rpm);
 
             	if( fan_hall_rpm < FAN_STALL_FAULT_RPM )
             	{
@@ -164,6 +162,9 @@ fan_process( void )
             STATE_END
             break;
     }
+
+	hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ, me->speed );
+	config_pub_fan_percentage( me->speed );
 }
 
 /* -------------------------------------------------------------------------- */
