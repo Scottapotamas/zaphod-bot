@@ -15,12 +15,12 @@ extern "C" {
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC const char *   ProgramName        = "OV2460-STM32-CAMERA";
+PUBLIC const char *   ProgramName        = "DeltaBot V1";
 
 #ifdef __DEBUG
     PUBLIC const char *   ProgramBuildType   = "DEBUG";
 #else
-PUBLIC const char *   ProgramBuildType   = "RELEASE";
+    PUBLIC const char *   ProgramBuildType   = "RELEASE";
 #endif
 
 #ifdef USE_GIT_BUILD_INFO

@@ -114,10 +114,7 @@ PUBLIC void
 configuration_init( void )
 {
 	//perform any setup here if needed
-	fw_info.build_branch 	= ProgramBuildBranch;
-	fw_info.build_info 		= ProgramBuildInfo;
-	fw_info.build_date 		= ProgramBuildDate;
-	fw_info.build_time 		= ProgramBuildTime;
+
 
 }
 
@@ -125,6 +122,11 @@ PUBLIC void
 configuration_set_defaults( void )
 {
 	//set variables back to their hardcoded defaults
+	fw_info.build_branch 	= ProgramBuildBranch;
+	fw_info.build_info 		= ProgramBuildInfo;
+	fw_info.build_date 		= ProgramBuildDate;
+	fw_info.build_time 		= ProgramBuildTime;
+
 
 }
 
