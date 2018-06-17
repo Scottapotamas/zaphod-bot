@@ -9,14 +9,15 @@
 
 typedef struct
 {
+	bool sensors_enable;	//if ADC sampling and conversions are active
+	bool module_enable;		//add-in card powered
+
 	//microcontroller info
 	uint8_t cpu_load;	//percentage
 	float cpu_clock;	//speed in Mhz
 	float cpu_temp;		//temp in degrees
-	bool sensors_enable;	//if ADC sampling and conversions are active
 
 	float input_voltage;	//voltage
-	bool module_enable;		//add-in card powered
 } SystemData_t;
 
 typedef struct
@@ -29,8 +30,8 @@ typedef struct
 
 typedef struct
 {
-	uint8_t setpoint_percentage;
 	uint16_t speed_rpm;
+	uint8_t setpoint_percentage;
 } FanData_t;
 
 typedef struct
