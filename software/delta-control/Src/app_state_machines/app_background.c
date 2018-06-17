@@ -15,11 +15,17 @@
 #include "path_interpolator.h"
 #include "clearpath.h"
 
+#include "status.h"
+#include "hal_gpio.h"
+#include "sensors.h"
+#include "configuration.h"
+
 /* -------------------------------------------------------------------------- */
 
 PRIVATE timer_ms_t 	button_timer 	= 0;
 PRIVATE timer_ms_t 	buzzer_timer 	= 0;
 PRIVATE timer_ms_t 	fan_timer 		= 0;
+PRIVATE timer_ms_t 	adc_timer 		= 0;
 
 /* -------------------------------------------------------------------------- */
 
@@ -29,6 +35,7 @@ app_background_init( void )
 	timer_ms_start( &button_timer, 	BACKGROUND_RATE_BUTTON_MS );
 	timer_ms_start( &buzzer_timer, 	BACKGROUND_RATE_BUZZER_MS );
 	timer_ms_start( &fan_timer, 	FAN_EVALUATE_TIME );
+	timer_ms_start( &adc_timer, 	250 );	//refresh ADC readings
 
 }
 
@@ -60,6 +67,21 @@ app_background( void )
         fan_process();
     	timer_ms_start( &fan_timer, FAN_EVALUATE_TIME );
     }
+
+    if( timer_ms_is_expired( &adc_timer ) )
+    {
+        status_green( hal_gpio_read_pin(_SERVO_3_HLFB) );
+
+        config_set_temp_regulator( sensors_12v_regulator_C() );
+        config_set_temp_ambient( sensors_ambient_C() );
+        config_set_temp_external( sensors_expansion_C() );
+        config_set_cpu_temp( sensors_microcontroller_C() );
+
+        config_set_input_voltage( sensors_input_V() );
+
+    	timer_ms_start( &adc_timer, 250 );
+    }
+
 
     //process any running movements and allow servo drivers to process commands
     path_interpolator_process();
