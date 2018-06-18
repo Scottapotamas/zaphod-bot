@@ -22,6 +22,28 @@ typedef struct
 
 typedef struct
 {
+	uint8_t mode_group_0;	//UART
+	uint8_t mode_group_1;	//I2C
+} InternalInterface_t;
+
+typedef struct
+{
+	uint8_t aux_0;	//PWM, IO capable
+	uint8_t aux_1;	//PWM, IO capable
+	uint8_t aux_2;	//PWM, IO capable
+	uint8_t aux_3;	//DAC/ADC/IO capable
+	uint8_t aux_4;  //DAC/ADC/IO capable
+} InternalIO_t;
+
+typedef struct
+{
+	uint8_t mode_group_0;	//uart capable IO pair
+	uint8_t mode_group_1;	//CAN capable IO pair
+	bool usb_enabled;
+} ExternalIO_t;
+
+typedef struct
+{
 	const char * build_branch;
 	const char * build_info;
 	const char * build_date;
@@ -32,11 +54,11 @@ typedef struct
 {
 	uint16_t speed_rpm;
 	uint8_t setpoint_percentage;
+	uint8_t state;
 } FanData_t;
 
 typedef struct
 {
-	//todo add all points of fan curve here, or just a single?
 	uint8_t temperature;
 	uint8_t percentage;
 } FanCurve_t;
@@ -65,15 +87,20 @@ typedef struct
 typedef struct
 {
 	bool enabled;
-	bool in_motion;
-	bool error;
+	uint8_t state;
+	uint8_t feedback;
 	float angle;
+	float target;
 	float current;
 	float power;
 } MotorData_t;
 
 SystemData_t 	sys_stats;
 BuildInfo_t		fw_info;
+InternalInterface_t internal_comm_modes;
+InternalIO_t	internal_io_modes;
+ExternalIO_t	external_io_modes;
+
 FanData_t 		fan_stats;
 FanCurve_t 		fan_curve[5];
 TempData_t 		temp_sensors;
@@ -83,9 +110,13 @@ MotorData_t 	motion_servo[4];
 
 euiMessage_t ui_variables[] =
 {
-    //higher level data
+    //higher level system setup information
     {.msgID = "sys", 	.type = TYPE_CUSTOM, .size = sizeof(SystemData_t),  .payload = &sys_stats       },
+    {.msgID = "intDA", 	.type = TYPE_CUSTOM, .size = sizeof(InternalInterface_t), .payload = &external_io_modes },
+    {.msgID = "intIO", 	.type = TYPE_CUSTOM, .size = sizeof(InternalIO_t),  .payload = &internal_io_modes   },
+    {.msgID = "extIO", 	.type = TYPE_CUSTOM, .size = sizeof(ExternalIO_t),  .payload = &internal_comm_modes },
     {.msgID = "fwb", 	.type = TYPE_CUSTOM, .size = sizeof(BuildInfo_t), 	.payload = &fw_info      	},
+
     {.msgID = "fan", 	.type = TYPE_CUSTOM, .size = sizeof(FanData_t), 	.payload = &fan_stats      	},
     {.msgID = "curve", 	.type = TYPE_CUSTOM, .size = sizeof(fan_curve), 	.payload = &fan_curve  		},
     {.msgID = "temp", 	.type = TYPE_CUSTOM, .size = sizeof(TempData_t),  	.payload = &temp_sensors 	},
@@ -114,11 +145,25 @@ configuration_init( void )
 PUBLIC void
 configuration_set_defaults( void )
 {
-	//set variables back to their hardcoded defaults
+	//set build info to hardcoded values
 	fw_info.build_branch 	= ProgramBuildBranch;
 	fw_info.build_info 		= ProgramBuildInfo;
 	fw_info.build_date 		= ProgramBuildDate;
 	fw_info.build_time 		= ProgramBuildTime;
+
+	//Set the configurable IO to off
+	internal_comm_modes.mode_group_0 	= PIN_INACTIVE;
+	internal_comm_modes.mode_group_1 	= PIN_INACTIVE;
+	external_io_modes.mode_group_0 		= PIN_INACTIVE;
+	external_io_modes.mode_group_1 		= PIN_INACTIVE;
+	external_io_modes.usb_enabled 		= false;
+
+	internal_io_modes.aux_0 			= PIN_INACTIVE;
+	internal_io_modes.aux_1 			= PIN_INACTIVE;
+	internal_io_modes.aux_2 			= PIN_INACTIVE;
+	internal_io_modes.aux_3 			= PIN_INACTIVE;
+	internal_io_modes.aux_4 			= PIN_INACTIVE;
+
 
 
 }

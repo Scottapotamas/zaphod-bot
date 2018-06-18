@@ -13,6 +13,18 @@ extern "C" {
 
 /* ----- Defines ------------------------------------------------------------ */
 
+typedef enum {
+	PIN_INACTIVE = 0,
+	PIN_INPUT,
+	PIN_ADC,
+	PIN_DAC,
+	PIN_OUTPUT,
+	PIN_PWM,
+	PIN_UART,
+	PIN_I2C,
+	PIN_CAN
+} ConfigurableIOMode_t;
+
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
