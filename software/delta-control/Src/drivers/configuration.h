@@ -97,10 +97,10 @@ PUBLIC void
 config_motor_enable( uint8_t servo, bool enable );
 
 PUBLIC void
-config_motor_in_motion( uint8_t servo, bool moving );
+config_motor_state( uint8_t servo, uint8_t state );
 
 PUBLIC void
-config_motor_error( uint8_t servo, bool isError );
+config_motor_feedback( uint8_t servo, uint8_t fb );
 
 PUBLIC void
 config_motor_power( uint8_t servo, float watts );

@@ -296,15 +296,15 @@ config_motor_enable( uint8_t servo, bool enable )
 }
 
 PUBLIC void
-config_motor_in_motion( uint8_t servo, bool moving )
+config_motor_state( uint8_t servo, uint8_t state )
 {
-	motion_servo[servo].in_motion = moving;
+	motion_servo[servo].state = state;
 }
 
 PUBLIC void
-config_motor_error( uint8_t servo, bool isError )
+config_motor_feedback( uint8_t servo, uint8_t fb )
 {
-	motion_servo[servo].error = isError;
+	motion_servo[servo].feedback = fb;
 }
 
 PUBLIC void

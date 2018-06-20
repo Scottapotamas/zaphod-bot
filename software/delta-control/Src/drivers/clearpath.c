@@ -105,11 +105,10 @@ servo_start( ClearpathServoInstance_t servo )
     {
     	hal_gpio_write_pin( ServoHardwareMap[servo].pin_enable, SERVO_DISABLE );
     	me->enabled = false;
-    	hal_delay_ms( SERVO_INTERRUPTED_DISABLE_DELAY_MIN_MS );
+//    	hal_delay_ms( SERVO_INTERRUPTED_DISABLE_DELAY_MIN_MS );
     }
 
     //todo work out a better way to trigger homing actions
-
     STATE_NEXT( SERVO_STATE_HOMING );
 }
 
@@ -219,8 +218,8 @@ servo_process( ClearpathServoInstance_t servo )
 				//EN pin high starts homing process on clearpath servo
 				//servo homing behaviour is defined with the clearpath setup software, uses torque based end-stop sensing
 				hal_gpio_write_pin( ServoHardwareMap[servo].pin_enable, SERVO_ENABLE );
-        		me->home_complete = 0;
 
+            	me->home_complete = 0;
             	me->timer = hal_systick_get_ms();
 
             STATE_TRANSITION_TEST
