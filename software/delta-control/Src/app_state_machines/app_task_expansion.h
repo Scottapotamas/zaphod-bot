@@ -1,5 +1,5 @@
-#ifndef APP_TASK_COMMUNICATION_H
-#define APP_TASK_COMMUNICATION_H
+#ifndef APP_TASK_EXPANSION_H
+#define APP_TASK_EXPANSION_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,9 +18,9 @@ extern "C" {
 /* ----- State Task Control Block ------------------------------------------- */
 
 /** Application Task Control Block File System */
-typedef struct AppTaskCommunication AppTaskCommunication;
+typedef struct AppTaskExpansion AppTaskExpansion;
 
-struct AppTaskCommunication
+struct AppTaskExpansion
 {
     // ~~~ Core task structure ~~~
     StateTask		super;
@@ -30,30 +30,32 @@ struct AppTaskCommunication
     EventTimer		timer2;
 
     // ~~~ Task Variables ~~~
-     uint8_t	instance;	//port in use (internal, external, etc)
+    uint8_t	instance;	//port in use (internal, external, etc)
+    uint8_t	mode;		//mode for the port
 };
 
 typedef enum {
-	INTERFACE_UART_MODULE,
+	EXPANSION_INTERNAL_0 = 0,
+	EXPANSION_INTERNAL_1,
+	EXPANSION_INTERNAL_2,
+	EXPANSION_INTERNAL_3,	//DAC/ADC capable
+	EXPANSION_INTERNAL_4,	//DAC/ADC capable
 
-	//Internal headers
-	INTERFACE_UART_INTERNAL,
-	INTERFACE_I2C_INTERNAL,
+	EXPANSION_EXTERNAL_0,
+	EXPANSION_EXTERNAL_1,
+	EXPANSION_EXTERNAL_2,
+	EXPANSION_EXTERNAL_3,
 
-	//LEMO Connector
-	INTERFACE_UART_EXTERNAL,
-	INTERFACE_CAN_EXTERNAL,
-	INTERFACE_USB_EXTERNAL,
-	INTERFACE_COUNT
-} CommunicationInstance_t;
+	NUM_EXPANSION_PORTS,
+} ExpansionInstance_t;
 
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC StateTask *
-appTaskCommunicationCreate(	 AppTaskCommunication *me,
-                         	 StateEvent        *eventQueueData[],
-							 const uint8_t     eventQueueSize,
-							 const CommunicationInstance_t instance );
+appTaskExpansionCreate(	AppTaskExpansion *me,
+                        StateEvent    	 *eventQueueData[],
+						const uint8_t    eventQueueSize,
+						const ExpansionInstance_t instance );
 
 /* ----- End ---------------------------------------------------------------- */
 
@@ -61,4 +63,4 @@ appTaskCommunicationCreate(	 AppTaskCommunication *me,
 }
 #endif
 
-#endif /* APP_TASK_COMMUNICATION_H */
+#endif /* APP_TASK_EXPANSION_H */

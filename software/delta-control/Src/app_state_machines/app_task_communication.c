@@ -143,7 +143,7 @@ PRIVATE STATE AppTaskCommunication_electric_ui( AppTaskCommunication *me,
 
 					break;
 
-				case INTERFACE_USB:
+				case INTERFACE_USB_EXTERNAL:
 					//todo init cdc here
 					//todo setup callback to AppTaskCommunication_rx_callback_cdc
 					usb_comms.output_char_fnPtr = &AppTaskCommunication_tx_put_usb;

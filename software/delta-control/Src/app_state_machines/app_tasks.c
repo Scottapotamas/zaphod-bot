@@ -19,6 +19,7 @@
 /* Application Tasks */
 #include "app_task_supervisor.h"
 #include "app_task_communication.h"
+#include "app_task_expansion.h"
 #include "app_task_motion.h"
 
 #include "button.h"
@@ -61,6 +62,9 @@ EventSubscribers eventSubscriberList[STATE_MAX_SIGNAL];
 
 AppTaskCommunication       appTaskCommunication;
 StateEvent *               appTaskCommunicationEventQueue[10];
+
+AppTaskExpansion	       appTaskExpansion;
+StateEvent *               appTaskExpansionEventQueue[3];
 
 AppTaskMotion    		   appTaskMotion;
 StateEvent *               appTaskMotionEventQueue[20];
@@ -118,6 +122,15 @@ void app_tasks_init( void )
 								 INTERFACE_UART_MODULE );
 
     stateTaskerAddTask( &mainTasker, t, TASK_COMMUNICATION, "Comms" );
+    stateTaskerStartTask( &mainTasker, t );
+
+    //Handle auxillary IO setup/set/get
+    t = appTaskExpansionCreate( &appTaskExpansion,
+                                appTaskExpansionEventQueue,
+                                DIM(appTaskExpansionEventQueue),
+								0 );
+
+    stateTaskerAddTask( &mainTasker, t, TASK_EXPANSION, "Expansion" );
     stateTaskerStartTask( &mainTasker, t );
 
     //Handle motion controls
