@@ -42,6 +42,7 @@ app_hardware_init( void )
     fan_init();
     sensors_init();
 	sensors_enable();
+	configuration_init();
 
     //delta main servo motor handlers
     servo_init( _CLEARPATH_1 );

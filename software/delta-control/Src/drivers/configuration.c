@@ -44,10 +44,10 @@ typedef struct
 
 typedef struct
 {
-	const char * build_branch;
-	const char * build_info;
-	const char * build_date;
-	const char * build_time;
+	char build_branch[8];
+	char build_info[12];
+	char build_date[10];
+	char build_time[8];
 } BuildInfo_t;
 
 typedef struct
@@ -136,7 +136,7 @@ PUBLIC void
 configuration_init( void )
 {
 	//perform any setup here if needed
-
+	configuration_set_defaults();
 
 }
 
@@ -146,10 +146,15 @@ PUBLIC void
 configuration_set_defaults( void )
 {
 	//set build info to hardcoded values
-	fw_info.build_branch 	= ProgramBuildBranch;
-	fw_info.build_info 		= ProgramBuildInfo;
-	fw_info.build_date 		= ProgramBuildDate;
-	fw_info.build_time 		= ProgramBuildTime;
+	memset(&fw_info.build_branch, 0, sizeof(fw_info.build_branch));
+	memset(&fw_info.build_info, 0, sizeof(fw_info.build_info));
+	memset(&fw_info.build_date, 0, sizeof(fw_info.build_date));
+	memset(&fw_info.build_time, 0, sizeof(fw_info.build_time));
+
+	strcpy(&fw_info.build_branch, ProgramBuildBranch );
+	strcpy(&fw_info.build_info, ProgramBuildInfo );
+	strcpy(&fw_info.build_date, ProgramBuildDate );
+	strcpy(&fw_info.build_time, ProgramBuildTime );
 
 	//Set the configurable IO to off
 	internal_comm_modes.mode_group_0 	= PIN_INACTIVE;
