@@ -17,6 +17,7 @@
 typedef enum
 {
     FAN_STATE_OFF,
+	FAN_STATE_STALL,
 	FAN_STATE_START,
     FAN_STATE_ON,
 } FanState_t;
@@ -103,6 +104,31 @@ fan_process( void )
             STATE_END
             break;
 
+        case FAN_STATE_STALL:
+            STATE_ENTRY_ACTION
+
+			//stop the fan because we think it's stalled
+			me->speed = 0;
+			me->startup_timer = hal_systick_get_ms();
+
+			STATE_TRANSITION_TEST
+
+			//check if the current setpoint is likely under the RPM stall limit
+			if (me->set_speed < (FAN_STALL_MAX_RPM / FAN_STALL_FAULT_RPM))
+			{
+				me->set_speed += 10;	//increase the setpoint by 10%
+			}
+
+			//has timer expired
+			if ((hal_systick_get_ms() - me->startup_timer) > FAN_STALL_WAIT_TIME_MS)
+			{
+				STATE_NEXT(FAN_STATE_START);
+			}
+
+            STATE_EXIT_ACTION
+            STATE_END
+            break;
+
         case FAN_STATE_START:
             STATE_ENTRY_ACTION
 
@@ -153,7 +179,7 @@ fan_process( void )
             		//set target speed to be slightly higher than the current speed?
 
             		//restart the fan
-                    STATE_NEXT( FAN_STATE_START );
+                    STATE_NEXT( FAN_STATE_STALL );
             	}
 
             STATE_EXIT_ACTION
@@ -165,6 +191,8 @@ fan_process( void )
 
 	hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ, me->speed );
 	config_set_fan_percentage( me->speed );
+	config_set_fan_state( me->currentState );
+
 }
 
 /* -------------------------------------------------------------------------- */

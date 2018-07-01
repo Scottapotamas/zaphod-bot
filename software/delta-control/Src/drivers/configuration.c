@@ -250,6 +250,12 @@ config_set_fan_rpm( uint16_t rpm )
 	fan_stats.speed_rpm = rpm;
 }
 
+PUBLIC void
+config_set_fan_state( uint8_t state )
+{
+	fan_stats.state = state;
+}
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void

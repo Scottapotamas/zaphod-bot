@@ -70,6 +70,9 @@ config_set_fan_percentage( uint8_t percent );
 PUBLIC void
 config_set_fan_rpm( uint16_t rpm );
 
+PUBLIC void
+config_set_fan_state( uint8_t state );
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
