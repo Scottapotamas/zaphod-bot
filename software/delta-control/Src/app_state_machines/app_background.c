@@ -19,7 +19,7 @@
 #include "hal_gpio.h"
 #include "sensors.h"
 #include "configuration.h"
-
+#include "hal_system_speed.h"
 /* -------------------------------------------------------------------------- */
 
 PRIVATE timer_ms_t 	button_timer 	= 0;
@@ -78,6 +78,9 @@ app_background( void )
         config_set_cpu_temp( sensors_microcontroller_C() );
 
         config_set_input_voltage( sensors_input_V() );
+
+        config_set_cpu_load( hal_system_speed_get_load() );
+        config_set_cpu_clock( hal_system_speed_get_speed() );
 
     	timer_ms_start( &adc_timer, 250 );
     }

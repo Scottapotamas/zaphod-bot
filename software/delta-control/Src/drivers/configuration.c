@@ -14,7 +14,7 @@ typedef struct
 
 	//microcontroller info
 	uint8_t cpu_load;	//percentage
-	float cpu_clock;	//speed in Mhz
+	uint8_t cpu_clock;	//speed in Mhz
 	float cpu_temp;		//temp in degrees
 
 	float input_voltage;	//voltage
@@ -209,7 +209,7 @@ config_set_cpu_load( uint8_t percent )
 PUBLIC void
 config_set_cpu_clock( float clock )
 {
-	sys_stats.cpu_clock = clock;
+	sys_stats.cpu_clock = clock / 1000000;	//convert to Mhz
 }
 
 PUBLIC void
