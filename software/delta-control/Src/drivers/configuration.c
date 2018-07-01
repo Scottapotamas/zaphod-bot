@@ -48,6 +48,7 @@ typedef struct
 	char build_info[12];
 	char build_date[10];
 	char build_time[8];
+	char build_type[8];
 } BuildInfo_t;
 
 typedef struct
@@ -150,11 +151,13 @@ configuration_set_defaults( void )
 	memset(&fw_info.build_info, 0, sizeof(fw_info.build_info));
 	memset(&fw_info.build_date, 0, sizeof(fw_info.build_date));
 	memset(&fw_info.build_time, 0, sizeof(fw_info.build_time));
+	memset(&fw_info.build_type, 0, sizeof(fw_info.build_type));
 
 	strcpy(&fw_info.build_branch, ProgramBuildBranch );
 	strcpy(&fw_info.build_info, ProgramBuildInfo );
 	strcpy(&fw_info.build_date, ProgramBuildDate );
 	strcpy(&fw_info.build_time, ProgramBuildTime );
+	strcpy(&fw_info.build_type, ProgramBuildType );
 
 	//Set the configurable IO to off
 	internal_comm_modes.mode_group_0 	= PIN_INACTIVE;
