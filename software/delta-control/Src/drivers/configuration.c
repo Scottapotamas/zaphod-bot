@@ -79,6 +79,7 @@ typedef struct
 	int32_t z;
 
 	uint8_t	mode;	//manual, demo, program execute, etc
+	uint8_t	state;	//idle, running, etc
 
 	//information about the current move being executed
 	uint8_t profile_type;
@@ -90,9 +91,8 @@ typedef struct
 	bool enabled;
 	uint8_t state;
 	uint8_t feedback;
-	float angle;
-	float target;
-	float current;
+	float current_angle;
+	float target_angle;
 	float power;
 } MotorData_t;
 
@@ -328,17 +328,16 @@ config_motor_power( uint8_t servo, float watts )
 }
 
 PUBLIC void
-config_motor_current( uint8_t servo, float amps )
+config_motor_current_angle( uint8_t servo, float angle )
 {
-	motion_servo[servo].current = amps;
+	motion_servo[servo].current_angle = angle;
 }
 
 PUBLIC void
-config_motor_angle( uint8_t servo, float angle )
+config_motor_target_angle( uint8_t servo, float angle )
 {
-	motion_servo[servo].angle = angle;
+	motion_servo[servo].target_angle = angle;
 }
-
 /* ----- Private Functions -------------------------------------------------- */
 
 

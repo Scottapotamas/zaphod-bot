@@ -109,10 +109,10 @@ PUBLIC void
 config_motor_power( uint8_t servo, float watts );
 
 PUBLIC void
-config_motor_current( uint8_t servo, float amps );
+config_motor_current_angle( uint8_t servo, float angle );
 
 PUBLIC void
-config_motor_angle( uint8_t servo, float angle );
+config_motor_target_angle( uint8_t servo, float angle );
 
 /* ----- End ---------------------------------------------------------------- */
 

@@ -16,6 +16,7 @@
 #include "qassert.h"
 #include "simple_state_machine.h"
 #include "app_times.h"
+#include "configuration.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -131,6 +132,8 @@ servo_set_target_angle( ClearpathServoInstance_t servo, float angle_degrees )
 {
     Servo_t *me = &clearpath[servo];
 
+    config_motor_target_angle( servo, angle_degrees);
+
     if( angle_degrees > (SERVO_MIN_ANGLE * -1) && angle_degrees < SERVO_MAX_ANGLE)
     {
         me->angle_target_steps = convert_angle_steps( angle_degrees );
@@ -171,6 +174,8 @@ PUBLIC void
 servo_process( ClearpathServoInstance_t servo )
 {
     Servo_t *me = &clearpath[servo];
+
+    float servo_power = sensors_servo_W( ServoHardwareMap[servo].adc_current );
 
     switch( me->currentState )
     {
@@ -283,7 +288,7 @@ servo_process( ClearpathServoInstance_t servo )
 				if( hal_systick_get_ms() - me->timer > SERVO_IDLE_SETTLE_MS )
 				{
 	            	//check if the motor has been drawing higher than expected power while stationary
-	            	if( sensors_servo_W( ServoHardwareMap[servo].adc_current ) > SERVO_IDLE_POWER_ALERT_W )
+	            	if( servo_power > SERVO_IDLE_POWER_ALERT_W )
 	            	{
 	            		//something might be wrong, watch it more closely
 						STATE_NEXT( SERVO_STATE_IDLE_HIGH_LOAD );
@@ -314,7 +319,7 @@ servo_process( ClearpathServoInstance_t servo )
 				}
 
             	//read the smoothed power draw, we expect some load due to end effector or forces imparted from extra-axis movements
-				if( sensors_servo_W( ServoHardwareMap[servo].adc_current ) > SERVO_IDLE_POWER_ALERT_W )
+				if( servo_power > SERVO_IDLE_POWER_ALERT_W )
 				{
 					//been measuring a pretty high load for a while now
 					if( ( hal_systick_get_ms() - me->timer ) > SERVO_IDLE_POWER_TRIP_MS )
@@ -384,6 +389,11 @@ servo_process( ClearpathServoInstance_t servo )
             STATE_END
             break;
     }
+
+    config_motor_state( servo , me->currentState);
+    config_motor_enable( servo, me->enabled );
+    config_motor_power( servo, servo_power);
+
 }
 
 /* -------------------------------------------------------------------------- */
