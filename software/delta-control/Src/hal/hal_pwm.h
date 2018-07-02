@@ -44,6 +44,11 @@ typedef struct
 
 /* ----- Public Functions -------------------------------------------------- */
 
+
+PUBLIC void
+hal_setup_capture(uint8_t input);
+
+
 PUBLIC void
 hal_pwm_capture( uint8_t servo_number );
 

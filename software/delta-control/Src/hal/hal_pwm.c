@@ -64,11 +64,12 @@ HAL_TIM_MspPostInit( TIM_HandleTypeDef* htim );
 
 /* ----- Public Functions --------------------------------------------------- */
 
-void hal_pwm_capture(uint8_t servo_number)
+void hal_setup_capture(uint8_t input)
 {
+
 	TIM_HandleTypeDef* tim_handle = 0;
 
-	switch (servo_number)
+	switch (input)
 	{
 		case _HLFB_SERVO_1:
 			tim_handle = &htim3;
@@ -96,153 +97,64 @@ void hal_pwm_capture(uint8_t servo_number)
 	}
 
 	// Setup
-	//instance is set in above switch to reduce repetition
 	tim_handle->Init.Prescaler 			= 839;
-	tim_handle->Init.Period 			= 0;
+	tim_handle->Init.Period 			= 0xFFFF;
 	tim_handle->Init.CounterMode 		= TIM_COUNTERMODE_UP;
 	tim_handle->Init.ClockDivision 		= TIM_CLOCKDIVISION_DIV1;
 	tim_handle->Init.RepetitionCounter 	= 0;
 
-	if (HAL_TIM_PWM_Init(tim_handle) != HAL_OK)
-	{
-		_Error_Handler(__FILE__, __LINE__);
-	}
+	  if (HAL_TIM_Base_Init(tim_handle) != HAL_OK)
+	  {
+	    _Error_Handler(__FILE__, __LINE__);
+	  }
 
-	if (HAL_TIM_IC_Init(tim_handle) != HAL_OK)
-	{
-		_Error_Handler(__FILE__, __LINE__);
-	}
+	  TIM_ClockConfigTypeDef sClockSourceConfig;
 
-	// Setup
-	TIM_SlaveConfigTypeDef sSlaveConfig;
+	  sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+	  if (HAL_TIM_ConfigClockSource(tim_handle, &sClockSourceConfig) != HAL_OK)
+	  {
+	    _Error_Handler(__FILE__, __LINE__);
+	  }
 
-	sSlaveConfig.SlaveMode 			= TIM_SLAVEMODE_RESET;
-	sSlaveConfig.InputTrigger 		= TIM_TS_TI1FP1;
-	sSlaveConfig.TriggerPolarity 	= TIM_INPUTCHANNELPOLARITY_RISING;
-	sSlaveConfig.TriggerPrescaler 	= TIM_ICPSC_DIV1;
-	sSlaveConfig.TriggerFilter 		= 0;
+	  if (HAL_TIM_IC_Init(tim_handle) != HAL_OK)
+	  {
+	    _Error_Handler(__FILE__, __LINE__);
+	  }
 
-	if (HAL_TIM_SlaveConfigSynchronization(tim_handle, &sSlaveConfig) != HAL_OK)
-	{
-		_Error_Handler(__FILE__, __LINE__);
-	}
+	  TIM_MasterConfigTypeDef sMasterConfig;
 
+	  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+	  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+	  if (HAL_TIMEx_MasterConfigSynchronization(tim_handle, &sMasterConfig) != HAL_OK)
+	  {
+	    _Error_Handler(__FILE__, __LINE__);
+	  }
 
-	TIM_IC_InitTypeDef sConfigIC;
-	sConfigIC.ICPrescaler 			= TIM_ICPSC_DIV1;
-	sConfigIC.ICFilter 				= 0;
+	  TIM_IC_InitTypeDef sConfigIC;
 
-	//Channel 1
-	sConfigIC.ICPolarity 			= TIM_INPUTCHANNELPOLARITY_RISING;
-	sConfigIC.ICSelection 			= TIM_ICSELECTION_DIRECTTI;
-	if (HAL_TIM_IC_ConfigChannel(tim_handle, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
-	{
-		_Error_Handler(__FILE__, __LINE__);
-	}
-
-	//Channel 2
-	sConfigIC.ICPolarity 			= TIM_INPUTCHANNELPOLARITY_FALLING;
-	sConfigIC.ICSelection 			= TIM_ICSELECTION_INDIRECTTI;
-	if (HAL_TIM_IC_ConfigChannel(tim_handle, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
-	{
-		_Error_Handler(__FILE__, __LINE__);
-	}
-
-	TIM_MasterConfigTypeDef sMasterConfig;
-
-	sMasterConfig.MasterOutputTrigger 		= TIM_TRGO_RESET;
-	sMasterConfig.MasterSlaveMode 			= TIM_MASTERSLAVEMODE_DISABLE;
-
-	if (HAL_TIMEx_MasterConfigSynchronization(tim_handle, &sMasterConfig) != HAL_OK)
-	{
-		_Error_Handler(__FILE__, __LINE__);
-	}
+	  sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
+	  sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+	  sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+	  sConfigIC.ICFilter = 0;
+	  if (HAL_TIM_IC_ConfigChannel(tim_handle, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+	  {
+	    _Error_Handler(__FILE__, __LINE__);
+	  }
 
 
-	if(servo_number == _HLFB_SERVO_3 )
-	{
-		TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig;
-
-		sBreakDeadTimeConfig.OffStateRunMode 	= TIM_OSSR_DISABLE;
-		sBreakDeadTimeConfig.OffStateIDLEMode 	= TIM_OSSI_DISABLE;
-		sBreakDeadTimeConfig.LockLevel 			= TIM_LOCKLEVEL_OFF;
-		sBreakDeadTimeConfig.DeadTime 			= 0;
-		sBreakDeadTimeConfig.BreakState 		= TIM_BREAK_DISABLE;
-		sBreakDeadTimeConfig.BreakPolarity 		= TIM_BREAKPOLARITY_HIGH;
-		sBreakDeadTimeConfig.AutomaticOutput 	= TIM_AUTOMATICOUTPUT_DISABLE;
-
-		if (HAL_TIMEx_ConfigBreakDeadTime(tim_handle, &sBreakDeadTimeConfig) != HAL_OK)
-		{
-			_Error_Handler(__FILE__, __LINE__);
-		}
-	}
-
-	if( HAL_TIM_IC_Start_IT(tim_handle, TIM_CHANNEL_2) != HAL_OK )
-	{
-		Error_Handler();
-	}
-
-	if( HAL_TIM_IC_Start_IT(tim_handle, TIM_CHANNEL_1) != HAL_OK )
-	{
-		Error_Handler();
-	}
 
 
-	HAL_TIM_MspPostInit(tim_handle);
+	  hal_gpio_init_alternate(_FAN_TACHO, MODE_AF_PP, GPIO_AF3_TIM9, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL);
+
+	  HAL_NVIC_SetPriority( TIM1_BRK_TIM9_IRQn, 4, 3 );
+	  HAL_NVIC_EnableIRQ( TIM1_BRK_TIM9_IRQn );
+
+	  HAL_TIM_Base_Start(tim_handle);
+	  HAL_TIM_IC_Start_IT(tim_handle, TIM_CHANNEL_1);
+
 }
-/*
-void hal_pwm_setup_ic(void)
-{
-  TIM_SlaveConfigTypeDef sSlaveConfig;
-  TIM_IC_InitTypeDef sConfigIC;
 
-  htim9.Instance = TIM9;
-  htim9.Init.Prescaler = 839;
-  htim9.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim9.Init.Period = 0;
-  htim9.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  if (HAL_TIM_IC_Init(&htim9) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  sSlaveConfig.SlaveMode = TIM_SLAVEMODE_RESET;
-  sSlaveConfig.InputTrigger = TIM_TS_TI1FP1;
-  sSlaveConfig.TriggerPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
-  sSlaveConfig.TriggerPrescaler = TIM_ICPSC_DIV1;
-  sSlaveConfig.TriggerFilter = 0;
-  if (HAL_TIM_SlaveConfigSynchronization(&htim9, &sSlaveConfig) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
-  sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
-  sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
-  sConfigIC.ICFilter = 0;
-  if (HAL_TIM_IC_ConfigChannel(&htim9, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_FALLING;
-  sConfigIC.ICSelection = TIM_ICSELECTION_INDIRECTTI;
-  if (HAL_TIM_IC_ConfigChannel(&htim9, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-	if( HAL_TIM_IC_Start_IT(&htim9, TIM_CHANNEL_2) != HAL_OK )
-	{
-		Error_Handler();
-	}
-
-	if( HAL_TIM_IC_Start_IT(&htim9, TIM_CHANNEL_1) != HAL_OK )
-	{
-		Error_Handler();
-	}
-}
-*/
+/* -------------------------------------------------------------------------- */
 
 void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency, uint8_t duty_cycle)
 {
@@ -352,6 +264,8 @@ void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency, uint
 	HAL_TIM_MspPostInit(tim_handle);
 }
 
+/* -------------------------------------------------------------------------- */
+
 void hal_pwm_set(PWMOutputTimerDef_t pwm_output, uint8_t duty_cycle)
 {
 	TIM_HandleTypeDef* tim_handle = 0;
@@ -393,7 +307,6 @@ void hal_pwm_set(PWMOutputTimerDef_t pwm_output, uint8_t duty_cycle)
 	__HAL_TIM_SET_COMPARE(tim_handle, TIM_CHANNEL_1, duty_cycle); //sets the PWM duty cycle
 }
 
-/* -------------------------------------------------------------------------- */
 /* -------------------------------------------------------------------------- */
 
 // TIM Group 3 - PWM Input
@@ -535,6 +448,11 @@ HAL_TIM_MspPostInit( TIM_HandleTypeDef* htim )
 		hal_gpio_init_alternate( _AUX_PWM_2, GPIO_MODE_AF_PP, GPIO_AF9_TIM12, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
+	if( htim->Instance==TIM9 )
+	{
+		hal_gpio_init_alternate( _FAN_HALL, GPIO_MODE_AF_PP, GPIO_AF3_TIM9, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+	}
+
 	//unused servo A and B pins, used for potential step/direction outputs in future
 	/*
 	  if(htim->Instance==TIM1)
@@ -652,7 +570,18 @@ void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef* tim_icHandle)
 
 /* -------------------------------------------------------------------------- */
 
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
+	{
+	}
 
+	if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
+	{
+	}
+
+
+}
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
@@ -687,6 +616,11 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 	else if(htim->Instance==TIM9)
 	{
 		result = &input_results[4];
+	}
+
+	if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
+	{
+
 	}
 
 	if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)

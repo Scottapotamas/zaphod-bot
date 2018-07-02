@@ -97,7 +97,7 @@ const HalGpioDef_t HalGpioHardwareMap[] =
 		[ _BUZZER                  ]   = { .mode = MODE_AF_PP,     .port = PORT_B, .pin = PIN_9, .initial = 1 },
 
 		[ _FAN_PWM                 ]   = { .mode = MODE_AF_PP,     .port = PORT_B, .pin = PIN_8, .initial = 0 },
-		[ _FAN_TACHO               ]   = { .mode = MODE_OUT_PP,    .port = PORT_E, .pin = PIN_5, .initial = 0 },
+		[ _FAN_TACHO               ]   = { .mode = MODE_AF_PP,     .port = PORT_E, .pin = PIN_5, .initial = 0 },
 
 		[ _TEMP_PCB_AMBIENT        ]   = { .mode = MODE_ANALOG,    .port = PORT_C, .pin = PIN_0, .initial = 0 },
 		[ _TEMP_PCB_PSU            ]   = { .mode = MODE_ANALOG,    .port = PORT_C, .pin = PIN_1, .initial = 0 },
