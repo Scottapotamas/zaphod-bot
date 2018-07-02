@@ -82,6 +82,9 @@ fan_process( void )
 {
 	Fan_t *me = &fan;
 
+	//get the current speed
+	uint16_t fan_hall_rpm = 200;	//fake hall sensor value
+
     switch( me->currentState )
     {
         case FAN_STATE_OFF:
@@ -171,13 +174,8 @@ fan_process( void )
                 }
 
             	//rotor stop detection
-            	uint16_t fan_hall_rpm = 200;	//fake hall sensor value
-            	config_set_fan_rpm(fan_hall_rpm);
-
             	if( fan_hall_rpm < FAN_STALL_FAULT_RPM )
             	{
-            		//set target speed to be slightly higher than the current speed?
-
             		//restart the fan
                     STATE_NEXT( FAN_STATE_STALL );
             	}
@@ -191,6 +189,7 @@ fan_process( void )
 
 	hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ, me->speed );
 	config_set_fan_percentage( me->speed );
+	config_set_fan_rpm( fan_hall_rpm );
 	config_set_fan_state( me->currentState );
 
 }
