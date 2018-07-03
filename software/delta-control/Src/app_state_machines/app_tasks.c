@@ -27,6 +27,7 @@
 #include "hal_systick.h"
 #include "hal_delay.h"
 #include "hal_adc.h"
+#include "hal_soft_ic.h"
 
 #include "app_version.h"
 
@@ -153,6 +154,7 @@ void app_tasks_init( void )
 
     hal_systick_hook( 1, eventTimerTick );
     hal_systick_hook( 1, hal_adc_tick );
+    hal_systick_hook( 1, hal_soft_ic_tick );
 
 }
 

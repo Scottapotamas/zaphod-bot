@@ -61,7 +61,8 @@ PUBLIC void
 fan_init( void )
 {
     memset( &fan, 0, sizeof( fan ) );
-    hal_pwm_capture( _FAN_HALL );
+
+    //todo setup input capture peripheral instead of relying on soft IC implementation
 }
 
 /* -------------------------------------------------------------------------- */
@@ -82,15 +83,15 @@ fan_process( void )
 {
 	Fan_t *me = &fan;
 
-	//get the current speed
-	uint16_t fan_hall_rpm = 200;	//fake hall sensor value
+	//get the current fan speed
+	uint16_t fan_hall_rpm = sensors_fan_speed_RPM();
 
     switch( me->currentState )
     {
         case FAN_STATE_OFF:
             STATE_ENTRY_ACTION
 
-				//make sure fan is not spinning?
+				//make sure fan is not spinning
 				me->speed = 0;
 
             STATE_TRANSITION_TEST
@@ -189,9 +190,7 @@ fan_process( void )
 
 	hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ, me->speed );
 	config_set_fan_percentage( me->speed );
-	config_set_fan_rpm( fan_hall_rpm );
 	config_set_fan_state( me->currentState );
-
 }
 
 /* -------------------------------------------------------------------------- */

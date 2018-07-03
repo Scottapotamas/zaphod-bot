@@ -264,6 +264,12 @@ config_set_fan_state( uint8_t state )
 	fan_stats.state = state;
 }
 
+PUBLIC void
+config_set_fan_state( uint8_t state )
+{
+	fan_stats.state = state;
+}
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void

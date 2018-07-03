@@ -2,6 +2,7 @@
 
 #include "sensors.h"
 #include "hal_adc.h"
+#include "hal_soft_ic.h"
 #include "hal_temperature.h"
 #include "hal_power.h"
 #include "hal_systick.h"
@@ -34,6 +35,9 @@ sensors_enable( void )
 	hal_adc_start( HAL_ADC_INPUT_TEMP_EXT, 		20 );
 	hal_adc_start( HAL_ADC_INPUT_TEMP_INTERNAL, 20 );
 	hal_adc_start( HAL_ADC_INPUT_VREFINT, 		20 );
+
+	hal_soft_ic_start( HAL_SOFT_IC_HALL, 1);
+
 	config_sensors_enable(true);
 }
 
@@ -54,6 +58,9 @@ sensors_disable( void )
 	hal_adc_stop( HAL_ADC_INPUT_TEMP_EXT 		);
 	hal_adc_stop( HAL_ADC_INPUT_TEMP_INTERNAL 	);
 	hal_adc_stop( HAL_ADC_INPUT_VREFINT			);
+
+	hal_soft_ic_stop( HAL_SOFT_IC_HALL );
+
 	config_sensors_enable(false);
 }
 
@@ -125,6 +132,16 @@ sensors_servo_W( HalAdcInput_t servo_to_sample )
 	}
 
 	return sensors_input_V() * sensors_servo_A( servo_to_sample );
+}
+
+PUBLIC uint16_t
+sensors_fan_speed_RPM( void )
+{
+	//rpm = 60 * rps, where rps = 1000msec / duration (msec) of rising edge width
+	//two hall pulses per revolution
+	uint16_t rpm = 60 * ((1000 / 2)/hal_soft_ic_read_avg( HAL_SOFT_IC_HALL ) );
+    config_set_fan_rpm( rpm );
+	return rpm;
 }
 
 /* ----- End ---------------------------------------------------------------- */

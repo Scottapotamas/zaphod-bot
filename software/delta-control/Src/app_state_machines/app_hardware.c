@@ -7,14 +7,16 @@
 #include "hal_dma.h"
 #include "hal_adc.h"
 #include "hal_gpio.h"
+#include "hal_soft_ic.h"
 #include "hal_watchdog.h"
 #include "hal_system_speed.h"
+
 #include "status.h"
+#include "configuration.h"
 #include "buzzer.h"
 #include "fan.h"
 #include "sensors.h"
 #include "clearpath.h"
-
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -37,12 +39,13 @@ app_hardware_init( void )
     hal_systick_init();
     hal_dma_init();
     hal_adc_init();
+    hal_soft_ic_init();	//todo get hardware timer input capture working on tim9 for fan speed
 
+	configuration_init();
     buzzer_init();
     fan_init();
     sensors_init();
 	sensors_enable();
-	configuration_init();
 
     //delta main servo motor handlers
     servo_init( _CLEARPATH_1 );
