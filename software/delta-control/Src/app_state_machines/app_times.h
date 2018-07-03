@@ -13,12 +13,11 @@ extern "C" {
 
 enum AppTimeoutsMs
 {
-    TIME_BUTTON_POLL_MS                      =     200U, /* ms */
+    TIME_BUTTON_POLL_MS                      =     100U, /* ms */
     TIME_BUTTON_DEFAULTS_ACTIVATE_MS         =    5000U, /* ms */
 
     TIME_BUTTON_NORMAL_PRESS                 =      50U, /* ms */
     TIME_BUTTON_LONG_PRESS                   =    1500U, /* ms */
-
 };
 
 /* -------------------------------------------------------------------------- */

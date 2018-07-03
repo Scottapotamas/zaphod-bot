@@ -72,12 +72,12 @@ app_background( void )
     {
         status_green( hal_gpio_read_pin(_SERVO_3_HLFB) );
 
-        config_set_temp_regulator( sensors_12v_regulator_C() );
-        config_set_temp_ambient( sensors_ambient_C() );
-        config_set_temp_external( sensors_expansion_C() );
-        config_set_cpu_temp( sensors_microcontroller_C() );
+        sensors_12v_regulator_C();
+        sensors_ambient_C();
+        sensors_expansion_C();
+        sensors_microcontroller_C();
 
-        config_set_input_voltage( sensors_input_V() );
+        sensors_input_V();
 
         config_set_cpu_load( hal_system_speed_get_load() );
         config_set_cpu_clock( hal_system_speed_get_speed() );

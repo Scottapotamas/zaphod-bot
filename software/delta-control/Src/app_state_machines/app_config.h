@@ -14,7 +14,7 @@ extern "C" {
 #define APPLICATION_VERSION      0
 
 //! Hardware Version - Currently a static fixed value.
-#define HARDWARE_VERSION         0
+#define HARDWARE_VERSION         1
 
 //! Manufacturer name
 #define MANUFACTURER_NAME        "Scott Rapson"
