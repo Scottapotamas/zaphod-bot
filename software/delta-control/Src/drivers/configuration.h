@@ -25,6 +25,12 @@ typedef enum {
 	PIN_CAN
 } ConfigurableIOMode_t;
 
+typedef struct
+{
+	uint8_t temperature;
+	uint8_t percentage;
+} FanCurve_t;
+
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
@@ -72,6 +78,9 @@ config_set_fan_rpm( uint16_t rpm );
 
 PUBLIC void
 config_set_fan_state( uint8_t state );
+
+PUBLIC FanCurve_t*
+config_get_fan_curve_ptr( void );
 
 /* -------------------------------------------------------------------------- */
 

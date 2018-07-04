@@ -36,21 +36,8 @@ typedef struct
 
 PRIVATE Fan_t fan;
 
-typedef struct
-{
-    float temp;
-    uint8_t percentage;
-} FanControlPoint_t;
 
-PRIVATE FanControlPoint_t fan_curve[] =
-{
-	{ .temp = 19.0f, 	.percentage =	0 },
-    { .temp = 20.0f, 	.percentage =	30 },
-    { .temp = 35.0f, 	.percentage =	50 },
-    { .temp = 50.0f, 	.percentage =	60 },
-    { .temp = 60.0f, 	.percentage =	80 },
-    { .temp = 70.0f,	.percentage =	95 },
-};
+PRIVATE FanCurve_t * fan_curve;
 
 PRIVATE uint8_t
 fan_speed_at_temp( float temperature );
@@ -61,6 +48,9 @@ PUBLIC void
 fan_init( void )
 {
     memset( &fan, 0, sizeof( fan ) );
+
+    //get a pointer to the fan curve configuration table
+    fan_curve = config_get_fan_curve_ptr();
 
     //todo setup input capture peripheral instead of relying on soft IC implementation
 }
@@ -200,27 +190,31 @@ fan_process( void )
 PRIVATE uint8_t
 fan_speed_at_temp( float temperature )
 {
-	//protect against out-of-bounds temperature inputs
-    if( temperature < fan_curve[ 0 ].temp )
-    {
-    	//temp is lower than lowest point in LUT
-        return 0.0;
-    }
-    else if( temperature > fan_curve[ DIM(fan_curve) - 1 ].temp )
-    {
-    	//temp exceeds max LUT value
-        return 100.0;
-    }
+	//ensure the pointer is set (or default to a high fan speed)
+	if(fan_curve)
+	{
+		//protect against out-of-bounds temperature inputs
+	    if( temperature < fan_curve[ 0 ].temperature )
+	    {
+	    	//temperature is lower than lowest point in LUT
+	        return fan_curve[ 0 ].percentage;
+	    }
+	    else if( temperature > fan_curve[ NUM_FAN_CURVE_POINTS - 1 ].temperature )
+	    {
+	    	//temperature exceeds max LUT value
+	        return 100.0;
+	    }
 
-    for( uint8_t i = 0; i < DIM(fan_curve) - 1; i++ )
-    {
-    	//within range between two rows of the LUT
-        if( temperature > fan_curve[ i ].temp && temperature <= fan_curve[ i + 1 ].temp )
-        {
-        	//linear interpolation for fan speed between the surrounding rows in LUT
-        	return fan_curve[ i ].percentage + ( ((temperature - fan_curve[ i ].temp)/(fan_curve[ i + 1 ].temp - fan_curve[ i ].temp)) * ( fan_curve[ i + 1 ].percentage - fan_curve[ i ].percentage ) ) ;
-        }
-    }
+	    for( uint8_t i = 0; i < NUM_FAN_CURVE_POINTS - 1; i++ )
+	    {
+	    	//within range between two rows of the LUT
+	        if( temperature > fan_curve[ i ].temperature && temperature <= fan_curve[ i + 1 ].temperature )
+	        {
+	        	//linear interpolation for fan speed between the surrounding rows in LUT
+	        	return fan_curve[ i ].percentage + ( ((temperature - fan_curve[ i ].temperature)/(fan_curve[ i + 1 ].temperature - fan_curve[ i ].temperature)) * ( fan_curve[ i + 1 ].percentage - fan_curve[ i ].percentage ) ) ;
+	        }
+	    }
+	}
 
     return 97;	// should have returned with a valid percentage by now, fail ON for safety.
 }

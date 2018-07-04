@@ -47,6 +47,7 @@ enum FanDefines
 	FAN_STALL_FAULT_RPM		= 140U,
 	FAN_STALL_MAX_RPM		= 2000U,
 	FAN_FREQUENCY_HZ		= 25000UL,
+	NUM_FAN_CURVE_POINTS	= 5U,
 };
 
 /* -------------------------------------------------------------------------- */

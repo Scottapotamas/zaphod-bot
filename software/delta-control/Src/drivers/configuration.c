@@ -6,6 +6,7 @@
 
 #include "hal_uuid.h"
 #include "app_version.h"
+#include "app_times.h"
 
 typedef struct
 {
@@ -60,12 +61,6 @@ typedef struct
 
 typedef struct
 {
-	uint8_t temperature;
-	uint8_t percentage;
-} FanCurve_t;
-
-typedef struct
-{
 	float pcb_ambient;
 	float pcb_regulator;
 	float external_probe;
@@ -103,7 +98,15 @@ InternalIO_t	internal_io_modes;
 ExternalIO_t	external_io_modes;
 
 FanData_t 		fan_stats;
-FanCurve_t 		fan_curve[5];
+FanCurve_t 		fan_curve[] =
+{
+	{ .temperature = 19, .percentage =   0 },
+    { .temperature = 20, .percentage =  30 },
+    { .temperature = 35, .percentage =  50 },
+    { .temperature = 50, .percentage =  60 },
+    { .temperature = 65, .percentage = 100 },
+};
+
 TempData_t 		temp_sensors;
 
 MotionData_t 	motion_global;
@@ -264,10 +267,15 @@ config_set_fan_state( uint8_t state )
 	fan_stats.state = state;
 }
 
-PUBLIC void
-config_set_fan_state( uint8_t state )
+PUBLIC FanCurve_t*
+config_get_fan_curve_ptr( void )
 {
-	fan_stats.state = state;
+	if( DIM(fan_curve) == NUM_FAN_CURVE_POINTS  )
+	{
+		return &fan_curve[0];
+	}
+
+	return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -344,6 +352,7 @@ config_motor_target_angle( uint8_t servo, float angle )
 {
 	motion_servo[servo].target_angle = angle;
 }
+
 /* ----- Private Functions -------------------------------------------------- */
 
 
