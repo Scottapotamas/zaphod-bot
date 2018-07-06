@@ -70,8 +70,6 @@ app_background( void )
 
     if( timer_ms_is_expired( &adc_timer ) )
     {
-        status_green( hal_gpio_read_pin(_SERVO_3_HLFB) );
-
         sensors_12v_regulator_C();
         sensors_ambient_C();
         sensors_expansion_C();

@@ -17,6 +17,7 @@
 #include "fan.h"
 #include "sensors.h"
 #include "clearpath.h"
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
