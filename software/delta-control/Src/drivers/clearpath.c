@@ -232,7 +232,7 @@ servo_process( ClearpathServoInstance_t servo )
 				//the HLFB output pin will be set to speed mode, outputs 45Hz PWM where DC% relates to the velocity.
 				//expect the motor to slowly home, stop, move to the neutral point, then stop
 				//guard times for min and max homing delays (how long the motor would take in worst case to home
-				bool status_ok = 1;	//todo read hlfb signal here
+				bool status_ok = hal_gpio_read_pin(ServoHardwareMap[servo].pwm_feedback);	//todo read hlfb signal here
 
 				if( status_ok )
 				{
