@@ -27,6 +27,7 @@ PRIVATE STATE 	AppTaskMotion_main		( AppTaskMotion *me, const StateEvent *e );
 PRIVATE STATE 	AppTaskMotion_home		( AppTaskMotion *me, const StateEvent *e );
 PRIVATE STATE 	AppTaskMotion_inactive	( AppTaskMotion *me, const StateEvent *e );
 PRIVATE STATE 	AppTaskMotion_active	( AppTaskMotion *me, const StateEvent *e );
+PRIVATE STATE 	AppTaskMotion_recovery	( AppTaskMotion *me, const StateEvent *e );
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -65,6 +66,7 @@ PRIVATE void AppTaskMotionConstructor( AppTaskMotion *me )
 PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __attribute__((__unused__)) )
 {
     eventSubscribe( (StateTask*)me, MOTION_PREPARE );
+    eventSubscribe( (StateTask*)me, MOTION_EMERGENCY );
     eventSubscribe( (StateTask*)me, MOTION_STOP );
 
     eventSubscribe( (StateTask*)me, MOTION_REQUEST );
@@ -96,7 +98,10 @@ PRIVATE STATE AppTaskMotion_main( AppTaskMotion *me, const StateEvent *e )
 
         case MOTION_PREPARE:
         	STATE_TRAN( AppTaskMotion_home );
+			return 0;
 
+        case MOTION_EMERGENCY:
+        	STATE_TRAN( AppTaskMotion_recovery );
 			return 0;
 
     }
@@ -172,6 +177,10 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
         	}
         	return 0;
 
+        case MOTION_EMERGENCY:
+        	STATE_TRAN( AppTaskMotion_recovery );
+			return 0;
+
 		case STATE_EXIT_SIGNAL:
 			eventTimerStopIfActive(&me->timer1);
 
@@ -217,6 +226,9 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
 			}
 			return 0;
 
+        case MOTION_EMERGENCY:
+        	STATE_TRAN( AppTaskMotion_recovery );
+			return 0;
     }
     return (STATE)hsmTop;
 }
@@ -285,6 +297,44 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
             	STATE_TRAN( AppTaskMotion_inactive );
         	}
         	return 0;
+
+        case MOTION_EMERGENCY:
+        	STATE_TRAN( AppTaskMotion_recovery );
+			return 0;
+
+        case STATE_EXIT_SIGNAL:
+            eventTimerStopIfActive( &me->timer1 );
+            return 0;
+    }
+    return (STATE)hsmTop;
+}
+
+
+PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
+{
+    switch( e->signal )
+    {
+		case STATE_ENTRY_SIGNAL:
+        	//disable servos
+        	servo_stop( _CLEARPATH_1 );
+        	servo_stop( _CLEARPATH_2 );
+        	servo_stop( _CLEARPATH_3 );
+        #ifdef EXPANSION_SERVO
+        	servo_stop( _CLEARPATH_4 );
+        #endif
+
+        	//update state,
+
+			return 0;
+
+        case STATE_TIMEOUT1_SIGNAL:
+
+        	return 0;
+
+        case MOTION_EMERGENCY:
+        	// we are already here
+
+			return 0;
 
         case STATE_EXIT_SIGNAL:
             eventTimerStopIfActive( &me->timer1 );

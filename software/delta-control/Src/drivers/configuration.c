@@ -7,6 +7,9 @@
 #include "hal_uuid.h"
 #include "app_version.h"
 #include "app_times.h"
+#include "event_subscribe.h"
+#include "app_events.h"
+#include "app_signals.h"
 
 typedef struct
 {
@@ -112,6 +115,12 @@ TempData_t 		temp_sensors;
 MotionData_t 	motion_global;
 MotorData_t 	motion_servo[4];
 
+
+PRIVATE void emergency_stop_cb( void );
+PRIVATE void home_system_cb( void );
+PRIVATE void publish_motion_cb( void );
+
+
 euiMessage_t ui_variables[] =
 {
     //higher level system setup information
@@ -131,6 +140,10 @@ euiMessage_t ui_variables[] =
     {.msgID = "mo2", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[1] },
     {.msgID = "mo3", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[2] },
     {.msgID = "mo4", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[3] },
+
+    {.msgID = "estop", 	.type = TYPE_CALLBACK, .size = sizeof(emergency_stop_cb),  	.payload = &emergency_stop_cb },
+    {.msgID = "home", 	.type = TYPE_CALLBACK, .size = sizeof(home_system_cb),  	.payload = &home_system_cb },
+    {.msgID = "tmove", 	.type = TYPE_CALLBACK, .size = sizeof(publish_motion_cb),  	.payload = &publish_motion_cb },
 
 };
 
@@ -355,6 +368,43 @@ config_motor_target_angle( uint8_t servo, float angle )
 
 /* ----- Private Functions -------------------------------------------------- */
 
+PRIVATE void emergency_stop_cb( void )
+{
+	eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
+}
 
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void home_system_cb( void )
+{
+	eventPublish( EVENT_NEW( StateEvent, MOTION_PREPARE ) );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void publish_motion_cb( void )
+{
+	   MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
+
+	   if(motev)
+	   {
+		   motev->move.type = _LINE;
+		   motev->move.ref = _POS_ABSOLUTE;
+		   motev->move.duration = 650;
+
+		   //start
+		   motev->move.points[0].x = 0;
+		   motev->move.points[0].y = 0;
+		   motev->move.points[0].z = 0;
+
+		   //dest
+		   motev->move.points[1].x = 0;
+		   motev->move.points[1].y = 0;
+		   motev->move.points[1].z = MM_TO_MICRONS(10);
+		   motev->move.num_pts = 2;
+
+		   eventPublish( (StateEvent*)motev );
+	   }
+}
 
 /* ----- End ---------------------------------------------------------------- */

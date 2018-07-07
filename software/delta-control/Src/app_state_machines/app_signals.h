@@ -43,6 +43,7 @@ enum AppSignals
 	MOTION_REQUEST,        /* Provide movement information for queue processing */
 	MOTION_HEAD,           /* Start of a movement */
 	MOTION_TAIL,           /* End of a movement */
+	MOTION_EMERGENCY,      /* Kill motors immediately */
 
     /* Last Available Signal - Don't Remove This */
     STATE_MAX_SIGNAL
