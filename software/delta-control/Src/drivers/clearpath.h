@@ -11,7 +11,7 @@
 
 typedef enum
 {
-	_CLEARPATH_1,
+	_CLEARPATH_1 = 0,
 	_CLEARPATH_2,
 	_CLEARPATH_3,
 	_CLEARPATH_4,

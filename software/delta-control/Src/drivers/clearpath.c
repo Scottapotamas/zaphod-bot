@@ -165,7 +165,7 @@ servo_get_valid_home( ClearpathServoInstance_t servo)
 {
 	Servo_t *me = &clearpath[servo];
 
-	return ( me->enabled && me->home_complete );
+	return ( me->enabled );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -232,19 +232,18 @@ servo_process( ClearpathServoInstance_t servo )
 				//the HLFB output pin will be set to speed mode, outputs 45Hz PWM where DC% relates to the velocity.
 				//expect the motor to slowly home, stop, move to the neutral point, then stop
 				//guard times for min and max homing delays (how long the motor would take in worst case to home
-				bool status_ok = hal_gpio_read_pin(ServoHardwareMap[servo].pwm_feedback);	//todo read hlfb signal here
+				bool status_ok = hal_gpio_read_pin(ServoHardwareMap[servo].pin_feedback);	//todo read hlfb signal here
 
-				if( status_ok )
+            	if( status_ok )
 				{
 					//motor homed too fast (it needs to transit to the endstop, then back to the 'neutral' angle, which incurs travel time
 					if( ( hal_systick_get_ms() - me->timer ) < SERVO_HOMING_MIN_MS )
 					{
-						//it is possible that the servo position was already resting on/near the endstop, so a (singular) ok state is allowed and flagged
+						//it is possible that the servo position was already resting on/near the endstop, so a (singular) OK state is allowed and flagged
 						if( me->home_complete >= SERVO_HOMING_NULL_PERIODS_ALLOWED )
 						{
 							//something is wrong
 						    STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-							//todo flag error
 						}
 						else
 						{
@@ -254,7 +253,7 @@ servo_process( ClearpathServoInstance_t servo )
 					}
 					else
 					{
-						//motor stopped moving after the minimum time period, which indicates a successful home proceedure
+						//motor stopped moving after the minimum time period, which indicates a successful home procedure
 						me->enabled = SERVO_ENABLE;
 					    STATE_NEXT( SERVO_STATE_IDLE );
 					}
@@ -288,18 +287,18 @@ servo_process( ClearpathServoInstance_t servo )
 				if( hal_systick_get_ms() - me->timer > SERVO_IDLE_SETTLE_MS )
 				{
 	            	//check if the motor has been drawing higher than expected power while stationary
-	            	if( servo_power > SERVO_IDLE_POWER_ALERT_W )
-	            	{
-	            		//something might be wrong, watch it more closely
-						STATE_NEXT( SERVO_STATE_IDLE_HIGH_LOAD );
-	            	}
+//	            	if( servo_power > SERVO_IDLE_POWER_ALERT_W )
+//	            	{
+//	            		//something might be wrong, watch it more closely
+//						STATE_NEXT( SERVO_STATE_IDLE_HIGH_LOAD );
+//	            	}
 				}
 
 				//current sensor has flagged a fault
-				if( hal_gpio_read_pin( ServoHardwareMap[servo].pin_oc_fault ) == SERVO_OC_FAULT )
-				{
-					STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-				}
+//				if( hal_gpio_read_pin( ServoHardwareMap[servo].pin_oc_fault ) == SERVO_OC_FAULT )
+//				{
+//					STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+//				}
 
             STATE_EXIT_ACTION
 
@@ -359,12 +358,12 @@ servo_process( ClearpathServoInstance_t servo )
 					//command the target direction
 					if( me->angle_current_steps < me->angle_target_steps )
 					{
-						hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, SERVO_DIR_CCW );
+						hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, SERVO_DIR_CW );
 						me->angle_current_steps++;
 					}
 					else
 					{
-						hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, SERVO_DIR_CW );
+						hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, SERVO_DIR_CCW );
 						me->angle_current_steps--;
 					}
 
