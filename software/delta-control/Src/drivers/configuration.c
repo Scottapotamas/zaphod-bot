@@ -119,6 +119,7 @@ MotorData_t 	motion_servo[4];
 PRIVATE void emergency_stop_cb( void );
 PRIVATE void home_system_cb( void );
 PRIVATE void publish_motion_cb( void );
+PRIVATE void publish_motion_cb_2( void );
 
 
 euiMessage_t ui_variables[] =
@@ -144,6 +145,7 @@ euiMessage_t ui_variables[] =
     {.msgID = "estop", 	.type = TYPE_CALLBACK, .size = sizeof(emergency_stop_cb),  	.payload = &emergency_stop_cb },
     {.msgID = "home", 	.type = TYPE_CALLBACK, .size = sizeof(home_system_cb),  	.payload = &home_system_cb },
     {.msgID = "tmove", 	.type = TYPE_CALLBACK, .size = sizeof(publish_motion_cb),  	.payload = &publish_motion_cb },
+    {.msgID = "tmove2", 	.type = TYPE_CALLBACK, .size = sizeof(publish_motion_cb_2),  	.payload = &publish_motion_cb_2 },
 
 };
 
@@ -389,8 +391,8 @@ PRIVATE void publish_motion_cb( void )
 	   if(motev)
 	   {
 		   motev->move.type = _LINE;
-		   motev->move.ref = _POS_ABSOLUTE;
-		   motev->move.duration = 650;
+		   motev->move.ref = _POS_RELATIVE;
+		   motev->move.duration = 100;
 
 		   //start
 		   motev->move.points[0].x = 0;
@@ -401,6 +403,31 @@ PRIVATE void publish_motion_cb( void )
 		   motev->move.points[1].x = 0;
 		   motev->move.points[1].y = 0;
 		   motev->move.points[1].z = MM_TO_MICRONS(10);
+		   motev->move.num_pts = 2;
+
+		   eventPublish( (StateEvent*)motev );
+	   }
+}
+
+PRIVATE void publish_motion_cb_2( void )
+{
+	   MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
+
+	   if(motev)
+	   {
+		   motev->move.type = _LINE;
+		   motev->move.ref = _POS_RELATIVE;
+		   motev->move.duration = 100;
+
+		   //start
+		   motev->move.points[0].x = 0;
+		   motev->move.points[0].y = 0;
+		   motev->move.points[0].z = 0;
+
+		   //dest
+		   motev->move.points[1].x = 0;
+		   motev->move.points[1].y = 0;
+		   motev->move.points[1].z = MM_TO_MICRONS(-10);
 		   motev->move.num_pts = 2;
 
 		   eventPublish( (StateEvent*)motev );
