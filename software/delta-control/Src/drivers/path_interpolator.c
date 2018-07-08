@@ -33,6 +33,8 @@ typedef struct
     uint32_t        movement_started;	// timestamp the start point
     float        	progress_percent;	// calculated progress
 
+    CartesianPoint_t	effector_position;	//position of the end effector (used for relative moves)
+
 } MotionPlanner_t;
 
 /* ----- Private Variables -------------------------------------------------- */
@@ -65,8 +67,22 @@ path_interpolator_init( void )
 PUBLIC void
 path_interpolator_set_objective( Movement_t	* movement_to_process )
 {
+	MotionPlanner_t *me = &planner;
+
 	//todo accept a movement object and store inside the state for handling
 	planner.current_move = movement_to_process;
+
+	//apply current position to a relative movement
+	if( movement_to_process->ref == _POS_RELATIVE )
+	{
+		for( uint8_t i = 0; i < planner.current_move->num_pts; i++ )
+		{
+			movement_to_process->points[i].x += me->effector_position.x;
+			movement_to_process->points[i].y += me->effector_position.y;
+			movement_to_process->points[i].z += me->effector_position.z;
+		}
+	}
+
 	planner.enable = true;
 }
 
@@ -163,6 +179,7 @@ path_interpolator_process( void )
 
                 	//update the config/UI data based on these actions
                 	config_set_position( target.x, target.y, target.z );
+                	me->effector_position = target;
                 	config_set_movement_data( move->type, me->progress_percent );
             	}
 
