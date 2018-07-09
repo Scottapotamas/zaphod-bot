@@ -121,7 +121,6 @@ servo_stop( ClearpathServoInstance_t servo )
     Servo_t *me = &clearpath[servo];
 
     //todo work out a better way to force a motor into an inactive state
-
     STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
 }
 

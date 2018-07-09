@@ -154,9 +154,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
         		if( me->retries++ > SERVO_HOMING_SUPERVISOR_RETRIES )
         		{
         			eventTimerStopIfActive(&me->timer1);
-        			eventPublish( EVENT_NEW( StateEvent, MECHANISM_ERROR ) );
-                	// todo work out what to do when they failed to home correctly
-
+                	STATE_TRAN( AppTaskMotion_recovery );
         		}
         	}
 

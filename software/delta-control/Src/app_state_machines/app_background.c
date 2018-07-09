@@ -83,7 +83,6 @@ app_background( void )
     	timer_ms_start( &adc_timer, 250 );
     }
 
-
     //process any running movements and allow servo drivers to process commands
     path_interpolator_process();
     servo_process( _CLEARPATH_1 );
