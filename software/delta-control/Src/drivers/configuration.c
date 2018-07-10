@@ -120,6 +120,8 @@ PRIVATE void emergency_stop_cb( void );
 PRIVATE void home_system_cb( void );
 PRIVATE void publish_motion_cb( void );
 PRIVATE void publish_motion_cb_2( void );
+PRIVATE void publish_motion_cb_l( void );
+PRIVATE void publish_motion_cb_r( void );
 
 
 euiMessage_t ui_variables[] =
@@ -146,6 +148,10 @@ euiMessage_t ui_variables[] =
     {.msgID = "home", 	.type = TYPE_CALLBACK, .size = sizeof(home_system_cb),  	.payload = &home_system_cb },
     {.msgID = "tmove", 	.type = TYPE_CALLBACK, .size = sizeof(publish_motion_cb),  	.payload = &publish_motion_cb },
     {.msgID = "tmove2", 	.type = TYPE_CALLBACK, .size = sizeof(publish_motion_cb_2),  	.payload = &publish_motion_cb_2 },
+    {.msgID = "lmove", 	.type = TYPE_CALLBACK, .size = sizeof(publish_motion_cb_l),  	.payload = &publish_motion_cb_l },
+    {.msgID = "rmove", 	.type = TYPE_CALLBACK, .size = sizeof(publish_motion_cb_r),  	.payload = &publish_motion_cb_r },
+
+    {.msgID = "power", 	.type = TYPE_FLOAT, .size = sizeof(motion_servo[1].power),  	.payload = &motion_servo[1].power },
 
 };
 
@@ -392,7 +398,7 @@ PRIVATE void publish_motion_cb( void )
 	   {
 		   motev->move.type = _LINE;
 		   motev->move.ref = _POS_RELATIVE;
-		   motev->move.duration = 100;
+		   motev->move.duration = 300;
 
 		   //start
 		   motev->move.points[0].x = 0;
@@ -402,7 +408,7 @@ PRIVATE void publish_motion_cb( void )
 		   //dest
 		   motev->move.points[1].x = 0;
 		   motev->move.points[1].y = 0;
-		   motev->move.points[1].z = MM_TO_MICRONS(10);
+		   motev->move.points[1].z = MM_TO_MICRONS(20);
 		   motev->move.num_pts = 2;
 
 		   eventPublish( (StateEvent*)motev );
@@ -417,7 +423,7 @@ PRIVATE void publish_motion_cb_2( void )
 	   {
 		   motev->move.type = _LINE;
 		   motev->move.ref = _POS_RELATIVE;
-		   motev->move.duration = 100;
+		   motev->move.duration = 300;
 
 		   //start
 		   motev->move.points[0].x = 0;
@@ -427,7 +433,57 @@ PRIVATE void publish_motion_cb_2( void )
 		   //dest
 		   motev->move.points[1].x = 0;
 		   motev->move.points[1].y = 0;
-		   motev->move.points[1].z = MM_TO_MICRONS(-10);
+		   motev->move.points[1].z = MM_TO_MICRONS(-20);
+		   motev->move.num_pts = 2;
+
+		   eventPublish( (StateEvent*)motev );
+	   }
+}
+
+PRIVATE void publish_motion_cb_r( void )
+{
+	   MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
+
+	   if(motev)
+	   {
+		   motev->move.type = _LINE;
+		   motev->move.ref = _POS_RELATIVE;
+		   motev->move.duration = 300;
+
+		   //start
+		   motev->move.points[0].x = 0;
+		   motev->move.points[0].y = 0;
+		   motev->move.points[0].z = 0;
+
+		   //dest
+		   motev->move.points[1].x = MM_TO_MICRONS(20);
+		   motev->move.points[1].y = 0;
+		   motev->move.points[1].z = 0;
+		   motev->move.num_pts = 2;
+
+		   eventPublish( (StateEvent*)motev );
+	   }
+}
+
+PRIVATE void publish_motion_cb_l( void )
+{
+	   MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
+
+	   if(motev)
+	   {
+		   motev->move.type = _LINE;
+		   motev->move.ref = _POS_RELATIVE;
+		   motev->move.duration = 300;
+
+		   //start
+		   motev->move.points[0].x = 0;
+		   motev->move.points[0].y = 0;
+		   motev->move.points[0].z = 0;
+
+		   //dest
+		   motev->move.points[1].x = MM_TO_MICRONS(-20);
+		   motev->move.points[1].y = 0;
+		   motev->move.points[1].z = 0;
 		   motev->move.num_pts = 2;
 
 		   eventPublish( (StateEvent*)motev );
