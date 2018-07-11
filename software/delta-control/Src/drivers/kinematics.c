@@ -21,10 +21,10 @@ int8_t rotate_y = 1;
 int8_t rotate_z = -1;
 
 //delta geometry defines
-float f  = MM_TO_MICRONS( 50.0 );    // radius of motor shafts on base
-float rf = MM_TO_MICRONS( 180.0 );   // base joint to elbow joint distance
-float re = MM_TO_MICRONS( 330.0 );   // elbow joint to end affector joint
-float e  = MM_TO_MICRONS( 32.0 );    // end effector joint radius
+float f  = MM_TO_MICRONS( 50.0f );    // radius of motor shafts on base
+float rf = MM_TO_MICRONS( 180.0f );   // base joint to elbow joint distance
+float re = MM_TO_MICRONS( 330.0f );   // elbow joint to end affector joint
+float e  = MM_TO_MICRONS( 32.0f );    // end effector joint radius
 
 // cache common trig constants
 float sqrt3;
@@ -144,11 +144,11 @@ kinematics_angle_to_point( JointAngles_t input, CartesianPoint_t *output )
 
     // x = (a1*z + b1)/dnm
     float a1 = (z2-z1)*(y3-y1)-(z3-z1)*(y2-y1);
-    float b1 = -((w2-w1)*(y3-y1)-(w3-w1)*(y2-y1))/2.0;
+    float b1 = -((w2-w1)*(y3-y1)-(w3-w1)*(y2-y1))/2.0f;
 
     // y = (a2*z + b2)/dnm;
     float a2 = -(z2-z1)*x3+(z3-z1)*x2;
-    float b2 = ((w2-w1)*x3 - (w3-w1)*x2)/2.0;
+    float b2 = ((w2-w1)*x3 - (w3-w1)*x2)/2.0f;
 
     // a*z^2 + b*z + c = 0
     float a = a1*a1 + a2*a2 + dnm*dnm;
@@ -156,14 +156,14 @@ kinematics_angle_to_point( JointAngles_t input, CartesianPoint_t *output )
     float c = (b2-y1*dnm)*(b2-y1*dnm) + b1*b1 + dnm*dnm*(z1*z1 - re*re);
 
     // discriminant
-    float d = b*b - (float)4.0*a*c;
+    float d = b*b - (float)4.0f*a*c;
 
     if (d < 0)
     {
     	return SOLUTION_ERROR;
     }
 
-    output->z = -(float)0.5*(b+sqrt(d))/a;
+    output->z = -(float)0.5f*(b+sqrt(d))/a;
     output->x = (a1*output->z + b1) / dnm;
     output->y = (a2*output->z + b2) / dnm;
 
@@ -178,11 +178,11 @@ kinematics_angle_to_point( JointAngles_t input, CartesianPoint_t *output )
 PRIVATE KinematicsSolution_t
 delta_angle_plane_calc(float x0, float y0, float z0, float *theta)
 {
-    float y1 = -0.5 * 0.57735 * f; 		// f/2 * tg 30
-    y0 		 -= 0.5 * 0.57735 * e;      // shift center to edge
+    float y1 = -0.5f * 0.57735f * f; 		// f/2 * tg 30
+    y0 		 -= 0.5f * 0.57735f * e;      // shift center to edge
 
     // z = a + b*y
-    float a = ( x0*x0 + y0*y0 + z0*z0 + rf*rf - re*re - y1*y1 ) / ( 2 * z0 );
+    float a = ( x0*x0 + y0*y0 + z0*z0 + rf*rf - re*re - y1*y1 ) / ( 2.0f * z0 );
     float b = ( y1 - y0 ) / z0;
 
     // discriminant
@@ -196,7 +196,7 @@ delta_angle_plane_calc(float x0, float y0, float z0, float *theta)
     float yj = ( y1 - a*b - sqrt(d) ) / ( b*b + 1 ); // choose the outer point
     float zj = a + b*yj;
 
-    *theta = 180.0 * atan( -zj/(y1 - yj) ) / M_PI + ( (yj > y1) ? 180.0 : 0.0 );
+    *theta = 180.0f * atan( -zj/(y1 - yj) ) / M_PI + ( (yj > y1) ? 180.0f : 0.0f );
 
     return SOLUTION_VALID;
 }

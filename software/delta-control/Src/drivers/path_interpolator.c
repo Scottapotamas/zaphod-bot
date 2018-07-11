@@ -277,19 +277,19 @@ path_catmull_spline( CartesianPoint_t p[], size_t points, float pos_weight, Cart
     float t3 = t2 * t;
 
 	// todo consider accelerating with matrix maths (neon) if perf improvements required
-	output->x = 0.5 * (
+	output->x = 0.5f * (
 				( 2*p[1].x ) +
 				(  -p[0].x   +   p[2].x ) * t +
 				( 2*p[0].x   - 5*p[1].x   + 4*p[2].x - p[3].x) * t2 +
 				(  -p[0].x   + 3*p[1].x   - 3*p[2].x + p[3].x) * t3 );
 
-	output->y = 0.5 * (
+	output->y = 0.5f * (
 				( 2*p[1].y ) +
 				(  -p[0].y   +   p[2].y ) * t +
 				( 2*p[0].y   - 5*p[1].y   + 4*p[2].y - p[3].y) * t2 +
 				(  -p[0].y   + 3*p[1].y   - 3*p[2].y + p[3].y) * t3 );
 
-	output->z = 0.5 * (
+	output->z = 0.5f * (
 				( 2*p[1].z ) +
 				(  -p[0].z   +   p[2].z ) * t +
 				( 2*p[0].z   - 5*p[1].z   + 4*p[2].z - p[3].z) * t2 +
