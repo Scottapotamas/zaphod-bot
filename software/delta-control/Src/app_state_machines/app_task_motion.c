@@ -29,6 +29,17 @@ PRIVATE STATE 	AppTaskMotion_inactive	( AppTaskMotion *me, const StateEvent *e )
 PRIVATE STATE 	AppTaskMotion_active	( AppTaskMotion *me, const StateEvent *e );
 PRIVATE STATE 	AppTaskMotion_recovery	( AppTaskMotion *me, const StateEvent *e );
 
+typedef enum
+{
+	TASKSTATE_MOTION_INITIAL = 0,
+	TASKSTATE_MOTION_MAIN,
+	TASKSTATE_MOTION_HOME,
+	TASKSTATE_MOTION_INACTIVE,
+	TASKSTATE_MOTION_ACTIVE,
+	TASKSTATE_MOTION_RECOVERY,
+} MotionTaskState_t;
+
+
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC StateTask *
@@ -75,6 +86,7 @@ PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __att
 
     kinematics_init();
     path_interpolator_init();
+    config_set_motion_state( TASKSTATE_MOTION_INITIAL );
 
     STATE_INIT( &AppTaskMotion_main );
 }
@@ -93,6 +105,8 @@ PRIVATE STATE AppTaskMotion_main( AppTaskMotion *me, const StateEvent *e )
         #ifdef EXPANSION_SERVO
         	servo_stop( _CLEARPATH_4 );
         #endif
+
+            config_set_motion_state( TASKSTATE_MOTION_MAIN );
 
         	return 0;
 
@@ -123,6 +137,8 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 #ifdef EXPANSION_SERVO
         	servo_start( _CLEARPATH_4 );
 #endif
+
+            config_set_motion_state( TASKSTATE_MOTION_HOME );
 
         	//check the motors every 500ms to see if they are homed
         	eventTimerStartEvery( &me->timer1,
@@ -165,13 +181,17 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 				MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
 
 				// Add the movement request to the queue if we have room
-				if( eventQueueUsed( &me->super.requestQueue ) < 10 )	//10 queue size
+				uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
+				if( queue_usage < 10 )	//10 queue size
 				{
 					if( mpe->move.duration)
 					{
 						eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
 					}
 				}
+
+				//update UI with queue depth
+				config_set_motion_queue_depth( queue_usage );
         	}
         	return 0;
 
@@ -197,6 +217,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
 
             // Check for queued events
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+            config_set_motion_state( TASKSTATE_MOTION_INACTIVE );
 
         	return 0;
 
@@ -250,12 +271,15 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 									 (StateTask* )me,
 									 (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
 									 current_move->duration + 1 );
+
+	            config_set_motion_state( TASKSTATE_MOTION_ACTIVE );
+
 			}
 			return 0;
 
         case STATE_TIMEOUT1_SIGNAL:
 
-        	if( path_interpolator_get_progress() > 0.999 )
+        	if( path_interpolator_get_move_done() )
         	{
             	STATE_TRAN( AppTaskMotion_inactive );
         	}
@@ -268,7 +292,8 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 				MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
 
 				// Add the movement request to the queue if we have room
-				if( eventQueueUsed( &me->super.requestQueue ) < 10 )	//10 queue size
+				uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
+				if( queue_usage < 10 )	//10 queue size
 				{
 					if( mpe->move.duration)
 					{
@@ -279,6 +304,7 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 				{
 					//queue full
 				}
+				config_set_motion_queue_depth( queue_usage );
         	}
         	return 0;
 
@@ -291,6 +317,9 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 					eventPoolGarbageCollect( (StateEvent*)next );
 					next = eventQueueGet( &me->super.requestQueue );
 				}
+
+				//update UI with queue content count
+				config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 
             	STATE_TRAN( AppTaskMotion_inactive );
         	}
@@ -321,7 +350,8 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
         	servo_stop( _CLEARPATH_4 );
         #endif
 
-        	//update state,
+        	//update state for UI
+            config_set_motion_state( TASKSTATE_MOTION_RECOVERY );
 
 			return 0;
 
