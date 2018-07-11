@@ -1,3 +1,5 @@
+#include <string.h>
+
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "configuration.h"
