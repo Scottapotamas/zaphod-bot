@@ -1,6 +1,7 @@
 /* ----- System Includes ---------------------------------------------------- */
 
 #include <string.h>
+#include <float.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 
@@ -140,7 +141,7 @@ path_interpolator_process( void )
             	uint32_t time_used = hal_systick_get_ms() - me->movement_started;
             	me->progress_percent = (float)( time_used ) / move->duration;
 
-            	if( me->progress_percent > 0.9999 )
+            	if( me->progress_percent >= 1.0f - FLT_EPSILON )
             	{
             		//movement is complete, the planner can stop now
             		STATE_NEXT( PLANNER_OFF );
@@ -213,14 +214,14 @@ path_lerp_line( CartesianPoint_t p[], size_t points, float pos_weight, Cartesian
 		return SOLUTION_ERROR;
 	}
 
-	// exact start and end of splines don't need calculation as catmull curves _will_ pass through all points
-	if(pos_weight == 0.0f)
+	// start and end of splines don't need calculation as catmull curves _will_ pass through all points
+	if(pos_weight <= 0.0f + FLT_EPSILON)
 	{
 		output = &p[0];
 		return SOLUTION_VALID;
 	}
 
-	if(pos_weight == 1.0f)
+	if(pos_weight >= 1.0f - FLT_EPSILON)
 	{
 		output = &p[1];
 		return SOLUTION_VALID;
@@ -249,14 +250,14 @@ path_catmull_spline( CartesianPoint_t p[], size_t points, float pos_weight, Cart
 		return SOLUTION_ERROR;
 	}
 
-	// exact start and end of splines don't need calculation as catmull curves _will_ pass through all points
-	if(pos_weight == 0.0f)
+	// start and end of splines don't need calculation as catmull curves _will_ pass through all points
+	if(pos_weight <= 0.0f + FLT_EPSILON)
 	{
 		output = &p[1];
 		return SOLUTION_VALID;	// todo add a 'end of range' flag?
 	}
 
-	if(pos_weight == 1.0f)
+	if(pos_weight >= 1.0f - FLT_EPSILON)
 	{
 		output = &p[2];
 		return SOLUTION_VALID;
@@ -312,14 +313,14 @@ path_quadratic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weig
 		return SOLUTION_ERROR;
 	}
 
-	// exact start and end of bezier
-	if(pos_weight == 0.0f)
+	// start and end of bezier
+	if(pos_weight <= 0.0f + FLT_EPSILON)
 	{
 		output = &p[0];
 		return SOLUTION_VALID;
 	}
 
-	if(pos_weight == 1.0f)
+	if(pos_weight >= 1.0f - FLT_EPSILON)
 	{
 		output = &p[2];
 		return SOLUTION_VALID;
@@ -358,14 +359,14 @@ path_cubic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weight, 
 		return SOLUTION_ERROR;
 	}
 
-	// exact start and end of bezier
-	if(pos_weight == 0.0f)
+	// start and end of bezier
+	if(pos_weight <= 0.0f + FLT_EPSILON)
 	{
 		output = &p[0];
 		return SOLUTION_VALID;
 	}
 
-	if(pos_weight == 1.0f)
+	if(pos_weight >= 1.0f - FLT_EPSILON)
 	{
 		output = &p[3];
 		return SOLUTION_VALID;
