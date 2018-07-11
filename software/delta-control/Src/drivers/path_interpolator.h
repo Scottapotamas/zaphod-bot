@@ -32,4 +32,9 @@ path_interpolator_get_progress( void );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC bool
+path_interpolator_get_move_done( void );
+
+/* -------------------------------------------------------------------------- */
+
 #endif /* PATH_INTERPOLATOR_H */

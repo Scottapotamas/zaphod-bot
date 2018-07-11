@@ -78,12 +78,18 @@ typedef struct
 	int32_t y;
 	int32_t z;
 
-	uint8_t	mode;	//manual, demo, program execute, etc
-	uint8_t	state;	//idle, running, etc
+	//pathing engine state idle, running, etc
+	uint8_t	pathing_state;
 
 	//information about the current move being executed
+	uint8_t movement_hash;
 	uint8_t profile_type;
 	uint8_t move_progress;
+
+	//motion handler information
+	uint8_t	motion_state;
+	uint8_t	motion_queue_depth;
+
 } MotionData_t;
 
 typedef struct
@@ -116,10 +122,12 @@ TempData_t 		temp_sensors;
 
 MotionData_t 	motion_global;
 MotorData_t 	motion_servo[4];
-
+Movement_t 		motion_inbound;
 
 PRIVATE void emergency_stop_cb( void );
 PRIVATE void home_system_cb( void );
+PRIVATE void movement_generate_event( void );
+
 PRIVATE void publish_motion_cb( void );
 PRIVATE void publish_motion_cb_2( void );
 PRIVATE void publish_motion_cb_l( void );
@@ -146,13 +154,23 @@ euiMessage_t ui_variables[] =
     {.msgID = "mo3", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[2] },
     {.msgID = "mo4", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[3] },
 
+	//inbound movement buffer and 'add to queue' callback
+    {.msgID = "inmv", 	.type = TYPE_CUSTOM,   .size = sizeof(Movement_t), 				.payload = &motion_inbound },
+    {.msgID = "qumv", 	.type = TYPE_CALLBACK, .size = sizeof(movement_generate_event), .payload = &movement_generate_event },
+
+	//function callbacks
     {.msgID = "estop", 	.type = TYPE_CALLBACK, .size = sizeof(emergency_stop_cb),  	.payload = &emergency_stop_cb },
     {.msgID = "home", 	.type = TYPE_CALLBACK, .size = sizeof(home_system_cb),  	.payload = &home_system_cb },
+
+	//test callbacks
+#warning "Remove test movement calls once API surface matures"
     {.msgID = "tmove", 	.type = TYPE_CALLBACK, .size = sizeof(publish_motion_cb),  	.payload = &publish_motion_cb },
     {.msgID = "tmove2", 	.type = TYPE_CALLBACK, .size = sizeof(publish_motion_cb_2),  	.payload = &publish_motion_cb_2 },
     {.msgID = "lmove", 	.type = TYPE_CALLBACK, .size = sizeof(publish_motion_cb_l),  	.payload = &publish_motion_cb_l },
     {.msgID = "rmove", 	.type = TYPE_CALLBACK, .size = sizeof(publish_motion_cb_r),  	.payload = &publish_motion_cb_r },
 
+	//temp variables
+#warning "Remove temp variables once UI supports structure graphs"
     {.msgID = "power", 	.type = TYPE_FLOAT, .size = sizeof(motion_servo[1].power),  	.payload = &motion_servo[1].power },
 
 };
@@ -338,6 +356,24 @@ config_set_movement_data( uint8_t move_type, uint8_t progress )
 	motion_global.move_progress = progress;
 }
 
+PUBLIC void
+config_set_pathing_status( uint8_t status )
+{
+	motion_global.pathing_state = status;
+}
+
+PUBLIC void
+config_set_motion_state( uint8_t status )
+{
+	motion_global.motion_state = status;
+}
+
+PUBLIC void
+config_set_motion_queue_depth( uint8_t utilisation )
+{
+	motion_global.motion_queue_depth = utilisation;
+}
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -388,6 +424,19 @@ PRIVATE void emergency_stop_cb( void )
 PRIVATE void home_system_cb( void )
 {
 	eventPublish( EVENT_NEW( StateEvent, MOTION_PREPARE ) );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void movement_generate_event( void )
+{
+	   MotionPlannerEvent *motion_request = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
+
+	   if(motion_request)
+	   {
+		   memcpy(&motion_request->move, &motion_inbound, sizeof(motion_inbound));
+		   eventPublish( (StateEvent*)motion_request );
+	   }
 }
 
 /* -------------------------------------------------------------------------- */

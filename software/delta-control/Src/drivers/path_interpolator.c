@@ -104,6 +104,14 @@ path_interpolator_get_progress( void )
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC bool
+path_interpolator_get_move_done( void )
+{
+	return ( planner.progress_percent >= 1.0f - FLT_EPSILON && !planner.enable);
+}
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC void
 path_interpolator_process( void )
 {
@@ -113,6 +121,7 @@ path_interpolator_process( void )
     {
         case PLANNER_OFF:
             STATE_ENTRY_ACTION
+        		config_set_pathing_status(me->currentState);
 
             STATE_TRANSITION_TEST
 
@@ -129,6 +138,9 @@ path_interpolator_process( void )
             STATE_ENTRY_ACTION
 				me->movement_started = hal_systick_get_ms();
             	me->progress_percent = 0;
+
+            	config_set_pathing_status(me->currentState);
+
             STATE_TRANSITION_TEST
 
 				Movement_t *move = me->current_move;
@@ -188,7 +200,9 @@ path_interpolator_process( void )
                 	//update the config/UI data based on these actions
                 	config_set_position( target.x, target.y, target.z );
                 	me->effector_position = target;
-                	config_set_movement_data( move->type, me->progress_percent );
+
+                	config_set_movement_data( move->type, (uint8_t)(me->progress_percent*100) );
+
             	}
 
             STATE_EXIT_ACTION
@@ -196,6 +210,7 @@ path_interpolator_process( void )
             STATE_END
             break;
     }
+
 }
 
 

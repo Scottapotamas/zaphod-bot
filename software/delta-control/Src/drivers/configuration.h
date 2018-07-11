@@ -101,7 +101,15 @@ config_set_position( int32_t x, int32_t y, int32_t z );
 PUBLIC void
 config_set_movement_data( uint8_t move_type, uint8_t progress );
 
-//todo add higher level movement mode?
+PUBLIC void
+config_set_pathing_status( uint8_t status );
+
+PUBLIC void
+config_set_motion_state( uint8_t status );
+
+PUBLIC void
+config_set_motion_queue_depth( uint8_t utilisation );
+
 
 /* -------------------------------------------------------------------------- */
 
