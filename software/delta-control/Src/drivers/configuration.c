@@ -244,7 +244,7 @@ configuration_save( void )
 PUBLIC void
 configuration_electric_setup( void )
 {
-	setup_identifier( HAL_UUID, 12 );	//header byte is 96-bit, therefore 12-bytes
+	setup_identifier( (char*)HAL_UUID, 12 );	//header byte is 96-bit, therefore 12-bytes
 	setup_dev_msg(ui_variables, ARR_ELEM(ui_variables));
 }
 

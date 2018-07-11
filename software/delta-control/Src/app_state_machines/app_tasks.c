@@ -125,14 +125,14 @@ void app_tasks_init( void )
     stateTaskerAddTask( &mainTasker, t, TASK_COMMUNICATION, "Comms" );
     stateTaskerStartTask( &mainTasker, t );
 
-    //Handle auxillary IO setup/set/get
-    t = appTaskExpansionCreate( &appTaskExpansion,
-                                appTaskExpansionEventQueue,
-                                DIM(appTaskExpansionEventQueue),
-								0 );
-
-    stateTaskerAddTask( &mainTasker, t, TASK_EXPANSION, "Expansion" );
-    stateTaskerStartTask( &mainTasker, t );
+//    //Handle auxillary IO setup/set/get
+//    t = appTaskExpansionCreate( &appTaskExpansion,
+//                                appTaskExpansionEventQueue,
+//                                DIM(appTaskExpansionEventQueue),
+//								0 );
+//
+//    stateTaskerAddTask( &mainTasker, t, TASK_EXPANSION, "Expansion" );
+//    stateTaskerStartTask( &mainTasker, t );
 
     //Handle motion controls
     t = appTaskMotionCreate( &appTaskMotion,
