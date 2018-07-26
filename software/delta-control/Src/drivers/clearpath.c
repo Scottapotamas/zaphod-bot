@@ -286,11 +286,11 @@ servo_process( ClearpathServoInstance_t servo )
 				if( hal_systick_get_ms() - me->timer > SERVO_IDLE_SETTLE_MS )
 				{
 	            	//check if the motor has been drawing higher than expected power while stationary
-//	            	if( servo_power > SERVO_IDLE_POWER_ALERT_W )
-//	            	{
-//	            		//something might be wrong, watch it more closely
-//						STATE_NEXT( SERVO_STATE_IDLE_HIGH_LOAD );
-//	            	}
+	            	if( servo_power > SERVO_IDLE_POWER_ALERT_W )
+	            	{
+	            		//something might be wrong, watch it more closely
+						STATE_NEXT( SERVO_STATE_IDLE_HIGH_LOAD );
+	            	}
 				}
 
 				//current sensor has flagged a fault
@@ -329,7 +329,7 @@ servo_process( ClearpathServoInstance_t servo )
 				else
 				{
 					//if we've been under the alert threshold for a while, return to the idle state
-					if( ( hal_systick_get_ms() - me->timer ) > SERVO_IDLE_POWER_TRIP_MS )
+					if( ( hal_systick_get_ms() - me->timer ) > SERVO_IDLE_POWER_TRIP_MS*2 )
 					{
 						STATE_NEXT( SERVO_STATE_IDLE );
 					}
@@ -338,7 +338,7 @@ servo_process( ClearpathServoInstance_t servo )
 				//current sensor has flagged a fault
 				if( hal_gpio_read_pin( ServoHardwareMap[servo].pin_oc_fault ) == SERVO_OC_FAULT )
 				{
-					STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+//					STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
 				}
 
             STATE_EXIT_ACTION

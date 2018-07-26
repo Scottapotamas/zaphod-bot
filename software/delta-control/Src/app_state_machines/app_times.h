@@ -81,14 +81,18 @@ enum ServoDefines
 	SERVO_HOMING_SUPERVISOR_CHECK_MS		= 500U,
 	SERVO_HOMING_SUPERVISOR_RETRIES			= (SERVO_HOMING_MAX_MS / SERVO_HOMING_SUPERVISOR_CHECK_MS) + 1,
 
+	SERVO_RECOVERY_DWELL_MS					= 1500U,
+	SERVO_RECOVERY_RETRIES					= 5U,
+
+
 	//Clearpath will filter pulses shorter than 1us
 	//ULN2303 NPN driver has rise time of ~5ns, fall of ~10nsec
 	SERVO_PULSE_DURATION_US 				= 10U,
 
 	//Error evaluation parameters
 	SERVO_IDLE_POWER_ALERT_W 				= 40U,
-	SERVO_IDLE_SETTLE_MS					= 30U,
-	SERVO_IDLE_POWER_TRIP_MS				= 400U,
+	SERVO_IDLE_SETTLE_MS					= 50U,
+	SERVO_IDLE_POWER_TRIP_MS				= 900U,
 	SERVO_OC_FAULT							= false,
 	SERVO_OC_OK								= true,
 
