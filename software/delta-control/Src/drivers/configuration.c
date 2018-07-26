@@ -111,11 +111,11 @@ ExternalIO_t	external_io_modes;
 FanData_t 		fan_stats;
 FanCurve_t 		fan_curve[] =
 {
-	{ .temperature = 19, .percentage =   0 },
-    { .temperature = 20, .percentage =  30 },
-    { .temperature = 35, .percentage =  50 },
-    { .temperature = 50, .percentage =  60 },
-    { .temperature = 65, .percentage = 100 },
+	{ .temperature = 0, .percentage =   20 },
+    { .temperature = 20, .percentage =  20 },
+    { .temperature = 35, .percentage =  45 },
+    { .temperature = 45, .percentage =  90 },
+    { .temperature = 60, .percentage = 100 },
 };
 
 TempData_t 		temp_sensors;
