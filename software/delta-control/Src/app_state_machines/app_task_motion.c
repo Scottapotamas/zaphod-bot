@@ -98,14 +98,6 @@ PRIVATE STATE AppTaskMotion_main( AppTaskMotion *me, const StateEvent *e )
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-        	//disable servos
-        	servo_stop( _CLEARPATH_1 );
-        	servo_stop( _CLEARPATH_2 );
-        	servo_stop( _CLEARPATH_3 );
-        #ifdef EXPANSION_SERVO
-        	servo_stop( _CLEARPATH_4 );
-        #endif
-
             config_set_motion_state( TASKSTATE_MOTION_MAIN );
 
         	return 0;
@@ -129,6 +121,8 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
+
+        	me->retries = 0;
 
         	//reset the motors and let them home
         	servo_start( _CLEARPATH_1 );
@@ -353,12 +347,41 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
         	//update state for UI
             config_set_motion_state( TASKSTATE_MOTION_RECOVERY );
 
-			return 0;
 
-        case STATE_TIMEOUT1_SIGNAL:
+
+        	//check the motors every 500ms to see if they are homed
+        	eventTimerStartEvery( &me->timer1,
+                                 (StateTask* )me,
+                                 (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
+                                 MS_TO_TICKS( SERVO_RECOVERY_DWELL_MS ) );
 
         	return 0;
 
+        case STATE_TIMEOUT1_SIGNAL:
+
+        	//check all the servos are not enabled
+        	me->counter = SERVO_COUNT;
+        	me->counter -= !servo_get_valid_home( _CLEARPATH_1 );
+        	me->counter -= !servo_get_valid_home( _CLEARPATH_2 );
+        	me->counter -= !servo_get_valid_home( _CLEARPATH_3 );
+#ifdef EXPANSION_SERVO
+        	me->counter -= servo_get_valid_home( _CLEARPATH_4 );
+#endif
+
+        	if( me->counter <= 0 )
+        	{
+            	STATE_TRAN( AppTaskMotion_main );
+        	}
+        	else
+        	{
+        		if( me->retries++ > SERVO_RECOVERY_RETRIES )
+        		{
+        			eventTimerStopIfActive(&me->timer1);
+                	STATE_TRAN( AppTaskMotion_recovery );
+        		}
+        	}
+
+			return 0;
         case MOTION_EMERGENCY:
         	// we are already here
 
