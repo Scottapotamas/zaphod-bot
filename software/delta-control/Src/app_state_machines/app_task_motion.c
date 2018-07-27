@@ -347,7 +347,16 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
         	//update state for UI
             config_set_motion_state( TASKSTATE_MOTION_RECOVERY );
 
+            //clear out any pending movements from the queue
+			StateEvent * next = eventQueueGet( &me->super.requestQueue );
+			while( next )
+			{
+				eventPoolGarbageCollect( (StateEvent*)next );
+				next = eventQueueGet( &me->super.requestQueue );
+			}
 
+			//update UI with queue content count
+			config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 
         	//check the motors every 500ms to see if they are homed
         	eventTimerStartEvery( &me->timer1,
