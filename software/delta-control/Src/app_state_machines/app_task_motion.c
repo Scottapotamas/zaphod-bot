@@ -9,12 +9,15 @@
 #include "app_signals.h"
 #include "app_events.h"
 #include "qassert.h"
+
 #include "app_task_motion.h"
 
 #include "motion_types.h"
 #include "path_interpolator.h"
 #include "kinematics.h"
 #include "clearpath.h"
+
+#include "configuration.h"
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
@@ -156,6 +159,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
         	if( me->counter == SERVO_COUNT )
         	{
                 eventPublish( EVENT_NEW( StateEvent, MECHANISM_HOMED ) );
+                path_interpolator_set_home();
             	STATE_TRAN( AppTaskMotion_inactive );
         	}
         	else
@@ -163,7 +167,6 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
         		//allow subsequent homing check retries
         		if( me->retries++ > SERVO_HOMING_SUPERVISOR_RETRIES )
         		{
-        			eventTimerStopIfActive(&me->timer1);
                 	STATE_TRAN( AppTaskMotion_recovery );
         		}
         	}
@@ -213,7 +216,29 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
             config_set_motion_state( TASKSTATE_MOTION_INACTIVE );
 
+        	eventTimerStartEvery( &me->timer1,
+                                 (StateTask* )me,
+                                 (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
+                                 MS_TO_TICKS( SERVO_HOMING_SUPERVISOR_CHECK_MS ) );
+
         	return 0;
+
+        case STATE_TIMEOUT1_SIGNAL:
+        	//check all the servos are active
+        	me->counter = 0;
+        	me->counter += servo_get_valid_home( _CLEARPATH_1 );
+        	me->counter += servo_get_valid_home( _CLEARPATH_2 );
+        	me->counter += servo_get_valid_home( _CLEARPATH_3 );
+#ifdef EXPANSION_SERVO
+        	me->counter += servo_get_valid_home( _CLEARPATH_4 );
+#endif
+
+        	//a servo has dropped offline (fault or otherwise)
+        	if( me->counter != SERVO_COUNT )
+        	{
+        		STATE_TRAN( AppTaskMotion_recovery );
+        	}
+			return 0;
 
         case STATE_STEP1_SIGNAL:
         {
@@ -241,6 +266,10 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
 
         case MOTION_EMERGENCY:
         	STATE_TRAN( AppTaskMotion_recovery );
+			return 0;
+
+		case STATE_EXIT_SIGNAL:
+			eventTimerStopIfActive(&me->timer1);
 			return 0;
     }
     return (STATE)hsmTop;
@@ -296,7 +325,9 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 				}
 				else
 				{
-					//queue full
+					//queue full, clearly the input motion processor isn't abiding by the spec.
+					//shutdown
+					STATE_TRAN( AppTaskMotion_recovery );
 				}
 				config_set_motion_queue_depth( queue_usage );
         	}
@@ -389,10 +420,6 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
                 	STATE_TRAN( AppTaskMotion_recovery );
         		}
         	}
-
-			return 0;
-        case MOTION_EMERGENCY:
-        	// we are already here
 
 			return 0;
 
