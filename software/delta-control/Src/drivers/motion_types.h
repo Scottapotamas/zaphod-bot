@@ -53,8 +53,8 @@ typedef struct
 	MotionAdjective_t type;	// MotionAdjective_t
 	MotionReference_t ref;	// MotionReference_t
     uint16_t duration;		// execution time in milliseconds
-    uint8_t identifier;		//hash of movement for tracking
-    size_t num_pts;			//number of elements in points array
+    uint8_t identifier;		//unique identifier of movement
+    size_t num_pts;			//number of used elements in points array
     //padding
     CartesianPoint_t points[ MOVEMENT_POINTS_COUNT + 1 ];	//array of 3d points
 } Movement_t;

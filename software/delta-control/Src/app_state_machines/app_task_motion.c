@@ -183,7 +183,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 				{
 					if( mpe->move.duration)
 					{
-						eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
+						eventQueuePutLIFO( &me->super.requestQueue, (StateEvent*)e );
 					}
 				}
 
@@ -320,7 +320,7 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 				{
 					if( mpe->move.duration)
 					{
-						eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
+						eventQueuePutLIFO( &me->super.requestQueue, (StateEvent*)e );
 					}
 				}
 				else
@@ -389,7 +389,7 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
 			//update UI with queue content count
 			config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 
-        	//check the motors every 500ms to see if they are homed
+        	//check the motors to ensure shutdown
         	eventTimerStartEvery( &me->timer1,
                                  (StateTask* )me,
                                  (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],

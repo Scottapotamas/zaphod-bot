@@ -97,7 +97,7 @@ enum ServoDefines
 	SERVO_OC_OK								= true,
 
 	//Fault handling
-	SERVO_FAULT_LINGER_MS 					= 8000U,
+	SERVO_FAULT_LINGER_MS 					= 2000U,
 
 	//Clearpath input high = clockwise rotation. Alias against pin state
 	SERVO_DIR_CCW							= true,

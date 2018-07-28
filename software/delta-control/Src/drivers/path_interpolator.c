@@ -115,8 +115,10 @@ path_interpolator_get_move_done( void )
 PUBLIC void
 path_interpolator_set_home( void )
 {
-	CartesianPoint_t home = { 0, 0, 0 };
-	planner.effector_position = home;
+	planner.effector_position.x = 0;
+	planner.effector_position.y = 0;
+	planner.effector_position.z = 0;
+
 	return;
 }
 
