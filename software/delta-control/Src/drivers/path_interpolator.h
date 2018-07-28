@@ -37,4 +37,9 @@ path_interpolator_get_move_done( void );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC void
+path_interpolator_set_home( void );
+
+/* -------------------------------------------------------------------------- */
+
 #endif /* PATH_INTERPOLATOR_H */

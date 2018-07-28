@@ -113,6 +113,16 @@ path_interpolator_get_move_done( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
+path_interpolator_set_home( void )
+{
+	CartesianPoint_t home = { 0, 0, 0 };
+	planner.effector_position = home;
+	return;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
 path_interpolator_process( void )
 {
 	MotionPlanner_t *me = &planner;
