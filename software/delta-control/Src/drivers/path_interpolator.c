@@ -118,6 +118,7 @@ path_interpolator_set_home( void )
 	planner.effector_position.x = 0;
 	planner.effector_position.y = 0;
 	planner.effector_position.z = 0;
+	config_set_position( planner.effector_position.x, planner.effector_position.y, planner.effector_position.z );
 
 	return;
 }

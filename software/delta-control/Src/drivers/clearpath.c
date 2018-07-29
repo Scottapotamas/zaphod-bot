@@ -99,18 +99,8 @@ PUBLIC void
 servo_start( ClearpathServoInstance_t servo )
 {
     Servo_t *me = &clearpath[servo];
-
-    //consider the motor was already running or homed
-    //disable the motor, wait out a grace period, then resume the normal homing process
-    if( me->enabled || me->home_complete )
-    {
-    	hal_gpio_write_pin( ServoHardwareMap[servo].pin_enable, SERVO_DISABLE );
-    	me->enabled = false;
-//    	hal_delay_ms( SERVO_INTERRUPTED_DISABLE_DELAY_MIN_MS );
-    }
-
-    //todo work out a better way to trigger homing actions
-    STATE_NEXT( SERVO_STATE_HOMING );
+    me->enabled = SERVO_ENABLE;
+    me->home_complete = 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -119,9 +109,7 @@ PUBLIC void
 servo_stop( ClearpathServoInstance_t servo )
 {
     Servo_t *me = &clearpath[servo];
-
-    //todo work out a better way to force a motor into an inactive state
-    STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+    me->enabled = SERVO_DISABLE;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -188,6 +176,11 @@ servo_process( ClearpathServoInstance_t servo )
 
             STATE_TRANSITION_TEST
 
+				if( me->enabled )
+				{
+					STATE_NEXT( SERVO_STATE_HOMING );
+				}
+
             STATE_EXIT_ACTION
 
             STATE_END
@@ -234,7 +227,7 @@ servo_process( ClearpathServoInstance_t servo )
 				//guard times for min and max homing delays (how long the motor would take in worst case to home
             	if( feedback_ok )
 				{
-					//motor homed too fast (it needs to transit to the endstop, then back to the 'neutral' angle, which incurs travel time
+					//motor homed too fast (it needs to transit to the endstop, then back to the 'neutral' angle), which incurs travel time
 					if( ( hal_systick_get_ms() - me->timer ) < SERVO_HOMING_MIN_MS )
 					{
 						//it is possible that the servo position was already resting on/near the endstop, so a (singular) OK state is allowed and flagged
@@ -253,6 +246,8 @@ servo_process( ClearpathServoInstance_t servo )
 					{
 						//motor stopped moving after the minimum time period, which indicates a successful home procedure
 						me->enabled = SERVO_ENABLE;
+						me->angle_current_steps = 0;
+						me->angle_target_steps = 0;
 					    STATE_NEXT( SERVO_STATE_IDLE );
 					}
 				}
@@ -261,7 +256,6 @@ servo_process( ClearpathServoInstance_t servo )
 				if( ( hal_systick_get_ms() - me->timer ) > SERVO_HOMING_MAX_MS )
 				{
 				    STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-					//todo flag error
 				}
 
             STATE_EXIT_ACTION
@@ -297,6 +291,11 @@ servo_process( ClearpathServoInstance_t servo )
 //				{
 //					STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
 //				}
+
+				if( !me->enabled )
+				{
+					STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+				}
 
             STATE_EXIT_ACTION
 
@@ -334,10 +333,10 @@ servo_process( ClearpathServoInstance_t servo )
 					}
 				}
 
-				//current sensor has flagged a fault
-				if( hal_gpio_read_pin( ServoHardwareMap[servo].pin_oc_fault ) == SERVO_OC_FAULT )
+				//been disabled or current sensor has flagged a fault, shutdown
+				if( !me->enabled || hal_gpio_read_pin( ServoHardwareMap[servo].pin_oc_fault ) == SERVO_OC_FAULT )
 				{
-//					STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+					STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
 				}
 
             STATE_EXIT_ACTION
@@ -375,8 +374,7 @@ servo_process( ClearpathServoInstance_t servo )
 					STATE_NEXT( SERVO_STATE_IDLE );
 				}
 
-				//current sensor has flagged a fault
-				if( hal_gpio_read_pin( ServoHardwareMap[servo].pin_oc_fault ) == SERVO_OC_FAULT )
+				if( !me->enabled || hal_gpio_read_pin( ServoHardwareMap[servo].pin_oc_fault ) == SERVO_OC_FAULT )
 				{
 					STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
 				}
