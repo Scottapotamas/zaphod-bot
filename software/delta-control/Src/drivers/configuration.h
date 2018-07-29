@@ -99,7 +99,7 @@ PUBLIC void
 config_set_position( int32_t x, int32_t y, int32_t z );
 
 PUBLIC void
-config_set_movement_data( uint8_t move_type, uint8_t progress );
+config_set_movement_data( uint8_t move_id, uint8_t move_type, uint8_t progress );
 
 PUBLIC void
 config_set_pathing_status( uint8_t status );

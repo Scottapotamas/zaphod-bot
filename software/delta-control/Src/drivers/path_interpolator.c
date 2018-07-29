@@ -213,7 +213,7 @@ path_interpolator_process( void )
                 	config_set_position( target.x, target.y, target.z );
                 	me->effector_position = target;
 
-                	config_set_movement_data( move->type, (uint8_t)(me->progress_percent*100) );
+                	config_set_movement_data( move->identifier, move->type, (uint8_t)(me->progress_percent*100) );
 
             	}
 

@@ -82,7 +82,7 @@ typedef struct
 	uint8_t	pathing_state;
 
 	//information about the current move being executed
-	uint8_t movement_hash;
+	uint8_t movement_identifier;
 	uint8_t profile_type;
 	uint8_t move_progress;
 
@@ -350,9 +350,10 @@ config_set_position( int32_t x, int32_t y, int32_t z )
 }
 
 PUBLIC void
-config_set_movement_data( uint8_t move_type, uint8_t progress )
+config_set_movement_data( uint8_t move_id, uint8_t move_type, uint8_t progress )
 {
-	motion_global.profile_type = move_type;
+	motion_global.movement_identifier = move_id;
+	motion_global.profile_type 	= move_type;
 	motion_global.move_progress = progress;
 }
 
