@@ -6,12 +6,12 @@ $Descr A3 16535 11693
 encoding utf-8
 Sheet 4 5
 Title "Servo Interfaces"
-Date "2018-04-30"
-Rev "1.0"
+Date "2018-07-29"
+Rev "1.0.0"
 Comp "Scott Rapson"
-Comment1 "April 2018"
-Comment2 ""
-Comment3 ""
+Comment1 "DeltaBot Controller"
+Comment2 "20180425"
+Comment3 "Scott Rapson"
 Comment4 ""
 $EndDescr
 Text Notes 3525 1050 0    118  ~ 24
