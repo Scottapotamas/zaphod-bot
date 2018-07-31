@@ -378,16 +378,7 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
         	//update state for UI
             config_set_motion_state( TASKSTATE_MOTION_RECOVERY );
 
-            //clear out any pending movements from the queue
-			StateEvent * next = eventQueueGet( &me->super.requestQueue );
-			while( next )
-			{
-				eventPoolGarbageCollect( (StateEvent*)next );
-				next = eventQueueGet( &me->super.requestQueue );
-			}
-
-			//update UI with queue content count
-			config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
 
         	//check the motors to ensure shutdown
         	eventTimerStartEvery( &me->timer1,
@@ -396,6 +387,21 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
                                  MS_TO_TICKS( SERVO_RECOVERY_DWELL_MS ) );
 
         	return 0;
+
+        case STATE_STEP1_SIGNAL:
+        	{
+				//clear out any pending movements from the queue
+				StateEvent * next = eventQueueGet( &me->super.requestQueue );
+				while( next )
+				{
+					eventPoolGarbageCollect( (StateEvent*)next );
+					next = eventQueueGet( &me->super.requestQueue );
+				}
+
+				//update UI with queue content count
+				config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+        	}
+            return 0;
 
         case STATE_TIMEOUT1_SIGNAL:
 
