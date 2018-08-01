@@ -47,14 +47,14 @@ EventPool  eventPool[3];
  *         You need to make sure that EventsLargeType corresponds to the
  *         biggest event that can be allocated.
  */
-typedef ButtonEvent			EventsSmallType;
-typedef MotionPlannerEvent	EventsMediumType;
-//typedef SerialResponseEvent EventsLargeType;
+typedef ButtonPressedEvent	EventsSmallType;
+typedef ButtonEvent			EventsMediumType;
+typedef MotionPlannerEvent 	EventsLargeType;
 
 // ~~~ Event Pool Storage ~~~
-EventsSmallType  eventsSmall[50];//  __attribute__ ((section (".ccmram")));
-EventsMediumType eventsMedium[50];//  __attribute__ ((section (".ccmram")));
-//EventsLargeType  eventsLarge[25];//   __attribute__ ((section (".ccmram")));
+EventsSmallType  eventsSmall[10];//  __attribute__ ((section (".ccmram")));
+EventsMediumType eventsMedium[15];//  __attribute__ ((section (".ccmram")));
+EventsLargeType  eventsLarge[50];//   __attribute__ ((section (".ccmram")));
 
 // ~~~ Event Subscription Data ~~~
 EventSubscribers eventSubscriberList[STATE_MAX_SIGNAL];
@@ -65,11 +65,11 @@ AppTaskCommunication       appTaskCommunication;
 StateEvent *               appTaskCommunicationEventQueue[10];
 
 AppTaskExpansion	       appTaskExpansion;
-StateEvent *               appTaskExpansionEventQueue[3];
+StateEvent *               appTaskExpansionEventQueue[5];
 
 AppTaskMotion    		   appTaskMotion;
-StateEvent *               appTaskMotionEventQueue[20];
-StateEvent *               appTaskMotionQueue[10];
+StateEvent *               appTaskMotionEventQueue[25];
+StateEvent *               appTaskMotionQueue[20];
 
 AppTaskSupervisor          appTaskSupervisor;
 StateEvent *               appTaskSupervisorEventQueue[40];
@@ -99,9 +99,9 @@ void app_tasks_init( void )
                                  DIM(eventsMedium),
                                  sizeof(EventsMediumType) ) != 0 );
 
-//    ALLEGE( eventPoolAddStorage( (StateEvent*)&eventsLarge,
-//                                 DIM(eventsLarge),
-//                                 sizeof(EventsLargeType) ) != 0 );
+    ALLEGE( eventPoolAddStorage( (StateEvent*)&eventsLarge,
+                                 DIM(eventsLarge),
+                                 sizeof(EventsLargeType) ) != 0 );
 
     /* ~~~ Event Subscription Tables Initialisation ~~~ */
     eventSubscribeInit( mainTaskTable, eventSubscriberList, STATE_MAX_SIGNAL );

@@ -179,11 +179,11 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
 				// Add the movement request to the queue if we have room
 				uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
-				if( queue_usage < 10 )	//10 queue size
+				if( queue_usage <= 40 )
 				{
 					if( mpe->move.duration)
 					{
-						eventQueuePutLIFO( &me->super.requestQueue, (StateEvent*)e );
+						eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
 					}
 				}
 
@@ -252,6 +252,8 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
                 eventPoolGarbageCollect( (StateEvent*)next );
                 STATE_TRAN( AppTaskMotion_active );
             }
+			config_set_motion_queue_depth(  eventQueueUsed( &me->super.requestQueue ) );
+
             return 0;
         }
 
@@ -306,8 +308,27 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
         	{
             	STATE_TRAN( AppTaskMotion_inactive );
         	}
+        	else
+        	{
+        		//check back in a millisecond
+        		eventTimerStartOnce( &me->timer1,
+									 (StateTask* )me,
+									 (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
+									 1 );
+        	}
 
         	return 0;
+
+        case STATE_STEP1_SIGNAL:
+        	if( eventTimerIsActive(&me->timer1) )
+        	{
+            	if( path_interpolator_get_move_done() )
+            	{
+                	STATE_TRAN( AppTaskMotion_inactive );
+            	}
+        	}
+
+            return 0;
 
         case MOTION_REQUEST:
         	{
@@ -316,11 +337,13 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 
 				// Add the movement request to the queue if we have room
 				uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
-				if( queue_usage < 10 )	//10 queue size
+				if( queue_usage <= 40 )
 				{
 					if( mpe->move.duration)
 					{
-						eventQueuePutLIFO( &me->super.requestQueue, (StateEvent*)e );
+						eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
+			            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+
 					}
 				}
 				else
