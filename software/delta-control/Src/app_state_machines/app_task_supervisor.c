@@ -120,6 +120,7 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 
 			   			   eventPublish( (StateEvent*)motev );
 			   		   }
+				   		eventPublish( EVENT_NEW( StateEvent, EUI_PING ) );
 			   	   }
 				   return 0;
 			   default:

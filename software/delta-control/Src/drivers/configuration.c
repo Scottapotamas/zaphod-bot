@@ -133,6 +133,7 @@ PRIVATE void publish_motion_cb_2( void );
 PRIVATE void publish_motion_cb_l( void );
 PRIVATE void publish_motion_cb_r( void );
 
+uint8_t pingvar = 99;
 
 euiMessage_t ui_variables[] =
 {
@@ -172,6 +173,8 @@ euiMessage_t ui_variables[] =
 	//temp variables
 #warning "Remove temp variables once UI supports structure graphs"
     {.msgID = "power", 	.type = TYPE_FLOAT, .size = sizeof(motion_servo[1].power),  	.payload = &motion_servo[1].power },
+
+	{.msgID = "ping", 	.type = TYPE_UINT8, .size = sizeof(pingvar),  	.payload = &pingvar },
 
 };
 

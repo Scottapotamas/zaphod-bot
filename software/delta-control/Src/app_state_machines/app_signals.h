@@ -45,6 +45,9 @@ enum AppSignals
 	MOTION_TAIL,           /* End of a movement */
 	MOTION_EMERGENCY,      /* Kill motors immediately */
 
+#warning "This dirty hack should really really be removed at some point"
+	EUI_PING,
+
     /* Last Available Signal - Don't Remove This */
     STATE_MAX_SIGNAL
 };
