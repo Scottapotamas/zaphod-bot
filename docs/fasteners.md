@@ -1,4 +1,4 @@
-# Fasteners
+# Version 1 Fasteners
 
 ## Bearings
 
@@ -50,3 +50,37 @@ https://www.minibearings.com.au/store/item/shld040004skts3/
 SHLD040-008-SKT-S3 - $3.95AUD each
 
 https://www.minibearings.com.au/store/item/shld040008skts3
+
+
+
+
+# Version 2 Mechanism
+
+The version 1 mechanism has way too much slop due to poor tolerances in the bearings and shoulder bolts. Good lesson in not trusting Aliexpress fasteners...
+
+This set will use higher quality fasteners from Misumi, but requires a few parts to be reprinted.
+
+## Bearing Retaining Posts
+
+Without re-machining or redesigning the elbow spacer part, I'm limited to a M3 thread.
+
+The "Bearing Shaft Screws with Retaining Rings - Flanged" look pretty good, https://sg.misumi-ec.com/vona2/detail/110300115260/
+or a simpler option that don't have a retainer (basically a shoulder bolt) https://sg.misumi-ec.com/vona2/detail/110302644720/
+
+The M3 thread size in these categories locks us into a 5mm diameter which drives bearing selection.
+Its got a 6mm thread length, and 8mm head
+
+
+## Bearings
+
+Inner Diameter: 5mm
+Outer Diameter:	11mm
+Width:			5mm
+
+The misumi branded stainless steel shielded bearings https://sg.misumi-ec.com/vona2/detail/110302273360/?HissuCode=SB685ZZ look like a good option. Its 3.60USD at qty 26 (need 24 + 2 spares) 
+
+94.64USD.
+
+## Clevis Bearing Pin/Shaft
+
+TBD, misumi have poor selection of ~10mm options, most start at 15mm shank which isn't ideal.
