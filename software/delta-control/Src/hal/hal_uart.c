@@ -19,8 +19,9 @@
 
 /* ----- Defines ------------------------------------------------------------ */
 
-#define  HAL_UART_RX_FIFO_SIZE      256
-#define  HAL_UART_TX_FIFO_SIZE      256
+#warning "Fix cludge in fifo size due to eUI not being respectful of output processing time"
+#define  HAL_UART_RX_FIFO_SIZE      1024
+#define  HAL_UART_TX_FIFO_SIZE      1024
 
 #define UART_EXTERNAL_BAUD	115200
 #define UART_INTERNAL_BAUD	115200
