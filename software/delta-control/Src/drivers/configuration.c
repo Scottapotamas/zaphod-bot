@@ -453,7 +453,7 @@ PRIVATE void publish_motion_cb( void )
 	   {
 		   motev->move.type = _LINE;
 		   motev->move.ref = _POS_RELATIVE;
-		   motev->move.duration = 300;
+		   motev->move.duration = 500;
 
 		   //start
 		   motev->move.points[0].x = 0;
@@ -463,7 +463,7 @@ PRIVATE void publish_motion_cb( void )
 		   //dest
 		   motev->move.points[1].x = 0;
 		   motev->move.points[1].y = 0;
-		   motev->move.points[1].z = MM_TO_MICRONS(20);
+		   motev->move.points[1].z = MM_TO_MICRONS(10);
 		   motev->move.num_pts = 2;
 
 		   eventPublish( (StateEvent*)motev );
@@ -478,7 +478,7 @@ PRIVATE void publish_motion_cb_2( void )
 	   {
 		   motev->move.type = _LINE;
 		   motev->move.ref = _POS_RELATIVE;
-		   motev->move.duration = 300;
+		   motev->move.duration = 500;
 
 		   //start
 		   motev->move.points[0].x = 0;
@@ -488,7 +488,7 @@ PRIVATE void publish_motion_cb_2( void )
 		   //dest
 		   motev->move.points[1].x = 0;
 		   motev->move.points[1].y = 0;
-		   motev->move.points[1].z = MM_TO_MICRONS(-20);
+		   motev->move.points[1].z = MM_TO_MICRONS(-10);
 		   motev->move.num_pts = 2;
 
 		   eventPublish( (StateEvent*)motev );
@@ -503,7 +503,7 @@ PRIVATE void publish_motion_cb_r( void )
 	   {
 		   motev->move.type = _LINE;
 		   motev->move.ref = _POS_RELATIVE;
-		   motev->move.duration = 300;
+		   motev->move.duration = 500;
 
 		   //start
 		   motev->move.points[0].x = 0;
@@ -511,7 +511,7 @@ PRIVATE void publish_motion_cb_r( void )
 		   motev->move.points[0].z = 0;
 
 		   //dest
-		   motev->move.points[1].x = MM_TO_MICRONS(20);
+		   motev->move.points[1].x = MM_TO_MICRONS(10);
 		   motev->move.points[1].y = 0;
 		   motev->move.points[1].z = 0;
 		   motev->move.num_pts = 2;
@@ -528,7 +528,7 @@ PRIVATE void publish_motion_cb_l( void )
 	   {
 		   motev->move.type = _LINE;
 		   motev->move.ref = _POS_RELATIVE;
-		   motev->move.duration = 300;
+		   motev->move.duration = 500;
 
 		   //start
 		   motev->move.points[0].x = 0;
@@ -536,7 +536,7 @@ PRIVATE void publish_motion_cb_l( void )
 		   motev->move.points[0].z = 0;
 
 		   //dest
-		   motev->move.points[1].x = MM_TO_MICRONS(-20);
+		   motev->move.points[1].x = MM_TO_MICRONS(-10);
 		   motev->move.points[1].y = 0;
 		   motev->move.points[1].z = 0;
 		   motev->move.num_pts = 2;
