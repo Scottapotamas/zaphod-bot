@@ -54,7 +54,7 @@ typedef MotionPlannerEvent 	EventsLargeType;
 // ~~~ Event Pool Storage ~~~
 EventsSmallType  eventsSmall[10];//  __attribute__ ((section (".ccmram")));
 EventsMediumType eventsMedium[15];//  __attribute__ ((section (".ccmram")));
-EventsLargeType  eventsLarge[50];//   __attribute__ ((section (".ccmram")));
+EventsLargeType  eventsLarge[45];//   __attribute__ ((section (".ccmram")));
 
 // ~~~ Event Subscription Data ~~~
 EventSubscribers eventSubscriberList[STATE_MAX_SIGNAL];
@@ -68,11 +68,11 @@ AppTaskExpansion	       appTaskExpansion;
 StateEvent *               appTaskExpansionEventQueue[5];
 
 AppTaskMotion    		   appTaskMotion;
-StateEvent *               appTaskMotionEventQueue[25];
-StateEvent *               appTaskMotionQueue[20];
+StateEvent *               appTaskMotionEventQueue[40];
+StateEvent *               appTaskMotionQueue[35];
 
 AppTaskSupervisor          appTaskSupervisor;
-StateEvent *               appTaskSupervisorEventQueue[40];
+StateEvent *               appTaskSupervisorEventQueue[20];
 
 // ~~~ Tasker ~~~
 
