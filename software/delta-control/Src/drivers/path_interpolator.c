@@ -87,8 +87,8 @@ path_interpolator_set_objective( Movement_t	* movement_to_process )
 	for( uint8_t i = 0; i < planner.current_move->num_pts; i++ )
 	{
 		//todo move point clamp ranges to somewhere more sensible
-		movement_to_process->points[i].x = CLAMP( movement_to_process->points[i].x, MM_TO_MICRONS(-140), MM_TO_MICRONS(140) );
-		movement_to_process->points[i].y = CLAMP( movement_to_process->points[i].y, MM_TO_MICRONS(-140), MM_TO_MICRONS(140) );
+		movement_to_process->points[i].x = CLAMP( movement_to_process->points[i].x, MM_TO_MICRONS(-200), MM_TO_MICRONS(200) );
+		movement_to_process->points[i].y = CLAMP( movement_to_process->points[i].y, MM_TO_MICRONS(-200), MM_TO_MICRONS(200) );
 		movement_to_process->points[i].z = CLAMP( movement_to_process->points[i].z, MM_TO_MICRONS(0), MM_TO_MICRONS(300) );
 	}
 

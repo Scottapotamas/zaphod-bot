@@ -65,13 +65,13 @@ enum ServoDefines
 	SERVO_STEPS_PER_REV				= 6400U,
 	SERVO_ANGLE_PER_REV				= 360U,
 	SERVO_STEPS_PER_DEGREE			= ( SERVO_STEPS_PER_REV / SERVO_ANGLE_PER_REV ),
-	SERVO_MIN_ANGLE					= 66U,	//this is the negative angle limit
+	SERVO_MIN_ANGLE					= 45U,	//this is the negative angle limit
 	SERVO_ZERO_ANGLE				= 0U,	//bicep elbow is parallel to motor axis
-	SERVO_MAX_ANGLE					= 60U,	//arm is fully extended
+	SERVO_MAX_ANGLE					= 65U,	//arm is fully extended
 	SERVO_MIN_STEPS					= ( SERVO_MIN_ANGLE * SERVO_STEPS_PER_DEGREE ),
 	SERVO_MAX_STEPS					= ( SERVO_MAX_ANGLE * SERVO_STEPS_PER_DEGREE ),
 
-	SERVO_HOME_OFFSET				= 150U,
+	SERVO_HOME_OFFSET				= 35U,
 
 	//Homing parameters
 	SERVO_INTERRUPTED_DISABLE_DELAY_MIN_MS	= 50U,

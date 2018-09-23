@@ -246,8 +246,8 @@ servo_process( ClearpathServoInstance_t servo )
 					{
 						//motor stopped moving after the minimum time period, which indicates a successful home procedure
 						me->enabled = SERVO_ENABLE;
-						me->angle_current_steps = 0;
-						me->angle_target_steps = 0;
+						me->angle_current_steps = convert_angle_steps(-44.0f);
+						me->angle_target_steps = me->angle_current_steps;
 					    STATE_NEXT( SERVO_STATE_IDLE );
 					}
 				}
@@ -400,14 +400,14 @@ convert_angle_steps( float shaft_angle )
 	/*
 	 * The kinematics output is an angle between -85 and +90, where 0 deg is when
 	 * the elbow-shaft link is parallel to the frame plate. Full range not available due
-	 * to physical limits on arm travel. Approx -65 to +60 is the safe working range.
+	 * to physical limits on arm travel. Approx -45 to +70 is the safe working range.
 	 *
-	 * Servo steps are referenced to the homing point, which is the HW minimum -65,
+	 * Servo steps are referenced to the homing point, which is the HW minimum,
 	 * therefore we need to convert the angle into steps, and apply the adequate offset.
 	 * The servo's range is approx 2300 counts.
 	 */
 
-	return (shaft_angle * SERVO_STEPS_PER_DEGREE) + ( SERVO_MIN_ANGLE * SERVO_STEPS_PER_DEGREE ) + SERVO_HOME_OFFSET;
+	return (shaft_angle * SERVO_STEPS_PER_DEGREE) + ( SERVO_MIN_ANGLE * SERVO_STEPS_PER_DEGREE ) - SERVO_HOME_OFFSET;
 }
 
 PRIVATE float

@@ -97,7 +97,6 @@ typedef struct
 	bool enabled;
 	uint8_t state;
 	uint8_t feedback;
-	float current_angle;
 	float target_angle;
 	float power;
 } MotorData_t;
@@ -396,12 +395,6 @@ PUBLIC void
 config_motor_power( uint8_t servo, float watts )
 {
 	motion_servo[servo].power = watts;
-}
-
-PUBLIC void
-config_motor_current_angle( uint8_t servo, float angle )
-{
-	motion_servo[servo].current_angle = angle;
 }
 
 PUBLIC void

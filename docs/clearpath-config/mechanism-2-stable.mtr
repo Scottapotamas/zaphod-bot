@@ -1,7 +1,7 @@
 [TEK32CP10-20-0]
 Chip Version=1.7.7
 UserID0=MechV2 CPM-SDSK-2321S
-File Written=17/09/2018 9:46:29 PM
+File Written=23/09/2018 7:01:42 PM
 Writer=244
 VCS=$Revision$ $Archive$ $Date$
 Options=&H000A0312
@@ -36,7 +36,7 @@ AHfuzz=1. ; (cnts)
 AHhyst=1. ; (cnts)
 AHhold=50. ; (ms)
 AHFiltTC=49.97 ; (ms)
-TrkErrLim=6400. ; (cnts)
+TrkErrLim=1600. ; (cnts)
 StopType=0.
 TrqLim=10.00 ; (amps)
 HrdStpAltTrqLim=4.00 ; (amps)
@@ -51,8 +51,8 @@ HrdStpTime=50. ; (ms)
 StopQualTime=999.9 ; (ms)
 StopQualVel=0. ; (cnts/sec)
 MvDnTime=10. ; (ms)
-InRngWin=5.00 ; (cnts)
-InRngVelWin=3. ; (%)
+InRngWin=8.00 ; (cnts)
+InRngVelWin=10. ; (%)
 AccLim=1066676. ; (cnts/sec^2)
 DecLim=1066676. ; (cnts/sec^2)
 VelLim=213333.345 ; (cnts/sec)
@@ -64,7 +64,7 @@ Static Friction=0.
 Viscous Friction=0.
 Homing Speed=853. ; (cnts/sec)
 Homing Accel=2176. ; (Mcnts/sec^2)
-Homing Offset=150. ; (cnts)
+Homing Offset=25. ; (cnts)
 MaxTravel=0.00 ; (cnts)
 HrdStpDelay=599.9 ; (ms)
 StepsPerRev=6400. ; (cnts/rev)
@@ -140,6 +140,7 @@ Eff KpZero=4528.
 Eff Kip=60.
 Eff Kii=510.
 UserDesc=Mechanism V2 bearings
+Seems pretty good
 Seems pretty good
 [Motor Info]
 Poles=8.
