@@ -41,12 +41,7 @@ enum AppSignals
 	MOTION_PREPARE,
 	MOTION_STOP,           /* Stop current movement actions */
 	MOTION_REQUEST,        /* Provide movement information for queue processing */
-	MOTION_HEAD,           /* Start of a movement */
-	MOTION_TAIL,           /* End of a movement */
 	MOTION_EMERGENCY,      /* Kill motors immediately */
-
-#warning "This dirty hack should really really be removed at some point"
-	EUI_PING,
 
     /* Last Available Signal - Don't Remove This */
     STATE_MAX_SIGNAL

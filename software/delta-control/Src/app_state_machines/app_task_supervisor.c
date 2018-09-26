@@ -129,7 +129,7 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 		   break;
 
         case STATE_INIT_SIGNAL:
-            STATE_INIT( &AppTaskSupervisor_manual_mode );
+            STATE_INIT( &AppTaskSupervisor_arm_start );
             return 0;
 
     }
@@ -138,14 +138,42 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 
 /* -------------------------------------------------------------------------- */
 
-// Manual movement control over end-effector
+// Start a mechanism startup
 
-PRIVATE STATE AppTaskSupervisor_manual_mode( AppTaskSupervisor *me,
+PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
                                          	 const StateEvent *e )
 {
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
+        	//request a motion handler homing process
+
+        	return 0;
+
+        	//catch events for success and failures
+
+		case STATE_EXIT_SIGNAL:
+
+			return 0;
+    }
+    return (STATE)AppTaskSupervisor_main;
+}
+
+/* -------------------------------------------------------------------------- */
+
+// Handle startup errors
+
+PRIVATE STATE AppTaskSupervisor_arm_error( AppTaskSupervisor *me,
+                                         	 const StateEvent *e )
+{
+    switch( e->signal )
+    {
+        case STATE_ENTRY_SIGNAL:
+        	//cleanup and prepare for recovery
+
+        	//send message to UI
+
+        	//blink some lights?
 
         	return 0;
 
@@ -158,14 +186,18 @@ PRIVATE STATE AppTaskSupervisor_manual_mode( AppTaskSupervisor *me,
 
 /* -------------------------------------------------------------------------- */
 
-// Demonstration geometry profiles for showing off
+// Motor arming succeeded
 
-PRIVATE STATE AppTaskSupervisor_demo_mode( AppTaskSupervisor *me,
+PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
                                          	 const StateEvent *e )
 {
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
+        	// send message to UI
+
+        	//start additional subsystems
+
 
         	return 0;
 
@@ -178,14 +210,15 @@ PRIVATE STATE AppTaskSupervisor_demo_mode( AppTaskSupervisor *me,
 
 /* -------------------------------------------------------------------------- */
 
-// Accept program commands from the UI (as in, run a pre-generated program)
+// Running Supervisor State
 
-PRIVATE STATE AppTaskSupervisor_program_mode( AppTaskSupervisor *me,
+PRIVATE STATE AppTaskSupervisor_armed( AppTaskSupervisor *me,
                                          	 const StateEvent *e )
 {
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
+        	//set up any recurring monitoring processes
 
         	return 0;
 
@@ -198,18 +231,26 @@ PRIVATE STATE AppTaskSupervisor_program_mode( AppTaskSupervisor *me,
 
 /* -------------------------------------------------------------------------- */
 
-// Accept movement commands from a serial device (not UI)
+// Start a graceful shutdown process
 
-PRIVATE STATE AppTaskSupervisor_serial_mode( AppTaskSupervisor *me,
+PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
                                          	 const StateEvent *e )
 {
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
 
+        	//empty out the motion queue
+
+        	//request a move to 0,0,0
+
+        	//come back and check the position until we are home
+
+
         	return 0;
 
 		case STATE_EXIT_SIGNAL:
+			//call a full motor shutdown
 
 			return 0;
     }
