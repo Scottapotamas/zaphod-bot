@@ -28,6 +28,12 @@ typedef struct
 
 typedef struct
 {
+	uint8_t supervisor;
+	uint8_t motors;
+} SystemStates_t;
+
+typedef struct
+{
 	uint8_t mode_group_0;	//UART
 	uint8_t mode_group_1;	//I2C
 } InternalInterface_t;
@@ -119,7 +125,7 @@ FanCurve_t 		fan_curve[] =
 
 TempData_t 		temp_sensors;
 
-uint8_t			supervisor_data;
+SystemStates_t	sys_states;
 
 MotionData_t 	motion_global;
 MotorData_t 	motion_servo[4];
@@ -151,7 +157,7 @@ euiMessage_t ui_variables[] =
     {.msgID = "curve", 	.type = TYPE_CUSTOM, .size = sizeof(fan_curve), 	.payload = &fan_curve  		},
     {.msgID = "temp", 	.type = TYPE_CUSTOM, .size = sizeof(TempData_t),  	.payload = &temp_sensors 	},
 
-    {.msgID = "super", 	.type = TYPE_UINT8, .size = sizeof(supervisor_data),  	.payload = &supervisor_data },
+    {.msgID = "super", 	.type = TYPE_CUSTOM, .size = sizeof(sys_states),  	.payload = &sys_states },
 
 
     //motion related information
@@ -299,7 +305,8 @@ config_set_input_voltage( float voltage )
 PUBLIC void
 config_set_main_state( uint8_t state )
 {
-	supervisor_data = state;
+	sys_states.supervisor = state;
+	sys_states.motors = motion_servo[0].enabled || motion_servo[1].enabled || motion_servo[2].enabled;
 }
 
 /* -------------------------------------------------------------------------- */

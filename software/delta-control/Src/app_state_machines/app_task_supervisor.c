@@ -167,7 +167,8 @@ PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
         	eventTimerStartEvery( &me->timer1,
                                  (StateTask* )me,
                                  (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
-                                 MS_TO_TICKS( 5000 ) );
+                                 MS_TO_TICKS( 8000 ) );
+        	//todo use declared servo failure time here
         	return 0;
 
         case STATE_TIMEOUT1_SIGNAL:
@@ -206,6 +207,8 @@ PRIVATE STATE AppTaskSupervisor_arm_error( AppTaskSupervisor *me,
         	//send message to UI
 
         	//blink some lights?
+
+        	STATE_TRAN( AppTaskSupervisor_disarmed );
 
         	return 0;
 
@@ -336,7 +339,7 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
 
         	// Check to make sure the mechanism is at the home position before disabling servo power
         	// Allow a 5 micron error on position in check
-        	if( position.x < MM_TO_MICRONS(0.1) && position.y < MM_TO_MICRONS(0.1) && position.z < MM_TO_MICRONS(0.1) )
+        	if( position.x < MM_TO_MICRONS(0.1) && position.y < MM_TO_MICRONS(0.1) && position.z < MM_TO_MICRONS(0.1) && path_interpolator_get_move_done() )
         	{
             	eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
 

@@ -39,6 +39,7 @@ typedef struct
 	bool			enabled;
 	uint8_t			home_complete;
 	uint32_t      	timer;
+	bool			feedback_ok;
 
 	uint16_t		angle_current_steps;
 	uint16_t		angle_target_steps;
@@ -152,7 +153,7 @@ servo_get_valid_home( ClearpathServoInstance_t servo)
 {
 	Servo_t *me = &clearpath[servo];
 
-	return ( me->enabled );
+	return ( me->enabled && me->feedback_ok );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -163,7 +164,8 @@ servo_process( ClearpathServoInstance_t servo )
     Servo_t *me = &clearpath[servo];
 
     float 	servo_power = sensors_servo_W( ServoHardwareMap[servo].adc_current );
-	bool 	feedback_ok = hal_gpio_read_pin(ServoHardwareMap[servo].pin_feedback);
+
+    me->feedback_ok = hal_gpio_read_pin(ServoHardwareMap[servo].pin_feedback);
 
     switch( me->currentState )
     {
@@ -225,7 +227,7 @@ servo_process( ClearpathServoInstance_t servo )
 				//the HLFB output pin will be set to speed mode, outputs 45Hz PWM where DC% relates to the velocity.
 				//expect the motor to slowly home, stop, move to the neutral point, then stop
 				//guard times for min and max homing delays (how long the motor would take in worst case to home
-            	if( feedback_ok )
+            	if( me->feedback_ok )
 				{
 					//motor homed too fast (it needs to transit to the endstop, then back to the 'neutral' angle), which incurs travel time
 					if( ( hal_systick_get_ms() - me->timer ) < SERVO_HOMING_MIN_MS )
@@ -387,7 +389,7 @@ servo_process( ClearpathServoInstance_t servo )
 
     config_motor_state( servo , me->currentState);
     config_motor_enable( servo, me->enabled );
-    config_motor_feedback( servo, feedback_ok );
+    config_motor_feedback( servo, me->feedback_ok );
     config_motor_power( servo, servo_power);
 
 }
