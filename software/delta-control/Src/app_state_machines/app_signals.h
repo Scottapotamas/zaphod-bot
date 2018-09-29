@@ -34,14 +34,19 @@ enum AppSignals
     BUTTON_RELEASED_SIGNAL,         /* Key Up Event */
 
     /* Servo Signals */
-	MECHANISM_HOMED,		// all motors have homed without detected error
-	MECHANISM_ERROR,
+	MECHANISM_START,
+	MECHANISM_STOP,
+	MECHANISM_HOME,
 
     /* Motion Handler Signals */
-	MOTION_PREPARE,
-	MOTION_STOP,           /* Stop current movement actions */
-	MOTION_REQUEST,        /* Provide movement information for queue processing */
-	MOTION_EMERGENCY,      /* Kill motors immediately */
+	MOTION_PREPARE,			// Start n-axis homing process
+	MOTION_REQUEST,         // Provide movement information for queue processing
+	MOTION_EMERGENCY,       // Kill motors immediately
+	MOTION_CLEAR_QUEUE,		// empty out pending movements
+
+	MOTION_HOMED,			// all motors have homed without detected error
+	MOTION_ERROR,			// error while homing
+	MOTION_DISABLED,
 
     /* Last Available Signal - Don't Remove This */
     STATE_MAX_SIGNAL

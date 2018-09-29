@@ -13,6 +13,8 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me, const StateEvent 
 
 PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me, const StateEvent *e );
 
+PRIVATE STATE AppTaskSupervisor_disarmed( AppTaskSupervisor *me, const StateEvent *e );
+
 PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me, const StateEvent *e );
 
 PRIVATE STATE AppTaskSupervisor_arm_error( AppTaskSupervisor *me, const StateEvent *e );

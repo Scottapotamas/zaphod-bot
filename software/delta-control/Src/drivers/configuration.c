@@ -119,12 +119,17 @@ FanCurve_t 		fan_curve[] =
 
 TempData_t 		temp_sensors;
 
+uint8_t			supervisor_data;
+
 MotionData_t 	motion_global;
 MotorData_t 	motion_servo[4];
 Movement_t 		motion_inbound;
 
+PRIVATE void start_mech_cb( void );
+PRIVATE void stop_mech_cb( void );
 PRIVATE void emergency_stop_cb( void );
-PRIVATE void home_system_cb( void );
+PRIVATE void home_mech_cb( void );
+
 PRIVATE void movement_generate_event( void );
 
 PRIVATE void publish_motion_cb( void );
@@ -146,6 +151,9 @@ euiMessage_t ui_variables[] =
     {.msgID = "curve", 	.type = TYPE_CUSTOM, .size = sizeof(fan_curve), 	.payload = &fan_curve  		},
     {.msgID = "temp", 	.type = TYPE_CUSTOM, .size = sizeof(TempData_t),  	.payload = &temp_sensors 	},
 
+    {.msgID = "super", 	.type = TYPE_UINT8, .size = sizeof(supervisor_data),  	.payload = &supervisor_data },
+
+
     //motion related information
     {.msgID = "moStat",	.type = TYPE_CUSTOM, .size = sizeof(MotionData_t), 	.payload = &motion_global 	},
     {.msgID = "mo1", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[0] },
@@ -159,7 +167,9 @@ euiMessage_t ui_variables[] =
 
 	//function callbacks
     {.msgID = "estop", 	.type = TYPE_CALLBACK, .size = sizeof(emergency_stop_cb),  	.payload = &emergency_stop_cb },
-    {.msgID = "home", 	.type = TYPE_CALLBACK, .size = sizeof(home_system_cb),  	.payload = &home_system_cb },
+    {.msgID = "arm", 	.type = TYPE_CALLBACK, .size = sizeof(start_mech_cb),  	.payload = &start_mech_cb },
+    {.msgID = "disarm", .type = TYPE_CALLBACK, .size = sizeof(stop_mech_cb),  	.payload = &stop_mech_cb },
+    {.msgID = "home", 	.type = TYPE_CALLBACK, .size = sizeof(home_mech_cb),  	.payload = &home_mech_cb },
 
 	//test callbacks
 #warning "Remove test movement calls once API surface matures"
@@ -287,6 +297,14 @@ config_set_input_voltage( float voltage )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
+config_set_main_state( uint8_t state )
+{
+	supervisor_data = state;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
 config_set_fan_percentage( uint8_t percent )
 {
 	fan_stats.setpoint_percentage = percent;
@@ -405,6 +423,20 @@ config_motor_target_angle( uint8_t servo, float angle )
 
 /* ----- Private Functions -------------------------------------------------- */
 
+PRIVATE void start_mech_cb( void )
+{
+	eventPublish( EVENT_NEW( StateEvent, MECHANISM_START ) );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void stop_mech_cb( void )
+{
+	eventPublish( EVENT_NEW( StateEvent, MECHANISM_STOP ) );
+}
+
+/* -------------------------------------------------------------------------- */
+
 PRIVATE void emergency_stop_cb( void )
 {
 	eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
@@ -412,9 +444,9 @@ PRIVATE void emergency_stop_cb( void )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void home_system_cb( void )
+PRIVATE void home_mech_cb( void )
 {
-	eventPublish( EVENT_NEW( StateEvent, MOTION_PREPARE ) );
+	eventPublish( EVENT_NEW( StateEvent, MECHANISM_HOME ) );
 }
 
 /* -------------------------------------------------------------------------- */

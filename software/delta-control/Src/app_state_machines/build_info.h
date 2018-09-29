@@ -8,11 +8,11 @@
 #ifndef BUILD_INFO_H                                                     
 #define BUILD_INFO_H                                                     
                                                                          
-#define BUILD_DATE    "2018-09-23"                                     
+#define BUILD_DATE    "2018-09-26"                                     
                                                                          
-#define BUILD_TIME    "01:58:00"                                     
+#define BUILD_TIME    "23:38:01"                                     
                                                                          
-#define BUILD_INFO    "c810-dirty"                                     
+#define BUILD_INFO    "2753-dirty"                                     
                                                                          
 #define BUILD_BRANCH  "master"                                   
                                                                          

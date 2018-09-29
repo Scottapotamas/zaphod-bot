@@ -121,6 +121,14 @@ path_interpolator_get_move_done( void )
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC CartesianPoint_t
+path_interpolator_get_global_position( void )
+{
+	return planner.effector_position;
+}
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC void
 path_interpolator_set_home( void )
 {

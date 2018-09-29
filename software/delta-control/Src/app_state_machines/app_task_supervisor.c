@@ -17,6 +17,9 @@
 
 #include "status.h"
 #include "buzzer.h"
+#include "sensors.h"
+#include "path_interpolator.h"
+#include "configuration.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -65,6 +68,14 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
 
     // Detect user activities
     eventSubscribe( (StateTask*)me, BUTTON_NORMAL_SIGNAL );
+    eventSubscribe( (StateTask*)me, MECHANISM_START );
+    eventSubscribe( (StateTask*)me, MECHANISM_STOP );
+    eventSubscribe( (StateTask*)me, MECHANISM_HOME );
+
+    // motion handler events
+    eventSubscribe( (StateTask*)me, MOTION_ERROR );
+    eventSubscribe( (StateTask*)me, MOTION_HOMED );
+    eventSubscribe( (StateTask*)me, MOTION_DISABLED );
 
     STATE_INIT( &AppTaskSupervisor_main );
 }
@@ -78,8 +89,11 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
     {
         case STATE_ENTRY_SIGNAL:
         {
+        	config_set_main_state(1);
+        	//start the board hardware sensors
+        	sensors_enable();
 
-            //Todo actually do something in the supervisor state
+
             status_green(false);
             status_yellow(false);
 
@@ -90,38 +104,11 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 		   switch( ((ButtonPressedEvent*)e)->id )
 		   {
 			   case BUTTON_0:
-			   	   {
-				   		eventPublish( EVENT_NEW( StateEvent, MOTION_PREPARE ) );
-
-			   	   }
+				   eventPublish( EVENT_NEW( StateEvent, MECHANISM_START ) );
 				   return 0;
 
 			   case BUTTON_1:
-			   	   {
-			   		   MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
-
-			   		   if(motev)
-			   		   {
-			   			   motev->move.type = _LINE;
-			   			   motev->move.ref = _POS_ABSOLUTE;
-			   			   motev->move.duration = 650;
-
-			   			   //start
-			   			   motev->move.points[0].x = 0;
-			   			   motev->move.points[0].y = 0;
-			   			   motev->move.points[0].z = 0;
-
-			   			   //dest
-			   			   motev->move.points[1].x = 0;
-			   			   motev->move.points[1].y = 0;
-			   			   motev->move.points[1].z = MM_TO_MICRONS(5);
-
-			   			   motev->move.num_pts = 2;
-
-			   			   eventPublish( (StateEvent*)motev );
-			   		   }
-				   		eventPublish( EVENT_NEW( StateEvent, EUI_PING ) );
-			   	   }
+				   eventPublish( EVENT_NEW( StateEvent, MECHANISM_STOP ) );
 				   return 0;
 			   default:
 				   break;
@@ -129,11 +116,36 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 		   break;
 
         case STATE_INIT_SIGNAL:
-            STATE_INIT( &AppTaskSupervisor_arm_start );
+            STATE_INIT( &AppTaskSupervisor_disarmed );
             return 0;
 
     }
     return (STATE)hsmTop;
+}
+
+/* -------------------------------------------------------------------------- */
+
+// Start a mechanism startup
+
+PRIVATE STATE AppTaskSupervisor_disarmed( AppTaskSupervisor *me,
+                                         	 const StateEvent *e )
+{
+    switch( e->signal )
+    {
+        case STATE_ENTRY_SIGNAL:
+        	config_set_main_state(2);
+
+        	return 0;
+
+        case MECHANISM_START:
+        	STATE_TRAN( AppTaskSupervisor_arm_start );
+        	return 0;
+
+		case STATE_EXIT_SIGNAL:
+
+			return 0;
+    }
+    return (STATE)AppTaskSupervisor_main;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -146,14 +158,32 @@ PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-        	//request a motion handler homing process
+        	config_set_main_state(3);
 
+        	//request a motion handler homing process
+            eventPublish( EVENT_NEW( StateEvent, MOTION_PREPARE ) );
+
+        	// timeout incase the motion handler doesn't signal back
+        	eventTimerStartEvery( &me->timer1,
+                                 (StateTask* )me,
+                                 (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
+                                 MS_TO_TICKS( 5000 ) );
         	return 0;
 
-        	//catch events for success and failures
+        case STATE_TIMEOUT1_SIGNAL:
+        	STATE_TRAN( AppTaskSupervisor_arm_error );
+        	return 0;
+
+        case MOTION_ERROR:
+        	STATE_TRAN( AppTaskSupervisor_arm_error );
+        	return 0;
+
+        case MOTION_HOMED:
+        	STATE_TRAN( AppTaskSupervisor_arm_success );
+        	return 0;
 
 		case STATE_EXIT_SIGNAL:
-
+			eventTimerStopIfActive(&me->timer1);
 			return 0;
     }
     return (STATE)AppTaskSupervisor_main;
@@ -169,6 +199,8 @@ PRIVATE STATE AppTaskSupervisor_arm_error( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
+        	config_set_main_state(4);
+
         	//cleanup and prepare for recovery
 
         	//send message to UI
@@ -195,10 +227,20 @@ PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
     {
         case STATE_ENTRY_SIGNAL:
         	// send message to UI
+        	config_set_main_state(5);
 
         	//start additional subsystems
 
+        	STATE_TRAN( AppTaskSupervisor_armed );
 
+        	return 0;
+
+        case MOTION_ERROR:
+        	STATE_TRAN( AppTaskSupervisor_disarm_graceful );
+        	return 0;
+
+        case MECHANISM_STOP:
+        	STATE_TRAN( AppTaskSupervisor_disarm_graceful );
         	return 0;
 
 		case STATE_EXIT_SIGNAL:
@@ -218,7 +260,17 @@ PRIVATE STATE AppTaskSupervisor_armed( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
+        	config_set_main_state(6);
+
         	//set up any recurring monitoring processes
+
+        	return 0;
+
+        case MECHANISM_STOP:
+        	STATE_TRAN( AppTaskSupervisor_disarm_graceful );
+        	return 0;
+
+        case MECHANISM_HOME:
 
         	return 0;
 
@@ -239,19 +291,68 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
+        	config_set_main_state(7);
 
         	//empty out the motion queue
+            eventPublish( EVENT_NEW( StateEvent, MOTION_CLEAR_QUEUE ) );
 
-        	//request a move to 0,0,0
+            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
 
         	//come back and check the position until we are home
-
+        	eventTimerStartEvery( &me->timer1,
+                                 (StateTask* )me,
+                                 (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
+                                 MS_TO_TICKS( 150 ) );
 
         	return 0;
 
-		case STATE_EXIT_SIGNAL:
-			//call a full motor shutdown
+        case STATE_STEP1_SIGNAL:
+        {
+        	//request a move to 0,0,0
+			MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
 
+			//transit to starting position
+			motev->move.type = _POINT_TRANSIT;
+			motev->move.ref = _POS_ABSOLUTE;
+			motev->move.duration = 1500;
+			motev->move.num_pts = 2;
+
+			motev->move.points[0].x = 0;
+			motev->move.points[0].y = 0;
+			motev->move.points[0].z = 0;
+			motev->move.points[1].x = 0;
+			motev->move.points[1].y = 0;
+			motev->move.points[1].z = 0;
+
+			eventPublish( (StateEvent*)motev );
+
+            return 0;
+        }
+
+        case STATE_TIMEOUT1_SIGNAL:
+        {
+        	// get global position
+        	CartesianPoint_t position = path_interpolator_get_global_position();
+
+        	// Check to make sure the mechanism is at the home position before disabling servo power
+        	// Allow a 5 micron error on position in check
+        	if( position.x < MM_TO_MICRONS(0.1) && position.y < MM_TO_MICRONS(0.1) && position.z < MM_TO_MICRONS(0.1) )
+        	{
+            	eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
+
+        	}
+
+        	//todo consider adding a second timeout to e-stop if it doesn't get home in time?
+
+			return 0;
+        }
+
+        case MOTION_DISABLED:
+        	STATE_TRAN( AppTaskSupervisor_disarmed );
+        	return 0;
+
+		case STATE_EXIT_SIGNAL:
+			eventTimerStopIfActive(&me->timer1);
 			return 0;
     }
     return (STATE)AppTaskSupervisor_main;

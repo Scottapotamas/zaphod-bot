@@ -71,6 +71,11 @@ config_set_input_voltage( float voltage );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
+config_set_main_state( uint8_t state );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
 config_set_fan_percentage( uint8_t percent );
 
 PUBLIC void
