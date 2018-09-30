@@ -288,12 +288,6 @@ servo_process( ClearpathServoInstance_t servo )
 	            	}
 				}
 
-				//current sensor has flagged a fault
-//				if( hal_gpio_read_pin( ServoHardwareMap[servo].pin_oc_fault ) == SERVO_OC_FAULT )
-//				{
-//					STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-//				}
-
 				if( !me->enabled )
 				{
 					STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );

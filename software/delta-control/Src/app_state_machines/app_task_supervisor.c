@@ -134,6 +134,8 @@ PRIVATE STATE AppTaskSupervisor_disarmed( AppTaskSupervisor *me,
     {
         case STATE_ENTRY_SIGNAL:
         	config_set_main_state(2);
+            status_green(false);
+            status_yellow(false);
 
         	return 0;
 
@@ -159,6 +161,7 @@ PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
     {
         case STATE_ENTRY_SIGNAL:
         	config_set_main_state(3);
+            status_yellow(true);
 
         	//request a motion handler homing process
             eventPublish( EVENT_NEW( StateEvent, MOTION_PREPARE ) );
@@ -231,6 +234,8 @@ PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
         case STATE_ENTRY_SIGNAL:
         	// send message to UI
         	config_set_main_state(5);
+            status_yellow(false);
+            status_green(true);
 
         	//start additional subsystems
 
@@ -274,8 +279,30 @@ PRIVATE STATE AppTaskSupervisor_armed( AppTaskSupervisor *me,
         	return 0;
 
         case MECHANISM_HOME:
+        	{
+				// get global position
+				CartesianPoint_t position = path_interpolator_get_global_position();
 
-        	return 0;
+	        	//request a move to 0,0,0
+				MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
+				motev->move.type = _POINT_TRANSIT;
+				motev->move.ref = _POS_ABSOLUTE;
+				motev->move.duration = 1500;
+				motev->move.num_pts = 2;
+
+				if( position.x > MM_TO_MICRONS(0.1) && position.y > MM_TO_MICRONS(0.1) && position.z > MM_TO_MICRONS(0.1) )
+				{
+					motev->move.points[0].x = 0;
+					motev->move.points[0].y = 0;
+					motev->move.points[0].z = 0;
+					motev->move.points[1].x = 0;
+					motev->move.points[1].y = 0;
+					motev->move.points[1].z = 0;
+					eventPublish( (StateEvent*)motev );
+				}
+
+				return 0;
+			}
 
 		case STATE_EXIT_SIGNAL:
 
