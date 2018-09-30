@@ -33,7 +33,7 @@ enum AppSignals
     /* Servo Signals */
 	MECHANISM_START,
 	MECHANISM_STOP,
-	MECHANISM_HOME,
+	MECHANISM_REHOME,
 
     /* Motion Handler Signals */
 	MOTION_PREPARE,			// Start n-axis homing process

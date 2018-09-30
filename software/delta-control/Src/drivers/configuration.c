@@ -466,6 +466,7 @@ PRIVATE void movement_generate_event( void )
 	   {
 		   memcpy(&motion_request->move, &motion_inbound, sizeof(motion_inbound));
 		   eventPublish( (StateEvent*)motion_request );
+		   memset(&motion_inbound, 0, sizeof(motion_inbound));
 	   }
 }
 

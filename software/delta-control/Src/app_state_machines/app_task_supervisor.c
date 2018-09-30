@@ -297,14 +297,11 @@ PRIVATE STATE AppTaskSupervisor_armed( AppTaskSupervisor *me,
 				motev->move.type = _POINT_TRANSIT;
 				motev->move.ref = _POS_ABSOLUTE;
 				motev->move.duration = 1500;
-				motev->move.num_pts = 2;
+				motev->move.num_pts = 1;
 
 				motev->move.points[0].x = 0;
 				motev->move.points[0].y = 0;
 				motev->move.points[0].z = 0;
-				motev->move.points[1].x = 0;
-				motev->move.points[1].y = 0;
-				motev->move.points[1].z = 0;
 				eventPublish( (StateEvent*)motev );
         	}
 			return 0;
@@ -339,6 +336,10 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
                                  (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
                                  MS_TO_TICKS( 150 ) );
 
+        	eventTimerStartOnce( &me->timer2,
+                                 (StateTask* )me,
+                                 (StateEvent* )&stateEventReserved[ STATE_TIMEOUT2_SIGNAL ],
+                                 MS_TO_TICKS( 5000 ) );
         	return 0;
 
         case STATE_STEP1_SIGNAL:
@@ -350,14 +351,11 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
 			motev->move.type = _POINT_TRANSIT;
 			motev->move.ref = _POS_ABSOLUTE;
 			motev->move.duration = 1500;
-			motev->move.num_pts = 2;
+			motev->move.num_pts = 1;
 
 			motev->move.points[0].x = 0;
 			motev->move.points[0].y = 0;
 			motev->move.points[0].z = 0;
-			motev->move.points[1].x = 0;
-			motev->move.points[1].y = 0;
-			motev->move.points[1].z = 0;
 
 			eventPublish( (StateEvent*)motev );
 
@@ -382,12 +380,19 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
 			return 0;
         }
 
+        case STATE_TIMEOUT2_SIGNAL:
+        {
+        	STATE_TRAN( AppTaskSupervisor_arm_error );
+        	return 0;
+        }
+
         case MOTION_DISABLED:
         	STATE_TRAN( AppTaskSupervisor_disarmed );
         	return 0;
 
 		case STATE_EXIT_SIGNAL:
 			eventTimerStopIfActive(&me->timer1);
+			eventTimerStopIfActive(&me->timer2);
 			return 0;
     }
     return (STATE)AppTaskSupervisor_main;

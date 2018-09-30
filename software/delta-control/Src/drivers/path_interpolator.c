@@ -95,6 +95,14 @@ path_interpolator_set_objective( Movement_t	* movement_to_process )
 	//transit move is from current position to point 1, so overwrite 0 with current position, and then reuse a normal line movement
 	if( movement_to_process->type == _POINT_TRANSIT)
 	{
+		if(movement_to_process->num_pts == 1)
+		{
+			movement_to_process->points[1].x = movement_to_process->points[0].x;
+			movement_to_process->points[1].y = movement_to_process->points[0].y;
+			movement_to_process->points[1].z = movement_to_process->points[0].z;
+			movement_to_process->num_pts = 2;
+		}
+
 		movement_to_process->points[0].x = me->effector_position.x;
 		movement_to_process->points[0].y = me->effector_position.y;
 		movement_to_process->points[0].z = me->effector_position.z;
