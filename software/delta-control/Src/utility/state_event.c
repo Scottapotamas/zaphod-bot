@@ -31,7 +31,6 @@ stateEventReserved[] =
   {(Signal)STATE_TIMEOUT1_SIGNAL,  { 0, 0 }},
   {(Signal)STATE_TIMEOUT2_SIGNAL,  { 0, 0 }},
   {(Signal)STATE_TIMEOUT3_SIGNAL,  { 0, 0 }},
-  {(Signal)STATE_TIMEOUT4_SIGNAL,  { 0, 0 }},
   {(Signal)STATE_STEP1_SIGNAL,     { 0, 0 }},
   {(Signal)STATE_STEP2_SIGNAL,     { 0, 0 }},
   {(Signal)STATE_USER_SIGNAL,      { 0, 0 }}

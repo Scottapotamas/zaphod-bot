@@ -85,7 +85,6 @@ enum
   STATE_TIMEOUT1_SIGNAL,  //!< signal used by time events
   STATE_TIMEOUT2_SIGNAL,  //!< signal used by time events
   STATE_TIMEOUT3_SIGNAL,  //!< signal used by time events
-  STATE_TIMEOUT4_SIGNAL,  //!< signal used by time events
   STATE_STEP1_SIGNAL,     //!< signal used to transfer control within a state
   STATE_STEP2_SIGNAL,     //!< signal used to transfer control within a state
   STATE_USER_SIGNAL       //!< first signal that can be used in user applications

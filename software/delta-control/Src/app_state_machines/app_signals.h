@@ -16,10 +16,7 @@ extern "C" {
 enum AppSignals
 {
     /* System Command Signals */
-    SYSTEM_CMD_POWER_OFF = STATE_USER_SIGNAL, // Signal 8 - First Custom Signal,
-    SYSTEM_STATUS_POWER_ON,
-
-    SYSTEM_STATUS_FAULT_DETECTED,
+	SYSTEM_STATUS_FAULT_DETECTED = STATE_USER_SIGNAL, // Signal 8 - First Custom Signal,
     SYSTEM_STATUS_REBOOTING,
     SYSTEM_STATUS_SETUP,
 

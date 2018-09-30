@@ -453,7 +453,7 @@ PRIVATE void emergency_stop_cb( void )
 
 PRIVATE void home_mech_cb( void )
 {
-	eventPublish( EVENT_NEW( StateEvent, MECHANISM_HOME ) );
+	eventPublish( EVENT_NEW( StateEvent, MECHANISM_REHOME ) );
 }
 
 /* -------------------------------------------------------------------------- */
