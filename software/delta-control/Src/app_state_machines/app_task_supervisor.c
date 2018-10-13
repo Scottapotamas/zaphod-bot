@@ -77,6 +77,11 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask*)me, MOTION_HOMED );
     eventSubscribe( (StateTask*)me, MOTION_DISABLED );
 
+    // operation modes
+    eventSubscribe( (StateTask*)me, MODE_TRACK );
+    eventSubscribe( (StateTask*)me, MODE_DEMO );
+    eventSubscribe( (StateTask*)me, MODE_EVENT );
+
     STATE_INIT( &AppTaskSupervisor_main );
 }
 
@@ -134,6 +139,8 @@ PRIVATE STATE AppTaskSupervisor_disarmed( AppTaskSupervisor *me,
     {
         case STATE_ENTRY_SIGNAL:
         	config_set_main_state(2);
+        	config_set_control_mode( CONTROL_EVENT );
+
             status_green(false);
             status_yellow(false);
 
@@ -305,6 +312,18 @@ PRIVATE STATE AppTaskSupervisor_armed( AppTaskSupervisor *me,
 				eventPublish( (StateEvent*)motev );
         	}
 			return 0;
+
+        case MODE_TRACK:
+
+        	return 0;
+
+        case MODE_DEMO:
+
+        	return 0;
+
+        case MODE_EVENT:
+
+        	return 0;
 
 		case STATE_EXIT_SIGNAL:
 

@@ -12,6 +12,7 @@
 #include "event_subscribe.h"
 #include "app_events.h"
 #include "app_signals.h"
+#include "demo_move.h"
 
 typedef struct
 {
@@ -30,6 +31,7 @@ typedef struct
 {
 	uint8_t supervisor;
 	uint8_t motors;
+	uint8_t control_mode;
 } SystemStates_t;
 
 typedef struct
@@ -130,46 +132,59 @@ SystemStates_t	sys_states;
 MotionData_t 	motion_global;
 MotorData_t 	motion_servo[4];
 Movement_t 		motion_inbound;
+CartesianPoint_t target_position;
 
 PRIVATE void start_mech_cb( void );
 PRIVATE void stop_mech_cb( void );
 PRIVATE void emergency_stop_cb( void );
 PRIVATE void home_mech_cb( void );
 
+PRIVATE void request_tracking_mode( void );
+PRIVATE void request_demo_mode( void );
+PRIVATE void request_event_mode( void );
+
 PRIVATE void movement_generate_event( void );
 
-PRIVATE void publish_motion_cb( void );
-PRIVATE void publish_motion_cb_2( void );
-PRIVATE void publish_motion_cb_l( void );
-PRIVATE void publish_motion_cb_r( void );
+PRIVATE void run_motion_cube( void );
 
 
 euiMessage_t ui_variables[] =
 {
     //higher level system setup information
-    {.msgID = "sys", 	.type = TYPE_CUSTOM, .size = sizeof(SystemData_t),  .payload = &sys_stats       },
+    {.msgID = "sys", 	.type = TYPE_CUSTOM, .size = sizeof(SystemData_t),  .payload = &sys_stats      		},
+    {.msgID = "super", 	.type = TYPE_CUSTOM, .size = sizeof(sys_states),  	.payload = &sys_states 			},
+    {.msgID = "fwb", 	.type = TYPE_CUSTOM, .size = sizeof(BuildInfo_t), 	.payload = &fw_info      		},
+
+	// IO modes and states
     {.msgID = "intDA", 	.type = TYPE_CUSTOM, .size = sizeof(InternalInterface_t), .payload = &external_io_modes },
     {.msgID = "intIO", 	.type = TYPE_CUSTOM, .size = sizeof(InternalIO_t),  .payload = &internal_io_modes   },
     {.msgID = "extIO", 	.type = TYPE_CUSTOM, .size = sizeof(ExternalIO_t),  .payload = &internal_comm_modes },
-    {.msgID = "fwb", 	.type = TYPE_CUSTOM, .size = sizeof(BuildInfo_t), 	.payload = &fw_info      	},
 
+	//temperature and cooling system
     {.msgID = "fan", 	.type = TYPE_CUSTOM, .size = sizeof(FanData_t), 	.payload = &fan_stats      	},
     {.msgID = "curve", 	.type = TYPE_CUSTOM, .size = sizeof(fan_curve), 	.payload = &fan_curve  		},
     {.msgID = "temp", 	.type = TYPE_CUSTOM, .size = sizeof(TempData_t),  	.payload = &temp_sensors 	},
-
-    {.msgID = "super", 	.type = TYPE_CUSTOM, .size = sizeof(sys_states),  	.payload = &sys_states },
-
 
     //motion related information
     {.msgID = "moStat",	.type = TYPE_CUSTOM, .size = sizeof(MotionData_t), 	.payload = &motion_global 	},
     {.msgID = "mo1", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[0] },
     {.msgID = "mo2", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[1] },
     {.msgID = "mo3", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[2] },
+#ifdef EXPANSION_SERVO
     {.msgID = "mo4", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[3] },
+#endif
 
 	//inbound movement buffer and 'add to queue' callback
     {.msgID = "inmv", 	.type = TYPE_CUSTOM,   .size = sizeof(Movement_t), 				.payload = &motion_inbound },
     {.msgID = "qumv", 	.type = TYPE_CALLBACK, .size = sizeof(movement_generate_event), .payload = &movement_generate_event },
+
+	//target xyz position in 3d volume
+    {.msgID = "tpos", 	.type = TYPE_CUSTOM, .size = sizeof(target_position), .payload = &target_position },
+
+	// UI requests a change of operating mode
+    {.msgID = "rtrack", .type = TYPE_CALLBACK, .size = sizeof(request_tracking_mode), .payload = &request_tracking_mode },
+    {.msgID = "rdemo",  .type = TYPE_CALLBACK, .size = sizeof(request_demo_mode),     .payload = &request_demo_mode },
+    {.msgID = "revent", .type = TYPE_CALLBACK, .size = sizeof(request_event_mode),    .payload = &request_event_mode },
 
 	//function callbacks
     {.msgID = "estop", 	.type = TYPE_CALLBACK, .size = sizeof(emergency_stop_cb),  	.payload = &emergency_stop_cb },
@@ -179,11 +194,7 @@ euiMessage_t ui_variables[] =
 
 	//test callbacks
 #warning "Remove test movement calls once API surface matures"
-    {.msgID = "tmove", 	.type = TYPE_CALLBACK, .size = sizeof(publish_motion_cb),  	.payload = &publish_motion_cb },
-    {.msgID = "tmove2", 	.type = TYPE_CALLBACK, .size = sizeof(publish_motion_cb_2),  	.payload = &publish_motion_cb_2 },
-    {.msgID = "lmove", 	.type = TYPE_CALLBACK, .size = sizeof(publish_motion_cb_l),  	.payload = &publish_motion_cb_l },
-    {.msgID = "rmove", 	.type = TYPE_CALLBACK, .size = sizeof(publish_motion_cb_r),  	.payload = &publish_motion_cb_r },
-
+    {.msgID = "cube", 	.type = TYPE_CALLBACK, .size = sizeof(run_motion_cube),  	.payload = &run_motion_cube },
 
 };
 
@@ -309,6 +320,12 @@ config_set_main_state( uint8_t state )
 	sys_states.motors = motion_servo[0].enabled || motion_servo[1].enabled || motion_servo[2].enabled;
 }
 
+PUBLIC void
+config_set_control_mode( uint8_t mode )
+{
+	sys_states.control_mode = mode;
+}
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -368,6 +385,12 @@ config_set_position( int32_t x, int32_t y, int32_t z )
 	motion_global.x = x;
 	motion_global.y = y;
 	motion_global.z = z;
+}
+
+PUBLIC CartesianPoint_t
+config_get_tracking_target()
+{
+	return target_position;
 }
 
 PUBLIC void
@@ -472,104 +495,32 @@ PRIVATE void movement_generate_event( void )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void publish_motion_cb( void )
+PRIVATE void request_tracking_mode( void )
 {
-	   MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
-
-	   if(motev)
-	   {
-		   motev->move.type = _LINE;
-		   motev->move.ref = _POS_RELATIVE;
-		   motev->move.duration = 500;
-
-		   //start
-		   motev->move.points[0].x = 0;
-		   motev->move.points[0].y = 0;
-		   motev->move.points[0].z = 0;
-
-		   //dest
-		   motev->move.points[1].x = 0;
-		   motev->move.points[1].y = 0;
-		   motev->move.points[1].z = MM_TO_MICRONS(10);
-		   motev->move.num_pts = 2;
-
-		   eventPublish( (StateEvent*)motev );
-	   }
+	eventPublish( EVENT_NEW( StateEvent, MODE_TRACK ) );
 }
 
-PRIVATE void publish_motion_cb_2( void )
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void request_demo_mode( void )
 {
-	   MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
-
-	   if(motev)
-	   {
-		   motev->move.type = _LINE;
-		   motev->move.ref = _POS_RELATIVE;
-		   motev->move.duration = 500;
-
-		   //start
-		   motev->move.points[0].x = 0;
-		   motev->move.points[0].y = 0;
-		   motev->move.points[0].z = 0;
-
-		   //dest
-		   motev->move.points[1].x = 0;
-		   motev->move.points[1].y = 0;
-		   motev->move.points[1].z = MM_TO_MICRONS(-10);
-		   motev->move.num_pts = 2;
-
-		   eventPublish( (StateEvent*)motev );
-	   }
+	eventPublish( EVENT_NEW( StateEvent, MODE_DEMO ) );
 }
 
-PRIVATE void publish_motion_cb_r( void )
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void request_event_mode( void )
 {
-	   MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
-
-	   if(motev)
-	   {
-		   motev->move.type = _LINE;
-		   motev->move.ref = _POS_RELATIVE;
-		   motev->move.duration = 500;
-
-		   //start
-		   motev->move.points[0].x = 0;
-		   motev->move.points[0].y = 0;
-		   motev->move.points[0].z = 0;
-
-		   //dest
-		   motev->move.points[1].x = MM_TO_MICRONS(10);
-		   motev->move.points[1].y = 0;
-		   motev->move.points[1].z = 0;
-		   motev->move.num_pts = 2;
-
-		   eventPublish( (StateEvent*)motev );
-	   }
+	eventPublish( EVENT_NEW( StateEvent, MODE_EVENT ) );
 }
 
-PRIVATE void publish_motion_cb_l( void )
+/* -------------------------------------------------------------------------- */
+
+
+
+PRIVATE void run_motion_cube( void )
 {
-	   MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
-
-	   if(motev)
-	   {
-		   motev->move.type = _LINE;
-		   motev->move.ref = _POS_RELATIVE;
-		   motev->move.duration = 500;
-
-		   //start
-		   motev->move.points[0].x = 0;
-		   motev->move.points[0].y = 0;
-		   motev->move.points[0].z = 0;
-
-		   //dest
-		   motev->move.points[1].x = MM_TO_MICRONS(-10);
-		   motev->move.points[1].y = 0;
-		   motev->move.points[1].z = 0;
-		   motev->move.num_pts = 2;
-
-		   eventPublish( (StateEvent*)motev );
-	   }
+	cube_request();
 }
 
 /* ----- End ---------------------------------------------------------------- */

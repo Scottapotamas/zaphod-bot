@@ -17,8 +17,6 @@ enum AppSignals
 {
     /* System Command Signals */
 	SYSTEM_STATUS_FAULT_DETECTED = STATE_USER_SIGNAL, // Signal 8 - First Custom Signal,
-    SYSTEM_STATUS_REBOOTING,
-    SYSTEM_STATUS_SETUP,
 
     /* User Activity Signals e.g. from terminal */
     USER_ACTIVITY_EVENT_SIGNAL,
@@ -29,6 +27,11 @@ enum AppSignals
     BUTTON_NORMAL_SIGNAL,           /* Normal Key Press Event */
     BUTTON_LONG_SIGNAL,             /* Long Key Press Event */
     BUTTON_RELEASED_SIGNAL,         /* Key Up Event */
+
+	/* High level mode change requests */
+	MODE_TRACK,
+	MODE_DEMO,
+	MODE_EVENT,
 
     /* Servo Signals */
 	MECHANISM_START,

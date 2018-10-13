@@ -20,6 +20,8 @@
 #include "sensors.h"
 #include "configuration.h"
 #include "hal_system_speed.h"
+
+#include "demo_move.h"
 /* -------------------------------------------------------------------------- */
 
 PRIVATE timer_ms_t 	button_timer 	= 0;
@@ -66,6 +68,11 @@ app_background( void )
     {
         fan_process();
     	timer_ms_start( &fan_timer, FAN_EVALUATE_TIME );
+
+#warning "Remove this horrid hack"
+    sequence_event_handle();
+
+
     }
 
     if( timer_ms_is_expired( &adc_timer ) )

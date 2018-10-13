@@ -31,6 +31,12 @@ typedef struct
 	uint8_t percentage;
 } FanCurve_t;
 
+typedef enum {
+	CONTROL_EVENT = 0,
+	CONTROL_TRACK,
+	CONTROL_DEMO,
+} ControlModes_t;
+
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
@@ -73,6 +79,10 @@ config_set_input_voltage( float voltage );
 PUBLIC void
 config_set_main_state( uint8_t state );
 
+PUBLIC void
+config_set_control_mode( uint8_t mode );
+
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -102,6 +112,9 @@ config_set_temp_external( float temp );
 
 PUBLIC void
 config_set_position( int32_t x, int32_t y, int32_t z );
+
+PUBLIC CartesianPoint_t
+config_get_tracking_target();
 
 PUBLIC void
 config_set_movement_data( uint8_t move_id, uint8_t move_type, uint8_t progress );
