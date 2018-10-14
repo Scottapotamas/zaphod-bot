@@ -97,6 +97,8 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
         case STATE_ENTRY_SIGNAL:
         {
         	config_set_main_state(1);
+        	config_set_control_mode( CONTROL_EVENT );
+
         	//start the board hardware sensors
         	sensors_enable();
 
@@ -411,9 +413,30 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
         	return 0;
 
         case STATE_TIMEOUT1_SIGNAL:
+        {
         	status_yellow_toggle();
+        	CartesianPoint_t current = path_interpolator_get_global_position();
+        	CartesianPoint_t target  = config_get_tracking_target();
 
+        	bool x_deadband = CHECK_RANGE(current.x, target.x, MM_TO_MICRONS(0.5));
+        	bool y_deadband = CHECK_RANGE(current.y, target.y, MM_TO_MICRONS(0.5));
+        	bool z_deadband = CHECK_RANGE(current.z, target.z, MM_TO_MICRONS(0.5));
+
+        	if( !x_deadband || !y_deadband || !z_deadband )
+        	{
+				MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_ADD_REQUEST );
+				motev->move.type = _POINT_TRANSIT;
+				motev->move.ref = _POS_ABSOLUTE;
+				motev->move.duration = 90;
+				motev->move.num_pts = 1;
+
+				motev->move.points[0].x = target.x;
+				motev->move.points[0].y = target.y;
+				motev->move.points[0].z = target.z;
+				eventPublish( (StateEvent*)motev );
+        	}
 			return 0;
+        }
 
         case MECHANISM_STOP:
         	STATE_TRAN( AppTaskSupervisor_disarm_graceful );
@@ -467,6 +490,8 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
         	config_set_main_state(6);
         	config_set_control_mode( CONTROL_DEMO );
 
+        	//todo write demonstration programs and a way to run through a sequence of them
+
         	return 0;
 
         case MECHANISM_STOP:
@@ -516,17 +541,47 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
 
         case STATE_STEP1_SIGNAL:
         {
-        	//request a move to 0,0,0
-			MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_ADD_REQUEST );
-			motev->move.type = _POINT_TRANSIT;
-			motev->move.ref = _POS_ABSOLUTE;
-			motev->move.duration = 800;
-			motev->move.num_pts = 1;
-			motev->move.points[0].x = 0;
-			motev->move.points[0].y = 0;
-			motev->move.points[0].z = 0;
+        	CartesianPoint_t position = path_interpolator_get_global_position();
 
-			eventPublish( (StateEvent*)motev );
+        	// Check to make sure the mechanism is near the home position before changing mode
+        	if( 	position.x < MM_TO_MICRONS(0.1)
+				&& 	position.y < MM_TO_MICRONS(0.1)
+				&& 	position.z < MM_TO_MICRONS(0.1)
+				&& 	path_interpolator_get_move_done() )
+        	{
+        		switch( me->selected_control_mode )
+        		{
+					case CONTROL_DEMO:
+						STATE_TRAN( AppTaskSupervisor_armed_demo );
+						break;
+					case CONTROL_TRACK:
+						STATE_TRAN( AppTaskSupervisor_armed_track );
+						break;
+
+					case CONTROL_EVENT:
+						STATE_TRAN( AppTaskSupervisor_armed_event );
+						break;
+
+					default:
+						STATE_TRAN( AppTaskSupervisor_disarm_graceful );
+						break;
+        		}
+        	}
+        	else
+        	{
+            	//request a move to 0,0,0
+    			MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_ADD_REQUEST );
+    			motev->move.type = _POINT_TRANSIT;
+    			motev->move.ref = _POS_ABSOLUTE;
+    			motev->move.duration = 800;
+    			motev->move.num_pts = 1;
+    			motev->move.points[0].x = 0;
+    			motev->move.points[0].y = 0;
+    			motev->move.points[0].z = 0;
+
+    			eventPublish( (StateEvent*)motev );
+        	}
+
             return 0;
         }
 

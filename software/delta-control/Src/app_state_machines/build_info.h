@@ -10,9 +10,9 @@
                                                                          
 #define BUILD_DATE    "2018-10-14"                                     
                                                                          
-#define BUILD_TIME    "01:36:38"                                     
+#define BUILD_TIME    "23:50:28"                                     
                                                                          
-#define BUILD_INFO    "f88d-dirty"                                     
+#define BUILD_INFO    "c99e-dirty"                                     
                                                                          
 #define BUILD_BRANCH  "master"                                   
                                                                          

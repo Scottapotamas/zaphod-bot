@@ -180,6 +180,10 @@ euiMessage_t ui_variables[] =
 
 	//target xyz position in 3d volume
     {.msgID = "tpos", 	.type = TYPE_CUSTOM, .size = sizeof(target_position), .payload = &target_position },
+#warning "Remove these individual xyz target points once UI has deep-state slider fix"
+    {.msgID = "tpx", 	.type = TYPE_UINT32, .size = sizeof(uint32_t), 		  .payload = &target_position.x },
+    {.msgID = "tpy", 	.type = TYPE_UINT32, .size = sizeof(uint32_t), 		  .payload = &target_position.y },
+    {.msgID = "tpz", 	.type = TYPE_UINT32, .size = sizeof(uint32_t), 		  .payload = &target_position.z },
 
 	// UI requests a change of operating mode
     {.msgID = "rtrack", .type = TYPE_CALLBACK, .size = sizeof(request_tracking_mode), .payload = &request_tracking_mode },
