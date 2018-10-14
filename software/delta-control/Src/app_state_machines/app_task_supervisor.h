@@ -27,9 +27,9 @@ struct AppTaskSupervisor
     // ~~~ Task Timers ~~~
     EventTimer       timer1;                ///< Local state timer 1
     EventTimer       timer2;                ///< Local state timer 2
-    EventTimer		 cardTimer;	//SD card timeouts
-    // ~~~ Task Variables ~~~
 
+    // ~~~ Task Variables ~~~
+    uint8_t	selected_control_mode;	// mode of end effector control
 };
 
 /* ----- Public Functions --------------------------------------------------- */

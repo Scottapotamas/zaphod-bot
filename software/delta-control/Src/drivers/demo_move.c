@@ -42,7 +42,7 @@ cube_request( void )
 PRIVATE void publish_motion_cube( uint8_t step )
 {
 
-	   MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
+	   MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_ADD_REQUEST );
 
 	   if(motev)
 	   {

@@ -81,7 +81,7 @@ PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __att
 {
     eventSubscribe( (StateTask*)me, MOTION_PREPARE );
     eventSubscribe( (StateTask*)me, MOTION_EMERGENCY );
-    eventSubscribe( (StateTask*)me, MOTION_REQUEST );
+    eventSubscribe( (StateTask*)me, MOTION_ADD_REQUEST );
     eventSubscribe( (StateTask*)me, MOTION_CLEAR_QUEUE );
 
     kinematics_init();
@@ -172,7 +172,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
 			return 0;
 
-        case MOTION_REQUEST:
+        case MOTION_ADD_REQUEST:
         	{
 				MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
 
@@ -257,7 +257,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
             return 0;
         }
 
-        case MOTION_REQUEST:
+        case MOTION_ADD_REQUEST:
 			{
 				//want to do a movement, process immediately without the queue
 				MotionPlannerEvent *ape = (MotionPlannerEvent*)e;
@@ -330,7 +330,7 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 
             return 0;
 
-        case MOTION_REQUEST:
+        case MOTION_ADD_REQUEST:
         	{
         		//already in motion, so add this one to the queue
 				MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;

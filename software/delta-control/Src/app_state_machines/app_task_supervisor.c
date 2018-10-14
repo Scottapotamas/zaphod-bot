@@ -72,6 +72,8 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask*)me, MECHANISM_STOP );
     eventSubscribe( (StateTask*)me, MECHANISM_REHOME );
 
+    eventSubscribe( (StateTask*)me, MOVEMENT_REQUEST );
+
     // motion handler events
     eventSubscribe( (StateTask*)me, MOTION_ERROR );
     eventSubscribe( (StateTask*)me, MOTION_HOMED );
@@ -97,7 +99,6 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
         	config_set_main_state(1);
         	//start the board hardware sensors
         	sensors_enable();
-
 
             status_green(false);
             status_yellow(false);
@@ -139,7 +140,6 @@ PRIVATE STATE AppTaskSupervisor_disarmed( AppTaskSupervisor *me,
     {
         case STATE_ENTRY_SIGNAL:
         	config_set_main_state(2);
-        	config_set_control_mode( CONTROL_EVENT );
 
             status_green(false);
             status_yellow(false);
@@ -148,6 +148,18 @@ PRIVATE STATE AppTaskSupervisor_disarmed( AppTaskSupervisor *me,
 
         case MECHANISM_START:
         	STATE_TRAN( AppTaskSupervisor_arm_start );
+        	return 0;
+
+        case MODE_TRACK:
+        	me->selected_control_mode = CONTROL_TRACK;
+        	return 0;
+
+        case MODE_EVENT:
+        	me->selected_control_mode = CONTROL_EVENT;
+        	return 0;
+
+        case MODE_DEMO:
+        	me->selected_control_mode = CONTROL_DEMO;
         	return 0;
 
 		case STATE_EXIT_SIGNAL:
@@ -191,6 +203,18 @@ PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
 
         case MOTION_HOMED:
         	STATE_TRAN( AppTaskSupervisor_arm_success );
+        	return 0;
+
+        case MODE_TRACK:
+        	me->selected_control_mode = CONTROL_TRACK;
+        	return 0;
+
+        case MODE_EVENT:
+        	me->selected_control_mode = CONTROL_EVENT;
+        	return 0;
+
+        case MODE_DEMO:
+        	me->selected_control_mode = CONTROL_DEMO;
         	return 0;
 
 		case STATE_EXIT_SIGNAL:
@@ -255,7 +279,25 @@ PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
         	return 0;
 
         case STATE_STEP1_SIGNAL:
-        	STATE_TRAN( AppTaskSupervisor_armed );
+
+			switch( me->selected_control_mode )
+			{
+				case CONTROL_DEMO:
+					STATE_TRAN( AppTaskSupervisor_armed_demo );
+					break;
+				case CONTROL_TRACK:
+					STATE_TRAN( AppTaskSupervisor_armed_track );
+					break;
+
+				case CONTROL_EVENT:
+					STATE_TRAN( AppTaskSupervisor_armed_event );
+					break;
+
+				default:
+					STATE_TRAN( AppTaskSupervisor_disarm_graceful );
+					break;
+			}
+
             return 0;
 
         case MOTION_ERROR:
@@ -266,7 +308,7 @@ PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
         	STATE_TRAN( AppTaskSupervisor_disarm_graceful );
         	return 0;
 
-		case STATE_EXIT_SIGNAL:
+        case STATE_EXIT_SIGNAL:
 
 			return 0;
     }
@@ -277,13 +319,14 @@ PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
 
 // Running Supervisor State
 
-PRIVATE STATE AppTaskSupervisor_armed( AppTaskSupervisor *me,
+PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
                                          	 const StateEvent *e )
 {
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
         	config_set_main_state(6);
+        	config_set_control_mode( CONTROL_EVENT );
 
         	//set up any recurring monitoring processes
 
@@ -300,7 +343,7 @@ PRIVATE STATE AppTaskSupervisor_armed( AppTaskSupervisor *me,
         case MECHANISM_REHOME:
         	{
 	        	//request a move to 0,0,0
-				MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
+				MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_ADD_REQUEST );
 				motev->move.type = _POINT_TRANSIT;
 				motev->move.ref = _POS_ABSOLUTE;
 				motev->move.duration = 1500;
@@ -313,20 +356,233 @@ PRIVATE STATE AppTaskSupervisor_armed( AppTaskSupervisor *me,
         	}
 			return 0;
 
-        case MODE_TRACK:
+        case MOVEMENT_REQUEST:
+        {
+			//todo work out how to just rename the event target and re-emit the same pointer
 
+        	//catch the inbound movement event
+			MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
+
+			// Create event to pass event for motion handler
+     	    MotionPlannerEvent *motion_request = EVENT_NEW( MotionPlannerEvent, MOTION_ADD_REQUEST );
+
+			if(motion_request)
+			{
+				// copy the movement into the new event for the motion handler.
+				memcpy(&motion_request->move, &mpe->move, sizeof(Movement_t));
+				eventPublish( (StateEvent*)motion_request );
+			}
+
+        	return 0;
+        }
+
+        case MODE_TRACK:
+        	me->selected_control_mode = CONTROL_TRACK;
+        	STATE_TRAN( AppTaskSupervisor_armed_change_mode );
         	return 0;
 
         case MODE_DEMO:
-
-        	return 0;
-
-        case MODE_EVENT:
-
+        	me->selected_control_mode = CONTROL_DEMO;
+        	STATE_TRAN( AppTaskSupervisor_armed_change_mode );
         	return 0;
 
 		case STATE_EXIT_SIGNAL:
 
+			return 0;
+    }
+    return (STATE)AppTaskSupervisor_main;
+}
+
+PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
+                                         	 const StateEvent *e )
+{
+    switch( e->signal )
+    {
+        case STATE_ENTRY_SIGNAL:
+        	config_set_main_state(6);
+        	config_set_control_mode( CONTROL_TRACK );
+
+        	//set up any recurring monitoring processes
+        	eventTimerStartEvery( &me->timer1,
+                                 (StateTask* )me,
+                                 (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
+                                 MS_TO_TICKS( 100 ) );
+
+        	return 0;
+
+        case STATE_TIMEOUT1_SIGNAL:
+        	status_yellow_toggle();
+
+			return 0;
+
+        case MECHANISM_STOP:
+        	STATE_TRAN( AppTaskSupervisor_disarm_graceful );
+        	return 0;
+
+        case MOTION_ERROR:
+        	STATE_TRAN( AppTaskSupervisor_arm_error );
+        	return 0;
+
+        case MECHANISM_REHOME:
+        	{
+	        	//request a move to 0,0,0
+				MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_ADD_REQUEST );
+				motev->move.type = _POINT_TRANSIT;
+				motev->move.ref = _POS_ABSOLUTE;
+				motev->move.duration = 1500;
+				motev->move.num_pts = 1;
+
+				motev->move.points[0].x = 0;
+				motev->move.points[0].y = 0;
+				motev->move.points[0].z = 0;
+				eventPublish( (StateEvent*)motev );
+        	}
+			return 0;
+
+        case MODE_DEMO:
+        	me->selected_control_mode = CONTROL_DEMO;
+        	STATE_TRAN( AppTaskSupervisor_armed_change_mode );
+        	return 0;
+
+        case MODE_EVENT:
+        	me->selected_control_mode = CONTROL_EVENT;
+        	STATE_TRAN( AppTaskSupervisor_armed_change_mode );
+
+        	return 0;
+
+		case STATE_EXIT_SIGNAL:
+            eventTimerStopIfActive( &me->timer1 );
+            status_yellow(false);
+			return 0;
+    }
+    return (STATE)AppTaskSupervisor_main;
+}
+
+PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
+                                         	 const StateEvent *e )
+{
+    switch( e->signal )
+    {
+        case STATE_ENTRY_SIGNAL:
+        	config_set_main_state(6);
+        	config_set_control_mode( CONTROL_DEMO );
+
+        	return 0;
+
+        case MECHANISM_STOP:
+        	STATE_TRAN( AppTaskSupervisor_disarm_graceful );
+        	return 0;
+
+        case MOTION_ERROR:
+        	STATE_TRAN( AppTaskSupervisor_arm_error );
+        	return 0;
+
+        case MODE_TRACK:
+        	me->selected_control_mode = CONTROL_TRACK;
+        	STATE_TRAN( AppTaskSupervisor_armed_change_mode );
+        	return 0;
+
+        case MODE_EVENT:
+        	me->selected_control_mode = CONTROL_EVENT;
+        	STATE_TRAN( AppTaskSupervisor_armed_change_mode );
+        	return 0;
+
+		case STATE_EXIT_SIGNAL:
+
+			return 0;
+    }
+    return (STATE)AppTaskSupervisor_main;
+}
+
+PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
+                                         	 const StateEvent *e )
+{
+    switch( e->signal )
+    {
+        case STATE_ENTRY_SIGNAL:
+        	config_set_main_state(6);
+        	config_set_control_mode( CONTROL_CHANGING );
+
+        	//empty out the motion queue
+            eventPublish( EVENT_NEW( StateEvent, MOTION_CLEAR_QUEUE ) );
+
+            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+
+        	eventTimerStartEvery( &me->timer1,
+                                 (StateTask* )me,
+                                 (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
+                                 MS_TO_TICKS( 50 ) );
+        	return 0;
+
+        case STATE_STEP1_SIGNAL:
+        {
+        	//request a move to 0,0,0
+			MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_ADD_REQUEST );
+			motev->move.type = _POINT_TRANSIT;
+			motev->move.ref = _POS_ABSOLUTE;
+			motev->move.duration = 800;
+			motev->move.num_pts = 1;
+			motev->move.points[0].x = 0;
+			motev->move.points[0].y = 0;
+			motev->move.points[0].z = 0;
+
+			eventPublish( (StateEvent*)motev );
+            return 0;
+        }
+
+        case STATE_TIMEOUT1_SIGNAL:
+        {
+        	CartesianPoint_t position = path_interpolator_get_global_position();
+
+        	// Check to make sure the mechanism is near the home position before changing mode
+        	if( 	position.x < MM_TO_MICRONS(0.1)
+				&& 	position.y < MM_TO_MICRONS(0.1)
+				&& 	position.z < MM_TO_MICRONS(0.1)
+				&& 	path_interpolator_get_move_done() )
+        	{
+        		switch( me->selected_control_mode )
+        		{
+					case CONTROL_DEMO:
+						STATE_TRAN( AppTaskSupervisor_armed_demo );
+						break;
+					case CONTROL_TRACK:
+						STATE_TRAN( AppTaskSupervisor_armed_track );
+						break;
+
+					case CONTROL_EVENT:
+						STATE_TRAN( AppTaskSupervisor_armed_event );
+						break;
+
+					default:
+						STATE_TRAN( AppTaskSupervisor_disarm_graceful );
+						break;
+        		}
+        	}
+			return 0;
+        }
+
+        case MODE_TRACK:
+        	me->selected_control_mode = CONTROL_TRACK;
+        	return 0;
+
+        case MODE_EVENT:
+        	me->selected_control_mode = CONTROL_EVENT;
+        	return 0;
+
+        case MODE_DEMO:
+        	me->selected_control_mode = CONTROL_DEMO;
+        	return 0;
+
+        case MECHANISM_STOP:
+        	STATE_TRAN( AppTaskSupervisor_disarm_graceful );
+        	return 0;
+
+        case MOTION_ERROR:
+        	STATE_TRAN( AppTaskSupervisor_arm_error );
+        	return 0;
+
+		case STATE_EXIT_SIGNAL:
+            eventTimerStopIfActive( &me->timer1 );
 			return 0;
     }
     return (STATE)AppTaskSupervisor_main;
@@ -364,7 +620,7 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
         case STATE_STEP1_SIGNAL:
         {
         	//request a move to 0,0,0
-			MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_REQUEST );
+			MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_ADD_REQUEST );
 
 			//transit to starting position
 			motev->move.type = _POINT_TRANSIT;
@@ -387,8 +643,11 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
         	CartesianPoint_t position = path_interpolator_get_global_position();
 
         	// Check to make sure the mechanism is at the home position before disabling servo power
-        	// Allow a 5 micron error on position in check
-        	if( position.x < MM_TO_MICRONS(0.1) && position.y < MM_TO_MICRONS(0.1) && position.z < MM_TO_MICRONS(0.1) && path_interpolator_get_move_done() )
+        	// Allow a few microns error on position in check
+        	if( 	position.x < MM_TO_MICRONS(0.1)
+				&& 	position.y < MM_TO_MICRONS(0.1)
+				&& 	position.z < MM_TO_MICRONS(0.1)
+				&& 	path_interpolator_get_move_done() )
         	{
             	eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
 

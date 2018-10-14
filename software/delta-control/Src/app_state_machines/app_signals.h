@@ -33,6 +33,8 @@ enum AppSignals
 	MODE_DEMO,
 	MODE_EVENT,
 
+	MOVEMENT_REQUEST,
+
     /* Servo Signals */
 	MECHANISM_START,
 	MECHANISM_STOP,
@@ -40,7 +42,7 @@ enum AppSignals
 
     /* Motion Handler Signals */
 	MOTION_PREPARE,			// Start n-axis homing process
-	MOTION_REQUEST,         // Provide movement information for queue processing
+	MOTION_ADD_REQUEST,     // Provide movement information for queue processing
 	MOTION_EMERGENCY,       // Kill motors immediately
 	MOTION_CLEAR_QUEUE,		// empty out pending movements
 

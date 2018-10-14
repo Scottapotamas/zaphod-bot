@@ -10,6 +10,7 @@ extern "C" {
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
+#include "motion_types.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -32,9 +33,12 @@ typedef struct
 } FanCurve_t;
 
 typedef enum {
-	CONTROL_EVENT = 0,
+	CONTROL_NONE = 0,
+	CONTROL_EVENT,
 	CONTROL_TRACK,
 	CONTROL_DEMO,
+
+	CONTROL_CHANGING,
 } ControlModes_t;
 
 /* ----- Public Functions --------------------------------------------------- */
