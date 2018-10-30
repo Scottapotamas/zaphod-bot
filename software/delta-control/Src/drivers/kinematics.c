@@ -13,7 +13,7 @@
 //todo refactor using cartesian point type
 int32_t offset_x = MM_TO_MICRONS( 0 );
 int32_t offset_y = MM_TO_MICRONS( 0 );
-int32_t offset_z = MM_TO_MICRONS( 157 );
+int32_t offset_z = MM_TO_MICRONS( 190 );
 
 //rotate the cartesian co-ordinate space
 int8_t rotate_x = 1;
@@ -23,8 +23,8 @@ int8_t rotate_z = -1;
 //delta geometry defines
 float f  = MM_TO_MICRONS( 50.0f );    // radius of motor shafts on base
 float rf = MM_TO_MICRONS( 180.0f );   // base joint to elbow joint distance
-float re = MM_TO_MICRONS( 330.0f );   // elbow joint to end affector joint
-float e  = MM_TO_MICRONS( 32.0f );    // end effector joint radius
+float re = MM_TO_MICRONS( 340.0f );   // elbow joint to end affector joint
+float e  = MM_TO_MICRONS( 34.0f );    // end effector joint radius
 
 // cache common trig constants
 float sqrt3;

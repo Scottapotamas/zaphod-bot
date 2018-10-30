@@ -82,7 +82,6 @@ PRIVATE void AppTaskCommunication_initial( AppTaskCommunication *me,
                                         const StateEvent *e __attribute__((__unused__)) )
 {
 
-    eventSubscribe( (StateTask*)me, EUI_PING );
 
     STATE_INIT( &AppTaskCommunication_main );
 }
@@ -157,10 +156,6 @@ PRIVATE STATE AppTaskCommunication_electric_ui( AppTaskCommunication *me,
         	configuration_electric_setup();	//get the configuration driver to setup access to variables
 
         	return 0;
-
-		case EUI_PING:
-			send_message("ping", &module_comms);
-			break;
 
 		case STATE_EXIT_SIGNAL:
 

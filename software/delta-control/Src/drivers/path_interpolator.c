@@ -86,9 +86,26 @@ path_interpolator_set_objective( Movement_t	* movement_to_process )
 
 	for( uint8_t i = 0; i < planner.current_move->num_pts; i++ )
 	{
-		movement_to_process->points[i].x = CLAMP( movement_to_process->points[i].x, MM_TO_MICRONS(-140), MM_TO_MICRONS(140) );
-		movement_to_process->points[i].y = CLAMP( movement_to_process->points[i].y, MM_TO_MICRONS(-140), MM_TO_MICRONS(140) );
+		//todo move point clamp ranges to somewhere more sensible
+		movement_to_process->points[i].x = CLAMP( movement_to_process->points[i].x, MM_TO_MICRONS(-200), MM_TO_MICRONS(200) );
+		movement_to_process->points[i].y = CLAMP( movement_to_process->points[i].y, MM_TO_MICRONS(-200), MM_TO_MICRONS(200) );
 		movement_to_process->points[i].z = CLAMP( movement_to_process->points[i].z, MM_TO_MICRONS(0), MM_TO_MICRONS(300) );
+	}
+
+	//transit move is from current position to point 1, so overwrite 0 with current position, and then reuse a normal line movement
+	if( movement_to_process->type == _POINT_TRANSIT)
+	{
+		if(movement_to_process->num_pts == 1)
+		{
+			movement_to_process->points[1].x = movement_to_process->points[0].x;
+			movement_to_process->points[1].y = movement_to_process->points[0].y;
+			movement_to_process->points[1].z = movement_to_process->points[0].z;
+			movement_to_process->num_pts = 2;
+		}
+
+		movement_to_process->points[0].x = me->effector_position.x;
+		movement_to_process->points[0].y = me->effector_position.y;
+		movement_to_process->points[0].z = me->effector_position.z;
 	}
 
 	planner.enable = true;
@@ -108,6 +125,14 @@ PUBLIC bool
 path_interpolator_get_move_done( void )
 {
 	return ( planner.progress_percent >= 1.0f - FLT_EPSILON && !planner.enable);
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC CartesianPoint_t
+path_interpolator_get_global_position( void )
+{
+	return planner.effector_position;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -176,12 +201,8 @@ path_interpolator_process( void )
                 	switch( move->type )
                 	{
     					case _POINT_TRANSIT:
-    						target.x = move->points[0].x;
-    						target.y = move->points[0].y;
-    						target.z = move->points[0].z;
-
-    						//todo break up the transit for transit time control
-    						break;
+    						path_lerp_line( move->points, move->num_pts, me->progress_percent, &target );
+    			    		break;
 
     					case _LINE:
     						path_lerp_line( move->points, move->num_pts, me->progress_percent, &target );
@@ -198,14 +219,15 @@ path_interpolator_process( void )
     					case _BEZIER_CUBIC:
     						path_cubic_bezier_curve( move->points, move->num_pts, me->progress_percent, &target );
     						break;
+    					default:
+    						//todo this should be considered a motion error
 
+    						break;
                 	}
 
-    				// Convert cartesian target to motor angles
                 	kinematics_point_to_angle( target, &angle_target );
 
                 	// Ask the motors to please move there
-
                 	servo_set_target_angle( _CLEARPATH_1, angle_target.a1 );
                 	servo_set_target_angle( _CLEARPATH_2, angle_target.a2 );
                 	servo_set_target_angle( _CLEARPATH_3, angle_target.a3 );

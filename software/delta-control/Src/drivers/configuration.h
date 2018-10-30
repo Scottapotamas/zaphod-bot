@@ -10,6 +10,7 @@ extern "C" {
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
+#include "motion_types.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -30,6 +31,15 @@ typedef struct
 	uint8_t temperature;
 	uint8_t percentage;
 } FanCurve_t;
+
+typedef enum {
+	CONTROL_NONE = 0,
+	CONTROL_EVENT,
+	CONTROL_TRACK,
+	CONTROL_DEMO,
+
+	CONTROL_CHANGING,
+} ControlModes_t;
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -71,6 +81,15 @@ config_set_input_voltage( float voltage );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
+config_set_main_state( uint8_t state );
+
+PUBLIC void
+config_set_control_mode( uint8_t mode );
+
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
 config_set_fan_percentage( uint8_t percent );
 
 PUBLIC void
@@ -98,6 +117,9 @@ config_set_temp_external( float temp );
 PUBLIC void
 config_set_position( int32_t x, int32_t y, int32_t z );
 
+PUBLIC CartesianPoint_t
+config_get_tracking_target();
+
 PUBLIC void
 config_set_movement_data( uint8_t move_id, uint8_t move_type, uint8_t progress );
 
@@ -124,9 +146,6 @@ config_motor_feedback( uint8_t servo, uint8_t fb );
 
 PUBLIC void
 config_motor_power( uint8_t servo, float watts );
-
-PUBLIC void
-config_motor_current_angle( uint8_t servo, float angle );
 
 PUBLIC void
 config_motor_target_angle( uint8_t servo, float angle );

@@ -16,12 +16,7 @@ extern "C" {
 enum AppSignals
 {
     /* System Command Signals */
-    SYSTEM_CMD_POWER_OFF = STATE_USER_SIGNAL, // Signal 8 - First Custom Signal,
-    SYSTEM_STATUS_POWER_ON,
-
-    SYSTEM_STATUS_FAULT_DETECTED,
-    SYSTEM_STATUS_REBOOTING,
-    SYSTEM_STATUS_SETUP,
+	SYSTEM_STATUS_FAULT_DETECTED = STATE_USER_SIGNAL, // Signal 8 - First Custom Signal,
 
     /* User Activity Signals e.g. from terminal */
     USER_ACTIVITY_EVENT_SIGNAL,
@@ -33,20 +28,27 @@ enum AppSignals
     BUTTON_LONG_SIGNAL,             /* Long Key Press Event */
     BUTTON_RELEASED_SIGNAL,         /* Key Up Event */
 
+	/* High level mode change requests */
+	MODE_TRACK,
+	MODE_DEMO,
+	MODE_EVENT,
+
+	MOVEMENT_REQUEST,
+
     /* Servo Signals */
-	MECHANISM_HOMED,		// all motors have homed without detected error
-	MECHANISM_ERROR,
+	MECHANISM_START,
+	MECHANISM_STOP,
+	MECHANISM_REHOME,
 
     /* Motion Handler Signals */
-	MOTION_PREPARE,
-	MOTION_STOP,           /* Stop current movement actions */
-	MOTION_REQUEST,        /* Provide movement information for queue processing */
-	MOTION_HEAD,           /* Start of a movement */
-	MOTION_TAIL,           /* End of a movement */
-	MOTION_EMERGENCY,      /* Kill motors immediately */
+	MOTION_PREPARE,			// Start n-axis homing process
+	MOTION_ADD_REQUEST,     // Provide movement information for queue processing
+	MOTION_EMERGENCY,       // Kill motors immediately
+	MOTION_CLEAR_QUEUE,		// empty out pending movements
 
-#warning "This dirty hack should really really be removed at some point"
-	EUI_PING,
+	MOTION_HOMED,			// all motors have homed without detected error
+	MOTION_ERROR,			// error while homing
+	MOTION_DISABLED,
 
     /* Last Available Signal - Don't Remove This */
     STATE_MAX_SIGNAL

@@ -13,13 +13,23 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me, const StateEvent 
 
 PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me, const StateEvent *e );
 
-PRIVATE STATE AppTaskSupervisor_manual_mode( AppTaskSupervisor *me, const StateEvent *e );
+PRIVATE STATE AppTaskSupervisor_disarmed( AppTaskSupervisor *me, const StateEvent *e );
 
-PRIVATE STATE AppTaskSupervisor_demo_mode( AppTaskSupervisor *me, const StateEvent *e );
+PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me, const StateEvent *e );
 
-PRIVATE STATE AppTaskSupervisor_program_mode( AppTaskSupervisor *me, const StateEvent *e );
+PRIVATE STATE AppTaskSupervisor_arm_error( AppTaskSupervisor *me, const StateEvent *e );
 
-PRIVATE STATE AppTaskSupervisor_serial_mode( AppTaskSupervisor *me, const StateEvent *e );
+PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me, const StateEvent *e );
+
+PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me, const StateEvent *e );
+
+PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me, const StateEvent *e );
+
+PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me, const StateEvent *e );
+
+PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me, const StateEvent *e );
+
+PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me, const StateEvent *e );
 
 
 PRIVATE void AppTaskSupervisorButtonEvent( ButtonId_t button, ButtonPressType_t press_type );

@@ -39,6 +39,7 @@ typedef struct
 	bool			enabled;
 	uint8_t			home_complete;
 	uint32_t      	timer;
+	bool			feedback_ok;
 
 	uint16_t		angle_current_steps;
 	uint16_t		angle_target_steps;
@@ -152,7 +153,7 @@ servo_get_valid_home( ClearpathServoInstance_t servo)
 {
 	Servo_t *me = &clearpath[servo];
 
-	return ( me->enabled );
+	return ( me->enabled && me->feedback_ok );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -163,7 +164,8 @@ servo_process( ClearpathServoInstance_t servo )
     Servo_t *me = &clearpath[servo];
 
     float 	servo_power = sensors_servo_W( ServoHardwareMap[servo].adc_current );
-	bool 	feedback_ok = hal_gpio_read_pin(ServoHardwareMap[servo].pin_feedback);
+
+    me->feedback_ok = hal_gpio_read_pin(ServoHardwareMap[servo].pin_feedback);
 
     switch( me->currentState )
     {
@@ -225,7 +227,7 @@ servo_process( ClearpathServoInstance_t servo )
 				//the HLFB output pin will be set to speed mode, outputs 45Hz PWM where DC% relates to the velocity.
 				//expect the motor to slowly home, stop, move to the neutral point, then stop
 				//guard times for min and max homing delays (how long the motor would take in worst case to home
-            	if( feedback_ok )
+            	if( me->feedback_ok )
 				{
 					//motor homed too fast (it needs to transit to the endstop, then back to the 'neutral' angle), which incurs travel time
 					if( ( hal_systick_get_ms() - me->timer ) < SERVO_HOMING_MIN_MS )
@@ -246,8 +248,8 @@ servo_process( ClearpathServoInstance_t servo )
 					{
 						//motor stopped moving after the minimum time period, which indicates a successful home procedure
 						me->enabled = SERVO_ENABLE;
-						me->angle_current_steps = 0;
-						me->angle_target_steps = 0;
+						me->angle_current_steps = convert_angle_steps(-44.0f);
+						me->angle_target_steps = me->angle_current_steps;
 					    STATE_NEXT( SERVO_STATE_IDLE );
 					}
 				}
@@ -285,12 +287,6 @@ servo_process( ClearpathServoInstance_t servo )
 						STATE_NEXT( SERVO_STATE_IDLE_HIGH_LOAD );
 	            	}
 				}
-
-				//current sensor has flagged a fault
-//				if( hal_gpio_read_pin( ServoHardwareMap[servo].pin_oc_fault ) == SERVO_OC_FAULT )
-//				{
-//					STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-//				}
 
 				if( !me->enabled )
 				{
@@ -387,7 +383,7 @@ servo_process( ClearpathServoInstance_t servo )
 
     config_motor_state( servo , me->currentState);
     config_motor_enable( servo, me->enabled );
-    config_motor_feedback( servo, feedback_ok );
+    config_motor_feedback( servo, me->feedback_ok );
     config_motor_power( servo, servo_power);
 
 }
@@ -400,14 +396,14 @@ convert_angle_steps( float shaft_angle )
 	/*
 	 * The kinematics output is an angle between -85 and +90, where 0 deg is when
 	 * the elbow-shaft link is parallel to the frame plate. Full range not available due
-	 * to physical limits on arm travel. Approx -65 to +60 is the safe working range.
+	 * to physical limits on arm travel. Approx -45 to +70 is the safe working range.
 	 *
-	 * Servo steps are referenced to the homing point, which is the HW minimum -65,
+	 * Servo steps are referenced to the homing point, which is the HW minimum,
 	 * therefore we need to convert the angle into steps, and apply the adequate offset.
 	 * The servo's range is approx 2300 counts.
 	 */
 
-	return (shaft_angle * SERVO_STEPS_PER_DEGREE) + ( SERVO_MIN_ANGLE * SERVO_STEPS_PER_DEGREE ) + SERVO_HOME_OFFSET;
+	return (shaft_angle * SERVO_STEPS_PER_DEGREE) + ( SERVO_MIN_ANGLE * SERVO_STEPS_PER_DEGREE ) - SERVO_HOME_OFFSET;
 }
 
 PRIVATE float

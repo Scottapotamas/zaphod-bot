@@ -81,11 +81,8 @@ PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __att
 {
     eventSubscribe( (StateTask*)me, MOTION_PREPARE );
     eventSubscribe( (StateTask*)me, MOTION_EMERGENCY );
-    eventSubscribe( (StateTask*)me, MOTION_STOP );
-
-    eventSubscribe( (StateTask*)me, MOTION_REQUEST );
-    eventSubscribe( (StateTask*)me, MOTION_HEAD );
-    eventSubscribe( (StateTask*)me, MOTION_TAIL );
+    eventSubscribe( (StateTask*)me, MOTION_ADD_REQUEST );
+    eventSubscribe( (StateTask*)me, MOTION_CLEAR_QUEUE );
 
     kinematics_init();
     path_interpolator_init();
@@ -158,22 +155,24 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
         	if( me->counter == SERVO_COUNT )
         	{
-                eventPublish( EVENT_NEW( StateEvent, MECHANISM_HOMED ) );
+                eventPublish( EVENT_NEW( StateEvent, MOTION_HOMED ) );
                 path_interpolator_set_home();
             	STATE_TRAN( AppTaskMotion_inactive );
         	}
         	else
         	{
+
         		//allow subsequent homing check retries
         		if( me->retries++ > SERVO_HOMING_SUPERVISOR_RETRIES )
         		{
+                    eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
                 	STATE_TRAN( AppTaskMotion_recovery );
         		}
         	}
 
 			return 0;
 
-        case MOTION_REQUEST:
+        case MOTION_ADD_REQUEST:
         	{
 				MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
 
@@ -236,6 +235,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
         	//a servo has dropped offline (fault or otherwise)
         	if( me->counter != SERVO_COUNT )
         	{
+                eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
         		STATE_TRAN( AppTaskMotion_recovery );
         	}
 			return 0;
@@ -257,7 +257,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
             return 0;
         }
 
-        case MOTION_REQUEST:
+        case MOTION_ADD_REQUEST:
 			{
 				//want to do a movement, process immediately without the queue
 				MotionPlannerEvent *ape = (MotionPlannerEvent*)e;
@@ -330,7 +330,7 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 
             return 0;
 
-        case MOTION_REQUEST:
+        case MOTION_ADD_REQUEST:
         	{
         		//already in motion, so add this one to the queue
 				MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
@@ -343,20 +343,20 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 					{
 						eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
 			            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
-
 					}
 				}
 				else
 				{
 					//queue full, clearly the input motion processor isn't abiding by the spec.
 					//shutdown
+                    eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
 					STATE_TRAN( AppTaskMotion_recovery );
 				}
 				config_set_motion_queue_depth( queue_usage );
         	}
         	return 0;
 
-        case MOTION_STOP:
+        case MOTION_CLEAR_QUEUE:
         	{
 				// Empty the queue
 				StateEvent * next = eventQueueGet( &me->super.requestQueue );
@@ -368,8 +368,6 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 
 				//update UI with queue content count
 				config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
-
-            	STATE_TRAN( AppTaskMotion_inactive );
         	}
         	return 0;
 
@@ -439,6 +437,7 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
 
         	if( me->counter <= 0 )
         	{
+                eventPublish( EVENT_NEW( StateEvent, MOTION_DISABLED ) );
             	STATE_TRAN( AppTaskMotion_main );
         	}
         	else
