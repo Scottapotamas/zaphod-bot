@@ -10,11 +10,11 @@ EELAYER END
 $Descr A4 11693 8268
 encoding utf-8
 Sheet 1 1
-Title ""
-Date ""
-Rev ""
-Comp ""
-Comment1 ""
+Title "3-Channel LED driver"
+Date "2018-11-10"
+Rev "1.0"
+Comp "Electric UI"
+Comment1 "Scott Rapson"
 Comment2 ""
 Comment3 ""
 Comment4 ""

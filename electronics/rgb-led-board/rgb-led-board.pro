@@ -1,4 +1,4 @@
-update=22/05/2015 07:44:53
+update=Saturday, 10 November 2018 at 06:32:32 pm
 version=1
 last_client=kicad
 [general]
@@ -93,3 +93,13 @@ LibName59=opto
 LibName60=atmel
 LibName61=contrib
 LibName62=valves
+[schematic_editor]
+version=1
+PageLayoutDescrFile=
+PlotDirectoryName=Outputs/
+SubpartIdSeparator=0
+SubpartFirstId=65
+NetFmtName=
+SpiceAjustPassiveValues=0
+LabSize=50
+ERC_TestSimilarLabels=1
