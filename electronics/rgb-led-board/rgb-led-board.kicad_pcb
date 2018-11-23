@@ -65,7 +65,7 @@
     (mod_text_width 0.15)
     (pad_size 1.524 1.524)
     (pad_drill 0.762)
-    (pad_to_mask_clearance 0.2)
+    (pad_to_mask_clearance 0)
     (solder_mask_min_width 0.25)
     (aux_axis_origin 0 0)
     (visible_elements FFFDFF7F)
@@ -499,7 +499,7 @@
       (net 12 "Net-(R2-Pad1)"))
   )
 
-  (gr_text "PCB Stackup\n\n2 Layer\n1.6mm FR4\nENIG Finish\n25*18mm\n>0.35mm via drill\n>0.25mm clearance" (at 157.0355 65.278) (layer Cmts.User)
+  (gr_text "PCB Stackup\n\n2 Layer\n1.6mm FR4\nENIG Finish\n25*18mm\n>0.35mm via drill\n>0.25mm clearance\n\nInflate soldermask as required" (at 157.0355 65.278) (layer Cmts.User)
     (effects (font (size 1.5 1.5) (thickness 0.3)) (justify left))
   )
   (dimension 17.780113 (width 0.3) (layer Dwgs.User)
