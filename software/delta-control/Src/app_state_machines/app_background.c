@@ -36,7 +36,7 @@ app_background_init( void )
 	timer_ms_start( &button_timer, 	BACKGROUND_RATE_BUTTON_MS );
 	timer_ms_start( &buzzer_timer, 	BACKGROUND_RATE_BUZZER_MS );
 	timer_ms_start( &fan_timer, 	FAN_EVALUATE_TIME );
-	timer_ms_start( &adc_timer, 	250 );	//refresh ADC readings
+	timer_ms_start( &adc_timer, 	BACKGROUND_ADC_SAMPLE_MS );	//refresh ADC readings
 }
 
 /* -------------------------------------------------------------------------- */
@@ -80,7 +80,7 @@ app_background( void )
         config_set_cpu_load( hal_system_speed_get_load() );
         config_set_cpu_clock( hal_system_speed_get_speed() );
 
-    	timer_ms_start( &adc_timer, 250 );
+    	timer_ms_start( &adc_timer, BACKGROUND_ADC_SAMPLE_MS );
     }
 
     //process any running movements and allow servo drivers to process commands

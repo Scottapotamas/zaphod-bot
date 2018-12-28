@@ -337,7 +337,7 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 
 				// Add the movement request to the queue if we have room
 				uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
-				if( queue_usage <= 40 )
+				if( queue_usage <= MOVEMENT_QUEUE_DEPTH_MAX )
 				{
 					if( mpe->move.duration)
 					{

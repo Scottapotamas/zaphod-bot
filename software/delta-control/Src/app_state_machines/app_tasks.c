@@ -15,6 +15,7 @@
 #include "app_events.h"
 #include "app_hardware.h"
 #include "app_background.h"
+#include "app_times.h"
 
 /* Application Tasks */
 #include "app_task_supervisor.h"
@@ -68,8 +69,8 @@ AppTaskExpansion	       appTaskExpansion;
 StateEvent *               appTaskExpansionEventQueue[5];
 
 AppTaskMotion    		   appTaskMotion;
-StateEvent *               appTaskMotionEventQueue[40];
-StateEvent *               appTaskMotionQueue[35];
+StateEvent *               appTaskMotionEventQueue[MOVEMENT_QUEUE_DEPTH_MAX];
+StateEvent *               appTaskMotionQueue[24];
 
 AppTaskSupervisor          appTaskSupervisor;
 StateEvent *               appTaskSupervisorEventQueue[20];

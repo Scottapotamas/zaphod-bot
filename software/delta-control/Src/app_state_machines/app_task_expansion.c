@@ -17,7 +17,6 @@ PRIVATE void AppTaskExpansionConstructor( AppTaskExpansion *me );
 
 PRIVATE void AppTaskExpansion_initial( AppTaskExpansion *me, const StateEvent *e );
 
-
 PRIVATE STATE AppTaskExpansion_main( AppTaskExpansion *me, const StateEvent *e );
 
 /* ----- Public Functions --------------------------------------------------- */
