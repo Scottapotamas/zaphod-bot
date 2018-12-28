@@ -2,6 +2,7 @@
 
 #include <string.h>
 #include <float.h>
+#include <math.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 
@@ -53,6 +54,10 @@ path_quadratic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weig
 
 PRIVATE KinematicsSolution_t
 path_cubic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weight, CartesianPoint_t *output );
+
+PRIVATE KinematicsSolution_t
+path_spherical_spiral_curve(CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output);
+
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -440,6 +445,56 @@ path_cubic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weight, 
     output->z = ( omt3 * p[0].z ) + ( 3 * omt2 * t * p[1].z ) + ( 3 * omt * tsq * p[2].z ) + ( tcu * p[3].z );
 
     return SOLUTION_VALID;
+}
+
+/* -------------------------------------------------------------------------- */
+
+// p[0], p[1] are the start and end points in 3D space
+// rel_weight is the 0.0-1.0 percentage position on the curve between p0 and p1
+// the output pointer is the interpolated position on the curve between p0 and p1
+// https://blender.stackexchange.com/questions/42131/modelling-a-spiral-around-a-sphere/42159
+
+PRIVATE KinematicsSolution_t
+path_spherical_spiral_curve(CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output)
+{
+	if(points < 1)
+	{
+		// need 2 points for quadratic solution
+		return SOLUTION_ERROR;
+	}
+
+	// start and end of the helix
+	if(pos_weight <= 0.0f + FLT_EPSILON)
+	{
+		output = &p[0];
+		return SOLUTION_VALID;
+	}
+
+	if(pos_weight >= 1.0f - FLT_EPSILON)
+	{
+		output = &p[1];
+		return SOLUTION_VALID;
+	}
+
+	// General form for a spherical spiral loxodrome (parametric equations)
+
+	//  x(t) = cos(t) / sqrt( 1 + a^2 * t^2 )
+	//	y(t) = sin(t) / sqrt( 1 + a^2 * t^2 )
+	//	z(t) = - a*t  / sqrt( 1 + a^2 * t^2 )
+	//  where 0 < t < 1, r is the winding radius
+
+	uint8_t numSpirals = 7;
+
+	//cache oft-used values to improve read-ability
+	float t = pos_weight;
+	float a = 1 / numSpirals;
+	float denominator = sqrt(1 + a*a * t*t);
+
+	output->x = cos(t) / denominator;
+	output->y = sin(t) / denominator;
+	output->z = (-1 * a * t) / denominator;
+
+	return SOLUTION_VALID;
 }
 
 /* ----- End ---------------------------------------------------------------- */
