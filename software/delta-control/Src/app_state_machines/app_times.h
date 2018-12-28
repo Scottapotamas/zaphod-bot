@@ -24,7 +24,7 @@ enum AppTimeoutsMs
 
 enum SystemDefines
 {
-	BACKGROUND_RATE_BUTTON_MS	= 50U,	//  20Hz
+	BACKGROUND_RATE_BUTTON_MS	= 20U,	//  50Hz
 	BACKGROUND_RATE_BUZZER_MS	= 10U,	// 100Hz
 };
 

@@ -112,6 +112,7 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 		   switch( ((ButtonPressedEvent*)e)->id )
 		   {
 			   case BUTTON_0:
+				   me->selected_control_mode = CONTROL_DEMO;
 				   eventPublish( EVENT_NEW( StateEvent, MECHANISM_START ) );
 				   return 0;
 
@@ -269,12 +270,12 @@ PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-        	// send message to UI
+        	// update state for UI
         	config_set_main_state(5);
             status_yellow(false);
             status_green(true);
 
-        	//start additional subsystems
+        	//start additional subsystems here as required
 
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
 
