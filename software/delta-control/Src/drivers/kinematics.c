@@ -10,10 +10,12 @@
 /* ----- Defines ------------------------------------------------------------ */
 
 //position offset
-//todo refactor using cartesian point type
-int32_t offset_x = MM_TO_MICRONS( 0 );
-int32_t offset_y = MM_TO_MICRONS( 0 );
-int32_t offset_z = MM_TO_MICRONS( 190 );
+CartesianPoint_t offset_position = {
+    x: 0,
+    y: 0,
+    z: MM_TO_MICRONS( 190 )
+};
+
 
 //rotate the cartesian co-ordinate space
 int8_t rotate_x = 1;
@@ -81,9 +83,9 @@ PUBLIC KinematicsSolution_t
 kinematics_point_to_angle( CartesianPoint_t input, JointAngles_t *output )
 {
 	//offset the work-area position frame into the kinematics domain position
-	input.x = ( input.x + offset_x ) * rotate_x;
-	input.y = ( input.y + offset_y ) * rotate_y;
-	input.z = ( input.z + offset_z ) * rotate_z;
+	input.x = ( input.x + offset_position.x ) * rotate_x;
+	input.y = ( input.y + offset_position.y ) * rotate_y;
+	input.z = ( input.z + offset_position.z ) * rotate_z;
 
     uint8_t status = delta_angle_plane_calc( input.x, input.y, input.z, &output->a1 );
 

@@ -20,7 +20,7 @@ PRIVATE volatile uint32_t cc_when_woken  = 0;   //timestamp when we wake up
 PRIVATE volatile uint32_t cc_awake_time  = 0;   //duration of 'active'
 PRIVATE volatile uint32_t cc_asleep_time = 0;   //duration of 'sleep'
 
-PRIVATE SystemSpeed_RCC_PLL_t pll_working;  //TODO rename this local variable
+PRIVATE SystemSpeed_RCC_PLL_t pll_working;
 
 /* ----- Public Functions --------------------------------------------------- */
 
