@@ -12,7 +12,6 @@
 #include "event_subscribe.h"
 #include "app_events.h"
 #include "app_signals.h"
-#include "demo_move.h"
 
 typedef struct
 {
@@ -145,9 +144,6 @@ PRIVATE void request_event_mode( void );
 
 PRIVATE void movement_generate_event( void );
 
-PRIVATE void run_motion_cube( void );
-
-
 euiMessage_t ui_variables[] =
 {
     //higher level system setup information
@@ -195,10 +191,6 @@ euiMessage_t ui_variables[] =
     {.msgID = "arm", 	.type = TYPE_CALLBACK, .size = sizeof(start_mech_cb),  	.payload = &start_mech_cb },
     {.msgID = "disarm", .type = TYPE_CALLBACK, .size = sizeof(stop_mech_cb),  	.payload = &stop_mech_cb },
     {.msgID = "home", 	.type = TYPE_CALLBACK, .size = sizeof(home_mech_cb),  	.payload = &home_mech_cb },
-
-	//test callbacks
-#warning "Remove test movement calls once API surface matures"
-    {.msgID = "cube", 	.type = TYPE_CALLBACK, .size = sizeof(run_motion_cube),  	.payload = &run_motion_cube },
 
 };
 
@@ -516,15 +508,6 @@ PRIVATE void request_demo_mode( void )
 PRIVATE void request_event_mode( void )
 {
 	eventPublish( EVENT_NEW( StateEvent, MODE_EVENT ) );
-}
-
-/* -------------------------------------------------------------------------- */
-
-
-
-PRIVATE void run_motion_cube( void )
-{
-	cube_request();
 }
 
 /* ----- End ---------------------------------------------------------------- */

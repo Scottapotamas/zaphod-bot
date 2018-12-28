@@ -21,7 +21,6 @@
 #include "configuration.h"
 #include "hal_system_speed.h"
 
-#include "demo_move.h"
 /* -------------------------------------------------------------------------- */
 
 PRIVATE timer_ms_t 	button_timer 	= 0;
@@ -38,7 +37,6 @@ app_background_init( void )
 	timer_ms_start( &buzzer_timer, 	BACKGROUND_RATE_BUZZER_MS );
 	timer_ms_start( &fan_timer, 	FAN_EVALUATE_TIME );
 	timer_ms_start( &adc_timer, 	250 );	//refresh ADC readings
-
 }
 
 /* -------------------------------------------------------------------------- */
@@ -58,21 +56,16 @@ app_background( void )
     	timer_ms_start( &button_timer, BACKGROUND_RATE_BUTTON_MS );
     }
 
-    if( timer_ms_is_expired( &buzzer_timer ) )
-    {
-        buzzer_process();
-    	timer_ms_start( &buzzer_timer, BACKGROUND_RATE_BUZZER_MS );
-    }
+//    if( timer_ms_is_expired( &buzzer_timer ) )
+//    {
+//        buzzer_process();
+//    	timer_ms_start( &buzzer_timer, BACKGROUND_RATE_BUZZER_MS );
+//    }
 
     if( timer_ms_is_expired( &fan_timer ) )
     {
         fan_process();
     	timer_ms_start( &fan_timer, FAN_EVALUATE_TIME );
-
-#warning "Remove this horrid hack"
-    sequence_event_handle();
-
-
     }
 
     if( timer_ms_is_expired( &adc_timer ) )
