@@ -4,7 +4,6 @@
 
 #include "configuration.h"
 #include "electricui.h"
-#include "eui_serial_transport.h"
 
 #include "hal_uuid.h"
 #include "app_version.h"
@@ -144,7 +143,7 @@ PRIVATE void request_event_mode( void );
 
 PRIVATE void movement_generate_event( void );
 
-euiMessage_t ui_variables[] =
+eui_message_t ui_variables[] =
 {
     //higher level system setup information
     {.msgID = "sys", 	.type = TYPE_CUSTOM, .size = sizeof(SystemData_t),  .payload = &sys_stats      		},

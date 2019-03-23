@@ -2,9 +2,9 @@
 <project version="4">
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
-    <libraryRoots>
+    <sourceRoots>
       <file path="$PROJECT_DIR$/Drivers/electricui" />
-    </libraryRoots>
+    </sourceRoots>
     <excludeRoots>
       <file path="$PROJECT_DIR$/Drivers/electricui/examples" />
       <file path="$PROJECT_DIR$/Drivers/electricui/tests" />
