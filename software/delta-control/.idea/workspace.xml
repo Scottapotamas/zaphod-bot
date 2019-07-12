@@ -13,32 +13,72 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5807f310-86a7-4c2a-9b30-ff232d3bffd0" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/.idea/delta-control.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/externalDependencies.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/CMakeLists_template.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/externalDependencies.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Drivers/electricui" beforeDir="false" afterPath="$PROJECT_DIR$/Drivers/electricui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/electricui.c" beforeDir="false" afterPath="$PROJECT_DIR$/Drivers/electricui/electricui.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/electricui.h" beforeDir="false" afterPath="$PROJECT_DIR$/Drivers/electricui/electricui.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/tests/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/tests/makefile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/tests/runners/eui_tests.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/tests/runners/runner_electricui.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/tests/runners/runner_eui_macro.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/tests/runners/runner_eui_serial_transport.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/tests/test/test_electricui.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/tests/test/test_electricui_findobject.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/tests/test/test_electricui_internalcallbacks.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/tests/test/test_electricui_send.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/tests/test/test_eui_macro.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/tests/test/test_eui_serial_transport_crc16.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/tests/test/test_eui_serial_transport_decoder.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/tests/test/test_eui_serial_transport_encoder.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Src/drivers/kinematics.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/drivers/kinematics.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/delta-control Debug.cfg" beforeDir="false" afterPath="$PROJECT_DIR$/delta-control Debug.cfg" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/README.md" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/basics/hello-blink/hello-blink.ino" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/basics/multiple-interfaces/multiple-interfaces.ino" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/basics/persistence-eeprom/persistence-eeprom.ino" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/basics/status-error-callbacks/status-error-callbacks.ino" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/basics/types-arrays-structures/types-arrays-structures.ino" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/demonstrations/battery-status/battery-status.ino" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/demonstrations/bluefruit-bleuart/bluefruit-bleuart.ino" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/demonstrations/esp32-ble/esp32-ble.ino" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/demonstrations/esp32-websockets/esp32-websockets.ino" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/demonstrations/fan-controller/fan-controller.ino" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/demonstrations/garage-door/garage-door.ino" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/demonstrations/water-heater/water-heater.ino" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/projects/imu-LSM9DS1/imu-LSM9DS1.ino" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/projects/led-rgb-strip/led-rgb-strip.ino" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/projects/led-rgb/led-rgb.ino" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/standalone/named-pipes/Makefile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/standalone/named-pipes/named-pipes.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/standalone/named-pipes/named-pipes.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/arduino-example-test.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/build/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/ceedling" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/fuzz/afl-eui.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/fuzz/afl-prepare-linux.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/fuzz/fuzz-inputs/test1" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/fuzz/fuzz-inputs/test2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/fuzz/fuzz-inputs/test3" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/fuzz/fuzz-inputs/test4" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/fuzz/makefile" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/lint_checks.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/project.yml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/setup_tests.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/support/.gitkeep" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/test_electricui_auto_interface.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/test_electricui_findobject.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/test_electricui_internalcallbacks.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/test_electricui_multiple_interface.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/test_electricui_parse_packet.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/test_electricui_send_packet.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/test_electricui_send_tracked.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/test_electricui_send_untracked.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/transports/test_eui_serial_transport_cobs.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/transports/test_eui_serial_transport_decoder.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/transports/test_eui_serial_transport_encoder.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/transports/test_eui_serial_transport_header_bytes.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/transports/test_eui_serial_transport_loopback.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/utilities/test_eui_crc16.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/utilities/test_eui_macro.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/utilities/test_eui_offset_validation.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/valgrind_on_tests.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/app_state_machines/app_background.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/app_state_machines/app_background.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/app_state_machines/app_task_communication.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/app_state_machines/app_task_communication.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/app_state_machines/app_task_motion.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/app_state_machines/app_task_motion.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/app_state_machines/app_task_supervisor.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/app_state_machines/app_task_supervisor.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/drivers/buzzer.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/drivers/buzzer.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/drivers/configuration.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/drivers/configuration.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/drivers/configuration.h" beforeDir="false" afterPath="$PROJECT_DIR$/Src/drivers/configuration.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/drivers/fan.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/drivers/fan.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/drivers/led_interpolator.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/drivers/led_interpolator.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/drivers/path_interpolator.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/drivers/path_interpolator.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/hal/hal_gpio.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/hal/hal_gpio.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/hal/hal_pwm.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/hal/hal_pwm.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/hal/hal_pwm.h" beforeDir="false" afterPath="$PROJECT_DIR$/Src/hal/hal_pwm.h" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -47,32 +87,94 @@
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
+  <component name="ClangdSettings">
+    <option name="formatViaClangd" value="false" />
+  </component>
   <component name="FileEditorManager">
-    <leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Src/drivers/configuration.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="589">
+              <caret line="234" selection-start-line="234" selection-end-line="234" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Src/hal/hal_pwm.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="250">
+              <caret line="316" selection-start-line="316" selection-end-line="316" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Src/drivers/fan.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="507">
+              <caret line="54" lean-forward="true" selection-start-line="54" selection-end-line="54" />
+              <folding>
+                <element signature="e#185#201#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Src/hal/hal_pwm.h">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="658">
+              <caret line="64" column="32" selection-start-line="64" selection-start-column="32" selection-end-line="64" selection-end-column="32" />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Src/main.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="510">
-              <caret line="55" selection-start-line="55" selection-end-line="55" />
+            <state relative-caret-position="315">
+              <caret line="36" selection-start-line="36" selection-end-line="36" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Src/drivers/led_interpolator.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="604">
+              <caret line="112" selection-start-line="112" selection-end-line="112" />
+              <folding>
+                <element signature="e#222#251#0" expanded="true" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_tasks.c">
+        <entry file="file://$PROJECT_DIR$/Src/hal/hal_gpio.c">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="241">
-              <caret line="171" selection-start-line="171" selection-end-line="171" />
+            <state relative-caret-position="169">
+              <caret line="70" column="66" selection-start-line="70" selection-start-column="66" selection-end-line="70" selection-end-column="66" />
             </state>
           </provider>
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_background.c">
+        <entry file="file://$PROJECT_DIR$/Src/hal/hal_gpio.h">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="588">
-              <caret line="103" lean-forward="true" selection-start-line="103" selection-end-line="103" />
+            <state relative-caret-position="259">
+              <caret line="33" column="4" selection-start-line="33" selection-start-column="4" selection-end-line="33" selection-end-column="4" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="537">
+              <caret line="402" selection-start-line="402" selection-end-line="402" />
             </state>
           </provider>
         </entry>
@@ -82,10 +184,24 @@
   <component name="FindInProjectRecents">
     <findStrings>
       <find>Source</find>
-      <find>electricui</find>
       <find>-l</find>
       <find>TARGET</find>
       <find>sqrt</find>
+      <find>offset</find>
+      <find>MA_</find>
+      <find>electricui</find>
+      <find>msgID</find>
+      <find>eui</find>
+      <find>interface</find>
+      <find>fan_stats</find>
+      <find>SystemStates_t</find>
+      <find>config_set_main_state</find>
+      <find>Mai</find>
+      <find>supervisor</find>
+      <find>movement_generate_event</find>
+      <find>set</find>
+      <find>write</find>
+      <find>TIM2</find>
     </findStrings>
   </component>
   <component name="Git.Settings">
@@ -96,21 +212,46 @@
       <list>
         <option value="$PROJECT_DIR$/Drivers/electricui/electricui.h" />
         <option value="$PROJECT_DIR$/Drivers/electricui/electricui.c" />
-        <option value="$PROJECT_DIR$/Src/drivers/kinematics.c" />
         <option value="$PROJECT_DIR$/.gitignore" />
         <option value="$PROJECT_DIR$/%HOMEPATH%.gdbinit" />
         <option value="$PROJECT_DIR$/Src/main.c" />
         <option value="$PROJECT_DIR$/jlink.cfg" />
-        <option value="$PROJECT_DIR$/CMakeLists_template.txt" />
-        <option value="$PROJECT_DIR$/CMakeLists.txt" />
         <option value="$PROJECT_DIR$/delta-control.xml" />
         <option value="$PROJECT_DIR$/delta-control Debug.cfg" />
+        <option value="$PROJECT_DIR$/Src/hal/hal_system_speed.c" />
+        <option value="$PROJECT_DIR$/Src/drivers/kinematics.c" />
+        <option value="$PROJECT_DIR$/Src/app_state_machines/app_times.h" />
+        <option value="$PROJECT_DIR$/Src/app_state_machines/app_tasks.c" />
+        <option value="$PROJECT_DIR$/Src/app_state_machines/app_task_expansion.c" />
+        <option value="$PROJECT_DIR$/../../../electricui/interface/packages/core/src/device-manager.ts" />
+        <option value="$PROJECT_DIR$/Src/app_state_machines/app_signals.h" />
+        <option value="$PROJECT_DIR$/CMakeLists.txt" />
+        <option value="$PROJECT_DIR$/CMakeLists_template.txt" />
+        <option value="$PROJECT_DIR$/Src/app_state_machines/app_task_communication.c" />
+        <option value="$PROJECT_DIR$/Src/drivers/motion_types.h" />
+        <option value="$PROJECT_DIR$/Src/app_state_machines/app_task_supervisor.c" />
+        <option value="$PROJECT_DIR$/Src/app_state_machines/app_task_motion.c" />
+        <option value="$PROJECT_DIR$/Src/drivers/path_interpolator.c" />
+        <option value="$PROJECT_DIR$/Src/drivers/configuration.h" />
+        <option value="$PROJECT_DIR$/Src/drivers/configuration.c" />
+        <option value="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c" />
+        <option value="$PROJECT_DIR$/Src/app_state_machines/app_background.c" />
+        <option value="$PROJECT_DIR$/Src/hal/hal_pwm.h" />
+        <option value="$PROJECT_DIR$/Src/hal/hal_pwm.c" />
+        <option value="$PROJECT_DIR$/Src/drivers/buzzer.c" />
+        <option value="$PROJECT_DIR$/Src/drivers/fan.c" />
+        <option value="$PROJECT_DIR$/Src/drivers/led_interpolator.c" />
+        <option value="$PROJECT_DIR$/Src/hal/hal_gpio.c" />
       </list>
     </option>
   </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="DfKeFJfM" />
+  </component>
+  <component name="OCFindUsagesOptions" text="true" ivars="false" properties="true" derivedClasses="false" />
   <component name="ProjectFrameBounds" extendedState="4">
-    <option name="x" value="36" />
-    <option name="width" value="2495" />
+    <option name="x" value="218" />
+    <option name="width" value="1715" />
     <option name="height" value="1440" />
   </component>
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
@@ -119,7 +260,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -130,7 +270,74 @@
             <path>
               <item name="delta-control" type="b2602c69:ProjectViewProjectNode" />
               <item name="delta-control" type="462c0819:PsiDirectoryNode" />
+              <item name="Drivers" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="delta-control" type="b2602c69:ProjectViewProjectNode" />
+              <item name="delta-control" type="462c0819:PsiDirectoryNode" />
               <item name="Src" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="delta-control" type="b2602c69:ProjectViewProjectNode" />
+              <item name="delta-control" type="462c0819:PsiDirectoryNode" />
+              <item name="Src" type="462c0819:PsiDirectoryNode" />
+              <item name="app_state_machines" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="delta-control" type="b2602c69:ProjectViewProjectNode" />
+              <item name="delta-control" type="462c0819:PsiDirectoryNode" />
+              <item name="Src" type="462c0819:PsiDirectoryNode" />
+              <item name="drivers" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="delta-control" type="b2602c69:ProjectViewProjectNode" />
+              <item name="delta-control" type="462c0819:PsiDirectoryNode" />
+              <item name="Src" type="462c0819:PsiDirectoryNode" />
+              <item name="hal" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope">
+        <subPane subId="Scope 'Project Non-Source Files'; set:Project Non-Source Files; class com.jetbrains.cidr.lang.search.scopes.ProjectSourcesScopeProvider$NonSourceFilesScope">
+          <expand>
+            <path>
+              <item name="delta-control" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="" type="442cc68d:ScopeViewTreeModel$RootNode" />
+            </path>
+            <path>
+              <item name="delta-control" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="" type="442cc68d:ScopeViewTreeModel$RootNode" />
+              <item name="Drivers" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+        <subPane subId="Scope 'Project Files'; set:Project Files; class com.intellij.psi.search.scope.ProjectFilesScope">
+          <expand>
+            <path>
+              <item name="delta-control" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="" type="442cc68d:ScopeViewTreeModel$RootNode" />
+            </path>
+            <path>
+              <item name="delta-control" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="" type="442cc68d:ScopeViewTreeModel$RootNode" />
+              <item name="Drivers" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+        <subPane subId="Scope 'Project Source Files'; set:Project Source Files; class com.jetbrains.cidr.lang.search.scopes.ProjectSourcesScopeProvider$SourceFilesScope">
+          <expand>
+            <path>
+              <item name="delta-control" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="" type="442cc68d:ScopeViewTreeModel$RootNode" />
+            </path>
+            <path>
+              <item name="delta-control" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="" type="442cc68d:ScopeViewTreeModel$RootNode" />
+              <item name="Drivers" type="9f88c78c:ScopeViewTreeModel$FileNode" />
             </path>
           </expand>
           <select />
@@ -139,11 +346,19 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="SearchEverywhereHistoryKey" value="sqrt()&#9;null&#9;null" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="/opt/jlink/JLinkGDBServer" />
+    <property name="last_opened_file_path" value="/opt/gcc-arm-none-eabi/gcc-arm-none-eabi-8-2018-q4-major/bin/arm-none-eabi-gdb" />
+    <property name="nodejs_package_manager_path" value="npm" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="elmot.embedded.config" />
+    <property name="settings.editor.selected.configurable" value="preferences.externalDependencies" />
+    <property name="ts.external.directory.path" value="$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external" />
+  </component>
+  <component name="RunAnythingCache">
+    <option name="myCommands">
+      <command value="ls" />
+    </option>
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
@@ -157,34 +372,27 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="OpenOCD Download &amp; Run.OCD delta-control">
-    <configuration name="JLink" type="CLion_Remote" singleton="true" debugger="/opt/gcc-arm-none-eabi/bin/arm-none-eabi-gdb" remoteCommand="tcp:localhost:2331" symbolFile="$PROJECT_DIR$/cmake-build-debug/delta-control.elf" sysroot="">
+  <component name="RunManager" selected="GDB Remote Debug.Jlink">
+    <configuration name="Jlink" type="CLion_Remote" toolchainName="ARM" remoteCommand="tcp:localhost:2331 monitor reset" symbolFile="$PROJECT_DIR$/cmake-build-debug/delta-control.elf" sysroot="">
       <method v="2">
-        <option name="RunConfigurationTask" enabled="true" />
+        <option name="RunConfigurationTask" enabled="true" run_configuration_name="Build" run_configuration_type="CMakeRunConfiguration" />
       </method>
     </configuration>
-    <configuration name="Build and Flash" type="CMakeRunConfiguration" factoryName="Application" singleton="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="delta-control" TARGET_NAME="delta-control.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="delta-control" RUN_TARGET_NAME="delta-control.elf">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="OCD DeltaBot" type="elmot.embedded.openocd.conf.type" factoryName="elmot.embedded.openocd.conf.factory" PASS_PARENT_ENVS_2="true" PROJECT_NAME="delta-control" TARGET_NAME="delta-control.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="delta-control" RUN_TARGET_NAME="delta-control.elf">
-      <openocd gdb-port="2333" telnet-port="4444" board-config="$PROJECT_DIR$/delta-control Debug.cfg" reset-type="INIT" download-type="ALWAYS" />
+    <configuration name="Build" type="CMakeRunConfiguration" factoryName="Application" singleton="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="delta-control" TARGET_NAME="delta-control.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="delta-control" RUN_TARGET_NAME="delta-control.elf">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration name="OCD delta-control" type="elmot.embedded.openocd.conf.type" factoryName="elmot.embedded.openocd.conf.factory" PASS_PARENT_ENVS_2="true" PROJECT_NAME="delta-control" TARGET_NAME="delta-control.elf" RUN_TARGET_PROJECT_NAME="delta-control" RUN_TARGET_NAME="delta-control.elf">
-      <openocd gdb-port="2333" telnet-port="4444" board-config="$PROJECT_DIR$/delta-control Debug.cfg" reset-type="INIT" download-type="ALWAYS" />
+    <configuration name="OpenOCD" type="com.jetbrains.cidr.embedded.openocd.conf.type" factoryName="com.jetbrains.cidr.embedded.openocd.conf.factory" PASS_PARENT_ENVS_2="true" PROJECT_NAME="delta-control" TARGET_NAME="delta-control.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="delta-control" RUN_TARGET_NAME="delta-control.elf">
+      <openocd gdb-port="3333" telnet-port="2331" board-config="board/stm32f4discovery.cfg" reset-type="NONE" download-type="UPDATED_ONLY" />
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <list>
-      <item itemvalue="Application.Build and Flash" />
-      <item itemvalue="GDB Remote Debug.JLink" />
-      <item itemvalue="OpenOCD Download &amp; Run.OCD delta-control" />
-      <item itemvalue="OpenOCD Download &amp; Run.OCD DeltaBot" />
+      <item itemvalue="CMake Application.Build" />
+      <item itemvalue="GDB Remote Debug.Jlink" />
+      <item itemvalue="OpenOCD Download &amp; Run.OpenOCD" />
     </list>
   </component>
   <component name="TaskManager">
@@ -200,11 +408,29 @@
       <workItem from="1545895972871" duration="8132000" />
       <workItem from="1545921691326" duration="680000" />
       <workItem from="1545925659918" duration="33000" />
+      <workItem from="1545968542917" duration="12633000" />
+      <workItem from="1546056754062" duration="3600000" />
+      <workItem from="1549020154590" duration="1394000" />
+      <workItem from="1550632097960" duration="2369000" />
+      <workItem from="1551252114423" duration="2454000" />
+      <workItem from="1552539022761" duration="617000" />
+      <workItem from="1552970348975" duration="741000" />
+      <workItem from="1553339503859" duration="6807000" />
+      <workItem from="1554454874174" duration="1210000" />
+      <workItem from="1562313228419" duration="5584000" />
+      <workItem from="1562328779242" duration="6447000" />
+      <workItem from="1562421476830" duration="1471000" />
+      <workItem from="1562468376481" duration="5781000" />
+      <workItem from="1562573222125" duration="9824000" />
+      <workItem from="1562662886916" duration="7229000" />
+      <workItem from="1562720421704" duration="2052000" />
+      <workItem from="1562764390276" duration="4127000" />
+      <workItem from="1562842164181" duration="10564000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="19649000" />
+    <option name="totallyTimeSpent" value="104930000" />
   </component>
   <component name="TodoView">
     <todo-panel id="selected-file">
@@ -216,24 +442,26 @@
     </todo-panel>
   </component>
   <component name="ToolWindowManager">
-    <frame x="36" y="0" width="2495" height="1440" extended-state="4" />
+    <frame x="218" y="0" width="1715" height="1440" extended-state="4" />
+    <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.14250715" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.21569802" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
-      <window_info anchor="bottom" id="Messages" order="0" sideWeight="0.4883626" weight="0.32945737" />
+      <window_info anchor="bottom" id="Messages" order="0" sideWeight="0.48339483" weight="0.23520486" />
       <window_info anchor="bottom" id="Message" order="1" />
-      <window_info anchor="bottom" id="Find" order="2" />
-      <window_info anchor="bottom" id="Run" order="3" sideWeight="0.48591262" weight="0.32945737" />
-      <window_info anchor="bottom" id="Debug" order="4" sideWeight="0.49326256" visible="true" weight="0.39922482" />
+      <window_info anchor="bottom" id="Find" order="2" sideWeight="0.499795" weight="0.32852808" />
+      <window_info anchor="bottom" id="Run" order="3" sideWeight="0.48257482" weight="0.32928678" />
+      <window_info active="true" anchor="bottom" id="Debug" order="4" sideWeight="0.48622367" visible="true" weight="0.37253416" />
       <window_info anchor="bottom" id="Cvs" order="5" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="6" weight="0.4" />
       <window_info anchor="bottom" id="Database Changes" order="7" show_stripe_button="false" />
-      <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.49917763" weight="0.32893717" />
-      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.5067375" side_tool="true" visible="true" weight="0.39922482" />
+      <window_info anchor="bottom" id="Terminal" order="8" sideWeight="0.49815497" weight="0.32852808" />
+      <window_info anchor="bottom" id="Event Log" order="9" sideWeight="0.51377636" side_tool="true" weight="0.37253416" />
       <window_info anchor="bottom" id="Version Control" order="10" show_stripe_button="false" />
-      <window_info anchor="bottom" id="CMake" order="11" weight="0.32971296" />
+      <window_info anchor="bottom" id="CMake" order="11" weight="0.32945737" />
       <window_info anchor="bottom" id="TODO" order="12" weight="0.32945737" />
+      <window_info anchor="bottom" id="TypeScript" order="13" weight="0.3299532" />
       <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
       <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
       <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
@@ -248,214 +476,367 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/Src/main.c</url>
-          <line>46</line>
-          <option name="timeStamp" value="6" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/Src/main.c</url>
-          <line>61</line>
-          <option name="timeStamp" value="12" />
+          <url>file://$PROJECT_DIR$/Src/drivers/led_interpolator.c</url>
+          <line>111</line>
+          <option name="timeStamp" value="5" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
-    <entry file="file://$PROJECT_DIR$/Drivers/electricui/tests/runners/eui_tests.c" />
-    <entry file="file://$PROJECT_DIR$/Drivers/electricui/tests/runners/runner_eui_serial_transport.c" />
-    <entry file="file://$PROJECT_DIR$/Drivers/electricui/tests/runners/runner_eui_macro.c" />
-    <entry file="file://$PROJECT_DIR$/cmake-build-debug/CMakeCache.txt">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cmake-build-debug/delta-control.cbp">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cmake-build-debug/Makefile">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cmake-build-debug/delta_control.cbp">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/cmake-build-debug/cmake_install.cmake">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_task_supervisor.c">
-      <provider selected="true" editor-type-id="text-editor" />
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_task_communication.c">
+    <entry file="file://$PROJECT_DIR$/Drivers/STM32_USB_Device_Library/Core/Inc/usbd_core.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-1110">
-          <caret line="40" column="13" selection-start-line="40" selection-end-line="40" selection-end-column="13" />
+        <state relative-caret-position="-1616" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/usbd_desc.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="479">
+          <caret line="50" column="14" lean-forward="true" selection-start-line="50" selection-start-column="14" selection-end-line="50" selection-end-column="14" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Drivers/electricui/electricui.h">
+    <entry file="file://$PROJECT_DIR$/Src/usbd_conf.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="543">
-          <caret line="39" selection-start-line="39" selection-end-line="39" />
+        <state relative-caret-position="-2066" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/usbd_conf.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1170" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/hal/hal_uart.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="360">
+          <caret line="36" column="23" lean-forward="true" selection-start-line="36" selection-start-column="23" selection-end-line="36" selection-end-column="23" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Drivers/electricui/electricui.c">
+    <entry file="file://$PROJECT_DIR$/Src/hal/hal_uuid.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="270">
-          <caret line="18" selection-start-line="18" selection-end-line="18" />
+        <state relative-caret-position="150">
+          <caret line="10" column="8" selection-start-line="10" selection-start-column="8" selection-end-line="10" selection-end-column="8" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_rcc.c">
+    <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_task_expansion.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="384">
-          <caret line="257" selection-start-line="257" selection-end-line="257" />
+        <state relative-caret-position="210">
+          <caret line="20" selection-start-line="20" selection-end-line="20" />
+          <folding>
+            <element signature="e#82#101#0" expanded="true" />
+            <element signature="e#213#236#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gdbinit" />
-    <entry file="file://$PROJECT_DIR$/cmake-build-debug/CMakeFiles/feature_tests.c">
-      <provider selected="true" editor-type-id="text-editor" />
+    <entry file="file://$PROJECT_DIR$/Src/hal/hal_uart.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="709">
+          <caret line="316" column="29" selection-start-line="316" selection-start-column="29" selection-end-line="316" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/usbd_cdc_if.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2550">
+          <caret line="170" column="28" selection-start-line="170" selection-start-column="14" selection-end-line="170" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Drivers/electricui/src/transports/eui_serial_transport.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1920">
+          <caret line="128" column="22" selection-start-line="128" selection-start-column="22" selection-end-line="128" selection-end-column="22" />
+        </state>
+      </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Src/drivers/kinematics.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" selection-start-line="10" selection-end-line="10" />
+        <state relative-caret-position="634">
+          <caret line="114" column="2" lean-forward="true" selection-start-line="114" selection-start-column="2" selection-end-line="114" selection-end-column="2" />
+          <folding>
+            <element signature="e#207#230#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.gitignore">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="15">
-          <caret line="1" column="18" selection-start-line="1" selection-start-column="18" selection-end-line="1" selection-end-column="18" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/%HOMEPATH%.gdbinit" />
-    <entry file="file://$PROJECT_DIR$/.cproject">
+    <entry file="file://$PROJECT_DIR$/Src/drivers/kinematics.h">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/Drivers/electricui/eui_serial_transport.c">
+    <entry file="file://$PROJECT_DIR$/Src/drivers/led_types.h">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_background.h">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_config.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="306">
-          <caret line="219" selection-start-line="219" selection-end-line="219" />
+        <state relative-caret-position="225">
+          <caret line="15" column="20" selection-start-line="15" selection-start-column="20" selection-end-line="15" selection-end-column="20" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_adc.c">
+    <entry file="file://$PROJECT_DIR$/Drivers/electricui/.gitignore">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Drivers/electricui/src/eui_types.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="39">
-          <caret line="1581" selection-start-line="1581" selection-end-line="1581" />
+        <state relative-caret-position="1695">
+          <caret line="113" column="2" selection-start-line="113" selection-start-column="2" selection-end-line="113" selection-end-column="2" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_task_motion.c">
+    <entry file="file://$PROJECT_DIR$/Src/drivers/path_interpolator.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="283" selection-start-line="283" selection-end-line="283" />
+        <state relative-caret-position="675">
+          <caret line="45" column="30" selection-start-line="45" selection-start-column="30" selection-end-line="45" selection-end-column="30" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c">
+    <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_version.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="684">
-          <caret line="1228" column="16" selection-start-line="1228" selection-start-column="16" selection-end-line="1228" selection-end-column="16" />
+        <state relative-caret-position="255">
+          <caret line="17" column="22" selection-start-line="17" selection-start-column="22" selection-end-line="17" selection-end-column="22" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c">
+    <entry file="file://$PROJECT_DIR$/Src/hal/hal_gpio_types.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="240">
-          <caret line="403" selection-start-line="403" selection-end-line="403" />
+        <state relative-caret-position="60">
+          <caret line="4" column="12" selection-start-line="4" selection-start-column="12" selection-end-line="4" selection-end-column="12" />
+          <folding>
+            <element signature="e#70#82#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c">
+    <entry file="file://$PROJECT_DIR$/Drivers/electricui/src/electricui.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="249">
-          <caret line="402" selection-start-line="402" selection-end-line="402" />
+        <state relative-caret-position="1238">
+          <caret line="429" column="4" selection-start-line="429" selection-start-column="4" selection-end-line="429" selection-end-column="4" />
+          <folding>
+            <element signature="e#0#19#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/jlink.cfg" />
-    <entry file="file://$PROJECT_DIR$/CMakeLists_template.txt">
+    <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_events.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="643">
-          <caret line="53" column="23" lean-forward="true" selection-start-line="53" selection-start-column="23" selection-end-line="53" selection-end-column="23" />
+        <state relative-caret-position="735">
+          <caret line="55" column="12" selection-start-line="55" selection-start-column="12" selection-end-line="55" selection-end-column="12" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/delta-control.ioc">
+    <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_hardware.c">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Drivers/CMSIS/Device/ST/STM32F4xx/Include/stm32f429xx.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="574">
-          <caret line="162" column="15" selection-start-line="162" selection-start-column="15" selection-end-line="162" selection-end-column="21" />
+        <state relative-caret-position="-8">
+          <caret line="67" selection-start-line="67" selection-end-line="67" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CMakeLists.txt">
+    <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_task_communication.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="1020">
-          <caret line="68" column="21" selection-start-line="68" selection-start-column="21" selection-end-line="68" selection-end-column="21" />
+        <state relative-caret-position="120">
+          <caret line="9" selection-start-line="9" selection-end-line="9" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
+    <entry file="file://$PROJECT_DIR$/Src/drivers/motion_types.h">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="195">
+        <state relative-caret-position="793">
+          <caret line="59" selection-start-line="59" selection-end-line="59" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/hal/hal_system_speed.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="267">
           <caret line="145" selection-start-line="145" selection-end-line="145" />
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/delta-control.xml">
+    <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_task_supervisor.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="12" selection-start-line="15" selection-start-column="12" selection-end-line="15" selection-end-column="19" />
+        <state relative-caret-position="1620">
+          <caret line="108" column="21" selection-start-line="108" selection-start-column="21" selection-end-line="108" selection-end-column="21" />
+          <folding>
+            <element signature="e#213#232#0" expanded="true" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/delta-control Debug.cfg">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="345">
-          <caret line="23" lean-forward="true" selection-start-line="23" selection-end-line="23" />
-        </state>
-      </provider>
+    <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_task_supervisor.h">
+      <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/Src/main.c">
+    <entry file="file://$PROJECT_DIR$/Src/drivers/status.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="510">
-          <caret line="55" selection-start-line="55" selection-end-line="55" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/startup/startup_stm32f429xx.s">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="249">
-          <caret line="112" selection-start-line="112" selection-end-line="112" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Src/drivers/configuration.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="-5397">
-          <caret line="128" lean-forward="true" selection-start-line="128" selection-end-line="128" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Src/drivers/clearpath.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="534">
-          <caret line="383" selection-start-line="383" selection-end-line="383" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_background.c">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="588">
-          <caret line="103" lean-forward="true" selection-start-line="103" selection-end-line="103" />
+        <state relative-caret-position="330">
+          <caret line="22" selection-start-line="22" selection-end-line="22" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_tasks.c">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="241">
-          <caret line="171" selection-start-line="171" selection-end-line="171" />
+        <state relative-caret-position="2460">
+          <caret line="164" column="27" selection-start-line="164" selection-start-column="27" selection-end-line="164" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_times.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="71" column="14" lean-forward="true" selection-start-line="71" selection-start-column="14" selection-end-line="71" selection-end-column="14" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/drivers/configuration.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1035">
+          <caret line="156" column="6" selection-start-line="156" selection-start-column="6" selection-end-line="156" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/drivers/led_interpolator.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="17" selection-start-line="15" selection-start-column="17" selection-end-line="15" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/drivers/path_interpolator.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="960">
+          <caret line="64" column="16" selection-start-line="64" selection-start-column="16" selection-end-line="64" selection-end-column="16" />
+          <folding>
+            <element signature="e#82#101#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_task_motion.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="316">
+          <caret line="89" selection-start-line="89" selection-end-line="89" />
+          <folding>
+            <element signature="e#3888#3916#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_gpio.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="267">
+          <caret line="205" selection-start-line="205" selection-end-line="205" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="259">
+          <caret line="878" column="8" selection-start-line="878" selection-start-column="8" selection-end-line="878" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="334">
+          <caret line="3221" selection-start-line="3221" selection-end-line="3221" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/app_state_machines/app_background.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="413">
+          <caret line="41" column="28" selection-start-line="41" selection-start-column="28" selection-end-line="41" selection-end-column="28" />
+          <folding>
+            <element signature="e#165#192#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/drivers/buzzer.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="765">
+          <caret line="54" lean-forward="true" selection-start-line="54" selection-end-line="54" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/hal/hal_adc.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-585" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pwr.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="537">
+          <caret line="402" selection-start-line="402" selection-end-line="402" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/hal/hal_pwm.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="658">
+          <caret line="64" column="32" selection-start-line="64" selection-start-column="32" selection-end-line="64" selection-end-column="32" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/drivers/fan.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="507">
+          <caret line="54" lean-forward="true" selection-start-line="54" selection-end-line="54" />
+          <folding>
+            <element signature="e#185#201#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/hal/hal_pwm.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="250">
+          <caret line="316" selection-start-line="316" selection-end-line="316" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/main.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="36" selection-start-line="36" selection-end-line="36" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/drivers/led_interpolator.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="604">
+          <caret line="112" selection-start-line="112" selection-end-line="112" />
+          <folding>
+            <element signature="e#222#251#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/drivers/configuration.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="589">
+          <caret line="234" selection-start-line="234" selection-end-line="234" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/hal/hal_gpio.h">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="259">
+          <caret line="33" column="4" selection-start-line="33" selection-start-column="4" selection-end-line="33" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Src/hal/hal_gpio.c">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="169">
+          <caret line="70" column="66" selection-start-line="70" selection-start-column="66" selection-end-line="70" selection-end-column="66" />
         </state>
       </provider>
     </entry>
