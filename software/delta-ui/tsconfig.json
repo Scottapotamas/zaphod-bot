@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "target": "esnext",
+    "module": "esnext",
+    "moduleResolution": "node",
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "inlineSources": true,
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "newLine": "lf",
+    "jsx": "react",
+    "noEmitOnError": true,
+    "baseUrl": ".",
+    "paths": {
+      "*": ["*", "packages/*"]
+    }
+  },
+  "include": ["src/**/*.tsx", "typings/*.d.ts"]
+}

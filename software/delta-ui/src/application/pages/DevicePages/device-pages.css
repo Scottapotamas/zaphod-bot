@@ -1,0 +1,43 @@
+.device-pages {
+  display: flex;
+  height: 100vh;
+  flex-direction: column;
+}
+
+.device-header {
+  padding-top: 1em;
+  padding-bottom: 1em;
+  width: 100%;
+  box-shadow: 0 0 0 1px rgba(16, 22, 26, 0.15), 0 0 0 rgba(16, 22, 26, 0),
+    0 0 0 rgba(16, 22, 26, 0);
+  z-index: 1;
+  background: #fff;
+}
+
+.device-footer {
+  box-shadow: 0 0 0 1px rgba(16, 22, 26, 0.15), 0 0 0 rgba(16, 22, 26, 0),
+    0 0 0 rgba(16, 22, 26, 0);
+  z-index: 1;
+  background: #fefefe;
+}
+
+.device-content {
+  flex: 1;
+  padding: 1.15em;
+  padding-top: 1.4em;
+  overflow-y: auto;
+}
+
+.device-header .bp3-button.bp3-minimal.bp3-active {
+  background: rgba(115, 134, 148, 0.1);
+}
+
+/* Dark mode */
+
+.bp3-dark {
+  background: #191b1d;
+}
+
+.bp3-dark .device-header {
+  background: #232b31;
+}
