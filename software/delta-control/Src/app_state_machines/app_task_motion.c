@@ -252,7 +252,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
                 eventPoolGarbageCollect( (StateEvent*)next );
                 STATE_TRAN( AppTaskMotion_active );
             }
-			config_set_motion_queue_depth(  eventQueueUsed( &me->super.requestQueue ) );
+			config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 
             return 0;
         }

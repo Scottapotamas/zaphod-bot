@@ -107,6 +107,15 @@ typedef struct
 	float power;
 } MotorData_t;
 
+typedef struct
+{
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
+    uint8_t enable;
+} LedSetting_t;
+
+
 SystemData_t 	sys_stats;
 BuildInfo_t		fw_info;
 InternalInterface_t internal_comm_modes;
@@ -131,6 +140,9 @@ MotionData_t 	motion_global;
 MotorData_t 	motion_servo[4];
 Movement_t 		motion_inbound;
 CartesianPoint_t target_position;
+LedSetting_t    rgb_led_drive;
+
+char device_nickname[16] = "Zaphod Beeblebot";
 
 PRIVATE void start_mech_cb( void );
 PRIVATE void stop_mech_cb( void );
@@ -145,54 +157,80 @@ PRIVATE void movement_generate_event( void );
 
 eui_message_t ui_variables[] =
 {
-    //higher level system setup information
-    {.msgID = "sys", 	.type = TYPE_CUSTOM, .size = sizeof(SystemData_t),  .payload = &sys_stats      		},
-    {.msgID = "super", 	.type = TYPE_CUSTOM, .size = sizeof(sys_states),  	.payload = &sys_states 			},
-    {.msgID = "fwb", 	.type = TYPE_CUSTOM, .size = sizeof(BuildInfo_t), 	.payload = &fw_info      		},
+    // higher level system setup information
+    EUI_CUSTOM("sys", sys_stats),
+    EUI_CHAR_RO_ARRAY("name", device_nickname),
+    EUI_CUSTOM("super", sys_states),
+    EUI_CUSTOM("fwb", fw_info),
 
-	// IO modes and states
-    {.msgID = "intDA", 	.type = TYPE_CUSTOM, .size = sizeof(InternalInterface_t), .payload = &external_io_modes },
-    {.msgID = "intIO", 	.type = TYPE_CUSTOM, .size = sizeof(InternalIO_t),  .payload = &internal_io_modes   },
-    {.msgID = "extIO", 	.type = TYPE_CUSTOM, .size = sizeof(ExternalIO_t),  .payload = &internal_comm_modes },
+    // Configuration of internal and external IO banks
+    EUI_CUSTOM("intDA", external_io_modes),
+    EUI_CUSTOM("intIO", internal_io_modes),
+    EUI_CUSTOM("extIO", internal_comm_modes),
 
-	//temperature and cooling system
-    {.msgID = "fan", 	.type = TYPE_CUSTOM, .size = sizeof(FanData_t), 	.payload = &fan_stats      	},
-    {.msgID = "curve", 	.type = TYPE_CUSTOM, .size = sizeof(fan_curve), 	.payload = &fan_curve  		},
-    {.msgID = "temp", 	.type = TYPE_CUSTOM, .size = sizeof(TempData_t),  	.payload = &temp_sensors 	},
+    // temperature and cooling system
+    EUI_CUSTOM("fan", fan_stats),
+    EUI_CUSTOM("curve", fan_curve),
+    EUI_CUSTOM("temp", temp_sensors),
 
-    //motion related information
-    {.msgID = "moStat",	.type = TYPE_CUSTOM, .size = sizeof(MotionData_t), 	.payload = &motion_global 	},
-    {.msgID = "mo1", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[0] },
-    {.msgID = "mo2", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[1] },
-    {.msgID = "mo3", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[2] },
+    // motion related information
+    EUI_CUSTOM("moStat", motion_global),
+    EUI_CUSTOM("mo1", motion_servo[0]),
+    EUI_CUSTOM("mo2", motion_servo[1]),
+    EUI_CUSTOM("mo3", motion_servo[2]),
 #ifdef EXPANSION_SERVO
-    {.msgID = "mo4", 	.type = TYPE_CUSTOM, .size = sizeof(MotorData_t),  	.payload = &motion_servo[3] },
+    EUI_CUSTOM("mo4", motion_servo[3]),
 #endif
 
-	//inbound movement buffer and 'add to queue' callback
-    {.msgID = "inmv", 	.type = TYPE_CUSTOM,   .size = sizeof(Movement_t), 				.payload = &motion_inbound },
-    {.msgID = "qumv", 	.type = TYPE_CALLBACK, .size = sizeof(movement_generate_event), .payload = &movement_generate_event },
+    EUI_CUSTOM("tpos", target_position),
 
-	//target xyz position in 3d volume
-    {.msgID = "tpos", 	.type = TYPE_CUSTOM, .size = sizeof(target_position), .payload = &target_position },
-#warning "Remove these individual xyz target points once UI has deep-state slider fix"
-    {.msgID = "tpx", 	.type = TYPE_UINT32, .size = sizeof(uint32_t), 		  .payload = &target_position.x },
-    {.msgID = "tpy", 	.type = TYPE_UINT32, .size = sizeof(uint32_t), 		  .payload = &target_position.y },
-    {.msgID = "tpz", 	.type = TYPE_UINT32, .size = sizeof(uint32_t), 		  .payload = &target_position.z },
+    //inbound movement buffer and 'add to queue' callback
+    EUI_CUSTOM("inmv", motion_inbound),
+    EUI_FUNC("qumv", movement_generate_event),
 
-	// UI requests a change of operating mode
-    {.msgID = "rtrack", .type = TYPE_CALLBACK, .size = sizeof(request_tracking_mode), .payload = &request_tracking_mode },
-    {.msgID = "rdemo",  .type = TYPE_CALLBACK, .size = sizeof(request_demo_mode),     .payload = &request_demo_mode },
-    {.msgID = "revent", .type = TYPE_CALLBACK, .size = sizeof(request_event_mode),    .payload = &request_event_mode },
+    // Event trigger callbacks
+    EUI_FUNC("estop", emergency_stop_cb),
+    EUI_FUNC("arm", start_mech_cb),
+    EUI_FUNC("disarm", stop_mech_cb),
+    EUI_FUNC("home", home_mech_cb),
 
-	//function callbacks
-    {.msgID = "estop", 	.type = TYPE_CALLBACK, .size = sizeof(emergency_stop_cb),  	.payload = &emergency_stop_cb },
-    {.msgID = "arm", 	.type = TYPE_CALLBACK, .size = sizeof(start_mech_cb),  	.payload = &start_mech_cb },
-    {.msgID = "disarm", .type = TYPE_CALLBACK, .size = sizeof(stop_mech_cb),  	.payload = &stop_mech_cb },
-    {.msgID = "home", 	.type = TYPE_CALLBACK, .size = sizeof(home_mech_cb),  	.payload = &home_mech_cb },
+    // UI requests a change of operating mode
+    EUI_FUNC("rtrack", request_tracking_mode),
+    EUI_FUNC("rdemo", request_demo_mode),
+    EUI_FUNC("revent", request_event_mode),
+
+    EUI_UINT8("red", rgb_led_drive.red),
+    EUI_UINT8("green", rgb_led_drive.green),
+    EUI_UINT8("blue", rgb_led_drive.blue),
+    EUI_UINT8("leden", rgb_led_drive.enable),
 
 };
 
+
+
+PUBLIC uint8_t
+config_get_led_red( void )
+{
+    return rgb_led_drive.red;
+}
+
+PUBLIC uint8_t
+config_get_led_green( void )
+{
+    return rgb_led_drive.green;
+}
+
+PUBLIC uint8_t
+config_get_led_blue( void )
+{
+    return rgb_led_drive.blue;
+}
+
+PUBLIC uint8_t
+config_get_led_enable( void )
+{
+    return rgb_led_drive.enable;
+}
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
@@ -262,8 +300,9 @@ configuration_save( void )
 PUBLIC void
 configuration_electric_setup( void )
 {
-	setup_identifier( (char*)HAL_UUID, 12 );	//header byte is 96-bit, therefore 12-bytes
-	setup_dev_msg(ui_variables, ARR_ELEM(ui_variables));
+    EUI_TRACK( ui_variables );
+    eui_setup_identifier( (char*)HAL_UUID, 12 );	//header byte is 96-bit, therefore 12-bytes
+
 }
 
 /* -------------------------------------------------------------------------- */

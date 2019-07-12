@@ -97,6 +97,7 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
         case STATE_ENTRY_SIGNAL:
         {
         	config_set_main_state(1);
+            me->selected_control_mode = CONTROL_EVENT;
         	config_set_control_mode( CONTROL_EVENT );
 
         	//start the board hardware sensors

@@ -150,6 +150,13 @@ config_motor_power( uint8_t servo, float watts );
 PUBLIC void
 config_motor_target_angle( uint8_t servo, float angle );
 
+
+PUBLIC uint8_t config_get_led_red( void );
+PUBLIC uint8_t config_get_led_green( void );
+PUBLIC uint8_t config_get_led_blue( void );
+PUBLIC uint8_t config_get_led_enable( void );
+
+
 /* ----- End ---------------------------------------------------------------- */
 
 #ifdef __cplusplus

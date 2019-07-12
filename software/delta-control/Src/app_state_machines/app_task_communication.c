@@ -22,13 +22,13 @@ PRIVATE void AppTaskCommunicationConstructor( AppTaskCommunication *me );
 
 PRIVATE void AppTaskCommunication_initial( AppTaskCommunication *me, const StateEvent *e );
 
-PRIVATE void AppTaskCommunication_tx_put_internal( uint8_t c, uint16_t length );
+PRIVATE void AppTaskCommunication_tx_put_internal( uint8_t *c, uint16_t length );
 
-PRIVATE void AppTaskCommunication_tx_put_external( uint8_t c, uint16_t length );
+PRIVATE void AppTaskCommunication_tx_put_external( uint8_t *c, uint16_t length );
 
-PRIVATE void AppTaskCommunication_tx_put_module( uint8_t c, uint16_t length );
+PRIVATE void AppTaskCommunication_tx_put_module( uint8_t *c, uint16_t length );
 
-PRIVATE void AppTaskCommunication_tx_put_usb( uint8_t c, uint16_t length );
+PRIVATE void AppTaskCommunication_tx_put_usb( uint8_t *c, uint16_t length );
 
 PRIVATE void AppTaskCommunication_rx_callback_uart( HalUartPort_t port, uint8_t c );
 
@@ -38,10 +38,19 @@ PRIVATE STATE AppTaskCommunication_main( AppTaskCommunication *me, const StateEv
 
 PRIVATE STATE AppTaskCommunication_electric_ui( AppTaskCommunication *me, const StateEvent *e );
 
-eui_interface_t module_comms;
-eui_interface_t usb_comms;
-eui_interface_t internal_comms;
-eui_interface_t external_comms;
+enum {
+    LINK_MODULE = 0,
+    LINK_INTERNAL,
+    LINK_EXTERNAL,
+    LINK_USB
+} EUI_LINK_NAMES;
+
+eui_interface_t communication_interface[] = {
+        EUI_INTERFACE(&AppTaskCommunication_tx_put_module),
+        EUI_INTERFACE(&AppTaskCommunication_tx_put_internal),
+        EUI_INTERFACE(&AppTaskCommunication_tx_put_external),
+        EUI_INTERFACE(&AppTaskCommunication_tx_put_usb),
+};
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -122,16 +131,12 @@ PRIVATE STATE AppTaskCommunication_electric_ui( AppTaskCommunication *me,
 		            hal_uart_set_baudrate( HAL_UART_PORT_MODULE, MODULE_BAUD );
 		        	hal_uart_set_rx_handler(HAL_UART_PORT_MODULE, AppTaskCommunication_rx_callback_uart );
 
-					module_comms.output_func = &AppTaskCommunication_tx_put_module;
-
 					break;
 
 				case INTERFACE_UART_INTERNAL:
 		            hal_uart_init( HAL_UART_PORT_INTERNAL );
 		            hal_uart_set_baudrate( HAL_UART_PORT_INTERNAL, EXTERNAL_BAUD );
 		        	hal_uart_set_rx_handler(HAL_UART_PORT_INTERNAL, AppTaskCommunication_rx_callback_uart );
-
-					internal_comms.output_func = &AppTaskCommunication_tx_put_internal;
 
 					break;
 
@@ -140,19 +145,17 @@ PRIVATE STATE AppTaskCommunication_electric_ui( AppTaskCommunication *me,
 		            hal_uart_set_baudrate( HAL_UART_PORT_EXTERNAL, INTERNAL_BAUD );
 		        	hal_uart_set_rx_handler(HAL_UART_PORT_EXTERNAL, AppTaskCommunication_rx_callback_uart );
 
-					external_comms.output_func = &AppTaskCommunication_tx_put_external;
-
 					break;
 
 				case INTERFACE_USB_EXTERNAL:
 					//todo init cdc here
 					//todo setup callback to AppTaskCommunication_rx_callback_cdc
-					usb_comms.output_func = &AppTaskCommunication_tx_put_usb;
 
 					break;
 			}
 
 			//eUI setup
+			EUI_LINK( communication_interface );
         	configuration_electric_setup();	//get the configuration driver to setup access to variables
 
         	return 0;
@@ -165,26 +168,26 @@ PRIVATE STATE AppTaskCommunication_electric_ui( AppTaskCommunication *me,
 }
 
 PRIVATE void
-AppTaskCommunication_tx_put_external( uint8_t c, uint16_t length )
+AppTaskCommunication_tx_put_external( uint8_t *c, uint16_t length )
 {
 	hal_uart_write( HAL_UART_PORT_EXTERNAL, c, length );
 }
 
 PRIVATE void
-AppTaskCommunication_tx_put_internal( uint8_t c, uint16_t length)
+AppTaskCommunication_tx_put_internal( uint8_t *c, uint16_t length)
 {
 	hal_uart_write( HAL_UART_PORT_INTERNAL, c, length );
 }
 
 PRIVATE void
-AppTaskCommunication_tx_put_module( uint8_t c, uint16_t length )
+AppTaskCommunication_tx_put_module( uint8_t *c, uint16_t length )
 {
 	hal_uart_write( HAL_UART_PORT_MODULE, c, length );
 }
 
 
 PRIVATE void
-AppTaskCommunication_tx_put_usb( uint8_t c, uint16_t length )
+AppTaskCommunication_tx_put_usb( uint8_t *c, uint16_t length )
 {
 	CDC_Transmit_FS( c, length );
 }
@@ -195,15 +198,15 @@ AppTaskCommunication_rx_callback_uart( HalUartPort_t port, uint8_t c )
 	switch ( port )
 	{
 		case HAL_UART_PORT_MODULE:
-			parse_packet(c, &module_comms);
+			eui_parse(c, &communication_interface[LINK_MODULE]);
 			break;
 
 		case HAL_UART_PORT_EXTERNAL:
-			parse_packet(c, &external_comms);
+            eui_parse(c, &communication_interface[LINK_EXTERNAL]);
 			break;
 
 		case HAL_UART_PORT_INTERNAL:
-			parse_packet(c, &internal_comms);
+            eui_parse(c, &communication_interface[LINK_INTERNAL]);
 			break;
 
 		default:
@@ -215,6 +218,7 @@ AppTaskCommunication_rx_callback_uart( HalUartPort_t port, uint8_t c )
 PRIVATE void
 AppTaskCommunication_rx_callback_cdc( uint8_t c )
 {
-	parse_packet(c, &usb_comms);
+    eui_parse(c, &communication_interface[LINK_USB]);
+
 }
 /* ----- End ---------------------------------------------------------------- */
