@@ -51,6 +51,7 @@ fan_init( void )
 
     //get a pointer to the fan curve configuration table
     fan_curve = config_get_fan_curve_ptr();
+    hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ );
 
     //todo setup input capture peripheral instead of relying on soft IC implementation
 }
@@ -178,7 +179,7 @@ fan_process( void )
             break;
     }
 
-	hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ, me->speed );
+	hal_pwm_set( _PWM_TIM_FAN, me->speed );
 	config_set_fan_percentage( me->speed );
 	config_set_fan_state( me->currentState );
 }

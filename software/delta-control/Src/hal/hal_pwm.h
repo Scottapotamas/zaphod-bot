@@ -60,7 +60,7 @@ hal_pwm_setup_ic(void);
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency, uint8_t duty_cycle);
+hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency);
 
 /* -------------------------------------------------------------------------- */
 

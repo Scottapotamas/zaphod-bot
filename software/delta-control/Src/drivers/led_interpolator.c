@@ -9,6 +9,7 @@
 #include "led_interpolator.h"
 #include "led_types.h"
 #include "configuration.h"
+#include "hal_pwm.h"
 
 #include "global.h"
 #include "simple_state_machine.h"
@@ -53,6 +54,10 @@ PUBLIC void
 led_interpolator_init( void )
 {
     memset( &planner, 0, sizeof( planner ) );
+
+    hal_pwm_generation( _PWM_TIM_AUX_0, 1000 );
+    hal_pwm_generation( _PWM_TIM_AUX_1, 1000 );
+    hal_pwm_generation( _PWM_TIM_AUX_2, 1000 );
 
 }
 
@@ -100,6 +105,9 @@ led_interpolator_process( void )
 {
 	LEDPlanner_t *me = &planner;
 
+    hal_pwm_set( _PWM_TIM_AUX_0, config_get_led_red() );
+    hal_pwm_set( _PWM_TIM_AUX_1, config_get_led_green() );
+    hal_pwm_set( _PWM_TIM_AUX_2, config_get_led_blue() );
     switch( me->currentState )
     {
         case PLANNER_OFF:

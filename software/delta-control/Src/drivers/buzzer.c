@@ -51,6 +51,8 @@ buzzer_sound( uint8_t count, uint16_t frequency, uint16_t duration_ms )
     me->duration  = duration_ms;
     me->frequency = frequency;
 
+    hal_pwm_generation( _PWM_TIM_BUZZER, buzzer.frequency );
+
     STATE_INIT_INITIAL( BUZZER_STATE_ON );
 }
 
@@ -89,7 +91,7 @@ buzzer_process( void )
             STATE_ENTRY_ACTION
 
                 buzzer.timer = hal_systick_get_ms();
-            	hal_pwm_generation( _PWM_TIM_BUZZER, buzzer.frequency, 50 );
+            	hal_pwm_set( _PWM_TIM_BUZZER, 50 );
 
             STATE_TRANSITION_TEST
 
@@ -100,7 +102,7 @@ buzzer_process( void )
 
             STATE_EXIT_ACTION
 
-        		hal_pwm_generation( _PWM_TIM_BUZZER, 0, 0 );
+                hal_pwm_set( _PWM_TIM_BUZZER, 0 );
 
             STATE_END
             break;

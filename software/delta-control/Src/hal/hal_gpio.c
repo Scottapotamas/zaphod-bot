@@ -68,10 +68,10 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 const HalGpioDef_t HalGpioHardwareMap[] =
 {
 		/* --- INTERNAL EXPANSION IO --- */
-		[ _AUX_PWM_0               ]   = { .mode = MODE_AF_PP,    .port = PORT_A, .pin = PIN_15, .initial = 0 },
-		[ _AUX_PWM_1               ]   = { .mode = MODE_AF_PP,    .port = PORT_B, .pin = PIN_15, .initial = 0 },
-		[ _AUX_PWM_2               ]   = { .mode = MODE_AF_PP,    .port = PORT_B, .pin = PIN_14, .initial = 0 },
-		[ _AUX_ANALOG_0            ]   = { .mode = MODE_INPUT,     .port = PORT_A, .pin = PIN_4,  .initial = 0 },
+		[ _AUX_PWM_0               ]   = { .mode = MODE_AF_PP,     .port = PORT_A, .pin = PIN_15, .initial = 0 },
+		[ _AUX_PWM_1               ]   = { .mode = MODE_AF_PP,     .port = PORT_B, .pin = PIN_15, .initial = 0 },
+		[ _AUX_PWM_2               ]   = { .mode = MODE_AF_PP,     .port = PORT_B, .pin = PIN_14, .initial = 0 },
+		[ _AUX_ANALOG_0            ]   = { .mode = MODE_OUT_PP,    .port = PORT_A, .pin = PIN_4,  .initial = 0 },
 		[ _AUX_ANALOG_1            ]   = { .mode = MODE_INPUT,     .port = PORT_A, .pin = PIN_5,  .initial = 0 },
 
 		[ _AUX_SCL                 ]   = { .mode = MODE_INPUT,     .port = PORT_B, .pin = PIN_10, .initial = 0 },

@@ -156,15 +156,8 @@ void hal_setup_capture(uint8_t input)
 
 /* -------------------------------------------------------------------------- */
 
-void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency, uint8_t duty_cycle)
+void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency)
 {
-	#define MAX_RELOAD               0xFFFF	//16-bit timer capability
-
-	uint32_t period_cycles 	= ( SystemCoreClock / 2 ) / frequency;
-	uint16_t prescaler 		= (uint16_t)(period_cycles / MAX_RELOAD + 1);
-	uint16_t overflow 		= (uint16_t)((period_cycles + (prescaler / 2)) / prescaler);
-	uint16_t duty_counts 	= overflow * duty_cycle / 100;	//duty cycle percentage of overflow
-
 	TIM_HandleTypeDef* tim_handle = 0;
 
 	switch(pwm_output)
@@ -198,8 +191,16 @@ void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency, uint
 			break;
 	}
 
-	tim_handle->Init.Prescaler 		= prescaler;
-	tim_handle->Init.Period 		= overflow;
+//    #define MAX_RELOAD               0xFFFF	//16-bit timer capability
+    #define PWM_PERIOD_DEFAULT  1024
+
+//    uint32_t period_cycles 	= ( SystemCoreClock / 2 ) / frequency;
+//    uint16_t prescaler 		= (uint16_t)(period_cycles / MAX_RELOAD + 1);
+//    uint16_t overflow 		= (uint16_t)((period_cycles + (prescaler / 2)) / prescaler);
+//    uint16_t duty_counts 	= overflow * duty_cycle / 100;	//duty cycle percentage of overflow
+
+    tim_handle->Init.Prescaler 		= (uint32_t)( SystemCoreClock / ( frequency * PWM_PERIOD_DEFAULT ) );//prescaler;
+	tim_handle->Init.Period 		= PWM_PERIOD_DEFAULT; //overflow;
 	tim_handle->Init.CounterMode 	= TIM_COUNTERMODE_UP;
 	tim_handle->Init.ClockDivision 	= TIM_CLOCKDIVISION_DIV1;
 
@@ -238,12 +239,12 @@ void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency, uint
 	TIM_OC_InitTypeDef sConfigOC;
 
 	sConfigOC.OCMode 				= TIM_OCMODE_PWM1;
-	sConfigOC.Pulse 				= duty_counts;
-	sConfigOC.OCPolarity 			= TIM_OCPOLARITY_LOW;
+	sConfigOC.Pulse 				= 1;
+	sConfigOC.OCPolarity 			= TIM_OCPOLARITY_HIGH;
 	sConfigOC.OCFastMode 			= TIM_OCFAST_DISABLE;
 
 	//todo see if tim12 is happy having a full setup repeated for Ch2 output, or if Ch1 and Ch2 need to be done at same time.
-	//aux2 is on ch1, everything else is on ch1
+	//aux2 is on ch2, everything else is on ch1
 	if( pwm_output == _PWM_TIM_AUX_2)
 	{
 		if (HAL_TIM_PWM_ConfigChannel(tim_handle, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
@@ -269,32 +270,38 @@ void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency, uint
 void hal_pwm_set(PWMOutputTimerDef_t pwm_output, uint8_t duty_cycle)
 {
 	TIM_HandleTypeDef* tim_handle = 0;
+    uint32_t channel = 0;
 
 	switch(pwm_output)
 	{
 		case _PWM_TIM_FAN:
 			tim_handle = &htim10;
 			tim_handle->Instance = TIM10;
+            channel = TIM_CHANNEL_1;
 			break;
 
 		case _PWM_TIM_BUZZER:
 			tim_handle = &htim11;
 			tim_handle->Instance = TIM11;
+            channel = TIM_CHANNEL_1;
 			break;
 
 		case _PWM_TIM_AUX_0:
 			tim_handle = &htim2;
 			tim_handle->Instance = TIM2;
-			break;
+            channel = TIM_CHANNEL_1;
+            break;
 
 		case _PWM_TIM_AUX_1:
 			tim_handle = &htim12;
 			tim_handle->Instance = TIM12;
+            channel = TIM_CHANNEL_1;
 			break;
 
 		case _PWM_TIM_AUX_2:
 			tim_handle = &htim12;
 			tim_handle->Instance = TIM12;
+            channel = TIM_CHANNEL_2;
 			break;
 		default:
 
@@ -303,8 +310,16 @@ void hal_pwm_set(PWMOutputTimerDef_t pwm_output, uint8_t duty_cycle)
 
 	//todo make this work properly
 
-	__HAL_TIM_GET_AUTORELOAD(tim_handle); //gets the Period set for PWm
-	__HAL_TIM_SET_COMPARE(tim_handle, TIM_CHANNEL_1, duty_cycle); //sets the PWM duty cycle
+    uint32_t period = tim_handle->Init.Period;  //get
+
+    TIM_OC_InitTypeDef sConfigOC;
+    sConfigOC.OCMode 				= TIM_OCMODE_PWM1;
+    sConfigOC.Pulse 				= ( MIN( duty_cycle, 100U ) * period ) / 100U;
+    sConfigOC.OCPolarity 			= TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCFastMode 			= TIM_OCFAST_DISABLE;
+
+    HAL_TIM_PWM_ConfigChannel(tim_handle, &sConfigOC, channel);
+    HAL_TIM_PWM_Start(tim_handle, channel);
 }
 
 /* -------------------------------------------------------------------------- */
