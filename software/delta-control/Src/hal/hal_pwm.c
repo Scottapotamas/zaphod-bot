@@ -314,7 +314,7 @@ void hal_pwm_set(PWMOutputTimerDef_t pwm_output, uint8_t duty_cycle)
 
     TIM_OC_InitTypeDef sConfigOC;
     sConfigOC.OCMode 				= TIM_OCMODE_PWM1;
-    sConfigOC.Pulse 				= ( MIN( duty_cycle, 100U ) * period ) / 100U;
+    sConfigOC.Pulse 				= ( MIN( duty_cycle, 255U ) * period ) / 255U;
     sConfigOC.OCPolarity 			= TIM_OCPOLARITY_HIGH;
     sConfigOC.OCFastMode 			= TIM_OCFAST_DISABLE;
 

@@ -7,12 +7,12 @@
 
 /* ----- Defines ------------------------------------------------------------ */
 
-// LED Channel power. 0 for off, 0xFFFF for full output
+// LED Channel power. 0 for off, 0xFFFFFF for full output
 typedef struct
 {
-    uint16_t red;
-    uint16_t green;
-    uint16_t blue;
+    uint8_t red;
+    uint8_t green;
+    uint8_t blue;
 } RGBColour_t;
 
 typedef struct
@@ -41,16 +41,16 @@ typedef enum
 	_LINEAR_RAMP,
 } FadeAdjective_t;
 
-#define COLOUR_SETPOINT_COUNT 4
+#define COLOUR_SETPOINT_COUNT 2
 
 typedef struct
 {
 	FadeAdjective_t type;
 	uint8_t identifier;		// unique identifier of animation
 	uint16_t duration;		// execution time in milliseconds
-	uint16_t num_pts;		// number of used elements in points array
+	uint8_t num_pts;		// number of used elements in points array
 
-	HSIColour_t input_colours[ COLOUR_SETPOINT_COUNT + 1 ];	//array of colours
+	HSIColour_t input_colours[ COLOUR_SETPOINT_COUNT ];	//array of colours
 } Fade_t;
 
 /* -------------------------------------------------------------------------- */

@@ -50,6 +50,14 @@ enum AppSignals
 	MOTION_ERROR,			// error while homing
 	MOTION_DISABLED,
 
+    /* LED Handler Signals */
+    LED_ADD_REQUEST,    // Provide led animation object to queue
+    LED_OFF,            // Turn off led immediately, clear the queue
+    LED_CLEAR_QUEUE,	// empty pending animations
+
+    SYSTEM_QUEUE_START,
+    SYSTEM_QUEUE_PAUSE,
+
     /* Last Available Signal - Don't Remove This */
     STATE_MAX_SIGNAL
 };

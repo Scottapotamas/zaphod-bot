@@ -179,7 +179,7 @@ fan_process( void )
             break;
     }
 
-	hal_pwm_set( _PWM_TIM_FAN, me->speed );
+	hal_pwm_set( _PWM_TIM_FAN, ( MIN( me->speed, 100U ) * 255 ) / 100U );
 	config_set_fan_percentage( me->speed );
 	config_set_fan_state( me->currentState );
 }

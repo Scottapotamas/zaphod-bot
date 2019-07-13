@@ -9,7 +9,7 @@
 #include "led_interpolator.h"
 #include "led_types.h"
 #include "configuration.h"
-#include "hal_pwm.h"
+#include "led.h"
 
 #include "global.h"
 #include "simple_state_machine.h"
@@ -19,8 +19,8 @@
 
 typedef enum
 {
-    PLANNER_OFF,
-    PLANNER_ON,
+    ANIMATION_OFF,
+    ANIMATION_ON,
 } RGBState_t;
 
 typedef struct
@@ -34,7 +34,7 @@ typedef struct
     uint32_t   	animation_started;	// timestamp the start
     float       progress_percent;	// calculated progress
 
-    RGBColour_t	led_colour;	// current channel outputs
+    RGBColour_t	led_colour;	        // current channel outputs
 
 } LEDPlanner_t;
 
@@ -55,10 +55,7 @@ led_interpolator_init( void )
 {
     memset( &planner, 0, sizeof( planner ) );
 
-    hal_pwm_generation( _PWM_TIM_AUX_0, 1000 );
-    hal_pwm_generation( _PWM_TIM_AUX_1, 1000 );
-    hal_pwm_generation( _PWM_TIM_AUX_2, 1000 );
-
+    led_init();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -94,8 +91,6 @@ led_interpolator_off( void )
 	planner.led_colour.red 		= 0;
 	planner.led_colour.green 	= 0;
 	planner.led_colour.blue 	= 0;
-
-	return;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -105,32 +100,30 @@ led_interpolator_process( void )
 {
 	LEDPlanner_t *me = &planner;
 
-    hal_pwm_set( _PWM_TIM_AUX_0, config_get_led_red() );
-    hal_pwm_set( _PWM_TIM_AUX_1, config_get_led_green() );
-    hal_pwm_set( _PWM_TIM_AUX_2, config_get_led_blue() );
     switch( me->currentState )
     {
-        case PLANNER_OFF:
+        case ANIMATION_OFF:
             STATE_ENTRY_ACTION
-        		config_set_pathing_status(me->currentState);
+        		config_set_led_status(me->currentState);
 
             STATE_TRANSITION_TEST
 
 			if(planner.enable)
 			{
-        		STATE_NEXT( PLANNER_ON );
+                led_enable(true);
+        		STATE_NEXT( ANIMATION_ON );
 			}
 
             STATE_EXIT_ACTION
             STATE_END
             break;
 
-        case PLANNER_ON:
+        case ANIMATION_ON:
             STATE_ENTRY_ACTION
 				me->animation_started = hal_systick_get_ms();
             	me->progress_percent = 0;
 
-            	config_set_pathing_status(me->currentState);
+                config_set_led_status(me->currentState);
 
             STATE_TRANSITION_TEST
 
@@ -147,7 +140,7 @@ led_interpolator_process( void )
             	if( me->progress_percent >= 1.0f - FLT_EPSILON )
             	{
             		//fade is complete, the planner can stop now
-            		STATE_NEXT( PLANNER_OFF );
+            		STATE_NEXT( ANIMATION_OFF );
             	}
             	else
             	{
@@ -168,21 +161,20 @@ led_interpolator_process( void )
     				// Perform colour compensation adjustments
                 	hsi_to_rgb(fade_target.hue, fade_target.saturation, fade_target.intensity, &output_values.x, &output_values.y, &output_values.z);
 
-                	// Set the LED channel values
-                	//set_channel_red( output_values.x * 0xFFFF );
+                	// Set the LED channel values in RGB percentages [0.0f -> 1.0f]
+                    led_set( output_values.x, output_values.y, output_values.z);
 
-                	//update the config/UI data based on these actions
-
-                	//todo implement calls to other layers here
+                	//todo update the config/UI data based on these actions
 
             	}
 
             STATE_EXIT_ACTION
 				planner.enable = false;
+                led_enable(false);
+
             STATE_END
             break;
     }
-
 }
 
 /* -------------------------------------------------------------------------- */

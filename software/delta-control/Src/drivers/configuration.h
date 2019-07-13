@@ -150,6 +150,15 @@ config_motor_power( uint8_t servo, float watts );
 PUBLIC void
 config_motor_target_angle( uint8_t servo, float angle );
 
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+config_set_led_status( uint8_t status );
+
+PUBLIC void
+config_set_led_queue_depth( uint8_t utilisation );
+
+
 
 PUBLIC uint8_t config_get_led_red( void );
 PUBLIC uint8_t config_get_led_green( void );

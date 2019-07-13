@@ -29,6 +29,7 @@ enum SystemDefines
 	BACKGROUND_ADC_SAMPLE_MS	= 100U,	// 10Hz
 
 	MOVEMENT_QUEUE_DEPTH_MAX    = 40U,
+    LED_QUEUE_DEPTH_MAX         = 30U,
 
 };
 
@@ -52,6 +53,13 @@ enum FanDefines
 	FAN_STALL_MAX_RPM		= 2000U,
 	FAN_FREQUENCY_HZ		= 25000UL,
 	NUM_FAN_CURVE_POINTS	= 5U,
+};
+
+/* -------------------------------------------------------------------------- */
+
+enum LedDefines
+{
+    LED_FREQUENCY_HZ        = 1000U,	//  1kHz
 };
 
 /* -------------------------------------------------------------------------- */

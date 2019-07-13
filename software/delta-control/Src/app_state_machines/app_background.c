@@ -13,6 +13,7 @@
 #include "buzzer.h"
 #include "fan.h"
 #include "path_interpolator.h"
+#include "led_interpolator.h"
 #include "clearpath.h"
 
 #include "status.h"
@@ -82,6 +83,8 @@ app_background( void )
 
     	timer_ms_start( &adc_timer, BACKGROUND_ADC_SAMPLE_MS );
     }
+
+    led_interpolator_process();
 
     //process any running movements and allow servo drivers to process commands
     path_interpolator_process();

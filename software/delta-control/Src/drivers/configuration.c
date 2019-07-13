@@ -142,6 +142,8 @@ Movement_t 		motion_inbound;
 CartesianPoint_t target_position;
 LedSetting_t    rgb_led_drive;
 
+Fade_t animation_inbound;
+
 char device_nickname[16] = "Zaphod Beeblebot";
 
 PRIVATE void start_mech_cb( void );
@@ -154,6 +156,7 @@ PRIVATE void request_demo_mode( void );
 PRIVATE void request_event_mode( void );
 
 PRIVATE void movement_generate_event( void );
+PRIVATE void lighting_generate_event( void );
 
 eui_message_t ui_variables[] =
 {
@@ -199,14 +202,10 @@ eui_message_t ui_variables[] =
     EUI_FUNC("rdemo", request_demo_mode),
     EUI_FUNC("revent", request_event_mode),
 
-    EUI_UINT8("red", rgb_led_drive.red),
-    EUI_UINT8("green", rgb_led_drive.green),
-    EUI_UINT8("blue", rgb_led_drive.blue),
-    EUI_UINT8("leden", rgb_led_drive.enable),
+    EUI_CUSTOM("inlt", animation_inbound),
+    EUI_FUNC("qult", lighting_generate_event),
 
 };
-
-
 
 PUBLIC uint8_t
 config_get_led_red( void )
@@ -485,6 +484,20 @@ config_motor_target_angle( uint8_t servo, float angle )
 	motion_servo[servo].target_angle = angle;
 }
 
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+config_set_led_status( uint8_t status ) {
+    //todo
+}
+
+PUBLIC void
+config_set_led_queue_depth( uint8_t utilisation )
+{
+    //todo
+}
+
+
 /* ----- Private Functions -------------------------------------------------- */
 
 PRIVATE void start_mech_cb( void )
@@ -525,6 +538,35 @@ PRIVATE void movement_generate_event( void )
 		   eventPublish( (StateEvent*)motion_request );
 		   memset(&motion_inbound, 0, sizeof(motion_inbound));
 	   }
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void lighting_generate_event( void )
+{
+    LightingPlannerEvent *lighting_request = EVENT_NEW( LightingPlannerEvent, LED_ADD_REQUEST );
+
+    if(lighting_request)
+    {
+        memcpy(&lighting_request->animation, &animation_inbound, sizeof(animation_inbound));
+        eventPublish( (StateEvent*)lighting_request );
+        memset(&animation_inbound, 0, sizeof(animation_inbound));
+    }
+
+//    LightingPlannerEvent *rampUpManual = EVENT_NEW( LightingPlannerEvent, LED_ADD_REQUEST );
+//    rampUpManual->animation.type = _LINEAR_RAMP;
+//    rampUpManual->animation.duration = 2500;
+//    rampUpManual->animation.num_pts = 2;
+//
+//    rampUpManual->animation.input_colours[0].hue = 0.0;
+//    rampUpManual->animation.input_colours[0].saturation = 1.0;
+//    rampUpManual->animation.input_colours[0].intensity = 0.01;
+//
+//    rampUpManual->animation.input_colours[1].hue = .6;
+//    rampUpManual->animation.input_colours[1].saturation = 1.0;
+//    rampUpManual->animation.input_colours[1].intensity = 0.15;
+//
+//    eventPublish( (StateEvent*)rampUpManual );
 }
 
 /* -------------------------------------------------------------------------- */

@@ -18,6 +18,7 @@ extern "C" {
 #include "state_event.h"
 #include "button.h"
 #include "motion_types.h"
+#include "led_types.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -55,6 +56,15 @@ typedef struct MotionPlannerEvent__
     StateEvent	super;     // Encapsulated event reference
     Movement_t	move;      // Movement details
 } MotionPlannerEvent;
+
+/* -------------------------------------------------------------------------- */
+
+/** Motion command */
+typedef struct LedPlannerEvent__
+{
+    StateEvent	super;     // Encapsulated event reference
+    Fade_t	animation; // LED animation details
+} LightingPlannerEvent;
 
 /* ----- End ---------------------------------------------------------------- */
 

@@ -22,6 +22,7 @@
 #include "app_task_communication.h"
 #include "app_task_expansion.h"
 #include "app_task_motion.h"
+#include "app_task_led.h"
 
 #include "button.h"
 #include "hal_button.h"
@@ -41,7 +42,7 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 // ~~~ Event Pool Types ~~~
 
 /** Up to three distinct storage pools. */
-EventPool  eventPool[3];
+EventPool  eventPool[4];
 
 /** @note: Select the following typedefs as approximately the largest
  *         within their group of small, medium and large structures.
@@ -50,12 +51,14 @@ EventPool  eventPool[3];
  */
 typedef ButtonPressedEvent	EventsSmallType;
 typedef ButtonEvent			EventsMediumType;
+typedef LightingPlannerEvent EventsBigType;
 typedef MotionPlannerEvent 	EventsLargeType;
 
 // ~~~ Event Pool Storage ~~~
-EventsSmallType  eventsSmall[10];//  __attribute__ ((section (".ccmram")));
-EventsMediumType eventsMedium[15];//  __attribute__ ((section (".ccmram")));
-EventsLargeType  eventsLarge[45];//   __attribute__ ((section (".ccmram")));
+EventsSmallType     eventsSmall[10];//  __attribute__ ((section (".ccmram")));
+EventsMediumType    eventsMedium[15];//  __attribute__ ((section (".ccmram")));
+EventsBigType       eventsBig[30];//   __attribute__ ((section (".ccmram")));
+EventsLargeType     eventsLarge[45];//   __attribute__ ((section (".ccmram")));
 
 // ~~~ Event Subscription Data ~~~
 EventSubscribers eventSubscriberList[STATE_MAX_SIGNAL];
@@ -71,6 +74,10 @@ StateEvent *               appTaskExpansionEventQueue[5];
 AppTaskMotion    		   appTaskMotion;
 StateEvent *               appTaskMotionEventQueue[MOVEMENT_QUEUE_DEPTH_MAX];
 StateEvent *               appTaskMotionQueue[24];
+
+AppTaskLed    		       appTaskLed;
+StateEvent *               appTaskLedEventQueue[LED_QUEUE_DEPTH_MAX];
+StateEvent *               appTaskLedQueue[24];
 
 AppTaskSupervisor          appTaskSupervisor;
 StateEvent *               appTaskSupervisorEventQueue[20];
@@ -99,6 +106,10 @@ void app_tasks_init( void )
     ALLEGE( eventPoolAddStorage( (StateEvent*)&eventsMedium,
                                  DIM(eventsMedium),
                                  sizeof(EventsMediumType) ) != 0 );
+
+    ALLEGE( eventPoolAddStorage( (StateEvent*)&eventsBig,
+                                 DIM(eventsBig),
+                                 sizeof(EventsBigType) ) != 0 );
 
     ALLEGE( eventPoolAddStorage( (StateEvent*)&eventsLarge,
                                  DIM(eventsLarge),
@@ -142,7 +153,17 @@ void app_tasks_init( void )
 							 appTaskMotionQueue,
 							 DIM(appTaskMotionQueue) );
 
-    stateTaskerAddTask( &mainTasker, t, TASK_MOTION, "Plannner" );
+    stateTaskerAddTask( &mainTasker, t, TASK_MOTION, "Illuminator" );
+    stateTaskerStartTask( &mainTasker, t );
+
+    // Handle LED control
+    t = appTaskLedCreate( &appTaskLed,
+                             appTaskLedEventQueue,
+                             DIM(appTaskLedEventQueue),
+                             appTaskLedQueue,
+                             DIM(appTaskLedQueue) );
+
+    stateTaskerAddTask( &mainTasker, t, TASK_LIGHTING, "Plannner" );
     stateTaskerStartTask( &mainTasker, t );
 
     //Overseer task

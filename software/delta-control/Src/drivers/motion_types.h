@@ -56,7 +56,7 @@ typedef struct
 	uint16_t duration;		// execution time in milliseconds
 	uint16_t num_pts;			//number of used elements in points array
 	//padding
-	CartesianPoint_t points[ MOVEMENT_POINTS_COUNT + 1 ];	//array of 3d points
+	CartesianPoint_t points[ MOVEMENT_POINTS_COUNT ];	//array of 3d points
 } Movement_t;
 
 /* -------------------------------------------------------------------------- */
