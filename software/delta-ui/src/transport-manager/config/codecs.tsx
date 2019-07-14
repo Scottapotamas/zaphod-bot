@@ -176,10 +176,6 @@ export class MotionDataCodec extends Codec {
 
     const reader = SmartBuffer.fromBuffer(message.payload)
     message.payload = {
-      x: reader.readInt32LE() / 1000,
-      y: reader.readInt32LE() / 1000,
-      z: reader.readInt32LE() / 1000,
-
       move_state: reader.readUInt8(),
       move_id: reader.readUInt8(),
       move_type: reader.readUInt8(),
@@ -244,15 +240,14 @@ export class InboundMotionCodec extends Codec {
 
     packet.writeUInt8(message.payload.type)
     packet.writeUInt8(message.payload.reference)
-    packet.writeUInt8(message.payload.id)
-    packet.writeUInt8(0x00) // padding
+    packet.writeUInt16LE(message.payload.id)
     packet.writeUInt16LE(message.payload.duration)
     packet.writeUInt16LE(message.payload.num_points)
 
     console.log('numpoints', message.payload.num_points)
     console.log('points', message.payload.points)
 
-    for (let index = 0; index < 5; index++) {
+    for (let index = 0; index < 4; index++) {
       const pointData = message.payload.points[index]
 
       console.log(index, pointData)
@@ -284,8 +279,7 @@ export class InboundMotionCodec extends Codec {
 
     const typ = reader.readUInt8()
     const ref = reader.readUInt8()
-    const id = reader.readUInt8()
-    reader.readUInt8() // padding
+    const id = reader.readUInt16LE()
     const dur = reader.readUInt16LE()
     const num = reader.readUInt16LE()
 
@@ -314,6 +308,85 @@ export class InboundMotionCodec extends Codec {
         reader.readInt32LE() / 1000,
         reader.readInt32LE() / 1000,
         reader.readInt32LE() / 1000,
+      ]
+
+      newPayload.points.push(point)
+    }
+    message.payload = newPayload
+    return push(message)
+  }
+}
+
+export class InboundFadeCodec extends Codec {
+  filter(message: Message): boolean {
+    return message.messageID === 'inlt'
+  }
+
+  encode(message: Message, push: PushCallback) {
+    if (message.payload === null) {
+      return push(message)
+    }
+    const packet = new SmartBuffer()
+
+    message.payload.num_points = message.payload.points.length
+
+    packet.writeUInt16LE(message.payload.id)
+    packet.writeUInt16LE(message.payload.duration)
+    packet.writeUInt8(message.payload.type)
+    packet.writeUInt16LE(message.payload.num_points)
+    packet.writeUInt16LE(0x00)
+
+    for (let index = 0; index < 2; index++) {
+      const pointData = message.payload.points[index]
+
+      console.log(index, pointData)
+
+      if (typeof pointData !== 'undefined') {
+        packet.writeFloatLE(pointData[0])
+        packet.writeFloatLE(pointData[1])
+        packet.writeFloatLE(pointData[2])
+      } else {
+        packet.writeFloatLE(0)
+        packet.writeFloatLE(0)
+        packet.writeFloatLE(0)
+      }
+    }
+
+    message.payload = packet.toBuffer()
+    console.log(message.payload)
+    return push(message)
+  }
+
+  decode(message: Message, push: PushCallback) {
+    if (message.payload === null) {
+      return push(message)
+    }
+
+    const reader = SmartBuffer.fromBuffer(message.payload)
+
+    const id = reader.readUInt16LE()
+    const dur = reader.readUInt16LE()
+    const typ = reader.readUInt8()
+    const num = reader.readUInt8()
+    reader.readUInt16LE()
+
+    const newPayload = {
+      // _INSTANT_CHANGE = 0,
+      // _LINEAR_RAMP,
+      type: typ,
+
+      // UUID for a given movement (used for tracking?)
+      id: id,
+      duration: dur, // in millis
+      num_points: num,
+      points: [],
+    }
+
+    for (let index = 0; index <= num; index++) {
+      const point = [
+        reader.readFloatLE(),
+        reader.readFloatLE(),
+        reader.readFloatLE(),
       ]
 
       newPayload.points.push(point)
@@ -371,5 +444,6 @@ export const customCodecs = [
   new MotionDataCodec(),
   new SystemStateInfoCodec(),
   new InboundMotionCodec(),
+  new InboundFadeCodec(),
   new RGBCodec(),
 ]

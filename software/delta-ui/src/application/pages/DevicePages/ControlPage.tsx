@@ -128,13 +128,10 @@ const ControlPage = (props: RouteComponentProps) => {
 
   return (
     <React.Fragment>
-      {/*
-      <IntervalRequester interval={125} variables={['moStat', 'super']} />
       <IntervalRequester
-        interval={400}
-        variables={['red', 'green', 'blue', 'leden']}
+        interval={125}
+        variables={['moStat', 'super', 'cpos']}
       />
-        */}
 
       <Grid columns={2}>
         <Cell>
@@ -345,23 +342,6 @@ const ControlPage = (props: RouteComponentProps) => {
         <Cell>
           <Card>
             <h3>RGB</h3>
-            <br />r
-            <Slider min={0} max={100} stepSize={1} labelStepSize={25}>
-              <Slider.Handle accessor="red" />
-            </Slider>
-            <br />g
-            <Slider min={0} max={100} stepSize={1} labelStepSize={25}>
-              <Slider.Handle accessor="green" />
-            </Slider>
-            <br />b
-            <Slider min={0} max={100} stepSize={1} labelStepSize={25}>
-              <Slider.Handle accessor="blue" />
-            </Slider>
-            <br />
-            leden
-            <Slider min={0} max={1} stepSize={1} labelStepSize={1}>
-              <Slider.Handle accessor="leden" />
-            </Slider>
           </Card>
         </Cell>
         <Cell>
@@ -386,19 +366,19 @@ const ControlPage = (props: RouteComponentProps) => {
                     <tr>
                       <td>X</td>
                       <td>
-                        <Printer accessor={state => state.moStat.x} /> mm
+                        <Printer accessor={state => state.cpos[0] / 1000} /> mm
                       </td>
                     </tr>
                     <tr>
                       <td>Y</td>
                       <td>
-                        <Printer accessor={state => state.moStat.y} /> mm
+                        <Printer accessor={state => state.cpos[1] / 1000} /> mm
                       </td>
                     </tr>
                     <tr>
                       <td>Z</td>
                       <td>
-                        <Printer accessor={state => state.moStat.z} /> mm
+                        <Printer accessor={state => state.cpos[2] / 1000} /> mm
                       </td>
                     </tr>
                   </tbody>

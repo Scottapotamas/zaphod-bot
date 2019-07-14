@@ -97,8 +97,6 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
         case STATE_ENTRY_SIGNAL:
         {
         	config_set_main_state(1);
-            me->selected_control_mode = CONTROL_EVENT;
-        	config_set_control_mode( CONTROL_EVENT );
 
         	//start the board hardware sensors
         	sensors_enable();
@@ -156,15 +154,15 @@ PRIVATE STATE AppTaskSupervisor_disarmed( AppTaskSupervisor *me,
 
         case MODE_TRACK:
         	me->selected_control_mode = CONTROL_TRACK;
-        	return 0;
+            return 0;
 
         case MODE_EVENT:
         	me->selected_control_mode = CONTROL_EVENT;
-        	return 0;
+            return 0;
 
         case MODE_DEMO:
         	me->selected_control_mode = CONTROL_DEMO;
-        	return 0;
+            return 0;
 
 		case STATE_EXIT_SIGNAL:
 
@@ -211,15 +209,15 @@ PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
 
         case MODE_TRACK:
         	me->selected_control_mode = CONTROL_TRACK;
-        	return 0;
+            return 0;
 
         case MODE_EVENT:
         	me->selected_control_mode = CONTROL_EVENT;
-        	return 0;
+            return 0;
 
         case MODE_DEMO:
         	me->selected_control_mode = CONTROL_DEMO;
-        	return 0;
+            return 0;
 
 		case STATE_EXIT_SIGNAL:
 			eventTimerStopIfActive(&me->timer1);
@@ -382,12 +380,12 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
 
         case MODE_TRACK:
         	me->selected_control_mode = CONTROL_TRACK;
-        	STATE_TRAN( AppTaskSupervisor_armed_change_mode );
+            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
         	return 0;
 
         case MODE_DEMO:
         	me->selected_control_mode = CONTROL_DEMO;
-        	STATE_TRAN( AppTaskSupervisor_armed_change_mode );
+            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
         	return 0;
 
 		case STATE_EXIT_SIGNAL:
@@ -466,12 +464,13 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
 
         case MODE_DEMO:
         	me->selected_control_mode = CONTROL_DEMO;
-        	STATE_TRAN( AppTaskSupervisor_armed_change_mode );
+
+            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
         	return 0;
 
         case MODE_EVENT:
         	me->selected_control_mode = CONTROL_EVENT;
-        	STATE_TRAN( AppTaskSupervisor_armed_change_mode );
+            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
 
         	return 0;
 
@@ -506,12 +505,12 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
 
         case MODE_TRACK:
         	me->selected_control_mode = CONTROL_TRACK;
-        	STATE_TRAN( AppTaskSupervisor_armed_change_mode );
+            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
         	return 0;
 
         case MODE_EVENT:
         	me->selected_control_mode = CONTROL_EVENT;
-        	STATE_TRAN( AppTaskSupervisor_armed_change_mode );
+            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
         	return 0;
 
 		case STATE_EXIT_SIGNAL:
@@ -619,16 +618,16 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
         }
 
         case MODE_TRACK:
-        	me->selected_control_mode = CONTROL_TRACK;
-        	return 0;
+            me->selected_control_mode = CONTROL_TRACK;
+            return 0;
 
         case MODE_EVENT:
-        	me->selected_control_mode = CONTROL_EVENT;
-        	return 0;
+            me->selected_control_mode = CONTROL_EVENT;
+            return 0;
 
         case MODE_DEMO:
-        	me->selected_control_mode = CONTROL_DEMO;
-        	return 0;
+            me->selected_control_mode = CONTROL_DEMO;
+            return 0;
 
         case MECHANISM_STOP:
         	STATE_TRAN( AppTaskSupervisor_disarm_graceful );

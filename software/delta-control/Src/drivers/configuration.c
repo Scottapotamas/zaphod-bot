@@ -79,11 +79,6 @@ typedef struct
 
 typedef struct
 {
-	//global position of end effector in cartesian space
-	int32_t x;
-	int32_t y;
-	int32_t z;
-
 	//pathing engine state idle, running, etc
 	uint8_t	pathing_state;
 
@@ -139,6 +134,7 @@ SystemStates_t	sys_states;
 MotionData_t 	motion_global;
 MotorData_t 	motion_servo[4];
 Movement_t 		motion_inbound;
+CartesianPoint_t current_position; //global position of end effector in cartesian space
 CartesianPoint_t target_position;
 LedSetting_t    rgb_led_drive;
 
@@ -185,11 +181,16 @@ eui_message_t ui_variables[] =
     EUI_CUSTOM("mo4", motion_servo[3]),
 #endif
 
-    EUI_CUSTOM("tpos", target_position),
+    EUI_INT32_ARRAY("tpos", target_position),
+    EUI_INT32_RO_ARRAY("cpos", current_position),
 
     //inbound movement buffer and 'add to queue' callback
     EUI_CUSTOM("inmv", motion_inbound),
     EUI_FUNC("qumv", movement_generate_event),
+
+    // inbound led animation buffer and 'add to queue'
+    EUI_CUSTOM("inlt", animation_inbound),
+    EUI_FUNC("qult", lighting_generate_event),
 
     // Event trigger callbacks
     EUI_FUNC("estop", emergency_stop_cb),
@@ -201,9 +202,6 @@ eui_message_t ui_variables[] =
     EUI_FUNC("rtrack", request_tracking_mode),
     EUI_FUNC("rdemo", request_demo_mode),
     EUI_FUNC("revent", request_event_mode),
-
-    EUI_CUSTOM("inlt", animation_inbound),
-    EUI_FUNC("qult", lighting_generate_event),
 
 };
 
@@ -415,9 +413,9 @@ config_set_temp_external( float temp )
 PUBLIC void
 config_set_position( int32_t x, int32_t y, int32_t z )
 {
-	motion_global.x = x;
-	motion_global.y = y;
-	motion_global.z = z;
+    current_position.x = x;
+    current_position.y = y;
+    current_position.z = z;
 }
 
 PUBLIC CartesianPoint_t
