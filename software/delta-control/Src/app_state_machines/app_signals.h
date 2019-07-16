@@ -40,23 +40,27 @@ enum AppSignals
 	MECHANISM_STOP,
 	MECHANISM_REHOME,
 
+    MOTION_HOMED,			// all motors have homed without detected error
+    MOTION_ERROR,			// error while homing
+    MOTION_DISABLED,
+
     /* Motion Handler Signals */
 	MOTION_PREPARE,			// Start n-axis homing process
-	MOTION_ADD_REQUEST,     // Provide movement information for queue processing
 	MOTION_EMERGENCY,       // Kill motors immediately
-	MOTION_CLEAR_QUEUE,		// empty out pending movements
 
-	MOTION_HOMED,			// all motors have homed without detected error
-	MOTION_ERROR,			// error while homing
-	MOTION_DISABLED,
+    MOTION_QUEUE_START,
+    MOTION_QUEUE_PAUSE,
+    MOTION_QUEUE_ADD,       // Provide movement information for queue processing
+    MOTION_QUEUE_CLEAR,	    // empty out pending movements
+
+    PATHING_COMPLETE,   // finished moving along a provided profile path
 
     /* LED Handler Signals */
-    LED_ADD_REQUEST,    // Provide led animation object to queue
     LED_OFF,            // Turn off led immediately, clear the queue
+    LED_QUEUE_START,
+    LED_QUEUE_PAUSE,
+    LED_QUEUE_ADD,      // Provide led animation object to queue
     LED_CLEAR_QUEUE,	// empty pending animations
-
-    SYSTEM_QUEUE_START,
-    SYSTEM_QUEUE_PAUSE,
 
     /* Last Available Signal - Don't Remove This */
     STATE_MAX_SIGNAL

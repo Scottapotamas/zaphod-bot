@@ -146,6 +146,9 @@ PRIVATE void start_mech_cb( void );
 PRIVATE void stop_mech_cb( void );
 PRIVATE void emergency_stop_cb( void );
 PRIVATE void home_mech_cb( void );
+PRIVATE void execute_motion_queue( void );
+PRIVATE void pause_motion_queue_execution( void );
+PRIVATE void clear_motion_queue( void );
 
 PRIVATE void request_tracking_mode( void );
 PRIVATE void request_demo_mode( void );
@@ -187,6 +190,9 @@ eui_message_t ui_variables[] =
     //inbound movement buffer and 'add to queue' callback
     EUI_CUSTOM("inmv", motion_inbound),
     EUI_FUNC("qumv", movement_generate_event),
+    EUI_FUNC("stmv", execute_motion_queue),
+    EUI_FUNC("clmv", clear_motion_queue),
+    EUI_FUNC("psmv", pause_motion_queue_execution),
 
     // inbound led animation buffer and 'add to queue'
     EUI_CUSTOM("inlt", animation_inbound),
@@ -538,11 +544,26 @@ PRIVATE void movement_generate_event( void )
 	   }
 }
 
+PRIVATE void execute_motion_queue( void )
+{
+    eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
+}
+
+PRIVATE void pause_motion_queue_execution( void )
+{
+    eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_PAUSE ) );
+}
+
+PRIVATE void clear_motion_queue( void )
+{
+    eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
+}
+
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void lighting_generate_event( void )
 {
-    LightingPlannerEvent *lighting_request = EVENT_NEW( LightingPlannerEvent, LED_ADD_REQUEST );
+    LightingPlannerEvent *lighting_request = EVENT_NEW( LightingPlannerEvent, LED_QUEUE_ADD );
 
     if(lighting_request)
     {

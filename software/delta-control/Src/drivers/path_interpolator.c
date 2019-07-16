@@ -3,10 +3,12 @@
 #include <string.h>
 #include <float.h>
 #include <math.h>
+#include <app_state_machines/app_signals.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "path_interpolator.h"
+#include "event_subscribe.h"
 #include "motion_types.h"
 #include "kinematics.h"
 #include "clearpath.h"
@@ -199,7 +201,8 @@ path_interpolator_process( void )
             	{
             		//movement is complete, the planner can stop now
             		STATE_NEXT( PLANNER_OFF );
-            	}
+                    eventPublish( EVENT_NEW( StateEvent, PATHING_COMPLETE ) );
+                }
             	else
             	{
                 	switch( move->type )

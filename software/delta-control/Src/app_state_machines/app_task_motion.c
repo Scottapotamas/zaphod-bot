@@ -81,8 +81,12 @@ PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __att
 {
     eventSubscribe( (StateTask*)me, MOTION_PREPARE );
     eventSubscribe( (StateTask*)me, MOTION_EMERGENCY );
-    eventSubscribe( (StateTask*)me, MOTION_ADD_REQUEST );
-    eventSubscribe( (StateTask*)me, MOTION_CLEAR_QUEUE );
+    eventSubscribe( (StateTask*)me, MOTION_QUEUE_ADD );
+    eventSubscribe( (StateTask*)me, MOTION_QUEUE_CLEAR );
+    eventSubscribe( (StateTask*)me, MOTION_QUEUE_START );
+    eventSubscribe( (StateTask*)me, MOTION_QUEUE_PAUSE );
+
+    eventSubscribe( (StateTask*)me, PATHING_COMPLETE );
 
     kinematics_init();
     path_interpolator_init();
@@ -172,13 +176,13 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
 			return 0;
 
-        case MOTION_ADD_REQUEST:
+        case MOTION_QUEUE_ADD:
         	{
 				MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
 
 				// Add the movement request to the queue if we have room
 				uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
-				if( queue_usage <= 40 )
+				if( queue_usage <= MOVEMENT_QUEUE_DEPTH_MAX )
 				{
 					if( mpe->move.duration)
 					{
@@ -210,17 +214,24 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
+            config_set_motion_state( TASKSTATE_MOTION_INACTIVE );
 
             // Check for queued events
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
-            config_set_motion_state( TASKSTATE_MOTION_INACTIVE );
 
+            // Continuously check that the servo's are still happy while holding position
         	eventTimerStartEvery( &me->timer1,
                                  (StateTask* )me,
                                  (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
                                  MS_TO_TICKS( SERVO_HOMING_SUPERVISOR_CHECK_MS ) );
 
         	return 0;
+
+        case STATE_STEP1_SIGNAL:
+            // Check the queue for pending movements and update the UI
+            config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+
+            return 0;
 
         case STATE_TIMEOUT1_SIGNAL:
         	//check all the servos are active
@@ -240,31 +251,49 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
         	}
 			return 0;
 
-        case STATE_STEP1_SIGNAL:
-        {
-            // Check the queue for pending movements
-        	MotionPlannerEvent * next = (MotionPlannerEvent*)eventQueueGet( &me->super.requestQueue );
-
-        	if( next )
-            {
-                /* Setup next movement */
-                me->mpe = *next;
-                eventPoolGarbageCollect( (StateEvent*)next );
-                STATE_TRAN( AppTaskMotion_active );
-            }
-			config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
-
-            return 0;
-        }
-
-        case MOTION_ADD_REQUEST:
+        case MOTION_QUEUE_ADD:
 			{
-				//want to do a movement, process immediately without the queue
-				MotionPlannerEvent *ape = (MotionPlannerEvent*)e;
-				me->mpe = *ape; /* Save event */
-				STATE_TRAN( AppTaskMotion_active );
+                MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
+
+                // Add the movement request to the queue if we have room
+                uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
+                if( queue_usage <= MOVEMENT_QUEUE_DEPTH_MAX )
+                {
+                    if( mpe->move.duration)
+                    {
+                        eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
+                    }
+                }
+                else
+                {
+                    //queue full, clearly the input motion processor isn't abiding by the spec.
+                    //shutdown
+                    eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
+                    STATE_TRAN( AppTaskMotion_recovery );
+                }
+                config_set_motion_queue_depth( queue_usage );
+
 			}
 			return 0;
+
+        case MOTION_QUEUE_CLEAR:
+        {
+            // Empty the queue
+            StateEvent * next = eventQueueGet( &me->super.requestQueue );
+            while( next )
+            {
+                eventPoolGarbageCollect( (StateEvent*)next );
+                next = eventQueueGet( &me->super.requestQueue );
+            }
+
+            //update UI with queue content count
+            config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+        }
+            return 0;
+
+        case MOTION_QUEUE_START:
+            STATE_TRAN( AppTaskMotion_active );
+            return 0;
 
         case MOTION_EMERGENCY:
         	STATE_TRAN( AppTaskMotion_recovery );
@@ -284,53 +313,51 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
     switch( e->signal )
     {
 		case STATE_ENTRY_SIGNAL:
-			{
-				Movement_t * current_move = &me->mpe.move;
-
-				//send the current movement pointer to the pathing engine
-				path_interpolator_set_objective( current_move );
-
-				//we expect the move to be completed within the specified duration
-				//check back with the pathing engine when that duration is up
-				eventTimerStartOnce( &me->timer1,
-									 (StateTask* )me,
-									 (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
-									 current_move->duration + 1 );
-
 	            config_set_motion_state( TASKSTATE_MOTION_ACTIVE );
-
-			}
+                stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
 			return 0;
 
-        case STATE_TIMEOUT1_SIGNAL:
-
-        	if( path_interpolator_get_move_done() )
-        	{
-            	STATE_TRAN( AppTaskMotion_inactive );
-        	}
-        	else
-        	{
-        		//check back in a millisecond
-        		eventTimerStartOnce( &me->timer1,
-									 (StateTask* )me,
-									 (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
-									 1 );
-        	}
-
-        	return 0;
-
         case STATE_STEP1_SIGNAL:
-        	if( eventTimerIsActive(&me->timer1) )
-        	{
-            	if( path_interpolator_get_move_done() )
-            	{
-                	STATE_TRAN( AppTaskMotion_inactive );
-            	}
-        	}
+            {
+                // check for pending events in the queue
+                uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
 
+                if( queue_usage )
+                {
+                    // grab an event off the queue
+                    StateEvent * next = eventQueueGet( &me->super.requestQueue );
+
+                    // start up the pathing engine
+                    if(next)
+                    {
+                        MotionPlannerEvent *ape = (MotionPlannerEvent*)next;
+                        Movement_t * next_move = &ape->move;
+
+                        path_interpolator_set_objective(next_move);
+
+                        // remove it from the queue
+                        eventPoolGarbageCollect( (StateEvent*)next );
+                    }
+                }
+                else
+                {
+                    // no events in the queue
+                    STATE_TRAN( AppTaskMotion_inactive );
+                }
+                config_set_motion_queue_depth( queue_usage );
+
+            }
             return 0;
 
-        case MOTION_ADD_REQUEST:
+        case PATHING_COMPLETE:
+            // the pathing engine has completed the movement execution, loop around to process another event
+            if( path_interpolator_get_move_done() )
+            {
+                stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+            }
+            return 0;
+
+        case MOTION_QUEUE_ADD:
         	{
         		//already in motion, so add this one to the queue
 				MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
@@ -342,7 +369,6 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 					if( mpe->move.duration)
 					{
 						eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
-			            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
 					}
 				}
 				else
@@ -356,7 +382,7 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
         	}
         	return 0;
 
-        case MOTION_CLEAR_QUEUE:
+        case MOTION_QUEUE_CLEAR:
         	{
 				// Empty the queue
 				StateEvent * next = eventQueueGet( &me->super.requestQueue );
@@ -366,10 +392,16 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 					next = eventQueueGet( &me->super.requestQueue );
 				}
 
-				//update UI with queue content count
-				config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+                //update UI with queue content count
+                config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+
+                STATE_TRAN( AppTaskMotion_inactive );   //go back to idle, no point being active with a drained queue
         	}
         	return 0;
+
+        case MOTION_QUEUE_PAUSE:
+            STATE_TRAN( AppTaskMotion_inactive );
+            return 0;
 
         case MOTION_EMERGENCY:
         	STATE_TRAN( AppTaskMotion_recovery );

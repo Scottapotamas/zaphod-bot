@@ -345,7 +345,7 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
         case MECHANISM_REHOME:
         	{
 	        	//request a move to 0,0,0
-				MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_ADD_REQUEST );
+				MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
 				motev->move.type = _POINT_TRANSIT;
 				motev->move.ref = _POS_ABSOLUTE;
 				motev->move.duration = 1500;
@@ -366,7 +366,7 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
 			MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
 
 			// Create event to pass event for motion handler
-     	    MotionPlannerEvent *motion_request = EVENT_NEW( MotionPlannerEvent, MOTION_ADD_REQUEST );
+     	    MotionPlannerEvent *motion_request = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
 
 			if(motion_request)
 			{
@@ -424,7 +424,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
 
         	if( !x_deadband || !y_deadband || !z_deadband )
         	{
-				MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_ADD_REQUEST );
+				MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
 				motev->move.type = _POINT_TRANSIT;
 				motev->move.ref = _POS_ABSOLUTE;
 				motev->move.duration = 90;
@@ -449,7 +449,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
         case MECHANISM_REHOME:
         	{
 	        	//request a move to 0,0,0
-				MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_ADD_REQUEST );
+				MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
 				motev->move.type = _POINT_TRANSIT;
 				motev->move.ref = _POS_ABSOLUTE;
 				motev->move.duration = 1500;
@@ -530,7 +530,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
         	config_set_control_mode( CONTROL_CHANGING );
 
         	//empty out the motion queue
-            eventPublish( EVENT_NEW( StateEvent, MOTION_CLEAR_QUEUE ) );
+            eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
 
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
 
@@ -571,7 +571,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
         	else
         	{
             	//request a move to 0,0,0
-    			MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_ADD_REQUEST );
+    			MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
     			motev->move.type = _POINT_TRANSIT;
     			motev->move.ref = _POS_ABSOLUTE;
     			motev->move.duration = 800;
@@ -657,7 +657,7 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
         	config_set_main_state(7);
 
         	//empty out the motion queue
-            eventPublish( EVENT_NEW( StateEvent, MOTION_CLEAR_QUEUE ) );
+            eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
 
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
 
@@ -676,7 +676,7 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
         case STATE_STEP1_SIGNAL:
         {
         	//request a move to 0,0,0
-			MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_ADD_REQUEST );
+			MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
 
 			//transit to starting position
 			motev->move.type = _POINT_TRANSIT;

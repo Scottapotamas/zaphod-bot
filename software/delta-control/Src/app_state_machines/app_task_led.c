@@ -66,8 +66,10 @@ PRIVATE void AppTaskLedConstructor( AppTaskLed *me )
 PRIVATE void AppTaskLed_initial( AppTaskLed *me, const StateEvent *e __attribute__((__unused__)) )
 {
     eventSubscribe( (StateTask*)me, LED_OFF );
-    eventSubscribe( (StateTask*)me, LED_ADD_REQUEST );
+    eventSubscribe( (StateTask*)me, LED_QUEUE_ADD );
     eventSubscribe( (StateTask*)me, LED_CLEAR_QUEUE );
+    eventSubscribe( (StateTask*)me, LED_QUEUE_START );
+    eventSubscribe( (StateTask*)me, LED_QUEUE_PAUSE );
 
     led_interpolator_init();
 
@@ -127,7 +129,7 @@ PRIVATE STATE AppTaskLed_inactive( AppTaskLed *me, const StateEvent *e )
             return 0;
         }
 
-        case LED_ADD_REQUEST:
+        case LED_QUEUE_ADD:
 			{
 				//want to do a animation, process immediately without the queue
 				LightingPlannerEvent *ape = (LightingPlannerEvent*)e;
@@ -197,7 +199,7 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
 
             return 0;
 
-        case LED_ADD_REQUEST:
+        case LED_QUEUE_ADD:
         {
             //already in motion, so add this one to the queue
             LightingPlannerEvent *lpe = (LightingPlannerEvent*)e;
