@@ -156,14 +156,10 @@ PUBLIC void
 config_set_led_status( uint8_t status );
 
 PUBLIC void
+config_set_led_values(uint8_t red, uint8_t green, uint8_t blue);
+
+PUBLIC void
 config_set_led_queue_depth( uint8_t utilisation );
-
-
-
-PUBLIC uint8_t config_get_led_red( void );
-PUBLIC uint8_t config_get_led_green( void );
-PUBLIC uint8_t config_get_led_blue( void );
-PUBLIC uint8_t config_get_led_enable( void );
 
 
 /* ----- End ---------------------------------------------------------------- */

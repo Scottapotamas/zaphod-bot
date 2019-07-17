@@ -31,6 +31,7 @@ PUBLIC void
 led_enable( bool enable )
 {
     hal_gpio_write_pin( _AUX_ANALOG_0, enable );
+    config_set_led_status(enable);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -52,6 +53,8 @@ led_set( float r, float g, float b )
     hal_pwm_set( _PWM_TIM_AUX_0, r_duty);
     hal_pwm_set( _PWM_TIM_AUX_2, g_duty);
     hal_pwm_set( _PWM_TIM_AUX_1, b_duty);
+
+    config_set_led_values(r_duty, g_duty, b_duty);
 }
 
 /* ----- End ---------------------------------------------------------------- */

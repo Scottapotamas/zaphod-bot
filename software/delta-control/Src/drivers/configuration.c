@@ -108,6 +108,7 @@ typedef struct
     uint8_t green;
     uint8_t blue;
     uint8_t enable;
+    uint8_t queue_depth;
 } LedSetting_t;
 
 
@@ -156,6 +157,7 @@ PRIVATE void request_event_mode( void );
 
 PRIVATE void movement_generate_event( void );
 PRIVATE void lighting_generate_event( void );
+PRIVATE void sync_begin_queues( void );
 
 eui_message_t ui_variables[] =
 {
@@ -491,14 +493,24 @@ config_motor_target_angle( uint8_t servo, float angle )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-config_set_led_status( uint8_t status ) {
-    //todo
+config_set_led_status( uint8_t enabled )
+{
+    rgb_led_drive.enable = enabled;
+}
+
+PUBLIC void
+config_set_led_values( uint8_t red, uint8_t green, uint8_t blue)
+{
+    rgb_led_drive.red = red;
+    rgb_led_drive.green = green;
+    rgb_led_drive.blue = blue;
+
 }
 
 PUBLIC void
 config_set_led_queue_depth( uint8_t utilisation )
 {
-    //todo
+    rgb_led_drive.queue_depth = utilisation;
 }
 
 
