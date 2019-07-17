@@ -46,11 +46,9 @@ const DetailPage = (props: RouteComponentProps) => {
 
   return (
     <div>
-      {/*
       <IntervalRequester interval={350} variables={['fan']} />
       <IntervalRequester interval={500} variables={['temp']} />
       <IntervalRequester interval={200} variables={['mo1', 'mo2', 'mo3']} />
-      */}
 
       <Card style={{ maxWidth: '80%', marginLeft: '10%' }}>
         <Grid columns={2}>

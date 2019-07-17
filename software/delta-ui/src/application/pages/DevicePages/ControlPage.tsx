@@ -111,7 +111,7 @@ const ArmControlButton = () => {
   if (!isArmed) {
     return (
       <Button fill large intent="warning" writer={{ arm: CALL_CALLBACK }}>
-        Arm
+        Arm ({supervisor})
       </Button>
     )
   }
@@ -136,11 +136,62 @@ const ControlPage = (props: RouteComponentProps) => {
       <Grid columns={2}>
         <Cell>
           <Card>
+            <br />
+            <Button
+              writer={{
+                inlt: {
+                  type: 1,
+                  id: 0,
+                  duration: 1500,
+                  points: [[0.0, 0, 0.0], [0.4, 1, 0.3]],
+                },
+                qult: CALL_CALLBACK,
+              }}
+            >
+              Animate LED
+            </Button>
+
             <Button writer={{ revent: CALL_CALLBACK }}>Event Mode</Button>
             <br />
             <Button writer={{ rdemo: CALL_CALLBACK }}>Demo Mode</Button>
             <br />
-
+            {/* <Button
+              writer={[
+                {
+                  inmv: {
+                    type: 0,
+                    reference: 1,
+                    id: 0,
+                    duration: 400,
+                    points: [[0, 0, 5]],
+                  },
+                  qumv: CALL_CALLBACK,
+                },
+                {
+                  inmv: {
+                    type: 0,
+                    reference: 1,
+                    id: 0,
+                    duration: 400,
+                    points: [[0, 0, 5]],
+                  },
+                  qumv: CALL_CALLBACK,
+                },
+                {
+                  inmv: {
+                    type: 0,
+                    reference: 1,
+                    id: 0,
+                    duration: 400,
+                    points: [[0, 0, 5]],
+                  },
+                  qumv: CALL_CALLBACK,
+                },
+              ]}
+            >
+              Up
+            </Button>
+            */}
             <br />
             <Button
               writer={{
@@ -337,6 +388,16 @@ const ControlPage = (props: RouteComponentProps) => {
             >
               Catmull 4
             </Button>
+
+            <br />
+            <br />
+            <br />
+            <br />
+            <br />
+            <Button writer={{ stmv: CALL_CALLBACK }}>Start queue</Button>
+            <Button writer={{ psmv: CALL_CALLBACK }}>Pause queue</Button>
+            <Button writer={{ clmv: CALL_CALLBACK }}>Clear queue</Button>
+            <br />
           </Card>
         </Cell>
         <Cell>
