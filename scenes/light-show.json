@@ -1,0 +1,118 @@
+{
+  "metadata": {
+    "name": "Light Show Test",
+    "formatVersion": "0.0.1"
+  },
+  "actions": [
+    {
+      "light": [
+        {
+          "id": 0,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 0,
+            "duration": 2000,
+            "points": [[1.0, 0, 0.3], [1.0, 0, 0]]
+          },
+          "comment": "  white"
+        },
+        {
+          "id": 0,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 0,
+            "duration": 3000,
+            "points": [[0.0, 1, 0.3], [0, 1, 0]]
+          },
+          "comment": "  red"
+        },
+        {
+          "id": 0,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 0,
+            "duration": 4000,
+            "points": [[0.3, 1, 0.3], [0.3, 1, 0]]
+          },
+          "comment": "  green"
+        },
+        {
+          "id": 0,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 0,
+            "duration": 5000,
+            "points": [[0.6, 1, 0.3], [0.6, 1, 0]]
+          },
+          "comment": "  blue"
+        }
+      ],
+      "delta": [
+        {
+          "id": 0,
+          "action": "queue_movement",
+          "payload": {
+            "type": 0,
+            "reference": 0,
+            "id": 0,
+            "duration": 1500,
+            "points": [[0, 0, 15]]
+          },
+          "comment": "  home"
+        },
+        {
+          "id": 0,
+          "action": "queue_movement",
+          "payload": {
+            "type": 0,
+            "reference": 1,
+            "id": 0,
+            "duration": 500,
+            "points": [[0, 0, 50]]
+          },
+          "comment": "  up"
+        },
+        {
+          "id": 0,
+          "action": "queue_movement",
+          "payload": {
+            "type": 0,
+            "reference": 1,
+            "id": 0,
+            "duration": 500,
+            "points": [[-50, 0, 0]]
+          },
+          "comment": "  left"
+        },
+        {
+          "id": 0,
+          "action": "queue_movement",
+          "payload": {
+            "type": 0,
+            "reference": 1,
+            "id": 0,
+            "duration": 500,
+            "points": [[0, 0, -50]]
+          },
+          "comment": "  down"
+        },
+        {
+          "id": 0,
+          "action": "queue_movement",
+          "payload": {
+            "type": 0,
+            "reference": 1,
+            "id": 0,
+            "duration": 500,
+            "points": [[50, 0, 0]]
+          },
+          "comment": "  right"
+        }
+      ]
+    }
+  ]
+}

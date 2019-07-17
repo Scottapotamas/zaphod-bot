@@ -11,6 +11,7 @@ import {
 import { HintValidatorBinaryHandshake } from '@electricui/protocol-binary'
 import { BinaryConnectionHandshake } from '@electricui/protocol-binary-connection-handshake'
 import { MessageQueueBinaryFIFO } from '@electricui/protocol-binary-fifo-queue'
+import { ActionsPlugin } from '@electricui/core-actions'
 
 import {
   ProcessBatteryPercentage,
@@ -27,6 +28,7 @@ import {
   usbToSerialTransformer,
 } from './serial'
 import { websocketConsumer } from './websocket'
+import actions from './actions'
 
 //import { bleConsumer, bleProducer } from './ble'
 
@@ -124,6 +126,10 @@ deviceManager.addConnectionMetadataRules([
     },
   ),
 ])
+const actionsPlugin = new ActionsPlugin()
+actionsPlugin.addActions(actions)
+
+deviceManager.addPlugins([actionsPlugin])
 
 // start polling immediately!
 deviceManager.poll()

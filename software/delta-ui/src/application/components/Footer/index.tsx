@@ -21,7 +21,7 @@ const QueueText = () => {
     return <div>{queue_depth} queued</div>
   }
 
-  return <div>Queue Empty</div>
+  return <div>Queue Emptyish</div>
 }
 
 const Footer = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {

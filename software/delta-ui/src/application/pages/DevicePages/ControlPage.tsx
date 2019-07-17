@@ -1,4 +1,3 @@
-import React from 'react'
 import { RouteComponentProps } from '@reach/router'
 import {
   ProgressBar,
@@ -16,17 +15,86 @@ import {
   Label,
   Text,
   HTMLTable,
+  Button as BlueprintButton,
 } from '@blueprintjs/core'
 import { Grid, Cell } from 'styled-css-grid'
-import { Chart } from '@electricui/components-desktop-charts'
+
 import { useDarkMode } from '@electricui/components-desktop'
 import {
   IntervalRequester,
   useHardwareState,
   StateTree,
 } from '@electricui/components-core'
+
 import { CALL_CALLBACK } from '@electricui/core'
 import { SUPERVISOR_STATES } from './../../../transport-manager/config/codecs'
+import React, { useEffect, ReactElement } from 'react'
+import { useTriggerAction } from '@electricui/core-actions'
+
+import { useExtractSceneName } from './../../hooks/useExtractSceneName'
+import { useOpenDialog } from './../../hooks/useOpenDialog'
+
+const OpenSceneButton = () => {
+  const [filePath, selectFile] = useOpenDialog('json', 'Open a scene file')
+  const sceneName = useExtractSceneName(filePath)
+  const triggerAction = useTriggerAction()!
+
+  let RunSceneButton: ReactElement | null = null
+
+  if (filePath !== '') {
+    RunSceneButton = (
+      <BlueprintButton
+        onClick={() =>
+          triggerAction('load_scene', { filePath }).catch(e => {
+            console.error(e)
+          })
+        }
+        style={{ marginLeft: 10 }}
+      >
+        Run {sceneName}
+      </BlueprintButton>
+    )
+  }
+
+  return (
+    <>
+      <BlueprintButton onClick={selectFile} style={{ marginLeft: 10 }}>
+        Open Scene
+      </BlueprintButton>
+      {RunSceneButton}
+    </>
+  )
+}
+
+const SceneSelectionButtons = () => {
+  const [filePath, selectFolder] = useOpenDialog(
+    'folder',
+    'Select folder for saving',
+  )
+
+  const triggerAction = useTriggerAction()
+
+  // Save the save path every time we select a new path
+  useEffect(() => {
+    triggerAction('set_save_path', filePath)
+  }, [filePath])
+
+  let filePathValid = true
+
+  if (filePath === '') {
+    filePathValid = false
+  }
+
+  return (
+    <React.Fragment>
+      <BlueprintButton onClick={selectFolder}>
+        Select Camera Save Location
+      </BlueprintButton>
+
+      {filePathValid ? <OpenSceneButton /> : null}
+    </React.Fragment>
+  )
+}
 
 const SupervisorState = () => {
   const supervisor_state = useHardwareState(state => state.super.supervisor)
@@ -403,6 +471,7 @@ const ControlPage = (props: RouteComponentProps) => {
         <Cell>
           <Card>
             <h3>RGB</h3>
+            <SceneSelectionButtons />
           </Card>
         </Cell>
         <Cell>

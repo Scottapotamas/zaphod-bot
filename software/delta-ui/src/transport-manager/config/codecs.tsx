@@ -1,6 +1,5 @@
 import { Codec, Message, PushCallback } from '@electricui/core'
 import { SmartBuffer } from 'smart-buffer'
-import { any } from 'prop-types'
 
 export class SystemDataCodec extends Codec {
   filter(message: Message): boolean {
@@ -222,6 +221,30 @@ export class SystemStateInfoCodec extends Codec {
   }
 }
 
+export enum MovementMoveType {
+  POINT_TRANSIT = 0,
+  LINE,
+  CATMULL_SPLINE,
+  BEZIER_QUADRATIC,
+  BEZIER_CUBIC,
+}
+
+export enum MovementMoveReference {
+  ABSOLUTE = 0,
+  RELATIVE,
+}
+
+export type MovementPoint = [number, number, number] // mm
+
+export type MovementMove = {
+  id: number
+  duration: number
+  type: MovementMoveType
+  reference: MovementMoveReference
+  points: Array<MovementPoint>
+  num_points?: number
+}
+
 /**
  * There's the possibility that the message payload is not being created each time
  */
@@ -283,7 +306,7 @@ export class InboundMotionCodec extends Codec {
     const dur = reader.readUInt16LE()
     const num = reader.readUInt16LE()
 
-    const newPayload = {
+    const newPayload: MovementMove = {
       // _POINT_TRANSIT = 0,
       // _LINE,
       // _CATMULL_SPLINE,
@@ -304,7 +327,7 @@ export class InboundMotionCodec extends Codec {
     }
 
     for (let index = 0; index <= num; index++) {
-      const point = [
+      const point: MovementPoint = [
         reader.readInt32LE() / 1000,
         reader.readInt32LE() / 1000,
         reader.readInt32LE() / 1000,
@@ -315,6 +338,25 @@ export class InboundMotionCodec extends Codec {
     message.payload = newPayload
     return push(message)
   }
+}
+
+export enum LightMoveType {
+  IMMEDIATE,
+  RAMP,
+}
+
+export type Hue = number
+export type Saturation = number
+export type Intensity = number
+
+export type LightPoint = [Hue, Saturation, Intensity]
+
+export type LightMove = {
+  id: number
+  duration: number
+  type: LightMoveType
+  points: Array<LightPoint>
+  num_points?: number
 }
 
 export class InboundFadeCodec extends Codec {
@@ -371,7 +413,7 @@ export class InboundFadeCodec extends Codec {
     const num = reader.readUInt8()
     reader.readUInt16LE()
 
-    const newPayload = {
+    const newPayload: LightMove = {
       // _INSTANT_CHANGE = 0,
       // _LINEAR_RAMP,
       type: typ,
@@ -384,7 +426,7 @@ export class InboundFadeCodec extends Codec {
     }
 
     for (let index = 0; index <= num; index++) {
-      const point = [
+      const point: LightPoint = [
         reader.readFloatLE(),
         reader.readFloatLE(),
         reader.readFloatLE(),
