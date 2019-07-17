@@ -11,6 +11,8 @@ declare const module: any
 
 import React from 'react'
 import ReactDOM from 'react-dom'
+import { setupSettingsListenersApplication } from '@electricui/utility-electron'
+setupSettingsListenersApplication()
 
 import { configureStore } from './state'
 import Root from './Root'

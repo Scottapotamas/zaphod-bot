@@ -1,13 +1,22 @@
-import { app, BrowserWindow } from 'electron'
+import { app, BrowserWindow, Menu } from 'electron'
 import { join as pathJoin } from 'path'
 import { format as formatUrl } from 'url'
 
 import {
   installDevTools,
   setupElectricUIHandlers,
+  setupSettingsListenersWindowManager,
+  setupSettingsPathing,
+  setSettingFromWinManager,
+  getSettingFromWinManager,
+  fetchSystemDarkModeFromWinManager,
 } from '@electricui/utility-electron'
 
 const isDevelopment = process.env.NODE_ENV !== 'production'
+
+// Setup persistent settings helpers
+setupSettingsPathing()
+setupSettingsListenersWindowManager()
 
 // global reference to mainWindows (necessary to prevent window from being garbage collected)
 let mainWindows: Array<BrowserWindow> = []
@@ -107,3 +116,132 @@ app.on('ready', () => {
 })
 
 setupElectricUIHandlers(mainWindows)
+
+/**
+ * Setup our main menu bar
+ */
+
+const isMac = process.platform === 'darwin'
+
+const template = [
+  // { role: 'appMenu' }
+  ...(isMac
+    ? [
+        {
+          label: app.getName(),
+          submenu: [
+            { role: 'about', label: 'About Electric UI' },
+            { type: 'separator' },
+            { role: 'services' },
+            { type: 'separator' },
+            { role: 'hide' },
+            { role: 'hideothers' },
+            { role: 'unhide' },
+            { type: 'separator' },
+            { role: 'quit' },
+          ],
+        },
+      ]
+    : []),
+  // { role: 'fileMenu' }
+  {
+    label: 'File',
+    submenu: [{ role: 'quit', label: 'Quit Electric UI' }], // isMac ? { role: 'close' } : { role: 'quit' }
+  },
+  // { role: 'editMenu' }
+  {
+    label: 'Edit',
+    submenu: [
+      { role: 'undo' },
+      { role: 'redo' },
+      { type: 'separator' },
+      { role: 'cut' },
+      { role: 'copy' },
+      { role: 'paste' },
+      ...(isMac
+        ? [
+            { role: 'pasteAndMatchStyle' },
+            { role: 'delete' },
+            { role: 'selectAll' },
+            { type: 'separator' },
+            {
+              label: 'Speech',
+              submenu: [{ role: 'startspeaking' }, { role: 'stopspeaking' }],
+            },
+          ]
+        : [{ role: 'delete' }, { type: 'separator' }, { role: 'selectAll' }]),
+    ],
+  },
+  // { role: 'viewMenu' }
+  {
+    label: 'View',
+    submenu: [
+      // Dark mode!
+      {
+        label: 'Toggle Dark Mode',
+        click: () => {
+          const userDark = getSettingFromWinManager('darkMode', null)
+
+          if (userDark === null) {
+            // if the user mode is not set, set the dark mode to the opposite of the current system dark mode
+            const sys = fetchSystemDarkModeFromWinManager()
+
+            setSettingFromWinManager('darkMode', !sys)
+            return
+          }
+
+          setSettingFromWinManager('darkMode', !userDark)
+        },
+      },
+      {
+        label: 'Use system dark mode',
+        click: () => {
+          setSettingFromWinManager('darkMode', null)
+        },
+      },
+
+      { type: 'separator' },
+      { role: 'reload' },
+      { role: 'forcereload' },
+      { role: 'toggledevtools' },
+      { type: 'separator' },
+      { role: 'resetzoom' },
+      { role: 'zoomin' },
+      { role: 'zoomout' },
+      { type: 'separator' },
+      { role: 'togglefullscreen' },
+    ],
+  },
+  // { role: 'windowMenu' }
+  {
+    label: 'Window',
+    submenu: [
+      { role: 'minimize' },
+      { role: 'zoom' },
+      ...(isMac
+        ? [
+            { type: 'separator' },
+            { role: 'front' },
+            { type: 'separator' },
+            { role: 'window' },
+          ]
+        : [{ role: 'close' }]),
+    ],
+  },
+  {
+    role: 'help',
+    submenu: [
+      {
+        label: 'Learn More about Electric UI',
+        click() {
+          require('electron').shell.openExternal('https://electricui.com')
+        },
+      },
+    ],
+  },
+]
+
+const menu = Menu.buildFromTemplate(
+  template as Electron.MenuItemConstructorOptions[],
+)
+Menu.setApplicationMenu(menu)
