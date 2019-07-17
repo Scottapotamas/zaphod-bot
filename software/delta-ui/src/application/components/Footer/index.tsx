@@ -3,6 +3,7 @@ import { RouteComponentProps } from '@reach/router'
 import {
   IntervalRequester,
   useHardwareState,
+  Accessor,
 } from '@electricui/components-core'
 import { Navbar, Alignment, Text } from '@blueprintjs/core'
 import { Button } from '@electricui/components-desktop-blueprint'
@@ -18,10 +19,24 @@ const QueueText = () => {
   const queue_depth = useHardwareState(state => state.moStat.queue_depth)
 
   if (queue_depth > 0) {
-    return <div>{queue_depth} queued</div>
+    return <div>{queue_depth} queued movements</div>
   }
 
-  return <div>Queue Emptyish</div>
+  return <div>Movement Queue Empty</div>
+}
+
+const LEDQueueText = () => {
+  const queue_depth = useHardwareState(state => state.rgb.queue_depth)
+
+  if (queue_depth > 0) {
+    return <div>{queue_depth} queued lightpoints</div>
+  }
+
+  return <div>Lighting Queue Empty</div>
+}
+
+function s(accessor: Accessor) {
+  return accessor
 }
 
 const Footer = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
@@ -45,6 +60,10 @@ const Footer = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
             <Navbar.Divider />
             <Text>
               <QueueText />
+            </Text>
+            <Navbar.Divider />
+            <Text>
+              <LEDQueueText />
             </Text>
           </Navbar.Group>
 

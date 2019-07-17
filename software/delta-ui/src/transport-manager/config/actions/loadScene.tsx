@@ -61,6 +61,7 @@ let inUse = false
 
 async function parseScene(filePath: string, runAction: RunActionFunction) {
   if (inUse) {
+    console.warn("I'm in use")
     return
   }
   inUse = true

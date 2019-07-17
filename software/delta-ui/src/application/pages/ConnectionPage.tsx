@@ -2,7 +2,7 @@ import { ipcRenderer } from 'electron'
 import React from 'react'
 
 import { Button } from '@blueprintjs/core'
-import { Connections } from '@electricui/components-desktop-blueprint'
+import { Connections } from '../components/ConnectionDeviceList'
 import { RouteComponentProps } from '@reach/router'
 import { navigate } from '@electricui/utility-electron'
 

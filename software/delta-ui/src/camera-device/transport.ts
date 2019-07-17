@@ -33,6 +33,7 @@ export default class CameraTransport extends Transport {
   GPhoto: typeof GPhoto
   camera: GPhoto.Camera | null = null
   port: string
+  device: GPhoto.ICamera | null = null
 
   constructor(options: CameraTransportOptions) {
     super(options)
@@ -73,6 +74,7 @@ export default class CameraTransport extends Transport {
     const cameraList = new this.GPhoto.CameraList().load()
 
     let camera: GPhoto.Camera | null = null
+    let storedDevice: GPhoto.ICamera | null = null
 
     for (const [index, device] of cameraList.toArray().entries()) {
       if (device.port === this.port) {
@@ -80,6 +82,7 @@ export default class CameraTransport extends Transport {
 
         if (typeof potentialCamera !== 'undefined') {
           camera = potentialCamera
+          storedDevice = device
           break
         }
       }
@@ -92,6 +95,7 @@ export default class CameraTransport extends Transport {
     }
 
     this.camera = camera
+    this.device = storedDevice
   }
 
   async disconnect() {
@@ -101,6 +105,7 @@ export default class CameraTransport extends Transport {
 
     this.camera.close()
     this.camera = null
+    this.device = null
   }
 
   cInspect = async (message: Message) => {
@@ -239,6 +244,9 @@ export default class CameraTransport extends Transport {
     endBulbWidgetRelease.setValue('Release Full', true)
   }
 
+  /**
+   * What in the fuck is this API
+   */
   cDownloadPhoto = async (message: Message) => {
     if (this.camera === null) {
       throw new Error('Camera is disconnected')
@@ -259,7 +267,7 @@ export default class CameraTransport extends Transport {
     const cameraFilePath = new GPhoto.CameraFilePath()
 
     // This is readonly?
-    cameraFilePath.filename = 'fuck'
+    //cameraFilePath.filename = 'fuck'
 
     console.log('newFileAsync', this.camera.pointer)
     const cameraFile = await cameraFilePath.newFileAsync(this.camera.pointer)
@@ -336,9 +344,17 @@ export default class CameraTransport extends Transport {
         case `__endbulb`:
           return this.cEndBulb(message)
 
-        /**
-         * What in the fuck is this API
-         */
+        case `name`:
+          if (message.metadata.query) {
+            const name = this.device ? this.device.model : 'Unknown'
+            const msg = new Message(message.messageID, name)
+            this.readPipeline.push(msg)
+
+            return name
+          }
+
+          return
+
         case `__download`:
           return this.cDownloadPhoto(message)
 

@@ -30,6 +30,11 @@ import {
 import { websocketConsumer } from './websocket'
 import actions from './actions'
 
+import { cameraConsumer, cameraProducer } from './camera'
+import { HintValidatorCamera, DeviceHandshakeCamera } from '../../camera-device'
+
+import { AutoConnectPlugin } from './autoconnect'
+
 //import { bleConsumer, bleProducer } from './ble'
 
 const deviceManager = new DeviceManager()
@@ -69,11 +74,24 @@ function hintValidators(hint: Hint, connection: Connection) {
     return [validator]
   }
 
+  // Camera
+  if (hint.getTransportKey() === 'gphoto') {
+    const validator = new HintValidatorCamera(hint, connection) // 10 second timeout
+
+    return [validator]
+  }
+
   return []
 }
 
 function createHandshakes(device: Device) {
   const metadata = device.getMetadata()
+
+  const deviceType = metadata.type
+
+  if (deviceType === 'Camera') {
+    return [new DeviceHandshakeCamera(device)]
+  }
 
   // Otherwise its an eUI device, do the binary handshakes
   const connectionHandshakeReadWrite = new BinaryConnectionHandshake({
@@ -91,10 +109,14 @@ const processWS = new ProcessWS()
 const processBatteryPercentage = new ProcessBatteryPercentage()
 
 deviceManager.setCreateHintValidatorsCallback(hintValidators)
-deviceManager.addHintProducers([serialProducer, usbProducer])
-deviceManager.addHintConsumers([serialConsumer, websocketConsumer])
+deviceManager.addHintProducers([serialProducer, usbProducer, cameraProducer])
+deviceManager.addHintConsumers([
+  serialConsumer,
+  websocketConsumer,
+  cameraConsumer,
+])
 deviceManager.addHintTransformers([usbToSerialTransformer])
-deviceManager.addDeviceMetadataRequesters([requestName, requestWS])
+deviceManager.addDeviceMetadataRequesters([requestName])
 deviceManager.addDiscoveryMetadataProcessors([
   processName,
   processWS,
@@ -129,7 +151,12 @@ deviceManager.addConnectionMetadataRules([
 const actionsPlugin = new ActionsPlugin()
 actionsPlugin.addActions(actions)
 
-deviceManager.addPlugins([actionsPlugin])
+const autoConnectPlugin = new AutoConnectPlugin([
+  { type: 'Camera' },
+  // { name: 'Zaphod Beeblebot' },
+])
+
+deviceManager.addPlugins([actionsPlugin, autoConnectPlugin])
 
 // start polling immediately!
 deviceManager.poll()

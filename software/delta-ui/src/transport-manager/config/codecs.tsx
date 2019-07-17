@@ -267,13 +267,8 @@ export class InboundMotionCodec extends Codec {
     packet.writeUInt16LE(message.payload.duration)
     packet.writeUInt16LE(message.payload.num_points)
 
-    console.log('numpoints', message.payload.num_points)
-    console.log('points', message.payload.points)
-
     for (let index = 0; index < 4; index++) {
       const pointData = message.payload.points[index]
-
-      console.log(index, pointData)
 
       if (typeof pointData !== 'undefined') {
         packet.writeInt32LE(pointData[0] * 1000)
@@ -287,7 +282,6 @@ export class InboundMotionCodec extends Codec {
     }
 
     message.payload = packet.toBuffer()
-    console.log(message.payload)
     return push(message)
   }
 
@@ -295,8 +289,6 @@ export class InboundMotionCodec extends Codec {
     if (message.payload === null) {
       return push(message)
     }
-
-    console.log('payload raw', message.payload)
 
     const reader = SmartBuffer.fromBuffer(message.payload)
 
@@ -382,8 +374,6 @@ export class InboundFadeCodec extends Codec {
     for (let index = 0; index < 2; index++) {
       const pointData = message.payload.points[index]
 
-      console.log(index, pointData)
-
       if (typeof pointData !== 'undefined') {
         packet.writeFloatLE(pointData[0])
         packet.writeFloatLE(pointData[1])
@@ -396,7 +386,6 @@ export class InboundFadeCodec extends Codec {
     }
 
     message.payload = packet.toBuffer()
-    console.log(message.payload)
     return push(message)
   }
 
@@ -439,6 +428,14 @@ export class InboundFadeCodec extends Codec {
   }
 }
 
+export type LedStatus = {
+  red: number
+  green: number
+  blue: number
+  enable: boolean
+  queue_depth: number
+}
+
 export class RGBCodec extends Codec {
   filter(message: Message): boolean {
     return message.messageID === 'rgb'
@@ -453,7 +450,8 @@ export class RGBCodec extends Codec {
     packet.writeUInt8(message.payload.red)
     packet.writeUInt8(message.payload.green)
     packet.writeUInt8(message.payload.blue)
-    packet.writeUInt8(message.payload.enable)
+    packet.writeUInt8(message.payload.enable ? 1 : 0)
+    packet.writeUInt8(message.payload.queue_depth)
 
     message.payload = packet.toBuffer()
 
@@ -470,7 +468,8 @@ export class RGBCodec extends Codec {
       red: reader.readUInt8(),
       green: reader.readUInt8(),
       blue: reader.readUInt8(),
-      enable: reader.readUInt8(),
+      enable: reader.readUInt8() === 1 ? true : false,
+      queue_depth: reader.readUInt8(),
     }
 
     return push(message)

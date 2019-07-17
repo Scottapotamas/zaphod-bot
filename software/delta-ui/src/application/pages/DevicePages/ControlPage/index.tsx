@@ -6,6 +6,7 @@ import {
   Statistic,
   Button,
   Switch,
+  NumberInput,
 } from '@electricui/components-desktop-blueprint'
 import { Printer } from '@electricui/components-desktop'
 import {
@@ -27,12 +28,14 @@ import {
 } from '@electricui/components-core'
 
 import { CALL_CALLBACK } from '@electricui/core'
-import { SUPERVISOR_STATES } from './../../../transport-manager/config/codecs'
+import { SUPERVISOR_STATES } from './../../../../transport-manager/config/codecs'
 import React, { useEffect, ReactElement } from 'react'
 import { useTriggerAction } from '@electricui/core-actions'
 
-import { useExtractSceneName } from './../../hooks/useExtractSceneName'
-import { useOpenDialog } from './../../hooks/useOpenDialog'
+import { useExtractSceneName } from './../../../hooks/useExtractSceneName'
+import { useOpenDialog } from './../../../hooks/useOpenDialog'
+
+import CameraCard from './CameraCard'
 
 const OpenSceneButton = () => {
   const [filePath, selectFile] = useOpenDialog('json', 'Open a scene file')
@@ -198,7 +201,7 @@ const ControlPage = (props: RouteComponentProps) => {
     <React.Fragment>
       <IntervalRequester
         interval={125}
-        variables={['moStat', 'super', 'cpos']}
+        variables={['moStat', 'super', 'cpos', 'rgb']}
       />
 
       <Grid columns={2}>
@@ -461,6 +464,16 @@ const ControlPage = (props: RouteComponentProps) => {
             <br />
             <br />
             <br />
+            <label>Sync ID</label>
+            <br />
+            <div style={{ display: 'inline-block' }}>
+              <NumberInput accessor="syncid" min={0} max={255} />
+            </div>
+            <div style={{ display: 'inline-block', marginLeft: 10 }}>
+              <Button writer={{ sync: CALL_CALLBACK }}>Sync</Button>
+            </div>
+
+            <br />
             <br />
             <Button writer={{ stmv: CALL_CALLBACK }}>Start queue</Button>
             <Button writer={{ psmv: CALL_CALLBACK }}>Pause queue</Button>
@@ -469,6 +482,7 @@ const ControlPage = (props: RouteComponentProps) => {
           </Card>
         </Cell>
         <Cell>
+          <CameraCard />
           <Card>
             <h3>RGB</h3>
             <SceneSelectionButtons />

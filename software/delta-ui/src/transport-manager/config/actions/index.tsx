@@ -7,7 +7,16 @@ import fs from 'fs'
 import loadScene from './loadScene'
 
 import { queueLight } from './led'
-import { executeMovement, queueMovement } from './delta'
+import {
+  queueMovement,
+  executeMovement,
+  moveUp,
+  moveDown,
+  moveLeft,
+  moveRight,
+  moveForward,
+  moveBack,
+} from './delta'
 import { cameraSettings, cameraTrigger, setLocalSavePath } from './camera'
 
 export type WaitOptions = number
@@ -33,6 +42,12 @@ const actions = [
   queueLight,
   queueMovement,
   executeMovement,
+  moveUp,
+  moveDown,
+  moveLeft,
+  moveRight,
+  moveForward,
+  moveBack,
 ]
 
 export default actions
