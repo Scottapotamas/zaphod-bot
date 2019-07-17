@@ -333,8 +333,9 @@ export class InboundFadeCodec extends Codec {
     packet.writeUInt16LE(message.payload.id)
     packet.writeUInt16LE(message.payload.duration)
     packet.writeUInt8(message.payload.type)
-    packet.writeUInt16LE(message.payload.num_points)
-    packet.writeUInt16LE(0x00)
+    packet.writeUInt8(message.payload.num_points)
+    packet.writeUInt8(0x00)
+    packet.writeUInt8(0x00)
 
     for (let index = 0; index < 2; index++) {
       const pointData = message.payload.points[index]
