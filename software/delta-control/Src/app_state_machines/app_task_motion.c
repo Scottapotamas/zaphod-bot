@@ -81,9 +81,11 @@ PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __att
 {
     eventSubscribe( (StateTask*)me, MOTION_PREPARE );
     eventSubscribe( (StateTask*)me, MOTION_EMERGENCY );
+
     eventSubscribe( (StateTask*)me, MOTION_QUEUE_ADD );
     eventSubscribe( (StateTask*)me, MOTION_QUEUE_CLEAR );
     eventSubscribe( (StateTask*)me, MOTION_QUEUE_START );
+    eventSubscribe( (StateTask*)me, MOTION_QUEUE_START_SYNC );
     eventSubscribe( (StateTask*)me, MOTION_QUEUE_PAUSE );
 
     eventSubscribe( (StateTask*)me, PATHING_COMPLETE );
@@ -228,9 +230,24 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
         	return 0;
 
         case STATE_STEP1_SIGNAL:
-            // Check the queue for pending movements and update the UI
-            config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+            {
+                // Check the queue for pending movements, tell the supervisor the next value in the queue
+                StateEvent *pendingMotion = eventQueuePeek(&me->super.requestQueue);
 
+                if (pendingMotion)
+                {
+                    MotionPlannerEvent *ape = (MotionPlannerEvent *) pendingMotion;
+                    uint16_t id_in_queue = ((Movement_t*)&ape->move)->identifier;
+
+                    // tell the supervisor what the next move in the queue in
+                    BarrierSyncEvent *motor_sync_next = EVENT_NEW( BarrierSyncEvent, QUEUE_SYNC_MOTION_NEXT );
+                    motor_sync_next->id = id_in_queue;
+                    eventPublish( (StateEvent*)motor_sync_next );
+                }
+
+                // update the UI with the queue depth
+                config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+            }
             return 0;
 
         case STATE_TIMEOUT1_SIGNAL:
@@ -262,6 +279,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
                     if( mpe->move.duration)
                     {
                         eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
+                        queue_usage += 1;   // queue depth value passed to the UI should include the one we just added
                     }
                 }
                 else
@@ -292,7 +310,32 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
             return 0;
 
         case MOTION_QUEUE_START:
+            me->identifier_to_execute = 0;  // enforced moves have no identifer check
             STATE_TRAN( AppTaskMotion_active );
+            return 0;
+
+        case MOTION_QUEUE_START_SYNC:
+        {
+            // identifier_to_execute
+            uint16_t id_requested = ((BarrierSyncEvent*)e)->id;
+            uint16_t id_in_queue = 0;
+
+            // get the next event off the queue and get the ID
+//            StateEvent * nextMotion = eventQueuePeek( &me->super.requestQueue );
+//
+//            if(nextMotion)
+//            {
+//                MotionPlannerEvent *ape = (MotionPlannerEvent*)nextMotion;
+//                Movement_t * next_move = &ape->move;
+//                id_in_queue = next_move->identifier;
+//            }
+
+//            if( id_requested >= id_in_queue)
+//            {
+                me->identifier_to_execute = id_requested;
+                STATE_TRAN( AppTaskMotion_active );
+//            }
+        }
             return 0;
 
         case MOTION_EMERGENCY:
@@ -333,10 +376,13 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
                         MotionPlannerEvent *ape = (MotionPlannerEvent*)next;
                         Movement_t * next_move = &ape->move;
 
-                        path_interpolator_set_objective(next_move);
+                        if( me->identifier_to_execute == 0 || me->identifier_to_execute >= next_move->identifier )
+                        {
+                            path_interpolator_set_objective(next_move);
 
-                        // remove it from the queue
-                        eventPoolGarbageCollect( (StateEvent*)next );
+                            // remove it from the queue
+                            eventPoolGarbageCollect( (StateEvent*)next );
+                        }
                     }
                 }
                 else
@@ -344,18 +390,34 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
                     // no events in the queue
                     STATE_TRAN( AppTaskMotion_inactive );
                 }
-                config_set_motion_queue_depth( queue_usage );
 
+                config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+                return 0;
             }
-            return 0;
 
         case PATHING_COMPLETE:
-            // the pathing engine has completed the movement execution, loop around to process another event
-            if( path_interpolator_get_move_done() )
             {
-                stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+                // the pathing engine has completed the movement execution,
+                // loop around to process another event, or go back to inactive and wait for sync
+
+                StateEvent * next = eventQueuePeek( &me->super.requestQueue );
+                MotionPlannerEvent *ape = (MotionPlannerEvent*)next;
+
+                if(next)
+                {
+                    if( me->identifier_to_execute == 0 || me->identifier_to_execute >= &ape->move.identifier )
+                    {
+                        stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+                    }
+                    else
+                    {
+                        STATE_TRAN( AppTaskMotion_inactive);
+                    }
+                }
+
+                config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+                return 0;
             }
-            return 0;
 
         case MOTION_QUEUE_ADD:
         	{
@@ -369,7 +431,8 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 					if( mpe->move.duration)
 					{
 						eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
-					}
+                        queue_usage += 1;   // queue depth value passed to the UI should include the one we just added
+                    }
 				}
 				else
 				{

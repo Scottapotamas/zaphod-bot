@@ -149,7 +149,7 @@ PRIVATE void emergency_stop_cb( void );
 PRIVATE void home_mech_cb( void );
 PRIVATE void execute_motion_queue( void );
 PRIVATE void pause_motion_queue_execution( void );
-PRIVATE void clear_motion_queue( void );
+PRIVATE void clear_all_queue(void);
 
 PRIVATE void request_tracking_mode( void );
 PRIVATE void request_demo_mode( void );
@@ -158,6 +158,8 @@ PRIVATE void request_event_mode( void );
 PRIVATE void movement_generate_event( void );
 PRIVATE void lighting_generate_event( void );
 PRIVATE void sync_begin_queues( void );
+
+uint8_t sync_id_val = 0;
 
 eui_message_t ui_variables[] =
 {
@@ -186,14 +188,18 @@ eui_message_t ui_variables[] =
     EUI_CUSTOM("mo4", motion_servo[3]),
 #endif
 
-    EUI_INT32_ARRAY("tpos", target_position),
-    EUI_INT32_RO_ARRAY("cpos", current_position),
+    EUI_CUSTOM_RO("rgb", rgb_led_drive ),
+
+    EUI_FUNC( "sync", sync_begin_queues ),
+    EUI_UINT8( "syncid", sync_id_val ),
+    EUI_INT32_ARRAY( "tpos", target_position ),
+    EUI_INT32_RO_ARRAY( "cpos", current_position ),
 
     //inbound movement buffer and 'add to queue' callback
     EUI_CUSTOM("inmv", motion_inbound),
     EUI_FUNC("qumv", movement_generate_event),
     EUI_FUNC("stmv", execute_motion_queue),
-    EUI_FUNC("clmv", clear_motion_queue),
+    EUI_FUNC("clmv", clear_all_queue),
     EUI_FUNC("psmv", pause_motion_queue_execution),
 
     // inbound led animation buffer and 'add to queue'
@@ -213,29 +219,6 @@ eui_message_t ui_variables[] =
 
 };
 
-PUBLIC uint8_t
-config_get_led_red( void )
-{
-    return rgb_led_drive.red;
-}
-
-PUBLIC uint8_t
-config_get_led_green( void )
-{
-    return rgb_led_drive.green;
-}
-
-PUBLIC uint8_t
-config_get_led_blue( void )
-{
-    return rgb_led_drive.blue;
-}
-
-PUBLIC uint8_t
-config_get_led_enable( void )
-{
-    return rgb_led_drive.enable;
-}
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
@@ -513,7 +496,6 @@ config_set_led_queue_depth( uint8_t utilisation )
     rgb_led_drive.queue_depth = utilisation;
 }
 
-
 /* ----- Private Functions -------------------------------------------------- */
 
 PRIVATE void start_mech_cb( void )
@@ -566,9 +548,10 @@ PRIVATE void pause_motion_queue_execution( void )
     eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_PAUSE ) );
 }
 
-PRIVATE void clear_motion_queue( void )
+PRIVATE void clear_all_queue(void)
 {
     eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
+    eventPublish( EVENT_NEW( StateEvent, LED_CLEAR_QUEUE ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -598,6 +581,20 @@ PRIVATE void lighting_generate_event( void )
 //    rampUpManual->animation.input_colours[1].intensity = 0.15;
 //
 //    eventPublish( (StateEvent*)rampUpManual );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void sync_begin_queues( void )
+{
+    BarrierSyncEvent *barrier_ev = EVENT_NEW( BarrierSyncEvent, START_QUEUE_SYNC );
+
+    if(barrier_ev)
+    {
+        memcpy(&barrier_ev->id, &sync_id_val, sizeof(sync_id_val));
+        eventPublish( (StateEvent*)barrier_ev );
+        memset(&sync_id_val, 0, sizeof(sync_id_val));
+    }
 }
 
 /* -------------------------------------------------------------------------- */

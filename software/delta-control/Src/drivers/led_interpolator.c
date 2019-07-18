@@ -10,9 +10,11 @@
 #include "led_types.h"
 #include "configuration.h"
 #include "led.h"
-
 #include "global.h"
+
 #include "simple_state_machine.h"
+#include "event_subscribe.h"
+#include <app_state_machines/app_signals.h>
 #include "hal_systick.h"
 
 /* ----- Defines ------------------------------------------------------------ */
@@ -140,6 +142,7 @@ led_interpolator_process( void )
             	if( me->progress_percent >= 1.0f - FLT_EPSILON )
             	{
             		//fade is complete, the planner can stop now
+                    eventPublish( EVENT_NEW( StateEvent, ANIMATION_COMPLETE ) );
             		STATE_NEXT( ANIMATION_OFF );
             	}
             	else

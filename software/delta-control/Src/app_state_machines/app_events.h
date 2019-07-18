@@ -66,6 +66,16 @@ typedef struct LedPlannerEvent__
     Fade_t	animation; // LED animation details
 } LightingPlannerEvent;
 
+/* -------------------------------------------------------------------------- */
+
+/** Motion and Lighting Barrier Message Data **/
+typedef struct BarrierSyncEvent__
+{
+    StateEvent	super;      // Encapsulated event reference
+    uint16_t	id;         // UUID of the movement/lighting that we want to synchronise
+} BarrierSyncEvent;
+
+
 /* ----- End ---------------------------------------------------------------- */
 
 #ifdef __cplusplus

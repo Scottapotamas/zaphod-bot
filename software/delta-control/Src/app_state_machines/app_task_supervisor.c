@@ -84,6 +84,11 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask*)me, MODE_DEMO );
     eventSubscribe( (StateTask*)me, MODE_EVENT );
 
+    eventSubscribe( (StateTask*)me, START_QUEUE_SYNC );
+
+    eventSubscribe( (StateTask*)me, QUEUE_SYNC_MOTION_NEXT );
+    eventSubscribe( (StateTask*)me, QUEUE_SYNC_LED_NEXT );
+
     STATE_INIT( &AppTaskSupervisor_main );
 }
 
@@ -357,6 +362,50 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
 				eventPublish( (StateEvent*)motev );
         	}
 			return 0;
+
+        case QUEUE_SYNC_MOTION_NEXT:
+        {
+            // Received the ID of the 'next' motion in the motion queue
+            BarrierSyncEvent *inbound_sync = (BarrierSyncEvent*)e;
+            me->movement_id = inbound_sync->id;
+
+            BarrierSyncEvent *next_sync = EVENT_NEW( BarrierSyncEvent, START_QUEUE_SYNC );
+            next_sync->id = inbound_sync->id;
+
+            eventPublish( (StateEvent*)next_sync );
+
+//            eventPublish( EVENT_NEW( StateEvent, START_QUEUE_SYNC ) );
+        }
+        return 0;
+
+        case QUEUE_SYNC_LED_NEXT:
+        {
+
+        }
+            return 0;
+
+        case START_QUEUE_SYNC:
+        {
+            // Passed in the identifier which we are blocking up against
+            BarrierSyncEvent *inbound_sync = (BarrierSyncEvent*)e;
+
+            //get the current head queue id of the motion and led handlers
+            if( inbound_sync->id )
+            {
+                me->movement_id = inbound_sync->id;
+            }
+
+            // Create sync start events for the motion and led tasks
+            BarrierSyncEvent *motor_sync = EVENT_NEW( BarrierSyncEvent, MOTION_QUEUE_START_SYNC );
+            BarrierSyncEvent *led_sync = EVENT_NEW( BarrierSyncEvent, LED_QUEUE_START_SYNC );
+
+            motor_sync->id = me->movement_id;
+            led_sync->id = me->movement_id;
+
+            eventPublish( (StateEvent*)motor_sync );
+            eventPublish( (StateEvent*)led_sync );
+        }
+        return 0;
 
         case MOVEMENT_REQUEST:
         {

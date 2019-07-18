@@ -69,7 +69,10 @@ PRIVATE void AppTaskLed_initial( AppTaskLed *me, const StateEvent *e __attribute
     eventSubscribe( (StateTask*)me, LED_QUEUE_ADD );
     eventSubscribe( (StateTask*)me, LED_CLEAR_QUEUE );
     eventSubscribe( (StateTask*)me, LED_QUEUE_START );
+    eventSubscribe( (StateTask*)me, LED_QUEUE_START_SYNC );
     eventSubscribe( (StateTask*)me, LED_QUEUE_PAUSE );
+
+    eventSubscribe( (StateTask*)me, ANIMATION_COMPLETE );
 
     led_interpolator_init();
 
@@ -113,31 +116,98 @@ PRIVATE STATE AppTaskLed_inactive( AppTaskLed *me, const StateEvent *e )
 
         case STATE_STEP1_SIGNAL:
         {
-            // Check the queue for pending animations
-        	LightingPlannerEvent * next = (LightingPlannerEvent*)eventQueueGet( &me->super.requestQueue );
+            uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
+            // Check the queue for pending movements, tell the supervisor the next value in the queue
+            StateEvent *pendingAnimation = eventQueuePeek(&me->super.requestQueue);
 
-        	if( next )
+            if (pendingAnimation)
             {
-                /* Setup next animation */
-                me->lpe = *next;
-                eventPoolGarbageCollect( (StateEvent*)next );
-                STATE_TRAN( AppTaskLed_active );
+                LightingPlannerEvent *lpe = (LightingPlannerEvent *) pendingAnimation;
+                uint16_t id_in_queue = ((Fade_t*)&lpe->animation)->identifier;
+
+                // tell the supervisor what the next move in the queue in
+                BarrierSyncEvent *led_sync_event = EVENT_NEW( BarrierSyncEvent, QUEUE_SYNC_LED_NEXT );
+                led_sync_event->id = id_in_queue;
+                eventPublish( (StateEvent*)led_sync_event );
             }
 
+            // update the UI with the queue depth
+            config_set_led_queue_depth(eventQueueUsed(&me->super.requestQueue));
+        }
+        return 0;
+
+        case LED_QUEUE_ADD:
+        {
+            LightingPlannerEvent *lpe = (LightingPlannerEvent*)e;
+
+            // Add the movement request to the queue if we have room
+            uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
+            if( queue_usage <= LED_QUEUE_DEPTH_MAX )
+            {
+                if( lpe->animation.duration )
+                {
+                    eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
+                    queue_usage += 1;   // queue depth value passed to the UI should include the one we just added
+                }
+            }
+            else
+            {
+                //queue full, clearly the input motion processor isn't abiding by the spec.
+                //shutdown
+                eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
+                //todo make errors for led
+            }
+
+            config_set_led_queue_depth(eventQueueUsed(&me->super.requestQueue));
+            return 0;
+        }
+
+        case LED_CLEAR_QUEUE:
+        {
+            // Empty the queue
+            StateEvent * next = eventQueueGet( &me->super.requestQueue );
+            while( next )
+            {
+                eventPoolGarbageCollect( (StateEvent*)next );
+                next = eventQueueGet( &me->super.requestQueue );
+            }
+
+            //update UI with queue content count
             config_set_led_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 
             return 0;
         }
 
-        case LED_QUEUE_ADD:
-			{
-				//want to do a animation, process immediately without the queue
-				LightingPlannerEvent *ape = (LightingPlannerEvent*)e;
-				me->lpe = *ape; /* Save event */
-				STATE_TRAN( AppTaskLed_active );
-			}
-			return 0;
+        case LED_QUEUE_START:
+        {
+            STATE_TRAN( AppTaskLed_active);
+            return 0;
+        }
 
+        case LED_QUEUE_START_SYNC:
+        {
+            // identifier_to_execute
+            uint16_t id_requested = ((BarrierSyncEvent*)e)->id;
+            uint16_t id_in_queue = 0;
+
+            // get the next event off the queue and get the ID
+            StateEvent * nextFade = eventQueuePeek( &me->super.requestQueue );
+
+            if(nextFade)
+            {
+                LightingPlannerEvent *lpe = (LightingPlannerEvent*)nextFade;
+                Fade_t * next_fade = &lpe->animation;
+                id_in_queue = next_fade->identifier;
+            }
+
+            if( id_requested >= id_in_queue)
+            {
+                me->identifier_to_execute = id_requested;
+                STATE_TRAN( AppTaskLed_active );
+            }
+
+            return 0;
+        }
 
 		case STATE_EXIT_SIGNAL:
 
@@ -153,51 +223,70 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-        {
-            Fade_t * current_move = &me->lpe.animation;
+            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
 
-            //send the current fade object pointer to the animation engine
-            led_interpolator_set_objective( current_move );
-
-            //we expect the animation to be completed within the specified duration
-            //check back with the pathing engine when that duration is up
-            eventTimerStartOnce( &me->timer1,
-                                 (StateTask* )me,
-                                 (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
-                                 current_move->duration + 1 );
-
-//            config_set_motion_state( TASKSTATE_MOTION_ACTIVE );
-
-        }
-            return 0;
-
-        case STATE_TIMEOUT1_SIGNAL:
-
-            if( led_interpolator_get_move_done() )
-            {
-                STATE_TRAN( AppTaskLed_inactive );
-            }
-            else
-            {
-                //check back in a millisecond
-                eventTimerStartOnce( &me->timer1,
-                                     (StateTask* )me,
-                                     (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
-                                     1 );
-            }
-
+            // todo tell the ui about the led state in use
             return 0;
 
         case STATE_STEP1_SIGNAL:
-            if( eventTimerIsActive(&me->timer1) )
+        {
+            // check for pending events in the queue
+            uint8_t queue_usage = eventQueueUsed(&me->super.requestQueue);
+
+            if (queue_usage)
             {
-                if( led_interpolator_get_move_done() )
+                // grab an event off the queue
+                StateEvent *next = eventQueueGet(&me->super.requestQueue);
+
+                // start up the pathing engine
+                if (next)
+                {
+                    LightingPlannerEvent *lpe = (LightingPlannerEvent *) next;
+                    Fade_t *next_animation = &lpe->animation;
+
+                    if (me->identifier_to_execute == 0 || me->identifier_to_execute >= next_animation->identifier)
+                    {
+                        led_interpolator_set_objective( next_animation );
+
+                        // remove it from the queue
+                        eventPoolGarbageCollect((StateEvent *) next);
+                    }
+                }
+            }
+            else
+            {
+                // no events in the queue
+                STATE_TRAN(AppTaskLed_inactive);
+            }
+
+            config_set_led_queue_depth(eventQueueUsed(&me->super.requestQueue));
+
+            return 0;
+        }
+
+        case ANIMATION_COMPLETE:
+        {
+            // the led interpolation engine has completed the animation execution,
+            // loop around to process another event, or go back to inactive and wait for sync
+
+            StateEvent * next = eventQueuePeek( &me->super.requestQueue );
+            LightingPlannerEvent *lpe = (LightingPlannerEvent*)next;
+
+            if(next)
+            {
+                if( me->identifier_to_execute == 0 || me->identifier_to_execute >= &lpe->animation.identifier )
+                {
+                    stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+                }
+                else
                 {
                     STATE_TRAN( AppTaskLed_inactive );
                 }
             }
+            config_set_led_queue_depth(eventQueueUsed(&me->super.requestQueue));
 
             return 0;
+        }
 
         case LED_QUEUE_ADD:
         {
@@ -211,7 +300,7 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
                 if( lpe->animation.duration)
                 {
                     eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
-                    stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+                    queue_usage += 1;   // queue depth value passed to the UI should include the one we just added
                 }
             }
             else
@@ -222,7 +311,8 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
                 uint8_t breakpoint_line = 1;
 
             }
-//            config_set_motion_queue_depth( queue_usage );
+
+            config_set_led_queue_depth(eventQueueUsed(&me->super.requestQueue));
         }
             return 0;
 
@@ -237,10 +327,15 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
             }
 
             //update UI with queue content count
-//            config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
-        }
-            return 0;
+            config_set_led_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 
+            STATE_TRAN( AppTaskLed_inactive );   //go back to idle
+            return 0;
+        }
+
+        case LED_QUEUE_PAUSE:
+            STATE_TRAN( AppTaskLed_inactive );
+            return 0;
 
         case STATE_EXIT_SIGNAL:
             eventTimerStopIfActive( &me->timer1 );

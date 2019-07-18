@@ -30,6 +30,9 @@ struct AppTaskSupervisor
 
     // ~~~ Task Variables ~~~
     uint8_t	selected_control_mode;	// mode of end effector control
+    uint16_t movement_id;
+    uint16_t lighting_id;
+
 };
 
 /* ----- Public Functions --------------------------------------------------- */
