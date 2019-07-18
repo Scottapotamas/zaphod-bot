@@ -1099,27 +1099,38 @@
     debug "^4.1.1"
     moize "^5.4.1"
 
-"@electricui/components-desktop-blueprint@^0.6.1-prerelease.39":
-  version "0.6.1-prerelease.39"
-  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop-blueprint/-/components-desktop-blueprint-0.6.1-prerelease.39.tgz#8052a86f426d3e05451c5a3199add090c76627d8"
-  integrity sha512-U5IJyExrhH5N47IZZ8aWx7k6a4l1yd+2uRx+Ynf3IEqUw4HL6EFgghkXVhmvic8JxFk8TU+IsupclRddzOyi+w==
+"@electricui/components-core@^0.6.1-prerelease.40":
+  version "0.6.1-prerelease.40"
+  resolved "https://registry.eui.io/@electricui%2fcomponents-core/-/components-core-0.6.1-prerelease.40.tgz#0c041463d00a7a1f706ad44bdf5990863f5c132c"
+  integrity sha512-D0cndd68/DAl3oTzIbrLQ/WuYbxTiaNIskUBRc/phiJe4nrTmWNWxR0E5s8566hbGk6R1K2L4sSkqwP8HN3Qfw==
+  dependencies:
+    "@electricui/core" "^0.6.1-prerelease.38"
+    "@electricui/core-redux-state" "^0.6.1-prerelease.38"
+    "@electricui/utility-ipc" "^0.6.1-prerelease.7"
+    debug "^4.1.1"
+    moize "^5.4.1"
+
+"@electricui/components-desktop-blueprint@^0.6.1-prerelease.40":
+  version "0.6.1-prerelease.40"
+  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop-blueprint/-/components-desktop-blueprint-0.6.1-prerelease.40.tgz#9bc54337761c0c9b271845c6194fd4e3ce14815d"
+  integrity sha512-I0SfwmsVdc6FelD2Hw+D3rPagWKymYHMIuU7uhQcAwJBPEaTi/nr66p8rjXPeI243sTyxCtXO5/GNrDecpgWTQ==
   dependencies:
     "@blueprintjs/core" "^3.17.1"
-    "@electricui/components-core" "^0.6.1-prerelease.39"
-    "@electricui/components-desktop" "^0.6.1-prerelease.39"
-    "@electricui/components-desktop-charts" "^0.6.1-prerelease.39"
+    "@electricui/components-core" "^0.6.1-prerelease.40"
+    "@electricui/components-desktop" "^0.6.1-prerelease.40"
+    "@electricui/components-desktop-charts" "^0.6.1-prerelease.40"
     "@electricui/core" "^0.6.1-prerelease.38"
     classnames "^2.2.6"
     lodash.debounce "^4.0.8"
 
-"@electricui/components-desktop-charts@^0.6.1-prerelease.39":
-  version "0.6.1-prerelease.39"
-  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop-charts/-/components-desktop-charts-0.6.1-prerelease.39.tgz#5d1e9032561970c4e3fafe42a582ea37f9887b5b"
-  integrity sha512-DVbPogLTqSYTByHrkNWc5uTPeYhFlZkotpLobkTg03+SxMoaoKIrpB0RtmM86SoLBeqq4h80QT0P+hGHPWuV9g==
+"@electricui/components-desktop-charts@^0.6.1-prerelease.40":
+  version "0.6.1-prerelease.40"
+  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop-charts/-/components-desktop-charts-0.6.1-prerelease.40.tgz#a12921810d2e2aa4e3901edda7d68f8cca62d3ba"
+  integrity sha512-/G3pVnRSiLhKJOgJ4hh8GVD9bOrnwCdXnTLGY5s+lLRi9VYysdbRJFi/6A4evnrzVvOGMEfyDVHQWu5wJNxKsQ==
   dependencies:
-    "@electricui/components-core" "^0.6.1-prerelease.39"
+    "@electricui/components-core" "^0.6.1-prerelease.40"
     "@electricui/core" "^0.6.1-prerelease.38"
-    "@electricui/core-timeseries" "^0.6.1-prerelease.39"
+    "@electricui/core-timeseries" "^0.6.1-prerelease.40"
     "@electricui/pondjs" "^0.6.1-prerelease.2"
     chart.js "^2.8.0"
     chartjs-plugin-streaming "^1.8.0"
@@ -1129,12 +1140,12 @@
     react-chartjs-2 "^2.7.6"
     utility-types "^3.5.0"
 
-"@electricui/components-desktop@^0.6.1-prerelease.39":
-  version "0.6.1-prerelease.39"
-  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop/-/components-desktop-0.6.1-prerelease.39.tgz#22418b36ea9b5e17b888804103728aa8b6b4ba15"
-  integrity sha512-AgCEIOcXW3mTbYhu+H1LhseRZDmVUJ+32BKSPJEXod0L4Fo3MOf9VdvVrWQCHFmUo42w681BaaesMq51atH7xQ==
+"@electricui/components-desktop@^0.6.1-prerelease.40":
+  version "0.6.1-prerelease.40"
+  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop/-/components-desktop-0.6.1-prerelease.40.tgz#6448353cacd28aaf3f2a71825737ae8794a94510"
+  integrity sha512-NBk1Gm8A2f++/ylfUJkUbn587QnyhnAUQKKKsUh8vY5IzBwpKQptGOmtfMYgmPECCu+HYg3LHXcsxyPVI7TB3A==
   dependencies:
-    "@electricui/components-core" "^0.6.1-prerelease.39"
+    "@electricui/components-core" "^0.6.1-prerelease.40"
     "@electricui/core" "^0.6.1-prerelease.38"
     "@electricui/utility-electron" "^0.6.1-prerelease.30"
     react-pretty-numbers "^3.0.0"
@@ -1166,12 +1177,21 @@
     deepmerge "^3.2.0"
     typesafe-actions "^3.1.0"
 
-"@electricui/core-timeseries@^0.6.1-prerelease.39":
-  version "0.6.1-prerelease.39"
-  resolved "https://registry.eui.io/@electricui%2fcore-timeseries/-/core-timeseries-0.6.1-prerelease.39.tgz#f14992ba75af1ea290adde50f9935364dd6ddcf8"
-  integrity sha512-+IW1zT7vkF5n2qC76n8NVg3U1B2x4L7TRIKyRa6Ye3HI+aycqThzg2QHQbRxrkMX2+lX/DLc9Nat7IzUizhCMw==
+"@electricui/core-redux-state@^0.6.1-prerelease.38":
+  version "0.6.1-prerelease.38"
+  resolved "https://registry.eui.io/@electricui%2fcore-redux-state/-/core-redux-state-0.6.1-prerelease.38.tgz#83fc64a3d25049f3df42c406792f1fec1acf76c5"
+  integrity sha512-I8yMiiGN8JpI3OQ9lo4o9EOcDhH/jLbicQbgX13jd7CHGp30EbeZJL6GkvR3wt2uqKD86srKIIiysHOeMv5+Xw==
   dependencies:
-    "@electricui/components-core" "^0.6.1-prerelease.39"
+    debug "^4.1.1"
+    deepmerge "^3.2.0"
+    typesafe-actions "^3.1.0"
+
+"@electricui/core-timeseries@^0.6.1-prerelease.40":
+  version "0.6.1-prerelease.40"
+  resolved "https://registry.eui.io/@electricui%2fcore-timeseries/-/core-timeseries-0.6.1-prerelease.40.tgz#50d7310c13894b1d1b3b83b392124419813e067c"
+  integrity sha512-JrtFwT8kTytf9F9Ji1ENQcENiEZ9+B8O5K+h2au5C/UuoJVIIDkjpSvOkY74ojQXH2W5ec7C9nZXY1ZgHHXkzg==
+  dependencies:
+    "@electricui/components-core" "^0.6.1-prerelease.40"
     "@electricui/core" "^0.6.1-prerelease.38"
     "@electricui/pondjs" "^0.6.1-prerelease.2"
     immutable "^4.0.0-rc.12"
@@ -1193,6 +1213,18 @@
   version "0.6.1-prerelease.28"
   resolved "https://registry.eui.io/@electricui%2fcore/-/core-0.6.1-prerelease.28.tgz#7e7f6954686d657ccf331af3db418655218badcd"
   integrity sha512-EZW8RaS2fmKukJ+M/ft/m/YjBG/EtpzzanfQ6SjvmEsKw0W9QccOqQ63tMb7f09EBcP8M70xJ9YHjwMjlS3yrg==
+  dependencies:
+    better-queue "^3.8.10"
+    bluebird "^3.5.3"
+    debug "^4.1.1"
+    deepmerge "^3.2.0"
+    memoize-one "^5.0.0"
+    rxjs "^6.4.0"
+
+"@electricui/core@^0.6.1-prerelease.38":
+  version "0.6.1-prerelease.38"
+  resolved "https://registry.eui.io/@electricui%2fcore/-/core-0.6.1-prerelease.38.tgz#d1cf6f3214181b190130414e89a5abf0fb78b677"
+  integrity sha512-SDHhgWmKKL9hld9LF2Iqm/yS4r+mQ7rSpgomgHy3Qq1ZtI+NsuxbKdb1jnIByaBkQ8SdGVTQxt8VSpKE0+49mg==
   dependencies:
     better-queue "^3.8.10"
     bluebird "^3.5.3"
