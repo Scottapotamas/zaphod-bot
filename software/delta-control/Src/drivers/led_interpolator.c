@@ -50,6 +50,9 @@ hsi_lerp_linear( HSIColour_t p[], size_t points, float pos_weight, HSIColour_t* 
 PRIVATE void
 hsi_to_rgb( float h, float s, float i, float* r, float* g, float* b );
 
+PRIVATE float
+hue_to_channel(float p, float q, float t);
+
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
@@ -230,40 +233,72 @@ hsi_lerp_linear( HSIColour_t p[], size_t points, float pos_weight, HSIColour_t *
 
 /* -------------------------------------------------------------------------- */
 
+/* Converts a Hue/Saturation/Intensity colour to a Red/Green/Blue one
+ * Input HSI are [0, 1]
+ * Output RGB are [0, 1]
+ */
 void
 hsi_to_rgb( float h, float s, float i, float* r, float* g, float* b )
 {
-	float x = i * (1 - s);
-	float y;
-	float z;
+    float q;
+    float p;
 
-	if( h < 2 * M_PI / 3 )
-	{
-		y = i * (1 + (s * cos(h)) / (cos(M_PI / 3 - h)));
-		z = 3 * i - (x + y);
+    // no saturation --> white/achromatic at the given intensity level
+    if( s <= 0 )
+    {
+        *r = i;
+        *g = i;
+        *b = i;
+    }
+    else
+    {
+        if( i < 0.5 )
+        {
+            q = i * (1 + s);
+        }
+        else
+        {
+            q = i + s - i * s;
+        }
 
-		*b = x;
-		*r = y;
-		*g = z;
-	}
-	else if( h < 4 * M_PI / 3 )
-	{
-		y = i * (1 + (s * cos(h - 2 * M_PI / 3)) / (cos(M_PI / 3 - (h  - 2 * M_PI / 3))));
-		z = 3 * i - (x + y);
+        p = 2 * i - q;
 
-		*r = x;
-		*g = y;
-		*b = z;
-	}
-	else
-	{
-		y = i * (1 + (s * cos(h - 4 * M_PI / 3)) / (cos(M_PI / 3 - (h  - 4 * M_PI / 3))));
-		z = 3 * i - (x + y);
+        *r = hue_to_channel( p, q, h + 1/3.0 );
+        *g = hue_to_channel( p, q, h );
+        *b = hue_to_channel( p, q, h - 1/3.0 );
+    }
 
-		*g = x;
-		*b = y;
-		*r = z;
-	}
+}
+
+// Helper for HSI/RGB conversions
+float hue_to_channel(float p, float q, float t)
+{
+    if( t < 0 )
+    {
+        t += 1;
+    }
+
+    if( t > 1 )
+    {
+        t -= 1;
+    }
+
+    if( t < 1/6.0 )
+    {
+        return p + (q - p) * 6 * t;
+    }
+
+    if( t < 1/2.0 )
+    {
+        return q;
+    }
+
+    if( t < 2/3.0 )
+    {
+        return p + (q - p) * (2 / 3.0 - t) * 6;
+    }
+
+    return p;
 }
 
 /* ----- End ---------------------------------------------------------------- */
