@@ -200,6 +200,15 @@ export enum SUPERVISOR_STATES {
   NULL,
 }
 
+export enum CONTROL_MODES {
+  NONE = 0,
+  MANUAL,
+  EVENT,
+  TRACK,
+  DEMO,
+  CHANGING,
+}
+
 export class SystemStateInfoCodec extends Codec {
   filter(message: Message): boolean {
     return message.messageID === 'super'
@@ -214,7 +223,7 @@ export class SystemStateInfoCodec extends Codec {
     message.payload = {
       supervisor: SUPERVISOR_STATES[reader.readUInt8()] || 'UNKNOWN',
       motors: reader.readUInt8(),
-      mode: reader.readUInt8(),
+      mode: CONTROL_MODES[reader.readUInt8()] || 'UNKNOWN',
     }
 
     return push(message)

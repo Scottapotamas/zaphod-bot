@@ -32,15 +32,6 @@ typedef struct
 	uint8_t percentage;
 } FanCurve_t;
 
-typedef enum {
-	CONTROL_NONE = 0,
-	CONTROL_EVENT,
-	CONTROL_TRACK,
-	CONTROL_DEMO,
-
-	CONTROL_CHANGING,
-} ControlModes_t;
-
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void

@@ -15,6 +15,15 @@ extern "C" {
 #include "state_task.h"
 #include "event_timer.h"
 
+typedef enum {
+    CONTROL_NONE = 0,
+    CONTROL_MANUAL,
+    CONTROL_EVENT,
+    CONTROL_TRACK,
+    CONTROL_DEMO,
+    CONTROL_CHANGING,
+} ControlModes_t;
+
 /* ----- State Task Control Block ------------------------------------------- */
 
 /** Application Task Control Block File System */

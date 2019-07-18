@@ -23,6 +23,8 @@ PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me, const StateE
 
 PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me, const StateEvent *e );
 
+PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me, const StateEvent *e );
+
 PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me, const StateEvent *e );
 
 PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me, const StateEvent *e );

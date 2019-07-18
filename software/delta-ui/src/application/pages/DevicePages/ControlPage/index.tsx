@@ -28,7 +28,10 @@ import {
 } from '@electricui/components-core'
 
 import { CALL_CALLBACK } from '@electricui/core'
-import { SUPERVISOR_STATES } from './../../../../transport-manager/config/codecs'
+import {
+  SUPERVISOR_STATES,
+  CONTROL_MODES,
+} from './../../../../transport-manager/config/codecs'
 import React, { useEffect, ReactElement } from 'react'
 import { useTriggerAction } from '@electricui/core-actions'
 
@@ -140,62 +143,45 @@ const MotorSafetyMode = () => {
   return <div>{motors_are_active}</div>
 }
 
-const ActiveControlMode = () => {
-  const mode = useHardwareState(state => state.super.mode)
-  var mode_text: string = 'null'
-
-  switch (mode) {
-    case 0: {
-      mode_text = 'NONE'
-      break
-    }
-    case 1: {
-      mode_text = 'EVENT'
-      break
-    }
-    case 2: {
-      mode_text = 'TRACK'
-      break
-    }
-    case 3: {
-      mode_text = 'DEMO'
-      break
-    }
-    case 3: {
-      mode_text = 'CHANGING'
-      break
-    }
-    default: {
-      mode_text = 'INVALID'
-      break
-    }
-  }
-
-  return <div>{mode_text} MODE</div>
-}
-
 const ArmControlButton = () => {
   const supervisor = useHardwareState<string>(state => state.super.supervisor)
+  const control_mode = useHardwareState(state => state.super.mode)
 
+  const modeNotSelected = control_mode === CONTROL_MODES[CONTROL_MODES.NONE]
   const isArmed = supervisor === SUPERVISOR_STATES[SUPERVISOR_STATES.ARMED]
 
   if (!isArmed) {
-    return (
-      <Button fill large intent="warning" writer={{ arm: CALL_CALLBACK }}>
-        Arm ({supervisor})
-      </Button>
-    )
+    if (modeNotSelected) {
+      return (
+        <Button
+          fill
+          large
+          disabled
+          intent="none"
+          writer={{ disarm: CALL_CALLBACK }}
+        >
+          Select a mode before arming
+        </Button>
+      )
+    } else {
+      return (
+        <Button fill large intent="warning" writer={{ arm: CALL_CALLBACK }}>
+          Arm ({control_mode})
+        </Button>
+      )
+    }
   }
 
   return (
     <Button fill large intent="primary" writer={{ disarm: CALL_CALLBACK }}>
-      Disarm ({supervisor})
+      Disarm
     </Button>
   )
 }
 
 const ControlPage = (props: RouteComponentProps) => {
   const isDarkMode = useDarkMode()
+  const control_mode = useHardwareState(state => state.super.mode)
 
   return (
     <React.Fragment>
@@ -490,8 +476,12 @@ const ControlPage = (props: RouteComponentProps) => {
         </Cell>
         <Cell>
           <Card>
-            <br />
-            <br />
+            <ButtonGroup fill>
+              <Button writer={{ rmanual: CALL_CALLBACK }}>Manual</Button>
+              <Button writer={{ revent: CALL_CALLBACK }}>Event</Button>
+              <Button writer={{ rdemo: CALL_CALLBACK }}>Demo</Button>
+              <Button writer={{ rtrack: CALL_CALLBACK }}>Track</Button>
+            </ButtonGroup>
             <br />
             <ProgressBar accessor={state => state.moStat.move_progress} />
             <br />
@@ -500,7 +490,7 @@ const ControlPage = (props: RouteComponentProps) => {
                 <Statistics>
                   <Statistic
                     value={<SupervisorState />}
-                    label={<ActiveControlMode />}
+                    label={<div>{control_mode} MODE</div>}
                   />
                 </Statistics>
               </Cell>
