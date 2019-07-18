@@ -239,10 +239,13 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
                     MotionPlannerEvent *ape = (MotionPlannerEvent *) pendingMotion;
                     uint16_t id_in_queue = ((Movement_t*)&ape->move)->identifier;
 
-                    // tell the supervisor what the next move in the queue in
-                    BarrierSyncEvent *motor_sync_next = EVENT_NEW( BarrierSyncEvent, QUEUE_SYNC_MOTION_NEXT );
-                    motor_sync_next->id = id_in_queue;
-                    eventPublish( (StateEvent*)motor_sync_next );
+                    if( id_in_queue )
+                    {
+                        // tell the supervisor what the next move in the queue in
+                        BarrierSyncEvent *motor_sync_next = EVENT_NEW( BarrierSyncEvent, QUEUE_SYNC_MOTION_NEXT );
+                        motor_sync_next->id = id_in_queue;
+                        eventPublish( (StateEvent*)motor_sync_next );
+                    }
                 }
 
                 // update the UI with the queue depth
@@ -279,7 +282,6 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
                     if( mpe->move.duration)
                     {
                         eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
-                        queue_usage += 1;   // queue depth value passed to the UI should include the one we just added
                     }
                 }
                 else
@@ -289,7 +291,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
                     eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
                     STATE_TRAN( AppTaskMotion_recovery );
                 }
-                config_set_motion_queue_depth( queue_usage );
+                config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 
 			}
 			return 0;
@@ -310,32 +312,14 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
             return 0;
 
         case MOTION_QUEUE_START:
-            me->identifier_to_execute = 0;  // enforced moves have no identifer check
+            me->identifier_to_execute = 0;  // manually added moves have no identifer check, manual starts don't need sync
             STATE_TRAN( AppTaskMotion_active );
             return 0;
 
         case MOTION_QUEUE_START_SYNC:
-        {
-            // identifier_to_execute
-            uint16_t id_requested = ((BarrierSyncEvent*)e)->id;
-            uint16_t id_in_queue = 0;
-
-            // get the next event off the queue and get the ID
-//            StateEvent * nextMotion = eventQueuePeek( &me->super.requestQueue );
-//
-//            if(nextMotion)
-//            {
-//                MotionPlannerEvent *ape = (MotionPlannerEvent*)nextMotion;
-//                Movement_t * next_move = &ape->move;
-//                id_in_queue = next_move->identifier;
-//            }
-
-//            if( id_requested >= id_in_queue)
-//            {
-                me->identifier_to_execute = id_requested;
-                STATE_TRAN( AppTaskMotion_active );
-//            }
-        }
+            // Grab the inbound requested id as part of barrier handling
+            me->identifier_to_execute = ((BarrierSyncEvent*)e)->id;
+            STATE_TRAN( AppTaskMotion_active );
             return 0;
 
         case MOTION_EMERGENCY:
@@ -363,12 +347,10 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
         case STATE_STEP1_SIGNAL:
             {
                 // check for pending events in the queue
-                uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
-
-                if( queue_usage )
+                if( eventQueueUsed( &me->super.requestQueue ) )
                 {
-                    // grab an event off the queue
-                    StateEvent * next = eventQueueGet( &me->super.requestQueue );
+                    // grab the next event off the queue
+                    StateEvent *next = eventQueueGet( &me->super.requestQueue );
 
                     // start up the pathing engine
                     if(next)
@@ -400,19 +382,26 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
                 // the pathing engine has completed the movement execution,
                 // loop around to process another event, or go back to inactive and wait for sync
 
-                StateEvent * next = eventQueuePeek( &me->super.requestQueue );
-                MotionPlannerEvent *ape = (MotionPlannerEvent*)next;
-
-                if(next)
+                if( eventQueueUsed( &me->super.requestQueue ) )
                 {
-                    if( me->identifier_to_execute == 0 || me->identifier_to_execute >= &ape->move.identifier )
+                    StateEvent * next = eventQueuePeek( &me->super.requestQueue );
+                    MotionPlannerEvent *ape = (MotionPlannerEvent*)next;
+
+                    if(next)
                     {
-                        stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+                        if( me->identifier_to_execute == 0 || me->identifier_to_execute >= &ape->move.identifier )
+                        {
+                            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+                        }
+                        else
+                        {
+                            STATE_TRAN( AppTaskMotion_inactive);
+                        }
                     }
-                    else
-                    {
-                        STATE_TRAN( AppTaskMotion_inactive);
-                    }
+                }
+                else
+                {
+                    STATE_TRAN( AppTaskMotion_inactive);
                 }
 
                 config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );

@@ -38,7 +38,6 @@ const Header = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
             />
             {/* <SetDarkModeButton /> */}
           </Navbar.Group>
-          <Navbar.Group>SYSTEM IDLE</Navbar.Group>
 
           <Navbar.Group align={Alignment.RIGHT}>
             <Button

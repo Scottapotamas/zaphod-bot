@@ -154,6 +154,7 @@ PRIVATE void clear_all_queue(void);
 PRIVATE void request_tracking_mode( void );
 PRIVATE void request_demo_mode( void );
 PRIVATE void request_event_mode( void );
+PRIVATE void request_manual_mode( void );
 
 PRIVATE void movement_generate_event( void );
 PRIVATE void lighting_generate_event( void );
@@ -214,6 +215,7 @@ eui_message_t ui_variables[] =
 
     // UI requests a change of operating mode
     EUI_FUNC("rtrack", request_tracking_mode),
+    EUI_FUNC("rmanual", request_manual_mode),
     EUI_FUNC("rdemo", request_demo_mode),
     EUI_FUNC("revent", request_event_mode),
 
@@ -616,6 +618,13 @@ PRIVATE void request_demo_mode( void )
 PRIVATE void request_event_mode( void )
 {
 	eventPublish( EVENT_NEW( StateEvent, MODE_EVENT ) );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void request_manual_mode( void )
+{
+    eventPublish( EVENT_NEW( StateEvent, MODE_MANUAL ) );
 }
 
 /* ----- End ---------------------------------------------------------------- */

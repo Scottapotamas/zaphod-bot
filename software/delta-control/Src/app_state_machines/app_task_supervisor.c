@@ -414,7 +414,7 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
             BarrierSyncEvent *inbound_sync = (BarrierSyncEvent*)e;
 
             //get the current head queue id of the motion and led handlers
-            if( inbound_sync->id )
+            if( inbound_sync )
             {
                 me->movement_id = inbound_sync->id;
             }
