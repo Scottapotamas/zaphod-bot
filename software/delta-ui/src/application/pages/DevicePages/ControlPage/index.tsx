@@ -194,257 +194,131 @@ const ControlPage = (props: RouteComponentProps) => {
         <Cell>
           <Card>
             <br />
-            <Button
-              writer={{
-                inlt: {
-                  type: 1,
-                  id: 0,
-                  duration: 1500,
-                  points: [[0.0, 0, 0.0], [0.4, 1, 0.3]],
-                },
-                qult: CALL_CALLBACK,
-              }}
-            >
-              Animate LED
-            </Button>
+            <br />
+            <Grid columns={2}>
+              <Grid columns={3}>
+                <Cell />
+                <Cell>
+                  <Button
+                    large
+                    fill
+                    writer={{
+                      inmv: {
+                        type: 0,
+                        reference: 1,
+                        id: 0,
+                        duration: 400,
+                        num_points: 1,
+                        points: [[5, 0, 0]],
+                      },
+                      qumv: CALL_CALLBACK,
+                    }}
+                  >
+                    +x
+                  </Button>
+                </Cell>
+                <Cell />
+                <Cell>
+                  <Button
+                    large
+                    fill
+                    writer={{
+                      inmv: {
+                        type: 0,
+                        reference: 1,
+                        id: 0,
+                        duration: 400,
+                        num_points: 1,
+                        points: [[0, 5, 0]],
+                      },
+                      qumv: CALL_CALLBACK,
+                    }}
+                  >
+                    +y
+                  </Button>
+                </Cell>
+                <Cell />
+                <Cell>
+                  <Button
+                    large
+                    fill
+                    writer={{
+                      inmv: {
+                        type: 0,
+                        reference: 1,
+                        id: 0,
+                        duration: 400,
+                        num_points: 1,
+                        points: [[0, -5, 0]],
+                      },
+                      qumv: CALL_CALLBACK,
+                    }}
+                  >
+                    -y
+                  </Button>
+                </Cell>
+                <Cell />
+                <Cell>
+                  <Button
+                    large
+                    fill
+                    writer={{
+                      inmv: {
+                        type: 0,
+                        reference: 1,
+                        id: 0,
+                        duration: 400,
+                        num_points: 1,
+                        points: [[-5, 0, 0]],
+                      },
+                      qumv: CALL_CALLBACK,
+                    }}
+                  >
+                    -x
+                  </Button>
+                </Cell>
+                <Cell />
+              </Grid>
+              <Grid columns={1}>
+                <Cell>
+                  <Button
+                    large
+                    fill
+                    writer={{
+                      inmv: {
+                        type: 0,
+                        reference: 1,
+                        id: 0,
+                        duration: 400,
+                        points: [[0, 0, 5]],
+                      },
+                      qumv: CALL_CALLBACK,
+                    }}
+                  >
+                    Up
+                  </Button>
+                </Cell>
 
-            <Button writer={{ revent: CALL_CALLBACK }}>Event Mode</Button>
-            <br />
-            <Button writer={{ rdemo: CALL_CALLBACK }}>Demo Mode</Button>
-            <br />
-            {/* <Button
-              writer={[
-                {
-                  inmv: {
-                    type: 0,
-                    reference: 1,
-                    id: 0,
-                    duration: 400,
-                    points: [[0, 0, 5]],
-                  },
-                  qumv: CALL_CALLBACK,
-                },
-                {
-                  inmv: {
-                    type: 0,
-                    reference: 1,
-                    id: 0,
-                    duration: 400,
-                    points: [[0, 0, 5]],
-                  },
-                  qumv: CALL_CALLBACK,
-                },
-                {
-                  inmv: {
-                    type: 0,
-                    reference: 1,
-                    id: 0,
-                    duration: 400,
-                    points: [[0, 0, 5]],
-                  },
-                  qumv: CALL_CALLBACK,
-                },
-              ]}
-            >
-              Up
-            </Button>
-            */}
-            <br />
-            <Button
-              writer={{
-                inmv: {
-                  type: 0,
-                  reference: 1,
-                  id: 0,
-                  duration: 400,
-                  points: [[0, 0, 5]],
-                },
-                qumv: CALL_CALLBACK,
-              }}
-            >
-              Up
-            </Button>
-
-            <Button
-              writer={{
-                inmv: {
-                  type: 0,
-                  reference: 1,
-                  id: 0,
-                  duration: 400,
-                  points: [[0, 0, -5]],
-                },
-                qumv: CALL_CALLBACK,
-              }}
-            >
-              Down
-            </Button>
-            <br />
-            <Button
-              writer={{
-                inmv: {
-                  type: 0,
-                  reference: 1,
-                  id: 0,
-                  duration: 400,
-                  num_points: 1,
-                  points: [[5, 0, 0]],
-                },
-                qumv: CALL_CALLBACK,
-              }}
-            >
-              +x
-            </Button>
-
-            <Button
-              writer={{
-                inmv: {
-                  type: 0,
-                  reference: 1,
-                  id: 0,
-                  duration: 400,
-                  num_points: 1,
-                  points: [[-5, 0, 0]],
-                },
-                qumv: CALL_CALLBACK,
-              }}
-            >
-              -x
-            </Button>
-            <br />
-            <Button
-              writer={{
-                inmv: {
-                  type: 0,
-                  reference: 1,
-                  id: 0,
-                  duration: 400,
-                  num_points: 1,
-                  points: [[0, 5, 0]],
-                },
-                qumv: CALL_CALLBACK,
-              }}
-            >
-              +y
-            </Button>
-            <Button
-              writer={{
-                inmv: {
-                  type: 0,
-                  reference: 1,
-                  id: 0,
-                  duration: 400,
-                  num_points: 1,
-                  points: [[0, -5, 0]],
-                },
-                qumv: CALL_CALLBACK,
-              }}
-            >
-              -y
-            </Button>
-            <br />
-            <br />
-            <br />
-            <br />
-            <br />
-
-            <Button
-              writer={{
-                inmv: {
-                  type: 0, //transit
-                  reference: 0, //absolute
-                  id: 0,
-                  duration: 500,
-                  num_points: 1,
-                  points: [[+20, +20, 40]],
-                },
-                qumv: CALL_CALLBACK,
-              }}
-            >
-              Prepare
-            </Button>
-            <br />
-
-            <Button
-              writer={{
-                inmv: {
-                  type: 2, //catmull
-                  reference: 0,
-                  id: 0,
-                  duration: 1000,
-                  num_points: 4,
-                  points: [
-                    [-20, +20, 40], //D
-                    [+20, +20, 40], //A
-                    [+20, -20, 80], //B
-                    [-20, -20, 80], //C
-                  ],
-                },
-                qumv: CALL_CALLBACK,
-              }}
-            >
-              Catmull 1
-            </Button>
-            <Button
-              writer={{
-                inmv: {
-                  type: 2, //catmull
-                  reference: 0,
-                  id: 0,
-                  duration: 1000,
-                  num_points: 4,
-                  points: [
-                    [+20, +20, 40], //A
-                    [+20, -20, 80], //B
-                    [-20, -20, 80], //C
-                    [-20, +20, 40], //D
-                  ],
-                },
-                qumv: CALL_CALLBACK,
-              }}
-            >
-              Catmull 2
-            </Button>
-            <Button
-              writer={{
-                inmv: {
-                  type: 2, //catmull
-                  reference: 0,
-                  id: 0,
-                  duration: 1000,
-                  num_points: 4,
-                  points: [
-                    [+20, -20, 80], //B
-                    [-20, -20, 80], //C
-                    [-20, +20, 40], //D
-                    [+20, +20, 40], //A
-                  ],
-                },
-                qumv: CALL_CALLBACK,
-              }}
-            >
-              Catmull 3
-            </Button>
-            <Button
-              writer={{
-                inmv: {
-                  type: 2, //catmull
-                  reference: 0,
-                  id: 0,
-                  duration: 1000,
-                  num_points: 4,
-                  points: [
-                    [-20, -20, 80], //C
-                    [-20, +20, 40], //D
-                    [+20, +20, 40], //A
-                    [+20, -20, 80], //B
-                  ],
-                },
-                qumv: CALL_CALLBACK,
-              }}
-            >
-              Catmull 4
-            </Button>
+                <Cell>
+                  <Button
+                    large
+                    fill
+                    writer={{
+                      inmv: {
+                        type: 0,
+                        reference: 1,
+                        id: 0,
+                        duration: 400,
+                        points: [[0, 0, -5]],
+                      },
+                      qumv: CALL_CALLBACK,
+                    }}
+                  >
+                    Down
+                  </Button>
+                </Cell>
+              </Grid>
+            </Grid>
 
             <br />
             <br />
