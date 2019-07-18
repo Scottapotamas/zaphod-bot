@@ -404,6 +404,8 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
 
         case QUEUE_SYNC_LED_NEXT:
         {
+            BarrierSyncEvent *inbound_sync = (BarrierSyncEvent*)e;
+            uint16_t next_led_id_queued = inbound_sync->id;
 
             return 0;
         }
@@ -412,22 +414,29 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
         {
             // Passed in the identifier which we are blocking up against
             BarrierSyncEvent *inbound_sync = (BarrierSyncEvent*)e;
-
+            uint16_t sync_id = inbound_sync->id;
             //get the current head queue id of the motion and led handlers
+
             if( inbound_sync )
             {
-                me->movement_id = inbound_sync->id;
+                if( sync_id )   //non-zero syncs only - zero is reserved for immediate moves etc
+                {
+                    me->movement_id = sync_id;
+                    me->lighting_id = sync_id;
+
+                    // Create sync start events for the motion and led tasks
+                    BarrierSyncEvent *motor_sync = EVENT_NEW( BarrierSyncEvent, MOTION_QUEUE_START_SYNC );
+                    BarrierSyncEvent *led_sync = EVENT_NEW( BarrierSyncEvent, LED_QUEUE_START_SYNC );
+
+                    motor_sync->id = me->movement_id;
+                    led_sync->id = me->lighting_id;
+
+                    eventPublish( (StateEvent*)motor_sync );
+                    eventPublish( (StateEvent*)led_sync );
+                }
+
             }
 
-            // Create sync start events for the motion and led tasks
-            BarrierSyncEvent *motor_sync = EVENT_NEW( BarrierSyncEvent, MOTION_QUEUE_START_SYNC );
-            BarrierSyncEvent *led_sync = EVENT_NEW( BarrierSyncEvent, LED_QUEUE_START_SYNC );
-
-            motor_sync->id = me->movement_id;
-            led_sync->id = me->movement_id;
-
-            eventPublish( (StateEvent*)motor_sync );
-            eventPublish( (StateEvent*)led_sync );
 
             return 0;
         }
