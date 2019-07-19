@@ -1088,17 +1088,6 @@
     webpack-merge "^4.2.1"
     yargs "^12.0.1"
 
-"@electricui/components-core@^0.6.1-prerelease.39":
-  version "0.6.1-prerelease.39"
-  resolved "https://registry.eui.io/@electricui%2fcomponents-core/-/components-core-0.6.1-prerelease.39.tgz#a17e7909eabaa0facd37f05119bed567d3c4a9ce"
-  integrity sha512-O4k/UJuq8pFZJ6uKitGYRclToYBEpj7ssT3DCk5Qny0mj62kq9KoGYtLb7bL1ZbLa429s9ai++PcYEKushbg9w==
-  dependencies:
-    "@electricui/core" "^0.6.1-prerelease.38"
-    "@electricui/core-redux-state" "^0.6.1-prerelease.38"
-    "@electricui/utility-ipc" "^0.6.1-prerelease.7"
-    debug "^4.1.1"
-    moize "^5.4.1"
-
 "@electricui/components-core@^0.6.1-prerelease.40":
   version "0.6.1-prerelease.40"
   resolved "https://registry.eui.io/@electricui%2fcomponents-core/-/components-core-0.6.1-prerelease.40.tgz#0c041463d00a7a1f706ad44bdf5990863f5c132c"
@@ -1150,12 +1139,12 @@
     "@electricui/utility-electron" "^0.6.1-prerelease.30"
     react-pretty-numbers "^3.0.0"
 
-"@electricui/core-actions@^0.6.1-prerelease.38":
-  version "0.6.1-prerelease.39"
-  resolved "https://registry.eui.io/@electricui%2fcore-actions/-/core-actions-0.6.1-prerelease.39.tgz#494778b0e307c9b36b24a5c5cdc59d3be79ce4c5"
-  integrity sha512-/i+WymTezJH9HsqENj5ML5lhpAZxPezXVuHidpMIwUr6QYpplSVwQZ10mptZmEHaZ1jS3yMxckElkwupQYKDpA==
+"@electricui/core-actions@^0.6.1-prerelease.36":
+  version "0.6.1-prerelease.40"
+  resolved "https://registry.eui.io/@electricui%2fcore-actions/-/core-actions-0.6.1-prerelease.40.tgz#4d5a55ba816311d67237dc0d614a6b96e34b0e7e"
+  integrity sha512-RJshddq5X+k0aKPVssGGy3+4wke6nyOUJ2u6EQlOJnDGdfWWyfI60xhsBokduZa2lHF84xpfI2R8n0Yb7urnRA==
   dependencies:
-    "@electricui/components-core" "^0.6.1-prerelease.39"
+    "@electricui/components-core" "^0.6.1-prerelease.40"
     "@electricui/core" "^0.6.1-prerelease.38"
 
 "@electricui/core-quantities@^0.6.1-prerelease.8":
@@ -1167,15 +1156,6 @@
     immutable "^4.0.0-rc.12"
     js-quantities "^1.7.3"
     utility-types "^3.5.0"
-
-"@electricui/core-redux-state@^0.6.1-prerelease.38":
-  version "0.6.1-prerelease.38"
-  resolved "https://registry.eui.io/@electricui%2fcore-redux-state/-/core-redux-state-0.6.1-prerelease.38.tgz#83fc64a3d25049f3df42c406792f1fec1acf76c5"
-  integrity sha512-I8yMiiGN8JpI3OQ9lo4o9EOcDhH/jLbicQbgX13jd7CHGp30EbeZJL6GkvR3wt2uqKD86srKIIiysHOeMv5+Xw==
-  dependencies:
-    debug "^4.1.1"
-    deepmerge "^3.2.0"
-    typesafe-actions "^3.1.0"
 
 "@electricui/core-redux-state@^0.6.1-prerelease.38":
   version "0.6.1-prerelease.38"
@@ -1213,18 +1193,6 @@
   version "0.6.1-prerelease.28"
   resolved "https://registry.eui.io/@electricui%2fcore/-/core-0.6.1-prerelease.28.tgz#7e7f6954686d657ccf331af3db418655218badcd"
   integrity sha512-EZW8RaS2fmKukJ+M/ft/m/YjBG/EtpzzanfQ6SjvmEsKw0W9QccOqQ63tMb7f09EBcP8M70xJ9YHjwMjlS3yrg==
-  dependencies:
-    better-queue "^3.8.10"
-    bluebird "^3.5.3"
-    debug "^4.1.1"
-    deepmerge "^3.2.0"
-    memoize-one "^5.0.0"
-    rxjs "^6.4.0"
-
-"@electricui/core@^0.6.1-prerelease.38":
-  version "0.6.1-prerelease.38"
-  resolved "https://registry.eui.io/@electricui%2fcore/-/core-0.6.1-prerelease.38.tgz#d1cf6f3214181b190130414e89a5abf0fb78b677"
-  integrity sha512-SDHhgWmKKL9hld9LF2Iqm/yS4r+mQ7rSpgomgHy3Qq1ZtI+NsuxbKdb1jnIByaBkQ8SdGVTQxt8VSpKE0+49mg==
   dependencies:
     better-queue "^3.8.10"
     bluebird "^3.5.3"

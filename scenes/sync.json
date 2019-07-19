@@ -25,7 +25,7 @@
         },
         {
           "id": 3,
-          "action": "move_right",
+          "action": "move_forward",
           "payload": { "amount": 50, "id": 3 }
         },
         {
@@ -35,7 +35,7 @@
         },
         {
           "id": 5,
-          "action": "move_left",
+          "action": "move_back",
           "payload": { "amount": 50, "id": 5 }
         }
       ],
@@ -46,7 +46,7 @@
           "payload": {
             "type": 1,
             "id": 2,
-            "duration": 200,
+            "duration": 1200,
             "points": [[1.0, 0, 0.3], [1.0, 0, 0]]
           },
           "comment": "  white"
@@ -57,7 +57,7 @@
           "payload": {
             "type": 1,
             "id": 3,
-            "duration": 200,
+            "duration": 1200,
             "points": [[1, 1, 0.3], [0, 1, 0]]
           },
           "comment": "  red"
@@ -68,7 +68,7 @@
           "payload": {
             "type": 1,
             "id": 4,
-            "duration": 200,
+            "duration": 1200,
             "points": [[2, 1, 0.3], [0.3, 1, 0]]
           },
           "comment": "  green"
@@ -79,7 +79,7 @@
           "payload": {
             "type": 1,
             "id": 5,
-            "duration": 200,
+            "duration": 1200,
             "points": [[3, 1, 0.3], [0.6, 1, 0]]
           },
           "comment": "  blue"

@@ -73,6 +73,7 @@ const cameraTrigger = new Action(
     runAction: RunActionFunction,
     options: CameraTriggerOptions,
   ) => {
+    /*
     const camera = getCamera(deviceManager)
     let localSavePath: string | null = null
 
@@ -90,8 +91,11 @@ const cameraTrigger = new Action(
       console.warn("Camera doesn't have a save path")
       return
     }
-
-    const fileSavePath = path.join(localSavePath, options.filePath)
+    */
+    const fileSavePath = path.join(
+      '/Users/michaelorenstein/Documents/Projects/zaphod-bot/scenes/',
+      options.filePath.replace(`{{time}}`, String(new Date().getTime())),
+    )
     // create the folders required
     const dir = path.dirname(fileSavePath)
 
@@ -99,9 +103,32 @@ const cameraTrigger = new Action(
       fs.mkdirSync(dir, { recursive: true })
     }
 
+    // No but seriously
+    if (os.platform() === 'darwin') {
+      await new Promise((resolve, reject) => {
+        var child = require('child_process').exec(`pkill -9 PTPCamera`)
+        child.stdout.pipe(process.stdout)
+        child.on('exit', function() {
+          resolve()
+        })
+      })
+    }
+
+    await new Promise((resolve, reject) => {
+      var child = require('child_process').exec(
+        `gphoto2 --capture-image-and-download --filename "${fileSavePath}" --force-overwrite`,
+      )
+      child.stdout.pipe(process.stdout)
+      child.on('exit', function() {
+        resolve()
+      })
+    })
+
+    /*
     const captureMessage = new Message('__capture', { savePath: fileSavePath })
 
-    camera.write(captureMessage)
+    await camera.write(captureMessage)
+    */
   },
 )
 

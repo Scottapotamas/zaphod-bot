@@ -13,6 +13,20 @@ import {
   MovementMoveReference,
 } from './../codecs'
 
+let height_scale = 1
+let height_offset = 25
+
+const scaleHeight = new Action(
+  'scale_height',
+  async (
+    deviceManager: DeviceManager,
+    runAction: RunActionFunction,
+    heightScale: number,
+  ) => {
+    height_scale = heightScale
+  },
+)
+
 const queueMovement = new Action(
   'queue_movement',
   async (
@@ -22,6 +36,14 @@ const queueMovement = new Action(
   ) => {
     const delta = getDelta(deviceManager)
 
+    // scale the height
+    movementMove.points = movementMove.points.map(point => {
+      const newPoint = point
+      newPoint[2] = point[2] * height_scale + height_offset
+      return newPoint
+    })
+
+    // send the message
     const message = new Message('inmv', movementMove)
     message.metadata.ack = true
 
@@ -63,9 +85,8 @@ async function writeMovement(delta: Device, movement: MovementMove) {
 type SimpleMovementPayload = {
   id: number
   amount: number
+  duration: number
 }
-
-const simpleDuration = 1500
 
 const moveUp = new Action(
   'move_up',
@@ -80,7 +101,7 @@ const moveUp = new Action(
       type: MovementMoveType.LINE,
       reference: MovementMoveReference.RELATIVE,
       id: payload.id,
-      duration: simpleDuration,
+      duration: payload.duration,
       points: [[0, 0, 0], [0, 0, payload.amount]],
     }
 
@@ -103,7 +124,7 @@ const moveDown = new Action(
       type: MovementMoveType.LINE,
       reference: MovementMoveReference.RELATIVE,
       id: payload.id,
-      duration: simpleDuration,
+      duration: payload.duration,
       points: [[0, 0, 0], [0, 0, -payload.amount]],
     }
 
@@ -125,7 +146,7 @@ const moveLeft = new Action(
       type: MovementMoveType.LINE,
       reference: MovementMoveReference.RELATIVE,
       id: payload.id,
-      duration: simpleDuration,
+      duration: payload.duration,
       points: [[0, 0, 0], [payload.amount, 0, 0]],
     }
 
@@ -147,7 +168,7 @@ const moveRight = new Action(
       type: MovementMoveType.LINE,
       reference: MovementMoveReference.RELATIVE,
       id: payload.id,
-      duration: simpleDuration,
+      duration: payload.duration,
       points: [[0, 0, 0], [-payload.amount, 0, 0]],
     }
 
@@ -169,7 +190,7 @@ const moveForward = new Action(
       type: MovementMoveType.LINE,
       reference: MovementMoveReference.RELATIVE,
       id: payload.id,
-      duration: simpleDuration,
+      duration: payload.duration,
       points: [[0, 0, 0], [0, payload.amount, 0]],
     }
 
@@ -191,13 +212,33 @@ const moveBack = new Action(
       type: MovementMoveType.LINE,
       reference: MovementMoveReference.RELATIVE,
       id: payload.id,
-      duration: simpleDuration,
+      duration: payload.duration,
       points: [[0, 0, 0], [0, -payload.amount, 0]],
     }
 
     console.log('move_back', payload.amount)
 
     return writeMovement(delta, movement)
+  },
+)
+
+const sync = new Action(
+  'sync',
+  async (
+    deviceManager: DeviceManager,
+    runAction: RunActionFunction,
+    syncID: number,
+  ) => {
+    const delta = getDelta(deviceManager)
+
+    const message = new Message('syncid', syncID)
+    message.metadata.ack = true
+
+    await delta.write(message)
+
+    const commit = new Message('sync', null)
+
+    await delta.write(commit)
   },
 )
 
@@ -210,4 +251,6 @@ export {
   moveRight,
   moveForward,
   moveBack,
+  sync,
+  scaleHeight,
 }

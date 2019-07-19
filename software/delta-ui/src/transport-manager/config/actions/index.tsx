@@ -16,6 +16,8 @@ import {
   moveRight,
   moveForward,
   moveBack,
+  sync,
+  scaleHeight,
 } from './delta'
 import { cameraSettings, cameraTrigger, setLocalSavePath } from './camera'
 
@@ -48,6 +50,8 @@ const actions = [
   moveRight,
   moveForward,
   moveBack,
+  sync,
+  scaleHeight,
 ]
 
 export default actions

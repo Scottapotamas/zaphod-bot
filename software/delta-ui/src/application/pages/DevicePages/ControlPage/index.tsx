@@ -6,7 +6,6 @@ import {
   Statistic,
   Button,
   Switch,
-  NumberInput,
 } from '@electricui/components-desktop-blueprint'
 import { Printer } from '@electricui/components-desktop'
 import {
@@ -17,6 +16,7 @@ import {
   Text,
   HTMLTable,
   Button as BlueprintButton,
+  NumericInput,
 } from '@blueprintjs/core'
 import { Grid, Cell } from 'styled-css-grid'
 
@@ -32,7 +32,7 @@ import {
   SUPERVISOR_STATES,
   CONTROL_MODES,
 } from './../../../../transport-manager/config/codecs'
-import React, { useEffect, ReactElement } from 'react'
+import React, { useEffect, ReactElement, useState } from 'react'
 import { useTriggerAction } from '@electricui/core-actions'
 
 import { useExtractSceneName } from './../../../hooks/useExtractSceneName'
@@ -49,16 +49,40 @@ const OpenSceneButton = () => {
 
   if (filePath !== '') {
     RunSceneButton = (
-      <BlueprintButton
-        onClick={() =>
-          triggerAction('load_scene', { filePath }).catch(e => {
-            console.error(e)
-          })
-        }
-        style={{ marginLeft: 10 }}
-      >
-        Run {sceneName}
-      </BlueprintButton>
+      <React.Fragment>
+        <BlueprintButton
+          onClick={() => {
+            console.log('starting action')
+            triggerAction('load_scene', { filePath })
+              .catch(e => {
+                console.error(e)
+              })
+              .then(() => {
+                console.log('action finished')
+              })
+          }}
+          style={{ marginLeft: 10 }}
+        >
+          Run {sceneName}
+        </BlueprintButton>
+        <BlueprintButton
+          onClick={async () => {
+            console.log('starting action')
+
+            let height = 1
+
+            for (let index = 0; index < 60; index++) {
+              await triggerAction('load_scene', { filePath })
+              await triggerAction('scale_height', height)
+
+              height += 0.25
+            }
+          }}
+          style={{ marginLeft: 10 }}
+        >
+          Run {sceneName} 10x with increasing height
+        </BlueprintButton>
+      </React.Fragment>
     )
   }
 
@@ -182,6 +206,10 @@ const ArmControlButton = () => {
 const ControlPage = (props: RouteComponentProps) => {
   const isDarkMode = useDarkMode()
   const control_mode = useHardwareState(state => state.super.mode)
+
+  const [syncID, setSyncID] = useState(1)
+  const [heightScale, setHeightScale] = useState(1)
+  const triggerAction = useTriggerAction()
 
   return (
     <React.Fragment>
@@ -322,15 +350,40 @@ const ControlPage = (props: RouteComponentProps) => {
 
             <br />
             <br />
+            <label>Height Scale</label>
+            <br />
+            <div style={{ display: 'inline-block' }}>
+              <NumericInput
+                value={heightScale}
+                min={0}
+                max={100}
+                step={0.01}
+                onValueChange={value => setHeightScale(value)}
+              />
+            </div>
+            <div style={{ display: 'inline-block', marginLeft: 10 }}>
+              <BlueprintButton
+                onClick={() => triggerAction('scale_height', heightScale)}
+              >
+                Set Height
+              </BlueprintButton>
+            </div>
             <br />
             <br />
             <label>Sync ID</label>
             <br />
             <div style={{ display: 'inline-block' }}>
-              <NumberInput accessor="syncid" min={0} max={255} />
+              <NumericInput
+                value={syncID}
+                min={0}
+                max={255}
+                onValueChange={value => setSyncID(value)}
+              />
             </div>
             <div style={{ display: 'inline-block', marginLeft: 10 }}>
-              <Button writer={{ sync: CALL_CALLBACK }}>Sync</Button>
+              <Button writer={{ syncid: syncID, sync: CALL_CALLBACK }}>
+                Sync
+              </Button>
             </div>
 
             <br />

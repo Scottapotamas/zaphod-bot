@@ -109,11 +109,14 @@ const processWS = new ProcessWS()
 const processBatteryPercentage = new ProcessBatteryPercentage()
 
 deviceManager.setCreateHintValidatorsCallback(hintValidators)
-deviceManager.addHintProducers([serialProducer, usbProducer, cameraProducer])
+deviceManager.addHintProducers([
+  serialProducer,
+  usbProducer /* cameraProducer */,
+])
 deviceManager.addHintConsumers([
   serialConsumer,
   websocketConsumer,
-  cameraConsumer,
+  /* cameraConsumer, */
 ])
 deviceManager.addHintTransformers([usbToSerialTransformer])
 deviceManager.addDeviceMetadataRequesters([requestName])

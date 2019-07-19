@@ -1,0 +1,248 @@
+{
+  "metadata": {
+    "name": "One Cube",
+    "formatVersion": "0.0.1"
+  },
+  "actions": [
+    {
+      "delta": [
+        {
+          "id": 1,
+          "action": "queue_movement",
+          "payload": {
+            "type": 0,
+            "reference": 0,
+            "id": 1,
+            "duration": 500,
+            "points": [[0, 0, 50]]
+          },
+          "comment": "  home"
+        },
+        {
+          "id": 2,
+          "action": "move_up",
+          "payload": { "amount": 50, "duration": 500, "id": 2 }
+        },
+        {
+          "id": 3,
+          "action": "move_right",
+          "payload": { "amount": 50, "duration": 500, "id": 3 }
+        },
+        {
+          "id": 4,
+          "action": "move_down",
+          "payload": { "amount": 50, "duration": 500, "id": 4 }
+        },
+        {
+          "id": 5,
+          "action": "move_left",
+          "payload": { "amount": 50, "duration": 500, "id": 5 }
+        },
+        {
+          "id": 6,
+          "action": "move_forward",
+          "payload": { "amount": 50, "duration": 500, "id": 6 }
+        },
+        {
+          "id": 7,
+          "action": "move_up",
+          "payload": { "amount": 50, "duration": 500, "id": 7 }
+        },
+        {
+          "id": 8,
+          "action": "move_right",
+          "payload": { "amount": 50, "duration": 500, "id": 8 }
+        },
+        {
+          "id": 9,
+          "action": "move_down",
+          "payload": { "amount": 50, "duration": 500, "id": 9 }
+        },
+        {
+          "id": 10,
+          "action": "move_left",
+          "payload": { "amount": 50, "duration": 500, "id": 10 }
+        },
+        {
+          "id": 11,
+          "action": "move_back",
+          "payload": { "amount": 50, "duration": 500, "id": 11 },
+          "comment": "noled"
+        },
+        {
+          "id": 12,
+          "action": "move_right",
+          "payload": { "amount": 50, "duration": 500, "id": 12 },
+          "comment": "noled"
+        },
+        {
+          "id": 13,
+          "action": "move_forward",
+          "payload": { "amount": 50, "duration": 500, "id": 13 }
+        },
+        {
+          "id": 14,
+          "action": "move_up",
+          "payload": { "amount": 50, "duration": 500, "id": 14 },
+          "comment": "noled"
+        },
+        {
+          "id": 15,
+          "action": "move_back",
+          "payload": { "amount": 50, "duration": 500, "id": 15 }
+        },
+        {
+          "id": 16,
+          "action": "move_left",
+          "payload": { "amount": 50, "duration": 500, "id": 16 },
+          "comment": "noled"
+        },
+        {
+          "id": 17,
+          "action": "move_forward",
+          "payload": { "amount": 50, "duration": 500, "id": 17 }
+        }
+      ],
+      "light": [
+        {
+          "id": 18,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 2,
+            "duration": 500,
+            "points": [[1.0, 0, 0.09], [1.0, 0, 0]]
+          },
+          "waitFor": 17
+        },
+        {
+          "id": 19,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 3,
+            "duration": 500,
+            "points": [[1, 1, 0.09], [0, 1, 0]]
+          }
+        },
+        {
+          "id": 20,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 4,
+            "duration": 500,
+            "points": [[2, 1, 0.09], [0.3, 1, 0]]
+          }
+        },
+        {
+          "id": 21,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 5,
+            "duration": 500,
+            "points": [[3, 1, 0.09], [0.6, 1, 0]]
+          }
+        },
+        {
+          "id": 22,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 6,
+            "duration": 500,
+            "points": [[1.0, 0, 0.09], [1.0, 0, 0]]
+          }
+        },
+        {
+          "id": 23,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 7,
+            "duration": 500,
+            "points": [[1, 1, 0.09], [0, 1, 0]]
+          }
+        },
+        {
+          "id": 24,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 8,
+            "duration": 500,
+            "points": [[2, 1, 0.09], [0.3, 1, 0]]
+          }
+        },
+        {
+          "id": 25,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 9,
+            "duration": 500,
+            "points": [[3, 1, 0.09], [0.6, 1, 0]]
+          }
+        },
+        {
+          "id": 26,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 10,
+            "duration": 500,
+            "points": [[1.0, 0, 0.09], [1.0, 0, 0]]
+          }
+        },
+        {
+          "id": 27,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 13,
+            "duration": 500,
+            "points": [[1, 1, 0.09], [0, 1, 0]]
+          }
+        },
+        {
+          "id": 28,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 15,
+            "duration": 500,
+            "points": [[2, 1, 0.09], [0.3, 1, 0]]
+          }
+        },
+        {
+          "id": 29,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 17,
+            "duration": 500,
+            "points": [[3, 1, 0.09], [0.6, 1, 0]]
+          }
+        }
+      ],
+      "run": [
+        {
+          "id": 30,
+          "action": "sync",
+          "payload": 1,
+          "comment": "triggering move",
+          "waitFor": 29
+        },
+        {
+          "id": 31,
+          "action": "capture",
+          "payload": {
+            "filePath": "./frames/11.jpg"
+          },
+          "comment": "capturing action"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,232 @@
+{
+  "metadata": { "name": "Many Circle Test", "formatVersion": "0.0.1" },
+  "actions": [
+    {
+      "delta": [
+        {
+          "id": 1,
+          "action": "queue_movement",
+          "payload": {
+            "type": 0,
+            "reference": 0,
+            "id": 1,
+            "duration": 1000,
+            "points": [[33, 0, 25.0]]
+          }
+        },
+        {
+          "id": 2,
+          "action": "queue_movement",
+          "payload": {
+            "type": 3,
+            "reference": 0,
+            "id": 2,
+            "duration": 250,
+            "points": [[33, 0, 25.0], [33, 33, 25.0], [0.0, 33, 25.0]]
+          }
+        },
+        {
+          "id": 3,
+          "action": "queue_movement",
+          "payload": {
+            "type": 3,
+            "reference": 0,
+            "id": 3,
+            "duration": 250,
+            "points": [[0, 33, 25.0], [-33, 33, 25.0], [-33, 0, 25.0]]
+          }
+        },
+        {
+          "id": 4,
+          "action": "queue_movement",
+          "payload": {
+            "type": 3,
+            "reference": 0,
+            "id": 4,
+            "duration": 250,
+            "points": [[-33, 0, 25.0], [-33, -33, 25.0], [0, -33, 25.0]]
+          }
+        },
+        {
+          "id": 5,
+          "action": "queue_movement",
+          "payload": {
+            "type": 3,
+            "reference": 0,
+            "id": 5,
+            "duration": 250,
+            "points": [[0, -33, 25.0], [33, -33, 25.0], [33, 0, 25.0]]
+          }
+        },
+        {
+          "id": 6,
+          "action": "queue_movement",
+          "payload": {
+            "type": 0,
+            "reference": 0,
+            "id": 6,
+            "duration": 1000,
+            "points": [[33, 0, 35]]
+          }
+        },
+        {
+          "id": 7,
+          "action": "queue_movement",
+          "payload": {
+            "type": 3,
+            "reference": 0,
+            "id": 7,
+            "duration": 250,
+            "points": [[33, 0, 35], [33, 33, 35], [0.0, 33, 35]]
+          }
+        },
+        {
+          "id": 8,
+          "action": "queue_movement",
+          "payload": {
+            "type": 3,
+            "reference": 0,
+            "id": 8,
+            "duration": 250,
+            "points": [[0, 33, 35], [-33, 33, 35], [-33, 0, 35]]
+          }
+        },
+        {
+          "id": 9,
+          "action": "queue_movement",
+          "payload": {
+            "type": 3,
+            "reference": 0,
+            "id": 9,
+            "duration": 250,
+            "points": [[-33, 0, 35], [-33, -33, 35], [0, -33, 35]]
+          }
+        },
+        {
+          "id": 10,
+          "action": "queue_movement",
+          "payload": {
+            "type": 3,
+            "reference": 0,
+            "id": 10,
+            "duration": 250,
+            "points": [[0, -33, 35], [33, -33, 35], [33, 0, 35]]
+          }
+        },
+        {
+          "id": 11,
+          "action": "queue_movement",
+          "payload": {
+            "type": 0,
+            "reference": 0,
+            "id": 11,
+            "duration": 1000,
+            "points": [[33, 0, 45]]
+          }
+        },
+        {
+          "id": 12,
+          "action": "queue_movement",
+          "payload": {
+            "type": 3,
+            "reference": 0,
+            "id": 12,
+            "duration": 250,
+            "points": [[33, 0, 45], [33, 33, 45], [0.0, 33, 45]]
+          }
+        },
+        {
+          "id": 13,
+          "action": "queue_movement",
+          "payload": {
+            "type": 3,
+            "reference": 0,
+            "id": 13,
+            "duration": 250,
+            "points": [[0, 33, 45], [-33, 33, 45], [-33, 0, 45]]
+          }
+        },
+        {
+          "id": 14,
+          "action": "queue_movement",
+          "payload": {
+            "type": 3,
+            "reference": 0,
+            "id": 14,
+            "duration": 250,
+            "points": [[-33, 0, 45], [-33, -33, 45], [0, -33, 45]]
+          }
+        },
+        {
+          "id": 15,
+          "action": "queue_movement",
+          "payload": {
+            "type": 3,
+            "reference": 0,
+            "id": 15,
+            "duration": 250,
+            "points": [[0, -33, 45], [33, -33, 45], [33, 0, 45]]
+          }
+        }
+      ],
+      "light": [
+        {
+          "id": 16,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 2,
+            "duration": 1000,
+            "points": [[1, 1, 0.3], [0.3, 1, 0.3]]
+          },
+          "waitFor": 15
+        },
+        {
+          "id": 17,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 7,
+            "duration": 1000,
+            "points": [[0.3, 1, 0.3], [0.6, 1, 0.3]]
+          }
+        },
+        {
+          "id": 18,
+          "action": "queue_light",
+          "payload": {
+            "type": 1,
+            "id": 12,
+            "duration": 1000,
+            "points": [[0.6, 1, 0.3], [1, 1, 0.3]]
+          }
+        }
+      ],
+      "run": [
+        {
+          "id": 19,
+          "action": "sync",
+          "payload": 1,
+          "comment": "triggering move",
+          "waitFor": 18
+        },
+        {
+          "id": 19,
+          "action": "sync",
+          "payload": 1,
+          "comment": "triggering move",
+          "waitFor": 18
+        },
+        {
+          "id": 20,
+          "action": "capture",
+          "payload": {
+            "filePath": "./circles/{{time}}.jpg"
+          },
+          "comment": "capturing action",
+          "waitFor": 19
+        }
+      ]
+    }
+  ]
+}
