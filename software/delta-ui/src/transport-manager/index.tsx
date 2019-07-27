@@ -16,7 +16,7 @@ document.body.appendChild(root)
 // TODO: Figure out why the webpack env isn't taking
 declare const module: any
 
-const server = setupProxyServer(deviceManager)
+let server = setupProxyServer(deviceManager);
 
 ReactDOM.render(<Debug />, root)
 
@@ -24,6 +24,18 @@ if (module.hot) {
   module.hot.accept('./pages/Debug', () => {
     const NextDebug = require('./pages/Debug').default
     ReactDOM.render(<NextDebug />, root)
+  })
+
+  module.hot.accept('./config', () => {
+    console.log('Hot reloading device manager configuration...')
+    console.log('Tearing down old proxy server')
+    // tear down IPC
+    server.teardown()
+    // Remove all listeners from the old device manager
+    deviceManager.removeAllListeners()
+    console.log('Setting up new proxy server')
+    // Setup the new proxy server
+    server = setupProxyServer(deviceManager)
   })
 }
 

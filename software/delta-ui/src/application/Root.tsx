@@ -1,13 +1,11 @@
+import { hot } from 'react-hot-loader/root'
 import React from 'react'
 import { Provider } from 'react-redux'
 import { Store } from 'redux'
 
 import { DeviceManagerProxy } from '@electricui/components-core'
 import { ReactReduxContext } from '@electricui/core-redux-state'
-import {
-  DeviceManagerStatusModal,
-  DarkModeWrapper,
-} from '@electricui/components-desktop-blueprint'
+import { DarkModeWrapper, NoIPCModal } from '@electricui/components-desktop-blueprint';
 import { DarkModeProvider } from '@electricui/components-desktop'
 
 import { LocationProvider, Router } from '@reach/router'
@@ -25,13 +23,13 @@ interface RootProps {
   store: Store
 }
 
-export default class Root extends React.Component<RootProps> {
+class Root extends React.Component<RootProps> {
   render() {
     const { store } = this.props
 
     return (
       <Provider store={store} context={ReactReduxContext}>
-        <DeviceManagerProxy>
+        <DeviceManagerProxy renderIfNoIPC={<NoIPCModal />}>
           <TimeSeriesDataStore
             sourceFactory={sourceFactory}
             timeseriesFactories={timeseriesFactories}
@@ -56,6 +54,8 @@ export default class Root extends React.Component<RootProps> {
           </TimeSeriesDataStore>
         </DeviceManagerProxy>
       </Provider>
-    )
+    );
   }
 }
+
+export default hot(Root)

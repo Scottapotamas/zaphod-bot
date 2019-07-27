@@ -1,3 +1,4 @@
+import 'react-hot-loader'
 require('@electricui/helpers')
 
 import 'normalize.css/normalize.css'
