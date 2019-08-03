@@ -512,6 +512,7 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
             motev->move.type = _POINT_TRANSIT;
             motev->move.ref = _POS_ABSOLUTE;
             motev->move.duration = 1500;
+            motev->move.identifier = 0;
             motev->move.num_pts = 1;
 
             motev->move.points[0].x = 0;
@@ -755,7 +756,8 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
     			MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
     			motev->move.type = _POINT_TRANSIT;
     			motev->move.ref = _POS_ABSOLUTE;
-    			motev->move.duration = 800;
+                motev->move.identifier = 0;
+                motev->move.duration = 800;
     			motev->move.num_pts = 1;
     			motev->move.points[0].x = 0;
     			motev->move.points[0].y = 0;
@@ -876,6 +878,7 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
 			motev->move.ref = _POS_ABSOLUTE;
 			motev->move.duration = 1500;
 			motev->move.num_pts = 1;
+			motev->move.identifier = 0;
 
 			motev->move.points[0].x = 0;
 			motev->move.points[0].y = 0;

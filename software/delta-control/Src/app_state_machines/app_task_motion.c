@@ -282,6 +282,11 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
                     if( mpe->move.duration)
                     {
                         eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
+
+                        if( mpe->move.identifier == 0 )
+                        {
+                            STATE_TRAN( AppTaskMotion_active );
+                        }
                     }
                 }
                 else

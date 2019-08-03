@@ -568,21 +568,6 @@ PRIVATE void lighting_generate_event( void )
         eventPublish( (StateEvent*)lighting_request );
         memset(&animation_inbound, 0, sizeof(animation_inbound));
     }
-
-//    LightingPlannerEvent *rampUpManual = EVENT_NEW( LightingPlannerEvent, LED_ADD_REQUEST );
-//    rampUpManual->animation.type = _LINEAR_RAMP;
-//    rampUpManual->animation.duration = 2500;
-//    rampUpManual->animation.num_pts = 2;
-//
-//    rampUpManual->animation.input_colours[0].hue = 0.0;
-//    rampUpManual->animation.input_colours[0].saturation = 1.0;
-//    rampUpManual->animation.input_colours[0].intensity = 0.01;
-//
-//    rampUpManual->animation.input_colours[1].hue = .6;
-//    rampUpManual->animation.input_colours[1].saturation = 1.0;
-//    rampUpManual->animation.input_colours[1].intensity = 0.15;
-//
-//    eventPublish( (StateEvent*)rampUpManual );
 }
 
 /* -------------------------------------------------------------------------- */
