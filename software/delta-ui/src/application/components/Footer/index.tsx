@@ -5,7 +5,7 @@ import {
   useHardwareState,
   Accessor,
 } from '@electricui/components-core'
-import { Navbar, Alignment, Text } from '@blueprintjs/core'
+import { Navbar, Alignment, Text, Icon, Intent } from '@blueprintjs/core'
 import { Button } from '@electricui/components-desktop-blueprint'
 
 import { CALL_CALLBACK } from '@electricui/core'
@@ -15,24 +15,67 @@ interface InjectDeviceIDFromLocation {
   '*'?: string // we get passed the path as the wildcard
 }
 
-const QueueText = () => {
-  const queue_depth = useHardwareState(state => state.moStat.queue_depth)
+const CPUText = () => {
+  const cpu_percentage = useHardwareState(state => state.sys.cpu_load)
+  let iconColour: Intent
 
-  if (queue_depth > 0) {
-    return <div>{queue_depth} queued movements</div>
+  if (cpu_percentage >= 0 && cpu_percentage < 60) {
+    iconColour = Intent.SUCCESS
+  } else if (cpu_percentage > 60 && cpu_percentage < 85) {
+    iconColour = Intent.WARNING
+  } else {
+    iconColour = Intent.DANGER
   }
 
-  return <div>Movement Queue Empty</div>
+  return (
+    <div>
+      <Icon icon="time" intent={iconColour} /> {cpu_percentage}%
+    </div>
+  )
+}
+
+const QueueText = () => {
+  const queue_depth = useHardwareState(state => state.moStat.queue_depth)
+  const is_moving = useHardwareState(state => state.moStat.move_state) == 1
+
+  let iconColour: Intent
+
+  if (queue_depth == 0) {
+    iconColour = Intent.NONE
+  } else if (queue_depth > 0 && queue_depth < 20) {
+    if (is_moving) {
+      iconColour = Intent.SUCCESS
+    } else {
+      iconColour = Intent.WARNING
+    }
+  } else {
+    iconColour = Intent.DANGER
+  }
+
+  return (
+    <div>
+      <Icon icon="move" intent={iconColour} /> {queue_depth}
+    </div>
+  )
 }
 
 const LEDQueueText = () => {
   const queue_depth = useHardwareState(state => state.rgb.queue_depth)
+  let iconColour: Intent
 
-  if (queue_depth > 0) {
-    return <div>{queue_depth} queued lightpoints</div>
+  if (queue_depth == 0) {
+    iconColour = Intent.NONE
+  } else if (queue_depth > 0 && queue_depth < 25) {
+    iconColour = Intent.SUCCESS
+  } else {
+    iconColour = Intent.WARNING
   }
 
-  return <div>Lighting Queue Empty</div>
+  return (
+    <div>
+      <Icon icon="lightbulb" intent={iconColour} /> {queue_depth}
+    </div>
+  )
 }
 
 function s(accessor: Accessor) {
@@ -42,7 +85,6 @@ function s(accessor: Accessor) {
 const Footer = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
   const page = props['*'] // we get passed the path as the wildcard, so we read it here
 
-  const cpu_percentage = useHardwareState(state => state.sys.cpu_load)
   const psu_voltage = useHardwareState(state =>
     state.sys.input_voltage.toFixed(1),
   )
@@ -54,9 +96,9 @@ const Footer = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
       <Navbar style={{ background: 'transparent', boxShadow: 'none' }}>
         <div style={{ margin: '0 auto', width: '100%' }}>
           <Navbar.Group align={Alignment.LEFT}>
-            <Text>{cpu_percentage}% CPU</Text>
-            <Navbar.Divider />
-            <Text>{psu_voltage}V Input</Text>
+            <Text>
+              <CPUText />
+            </Text>
             <Navbar.Divider />
             <Text>
               <QueueText />
@@ -65,17 +107,19 @@ const Footer = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
             <Text>
               <LEDQueueText />
             </Text>
+            <Navbar.Divider />
+            <Text>{psu_voltage}V Input</Text>
           </Navbar.Group>
 
           <Navbar.Group align={Alignment.RIGHT}>
-            <div style={{ minWidth: '200px' }}>
+            <div style={{ minWidth: '300px' }}>
               <Button
                 fill
                 large
                 intent="danger"
                 writer={{ estop: CALL_CALLBACK }}
               >
-                STOP
+                <b>E-STOP</b>
               </Button>
             </div>
           </Navbar.Group>
