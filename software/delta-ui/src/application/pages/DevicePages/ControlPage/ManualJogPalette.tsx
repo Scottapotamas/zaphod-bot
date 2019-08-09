@@ -1,56 +1,56 @@
-import React from 'react'
-
-import {
-  IntervalRequester,
-  useHardwareState,
-  StateTree,
-} from '@electricui/components-core'
-import {
-  Button,
-  NumberInput,
-  Slider,
-} from '@electricui/components-desktop-blueprint'
-import { Icon } from '@blueprintjs/core'
+import React, { useState } from 'react'
+import { Button } from '@electricui/components-desktop-blueprint'
+import { Icon, MultiSlider, NumericInput } from '@blueprintjs/core'
 import { Grid, Cell } from 'styled-css-grid'
 import { CALL_CALLBACK } from '@electricui/core'
 
 const ManualJogPalette = () => {
-  let jog_distance = 5
-  let jog_duration = 300
+  let [jog_speed, setJogSpeed] = useState(0)
+  let [jog_distance, setJogDistance] = useState(5.0)
+
+  let jog_duration = 600 * (1 / (1 + jog_speed))
 
   return (
     <div>
       <Grid columns={'80px 80px 160px 100px'} justifyContent="space-around">
         <Cell center>
-          Speed
+          <label>Speed</label>
           <br />
           <br />
-          <Slider
-            min={-1.5}
-            max={1.5}
+          <MultiSlider
+            min={-0.75}
+            max={1}
             stepSize={0.25}
             vertical
-            labelRenderer={val => `${Math.round(val * 100)}%`}
-            labelStepSize={0.75}
+            labelRenderer={val => `${Math.round((val + 1) * 100)}%`}
+            labelStepSize={0.5}
+            showTrackFill={jog_speed !== 0}
           >
-            <Slider.Handle accessor="jog_duration" />
-          </Slider>
+            <MultiSlider.Handle
+              value={jog_speed}
+              intentAfter={jog_speed < 0 ? 'warning' : undefined}
+              intentBefore={jog_speed > 0 ? 'warning' : undefined}
+              onChange={value => setJogSpeed(value)}
+            />
+            <MultiSlider.Handle value={0} interactionKind="none" />
+          </MultiSlider>
           <br />
-          <NumberInput
-            accessor="jog_duration"
-            debounceDuration={250}
+          <NumericInput
+            value={jog_speed}
+            onValueChange={value => setJogSpeed(value)}
             fill
             intent="warning"
-            min={0}
-            max={10}
-            stepSize={1}
+            min={-1}
+            max={1}
+            stepSize={0.25}
           />
         </Cell>
         <Cell center>
-          Distance
+          <label>Distance</label>
           <br />
           <br />
-          <Slider
+          <MultiSlider
+            onChange={values => setJogDistance(values[0])}
             min={0}
             max={10}
             stepSize={1}
@@ -58,12 +58,12 @@ const ManualJogPalette = () => {
             labelRenderer={val => `${val}mm`}
             labelStepSize={5}
           >
-            <Slider.Handle accessor="jog_distance" intentBefore="success" />
-          </Slider>
+            <MultiSlider.Handle value={jog_distance} intentBefore="success" />
+          </MultiSlider>
           <br />
-          <NumberInput
-            accessor="jog_distance"
-            debounceDuration={250}
+          <NumericInput
+            value={jog_distance}
+            onValueChange={value => setJogDistance(value)}
             fill
             intent="success"
             min={0}

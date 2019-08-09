@@ -1,31 +1,9 @@
 import React, { ReactElement, useState, useEffect } from 'react'
 
-import {
-  ProgressBar,
-  Slider,
-  Statistics,
-  Statistic,
-  Button,
-  Switch,
-} from '@electricui/components-desktop-blueprint'
+import { Button } from '@electricui/components-desktop-blueprint'
 import { Printer } from '@electricui/components-desktop'
-import {
-  Card,
-  Divider,
-  ButtonGroup,
-  Label,
-  Text,
-  HTMLTable,
-  Button as BlueprintButton,
-  NumericInput,
-  Intent,
-} from '@blueprintjs/core'
+import { Button as BlueprintButton } from '@blueprintjs/core'
 import { Grid, Cell } from 'styled-css-grid'
-import {
-  IntervalRequester,
-  useHardwareState,
-  StateTree,
-} from '@electricui/components-core'
 
 import { useTriggerAction } from '@electricui/core-actions'
 
@@ -58,23 +36,6 @@ const OpenSceneButton = () => {
           style={{ marginLeft: 10 }}
         >
           Run {sceneName}
-        </BlueprintButton>
-        <BlueprintButton
-          onClick={async () => {
-            console.log('starting action')
-
-            let height = 1
-
-            for (let index = 0; index < 60; index++) {
-              await triggerAction('load_scene', { filePath })
-              await triggerAction('scale_height', height)
-
-              height += 0.25
-            }
-          }}
-          style={{ marginLeft: 10 }}
-        >
-          Run {sceneName} 10x with increasing height
         </BlueprintButton>
       </React.Fragment>
     )
@@ -130,39 +91,7 @@ const EventPalette = () => {
       <h3>Event Sequence</h3>
       <SceneSelectionButtons />
       <br />
-      <label>Height Scale</label>
       <br />
-      <div style={{ display: 'inline-block' }}>
-        <NumericInput
-          value={heightScale}
-          min={0}
-          max={100}
-          step={0.01}
-          onValueChange={value => setHeightScale(value)}
-        />
-      </div>
-      <div style={{ display: 'inline-block', marginLeft: 10 }}>
-        <BlueprintButton
-          onClick={() => triggerAction('scale_height', heightScale)}
-        >
-          Set Height
-        </BlueprintButton>
-      </div>
-      <br />
-      <br />
-      <label>Sync ID</label>
-      <br />
-      <div style={{ display: 'inline-block' }}>
-        <NumericInput
-          value={syncID}
-          min={0}
-          max={255}
-          onValueChange={value => setSyncID(value)}
-        />
-      </div>
-      <div style={{ display: 'inline-block', marginLeft: 10 }}>
-        <Button writer={{ syncid: syncID, sync: CALL_CALLBACK }}>Sync</Button>
-      </div>
       <br />
       <br />
       <Button writer={{ stmv: CALL_CALLBACK }}>Start queue</Button>

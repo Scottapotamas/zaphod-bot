@@ -1,21 +1,9 @@
-import {
-  ProgressBar,
-  Slider,
-  Statistics,
-  Statistic,
-  Button,
-  Switch,
-} from '@electricui/components-desktop-blueprint'
+import { Button } from '@electricui/components-desktop-blueprint'
 import { Printer } from '@electricui/components-desktop'
 import {
   Card,
-  Divider,
   ButtonGroup,
-  Label,
-  Text,
-  HTMLTable,
   Button as BlueprintButton,
-  NumericInput,
   Intent,
   NonIdealState,
 } from '@blueprintjs/core'
@@ -80,7 +68,14 @@ const ModeSelectButtons = () => {
 const ControlSurfaceFromMode = () => {
   const control_mode = useHardwareState(state => state.super.mode)
 
-  if (control_mode == CONTROL_MODES[CONTROL_MODES.MANUAL]) {
+  if (control_mode == CONTROL_MODES[CONTROL_MODES.NONE]) {
+    return (
+      <NonIdealState
+        title="Select desired mode"
+        description="Select a control mode before arming"
+      />
+    )
+  } else if (control_mode == CONTROL_MODES[CONTROL_MODES.MANUAL]) {
     return <ManualJogPalette />
   } else if (control_mode == CONTROL_MODES[CONTROL_MODES.EVENT]) {
     return <EventPalette />
