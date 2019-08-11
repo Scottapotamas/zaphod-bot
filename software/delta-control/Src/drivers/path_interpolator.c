@@ -271,16 +271,16 @@ path_lerp_line( CartesianPoint_t p[], size_t points, float pos_weight, Cartesian
 		return SOLUTION_ERROR;
 	}
 
-	// start and end of splines don't need calculation as catmull curves _will_ pass through all points
+	// start and end of splines don't need calculation
 	if(pos_weight <= 0.0f + FLT_EPSILON)
 	{
-		output = &p[0];
+	    memcpy( output, &p[0], sizeof(CartesianPoint_t) );
 		return SOLUTION_VALID;
 	}
 
 	if(pos_weight >= 1.0f - FLT_EPSILON)
 	{
-		output = &p[1];
+        memcpy( output, &p[0], sizeof(CartesianPoint_t) );
 		return SOLUTION_VALID;
 	}
 
@@ -310,13 +310,13 @@ path_catmull_spline( CartesianPoint_t p[], size_t points, float pos_weight, Cart
 	// start and end of splines don't need calculation as catmull curves _will_ pass through all points
 	if(pos_weight <= 0.0f + FLT_EPSILON)
 	{
-		output = &p[1];
+        memcpy( output, &p[1], sizeof(CartesianPoint_t) );
 		return SOLUTION_VALID;	// todo add a 'end of range' flag?
 	}
 
 	if(pos_weight >= 1.0f - FLT_EPSILON)
 	{
-		output = &p[2];
+        memcpy( output, &p[2], sizeof(CartesianPoint_t) );
 		return SOLUTION_VALID;
 	}
 
@@ -373,13 +373,13 @@ path_quadratic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weig
 	// start and end of bezier
 	if(pos_weight <= 0.0f + FLT_EPSILON)
 	{
-		output = &p[0];
+        memcpy( output, &p[0], sizeof(CartesianPoint_t) );
 		return SOLUTION_VALID;
 	}
 
 	if(pos_weight >= 1.0f - FLT_EPSILON)
 	{
-		output = &p[2];
+        memcpy( output, &p[2], sizeof(CartesianPoint_t) );
 		return SOLUTION_VALID;
 	}
 
@@ -419,13 +419,13 @@ path_cubic_bezier_curve( CartesianPoint_t p[], size_t points, float pos_weight, 
 	// start and end of bezier
 	if(pos_weight <= 0.0f + FLT_EPSILON)
 	{
-		output = &p[0];
+        memcpy( output, &p[0], sizeof(CartesianPoint_t) );
 		return SOLUTION_VALID;
 	}
 
 	if(pos_weight >= 1.0f - FLT_EPSILON)
 	{
-		output = &p[3];
+        memcpy( output, &p[3], sizeof(CartesianPoint_t) );
 		return SOLUTION_VALID;
 	}
 
@@ -468,13 +468,13 @@ path_spherical_spiral_curve(CartesianPoint_t *p, size_t points, float pos_weight
 	// start and end of the helix
 	if(pos_weight <= 0.0f + FLT_EPSILON)
 	{
-		output = &p[0];
+        memcpy( output, &p[0], sizeof(CartesianPoint_t) );
 		return SOLUTION_VALID;
 	}
 
 	if(pos_weight >= 1.0f - FLT_EPSILON)
 	{
-		output = &p[1];
+        memcpy( output, &p[1], sizeof(CartesianPoint_t) );
 		return SOLUTION_VALID;
 	}
 
