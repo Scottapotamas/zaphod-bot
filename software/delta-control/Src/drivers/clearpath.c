@@ -17,6 +17,7 @@
 #include "simple_state_machine.h"
 #include "app_times.h"
 #include "configuration.h"
+#include "status.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -41,8 +42,8 @@ typedef struct
 	uint32_t      	timer;
 	bool			feedback_ok;
 
-	uint16_t		angle_current_steps;
-	uint16_t		angle_target_steps;
+	int16_t		angle_current_steps;
+	int16_t		angle_target_steps;
 } Servo_t;
 
 typedef struct
@@ -79,9 +80,9 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] =
 								.adc_current = HAL_ADC_INPUT_M4_CURRENT, .pin_oc_fault = _SERVO_4_CURRENT_FAULT },
 };
 
-PRIVATE uint16_t 	convert_angle_steps( float shaft_angle );
+PRIVATE int16_t 	convert_angle_steps( float kinematics_shoulder_angle );
 
-PRIVATE float 		convert_steps_angle( uint16_t steps );
+PRIVATE float 		convert_steps_angle( int16_t steps );
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -126,10 +127,7 @@ servo_set_target_angle( ClearpathServoInstance_t servo, float angle_degrees )
     {
         me->angle_target_steps = convert_angle_steps( angle_degrees );
     }
-    else
-    {
-    	//todo fail when angle outside range?
-    }
+
 }
 
 PUBLIC float
@@ -344,36 +342,57 @@ servo_process( ClearpathServoInstance_t servo )
             STATE_ENTRY_ACTION
 
             STATE_TRANSITION_TEST
+                int16_t step_difference = me->angle_current_steps - me->angle_target_steps;
+                int8_t  step_direction = 0;
 
-            	//command rotation to move towards the target position
-				if( me->angle_current_steps != me->angle_target_steps )
-				{
-					//command the target direction
-					if( me->angle_current_steps < me->angle_target_steps )
-					{
-						hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, SERVO_DIR_CW );
-						me->angle_current_steps++;
-					}
-					else
-					{
-						hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, SERVO_DIR_CCW );
-						me->angle_current_steps--;
-					}
+                //command rotation to move towards the target position
+                if( step_difference != 0 )
+                {
+                    //command the target direction
+                    if( me->angle_current_steps < me->angle_target_steps )
+                    {
+                        hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, SERVO_DIR_CW );
+                        step_direction = -1;
+                    }
+                    else
+                    {
+                        hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, SERVO_DIR_CCW );
+                        step_direction = 1;
+                    }
 
-					//todo add 'multi-pulse' control with acceleration shaping?
-					hal_gpio_toggle_pin( ServoHardwareMap[servo].pin_step );
-					hal_delay_us( SERVO_PULSE_DURATION_US );
-					hal_gpio_toggle_pin( ServoHardwareMap[servo].pin_step );
-				}
-				else
-				{
-					STATE_NEXT( SERVO_STATE_IDLE );
-				}
+                    uint16_t pulses_needed = step_difference*step_direction;
 
-				if( !me->enabled || hal_gpio_read_pin( ServoHardwareMap[servo].pin_oc_fault ) == SERVO_OC_FAULT )
-				{
-					STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-				}
+
+                    if( pulses_needed > 3 )
+                    {
+                        pulses_needed = 3;
+                        status_yellow(true);
+
+                    }
+                    else
+                    {
+                        status_yellow(false);
+                    }
+
+                    for( uint16_t pulses = 0; pulses < pulses_needed; pulses++ )
+                    {
+                        hal_gpio_toggle_pin( ServoHardwareMap[servo].pin_step );
+                        hal_delay_us( SERVO_PULSE_DURATION_US );
+                        hal_gpio_toggle_pin( ServoHardwareMap[servo].pin_step );
+                        hal_delay_us( SERVO_PULSE_DURATION_US );
+                        me->angle_current_steps = me->angle_current_steps + (step_direction*-1);
+                    }
+
+                }
+                else
+                {
+                    STATE_NEXT( SERVO_STATE_IDLE );
+                }
+
+                if( !me->enabled || hal_gpio_read_pin( ServoHardwareMap[servo].pin_oc_fault ) == SERVO_OC_FAULT )
+                {
+                    STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+                }
 
             STATE_EXIT_ACTION
 
@@ -390,25 +409,33 @@ servo_process( ClearpathServoInstance_t servo )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE uint16_t
-convert_angle_steps( float shaft_angle )
+/*
+ * The kinematics output is an angle between -85 and +90, where 0 deg is when
+ * the elbow-shaft link is parallel to the frame plate. Full range not available due
+ * to physical limits on arm travel. Approx -45 to +70 is the safe working range.
+ *
+ * Servo steps are referenced to the homing point, which is the HW minimum,
+ * therefore we need to convert the angle into steps, and apply the adequate offset.
+ * The servo's range is approx 2300 counts.
+ */
+PRIVATE int16_t
+convert_angle_steps( float kinematics_shoulder_angle )
 {
-	/*
-	 * The kinematics output is an angle between -85 and +90, where 0 deg is when
-	 * the elbow-shaft link is parallel to the frame plate. Full range not available due
-	 * to physical limits on arm travel. Approx -45 to +70 is the safe working range.
-	 *
-	 * Servo steps are referenced to the homing point, which is the HW minimum,
-	 * therefore we need to convert the angle into steps, and apply the adequate offset.
-	 * The servo's range is approx 2300 counts.
-	 */
+	float converted_angle = kinematics_shoulder_angle + SERVO_MIN_ANGLE;
+	int16_t angle_as_steps = converted_angle * SERVO_STEPS_PER_DEGREE;
 
-	return (shaft_angle * SERVO_STEPS_PER_DEGREE) + ( SERVO_MIN_ANGLE * SERVO_STEPS_PER_DEGREE ) - SERVO_HOME_OFFSET;
+	return angle_as_steps;
 }
 
+/* -------------------------------------------------------------------------- */
+
+/*
+ * Convert a motor position in steps to an angle in the motor reference frame (not kinematics shoulder angle)
+ */
 PRIVATE float
-convert_steps_angle( uint16_t steps )
+convert_steps_angle( int16_t steps )
 {
-	return (float)steps / SERVO_STEPS_PER_DEGREE;
+    float steps_to_angle = (float)steps / SERVO_STEPS_PER_DEGREE;
+	return steps_to_angle;
 }
 /* ----- End ---------------------------------------------------------------- */
