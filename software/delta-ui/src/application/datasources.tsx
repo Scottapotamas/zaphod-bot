@@ -8,7 +8,7 @@ import { TimeSeriesFactory, DataSource } from '@electricui/core-timeseries'
 export function sourceFactory(device: DeviceID): DataSource[] {
   return [
     /**
-     * The LED State
+     * Thermal sensor data
      */
     new DataSource({
       name: 'fan_data',
@@ -16,9 +16,61 @@ export function sourceFactory(device: DeviceID): DataSource[] {
       columns: ['RPM', 'Setpoint'],
       processor: message => [message.payload.rpm, message.payload.setpoint],
     }),
+    /**
+     * Servo operating info
+     */
+    new DataSource({
+      name: 'servoA_angle',
+      filter: message => message.messageID === 'mo1',
+      columns: ['A'],
+      processor: message => [message.payload.target_angle],
+    }),
+    new DataSource({
+      name: 'servoB_angle',
+      filter: message => message.messageID === 'mo2',
+      columns: ['B'],
+      processor: message => [message.payload.target_angle],
+    }),
+    new DataSource({
+      name: 'servoC_angle',
+      filter: message => message.messageID === 'mo3',
+      columns: ['C'],
+      processor: message => [message.payload.target_angle],
+    }),
+    new DataSource({
+      name: 'servoA_watts',
+      filter: message => message.messageID === 'mo1',
+      columns: ['A'],
+      processor: message => [message.payload.power],
+    }),
+    new DataSource({
+      name: 'servoB_watts',
+      filter: message => message.messageID === 'mo2',
+      columns: ['B'],
+      processor: message => [message.payload.power],
+    }),
+    new DataSource({
+      name: 'servoC_watts',
+      filter: message => message.messageID === 'mo3',
+      columns: ['C'],
+      processor: message => [message.payload.power],
+    }),
   ]
 }
 
 export function timeseriesFactories(device: DeviceID): TimeSeriesFactory[] {
-  return [new TimeSeriesFactory('graph', ['fan_data'])]
+  return [
+    new TimeSeriesFactory('motor_angles', [
+      'servoA_angle',
+      'servoB_angle',
+      'servoC_angle',
+    ]),
+    new TimeSeriesFactory('motor_power', [
+      'servoA_watts',
+      'servoB_watts',
+      'servoC_watts',
+    ]),
+
+    new TimeSeriesFactory('thermal_graph', ['fan_data']),
+  ]
 }

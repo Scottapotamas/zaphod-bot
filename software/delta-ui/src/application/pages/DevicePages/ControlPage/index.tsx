@@ -14,28 +14,6 @@ import CameraCard from './CameraCard'
 import SystemOverview from './SystemOverview'
 import SystemController from './SystemController'
 
-const MotorSafetyMode = () => {
-  const motor_state = useHardwareState(state => state.super.motors)
-  var motors_are_active: string = 'null'
-
-  switch (motor_state) {
-    case 0: {
-      motors_are_active = 'OFF'
-      break
-    }
-    case 1: {
-      motors_are_active = 'ON'
-      break
-    }
-    default: {
-      motors_are_active = 'INVALID'
-      break
-    }
-  }
-
-  return <div>{motors_are_active}</div>
-}
-
 const ControlPage = (props: RouteComponentProps) => {
   const isDarkMode = useDarkMode()
 
