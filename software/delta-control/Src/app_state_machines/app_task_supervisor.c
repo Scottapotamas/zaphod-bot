@@ -573,30 +573,31 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
         	config_set_main_state(6);
         	config_set_control_mode( CONTROL_TRACK );
 
+            config_reset_tracking_target();     // entering track mode should always reset position
+
         	//set up any recurring monitoring processes
         	eventTimerStartEvery( &me->timer1,
                                  (StateTask* )me,
                                  (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
-                                 MS_TO_TICKS( 100 ) );
+                                 MS_TO_TICKS( 50 ) );
 
         	return 0;
 
         case STATE_TIMEOUT1_SIGNAL:
         {
-        	status_yellow_toggle();
         	CartesianPoint_t current = path_interpolator_get_global_position();
         	CartesianPoint_t target  = config_get_tracking_target();
 
-        	bool x_deadband = CHECK_RANGE(current.x, target.x, MM_TO_MICRONS(0.5));
-        	bool y_deadband = CHECK_RANGE(current.y, target.y, MM_TO_MICRONS(0.5));
-        	bool z_deadband = CHECK_RANGE(current.z, target.z, MM_TO_MICRONS(0.5));
+        	bool x_deadband = CHECK_RANGE(current.x, target.x, MM_TO_MICRONS(1));
+        	bool y_deadband = CHECK_RANGE(current.y, target.y, MM_TO_MICRONS(1));
+        	bool z_deadband = CHECK_RANGE(current.z, target.z, MM_TO_MICRONS(1));
 
         	if( !x_deadband || !y_deadband || !z_deadband )
         	{
 				MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
 				motev->move.type = _POINT_TRANSIT;
 				motev->move.ref = _POS_ABSOLUTE;
-				motev->move.duration = 90;
+				motev->move.duration = 45;
 				motev->move.num_pts = 1;
 
 				motev->move.points[0].x = target.x;
@@ -628,7 +629,9 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
 				motev->move.points[0].y = 0;
 				motev->move.points[0].z = 0;
 				eventPublish( (StateEvent*)motev );
-        	}
+
+                config_reset_tracking_target();
+            }
 			return 0;
 
         case MODE_DEMO:
@@ -648,7 +651,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
 
 		case STATE_EXIT_SIGNAL:
             eventTimerStopIfActive( &me->timer1 );
-            status_yellow(false);
+            config_reset_tracking_target();
 			return 0;
     }
     return (STATE)AppTaskSupervisor_main;

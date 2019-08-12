@@ -418,6 +418,16 @@ config_get_tracking_target()
 }
 
 PUBLIC void
+config_reset_tracking_target()
+{
+    target_position.x = 0;
+    target_position.y = 0;
+    target_position.z = 0;
+
+    eui_send_tracked("tpos");   // tell the UI that the value has changed
+}
+
+PUBLIC void
 config_set_movement_data( uint8_t move_id, uint8_t move_type, uint8_t progress )
 {
 	motion_global.movement_identifier = move_id;

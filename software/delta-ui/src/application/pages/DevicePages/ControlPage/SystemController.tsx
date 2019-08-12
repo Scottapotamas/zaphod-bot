@@ -21,47 +21,56 @@ import React from 'react'
 
 import ManualJogPalette from './ManualJogPalette'
 import EventPalette from './EventPalette'
+import TrackPalette from './TrackPalette'
 
 const ModeSelectButtons = () => {
   const control_mode = useHardwareState(state => state.super.mode)
 
-  let manualIntent: Intent
-  let eventIntent: Intent
-  let demoIntent: Intent
-  let trackIntent: Intent
-
-  manualIntent =
-    control_mode == CONTROL_MODES[CONTROL_MODES.MANUAL]
-      ? Intent.PRIMARY
-      : Intent.NONE
-  eventIntent =
-    control_mode == CONTROL_MODES[CONTROL_MODES.EVENT]
-      ? Intent.PRIMARY
-      : Intent.NONE
-  demoIntent =
-    control_mode == CONTROL_MODES[CONTROL_MODES.DEMO]
-      ? Intent.PRIMARY
-      : Intent.NONE
-  trackIntent =
-    control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]
-      ? Intent.PRIMARY
-      : Intent.NONE
-
   return (
-    <ButtonGroup fill>
-      <Button writer={{ rmanual: CALL_CALLBACK }} intent={manualIntent}>
-        Manual
-      </Button>
-      <Button writer={{ revent: CALL_CALLBACK }} intent={eventIntent}>
-        Event
-      </Button>
-      <Button writer={{ rdemo: CALL_CALLBACK }} intent={demoIntent}>
-        Demo
-      </Button>
-      <Button writer={{ rtrack: CALL_CALLBACK }} intent={trackIntent}>
-        Track
-      </Button>
-    </ButtonGroup>
+    <React.Fragment>
+      <ButtonGroup fill>
+        <Button
+          writer={{ rmanual: CALL_CALLBACK }}
+          intent={
+            control_mode == CONTROL_MODES[CONTROL_MODES.MANUAL]
+              ? 'primary'
+              : 'none'
+          }
+        >
+          Manual
+        </Button>
+        <Button
+          writer={{ revent: CALL_CALLBACK }}
+          intent={
+            control_mode == CONTROL_MODES[CONTROL_MODES.EVENT]
+              ? 'primary'
+              : 'none'
+          }
+        >
+          Event
+        </Button>
+        <Button
+          writer={{ rdemo: CALL_CALLBACK }}
+          intent={
+            control_mode == CONTROL_MODES[CONTROL_MODES.DEMO]
+              ? 'primary'
+              : 'none'
+          }
+        >
+          Demo
+        </Button>
+        <Button
+          writer={{ rtrack: CALL_CALLBACK }}
+          intent={
+            control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]
+              ? 'primary'
+              : 'none'
+          }
+        >
+          Track
+        </Button>
+      </ButtonGroup>
+    </React.Fragment>
   )
 }
 
@@ -87,12 +96,7 @@ const ControlSurfaceFromMode = () => {
       />
     )
   } else if (control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]) {
-    return (
-      <NonIdealState
-        title="Track Mode Unavailable"
-        description="Locked out until UI developed"
-      />
-    )
+    return <TrackPalette />
   }
 
   return <div>Select a mode to unlock control</div>

@@ -112,6 +112,9 @@ PUBLIC CartesianPoint_t
 config_get_tracking_target();
 
 PUBLIC void
+config_reset_tracking_target();
+
+PUBLIC void
 config_set_movement_data( uint8_t move_id, uint8_t move_type, uint8_t progress );
 
 PUBLIC void
