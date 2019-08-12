@@ -243,6 +243,10 @@ PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
             config_set_control_mode( me->selected_control_mode );
             return 0;
 
+        case MOTION_DISABLED:
+            STATE_TRAN( AppTaskSupervisor_disarmed );
+            return 0;
+
 		case STATE_EXIT_SIGNAL:
 			eventTimerStopIfActive(&me->timer1);
 			return 0;
@@ -261,35 +265,20 @@ PRIVATE STATE AppTaskSupervisor_arm_error( AppTaskSupervisor *me,
     {
         case STATE_ENTRY_SIGNAL:
         	config_set_main_state( SUPERVISOR_ERROR );
-            config_set_control_mode( me->selected_control_mode );
-        	//cleanup and prepare for recovery
+            config_set_control_mode( CONTROL_NONE );
+
+        	// We only get here when another state thinks the mechanism isn't responding properly
+        	// so treat it as a high severity error, and trigger e-stop behaviour
+            eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
 
         	//send message to UI
 
         	//blink some lights?
 
-            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
-
         	return 0;
 
-        case STATE_STEP1_SIGNAL:
-        	STATE_TRAN( AppTaskSupervisor_disarmed );
-            return 0;
-
-        case MODE_TRACK:
-            me->selected_control_mode = CONTROL_TRACK;
-            return 0;
-
-        case MODE_EVENT:
-            me->selected_control_mode = CONTROL_EVENT;
-            return 0;
-
-        case MODE_MANUAL:
-            me->selected_control_mode = CONTROL_MANUAL;
-            return 0;
-
-        case MODE_DEMO:
-            me->selected_control_mode = CONTROL_DEMO;
+        case MOTION_DISABLED:
+            STATE_TRAN( AppTaskSupervisor_disarmed );
             return 0;
 
 		case STATE_EXIT_SIGNAL:
@@ -353,6 +342,10 @@ PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
         case MECHANISM_STOP:
         	STATE_TRAN( AppTaskSupervisor_disarm_graceful );
         	return 0;
+
+        case MOTION_DISABLED:
+            STATE_TRAN( AppTaskSupervisor_disarmed );
+            return 0;
 
         case STATE_EXIT_SIGNAL:
             config_set_control_mode( me->selected_control_mode );
@@ -474,6 +467,10 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
             STATE_TRAN( AppTaskSupervisor_armed_change_mode );
         	return 0;
 
+        case MOTION_DISABLED:
+            STATE_TRAN( AppTaskSupervisor_disarmed );
+            return 0;
+
 		case STATE_EXIT_SIGNAL:
 
 			return 0;
@@ -553,6 +550,10 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
         case MODE_DEMO:
             me->selected_control_mode = CONTROL_DEMO;
             STATE_TRAN( AppTaskSupervisor_armed_change_mode );
+            return 0;
+
+        case MOTION_DISABLED:
+            STATE_TRAN( AppTaskSupervisor_disarmed );
             return 0;
 
         case STATE_EXIT_SIGNAL:
@@ -647,6 +648,10 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
             STATE_TRAN( AppTaskSupervisor_armed_change_mode );
             return 0;
 
+        case MOTION_DISABLED:
+            STATE_TRAN( AppTaskSupervisor_disarmed );
+            return 0;
+
 		case STATE_EXIT_SIGNAL:
             eventTimerStopIfActive( &me->timer1 );
             config_reset_tracking_target();
@@ -690,6 +695,10 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
         	me->selected_control_mode = CONTROL_EVENT;
             STATE_TRAN( AppTaskSupervisor_armed_change_mode );
         	return 0;
+
+        case MOTION_DISABLED:
+            STATE_TRAN( AppTaskSupervisor_disarmed );
+            return 0;
 
 		case STATE_EXIT_SIGNAL:
 
@@ -829,6 +838,10 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
         	STATE_TRAN( AppTaskSupervisor_arm_error );
         	return 0;
 
+        case MOTION_DISABLED:
+            STATE_TRAN( AppTaskSupervisor_disarmed );
+            return 0;
+
 		case STATE_EXIT_SIGNAL:
             config_set_control_mode( me->selected_control_mode );
             eventTimerStopIfActive( &me->timer1 );
@@ -848,7 +861,6 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
     {
         case STATE_ENTRY_SIGNAL:
         	config_set_main_state( SUPERVISOR_DISARMING );
-
             config_set_control_mode( me->selected_control_mode );
 
             //empty out the queues
@@ -897,23 +909,22 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
 
         	// Check to make sure the mechanism is at the home position before disabling servo power
         	// Allow a few microns error on position in check
-        	if( 	position.x < MM_TO_MICRONS(0.1)
-				&& 	position.y < MM_TO_MICRONS(0.1)
-				&& 	position.z < MM_TO_MICRONS(0.1)
-				&& 	path_interpolator_get_move_done() )
+        	if( 	position.x < MM_TO_MICRONS(0.15)
+				&& 	position.y < MM_TO_MICRONS(0.15)
+				&& 	position.z < MM_TO_MICRONS(0.15)
+				)
         	{
+        	    // Todo use a 'quiet' disarm here rather than the hard emergency shutdown
             	eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
-
         	}
-
-        	//todo consider adding a second timeout to e-stop if it doesn't get home in time?
 
 			return 0;
         }
 
         case STATE_TIMEOUT2_SIGNAL:
         {
-        	STATE_TRAN( AppTaskSupervisor_arm_error );
+            // Didn't see a full disarm within 5 seconds of starting the process, should have homed by now
+            STATE_TRAN( AppTaskSupervisor_arm_error );
         	return 0;
         }
 
