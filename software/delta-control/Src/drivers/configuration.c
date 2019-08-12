@@ -342,12 +342,14 @@ config_set_main_state( uint8_t state )
 {
 	sys_states.supervisor = state;
 	sys_states.motors = motion_servo[0].enabled || motion_servo[1].enabled || motion_servo[2].enabled;
+	eui_send_tracked("super");
 }
 
 PUBLIC void
 config_set_control_mode( uint8_t mode )
 {
 	sys_states.control_mode = mode;
+    eui_send_tracked("super");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -499,7 +501,6 @@ config_set_led_values( uint8_t red, uint8_t green, uint8_t blue)
     rgb_led_drive.red = red;
     rgb_led_drive.green = green;
     rgb_led_drive.blue = blue;
-
 }
 
 PUBLIC void

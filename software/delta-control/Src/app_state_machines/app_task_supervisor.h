@@ -24,6 +24,18 @@ typedef enum {
     CONTROL_CHANGING,
 } ControlModes_t;
 
+typedef enum {
+    SUPERVISOR_NONE = 0,
+    SUPERVISOR_MAIN,
+    SUPERVISOR_IDLE,
+    SUPERVISOR_ARMING,
+    SUPERVISOR_ERROR,
+    SUPERVISOR_SUCCESS,
+    SUPERVISOR_ARMED,
+    SUPERVISOR_DISARMING,
+    SUPERVISOR_INVALID,
+} SupervisorStates_t;
+
 /* ----- State Task Control Block ------------------------------------------- */
 
 /** Application Task Control Block File System */

@@ -102,7 +102,7 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
     {
         case STATE_ENTRY_SIGNAL:
         {
-        	config_set_main_state(1);
+        	config_set_main_state( SUPERVISOR_MAIN );
 
         	//start the board hardware sensors
         	sensors_enable();
@@ -147,7 +147,7 @@ PRIVATE STATE AppTaskSupervisor_disarmed( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-        	config_set_main_state(2);
+        	config_set_main_state( SUPERVISOR_IDLE );
             config_set_control_mode( me->selected_control_mode );
 
             status_green(false);
@@ -196,7 +196,7 @@ PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-        	config_set_main_state(3);
+        	config_set_main_state( SUPERVISOR_ARMING );
 
             status_yellow(true);
 
@@ -244,7 +244,6 @@ PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
             return 0;
 
 		case STATE_EXIT_SIGNAL:
-            config_set_control_mode( me->selected_control_mode );
 			eventTimerStopIfActive(&me->timer1);
 			return 0;
     }
@@ -261,7 +260,7 @@ PRIVATE STATE AppTaskSupervisor_arm_error( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-        	config_set_main_state(4);
+        	config_set_main_state( SUPERVISOR_ERROR );
             config_set_control_mode( me->selected_control_mode );
         	//cleanup and prepare for recovery
 
@@ -311,7 +310,7 @@ PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
     {
         case STATE_ENTRY_SIGNAL:
         	// update state for UI
-        	config_set_main_state(5);
+        	config_set_main_state( SUPERVISOR_SUCCESS );
             status_yellow(false);
             status_green(true);
 
@@ -372,7 +371,7 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-        	config_set_main_state(6);
+        	config_set_main_state( SUPERVISOR_ARMED );
         	config_set_control_mode( CONTROL_EVENT );
 
         	//set up any recurring monitoring processes
@@ -437,7 +436,6 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
 
             }
 
-
             return 0;
         }
 
@@ -490,7 +488,7 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            config_set_main_state(6);
+            config_set_main_state( SUPERVISOR_ARMED );
             config_set_control_mode( CONTROL_MANUAL );
 
             //set up any recurring monitoring processes
@@ -570,7 +568,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-        	config_set_main_state(6);
+        	config_set_main_state( SUPERVISOR_ARMED );
         	config_set_control_mode( CONTROL_TRACK );
 
             config_reset_tracking_target();     // entering track mode should always reset position
@@ -663,7 +661,7 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-        	config_set_main_state(6);
+        	config_set_main_state( SUPERVISOR_ARMED );
         	config_set_control_mode( CONTROL_DEMO );
 
         	//todo write demonstration programs and a way to run through a sequence of them
@@ -706,7 +704,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-        	config_set_main_state(6);
+        	config_set_main_state( SUPERVISOR_ARMED );
         	config_set_control_mode( CONTROL_CHANGING );
 
         	//empty out the queues
@@ -849,7 +847,7 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-        	config_set_main_state(7);
+        	config_set_main_state( SUPERVISOR_DISARMING );
 
             config_set_control_mode( me->selected_control_mode );
 
@@ -924,7 +922,6 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
         	return 0;
 
 		case STATE_EXIT_SIGNAL:
-            config_set_control_mode( me->selected_control_mode );
             eventTimerStopIfActive(&me->timer1);
             eventTimerStopIfActive(&me->timer2);
 			return 0;
