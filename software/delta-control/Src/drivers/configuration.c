@@ -95,7 +95,7 @@ typedef struct
 
 typedef struct
 {
-	bool enabled;
+    uint8_t enabled;
 	uint8_t state;
 	uint8_t feedback;
 	float target_angle;

@@ -8,15 +8,6 @@ import { TimeSeriesFactory, DataSource } from '@electricui/core-timeseries'
 export function sourceFactory(device: DeviceID): DataSource[] {
   return [
     /**
-     * Thermal sensor data
-     */
-    new DataSource({
-      name: 'fan_data',
-      filter: message => message.messageID === 'fan',
-      columns: ['RPM', 'Setpoint'],
-      processor: message => [message.payload.rpm, message.payload.setpoint],
-    }),
-    /**
      * Servo operating info
      */
     new DataSource({
@@ -70,7 +61,5 @@ export function timeseriesFactories(device: DeviceID): TimeSeriesFactory[] {
       'servoB_watts',
       'servoC_watts',
     ]),
-
-    new TimeSeriesFactory('thermal_graph', ['fan_data']),
   ]
 }

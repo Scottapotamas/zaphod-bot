@@ -20,6 +20,7 @@ const ControlPage = (props: RouteComponentProps) => {
   return (
     <React.Fragment>
       <IntervalRequester interval={125} variables={['moStat', 'cpos', 'rgb']} />
+      <IntervalRequester interval={200} variables={['mo1', 'mo2', 'mo3']} />
 
       <Grid
         columns="repeat(auto-fit,minmax(600px,0.6fr))"
@@ -28,10 +29,10 @@ const ControlPage = (props: RouteComponentProps) => {
       >
         <Cell>
           <SystemController />
-        </Cell>
-        <Cell>
+          <br />
           <SystemOverview />
         </Cell>
+        <Cell />
         <Cell>
           <CameraCard />
         </Cell>
