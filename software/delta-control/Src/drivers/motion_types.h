@@ -58,6 +58,34 @@ typedef struct
 	CartesianPoint_t points[ MOVEMENT_POINTS_COUNT ];	//array of 3d points
 } Movement_t;
 
+
+/* ----- Functions ---------------------------------------------------------- */
+
+PUBLIC int32_t
+cartesian_move_speed(Movement_t *movement);
+
+PUBLIC int32_t
+cartesian_move_distance(Movement_t *movement);
+
+PUBLIC int32_t
+cartesian_distance_between(CartesianPoint_t *a, CartesianPoint_t *b);
+
+PUBLIC KinematicsSolution_t
+cartesian_point_on_line(CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output);
+
+PUBLIC KinematicsSolution_t
+cartesian_point_on_catmull_spline(CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output);
+
+PUBLIC KinematicsSolution_t
+cartesian_point_on_quadratic_bezier(CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output);
+
+PUBLIC KinematicsSolution_t
+cartesian_point_on_cubic_bezier(CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output);
+
+PUBLIC KinematicsSolution_t
+cartesian_point_on_spiral(CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output);
+
+
 /* -------------------------------------------------------------------------- */
 
 #endif /* MOTION_TYPES_H */
