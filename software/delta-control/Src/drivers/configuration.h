@@ -73,7 +73,7 @@ PUBLIC void
 config_set_cpu_load( uint8_t percent );
 
 PUBLIC void
-config_set_cpu_clock( float clock );
+config_set_cpu_clock(uint32_t clock);
 
 PUBLIC void
 config_set_cpu_temp( float temp );

@@ -16,6 +16,8 @@
 #include "qassert.h"
 #include "simple_state_machine.h"
 #include "app_times.h"
+#include "event_subscribe.h"
+#include "app_signals.h"
 #include "configuration.h"
 #include "status.h"
 
@@ -161,7 +163,7 @@ servo_process( ClearpathServoInstance_t servo )
 {
     Servo_t *me = &clearpath[servo];
 
-    float 	servo_power = sensors_servo_W( ServoHardwareMap[servo].adc_current );
+    float servo_power = sensors_servo_W( ServoHardwareMap[servo].adc_current );
 
     me->feedback_ok = hal_gpio_read_pin(ServoHardwareMap[servo].pin_feedback);
 
@@ -316,7 +318,8 @@ servo_process( ClearpathServoInstance_t servo )
 					{
 						//shutdown for safety
 						config_report_error( "Servo Overload");
-						STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+                        eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
+                        STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
 					}
 				}
 				else

@@ -353,9 +353,10 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
     switch( e->signal )
     {
 		case STATE_ENTRY_SIGNAL:
-	            config_set_motion_state( TASKSTATE_MOTION_ACTIVE );
-                stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
-			return 0;
+            config_set_motion_state( TASKSTATE_MOTION_ACTIVE );
+            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+
+            return 0;
 
         case STATE_STEP1_SIGNAL:
             {
@@ -492,6 +493,10 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
     switch( e->signal )
     {
 		case STATE_ENTRY_SIGNAL:
+
+		    // disable the motion interpolation engine
+            path_interpolator_reset();
+
         	//disable servos
         	servo_stop( _CLEARPATH_1 );
         	servo_stop( _CLEARPATH_2 );

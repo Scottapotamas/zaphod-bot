@@ -130,6 +130,17 @@ path_interpolator_get_global_position( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
+path_interpolator_reset( void )
+{
+    MotionPlanner_t *me = &planner;
+
+    // Request that the statemachine return to "OFF"
+    planner.enable = false;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
 path_interpolator_set_home( void )
 {
 	planner.effector_position.x = 0;
@@ -181,7 +192,7 @@ path_interpolator_process( void )
             	uint32_t time_used = hal_systick_get_ms() - me->movement_started;
             	me->progress_percent = (float)( time_used ) / move->duration;
 
-            	if( me->progress_percent >= 1.0f - FLT_EPSILON )
+            	if( me->progress_percent >= 1.0f - FLT_EPSILON || planner.enable == false )
             	{
             		//movement is complete, the planner can stop now
             		STATE_NEXT( PLANNER_OFF );
