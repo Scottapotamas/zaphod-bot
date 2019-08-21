@@ -812,6 +812,25 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
 						break;
         		}
         	}
+        	else
+            {
+        	    // if the effector isn't moving, and isn't home, then issue another homing move
+        	    if( path_interpolator_get_move_done() )
+                {
+                    //request a move to 0,0,0
+                    MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
+                    motev->move.type = _POINT_TRANSIT;
+                    motev->move.ref = _POS_ABSOLUTE;
+                    motev->move.identifier = 0;
+                    motev->move.duration = 800;
+                    motev->move.num_pts = 1;
+                    motev->move.points[0].x = 0;
+                    motev->move.points[0].y = 0;
+                    motev->move.points[0].z = 0;
+
+                    eventPublish( (StateEvent*)motev );
+                }
+            }
 			return 0;
         }
 
