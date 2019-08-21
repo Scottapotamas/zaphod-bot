@@ -110,6 +110,7 @@ led_interpolator_process( void )
         case ANIMATION_OFF:
             STATE_ENTRY_ACTION
         		config_set_led_status(me->currentState);
+                led_set(0,0,0);
 
             STATE_TRANSITION_TEST
 
@@ -196,14 +197,14 @@ hsi_lerp_linear( HSIColour_t p[], size_t points, float pos_weight, HSIColour_t *
 
 	if(pos_weight <= 0.0f + FLT_EPSILON)
 	{
-		output = &p[0];
+        memcpy( output, &p[0], sizeof(HSIColour_t) );
 		return FADE_VALID;
 	}
 
 	if(pos_weight >= 1.0f - FLT_EPSILON)
 	{
-		output = &p[1];
-		return FADE_VALID;
+        memcpy( output, &p[1], sizeof(HSIColour_t) );
+        return FADE_VALID;
 	}
 
     // Linear interpolation between two points (lerp)

@@ -367,9 +367,9 @@ servo_process( ClearpathServoInstance_t servo )
                     uint16_t pulses_needed = step_difference*step_direction;
 
 
-                    if( pulses_needed > 3 )
+                    if( pulses_needed > 5 )
                     {
-                        pulses_needed = 3;
+                        pulses_needed = 5;
                         status_yellow(true);    // visual debugging aid to see when speed limits are hit
                     }
                     else

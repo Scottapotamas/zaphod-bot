@@ -1,6 +1,6 @@
 import React from 'react'
 import { RouteComponentProps } from '@reach/router'
-import { Card } from '@blueprintjs/core'
+import { Card, Icon } from '@blueprintjs/core'
 import { Grid, Cell } from 'styled-css-grid'
 
 import { useDarkMode } from '@electricui/components-desktop'
@@ -19,7 +19,7 @@ const ControlPage = (props: RouteComponentProps) => {
 
   return (
     <React.Fragment>
-      <IntervalRequester interval={125} variables={['moStat', 'cpos', 'rgb']} />
+      <IntervalRequester interval={100} variables={['moStat', 'cpos']} />
       <IntervalRequester interval={200} variables={['mo1', 'mo2', 'mo3']} />
 
       <Grid
@@ -32,7 +32,7 @@ const ControlPage = (props: RouteComponentProps) => {
           <br />
           <SystemOverview />
         </Cell>
-        <Cell />
+
         <Cell>
           <CameraCard />
         </Cell>
