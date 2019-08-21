@@ -279,7 +279,9 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
                 uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
                 if( queue_usage <= MOVEMENT_QUEUE_DEPTH_MAX )
                 {
-                    if( mpe->move.duration)
+                    int32_t speed = cartesian_move_speed(&mpe->move);
+
+                    if( speed < EFFECTOR_SPEED_LIMIT )
                     {
                         eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
 
@@ -287,6 +289,10 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
                         {
                             STATE_TRAN( AppTaskMotion_active );
                         }
+                    }
+                    else
+                    {
+                        config_report_error("Requested illegal speed");
                     }
                 }
                 else
@@ -424,10 +430,15 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 				uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
 				if( queue_usage <= MOVEMENT_QUEUE_DEPTH_MAX )
 				{
-					if( mpe->move.duration)
-					{
+                    int32_t speed = cartesian_move_speed(&mpe->move);
+
+                    if( speed < EFFECTOR_SPEED_LIMIT )
+                    {
 						eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
-                        queue_usage += 1;   // queue depth value passed to the UI should include the one we just added
+                    }
+                    else
+                    {
+                        config_report_error("Requested illegal speed");
                     }
 				}
 				else
