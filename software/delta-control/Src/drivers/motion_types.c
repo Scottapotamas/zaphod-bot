@@ -8,6 +8,7 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "motion_types.h"
+#include "app_times.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -49,13 +50,11 @@ cartesian_move_distance(Movement_t *movement)
             // Copy the curve start point as the previous point, as first sample is non-zero
             memcpy( &previous_point, &movement->points[0], sizeof(CartesianPoint_t) );
 
-            uint16_t sample_resolution = 100;
-
             // iteratively sum over a series of sampled positions
-            for (uint32_t i = 1; i < sample_resolution; i++)
+            for (uint32_t i = 1; i < SPEED_SAMPLE_RESOLUTION; i++)
             {
                 // convert the step into a 0-1 float for 'percentage across line' input
-                float sample_t = i / sample_resolution;
+                float sample_t = i / SPEED_SAMPLE_RESOLUTION;
 
                 // sample the position of the effector using the relevant interp processor
                 switch( movement->ref )

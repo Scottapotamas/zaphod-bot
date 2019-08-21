@@ -26,11 +26,13 @@ enum SystemDefines
 {
 	BACKGROUND_RATE_BUTTON_MS	= 20U,	//  50Hz
 	BACKGROUND_RATE_BUZZER_MS	= 10U,	// 100Hz
-	BACKGROUND_ADC_SAMPLE_MS	= 100U,	// 10Hz
+	BACKGROUND_ADC_SAMPLE_MS	= 100U,	//  10Hz
 
-	MOVEMENT_QUEUE_DEPTH_MAX    = 30U,
-    LED_QUEUE_DEPTH_MAX         = 40U,
+	MOVEMENT_QUEUE_DEPTH_MAX    = 30U,  // movemevent events in the queue
+    LED_QUEUE_DEPTH_MAX         = 40U,  // LED animations in the queue
 
+    EFFECTOR_SPEED_LIMIT        = 25U, // cm/second
+    SPEED_SAMPLE_RESOLUTION     = 15U, // number of samples to sum across line
 };
 
 /* -------------------------------------------------------------------------- */
