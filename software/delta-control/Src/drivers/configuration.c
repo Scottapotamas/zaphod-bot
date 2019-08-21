@@ -151,16 +151,12 @@ PRIVATE void execute_motion_queue( void );
 PRIVATE void pause_motion_queue_execution( void );
 PRIVATE void clear_all_queue(void);
 
-PRIVATE void request_tracking_mode( void );
-PRIVATE void request_demo_mode( void );
-PRIVATE void request_event_mode( void );
-PRIVATE void request_manual_mode( void );
-
 PRIVATE void movement_generate_event( void );
 PRIVATE void lighting_generate_event( void );
 PRIVATE void sync_begin_queues( void );
 
 uint8_t sync_id_val = 0;
+uint8_t mode_request = 0;
 
 eui_message_t ui_variables[] =
 {
@@ -214,10 +210,7 @@ eui_message_t ui_variables[] =
     EUI_FUNC("home", home_mech_cb),
 
     // UI requests a change of operating mode
-    EUI_FUNC("rtrack", request_tracking_mode),
-    EUI_FUNC("rmanual", request_manual_mode),
-    EUI_FUNC("rdemo", request_demo_mode),
-    EUI_FUNC("revent", request_event_mode),
+    EUI_UINT8( "req_mode", mode_request ),
 
 };
 
@@ -292,6 +285,70 @@ configuration_electric_setup( void )
 {
     EUI_TRACK( ui_variables );
     eui_setup_identifier( (char*)HAL_UUID, 12 );	//header byte is 96-bit, therefore 12-bytes
+
+}
+
+PUBLIC void
+configuration_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t message )
+{
+    // Provided the callbacks - use this to fire callbacks when a variable changes etc
+    switch (message)
+    {
+        case EUI_CB_TRACKED:
+        {
+            // UI received a tracked message ID and has completed processing
+            eui_header_t header = interface->packet.header;
+            void *payload = interface->packet.data_in;
+            uint8_t *name_rx = interface->packet.id_in;
+
+            // See if the inbound packet name matches our intended variable
+            if( strcmp( (char*)name_rx, "req_mode" ) == 0 )
+            {
+
+                // Fire an event to the supervisor to change mode
+                switch( mode_request )
+                {
+                    case CONTROL_NONE:
+                        // TODO allow UI to request a no-mode setting?
+                        break;
+                    case CONTROL_MANUAL:
+                        eventPublish( EVENT_NEW( StateEvent, MODE_MANUAL ) );
+                        break;
+                    case CONTROL_EVENT:
+                        eventPublish( EVENT_NEW( StateEvent, MODE_EVENT ) );
+                        break;
+                    case CONTROL_DEMO:
+                        eventPublish( EVENT_NEW( StateEvent, MODE_DEMO ) );
+                        break;
+                    case CONTROL_TRACK:
+                        eventPublish( EVENT_NEW( StateEvent, MODE_TRACK ) );
+                        break;
+
+                    default:
+                        // Punish an incorrect attempt at mode changes with E-STOP
+                        eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
+                        break;
+                }
+
+            }
+
+            break;
+        }
+
+        case EUI_CB_UNTRACKED:
+            // UI passed in an untracked message ID
+
+            break;
+
+        case EUI_CB_PARSE_FAIL:
+            // Inbound message parsing failed, this callback help while debugging
+
+            break;
+
+        default:
+
+            break;
+    }
 
 }
 
@@ -607,34 +664,6 @@ PRIVATE void sync_begin_queues( void )
         eventPublish( (StateEvent*)barrier_ev );
         memset(&sync_id_val, 0, sizeof(sync_id_val));
     }
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void request_tracking_mode( void )
-{
-	eventPublish( EVENT_NEW( StateEvent, MODE_TRACK ) );
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void request_demo_mode( void )
-{
-	eventPublish( EVENT_NEW( StateEvent, MODE_DEMO ) );
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void request_event_mode( void )
-{
-	eventPublish( EVENT_NEW( StateEvent, MODE_EVENT ) );
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void request_manual_mode( void )
-{
-    eventPublish( EVENT_NEW( StateEvent, MODE_MANUAL ) );
 }
 
 /* ----- End ---------------------------------------------------------------- */

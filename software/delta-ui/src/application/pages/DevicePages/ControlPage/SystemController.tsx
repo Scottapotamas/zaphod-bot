@@ -30,7 +30,7 @@ const ModeSelectButtons = () => {
     <React.Fragment>
       <ButtonGroup fill>
         <Button
-          writer={{ rmanual: CALL_CALLBACK }}
+          writer={{ req_mode: 1 }}
           intent={
             control_mode == CONTROL_MODES[CONTROL_MODES.MANUAL]
               ? 'primary'
@@ -40,7 +40,7 @@ const ModeSelectButtons = () => {
           Manual
         </Button>
         <Button
-          writer={{ revent: CALL_CALLBACK }}
+          writer={{ req_mode: 2 }}
           intent={
             control_mode == CONTROL_MODES[CONTROL_MODES.EVENT]
               ? 'primary'
@@ -50,7 +50,7 @@ const ModeSelectButtons = () => {
           Event
         </Button>
         <Button
-          writer={{ rdemo: CALL_CALLBACK }}
+          writer={{ req_mode: 4 }}
           intent={
             control_mode == CONTROL_MODES[CONTROL_MODES.DEMO]
               ? 'primary'
@@ -60,7 +60,7 @@ const ModeSelectButtons = () => {
           Demo
         </Button>
         <Button
-          writer={{ rtrack: CALL_CALLBACK }}
+          writer={{ req_mode: 3 }}
           intent={
             control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]
               ? 'primary'

@@ -9,6 +9,7 @@ extern "C" {
 
 /* ----- Local Includes ----------------------------------------------------- */
 
+#include <src/electricui.h>
 #include "global.h"
 #include "motion_types.h"
 
@@ -25,6 +26,15 @@ typedef enum {
 	PIN_I2C,
 	PIN_CAN
 } ConfigurableIOMode_t;
+
+typedef enum {
+    CONTROL_NONE = 0,
+    CONTROL_MANUAL,
+    CONTROL_EVENT,
+    CONTROL_TRACK,
+    CONTROL_DEMO,
+    CONTROL_CHANGING,
+} ControlModes_t;
 
 typedef struct
 {
@@ -48,6 +58,9 @@ configuration_save( void );
 
 PUBLIC void
 configuration_electric_setup( void );
+
+PUBLIC void
+configuration_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t message );
 
 /* -------------------------------------------------------------------------- */
 

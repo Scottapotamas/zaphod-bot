@@ -16,15 +16,6 @@ extern "C" {
 #include "event_timer.h"
 
 typedef enum {
-    CONTROL_NONE = 0,
-    CONTROL_MANUAL,
-    CONTROL_EVENT,
-    CONTROL_TRACK,
-    CONTROL_DEMO,
-    CONTROL_CHANGING,
-} ControlModes_t;
-
-typedef enum {
     SUPERVISOR_NONE = 0,
     SUPERVISOR_MAIN,
     SUPERVISOR_IDLE,

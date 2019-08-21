@@ -38,6 +38,14 @@ PRIVATE STATE AppTaskCommunication_main( AppTaskCommunication *me, const StateEv
 
 PRIVATE STATE AppTaskCommunication_electric_ui( AppTaskCommunication *me, const StateEvent *e );
 
+PRIVATE void AppTaskCommunication_eui_callback_external( uint8_t message );
+
+PRIVATE void AppTaskCommunication_eui_callback_internal( uint8_t message );
+
+PRIVATE void AppTaskCommunication_eui_callback_module( uint8_t message );
+
+PRIVATE void AppTaskCommunication_eui_callback_usb( uint8_t message );
+
 enum {
     LINK_MODULE = 0,
     LINK_INTERNAL,
@@ -46,10 +54,10 @@ enum {
 } EUI_LINK_NAMES;
 
 eui_interface_t communication_interface[] = {
-        EUI_INTERFACE(&AppTaskCommunication_tx_put_module),
-        EUI_INTERFACE(&AppTaskCommunication_tx_put_internal),
-        EUI_INTERFACE(&AppTaskCommunication_tx_put_external),
-        EUI_INTERFACE(&AppTaskCommunication_tx_put_usb),
+        EUI_INTERFACE_CB(&AppTaskCommunication_tx_put_module, &AppTaskCommunication_eui_callback_module),
+        EUI_INTERFACE_CB(&AppTaskCommunication_tx_put_internal, &AppTaskCommunication_eui_callback_internal),
+        EUI_INTERFACE_CB(&AppTaskCommunication_tx_put_external, &AppTaskCommunication_eui_callback_external),
+        EUI_INTERFACE_CB(&AppTaskCommunication_tx_put_usb, &AppTaskCommunication_eui_callback_usb),
 };
 
 /* ----- Public Functions --------------------------------------------------- */
@@ -167,6 +175,8 @@ PRIVATE STATE AppTaskCommunication_electric_ui( AppTaskCommunication *me,
     return (STATE)AppTaskCommunication_main;
 }
 
+/* -------------------------------------------------------------------------- */
+
 PRIVATE void
 AppTaskCommunication_tx_put_external( uint8_t *c, uint16_t length )
 {
@@ -185,12 +195,13 @@ AppTaskCommunication_tx_put_module( uint8_t *c, uint16_t length )
 	hal_uart_write( HAL_UART_PORT_MODULE, c, length );
 }
 
-
 PRIVATE void
 AppTaskCommunication_tx_put_usb( uint8_t *c, uint16_t length )
 {
 	CDC_Transmit_FS( c, length );
 }
+
+/* -------------------------------------------------------------------------- */
 
 PRIVATE void
 AppTaskCommunication_rx_callback_uart( HalUartPort_t port, uint8_t c )
@@ -221,4 +232,31 @@ AppTaskCommunication_rx_callback_cdc( uint8_t c )
     eui_parse(c, &communication_interface[LINK_USB]);
 
 }
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void
+AppTaskCommunication_eui_callback_external( uint8_t message )
+{
+    configuration_eui_callback( LINK_EXTERNAL, &communication_interface[LINK_EXTERNAL], message );
+}
+
+PRIVATE void
+AppTaskCommunication_eui_callback_internal( uint8_t message )
+{
+    configuration_eui_callback( LINK_INTERNAL, &communication_interface[LINK_INTERNAL], message );
+}
+
+PRIVATE void
+AppTaskCommunication_eui_callback_module( uint8_t message )
+{
+    configuration_eui_callback( LINK_MODULE, &communication_interface[LINK_MODULE], message );
+}
+
+PRIVATE void
+AppTaskCommunication_eui_callback_usb( uint8_t message )
+{
+    configuration_eui_callback( LINK_USB, &communication_interface[LINK_USB], message );
+}
+
 /* ----- End ---------------------------------------------------------------- */
