@@ -272,6 +272,7 @@ PRIVATE STATE AppTaskSupervisor_arm_error( AppTaskSupervisor *me,
             eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
 
         	//send message to UI
+        	config_report_error("Arming Error");
 
         	//blink some lights?
 

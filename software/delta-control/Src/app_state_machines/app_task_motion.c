@@ -292,6 +292,8 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
                 else
                 {
                     //queue full, clearly the input motion processor isn't abiding by the spec.
+                    config_report_error("Motion Queue Full");
+
                     //shutdown
                     eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
                     STATE_TRAN( AppTaskMotion_recovery );
@@ -431,11 +433,13 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 				else
 				{
 					//queue full, clearly the input motion processor isn't abiding by the spec.
-					//shutdown
+                    config_report_error("Motion Queue Full");
+
+                    //shutdown
                     eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
 					STATE_TRAN( AppTaskMotion_recovery );
 				}
-				config_set_motion_queue_depth( queue_usage );
+				config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
         	}
         	return 0;
 

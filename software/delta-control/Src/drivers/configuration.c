@@ -297,6 +297,20 @@ configuration_electric_setup( void )
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC void
+config_report_error( char * error_string )
+{
+    // Send the text to the UI for display to user
+    eui_message_t err_message = { .id = "err",
+                                  .type = TYPE_CHAR,
+                                  .size = strlen( error_string ),
+                                { .data = error_string }       };
+
+    eui_send_untracked( &err_message );
+}
+
+/* -------------------------------------------------------------------------- */
+
 // System Statistics and Settings
 
 PUBLIC void

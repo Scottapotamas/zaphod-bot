@@ -52,6 +52,11 @@ configuration_electric_setup( void );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
+config_report_error( char * error_string );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
 config_set_cpu_load( uint8_t percent );
 
 PUBLIC void

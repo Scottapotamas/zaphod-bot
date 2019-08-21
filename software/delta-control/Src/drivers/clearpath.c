@@ -315,6 +315,7 @@ servo_process( ClearpathServoInstance_t servo )
 					if( ( hal_systick_get_ms() - me->timer ) > SERVO_IDLE_POWER_TRIP_MS )
 					{
 						//shutdown for safety
+						config_report_error( "Servo Overload");
 						STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
 					}
 				}
@@ -366,8 +367,7 @@ servo_process( ClearpathServoInstance_t servo )
                     if( pulses_needed > 3 )
                     {
                         pulses_needed = 3;
-                        status_yellow(true);
-
+                        status_yellow(true);    // visual debugging aid to see when speed limits are hit
                     }
                     else
                     {
