@@ -2,3 +2,5 @@
 software/delta-control/Src/app_state_machines/build_info\.h
 
 *.kicad_pcb-bak
+*.jpg
+*.cr2
