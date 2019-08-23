@@ -256,10 +256,11 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
             {
                 StateEvent * next = eventQueuePeek( &me->super.requestQueue );
                 LightingPlannerEvent *lpe = (LightingPlannerEvent*)next;
+                Fade_t *next_animation = &lpe->animation;
 
                 if(next)
                 {
-                    if( me->identifier_to_execute == 0 || me->identifier_to_execute >= &lpe->animation.identifier )
+                    if (me->identifier_to_execute == 0 || me->identifier_to_execute >= next_animation->identifier)
                     {
                         stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
                     }

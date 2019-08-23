@@ -370,7 +370,7 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
                     if(next)
                     {
                         MotionPlannerEvent *ape = (MotionPlannerEvent*)next;
-                        Movement_t * next_move = &ape->move;
+                        Movement_t *next_move = &ape->move;
 
                         if( me->identifier_to_execute == 0 || me->identifier_to_execute >= next_move->identifier )
                         {
@@ -400,10 +400,11 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
                 {
                     StateEvent * next = eventQueuePeek( &me->super.requestQueue );
                     MotionPlannerEvent *ape = (MotionPlannerEvent*)next;
+                    Movement_t *next_move = &ape->move;
 
                     if(next)
                     {
-                        if( me->identifier_to_execute == 0 || me->identifier_to_execute >= &ape->move.identifier )
+                        if( me->identifier_to_execute == 0 || me->identifier_to_execute >= next_move->identifier )
                         {
                             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
                         }

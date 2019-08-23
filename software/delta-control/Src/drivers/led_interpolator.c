@@ -177,7 +177,7 @@ led_interpolator_process( void )
 
             STATE_EXIT_ACTION
 				planner.enable = false;
-                led_enable(false);
+//                led_enable(false);
 
             STATE_END
             break;
