@@ -4,7 +4,7 @@ import path from 'path'
 import os from 'os'
 import fs from 'fs'
 
-import loadScene from './loadScene'
+import { loadScene, setLoadedScene } from './loadScene'
 
 import { queueLight } from './led'
 import {
@@ -17,7 +17,6 @@ import {
   moveForward,
   moveBack,
   sync,
-  scaleHeight,
 } from './delta'
 import { cameraSettings, cameraTrigger, setLocalSavePath } from './camera'
 
@@ -38,6 +37,7 @@ const wait = new Action(
 const actions = [
   setLocalSavePath,
   loadScene,
+  setLoadedScene,
   cameraSettings,
   cameraTrigger,
   wait,
@@ -51,7 +51,6 @@ const actions = [
   moveForward,
   moveBack,
   sync,
-  scaleHeight,
 ]
 
 export default actions

@@ -2,10 +2,32 @@ import { DeviceManager, Message, Device } from '@electricui/core'
 import { Action, RunActionFunction } from '@electricui/core-actions'
 
 import fs from 'fs'
+import { getDelta } from './utils'
 
 export type LoadSceneOptions = {
   filePath: string
 }
+
+const setLoadedScene = new Action(
+  'set_loaded_scene',
+  async (
+    deviceManager: DeviceManager,
+    runAction: RunActionFunction,
+    scenePath: string,
+  ) => {
+    const delta = getDelta(deviceManager)
+
+    if (!delta) {
+      return
+    }
+
+    delta.addMetadata({
+      loadedScene: scenePath,
+    })
+
+    console.log('set_loaded_scene to ', scenePath)
+  },
+)
 
 const loadScene = new Action(
   'load_scene',
@@ -23,6 +45,30 @@ const loadScene = new Action(
     }
 
     return parseScene(filePath, runAction)
+  },
+)
+
+const runLoadedScene = new Action(
+  'run_loaded_scene',
+  async (
+    deviceManager: DeviceManager,
+    runAction: RunActionFunction,
+    savePath: string,
+  ) => {
+    const delta = getDelta(deviceManager)
+
+    if (!delta) {
+      return
+    }
+
+    const metadata = delta.getMetadata()
+
+    if (metadata.loadedScene) {
+      runAction('load_scene', metadata.loadedScene)
+      return
+    }
+
+    console.error('aaaaa there is no loaded scene')
   },
 )
 
@@ -154,4 +200,4 @@ async function parseScene(filePath: string, runAction: RunActionFunction) {
   }
 }
 
-export default loadScene
+export { loadScene, setLoadedScene, runLoadedScene }

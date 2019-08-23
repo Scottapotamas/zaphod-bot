@@ -73,25 +73,6 @@ const cameraTrigger = new Action(
     runAction: RunActionFunction,
     options: CameraTriggerOptions,
   ) => {
-    /*
-    const camera = getCamera(deviceManager)
-    let localSavePath: string | null = null
-
-    if (!camera) {
-      return
-    }
-
-    const metadata = camera.getMetadata()
-
-    if (metadata['localSavePath'] && metadata['localSavePath'] !== '') {
-      localSavePath = metadata['localSavePath']
-    }
-
-    if (localSavePath === null) {
-      console.warn("Camera doesn't have a save path")
-      return
-    }
-    */
     const fileSavePath = path.join(
       '/Users/michaelorenstein/Documents/Projects/zaphod-bot/scenes/',
       options.filePath.replace(`{{time}}`, String(new Date().getTime())),

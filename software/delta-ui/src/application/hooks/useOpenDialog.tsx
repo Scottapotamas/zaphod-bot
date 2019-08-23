@@ -31,4 +31,31 @@ const useOpenDialog = (
   return [filePath, select]
 }
 
-export { useOpenDialog }
+const useOpenDialogCallFunction = (
+  extension: string | 'folder' | 'json',
+  message: string,
+  func: (filePath: string) => void,
+) => {
+  return useCallback(() => {
+    const options: OpenDialogOptions = {
+      message,
+    }
+
+    if (extension === 'folder') {
+      options.properties = ['openDirectory', 'createDirectory']
+    } else {
+      options.filters = [{ name: `.${extension}`, extensions: [extension] }]
+      options.properties = ['openFile']
+    }
+
+    remote.dialog.showOpenDialog(options, (filepath: string[]) => {
+      if (typeof filepath === 'undefined') {
+        return
+      }
+
+      func(filepath[0])
+    })
+  }, [])
+}
+
+export { useOpenDialog, useOpenDialogCallFunction }

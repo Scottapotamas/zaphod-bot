@@ -13,20 +13,6 @@ import {
   MovementMoveReference,
 } from './../codecs'
 
-let height_scale = 1
-let height_offset = 25
-
-const scaleHeight = new Action(
-  'scale_height',
-  async (
-    deviceManager: DeviceManager,
-    runAction: RunActionFunction,
-    heightScale: number,
-  ) => {
-    height_scale = heightScale
-  },
-)
-
 const queueMovement = new Action(
   'queue_movement',
   async (
@@ -39,7 +25,7 @@ const queueMovement = new Action(
     // scale the height
     movementMove.points = movementMove.points.map(point => {
       const newPoint = point
-      newPoint[2] = point[2] * height_scale + height_offset
+      newPoint[2] = point[2]
       return newPoint
     })
 
@@ -252,5 +238,4 @@ export {
   moveForward,
   moveBack,
   sync,
-  scaleHeight,
 }
