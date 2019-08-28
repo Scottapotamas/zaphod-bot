@@ -11,6 +11,8 @@ import {
 } from '@electricui/components-core'
 import { SetDarkModeButton } from '../SetDarkModeButton'
 
+import { BreadFactory } from '../../Toaster'
+
 interface InjectDeviceIDFromLocation {
   deviceID?: string
   '*'?: string // we get passed the path as the wildcard
@@ -75,6 +77,7 @@ const Header = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
           </Navbar.Group>
         </div>
       </Navbar>
+      <BreadFactory />
     </div>
   )
 }

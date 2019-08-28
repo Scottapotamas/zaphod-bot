@@ -6,7 +6,6 @@ import '@blueprintjs/icons/lib/css/blueprint-icons.css'
 import '@blueprintjs/core/lib/css/blueprint.css'
 import '@electricui/components-desktop-blueprint/lib/bundle.css'
 import './index.css'
-
 // TODO: Figure out why the webpack env isn't taking
 declare const module: any
 

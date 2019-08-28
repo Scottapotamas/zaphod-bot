@@ -7,7 +7,7 @@ import {
 } from '@electricui/components-core'
 import { Navbar, Alignment, Text, Icon, Intent } from '@blueprintjs/core'
 import { Button } from '@electricui/components-desktop-blueprint'
-
+import { Printer } from '@electricui/components-desktop'
 import { CALL_CALLBACK } from '@electricui/core'
 
 interface InjectDeviceIDFromLocation {
@@ -42,7 +42,7 @@ const QueueText = () => {
 
   if (queue_depth == 0) {
     iconColour = Intent.NONE
-  } else if (queue_depth > 0 && queue_depth < 20) {
+  } else if (queue_depth > 0 && queue_depth < 25) {
     if (is_moving) {
       iconColour = Intent.SUCCESS
     } else {
@@ -65,7 +65,7 @@ const LEDQueueText = () => {
 
   if (queue_depth == 0) {
     iconColour = Intent.NONE
-  } else if (queue_depth > 0 && queue_depth < 25) {
+  } else if (queue_depth > 0 && queue_depth < 35) {
     iconColour = Intent.SUCCESS
   } else {
     iconColour = Intent.WARNING
@@ -109,8 +109,9 @@ const Footer = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
             </Text>
             <Navbar.Divider />
             <Text>{psu_voltage}V Input</Text>
+            <Navbar.Divider />
+            <Printer accessor="err" />
           </Navbar.Group>
-
           <Navbar.Group align={Alignment.RIGHT}>
             <div style={{ minWidth: '300px' }}>
               <Button

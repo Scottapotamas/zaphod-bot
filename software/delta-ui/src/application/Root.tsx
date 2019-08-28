@@ -5,7 +5,10 @@ import { Store } from 'redux'
 
 import { DeviceManagerProxy } from '@electricui/components-core'
 import { ReactReduxContext } from '@electricui/core-redux-state'
-import { DarkModeWrapper, NoIPCModal } from '@electricui/components-desktop-blueprint';
+import {
+  DarkModeWrapper,
+  NoIPCModal,
+} from '@electricui/components-desktop-blueprint'
 import { DarkModeProvider } from '@electricui/components-desktop'
 
 import { LocationProvider, Router } from '@reach/router'
@@ -54,7 +57,7 @@ class Root extends React.Component<RootProps> {
           </TimeSeriesDataStore>
         </DeviceManagerProxy>
       </Provider>
-    );
+    )
   }
 }
 
