@@ -1324,15 +1324,15 @@
     classnames "^2.2"
     tslib "^1.9.0"
 
-"@electricui/build-tools@^0.6.1-prerelease.41":
-  version "0.6.1-prerelease.41"
-  resolved "https://registry.eui.io/@electricui%2fbuild-tools/-/build-tools-0.6.1-prerelease.41.tgz#0ee45fa02259be3b7ac531aa20383fafe57206f8"
-  integrity sha512-xlEVJYImgVJz5oheTPhV76jc+VS3g9rcHJL8+pql2uVaG/9A4va7M3etRDvQtpt0pZjz6wntjrTtBfGxlBl2Ig==
+"@electricui/build-tools@^0.6.1-prerelease.51":
+  version "0.6.1-prerelease.51"
+  resolved "https://registry.eui.io/@electricui%2fbuild-tools/-/build-tools-0.6.1-prerelease.51.tgz#d0b643436f5a1e86bd8da8a6d70689f01eb4994e"
+  integrity sha512-42yquIwk0cPzN7XNvb5kRQ2pHxE1jr9OUm4C5EOgfpSprGlh4I43FFQVI4xT9OFQw1SUZ7DoJiYM/+thVc81BQ==
   dependencies:
     "@babel/core" "^7.5.0"
     "@babel/plugin-syntax-dynamic-import" "^7.2.0"
     "@babel/preset-env" "^7.5.0"
-    "@electricui/helpers" "^0.6.1-prerelease.41"
+    "@electricui/helpers" "^0.6.1-prerelease.50"
     async-exit-hook "^2.0.1"
     babel-loader "^8.0.0"
     babel-plugin-component "^1.1.1"
@@ -1340,7 +1340,6 @@
     chalk "^2.4.2"
     core-js "^3.1.4"
     crocket "^0.9.11"
-    css-hot-loader "^1.4.4"
     css-loader "^1.0.0"
     debug "^4.1.1"
     file-loader "^2.0.0"
@@ -1348,7 +1347,7 @@
     html-loader "^1.0.0-alpha.0"
     html-webpack-plugin "^3.2.0"
     lazy-val "^1.0.3"
-    mini-css-extract-plugin "^0.4.2"
+    mini-css-extract-plugin "^0.8.0"
     node-loader "^0.6.0"
     read-config-file "^3.1.2"
     resolve "^1.8.1"
@@ -1374,38 +1373,39 @@
     debug "^4.1.1"
     moize "^5.4.1"
 
-"@electricui/components-core@^0.6.1-prerelease.43":
-  version "0.6.1-prerelease.43"
-  resolved "https://registry.eui.io/@electricui%2fcomponents-core/-/components-core-0.6.1-prerelease.43.tgz#fc402ca671232c167e4e0b8ba963bad7dd5a5885"
-  integrity sha512-ysy+2TatI08nRz8v363YhqS7NlcL9iIStTmAlWCVoGjoypTLv2urzztrX8ECJgM6sy+qVRO8T9/APAH+IbbLoQ==
+"@electricui/components-core@^0.6.1-prerelease.51":
+  version "0.6.1-prerelease.51"
+  resolved "https://registry.eui.io/@electricui%2fcomponents-core/-/components-core-0.6.1-prerelease.51.tgz#a109e907c2e7e1dbf4c0cbf47663c8f283fa7ec3"
+  integrity sha512-Z+waadJ2w4vPDwYoPXolyjbbDLXnDu+8LBd5gtoL20X0QI8GxNnF41p9VBU4aUztVVLSLhlEWx+UmOwbr2TfYA==
   dependencies:
-    "@electricui/core" "^0.6.1-prerelease.43"
-    "@electricui/core-redux-state" "^0.6.1-prerelease.43"
+    "@electricui/core" "^0.6.1-prerelease.50"
+    "@electricui/core-redux-state" "^0.6.1-prerelease.50"
     "@electricui/utility-ipc" "^0.6.1-prerelease.41"
     debug "^4.1.1"
     moize "^5.4.1"
 
-"@electricui/components-desktop-blueprint@^0.6.1-prerelease.48":
-  version "0.6.1-prerelease.48"
-  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop-blueprint/-/components-desktop-blueprint-0.6.1-prerelease.48.tgz#5a8d4bfdb35eae4f352dd39aa9c690b3ccc8a89e"
-  integrity sha512-piOXeLZDcLZFIppO/5x1HHZqGjXHv5VXriZ0csKVOt8I3BlsFBTXwFfVEBHK8MJRkEtfglmV/J2V2ypBNaKF8w==
+"@electricui/components-desktop-blueprint@^0.6.1-prerelease.51":
+  version "0.6.1-prerelease.51"
+  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop-blueprint/-/components-desktop-blueprint-0.6.1-prerelease.51.tgz#20f8a62e563bc2651e75c6760a490a830012c0cc"
+  integrity sha512-qYB/Y39oXHvY+sVv/7p5I9eN2KiwuZ0ssXFjv/e6qOiUaCnTm6Hf/Mzk1gVEcbQ9IhDAtWegSE2h/9E91Z8ZMw==
   dependencies:
     "@blueprintjs/core" "^3.17.1"
-    "@electricui/components-core" "^0.6.1-prerelease.43"
-    "@electricui/components-desktop" "^0.6.1-prerelease.48"
-    "@electricui/components-desktop-charts" "^0.6.1-prerelease.43"
-    "@electricui/core" "^0.6.1-prerelease.43"
+    "@electricui/components-core" "^0.6.1-prerelease.51"
+    "@electricui/components-desktop" "^0.6.1-prerelease.51"
+    "@electricui/components-desktop-charts" "^0.6.1-prerelease.51"
+    "@electricui/core" "^0.6.1-prerelease.50"
     classnames "^2.2.6"
     lodash.debounce "^4.0.8"
 
-"@electricui/components-desktop-charts@^0.6.1-prerelease.43":
-  version "0.6.1-prerelease.43"
-  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop-charts/-/components-desktop-charts-0.6.1-prerelease.43.tgz#424f9968bceda914331c39e184012a1c93246a20"
-  integrity sha512-CmGf5YGyCzReimonEQ8sbcwcUeOv+/ZuvfVlxRM5qSG6sL+E4ZoOg4Nt2LgQ5tIDGEFJYLWEeZoAPCALvmyuUA==
+"@electricui/components-desktop-charts@^0.6.1-prerelease.51":
+  version "0.6.1-prerelease.51"
+  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop-charts/-/components-desktop-charts-0.6.1-prerelease.51.tgz#683caf56b215286ebdffa756d2ad1619470f1797"
+  integrity sha512-nsuaIWuCSf//N+rrf9os7c4uwvmcRQqFOnKtRpmZQ8zh5pruVuLsft2oMVCVP++IZ0gJnDXn+fTFy4eAQcKIQQ==
   dependencies:
-    "@electricui/components-core" "^0.6.1-prerelease.43"
-    "@electricui/core" "^0.6.1-prerelease.43"
-    "@electricui/core-timeseries" "^0.6.1-prerelease.43"
+    "@electricui/components-core" "^0.6.1-prerelease.51"
+    "@electricui/components-desktop" "^0.6.1-prerelease.51"
+    "@electricui/core" "^0.6.1-prerelease.50"
+    "@electricui/core-timeseries" "^0.6.1-prerelease.51"
     "@electricui/pondjs" "^0.6.1-prerelease.41"
     chart.js "^2.8.0"
     chartjs-plugin-streaming "^1.8.0"
@@ -1415,15 +1415,16 @@
     react-chartjs-2 "^2.7.6"
     utility-types "^3.5.0"
 
-"@electricui/components-desktop@^0.6.1-prerelease.48":
-  version "0.6.1-prerelease.48"
-  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop/-/components-desktop-0.6.1-prerelease.48.tgz#87287695a994e5d3dbb36f789cce0e7da5de100f"
-  integrity sha512-ZxmiUWvyG0fPk6PFPrgTnucvZxYCmWf3dWuVmUsmG15UBkv/Q1mjNoA1HpvYn8MnBuXbu9CHiDitAsLatXgtdA==
+"@electricui/components-desktop@^0.6.1-prerelease.51":
+  version "0.6.1-prerelease.51"
+  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop/-/components-desktop-0.6.1-prerelease.51.tgz#cc84a37ba85630851345bfbc1cab777aa1fbb1ba"
+  integrity sha512-NM9CPhApMgOaoS0iZjItAYZiE024BzMnQf/e1641RUxqB/I1JJZ1XIiAA9yrNLlWr0IJFwtti3P8Ijo5kWy8Yw==
   dependencies:
-    "@electricui/components-core" "^0.6.1-prerelease.43"
-    "@electricui/core" "^0.6.1-prerelease.43"
-    "@electricui/utility-electron" "^0.6.1-prerelease.41"
+    "@electricui/components-core" "^0.6.1-prerelease.51"
+    "@electricui/core" "^0.6.1-prerelease.50"
+    "@electricui/utility-electron" "^0.6.1-prerelease.50"
     react-pretty-numbers "^3.0.0"
+    utility-types "^3.5.0"
 
 "@electricui/core-actions@^0.6.1-prerelease.36":
   version "0.6.1-prerelease.40"
@@ -1452,22 +1453,22 @@
     deepmerge "^3.2.0"
     typesafe-actions "^3.1.0"
 
-"@electricui/core-redux-state@^0.6.1-prerelease.43":
-  version "0.6.1-prerelease.43"
-  resolved "https://registry.eui.io/@electricui%2fcore-redux-state/-/core-redux-state-0.6.1-prerelease.43.tgz#a3ec4dc7c8d54a65cb32e8504f666641332c31b9"
-  integrity sha512-O66+0wdwHJrhJk65o+k3LWevvtyboVNM0BG8iM5jMfIWWxRLe/OR2f+vymM+ZNvowW5Sq0oPJrWrR6KuchdZ4g==
+"@electricui/core-redux-state@^0.6.1-prerelease.50":
+  version "0.6.1-prerelease.50"
+  resolved "https://registry.eui.io/@electricui%2fcore-redux-state/-/core-redux-state-0.6.1-prerelease.50.tgz#4e86599c1696ec91e8716f6a3ddb777f23731381"
+  integrity sha512-9/9UOVe1m+ZnCtjvQTACefNT5kqVj4anBeQVhrtcWdmdoMqfsaWPQm/4xNySQZwFFHcDhG30A42Urs/g0ytBSQ==
   dependencies:
     debug "^4.1.1"
     deepmerge "^3.2.0"
     typesafe-actions "^3.1.0"
 
-"@electricui/core-timeseries@^0.6.1-prerelease.43":
-  version "0.6.1-prerelease.43"
-  resolved "https://registry.eui.io/@electricui%2fcore-timeseries/-/core-timeseries-0.6.1-prerelease.43.tgz#01f52b4d584267300d9d965183f6e45bf5602288"
-  integrity sha512-tP6N/fKS7aidtYe5+nFZblUttjX/RU1t5lJ2OZ7MLzuRRBulxCmH1xNClg9ON0EaTc9lgbGruHZrxHRnvFDIAQ==
+"@electricui/core-timeseries@^0.6.1-prerelease.51":
+  version "0.6.1-prerelease.51"
+  resolved "https://registry.eui.io/@electricui%2fcore-timeseries/-/core-timeseries-0.6.1-prerelease.51.tgz#88024b7d69553eac6dda605ee6b5b8d8aa5b9c8f"
+  integrity sha512-Fe+SVSKVU0Iul+0KHAkY1/nLLl+abCwKN0edmAC2PmnJ67FdbC//AZrIT5DiyTvQgEGxb8u3rQQIWPABfzdUPA==
   dependencies:
-    "@electricui/components-core" "^0.6.1-prerelease.43"
-    "@electricui/core" "^0.6.1-prerelease.43"
+    "@electricui/components-core" "^0.6.1-prerelease.51"
+    "@electricui/core" "^0.6.1-prerelease.50"
     "@electricui/pondjs" "^0.6.1-prerelease.41"
     immutable "^4.0.0-rc.12"
     utility-types "^3.5.0"
@@ -1496,10 +1497,10 @@
     memoize-one "^5.0.0"
     rxjs "^6.4.0"
 
-"@electricui/core@^0.6.1-prerelease.43":
-  version "0.6.1-prerelease.43"
-  resolved "https://registry.eui.io/@electricui%2fcore/-/core-0.6.1-prerelease.43.tgz#86ce86bb69c99ccdf858b94d8d657fe0c418fa64"
-  integrity sha512-lHO3mPZQV9Ypf7NT9f8DijaeONQutL4yS5X/GtbYo0ZTWA7ucx4hHlZnOB7YR4Y0woAsx7DAaVoUWHggtONxqw==
+"@electricui/core@^0.6.1-prerelease.50":
+  version "0.6.1-prerelease.50"
+  resolved "https://registry.eui.io/@electricui%2fcore/-/core-0.6.1-prerelease.50.tgz#64e350e335e7089f54c1dbd7ca37c56f8157ecd0"
+  integrity sha512-xAyJ2DovuXjxqfvXiXoktfKh0n9muU1PpRog5a3odOZUyXBO/N8joKqbbJLz9GaVUZS3DC1kibgXK+9WsmToww==
   dependencies:
     better-queue "^3.8.10"
     bluebird "^3.5.5"
@@ -1508,20 +1509,20 @@
     memoize-one "^5.0.5"
     rxjs "^6.5.2"
 
-"@electricui/device-xbox-one-controller@^0.6.1-prerelease.43":
-  version "0.6.1-prerelease.43"
-  resolved "https://registry.eui.io/@electricui%2fdevice-xbox-one-controller/-/device-xbox-one-controller-0.6.1-prerelease.43.tgz#e297f6cec5389b4ace55e5d5fc5ca649eb0067d8"
-  integrity sha512-9flfb3jPkyAcS/w27iSaic4VLUvTdLQwjBJiA3t2G+JbKbmR/J7cqQjjBy/jpq1WudqO+IWVkH+HRfASrkCyiA==
+"@electricui/device-xbox-one-controller@^0.6.1-prerelease.50":
+  version "0.6.1-prerelease.50"
+  resolved "https://registry.eui.io/@electricui%2fdevice-xbox-one-controller/-/device-xbox-one-controller-0.6.1-prerelease.50.tgz#610213cb83db65e472e023c4a4a9c6a841d4080a"
+  integrity sha512-VojHhOQcgghpHcTuHvZTRxaR28Z2uG5vEU8Ti8WVneeWi4i0trr3TRYOfzxU/iQ8fih+fQMcSgmp6AiWlysJFg==
   dependencies:
-    "@electricui/core" "^0.6.1-prerelease.43"
-    "@electricui/transport-node-hid" "^0.6.1-prerelease.43"
+    "@electricui/core" "^0.6.1-prerelease.50"
+    "@electricui/transport-node-hid" "^0.6.1-prerelease.50"
     bluebird "^3.5.3"
     debug "^4.1.1"
 
-"@electricui/helpers@^0.6.1-prerelease.41":
-  version "0.6.1-prerelease.41"
-  resolved "https://registry.eui.io/@electricui%2fhelpers/-/helpers-0.6.1-prerelease.41.tgz#408573aa2206357e3d8d587b4b1738e539d34995"
-  integrity sha512-UXQ7FxS71+/CqV3P5b8LBtN6oitXPRTOCjqePNB+/ZQAMMMOxM0i/gr5+cNo+v7Nlr7kQByOX+gl6zalGlHEig==
+"@electricui/helpers@^0.6.1-prerelease.50":
+  version "0.6.1-prerelease.50"
+  resolved "https://registry.eui.io/@electricui%2fhelpers/-/helpers-0.6.1-prerelease.50.tgz#f605fb1d95e79929f7031e84a40daf8c5a3b6a31"
+  integrity sha512-NBTo5gY9URkJ/f/vnLZye1xVnLg4mvQXpgdQYRMr6luqYHgyWr3aL+UoKKqeAKIZtLRqWdxzW44OXUMVw8fA8w==
 
 "@electricui/loader@^0.6.1-prerelease.2":
   version "0.6.1-prerelease.2"
@@ -1550,20 +1551,20 @@
     moment "^2.24.0"
     moment-timezone "^0.5.23"
 
-"@electricui/protocol-binary-cobs@^0.6.1-prerelease.43":
-  version "0.6.1-prerelease.43"
-  resolved "https://registry.eui.io/@electricui%2fprotocol-binary-cobs/-/protocol-binary-cobs-0.6.1-prerelease.43.tgz#5214e8f9394656084af67df204190c9a34cb935a"
-  integrity sha512-3n7NyujUSCQHJJ3JKIeJ6jFyrxlW1XmqPzDusuKZzNcTqbeXofaKRmoUnotbfS2vYcs1kgUI2BxUE85DE3wPhg==
+"@electricui/protocol-binary-cobs@^0.6.1-prerelease.50":
+  version "0.6.1-prerelease.50"
+  resolved "https://registry.eui.io/@electricui%2fprotocol-binary-cobs/-/protocol-binary-cobs-0.6.1-prerelease.50.tgz#86eec6325549caff6dfd0614dba6c15f21883ed6"
+  integrity sha512-eayImxB8kLb+3oDxXsi0LtZUL7DmH3e8GJUv9lFsTA8i/8vcdXAC2+Sqih0iH4ap7x1S5IScQue6uTUnpLJerQ==
   dependencies:
-    "@electricui/core" "^0.6.1-prerelease.43"
+    "@electricui/core" "^0.6.1-prerelease.50"
     debug "^4.1.1"
 
-"@electricui/protocol-binary-codecs@^0.6.1-prerelease.43":
-  version "0.6.1-prerelease.43"
-  resolved "https://registry.eui.io/@electricui%2fprotocol-binary-codecs/-/protocol-binary-codecs-0.6.1-prerelease.43.tgz#4e6c2658ed4309982dbb7f17191775159f9c8834"
-  integrity sha512-4iWRRr4rpFe+V9C8Z7XlIN5OKKxyGwafHWZyfkpxF+YGWlwKUQuXgjmH7kco3x6WYMuJK70edeqINW5dJIvUjg==
+"@electricui/protocol-binary-codecs@^0.6.1-prerelease.50":
+  version "0.6.1-prerelease.50"
+  resolved "https://registry.eui.io/@electricui%2fprotocol-binary-codecs/-/protocol-binary-codecs-0.6.1-prerelease.50.tgz#3c23b8ef94a8a15a0e0d65b3b561bf0748d03754"
+  integrity sha512-D2kKLaAeuqZKaX0aoe8rd5bpN4/x3ABdh1Y2pmUjoarRkbMNm2sC0+9FnKiNJhIPOsLJNnTRU7LW8J6wc3vo2Q==
   dependencies:
-    "@electricui/core" "^0.6.1-prerelease.43"
+    "@electricui/core" "^0.6.1-prerelease.50"
     "@electricui/protocol-binary-constants" "^0.6.1-prerelease.41"
     better-queue "^3.8.10"
     bluebird "^3.5.3"
@@ -1573,12 +1574,12 @@
     rxjs "^6.4.0"
     xstate "^4.3.2"
 
-"@electricui/protocol-binary-connection-handshake@^0.6.1-prerelease.43":
-  version "0.6.1-prerelease.43"
-  resolved "https://registry.eui.io/@electricui%2fprotocol-binary-connection-handshake/-/protocol-binary-connection-handshake-0.6.1-prerelease.43.tgz#e1959ee0d02cd0a003407e9efcec6fe59abd280e"
-  integrity sha512-P4TCLMw7KNHiJw1TLhE0/4Qejw1VtrkGqShc7IMHm75fsSNPfDop1+Rn4LcQ96y2z+7VZyMSK9+5nPljH5pObg==
+"@electricui/protocol-binary-connection-handshake@^0.6.1-prerelease.50":
+  version "0.6.1-prerelease.50"
+  resolved "https://registry.eui.io/@electricui%2fprotocol-binary-connection-handshake/-/protocol-binary-connection-handshake-0.6.1-prerelease.50.tgz#01bad8e5c642b3fbbe43b4b1c194df4923de10e3"
+  integrity sha512-PkKBUdUePBtNbqCD9tn3ghDHZVGmlzW5T9KtZge3NsdrL+f8HZYSbnsoHQvpW8ksSZFM7ix+tsLg20S1bTjcOQ==
   dependencies:
-    "@electricui/core" "^0.6.1-prerelease.43"
+    "@electricui/core" "^0.6.1-prerelease.50"
     better-queue "^3.8.10"
     bluebird "^3.5.3"
     debug "^4.1.1"
@@ -1592,12 +1593,12 @@
   resolved "https://registry.eui.io/@electricui%2fprotocol-binary-constants/-/protocol-binary-constants-0.6.1-prerelease.41.tgz#2857d5151a5b27378be9d72466d331d3e3c820c4"
   integrity sha512-E6rJrxF0JKpeMvaGUr1X2bh4+HWhjPazezEKXs9EqwKdDRxokY9XscvqnwXvelizea+937X4d1579KV9ZEeRyg==
 
-"@electricui/protocol-binary-fifo-queue@^0.6.1-prerelease.43":
-  version "0.6.1-prerelease.43"
-  resolved "https://registry.eui.io/@electricui%2fprotocol-binary-fifo-queue/-/protocol-binary-fifo-queue-0.6.1-prerelease.43.tgz#c5880fd676a1127fbfb93e3b0a93654616defa0b"
-  integrity sha512-tyiCN98lYjNVfKOTzoZulklca2ylc5qWyjaSc1ikDsp03ZbcKrS7bL1Is7it9H9so3/L1DJmm2rvdlrQlp9jPg==
+"@electricui/protocol-binary-fifo-queue@^0.6.1-prerelease.50":
+  version "0.6.1-prerelease.50"
+  resolved "https://registry.eui.io/@electricui%2fprotocol-binary-fifo-queue/-/protocol-binary-fifo-queue-0.6.1-prerelease.50.tgz#0ca524e3eef3d7d4ad620a77dc7957f47dc78de1"
+  integrity sha512-D4X6K1+Qoniu+LhxB/z20/HJ9DpA/1X3zi7q0TJnJbYDnbjHmVnMJdCSe/9s0bhTF97VGvADVTQAwhdYOaLm2Q==
   dependencies:
-    "@electricui/core" "^0.6.1-prerelease.43"
+    "@electricui/core" "^0.6.1-prerelease.50"
     "@electricui/protocol-binary-constants" "^0.6.1-prerelease.41"
     better-queue "^3.8.10"
     bluebird "^3.5.3"
@@ -1607,12 +1608,12 @@
     rxjs "^6.4.0"
     xstate "^4.3.2"
 
-"@electricui/protocol-binary-heartbeats@^0.6.1-prerelease.43":
-  version "0.6.1-prerelease.43"
-  resolved "https://registry.eui.io/@electricui%2fprotocol-binary-heartbeats/-/protocol-binary-heartbeats-0.6.1-prerelease.43.tgz#aae34cf392cbdc0de8f065aa49d3bce7f8eaf26d"
-  integrity sha512-a3eYm41w5tlSzq5ygVgG1JCcWOJFkpSBByak3K7MfV7DzVeekMaAAE6zJhi0/i5cwpDHHgymHVRUq0KPouS6DQ==
+"@electricui/protocol-binary-heartbeats@^0.6.1-prerelease.50":
+  version "0.6.1-prerelease.50"
+  resolved "https://registry.eui.io/@electricui%2fprotocol-binary-heartbeats/-/protocol-binary-heartbeats-0.6.1-prerelease.50.tgz#ec21233309a7811596fff0c4869cdb0f66e41aa6"
+  integrity sha512-1A2SgodHKHgytMMoGV3y7rBYzDW1vWB3rpKVA0uGmV5Y4CCa7tayFrjbHBlayQfJcYJ0n1QPV67bW4XBxBrtPA==
   dependencies:
-    "@electricui/core" "^0.6.1-prerelease.43"
+    "@electricui/core" "^0.6.1-prerelease.50"
     "@electricui/protocol-binary-constants" "^0.6.1-prerelease.41"
     better-queue "^3.8.10"
     bluebird "^3.5.3"
@@ -1622,60 +1623,60 @@
     rxjs "^6.4.0"
     xstate "^4.3.2"
 
-"@electricui/protocol-binary-large-packet-handler@^0.6.1-prerelease.43":
-  version "0.6.1-prerelease.43"
-  resolved "https://registry.eui.io/@electricui%2fprotocol-binary-large-packet-handler/-/protocol-binary-large-packet-handler-0.6.1-prerelease.43.tgz#d92615c8670d512b8633a0fa43254d5cded40056"
-  integrity sha512-JZZAf61E+iJh6dNb5uEafgXRkHX8yBNhORHHF3MDQPYi2ac/pKOaMjzYlygq5ta+HgdqIh9z8qkBEKg3PmSggQ==
+"@electricui/protocol-binary-large-packet-handler@^0.6.1-prerelease.50":
+  version "0.6.1-prerelease.50"
+  resolved "https://registry.eui.io/@electricui%2fprotocol-binary-large-packet-handler/-/protocol-binary-large-packet-handler-0.6.1-prerelease.50.tgz#54ead4aee68d3324e96eae4a1cd3800f0c076c01"
+  integrity sha512-gulqlhV7F5+9Nzl1nt/falTz8nlyX+Ffz1LGKNjETsPc6KcEVclDMFMSpIjWma7D6e3lI7xIWP3uGKKpOso3mA==
   dependencies:
-    "@electricui/core" "^0.6.1-prerelease.43"
-    "@electricui/protocol-binary-codecs" "^0.6.1-prerelease.43"
+    "@electricui/core" "^0.6.1-prerelease.50"
+    "@electricui/protocol-binary-codecs" "^0.6.1-prerelease.50"
     "@electricui/protocol-binary-constants" "^0.6.1-prerelease.41"
     debug "^4.1.1"
     node-interval-tree "^1.3.3"
 
-"@electricui/protocol-binary@^0.6.1-prerelease.43":
-  version "0.6.1-prerelease.43"
-  resolved "https://registry.eui.io/@electricui%2fprotocol-binary/-/protocol-binary-0.6.1-prerelease.43.tgz#744a672a29e090ad6e01a3a73e6d6972a424cacc"
-  integrity sha512-LNmydzEuqivgz1vR+eJzAr+mNutU0SHTxzmXkZMaFb/okmiQFj876QIs+y/pSVkbJ8xhchV6FjlCHcDcmF/LBA==
+"@electricui/protocol-binary@^0.6.1-prerelease.50":
+  version "0.6.1-prerelease.50"
+  resolved "https://registry.eui.io/@electricui%2fprotocol-binary/-/protocol-binary-0.6.1-prerelease.50.tgz#65a741705cd9fa98a3aceb9c7ab202c40b546f09"
+  integrity sha512-F5rxJZQnv1dfRZOad+MiykwFiCs7Jyc5fFiSvsp2ICJzdLkNe2ppwxXt2LyC6x1HyNB5/wyVFkKUKdzBRMVGWA==
   dependencies:
-    "@electricui/core" "^0.6.1-prerelease.43"
+    "@electricui/core" "^0.6.1-prerelease.50"
     "@electricui/protocol-binary-constants" "^0.6.1-prerelease.41"
     "@electricui/utility-crc16" "^0.6.1-prerelease.41"
     debug "^4.1.1"
 
-"@electricui/transport-node-hid@^0.6.1-prerelease.43":
-  version "0.6.1-prerelease.43"
-  resolved "https://registry.eui.io/@electricui%2ftransport-node-hid/-/transport-node-hid-0.6.1-prerelease.43.tgz#0a5d4e7c637554161789530bf9b709ae6cfecbf6"
-  integrity sha512-9YJGGAVKJIviSktim1TOr8HRaZ26iNUMUmPaT78lxEwSxC4GWi2tZ08B686reOvuVJr/RIpGCys32jumeGHTZQ==
+"@electricui/transport-node-hid@^0.6.1-prerelease.50":
+  version "0.6.1-prerelease.50"
+  resolved "https://registry.eui.io/@electricui%2ftransport-node-hid/-/transport-node-hid-0.6.1-prerelease.50.tgz#1da96787288948da13b8dba297d7bd4234ea7d3a"
+  integrity sha512-l3+YUF3vWWDwzAVyRdC2WCsPc9EgdG5MFxQcQKW+mB+OH+QfyI9ycdWZDDay+npSnJjAKXUZSBlenrwT0mySSg==
   dependencies:
-    "@electricui/core" "^0.6.1-prerelease.43"
+    "@electricui/core" "^0.6.1-prerelease.50"
     bluebird "^3.5.3"
     debug "^4.1.1"
 
-"@electricui/transport-node-serial@^0.6.1-prerelease.43":
-  version "0.6.1-prerelease.43"
-  resolved "https://registry.eui.io/@electricui%2ftransport-node-serial/-/transport-node-serial-0.6.1-prerelease.43.tgz#152b4df039e282ba86015cf20bf9783b56eb9451"
-  integrity sha512-KxAFfCod/stBZW0mU21oaRGlU+rT0rSU8EJDVn8OFrMzyF2K4WGLwGmN8air7B6IRuQQCgEzeIYu14jar8bxHA==
+"@electricui/transport-node-serial@^0.6.1-prerelease.50":
+  version "0.6.1-prerelease.50"
+  resolved "https://registry.eui.io/@electricui%2ftransport-node-serial/-/transport-node-serial-0.6.1-prerelease.50.tgz#98e4bcf3b177ac036802905aacc1bec160778650"
+  integrity sha512-iwz8zWivUP84X30SJefGbs2o42gGcAvx+b7S/6SBvhAMt9SGtl2rTJZWHvweFztW1QPaDYhEzrVyunFtgAUGtw==
   dependencies:
-    "@electricui/core" "^0.6.1-prerelease.43"
+    "@electricui/core" "^0.6.1-prerelease.50"
     "@electricui/protocol-binary-constants" "^0.6.1-prerelease.41"
     bluebird "^3.5.3"
     debug "^4.1.1"
 
-"@electricui/transport-node-usb-discovery@^0.6.1-prerelease.43":
-  version "0.6.1-prerelease.43"
-  resolved "https://registry.eui.io/@electricui%2ftransport-node-usb-discovery/-/transport-node-usb-discovery-0.6.1-prerelease.43.tgz#f60afcbed3d07b9756d6e20f10091c399cf44dc4"
-  integrity sha512-doLpGxCV5rRxKm9QtYRlhGfeSha74n9mxEKByces+yXbJo4l1MwSQM7P0Y512z9PoYQoEa12WWCvP7TdxbNa0w==
+"@electricui/transport-node-usb-discovery@^0.6.1-prerelease.50":
+  version "0.6.1-prerelease.50"
+  resolved "https://registry.eui.io/@electricui%2ftransport-node-usb-discovery/-/transport-node-usb-discovery-0.6.1-prerelease.50.tgz#24c24e59830d6c3acad19d61610a2c400196eddb"
+  integrity sha512-Vr7Aj+bX8TdUswYSGNo1KuBEVu6noAAuV21LTiPqs8V1yjsoMjg0uZpBBXyfknzCKWeEIfJWuTMHvGMmx/HReA==
   dependencies:
-    "@electricui/core" "^0.6.1-prerelease.43"
+    "@electricui/core" "^0.6.1-prerelease.50"
     "@electricui/protocol-binary-constants" "^0.6.1-prerelease.41"
     bluebird "^3.5.3"
     debug "^4.1.1"
 
-"@electricui/transport-node-websocket@^0.6.1-prerelease.43":
-  version "0.6.1-prerelease.43"
-  resolved "https://registry.eui.io/@electricui%2ftransport-node-websocket/-/transport-node-websocket-0.6.1-prerelease.43.tgz#e0a825b0ba975bbe8f477dcacbe30e0c3b03bf59"
-  integrity sha512-mmXx2iQ7SizJ0Yeepipfij9d6ZR4QBjIfz3zWI/qBuoA2uYaRi0Bhfg12oRYzDxCWIfSOzEYxIQwpyDJM9Yx2w==
+"@electricui/transport-node-websocket@^0.6.1-prerelease.50":
+  version "0.6.1-prerelease.50"
+  resolved "https://registry.eui.io/@electricui%2ftransport-node-websocket/-/transport-node-websocket-0.6.1-prerelease.50.tgz#32539c77909e1962e0fb6bd439e9a582ac54d5bb"
+  integrity sha512-I4JJyrIUmpFTRpbrByGESX9NbH3cWXNtiu3AZREgQWy0XQJYhY0WUL/NczJDtEACuINST2HlyavL6B4d9A/3VQ==
   dependencies:
     bluebird "^3.5.3"
     debug "^4.1.1"
@@ -1685,10 +1686,10 @@
   resolved "https://registry.eui.io/@electricui%2futility-crc16/-/utility-crc16-0.6.1-prerelease.41.tgz#a65b03c814a9934083f59f35158f5b9fa16ea4da"
   integrity sha512-0f189jIqwwvUbEgsstcC8Y0lwZCPEsF85p5wXDIK6HN2uOv3/37DWy2n0aLqLn9uLWnr88jdGSPT/gwmebb3Ag==
 
-"@electricui/utility-electron@^0.6.1-prerelease.41":
-  version "0.6.1-prerelease.41"
-  resolved "https://registry.eui.io/@electricui%2futility-electron/-/utility-electron-0.6.1-prerelease.41.tgz#5b0290818c2267ec431ea383c2012529661446f0"
-  integrity sha512-1K/uX/E9GdLt+pddPjSKDAlnRH1YHzWVqGw8e9aWrRLVSX7BQFZRox4bQygHCewl0kcARiVJIMPvAZlBe550zA==
+"@electricui/utility-electron@^0.6.1-prerelease.50":
+  version "0.6.1-prerelease.50"
+  resolved "https://registry.eui.io/@electricui%2futility-electron/-/utility-electron-0.6.1-prerelease.50.tgz#658be8d08130db5e5887b9160077d1415a09ba5b"
+  integrity sha512-oBmy8E51Z6H52hMfXW3OBWXkG1PboAfrs3oblOm3svNWCU6w9yIuUnt/r9+QAowu/LFUueEegKtbA1YKj8Bv3g==
   dependencies:
     "@reach/router" "^1.2.1"
     debug "^4.1.1"
@@ -1972,10 +1973,10 @@
     "@types/history" "*"
     "@types/react" "*"
 
-"@types/react-dom@^16.8.4":
-  version "16.8.4"
-  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-16.8.4.tgz#7fb7ba368857c7aa0f4e4511c4710ca2c5a12a88"
-  integrity sha512-eIRpEW73DCzPIMaNBDP5pPIpK1KXyZwNgfxiVagb5iGiz6da+9A5hslSX6GAQKdO7SayVCS/Fr2kjqprgAvkfA==
+"@types/react-dom@^16.8.5":
+  version "16.9.0"
+  resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-16.9.0.tgz#ba6ddb00bf5de700b0eb91daa452081ffccbfdea"
+  integrity sha512-OL2lk7LYGjxn4b0efW3Pvf2KBVP0y1v3wip1Bp7nA79NkOpElH98q3WdCEdDj93b2b0zaeBG9DvriuKjIK5xDA==
   dependencies:
     "@types/react" "*"
 
@@ -1997,10 +1998,10 @@
     "@types/prop-types" "*"
     csstype "^2.2.0"
 
-"@types/react@^16.8.18":
-  version "16.8.23"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.8.23.tgz#ec6be3ceed6353a20948169b6cb4c97b65b97ad2"
-  integrity sha512-abkEOIeljniUN9qB5onp++g0EY38h7atnDHxwKUFz1r3VH1+yG1OKi2sNPTyObL40goBmfKFpdii2lEzwLX1cA==
+"@types/react@^16.9.1":
+  version "16.9.2"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-16.9.2.tgz#6d1765431a1ad1877979013906731aae373de268"
+  integrity sha512-jYP2LWwlh+FTqGd9v7ynUKZzjj98T8x7Yclz479QdRhHfuW9yQ+0jjnD31eXSXutmBpppj5PYNLYLRfnZJvcfg==
   dependencies:
     "@types/prop-types" "*"
     csstype "^2.2.0"
@@ -3653,15 +3654,6 @@ css-hot-loader@^1.4.2:
   version "1.4.3"
   resolved "https://registry.yarnpkg.com/css-hot-loader/-/css-hot-loader-1.4.3.tgz#69e8256ef85f2b3b3d89e37f7504c6e3431a70c9"
   integrity sha512-akm6gN57sCirABQuT+BZIHWf/UZGX0y4zMnrbZIKOPyTdpg2+teP9kQ3StBi4d+bZbdJWGW78VmsgtXBYw4ukA==
-  dependencies:
-    loader-utils "^1.1.0"
-    lodash "^4.17.5"
-    normalize-url "^1.9.1"
-
-css-hot-loader@^1.4.4:
-  version "1.4.4"
-  resolved "https://registry.yarnpkg.com/css-hot-loader/-/css-hot-loader-1.4.4.tgz#ae784932cd8b7d092f7f15702af08b3ec9436052"
-  integrity sha512-J/qXHz+r7FOT92qMIJfxUk0LC9fecQNZVr0MswQ4FOpKLyOCBjofVMfc6R268bh/5ktkTShrweMr0wWqerC92g==
   dependencies:
     loader-utils "^1.1.0"
     lodash "^4.17.5"
@@ -6534,21 +6526,13 @@ min-document@^2.19.0:
   dependencies:
     dom-walk "^0.1.0"
 
-mini-css-extract-plugin@^0.4.2:
-  version "0.4.5"
-  resolved "https://registry.npmjs.org/mini-css-extract-plugin/-/mini-css-extract-plugin-0.4.5.tgz#c99e9e78d54f3fa775633aee5933aeaa4e80719a"
-  integrity sha512-dqBanNfktnp2hwL2YguV9Jh91PFX7gu7nRLs4TGsbAfAG6WOtlynFRYzwDwmmeSb5uIwHo9nx1ta0f7vAZVp2w==
+mini-css-extract-plugin@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/mini-css-extract-plugin/-/mini-css-extract-plugin-0.8.0.tgz#81d41ec4fe58c713a96ad7c723cdb2d0bd4d70e1"
+  integrity sha512-MNpRGbNA52q6U92i0qbVpQNsgk7LExy41MdAlG84FeytfDOtRIf/mCHdEgG8rpTKOaNKiqUnZdlptF469hxqOw==
   dependencies:
     loader-utils "^1.1.0"
-    schema-utils "^1.0.0"
-    webpack-sources "^1.1.0"
-
-mini-css-extract-plugin@^0.5.0:
-  version "0.5.0"
-  resolved "https://registry.yarnpkg.com/mini-css-extract-plugin/-/mini-css-extract-plugin-0.5.0.tgz#ac0059b02b9692515a637115b0cc9fed3a35c7b0"
-  integrity sha512-IuaLjruM0vMKhUUT51fQdQzBYTX49dLj8w68ALEAe2A4iYNpIC4eMac67mt3NzycvjOlf07/kYxJDc0RTl1Wqw==
-  dependencies:
-    loader-utils "^1.1.0"
+    normalize-url "1.9.1"
     schema-utils "^1.0.0"
     webpack-sources "^1.1.0"
 
@@ -6947,7 +6931,7 @@ normalize-range@^0.1.2:
   resolved "https://registry.yarnpkg.com/normalize-range/-/normalize-range-0.1.2.tgz#2d10c06bdfd312ea9777695a4d28439456b75942"
   integrity sha1-LRDAa9/TEuqXd2laTShDlFa3WUI=
 
-normalize-url@^1.4.0, normalize-url@^1.9.1:
+normalize-url@1.9.1, normalize-url@^1.4.0, normalize-url@^1.9.1:
   version "1.9.1"
   resolved "https://registry.yarnpkg.com/normalize-url/-/normalize-url-1.9.1.tgz#2cc0d66b31ea23036458436e3620d85954c66c3c"
   integrity sha1-LMDWazHqIwNkWENuNiDYWVTGbDw=
@@ -8144,15 +8128,15 @@ react-chartjs-2@^2.7.6:
     lodash "^4.17.4"
     prop-types "^15.5.8"
 
-react-dom@16.8.6:
-  version "16.8.6"
-  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.8.6.tgz#71d6303f631e8b0097f56165ef608f051ff6e10f"
-  integrity sha512-1nL7PIq9LTL3fthPqwkvr2zY7phIPjYrT0jp4HjyEQrEROnw4dG41VVwi/wfoCneoleqrNX7iAD+pXebJZwrwA==
+react-dom@16.9.0:
+  version "16.9.0"
+  resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.9.0.tgz#5e65527a5e26f22ae3701131bcccaee9fb0d3962"
+  integrity sha512-YFT2rxO9hM70ewk9jq0y6sQk8cL02xm4+IzYBz75CQGlClQQ1Bxq0nhHF6OtSbit+AIahujJgb/CPRibFkMNJQ==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
     prop-types "^15.6.2"
-    scheduler "^0.13.6"
+    scheduler "^0.15.0"
 
 react-hot-loader@^4.12.8:
   version "4.12.9"
@@ -8232,15 +8216,14 @@ react-transition-group@^2.2.1:
     prop-types "^15.6.2"
     react-lifecycles-compat "^3.0.4"
 
-react@16.8.6:
-  version "16.8.6"
-  resolved "https://registry.yarnpkg.com/react/-/react-16.8.6.tgz#ad6c3a9614fd3a4e9ef51117f54d888da01f2bbe"
-  integrity sha512-pC0uMkhLaHm11ZSJULfOBqV4tIZkx87ZLvbbQYunNixAAvjnC+snJCg0XQXn9VIsttVsbZP/H/ewzgsd5fxKXw==
+react@16.9.0:
+  version "16.9.0"
+  resolved "https://registry.yarnpkg.com/react/-/react-16.9.0.tgz#40ba2f9af13bc1a38d75dbf2f4359a5185c4f7aa"
+  integrity sha512-+7LQnFBwkiw+BobzOF6N//BdoNw0ouwmSJTEm9cglOOmsg/TMiFHZLe2sEoN5M7LgJTj9oHH0gxklfnQe66S1w==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"
     prop-types "^15.6.2"
-    scheduler "^0.13.6"
 
 read-config-file@3.2.2:
   version "3.2.2"
@@ -8791,6 +8774,14 @@ scheduler@^0.13.6:
   version "0.13.6"
   resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.13.6.tgz#466a4ec332467b31a91b9bf74e5347072e4cd889"
   integrity sha512-IWnObHt413ucAYKsD9J1QShUKkbKLQQHdxRyw73sw4FN26iWr3DY/H34xGPe4nmL1DwXyWmSWmMrA9TfQbE/XQ==
+  dependencies:
+    loose-envify "^1.1.0"
+    object-assign "^4.1.1"
+
+scheduler@^0.15.0:
+  version "0.15.0"
+  resolved "https://registry.yarnpkg.com/scheduler/-/scheduler-0.15.0.tgz#6bfcf80ff850b280fed4aeecc6513bc0b4f17f8e"
+  integrity sha512-xAefmSfN6jqAa7Kuq7LIJY0bwAPG3xlCj0HMEBQk1lxYiDKZscY2xJ5U/61ZTrYbmNQbXa+gc7czPkVo11tnCg==
   dependencies:
     loose-envify "^1.1.0"
     object-assign "^4.1.1"

@@ -15,9 +15,15 @@ const ConnectionPage = (props: RouteComponentProps) => {
         <Logo />
 
         <Connections
-          preConnect={deviceID => navigate(`/device_loading/${deviceID}`)}
-          postHandshake={deviceID => navigate(`/devices/${deviceID}`)}
-          onFailure={deviceID => navigate(`/`)}
+          preConnect={deviceID => {
+            navigate(`/device_loading/${deviceID}`)
+          }}
+          postHandshake={deviceID => {
+            navigate(`/devices/${deviceID}`)
+          }}
+          onFailure={deviceID => {
+            navigate(`/`)
+          }}
           style={{
             minHeight: '40vh',
             paddingTop: '10vh',

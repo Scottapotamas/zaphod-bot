@@ -73,6 +73,11 @@ const cameraTrigger = new Action(
     runAction: RunActionFunction,
     options: CameraTriggerOptions,
   ) => {
+    if (!options.filePath) {
+      console.warn('Tried to capture without a filePath')
+      return
+    }
+
     const fileSavePath = path.join(
       '/Users/michaelorenstein/Documents/Projects/zaphod-bot/scenes/',
       options.filePath.replace(`{{time}}`, String(new Date().getTime())),
