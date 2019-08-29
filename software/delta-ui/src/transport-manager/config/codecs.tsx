@@ -299,45 +299,53 @@ export class InboundMotionCodec extends Codec {
       return push(message)
     }
 
-    const reader = SmartBuffer.fromBuffer(message.payload)
+    try {
+      debugger
+      const reader = SmartBuffer.fromBuffer(message.payload)
 
-    const typ = reader.readUInt8()
-    const ref = reader.readUInt8()
-    const id = reader.readUInt16LE()
-    const dur = reader.readUInt16LE()
-    const num = reader.readUInt16LE()
+      const typ = reader.readUInt8()
+      const ref = reader.readUInt8()
+      const id = reader.readUInt16LE()
+      const dur = reader.readUInt16LE()
+      const num = reader.readUInt16LE()
 
-    const newPayload: MovementMove = {
-      // _POINT_TRANSIT = 0,
-      // _LINE,
-      // _CATMULL_SPLINE,
-      // _BEZIER_QUADRATIC,
-      // _BEZIER_CUBIC
-      type: typ,
+      const newPayload: MovementMove = {
+        // _POINT_TRANSIT = 0,
+        // _LINE,
+        // _CATMULL_SPLINE,
+        // _BEZIER_QUADRATIC,
+        // _BEZIER_CUBIC
+        type: typ,
 
-      // _POS_ABSOLUTE = 0,
-      // _POS_RELATIVE,
-      reference: ref,
+        // _POS_ABSOLUTE = 0,
+        // _POS_RELATIVE,
+        reference: ref,
 
-      // UUID for a given movement (used for tracking?)
-      id: id,
-      // 0x00 padding byte
-      duration: dur, // in millis
-      num_points: num,
-      points: [],
+        // UUID for a given movement (used for tracking?)
+        id: id,
+        // 0x00 padding byte
+        duration: dur, // in millis
+        num_points: num,
+        points: [],
+      }
+
+      debugger
+      for (let index = 0; index < num; index++) {
+        const point: MovementPoint = [
+          reader.readInt32LE() / 1000,
+          reader.readInt32LE() / 1000,
+          reader.readInt32LE() / 1000,
+        ]
+
+        newPayload.points.push(point)
+      }
+      message.payload = newPayload
+      return push(message)
+    } catch (e) {
+      // InboundMotionCodec Decode Error
+      console.error('InboundMotionCodec Decode Error')
+      console.log(e)
     }
-
-    for (let index = 0; index <= num; index++) {
-      const point: MovementPoint = [
-        reader.readInt32LE() / 1000,
-        reader.readInt32LE() / 1000,
-        reader.readInt32LE() / 1000,
-      ]
-
-      newPayload.points.push(point)
-    }
-    message.payload = newPayload
-    return push(message)
   }
 }
 

@@ -22,22 +22,13 @@ const queueMovement = new Action(
   ) => {
     const delta = getDelta(deviceManager)
 
-    // scale the height
-    movementMove.points = movementMove.points.map(point => {
-      const newPoint = point
-      newPoint[2] = point[2]
-      return newPoint
-    })
-
     // send the message
     const message = new Message('inmv', movementMove)
     message.metadata.ack = true
 
     await delta.write(message)
 
-    const commit = new Message('qumv', null)
-
-    await delta.write(commit)
+    console.log('queueing movement', message)
   },
 )
 
@@ -62,10 +53,6 @@ async function writeMovement(delta: Device, movement: MovementMove) {
   message.metadata.ack = true
 
   await delta.write(message)
-
-  const commit = new Message('qumv', null)
-
-  await delta.write(commit)
 }
 
 type SimpleMovementPayload = {

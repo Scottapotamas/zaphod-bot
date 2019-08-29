@@ -95,7 +95,7 @@ typedef union                           ///< Allow mapping int16 to uint16
 #define MICRONS_TO_MM(X)               ( X / 1000 )
 #define MICRONS_TO_CM(X)               ( X / 10000 )
 
-#define CHECK_RANGE(x,y,n) ((x) > 0 && (x) < (n) && (y) > 0 && (y) < (n) ? 1 : 0)
+#define CHECK_RANGE(current,target,delta) (current-delta < target && current+delta > target) ? 1 : 0
 
 
 /* -------------------------------------------------------------------------- */

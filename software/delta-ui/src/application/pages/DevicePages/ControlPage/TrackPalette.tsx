@@ -18,7 +18,7 @@ const TrackPalette = () => {
           <Slider
             min={-100}
             max={100}
-            stepSize={0.5}
+            stepSize={0.1}
             labelStepSize={25}
             writer={values => ({
               tpos: {
@@ -33,7 +33,7 @@ const TrackPalette = () => {
           <Slider
             min={-100}
             max={100}
-            stepSize={0.5}
+            stepSize={0.1}
             labelStepSize={25}
             writer={values => ({
               tpos: {
@@ -52,7 +52,7 @@ const TrackPalette = () => {
               vertical
               min={0}
               max={100}
-              stepSize={0.5}
+              stepSize={0.1}
               labelStepSize={25}
               writer={values => ({
                 tpos: {

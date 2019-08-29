@@ -194,10 +194,10 @@ eui_message_t ui_variables[] =
 
     //inbound movement buffer and 'add to queue' callback
     EUI_CUSTOM("inmv", motion_inbound),
-    EUI_FUNC("qumv", movement_generate_event),
     EUI_FUNC("stmv", execute_motion_queue),
     EUI_FUNC("clmv", clear_all_queue),
-    EUI_FUNC("psmv", pause_motion_queue_execution),
+    // TODO remove this properly
+//    EUI_FUNC("psmv", pause_motion_queue_execution),
 
     // inbound led animation buffer and 'add to queue'
     EUI_CUSTOM("inlt", animation_inbound),
@@ -254,8 +254,6 @@ configuration_set_defaults( void )
 	internal_io_modes.aux_2 			= PIN_INACTIVE;
 	internal_io_modes.aux_3 			= PIN_INACTIVE;
 	internal_io_modes.aux_4 			= PIN_INACTIVE;
-
-
 
 }
 
@@ -330,6 +328,11 @@ configuration_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t me
                         break;
                 }
 
+            }
+
+            if( strcmp( (char*)name_rx, "inmv" ) == 0 )
+            {
+                movement_generate_event();
             }
 
             break;

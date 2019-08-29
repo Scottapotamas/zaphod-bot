@@ -86,7 +86,6 @@ const ManualJogPalette = () => {
                     num_points: 1,
                     points: [[jog_distance, 0, 0]],
                   },
-                  qumv: CALL_CALLBACK,
                 }}
               >
                 <Icon icon="arrow-up" iconSize={40} />
@@ -105,7 +104,6 @@ const ManualJogPalette = () => {
                     num_points: 1,
                     points: [[0, jog_distance, 0]],
                   },
-                  qumv: CALL_CALLBACK,
                 }}
               >
                 <Icon icon="arrow-left" iconSize={40} />
@@ -124,7 +122,6 @@ const ManualJogPalette = () => {
                     num_points: 1,
                     points: [[0, -jog_distance, 0]],
                   },
-                  qumv: CALL_CALLBACK,
                 }}
               >
                 <Icon icon="arrow-right" iconSize={40} />
@@ -143,7 +140,6 @@ const ManualJogPalette = () => {
                     num_points: 1,
                     points: [[-jog_distance, 0, 0]],
                   },
-                  qumv: CALL_CALLBACK,
                 }}
               >
                 <Icon icon="arrow-down" iconSize={40} />
@@ -165,7 +161,6 @@ const ManualJogPalette = () => {
                     duration: jog_duration,
                     points: [[0, 0, jog_distance]],
                   },
-                  qumv: CALL_CALLBACK,
                 }}
               >
                 <Icon icon="arrow-up" iconSize={40} />
@@ -184,7 +179,6 @@ const ManualJogPalette = () => {
                     duration: jog_duration,
                     points: [[0, 0, -jog_distance]],
                   },
-                  qumv: CALL_CALLBACK,
                 }}
               >
                 <Icon icon="arrow-down" iconSize={40} />

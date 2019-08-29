@@ -588,9 +588,9 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
         	CartesianPoint_t current = path_interpolator_get_global_position();
         	CartesianPoint_t target  = config_get_tracking_target();
 
-        	bool x_deadband = CHECK_RANGE(current.x, target.x, MM_TO_MICRONS(1));
-        	bool y_deadband = CHECK_RANGE(current.y, target.y, MM_TO_MICRONS(1));
-        	bool z_deadband = CHECK_RANGE(current.z, target.z, MM_TO_MICRONS(1));
+        	bool x_deadband = CHECK_RANGE(current.x, target.x, 100);
+        	bool y_deadband = CHECK_RANGE(current.y, target.y, 100);
+        	bool z_deadband = CHECK_RANGE(current.z, target.z, 100);
 
         	if( !x_deadband || !y_deadband || !z_deadband )
         	{
