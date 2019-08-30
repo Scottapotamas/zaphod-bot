@@ -18,13 +18,26 @@
 
 /* ----- Public Functions --------------------------------------------------- */
 
-PUBLIC int32_t
+PUBLIC mm_per_second_t
 cartesian_move_speed(Movement_t *movement)
 {
-    // microns-per-millisecond converts to centimeters-per-second with simple div10
+    // microns-per-millisecond converts to millimeters-per-second with no numeric conversion
     // long live the metric system
-    return (cartesian_move_distance(movement) / movement->duration ) / 10;
+    return cartesian_move_distance(movement) / movement->duration;
 }
+
+// Input speed is in centimeters/second
+// Distance in microns
+// Return the duration in milliseconds (round down)
+PUBLIC int16_t
+cartesian_duration_for_speed(CartesianPoint_t *a, CartesianPoint_t *b, mm_per_second_t target_speed )
+{
+    int32_t distance = cartesian_distance_between( a, b );  // in microns
+
+    // 1 mm/second is 1 micron/millisecond
+    return distance / target_speed;
+}
+
 
 /* -------------------------------------------------------------------------- */
 

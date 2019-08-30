@@ -31,7 +31,7 @@ enum SystemDefines
 	MOVEMENT_QUEUE_DEPTH_MAX    = 150U,  // movemevent events in the queue
     LED_QUEUE_DEPTH_MAX         = 250U,  // LED animations in the queue
 
-    EFFECTOR_SPEED_LIMIT        = 35U, // cm/second
+    EFFECTOR_SPEED_LIMIT        = 350U, // mm/second
     SPEED_SAMPLE_RESOLUTION     = 15U, // number of samples to sum across line
 };
 

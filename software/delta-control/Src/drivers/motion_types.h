@@ -58,10 +58,12 @@ typedef struct
 	CartesianPoint_t points[ MOVEMENT_POINTS_COUNT ];	//array of 3d points
 } Movement_t;
 
+typedef uint32_t mm_per_second_t;
+typedef uint32_t micron_per_millisecond_t;
 
 /* ----- Functions ---------------------------------------------------------- */
 
-PUBLIC int32_t
+PUBLIC mm_per_second_t
 cartesian_move_speed(Movement_t *movement);
 
 PUBLIC int32_t
@@ -69,6 +71,9 @@ cartesian_move_distance(Movement_t *movement);
 
 PUBLIC int32_t
 cartesian_distance_between(CartesianPoint_t *a, CartesianPoint_t *b);
+
+PUBLIC int16_t
+cartesian_duration_for_speed(CartesianPoint_t *a, CartesianPoint_t *b, mm_per_second_t target_speed );
 
 PUBLIC KinematicsSolution_t
 cartesian_point_on_line(CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output);
