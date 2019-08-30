@@ -201,7 +201,6 @@ eui_message_t ui_variables[] =
 
     // inbound led animation buffer and 'add to queue'
     EUI_CUSTOM("inlt", animation_inbound),
-    EUI_FUNC("qult", lighting_generate_event),
 
     // Event trigger callbacks
     EUI_FUNC("estop", emergency_stop_cb),
@@ -333,6 +332,11 @@ configuration_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t me
             if( strcmp( (char*)name_rx, "inmv" ) == 0 )
             {
                 movement_generate_event();
+            }
+
+            if( strcmp( (char*)name_rx, "inlt" ) == 0 )
+            {
+                lighting_generate_event();
             }
 
             break;

@@ -22,10 +22,6 @@ const queueLight = new Action(
     message.metadata.ack = true
 
     await delta.write(message)
-
-    const commit = new Message('qult', null)
-
-    await delta.write(commit)
   },
 )
 
