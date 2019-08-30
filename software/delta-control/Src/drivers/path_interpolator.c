@@ -130,7 +130,7 @@ path_interpolator_get_global_position( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_reset( void )
+path_interpolator_stop(void )
 {
     MotionPlanner_t *me = &planner;
 

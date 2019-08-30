@@ -430,7 +430,7 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
         		//already in motion, so add this one to the queue
 				MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
 
-				ASSERT(!mpe->move.duration);
+				ASSERT(mpe->move.duration != 0);
 
 				// Add the movement request to the queue if we have room
 				uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
@@ -500,7 +500,7 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
 		case STATE_ENTRY_SIGNAL:
 
 		    // disable the motion interpolation engine
-            path_interpolator_reset();
+            path_interpolator_stop();
 
         	//disable servos
         	servo_stop( _CLEARPATH_1 );

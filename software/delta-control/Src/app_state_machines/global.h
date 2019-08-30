@@ -10,6 +10,7 @@ extern "C" {
 #include <stddef.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 
@@ -96,6 +97,7 @@ typedef union                           ///< Allow mapping int16 to uint16
 #define MICRONS_TO_CM(X)               ( X / 10000 )
 
 #define CHECK_RANGE(current,target,delta) (current-delta < target && current+delta > target) ? 1 : 0
+#define IS_IN_DEADBAND(a,b,deadband) ( abs(a-b) <= deadband )
 
 
 /* -------------------------------------------------------------------------- */

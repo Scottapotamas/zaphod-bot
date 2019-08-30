@@ -589,35 +589,41 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
                     uint16_t required_duration = cartesian_duration_for_speed(&current, &tpre->target, 100) + 1;
 
                     // Only attempt to move when the requested position is different from the current position
-                    bool x_deadband = CHECK_RANGE(current.x, target.x, 10);
-                    bool y_deadband = CHECK_RANGE(current.y, target.y, 10);
-                    bool z_deadband = CHECK_RANGE(current.z, target.z, 10);
+                    bool x_deadband = IS_IN_DEADBAND(current.x, target.x, 10);
+                    bool y_deadband = IS_IN_DEADBAND(current.y, target.y, 10);
+                    bool z_deadband = IS_IN_DEADBAND(current.z, target.z, 10);
 
                     if( !x_deadband || !y_deadband || !z_deadband )
                     {
                         // We don't want to move while the effector is currently moving
-
-                        //todo clear existing queue and stop move, push a new target
-                        if( path_interpolator_get_move_done() )
+                        // Tell the pathing engine to stop/reset before pushing a new move
+                        if( !path_interpolator_get_move_done() )
                         {
-                            // Create a move which will get us to the target
-                            MotionPlannerEvent *motev = EVENT_NEW(MotionPlannerEvent, MOTION_QUEUE_ADD);
-                            motev->move.type = _LINE;
-                            motev->move.ref = _POS_ABSOLUTE;
-                            motev->move.duration = required_duration;
-                            motev->move.num_pts = 2;
-                            motev->move.identifier = 0;
-
-                            motev->move.points[0].x = current.x;
-                            motev->move.points[0].y = current.y;
-                            motev->move.points[0].z = current.z;
-
-                            motev->move.points[1].x = target.x;
-                            motev->move.points[1].y = target.y;
-                            motev->move.points[1].z = target.z;
-
-                            eventPublish((StateEvent *) motev);
+                            path_interpolator_stop();
                         }
+
+                        // Create a move which will get us to the target
+                        MotionPlannerEvent *motev = EVENT_NEW(MotionPlannerEvent, MOTION_QUEUE_ADD);
+                        motev->move.type = _LINE;
+                        motev->move.ref = _POS_ABSOLUTE;
+                        motev->move.duration = required_duration;
+                        motev->move.num_pts = 2;
+                        motev->move.identifier = 0;
+
+                        motev->move.points[0].x = current.x;
+                        motev->move.points[0].y = current.y;
+                        motev->move.points[0].z = current.z;
+
+                        motev->move.points[1].x = target.x;
+                        motev->move.points[1].y = target.y;
+                        motev->move.points[1].z = target.z;
+
+                        eventPublish((StateEvent *) motev);
+
+                    }
+                    else
+                    {
+                        config_report_error("deadband");
                     }
 
                 }
