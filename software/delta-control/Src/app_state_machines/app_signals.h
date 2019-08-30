@@ -34,6 +34,7 @@ enum AppSignals
 	MODE_EVENT,
 	MODE_MANUAL,
 
+	TRACKED_TARGET_REQUEST,
 	MOVEMENT_REQUEST,
 
     /* Servo Signals */

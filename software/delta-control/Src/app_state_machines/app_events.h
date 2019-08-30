@@ -59,12 +59,21 @@ typedef struct MotionPlannerEvent__
 
 /* -------------------------------------------------------------------------- */
 
-/** Motion command */
+/** Lighting command */
 typedef struct LedPlannerEvent__
 {
     StateEvent	super;     // Encapsulated event reference
     Fade_t	animation; // LED animation details
 } LightingPlannerEvent;
+
+/* -------------------------------------------------------------------------- */
+
+/** Tracked position request command */
+typedef struct TrackedPositionRequestEvent__
+{
+    StateEvent	super;     // Encapsulated event reference
+    CartesianPoint_t    target; // Position in 3D cartesian space, in microns
+} TrackedPositionRequestEvent;
 
 /* -------------------------------------------------------------------------- */
 

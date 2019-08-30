@@ -73,7 +73,7 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask*)me, MECHANISM_REHOME );
 
     eventSubscribe( (StateTask*)me, MOVEMENT_REQUEST );
-
+    eventSubscribe( (StateTask*)me, TRACKED_TARGET_REQUEST);
     // motion handler events
     eventSubscribe( (StateTask*)me, MOTION_ERROR );
     eventSubscribe( (StateTask*)me, MOTION_HOMED );
@@ -520,8 +520,6 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
 
         case MOVEMENT_REQUEST:
         {
-            //todo work out how to just rename the event target and re-emit the same pointer
-
             //catch the inbound movement event
             MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
 

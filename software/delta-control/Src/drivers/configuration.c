@@ -151,6 +151,7 @@ PRIVATE void execute_motion_queue( void );
 PRIVATE void pause_motion_queue_execution( void );
 PRIVATE void clear_all_queue(void);
 
+PRIVATE void tracked_position_event( void );
 PRIVATE void movement_generate_event( void );
 PRIVATE void lighting_generate_event( void );
 PRIVATE void sync_begin_queues( void );
@@ -337,6 +338,11 @@ configuration_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t me
             if( strcmp( (char*)name_rx, "inlt" ) == 0 )
             {
                 lighting_generate_event();
+            }
+
+            if( strcmp( (char*)name_rx, "tpos" ) == 0 )
+            {
+                tracked_position_event();
             }
 
             break;
@@ -643,6 +649,18 @@ PRIVATE void clear_all_queue(void)
 {
     eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
     eventPublish( EVENT_NEW( StateEvent, LED_CLEAR_QUEUE ) );
+}
+
+PRIVATE void tracked_position_event( void )
+{
+    TrackedPositionRequestEvent *position_request = EVENT_NEW( TrackedPositionRequestEvent, TRACKED_TARGET_REQUEST );
+
+    if(position_request)
+    {
+        memcpy(&position_request->target, &target_position, sizeof(target_position));
+        eventPublish( (StateEvent*)position_request );
+        memset(&target_position, 0, sizeof(target_position));
+    }
 }
 
 /* -------------------------------------------------------------------------- */
