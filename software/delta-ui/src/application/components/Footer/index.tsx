@@ -109,8 +109,6 @@ const Footer = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
             </Text>
             <Navbar.Divider />
             <Text>{psu_voltage}V Input</Text>
-            <Navbar.Divider />
-            <Printer accessor="err" />
           </Navbar.Group>
           <Navbar.Group align={Alignment.RIGHT}>
             <div style={{ minWidth: '300px' }}>
