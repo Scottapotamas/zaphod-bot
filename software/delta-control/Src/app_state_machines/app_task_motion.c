@@ -275,6 +275,8 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
 			{
                 MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
 
+                ASSERT(mpe->move.duration != 0);
+
                 // Add the movement request to the queue if we have room
                 uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
                 if( queue_usage <= MOVEMENT_QUEUE_DEPTH_MAX )
@@ -427,6 +429,8 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
         	{
         		//already in motion, so add this one to the queue
 				MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
+
+				ASSERT(!mpe->move.duration);
 
 				// Add the movement request to the queue if we have room
 				uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );

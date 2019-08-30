@@ -573,38 +573,56 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
 
             config_reset_tracking_target();     // entering track mode should always reset position
 
-        	//set up any recurring monitoring processes
-        	eventTimerStartEvery( &me->timer1,
-                                 (StateTask* )me,
-                                 (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
-                                 MS_TO_TICKS( 50 ) );
-
         	return 0;
 
-        case STATE_TIMEOUT1_SIGNAL:
-        {
-        	CartesianPoint_t current = path_interpolator_get_global_position();
-        	CartesianPoint_t target  = config_get_tracking_target();
+        case TRACKED_TARGET_REQUEST:
+            {
+                // Catch the inbound target position event
+                TrackedPositionRequestEvent *tpre = (TrackedPositionRequestEvent *) e;
 
-        	bool x_deadband = CHECK_RANGE(current.x, target.x, 100);
-        	bool y_deadband = CHECK_RANGE(current.y, target.y, 100);
-        	bool z_deadband = CHECK_RANGE(current.z, target.z, 100);
+                if( &tpre->target )
+                {
+                    CartesianPoint_t current = path_interpolator_get_global_position();
+                    CartesianPoint_t target;
+                    memcpy( &target, &tpre->target, sizeof(CartesianPoint_t) );
 
-        	if( !x_deadband || !y_deadband || !z_deadband )
-        	{
-				MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
-				motev->move.type = _POINT_TRANSIT;
-				motev->move.ref = _POS_ABSOLUTE;
-				motev->move.duration = 45;
-				motev->move.num_pts = 1;
+                    uint16_t required_duration = cartesian_duration_for_speed(&current, &tpre->target, 100) + 1;
 
-				motev->move.points[0].x = target.x;
-				motev->move.points[0].y = target.y;
-				motev->move.points[0].z = target.z;
-				eventPublish( (StateEvent*)motev );
-        	}
-			return 0;
-        }
+                    // Only attempt to move when the requested position is different from the current position
+                    bool x_deadband = CHECK_RANGE(current.x, target.x, 10);
+                    bool y_deadband = CHECK_RANGE(current.y, target.y, 10);
+                    bool z_deadband = CHECK_RANGE(current.z, target.z, 10);
+
+                    if( !x_deadband || !y_deadband || !z_deadband )
+                    {
+                        // We don't want to move while the effector is currently moving
+
+                        //todo clear existing queue and stop move, push a new target
+                        if( path_interpolator_get_move_done() )
+                        {
+                            // Create a move which will get us to the target
+                            MotionPlannerEvent *motev = EVENT_NEW(MotionPlannerEvent, MOTION_QUEUE_ADD);
+                            motev->move.type = _LINE;
+                            motev->move.ref = _POS_ABSOLUTE;
+                            motev->move.duration = required_duration;
+                            motev->move.num_pts = 2;
+                            motev->move.identifier = 0;
+
+                            motev->move.points[0].x = current.x;
+                            motev->move.points[0].y = current.y;
+                            motev->move.points[0].z = current.z;
+
+                            motev->move.points[1].x = target.x;
+                            motev->move.points[1].y = target.y;
+                            motev->move.points[1].z = target.z;
+
+                            eventPublish((StateEvent *) motev);
+                        }
+                    }
+
+                }
+            }
+            return 0;
 
         case MECHANISM_STOP:
         	STATE_TRAN( AppTaskSupervisor_disarm_graceful );

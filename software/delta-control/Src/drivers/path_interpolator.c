@@ -136,8 +136,6 @@ path_interpolator_reset( void )
 
     // Request that the statemachine return to "OFF"
     me->enable = false;
-    memset( &me->current_move, 0, sizeof(CartesianPoint_t));
-
 }
 
 /* -------------------------------------------------------------------------- */
@@ -240,7 +238,8 @@ path_interpolator_process( void )
 
                 	//update the config/UI data based on these actions
                 	config_set_position( target.x, target.y, target.z );
-                	me->effector_position = target;
+
+                	memcpy( &me->effector_position, &target, sizeof(CartesianPoint_t));
 
                 	config_set_movement_data( move->identifier, move->type, (uint8_t)(me->progress_percent*100) );
 
@@ -248,6 +247,8 @@ path_interpolator_process( void )
 
             STATE_EXIT_ACTION
 				planner.enable = false;
+                memset( &me->current_move, 0, sizeof(CartesianPoint_t));
+
             STATE_END
             break;
     }
