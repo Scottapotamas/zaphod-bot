@@ -32,7 +32,7 @@ typedef struct
 	PlanningState_t   currentState;
 	PlanningState_t   nextState;
 
-	Movement_t	*	current_move;		// pointer to the current movement
+	Movement_t		current_move;		// copy of the current movement
 	bool			enable;				//if the planner is enabled
     uint32_t        movement_started;	// timestamp the start point
     float        	progress_percent;	// calculated progress
@@ -62,42 +62,42 @@ path_interpolator_set_objective( Movement_t	* movement_to_process )
 {
 	MotionPlanner_t *me = &planner;
 
-	//todo accept a movement object and store inside the state for handling
-	planner.current_move = movement_to_process;
+	memcpy( &me->current_move, movement_to_process, sizeof(Movement_t) );
 
 	//apply current position to a relative movement
-	if( movement_to_process->ref == _POS_RELATIVE )
+	if( me->current_move.ref == _POS_RELATIVE )
 	{
-		for( uint8_t i = 0; i < planner.current_move->num_pts; i++ )
+		for( uint8_t i = 0; i < me->current_move.num_pts; i++ )
 		{
-			movement_to_process->points[i].x += me->effector_position.x;
-			movement_to_process->points[i].y += me->effector_position.y;
-			movement_to_process->points[i].z += me->effector_position.z;
+            me->current_move.points[i].x += me->effector_position.x;
+            me->current_move.points[i].y += me->effector_position.y;
+            me->current_move.points[i].z += me->effector_position.z;
 		}
 	}
 
-	for( uint8_t i = 0; i < planner.current_move->num_pts; i++ )
+	// Clamp all inbound points to the motion boundaries
+	for( uint8_t i = 0; i < planner.current_move.num_pts; i++ )
 	{
 		//todo move point clamp ranges to somewhere more sensible
-		movement_to_process->points[i].x = CLAMP( movement_to_process->points[i].x, MM_TO_MICRONS(-200), MM_TO_MICRONS(200) );
-		movement_to_process->points[i].y = CLAMP( movement_to_process->points[i].y, MM_TO_MICRONS(-200), MM_TO_MICRONS(200) );
-		movement_to_process->points[i].z = CLAMP( movement_to_process->points[i].z, MM_TO_MICRONS(0), MM_TO_MICRONS(300) );
+		me->current_move.points[i].x = CLAMP( me->current_move.points[i].x, MM_TO_MICRONS(-200), MM_TO_MICRONS(200) );
+		me->current_move.points[i].y = CLAMP( me->current_move.points[i].y, MM_TO_MICRONS(-200), MM_TO_MICRONS(200) );
+		me->current_move.points[i].z = CLAMP( me->current_move.points[i].z, MM_TO_MICRONS(0), MM_TO_MICRONS(300) );
 	}
 
-	//transit move is from current position to point 1, so overwrite 0 with current position, and then reuse a normal line movement
-	if( movement_to_process->type == _POINT_TRANSIT)
+	// A transit move is from current position to point 1, so overwrite 0 with current position, and then reuse a normal line movement
+	if( me->current_move.type == _POINT_TRANSIT)
 	{
-		if(movement_to_process->num_pts == 1)
+		if(me->current_move.num_pts == 1)
 		{
-			movement_to_process->points[1].x = movement_to_process->points[0].x;
-			movement_to_process->points[1].y = movement_to_process->points[0].y;
-			movement_to_process->points[1].z = movement_to_process->points[0].z;
-			movement_to_process->num_pts = 2;
+			me->current_move.points[1].x = me->current_move.points[0].x;
+			me->current_move.points[1].y = me->current_move.points[0].y;
+			me->current_move.points[1].z = me->current_move.points[0].z;
+			me->current_move.num_pts = 2;
 		}
 
-		movement_to_process->points[0].x = me->effector_position.x;
-		movement_to_process->points[0].y = me->effector_position.y;
-		movement_to_process->points[0].z = me->effector_position.z;
+		me->current_move.points[0].x = me->effector_position.x;
+		me->current_move.points[0].y = me->effector_position.y;
+		me->current_move.points[0].z = me->effector_position.z;
 	}
 
 	planner.enable = true;
@@ -135,7 +135,9 @@ path_interpolator_reset( void )
     MotionPlanner_t *me = &planner;
 
     // Request that the statemachine return to "OFF"
-    planner.enable = false;
+    me->enable = false;
+    memset( &me->current_move, 0, sizeof(CartesianPoint_t));
+
 }
 
 /* -------------------------------------------------------------------------- */
@@ -182,7 +184,7 @@ path_interpolator_process( void )
 
             STATE_TRANSITION_TEST
 
-				Movement_t *move = me->current_move;
+				Movement_t *move = &me->current_move;
 
             	CartesianPoint_t target 	= { 0, 0, 0 };	//target position in cartesian space
             	JointAngles_t angle_target 	= { 0, 0, 0 };	//target motor shaft angle in degrees
