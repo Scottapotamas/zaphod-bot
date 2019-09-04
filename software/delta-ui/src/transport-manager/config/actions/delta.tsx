@@ -4,48 +4,15 @@ import path from 'path'
 import os from 'os'
 import fs from 'fs'
 
-import loadScene from './loadScene'
 import { getDelta } from './utils'
+
+import { movementQueueSequencer } from './../sequence-senders'
 
 import {
   MovementMove,
   MovementMoveType,
   MovementMoveReference,
 } from './../codecs'
-
-const queueMovement = new Action(
-  'queue_movement',
-  async (
-    deviceManager: DeviceManager,
-    runAction: RunActionFunction,
-    movementMove: MovementMove,
-  ) => {
-    const delta = getDelta(deviceManager)
-
-    // send the message
-    const message = new Message('inmv', movementMove)
-    message.metadata.ack = true
-
-    await delta.write(message)
-
-    console.log('queueing movement', message)
-  },
-)
-
-const executeMovement = new Action(
-  'execute_movement',
-  async (
-    deviceManager: DeviceManager,
-    runAction: RunActionFunction,
-    options: any,
-  ) => {
-    const delta = getDelta(deviceManager)
-
-    const message = new Message('stmv', null)
-
-    await delta.write(message)
-  },
-)
 
 // Simplified movements
 async function writeMovement(delta: Device, movement: MovementMove) {
@@ -215,9 +182,31 @@ const sync = new Action(
   },
 )
 
+const queueMovement = new Action(
+  'queue_movement',
+  async (
+    deviceManager: DeviceManager,
+    runAction: RunActionFunction,
+    movementMove: any,
+  ) => {
+    movementQueueSequencer.queueItem(movementMove)
+  },
+)
+
+const movementQueuePause = new Action(
+  'movement_queue_paused',
+  async (
+    deviceManager: DeviceManager,
+    runAction: RunActionFunction,
+    paused: boolean,
+  ) => {
+    movementQueueSequencer.setPaused(paused)
+  },
+)
+
 export {
   queueMovement,
-  executeMovement,
+  movementQueuePause,
   moveUp,
   moveDown,
   moveLeft,

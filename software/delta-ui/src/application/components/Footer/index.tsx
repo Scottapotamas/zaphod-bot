@@ -4,11 +4,13 @@ import {
   IntervalRequester,
   useHardwareState,
   Accessor,
+  useDeviceMetadataKey,
 } from '@electricui/components-core'
 import { Navbar, Alignment, Text, Icon, Intent } from '@blueprintjs/core'
 import { Button } from '@electricui/components-desktop-blueprint'
 import { Printer } from '@electricui/components-desktop'
 import { CALL_CALLBACK } from '@electricui/core'
+import { useTriggerAction } from '@electricui/core-actions'
 
 interface InjectDeviceIDFromLocation {
   deviceID?: string
@@ -37,6 +39,8 @@ const CPUText = () => {
 const QueueText = () => {
   const queue_depth = useHardwareState(state => state.moStat.queue_depth)
   const is_moving = useHardwareState(state => state.moStat.move_state) == 1
+  const queue_depth_ui = useDeviceMetadataKey('uiSideMovementQueueDepth')
+  const triggerAction = useTriggerAction()
 
   let iconColour: Intent
 
@@ -54,13 +58,22 @@ const QueueText = () => {
 
   return (
     <div>
-      <Icon icon="move" intent={iconColour} /> {queue_depth}
+      <Icon icon="move" intent={iconColour} /> {queue_depth} ({queue_depth_ui})
+      <button onClick={() => triggerAction('movement_queue_paused', true)}>
+        p
+      </button>
+      <button onClick={() => triggerAction('movement_queue_paused', false)}>
+        up
+      </button>
     </div>
   )
 }
 
 const LEDQueueText = () => {
   const queue_depth = useHardwareState(state => state.rgb.queue_depth)
+  const queue_depth_ui = useDeviceMetadataKey('uiSideLightQueueDepth')
+  const triggerAction = useTriggerAction()
+
   let iconColour: Intent
 
   if (queue_depth == 0) {
@@ -73,13 +86,16 @@ const LEDQueueText = () => {
 
   return (
     <div>
-      <Icon icon="lightbulb" intent={iconColour} /> {queue_depth}
+      <Icon icon="lightbulb" intent={iconColour} /> {queue_depth} (
+      {queue_depth_ui})
+      <button onClick={() => triggerAction('light_queue_paused', true)}>
+        p
+      </button>
+      <button onClick={() => triggerAction('light_queue_paused', false)}>
+        up
+      </button>
     </div>
   )
-}
-
-function s(accessor: Accessor) {
-  return accessor
 }
 
 const Footer = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {

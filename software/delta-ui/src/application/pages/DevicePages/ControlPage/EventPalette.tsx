@@ -81,6 +81,8 @@ const EventPalette = () => {
   const green_led = useHardwareState(state => state.rgb.green)
   const blue_led = useHardwareState(state => state.rgb.blue)
 
+  const triggerAction = useTriggerAction()
+
   return (
     <div>
       <IntervalRequester interval={100} variables={['rgb']} />
@@ -99,6 +101,11 @@ const EventPalette = () => {
           <br />
           <br />
           <Button writer={{ clmv: CALL_CALLBACK }}>Clear queue</Button>
+          <br />
+          <br />
+          <BlueprintButton onClick={() => triggerAction('sync', 1)}>
+            Sync
+          </BlueprintButton>
         </Cell>
         <Cell right middle>
           R: {red_led} <br />

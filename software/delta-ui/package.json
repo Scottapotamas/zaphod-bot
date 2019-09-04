@@ -24,8 +24,8 @@
     "@blueprintjs/core": "^3.17.1",
     "@electricui/components-core": "^0.6.1-prerelease.51",
     "@electricui/components-desktop": "^0.6.1-prerelease.51",
-    "@electricui/components-desktop-blueprint": "^0.6.1-prerelease.51",
-    "@electricui/components-desktop-charts": "^0.6.1-prerelease.51",
+    "@electricui/components-desktop-blueprint": "^0.6.1-prerelease.52",
+    "@electricui/components-desktop-charts": "^0.6.1-prerelease.52",
     "@electricui/core": "^0.6.1-prerelease.50",
     "@electricui/core-actions": "^0.6.1-prerelease.36",
     "@electricui/core-quantities": "^0.6.1-prerelease.8",
@@ -159,7 +159,7 @@
   },
   "templateChannel": "next",
   "templateName": "electron",
-  "templateVersion": "0.6.1-prerelease.51",
+  "templateVersion": "0.6.1-prerelease.52",
   "userID": "ZUhf0Qrl94HAtyU0QNxHJiMR7Zgxw7VtDpnRCXA=",
   "version": "0.0.0"
 }

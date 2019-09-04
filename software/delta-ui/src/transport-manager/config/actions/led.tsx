@@ -4,7 +4,8 @@ import path from 'path'
 import os from 'os'
 import fs from 'fs'
 
-import loadScene from './loadScene'
+import { lightQueueSequencer } from './../sequence-senders'
+
 import { getDelta } from './utils'
 
 import { LightMove } from './../codecs'
@@ -14,28 +15,21 @@ const queueLight = new Action(
   async (
     deviceManager: DeviceManager,
     runAction: RunActionFunction,
-    lightMove: LightMove,
+    lightMove: any,
   ) => {
-    const delta = getDelta(deviceManager)
-
-    const message = new Message('inlt', lightMove)
-    message.metadata.ack = true
-
-    await delta.write(message)
+    lightQueueSequencer.queueItem(lightMove)
   },
 )
 
-const startLight = new Action(
-  'start_light',
+const lightQueuePause = new Action(
+  'light_queue_paused',
   async (
     deviceManager: DeviceManager,
     runAction: RunActionFunction,
-    options: any,
+    paused: boolean,
   ) => {
-    const delta = getDelta(deviceManager)
-
-    // todo
+    lightQueueSequencer.setPaused(paused)
   },
 )
 
-export { queueLight, startLight }
+export { queueLight, lightQueuePause }

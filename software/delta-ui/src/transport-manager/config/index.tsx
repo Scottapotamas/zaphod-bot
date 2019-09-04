@@ -34,6 +34,7 @@ import { cameraConsumer, cameraProducer } from './camera'
 import { HintValidatorCamera, DeviceHandshakeCamera } from '../../camera-device'
 
 import { AutoConnectPlugin } from './autoconnect'
+import { movementQueueSequencer, lightQueueSequencer } from './sequence-senders'
 
 //import { bleConsumer, bleProducer } from './ble'
 
@@ -159,7 +160,12 @@ const autoConnectPlugin = new AutoConnectPlugin([
   // { name: 'Zaphod Beeblebot' },
 ])
 
-deviceManager.addPlugins([actionsPlugin, autoConnectPlugin])
+deviceManager.addPlugins([
+  actionsPlugin,
+  autoConnectPlugin,
+  movementQueueSequencer,
+  lightQueueSequencer,
+])
 
 // start polling immediately!
 deviceManager.poll()

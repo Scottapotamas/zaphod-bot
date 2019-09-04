@@ -6,11 +6,11 @@ import fs from 'fs'
 
 import { loadScene, setLoadedScene } from './loadScene'
 
-import { queueLight } from './led'
+import { queueLight, lightQueuePause } from './led'
 import {
   queueMovement,
-  executeMovement,
   moveUp,
+  movementQueuePause,
   moveDown,
   moveLeft,
   moveRight,
@@ -42,8 +42,9 @@ const actions = [
   cameraTrigger,
   wait,
   queueLight,
+  lightQueuePause,
   queueMovement,
-  executeMovement,
+  movementQueuePause,
   moveUp,
   moveDown,
   moveLeft,

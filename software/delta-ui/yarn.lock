@@ -1384,23 +1384,23 @@
     debug "^4.1.1"
     moize "^5.4.1"
 
-"@electricui/components-desktop-blueprint@^0.6.1-prerelease.51":
-  version "0.6.1-prerelease.51"
-  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop-blueprint/-/components-desktop-blueprint-0.6.1-prerelease.51.tgz#20f8a62e563bc2651e75c6760a490a830012c0cc"
-  integrity sha512-qYB/Y39oXHvY+sVv/7p5I9eN2KiwuZ0ssXFjv/e6qOiUaCnTm6Hf/Mzk1gVEcbQ9IhDAtWegSE2h/9E91Z8ZMw==
+"@electricui/components-desktop-blueprint@^0.6.1-prerelease.52":
+  version "0.6.1-prerelease.52"
+  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop-blueprint/-/components-desktop-blueprint-0.6.1-prerelease.52.tgz#bcca3d8edf3f975c39a11342a3b1ee0c976ea79c"
+  integrity sha512-h5OwANlADDbdHQybmOmqj2L7HyupxQh1MmTjZrIbugjPV82GfAUejConj4G3OSnsfndACersP/P00mN3MPz51Q==
   dependencies:
     "@blueprintjs/core" "^3.17.1"
     "@electricui/components-core" "^0.6.1-prerelease.51"
     "@electricui/components-desktop" "^0.6.1-prerelease.51"
-    "@electricui/components-desktop-charts" "^0.6.1-prerelease.51"
+    "@electricui/components-desktop-charts" "^0.6.1-prerelease.52"
     "@electricui/core" "^0.6.1-prerelease.50"
     classnames "^2.2.6"
     lodash.debounce "^4.0.8"
 
-"@electricui/components-desktop-charts@^0.6.1-prerelease.51":
-  version "0.6.1-prerelease.51"
-  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop-charts/-/components-desktop-charts-0.6.1-prerelease.51.tgz#683caf56b215286ebdffa756d2ad1619470f1797"
-  integrity sha512-nsuaIWuCSf//N+rrf9os7c4uwvmcRQqFOnKtRpmZQ8zh5pruVuLsft2oMVCVP++IZ0gJnDXn+fTFy4eAQcKIQQ==
+"@electricui/components-desktop-charts@^0.6.1-prerelease.52":
+  version "0.6.1-prerelease.52"
+  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop-charts/-/components-desktop-charts-0.6.1-prerelease.52.tgz#b7533096c3e5cd076b4418a7d79125aa10ac26e7"
+  integrity sha512-S04Uhat8iZHO5ZA1IGtoK+UQDDzfoql2BS6ExrZxRxjrk3nwYMbbl80IMR8noveUhu4t4kbP+sBL8CpjmEDRdQ==
   dependencies:
     "@electricui/components-core" "^0.6.1-prerelease.51"
     "@electricui/components-desktop" "^0.6.1-prerelease.51"
