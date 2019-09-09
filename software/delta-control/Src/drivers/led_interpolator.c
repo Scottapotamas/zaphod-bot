@@ -31,7 +31,7 @@ typedef struct
 	RGBState_t  currentState;
 	RGBState_t  nextState;
 
-	Fade_t	*	current_fade;		// pointer to the current movement
+	Fade_t	 	current_fade;		// pointer to the current movement
 	bool		enable;				//if the planner is enabled
     uint32_t   	animation_started;	// timestamp the start
     float       progress_percent;	// calculated progress
@@ -68,8 +68,10 @@ led_interpolator_init( void )
 PUBLIC void
 led_interpolator_set_objective( Fade_t* fade_to_process )
 {
-	planner.current_fade = fade_to_process;
-	planner.enable = true;
+    LEDPlanner_t *me = &planner;
+
+    memcpy( &me->current_fade, fade_to_process, sizeof(Fade_t) );
+    planner.enable = true;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -110,9 +112,11 @@ led_interpolator_process( void )
         case ANIMATION_OFF:
             STATE_ENTRY_ACTION
         		config_set_led_status(me->currentState);
-                led_set(0,0,0);
+//                led_set(0,0,0);
 
             STATE_TRANSITION_TEST
+
+                led_set( planner.led_colour.red, planner.led_colour.red, planner.led_colour.red);
 
 			if(planner.enable)
 			{
@@ -133,7 +137,7 @@ led_interpolator_process( void )
 
             STATE_TRANSITION_TEST
 
-				Fade_t *animation = me->current_fade;
+				Fade_t *animation = &me->current_fade;
 
             	HSIColour_t 	fade_target 	= { 0.0f, 0.0f, 0.0f };
             	GenericColour_t output_values 	= { 0.0f, 0.0f, 0.0f };
