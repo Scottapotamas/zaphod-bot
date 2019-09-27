@@ -13,13 +13,7 @@ import { BinaryConnectionHandshake } from '@electricui/protocol-binary-connectio
 import { MessageQueueBinaryFIFO } from '@electricui/protocol-binary-fifo-queue'
 import { ActionsPlugin } from '@electricui/core-actions'
 
-import {
-  ProcessBatteryPercentage,
-  ProcessName,
-  ProcessWS,
-  RequestName,
-  RequestWS,
-} from './metadata'
+import { ProcessName, ProcessWS, RequestName, RequestWS } from './metadata'
 
 import {
   serialConsumer,
@@ -29,9 +23,6 @@ import {
 } from './serial'
 import { websocketConsumer } from './websocket'
 import actions from './actions'
-
-import { cameraConsumer, cameraProducer } from './camera'
-import { HintValidatorCamera, DeviceHandshakeCamera } from '../../camera-device'
 
 import { AutoConnectPlugin } from './autoconnect'
 import { movementQueueSequencer, lightQueueSequencer } from './sequence-senders'
@@ -75,13 +66,6 @@ function hintValidators(hint: Hint, connection: Connection) {
     return [validator]
   }
 
-  // Camera
-  if (hint.getTransportKey() === 'gphoto') {
-    const validator = new HintValidatorCamera(hint, connection) // 10 second timeout
-
-    return [validator]
-  }
-
   return []
 }
 
@@ -89,10 +73,6 @@ function createHandshakes(device: Device) {
   const metadata = device.getMetadata()
 
   const deviceType = metadata.type
-
-  if (deviceType === 'Camera') {
-    return [new DeviceHandshakeCamera(device)]
-  }
 
   // Otherwise its an eUI device, do the binary handshakes
   const connectionHandshakeReadWrite = new BinaryConnectionHandshake({
@@ -107,25 +87,13 @@ const requestName = new RequestName()
 const processName = new ProcessName()
 const requestWS = new RequestWS()
 const processWS = new ProcessWS()
-const processBatteryPercentage = new ProcessBatteryPercentage()
 
 deviceManager.setCreateHintValidatorsCallback(hintValidators)
-deviceManager.addHintProducers([
-  serialProducer,
-  usbProducer /* cameraProducer */,
-])
-deviceManager.addHintConsumers([
-  serialConsumer,
-  websocketConsumer,
-  /* cameraConsumer, */
-])
+deviceManager.addHintProducers([serialProducer, usbProducer])
+deviceManager.addHintConsumers([serialConsumer, websocketConsumer])
 deviceManager.addHintTransformers([usbToSerialTransformer])
 deviceManager.addDeviceMetadataRequesters([requestName])
-deviceManager.addDiscoveryMetadataProcessors([
-  processName,
-  processWS,
-  processBatteryPercentage,
-])
+deviceManager.addDiscoveryMetadataProcessors([processName, processWS])
 deviceManager.setCreateRouterCallback(createRouter)
 deviceManager.setCreateQueueCallback(createQueue)
 deviceManager.setCreateHandshakesCallback(createHandshakes)
@@ -156,8 +124,8 @@ const actionsPlugin = new ActionsPlugin()
 actionsPlugin.addActions(actions)
 
 const autoConnectPlugin = new AutoConnectPlugin([
-  { type: 'Camera' },
-  // { name: 'Zaphod Beeblebot' },
+  // { type: 'Camera' },
+  { name: 'Zaphod Beeblebot' },
 ])
 
 deviceManager.addPlugins([

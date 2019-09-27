@@ -18,7 +18,6 @@ import {
   moveBack,
   sync,
 } from './delta'
-import { cameraSettings, cameraTrigger, setLocalSavePath } from './camera'
 
 export type WaitOptions = number
 
@@ -35,11 +34,8 @@ const wait = new Action(
 )
 
 const actions = [
-  setLocalSavePath,
   loadScene,
   setLoadedScene,
-  cameraSettings,
-  cameraTrigger,
   wait,
   queueLight,
   lightQueuePause,

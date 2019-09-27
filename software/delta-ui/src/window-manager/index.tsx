@@ -29,7 +29,7 @@ function createMainWindow() {
     minHeight: 680,
     minWidth: 1200,
     height: 680,
-    width: 1200,
+    width: 1500,
     title: 'Electric UI',
   })
 

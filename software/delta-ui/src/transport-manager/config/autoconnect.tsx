@@ -47,6 +47,12 @@ export class AutoConnectPlugin extends DeviceManagerProxyPlugin {
 
     for (const subsetMetadata of this.deviceMetadatas) {
       if (isSubset(deviceMetadata, subsetMetadata)) {
+        // TODO: Remove this after 0.6.4-prerelease.8
+        if (device.getUsageRequests().includes('ui')) {
+          console.log('already have a connection')
+          return
+        }
+
         // this is a device that we want to auto-connect to
         device
           .addUsageRequest('ui', () => {

@@ -118,34 +118,4 @@ class ProcessName extends DiscoveryMetadataProcessor {
   }
 }
 
-class ProcessBatteryPercentage extends DiscoveryMetadataProcessor {
-  isRelevantMessage(message: Message, device: Device) {
-    // if this is an ack packet, ignore it
-    if (message.metadata.ackNum > 0 && message.payload === null) {
-      return false
-    }
-
-    // if it's a bat_percent packet, process it
-    if (message.messageID === 'bat_percent') {
-      return true
-    }
-
-    return false
-  }
-
-  processMetadata(message: Message, device: Device, foundHint: FoundHint) {
-    if (message.messageID === 'bat_percent') {
-      device.addMetadata({
-        bat_percent: message.payload,
-      })
-    }
-  }
-}
-
-export {
-  RequestWS,
-  ProcessWS,
-  RequestName,
-  ProcessName,
-  ProcessBatteryPercentage,
-}
+export { RequestWS, ProcessWS, RequestName, ProcessName }

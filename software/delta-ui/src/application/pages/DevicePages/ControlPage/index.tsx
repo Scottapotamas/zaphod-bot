@@ -10,7 +10,6 @@ import {
   StateTree,
 } from '@electricui/components-core'
 
-import CameraCard from './CameraCard'
 import SystemOverview from './SystemOverview'
 import SystemController from './SystemController'
 
@@ -33,9 +32,7 @@ const ControlPage = (props: RouteComponentProps) => {
           <SystemOverview />
         </Cell>
 
-        <Cell>
-          <CameraCard />
-        </Cell>
+        <Cell>3d</Cell>
       </Grid>
     </React.Fragment>
   )
