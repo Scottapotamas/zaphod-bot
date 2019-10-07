@@ -1,20 +1,17 @@
-import React, { Component } from 'react'
-
+import { Toaster as BlueprintToaster, Position } from '@blueprintjs/core'
 import {
-  ConnectionMetadata,
   CONNECTION_STATE,
+  ConnectionMetadata,
   DeviceMetadata,
-  Message,
   HANDSHAKE_STATES,
+  Message,
 } from '@electricui/core'
-
 import {
-  withDeviceManager,
   InjectedDeviceManagerProps,
   UI_EVENTS,
+  withDeviceManager,
 } from '@electricui/components-core'
-
-import { Toaster as BlueprintToaster, Position } from '@blueprintjs/core'
+import React, { Component } from 'react'
 
 export const Toaster = BlueprintToaster.create({
   className: 'error-toaster',

@@ -1,25 +1,24 @@
-import React from 'react'
-
+import {
+  Button,
+  ProgressBar,
+  Statistic,
+  Statistics,
+} from '@electricui/components-desktop-blueprint'
+import {
+  CONTROL_MODES,
+  SUPERVISOR_STATES,
+} from './../../../../transport-manager/config/codecs'
+import { Card, Divider, HTMLTable } from '@blueprintjs/core'
+import { Cell, Grid } from 'styled-css-grid'
 import {
   IntervalRequester,
-  useHardwareState,
   StateTree,
+  useHardwareState,
 } from '@electricui/components-core'
-import {
-  ProgressBar,
-  Statistics,
-  Statistic,
-  Button,
-} from '@electricui/components-desktop-blueprint'
-import { Printer } from '@electricui/components-desktop'
-import { Card, Divider, HTMLTable } from '@blueprintjs/core'
-import { Grid, Cell } from 'styled-css-grid'
 
 import { CALL_CALLBACK } from '@electricui/core'
-import {
-  SUPERVISOR_STATES,
-  CONTROL_MODES,
-} from './../../../../transport-manager/config/codecs'
+import { Printer } from '@electricui/components-desktop'
+import React from 'react'
 
 const SupervisorState = () => {
   const supervisor_state = useHardwareState(state => state.super.supervisor)

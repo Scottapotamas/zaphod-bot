@@ -1,9 +1,8 @@
 import React from 'react'
-
-import darkOn from './dark-on.png'
-import darkOff from './dark-off.png'
-import brightOn from './bright-on.png'
 import brightOff from './bright-off.png'
+import brightOn from './bright-on.png'
+import darkOff from './dark-off.png'
+import darkOn from './dark-on.png'
 
 type LightbulbProps = {
   on: boolean

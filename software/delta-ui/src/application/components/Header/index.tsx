@@ -1,17 +1,17 @@
-import React from 'react'
-import { Navbar, Button, Alignment } from '@blueprintjs/core'
-import { RouteComponentProps } from '@reach/router'
-import { navigate } from '@electricui/utility-electron'
+import { Alignment, Button, Navbar } from '@blueprintjs/core'
 import {
   IntervalRequester,
-  useHardwareState,
   useDeviceConnect,
-  useDeviceDisconnect,
   useDeviceConnectionRequested,
+  useDeviceDisconnect,
+  useHardwareState,
 } from '@electricui/components-core'
-import { SetDarkModeButton } from '../SetDarkModeButton'
 
 import { BreadFactory } from '../../Toaster'
+import React from 'react'
+import { RouteComponentProps } from '@reach/router'
+import { SetDarkModeButton } from '../SetDarkModeButton'
+import { navigate } from '@electricui/utility-electron'
 
 interface InjectDeviceIDFromLocation {
   deviceID?: string

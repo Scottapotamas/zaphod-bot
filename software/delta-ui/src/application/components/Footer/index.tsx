@@ -1,15 +1,16 @@
+import {
+  Accessor,
+  IntervalRequester,
+  useDeviceMetadataKey,
+  useHardwareState,
+} from '@electricui/components-core'
+import { Alignment, Icon, Intent, Navbar, Text } from '@blueprintjs/core'
+
+import { Button } from '@electricui/components-desktop-blueprint'
+import { CALL_CALLBACK } from '@electricui/core'
+import { Printer } from '@electricui/components-desktop'
 import React from 'react'
 import { RouteComponentProps } from '@reach/router'
-import {
-  IntervalRequester,
-  useHardwareState,
-  Accessor,
-  useDeviceMetadataKey,
-} from '@electricui/components-core'
-import { Navbar, Alignment, Text, Icon, Intent } from '@blueprintjs/core'
-import { Button } from '@electricui/components-desktop-blueprint'
-import { Printer } from '@electricui/components-desktop'
-import { CALL_CALLBACK } from '@electricui/core'
 import { useTriggerAction } from '@electricui/core-actions'
 
 interface InjectDeviceIDFromLocation {

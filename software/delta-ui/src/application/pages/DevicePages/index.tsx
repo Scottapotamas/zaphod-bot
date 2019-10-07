@@ -1,19 +1,16 @@
-import React from 'react'
-
 import './device-pages.css'
 
-import Header from '../../components/Header'
-import Footer from '../../components/Footer'
-
-import { Router, RouteComponentProps } from '@reach/router'
-import { navigate } from '@electricui/utility-electron'
+import { RouteComponentProps, Router } from '@reach/router'
 
 import ControlPage from './ControlPage'
-import SystemPage from './SystemPage'
 import DetailPage from './DetailPage'
-
 import { DisconnectionModal } from '@electricui/components-desktop-blueprint'
+import Footer from '../../components/Footer'
+import Header from '../../components/Header'
 import { Intent } from '@blueprintjs/core'
+import React from 'react'
+import SystemPage from './SystemPage'
+import { navigate } from '@electricui/utility-electron'
 
 interface InjectDeviceIDFromLocation {
   deviceID?: string

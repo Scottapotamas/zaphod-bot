@@ -1,8 +1,7 @@
 import React from 'react'
-import { useDarkMode } from '@electricui/components-desktop'
-
 import logo from './logo.png'
 import logoOrange from './logo-orange.png'
+import { useDarkMode } from '@electricui/components-desktop'
 
 const Logo = () => {
   const isDark = useDarkMode()

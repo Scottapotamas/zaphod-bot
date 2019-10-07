@@ -115,6 +115,7 @@
     "fs-extra-p": "^7.0.0",
     "html-loader": "^1.0.0-alpha.0",
     "html-webpack-plugin": "^3.2.0",
+    "import-sort-parser-typescript": "^6.0.0",
     "jscodeshift": "^0.6.4",
     "lazy-val": "^1.0.3",
     "lodash.debounce": "^4.0.8",
@@ -161,5 +162,11 @@
   "templateName": "electron",
   "templateVersion": "0.6.4-prerelease.9",
   "userID": "ZUhf0Qrl94HAtyU0QNxHJiMR7Zgxw7VtDpnRCXA=",
-  "version": "0.0.0"
+  "version": "0.0.0",
+  "importSort": {
+    ".ts, .tsx": {
+      "parser": "typescript",
+      "style": "import-sort-style-eslint"
+    }
+  }
 }

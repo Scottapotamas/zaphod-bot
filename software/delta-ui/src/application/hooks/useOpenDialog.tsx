@@ -1,5 +1,5 @@
-import React, { useState, useCallback } from 'react'
-import { remote, OpenDialogOptions } from 'electron'
+import { OpenDialogOptions, remote } from 'electron'
+import React, { useCallback, useState } from 'react'
 
 const useOpenDialog = (
   extension: string | 'folder' | 'json',

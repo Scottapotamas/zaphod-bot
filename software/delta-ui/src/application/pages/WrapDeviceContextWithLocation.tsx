@@ -1,9 +1,8 @@
-import React from 'react'
 import { Button } from '@blueprintjs/core'
+import { DeviceIDContextProvider } from '@electricui/components-core'
+import React from 'react'
 import { RouteComponentProps } from '@reach/router'
 import { navigate } from '@electricui/utility-electron'
-
-import { DeviceIDContextProvider } from '@electricui/components-core'
 
 interface InjectDeviceIDFromLocation {
   deviceID?: string

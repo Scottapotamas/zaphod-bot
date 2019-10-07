@@ -1,19 +1,20 @@
-import React from 'react'
-import { RouteComponentProps } from '@reach/router'
+import {
+  Button,
+  Statistic,
+  Statistics,
+} from '@electricui/components-desktop-blueprint'
+import { Card, Divider, HTMLTable, Icon, Label, Text } from '@blueprintjs/core'
+import { Cell, Grid } from 'styled-css-grid'
 import {
   IntervalRequester,
-  useHardwareState,
   StateTree,
+  useHardwareState,
 } from '@electricui/components-core'
-import { Printer } from '@electricui/components-desktop'
+
 import { Chart } from '@electricui/components-desktop-charts'
-import { Card, Label, Text, Divider, HTMLTable, Icon } from '@blueprintjs/core'
-import { Grid, Cell } from 'styled-css-grid'
-import {
-  Statistics,
-  Statistic,
-  Button,
-} from '@electricui/components-desktop-blueprint'
+import { Printer } from '@electricui/components-desktop'
+import React from 'react'
+import { RouteComponentProps } from '@reach/router'
 import ServoData from '../../components/ServoData'
 
 type EnabledDataProps = {

@@ -1,6 +1,6 @@
-import React from 'react'
-
 import { NonIdealState, ProgressBar } from '@blueprintjs/core'
+
+import React from 'react'
 import { RouteComponentProps } from '@reach/router'
 import { useDeviceHandshakeProgresses } from '@electricui/components-core'
 

@@ -1,12 +1,10 @@
-import { ipcRenderer } from 'electron'
-import React from 'react'
-
 import { Button } from '@blueprintjs/core'
 import { Connections } from '../components/ConnectionDeviceList'
-import { RouteComponentProps } from '@reach/router'
-import { navigate } from '@electricui/utility-electron'
-
 import Logo from '../components/Logo'
+import React from 'react'
+import { RouteComponentProps } from '@reach/router'
+import { ipcRenderer } from 'electron'
+import { navigate } from '@electricui/utility-electron'
 
 const ConnectionPage = (props: RouteComponentProps) => {
   return (

@@ -1,26 +1,24 @@
-import { Button } from '@electricui/components-desktop-blueprint'
-import { Printer } from '@electricui/components-desktop'
 import {
-  Card,
-  ButtonGroup,
   Button as BlueprintButton,
+  ButtonGroup,
+  Card,
   Intent,
   NonIdealState,
 } from '@blueprintjs/core'
-import { Grid, Cell } from 'styled-css-grid'
-
+import { Cell, Grid } from 'styled-css-grid'
 import {
   IntervalRequester,
-  useHardwareState,
   StateTree,
+  useHardwareState,
 } from '@electricui/components-core'
 
+import { Button } from '@electricui/components-desktop-blueprint'
 import { CALL_CALLBACK } from '@electricui/core'
 import { CONTROL_MODES } from './../../../../transport-manager/config/codecs'
-import React from 'react'
-
-import ManualJogPalette from './ManualJogPalette'
 import EventPalette from './EventPalette'
+import ManualJogPalette from './ManualJogPalette'
+import { Printer } from '@electricui/components-desktop'
+import React from 'react'
 import TrackPalette from './TrackPalette'
 
 const ModeSelectButtons = () => {

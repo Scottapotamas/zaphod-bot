@@ -1,27 +1,28 @@
-import React from 'react'
-import { RouteComponentProps } from '@reach/router'
 import {
-  IntervalRequester,
-  useHardwareState,
-  StateTree,
-} from '@electricui/components-core'
-import { Printer } from '@electricui/components-desktop'
+  Button,
+  Statistic,
+  Statistics,
+} from '@electricui/components-desktop-blueprint'
 import {
-  Card,
   ButtonGroup,
-  Label,
-  Text,
-  Menu,
-  MenuItem,
+  Card,
   Divider,
   HTMLTable,
+  Label,
+  Menu,
+  MenuItem,
+  Text,
 } from '@blueprintjs/core'
-import { Grid, Cell } from 'styled-css-grid'
+import { Cell, Grid } from 'styled-css-grid'
 import {
-  Statistics,
-  Statistic,
-  Button,
-} from '@electricui/components-desktop-blueprint'
+  IntervalRequester,
+  StateTree,
+  useHardwareState,
+} from '@electricui/components-core'
+
+import { Printer } from '@electricui/components-desktop'
+import React from 'react'
+import { RouteComponentProps } from '@reach/router'
 
 const SensorsActive = () => {
   const isBlinking =

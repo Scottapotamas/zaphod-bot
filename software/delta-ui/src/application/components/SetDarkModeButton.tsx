@@ -1,12 +1,11 @@
-import React from 'react'
-
 import {
   useDarkMode,
-  useSetDarkMode,
   useDarkModeSystem,
+  useSetDarkMode,
 } from '@electricui/components-desktop'
 
 import { Button } from '@blueprintjs/core'
+import React from 'react'
 
 export const SetDarkModeButton = () => {
   const darkMode = useDarkMode()

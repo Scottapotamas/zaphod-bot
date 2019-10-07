@@ -1,7 +1,8 @@
-import React, { useState } from 'react'
 import { Button, Slider } from '@electricui/components-desktop-blueprint'
+import { Cell, Grid } from 'styled-css-grid'
 import { Icon, MultiSlider, NumericInput } from '@blueprintjs/core'
-import { Grid, Cell } from 'styled-css-grid'
+import React, { useState } from 'react'
+
 import { CALL_CALLBACK } from '@electricui/core'
 
 const TrackPalette = () => {

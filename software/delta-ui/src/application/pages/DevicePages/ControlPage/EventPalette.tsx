@@ -1,27 +1,24 @@
-import React, { ReactElement, useState, useEffect, useCallback } from 'react'
-
-import { Button } from '@electricui/components-desktop-blueprint'
-import { Printer } from '@electricui/components-desktop'
 import {
   Button as BlueprintButton,
   ButtonGroup,
   Card,
-  Icon,
   FileInput,
+  Icon,
 } from '@blueprintjs/core'
-import { Grid, Cell } from 'styled-css-grid'
 import {
   IntervalRequester,
-  useHardwareState,
   useDeviceMetadataKey,
+  useHardwareState,
 } from '@electricui/components-core'
-
+import { Printer } from '@electricui/components-desktop'
+import { Button } from '@electricui/components-desktop-blueprint'
+import { CALL_CALLBACK } from '@electricui/core'
 import { useTriggerAction } from '@electricui/core-actions'
+import React, { ReactElement, useCallback, useEffect, useState } from 'react'
+import { Cell, Grid } from 'styled-css-grid'
 
 import { useExtractSceneName } from './../../../hooks/useExtractSceneName'
 import { useOpenDialogCallFunction } from './../../../hooks/useOpenDialog'
-
-import { CALL_CALLBACK } from '@electricui/core'
 
 const RunSceneButton = () => {
   const filePath = useDeviceMetadataKey('loadedScene')
