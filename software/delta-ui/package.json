@@ -52,6 +52,7 @@
     "@electricui/utility-electron": "^0.6.4",
     "@electricui/utility-ipc": "^0.6.4",
     "about-window": "^1.13.0",
+    "atomic-layout": "^0.9.8",
     "chart.js": "^2.8.0",
     "chartjs-plugin-annotation": "^0.5.7",
     "chartjs-plugin-streaming": "^1.8.0",
@@ -74,7 +75,8 @@
     "redux-thunk": "^2.3.0",
     "serialport": "^7.1.5",
     "source-map-support": "^0.5.9",
-    "ws": "^5.2.2"
+    "ws": "^5.2.2",
+    "xstate": "^4.6.7"
   },
   "description": "",
   "devDependencies": {

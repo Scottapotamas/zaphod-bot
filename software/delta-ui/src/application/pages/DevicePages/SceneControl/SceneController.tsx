@@ -48,10 +48,10 @@ const OpenSceneButton = () => {
 }
 
 interface FrameControllerProps {
-  min: number
-  max: number
-  setMin: (val: number) => void
-  setMax: (val: number) => void
+  frameStart: number
+  frameEnd: number
+  setFrameStart: (val: number) => void
+  setFrameEnd: (val: number) => void
   disabled: boolean
 }
 
@@ -65,7 +65,7 @@ const FrameController = (props: FrameControllerProps) => {
   }
 
   const currentMin = useDeviceMetadataKey('frames_complete_min') || 0
-  const currentMax = useDeviceMetadataKey('frames_complete_min') || 0
+  const currentMax = useDeviceMetadataKey('frames_complete_max') || 0
 
   const availableMin = useDeviceMetadataKey('min_frame') || 0
   const availableMax = useDeviceMetadataKey('max_frame') || 2
@@ -96,19 +96,19 @@ const FrameController = (props: FrameControllerProps) => {
         disabled={disabled}
       >
         <MultiSlider.Handle
-          value={props.min}
+          value={props.frameStart}
           type="start"
           interactionKind="lock"
           intentBefore="none"
           intentAfter={
-            props.min < currentMin
+            props.frameStart < currentMin
               ? 'warning'
-              : props.min > currentMax
+              : props.frameStart > currentMax
               ? 'primary'
               : 'success'
           }
           onChange={newMin => {
-            props.setMin(newMin)
+            props.setFrameStart(newMin)
             setCount(count + 1) // TODO: fix?
           }}
         />
@@ -118,9 +118,9 @@ const FrameController = (props: FrameControllerProps) => {
           interactionKind="none"
           intentBefore="none"
           intentAfter={
-            props.min > currentMin
+            props.frameStart > currentMin
               ? 'none'
-              : currentMin < props.max
+              : currentMin < props.frameEnd
               ? 'success'
               : 'none'
           }
@@ -130,20 +130,20 @@ const FrameController = (props: FrameControllerProps) => {
           type="full"
           interactionKind="none"
           intentAfter={
-            props.min > currentMax
+            props.frameStart > currentMax
               ? 'none'
-              : currentMax < props.max
+              : currentMax < props.frameEnd
               ? 'primary'
               : 'none'
           }
         />
         <MultiSlider.Handle
-          value={props.max}
+          value={props.frameEnd}
           type="end"
           interactionKind="lock"
           intentAfter="none"
           onChange={newMax => {
-            props.setMax(newMax)
+            props.setFrameEnd(newMax)
             setCount(count + 1) // TODO: fix?
           }}
         />
@@ -172,6 +172,7 @@ const CollectionSelector = () => {
     <React.Fragment>
       {collectionOptions.map(val => (
         <Checkbox
+          key={val}
           checked={collectionSelected.includes(val)}
           onChange={() => {
             const isChecked = collectionSelected.includes(val)
@@ -193,38 +194,44 @@ const CollectionSelector = () => {
   )
 }
 
+const CurrentRGB = () => {
+  const red_led = useHardwareState(state => state.rgb.red)
+  const green_led = useHardwareState(state => state.rgb.green)
+  const blue_led = useHardwareState(state => state.rgb.blue)
+
+  return (
+    <Icon
+      icon="full-circle"
+      iconSize={60}
+      color={`rgb(${red_led},${green_led},${blue_led})`}
+    />
+  )
+}
+
 export const SceneController = () => {
-  const availableMin = useDeviceMetadataKey('min_frame') || 0
+  const availableMin = useDeviceMetadataKey('min_frame') || 1
   const availableMax = useDeviceMetadataKey('max_frame') || 2
 
-  const [min, setMin] = useState(availableMin)
-  const [max, setMax] = useState(availableMax)
+  const executing = useDeviceMetadataKey('executing_scene') || false
 
-  const [executing, setExecutingRaw] = useState(false)
+  const triggerAction = useTriggerAction()!
 
-  const setExecuting = (executing: boolean) => {
-    setExecutingRaw(executing)
-  }
+  const [frameStart, setFrameStart] = useState(availableMin)
+  const [frameEnd, setFrameEnd] = useState(availableMax)
 
   return (
     <div>
-      <OpenSceneButton />
-      <CollectionSelector />
-      <FrameController
-        min={min}
-        max={max}
-        setMin={setMin}
-        setMax={setMax}
-        disabled={executing}
-      />
       <ButtonGroup>
+        <OpenSceneButton />
         {executing ? (
           <BlueprintButton
             fill
             large
             intent="danger"
             icon="stop"
-            onClick={() => setExecuting(false)}
+            onClick={() => {
+              triggerAction('stop_scene_execution', {})
+            }}
           >
             Stop
           </BlueprintButton>
@@ -234,12 +241,34 @@ export const SceneController = () => {
             large
             intent="success"
             icon="caret-right"
-            onClick={() => setExecuting(true)}
+            onClick={() => {
+              triggerAction('start_scene_execution', {
+                frameStart,
+                frameEnd,
+              })
+            }}
           >
             Start
           </BlueprintButton>
         )}
+        <Button writer={{ clmv: CALL_CALLBACK }} intent="warning">
+          Clear queue
+        </Button>
       </ButtonGroup>
+
+      <CurrentRGB />
+
+      <label>Collection selection</label>
+      <CollectionSelector />
+      <label>Frame Selection</label>
+      <FrameController
+        key={`${availableMin}-${availableMax}`} // we do this so we re-init it on each new scene opening
+        frameStart={frameStart}
+        frameEnd={frameEnd}
+        setFrameStart={setFrameStart}
+        setFrameEnd={setFrameEnd}
+        disabled={executing}
+      />
     </div>
   )
 }

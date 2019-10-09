@@ -1,10 +1,4 @@
-import { DeviceManager, Message, Device } from '@electricui/core'
-import { Action, RunActionFunction } from '@electricui/core-actions'
-import path from 'path'
-import os from 'os'
-import fs from 'fs'
-
-import loadScene from './loadScene'
+import { Device, DeviceManager } from '@electricui/core'
 
 const deltaName = 'Zaphod Beeblebot'
 

@@ -10,7 +10,6 @@ import {
 import { BreadFactory } from '../../Toaster'
 import React from 'react'
 import { RouteComponentProps } from '@reach/router'
-import { SetDarkModeButton } from '../SetDarkModeButton'
 import { navigate } from '@electricui/utility-electron'
 
 interface InjectDeviceIDFromLocation {
@@ -19,9 +18,6 @@ interface InjectDeviceIDFromLocation {
 }
 
 const Header = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
-  const disconnect = useDeviceDisconnect()
-  const connect = useDeviceConnect()
-
   const page = props['*'] // we get passed the path as the wildcard, so we read it here
 
   return (
@@ -38,7 +34,6 @@ const Header = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
                 navigate('/')
               }}
             />
-            {/* <SetDarkModeButton /> */}
           </Navbar.Group>
 
           <Navbar.Group align={Alignment.RIGHT}>

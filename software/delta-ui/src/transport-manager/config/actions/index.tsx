@@ -14,7 +14,12 @@ import {
   sync,
 } from './delta'
 // Only one that matters now
-import { openScene, setSelectedCollections } from './scene_control'
+import {
+  openScene,
+  setSelectedCollections,
+  startSceneExecution,
+  stopSceneExecution,
+} from './scene_control'
 
 export type WaitOptions = number
 
@@ -38,6 +43,8 @@ const actions = [
   lightQueuePause,
   queueMovement,
   movementQueuePause,
+  startSceneExecution,
+  stopSceneExecution,
   moveUp,
   moveDown,
   moveLeft,

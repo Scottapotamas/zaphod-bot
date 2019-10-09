@@ -1,16 +1,16 @@
 import { Card, Icon } from '@blueprintjs/core'
+import { Cell, Grid } from 'styled-css-grid'
 import {
   IntervalRequester,
   StateTree,
   useHardwareState,
 } from '@electricui/components-core'
-import { useDarkMode } from '@electricui/components-desktop'
-import { RouteComponentProps } from '@reach/router'
-import React from 'react'
-import { Cell, Grid } from 'styled-css-grid'
 
+import React from 'react'
+import { RouteComponentProps } from '@reach/router'
 import SystemController from './SystemController'
 import SystemOverview from './SystemOverview'
+import { useDarkMode } from '@electricui/components-desktop'
 
 const ControlPage = (props: RouteComponentProps) => {
   const isDarkMode = useDarkMode()

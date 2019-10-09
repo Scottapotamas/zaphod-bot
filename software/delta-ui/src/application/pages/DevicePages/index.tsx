@@ -9,6 +9,7 @@ import Footer from '../../components/Footer'
 import Header from '../../components/Header'
 import { Intent } from '@blueprintjs/core'
 import React from 'react'
+import { SceneController } from './SceneControl/SceneController'
 import SystemPage from './SystemPage'
 import { navigate } from '@electricui/utility-electron'
 
@@ -44,6 +45,8 @@ const DevicePages = (
             <SystemPage path="system" />
             <DetailPage path="detail" />
           </Router>
+
+          <SceneController />
         </div>
         <Footer deviceID={props.deviceID} {...props} />
       </div>

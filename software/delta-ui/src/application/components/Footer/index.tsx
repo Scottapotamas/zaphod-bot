@@ -8,10 +8,8 @@ import { Alignment, Icon, Intent, Navbar, Text } from '@blueprintjs/core'
 
 import { Button } from '@electricui/components-desktop-blueprint'
 import { CALL_CALLBACK } from '@electricui/core'
-import { Printer } from '@electricui/components-desktop'
 import React from 'react'
 import { RouteComponentProps } from '@reach/router'
-import { useTriggerAction } from '@electricui/core-actions'
 
 interface InjectDeviceIDFromLocation {
   deviceID?: string
@@ -41,7 +39,6 @@ const QueueText = () => {
   const queue_depth = useHardwareState(state => state.queue.movements)
   const is_moving = useHardwareState(state => state.moStat.move_state) == 1
   const queue_depth_ui = useDeviceMetadataKey('uiSideMovementQueueDepth')
-  const triggerAction = useTriggerAction()
 
   let iconColour: Intent
 
@@ -60,12 +57,6 @@ const QueueText = () => {
   return (
     <div>
       <Icon icon="move" intent={iconColour} /> {queue_depth} ({queue_depth_ui})
-      <button onClick={() => triggerAction('movement_queue_paused', true)}>
-        p
-      </button>
-      <button onClick={() => triggerAction('movement_queue_paused', false)}>
-        up
-      </button>
     </div>
   )
 }
@@ -73,7 +64,6 @@ const QueueText = () => {
 const LEDQueueText = () => {
   const queue_depth = useHardwareState(state => state.queue.lighting)
   const queue_depth_ui = useDeviceMetadataKey('uiSideLightQueueDepth')
-  const triggerAction = useTriggerAction()
 
   let iconColour: Intent
 
@@ -89,22 +79,16 @@ const LEDQueueText = () => {
     <div>
       <Icon icon="lightbulb" intent={iconColour} /> {queue_depth} (
       {queue_depth_ui})
-      <button onClick={() => triggerAction('light_queue_paused', true)}>
-        p
-      </button>
-      <button onClick={() => triggerAction('light_queue_paused', false)}>
-        up
-      </button>
     </div>
   )
 }
 
 const Footer = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
-  const page = props['*'] // we get passed the path as the wildcard, so we read it here
+  // const page = props['*'] // we get passed the path as the wildcard, so we read it here
 
-  const psu_voltage = useHardwareState(state =>
-    state.sys.input_voltage.toFixed(1),
-  )
+  const psu_voltage = useHardwareState(
+    state => state.sys.input_voltage,
+  ).toFixed(1)
 
   return (
     <div className="device-footer">
