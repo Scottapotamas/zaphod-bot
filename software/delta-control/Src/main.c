@@ -32,20 +32,11 @@ void SystemClock_Config(void);
 //application entry point from startup_stm32f429xx.s
 int main(void)
 {
-	//Reset peripherals, init flash etc
-	HAL_Init();
+	HAL_Init();             //Reset peripherals, init flash etc
+	SystemClock_Config();   //Setup the system clock
+	app_hardware_init();    //Initialise IO, peripherals etc
 
-	//Setup the system clock
-	SystemClock_Config();
-
-	//Initialise IO, peripherals etc
-	app_hardware_init();
-
-	//USB handling
-	MX_USB_DEVICE_Init();
-
-	//start the task handler
-	app_tasks_init();
+	app_tasks_init();       //start the task handler
 
 	//allow interrupts
 	PERMIT();

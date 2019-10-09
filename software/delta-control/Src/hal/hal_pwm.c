@@ -267,7 +267,28 @@ void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency)
 
 /* -------------------------------------------------------------------------- */
 
-void hal_pwm_set(PWMOutputTimerDef_t pwm_output, uint8_t duty_cycle)
+// O-100% as a float
+PUBLIC void hal_pwm_set_percentage_f( PWMOutputTimerDef_t pwm_output, float percentage )
+{
+    if(percentage >= 0.000 && percentage <= 100.000)
+    {
+        uint16_t duty_as_u16 = (percentage/100.0)*0xFFFFU;
+        hal_pwm_set( pwm_output, duty_as_u16 );
+    }
+    else
+    {
+        hal_pwm_set( pwm_output, 0 );
+    }
+}
+
+// 0-255 byte as 0-full duty cycle helper function
+PUBLIC void hal_pwm_set_byte( PWMOutputTimerDef_t pwm_output, uint8_t duty_cycle )
+{
+    uint16_t duty_as_u16 = duty_cycle*0xFFU;
+    hal_pwm_set( pwm_output, duty_as_u16 );
+}
+
+PUBLIC void hal_pwm_set(PWMOutputTimerDef_t pwm_output, uint16_t duty_cycle)
 {
 	TIM_HandleTypeDef* tim_handle = 0;
     uint32_t channel = 0;
@@ -314,7 +335,7 @@ void hal_pwm_set(PWMOutputTimerDef_t pwm_output, uint8_t duty_cycle)
 
     TIM_OC_InitTypeDef sConfigOC;
     sConfigOC.OCMode 				= TIM_OCMODE_PWM1;
-    sConfigOC.Pulse 				= ( MIN( duty_cycle, 255U ) * period ) / 255U;
+    sConfigOC.Pulse 				= ( MIN( duty_cycle, 0xFFFFU ) * period ) / 0xFFFFU;
     sConfigOC.OCPolarity 			= TIM_OCPOLARITY_HIGH;
     sConfigOC.OCFastMode 			= TIM_OCFAST_DISABLE;
 
@@ -330,28 +351,24 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* tim_pwmHandle)
 	if( tim_pwmHandle->Instance == TIM1 )
 	{
 		__HAL_RCC_TIM1_CLK_ENABLE();
-
 		hal_gpio_init_alternate( _SERVO_3_HLFB, GPIO_MODE_AF_PP, GPIO_AF1_TIM1, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
 	if( tim_pwmHandle->Instance == TIM3 )
 	{
 		__HAL_RCC_TIM3_CLK_ENABLE();
-
 		hal_gpio_init_alternate( _SERVO_1_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM3, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
 	if( tim_pwmHandle->Instance == TIM4 )
 	{
 		__HAL_RCC_TIM4_CLK_ENABLE();
-
 		hal_gpio_init_alternate( _SERVO_2_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM4, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
 	if( tim_pwmHandle->Instance == TIM5 )
 	{
 		__HAL_RCC_TIM5_CLK_ENABLE();
-
 		hal_gpio_init_alternate( _SERVO_4_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM5, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 

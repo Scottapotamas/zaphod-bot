@@ -168,7 +168,7 @@ PUBLIC void
 config_set_led_status( uint8_t status );
 
 PUBLIC void
-config_set_led_values(uint8_t red, uint8_t green, uint8_t blue);
+config_set_led_values(uint16_t red, uint16_t green, uint16_t blue);
 
 PUBLIC void
 config_set_led_queue_depth( uint8_t utilisation );

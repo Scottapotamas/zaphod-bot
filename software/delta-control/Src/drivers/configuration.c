@@ -106,9 +106,9 @@ typedef struct
 
 typedef struct
 {
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
+    uint16_t red;
+    uint16_t green;
+    uint16_t blue;
     uint8_t enable;
 } LedSetting_t;
 
@@ -582,7 +582,7 @@ config_set_led_status( uint8_t enabled )
 }
 
 PUBLIC void
-config_set_led_values( uint8_t red, uint8_t green, uint8_t blue)
+config_set_led_values( uint16_t red, uint16_t green, uint16_t blue)
 {
     rgb_led_drive.red = red;
     rgb_led_drive.green = green;

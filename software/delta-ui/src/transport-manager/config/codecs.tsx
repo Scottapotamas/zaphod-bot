@@ -391,9 +391,9 @@ export class RGBCodec extends Codec {
     }
     const packet = new SmartBuffer()
 
-    packet.writeUInt8(message.payload.red)
-    packet.writeUInt8(message.payload.green)
-    packet.writeUInt8(message.payload.blue)
+    packet.writeUInt16LE(message.payload.red)
+    packet.writeUInt16LE(message.payload.green)
+    packet.writeUInt16LE(message.payload.blue)
     packet.writeUInt8(message.payload.enable ? 1 : 0)
 
     message.payload = packet.toBuffer()
@@ -408,9 +408,9 @@ export class RGBCodec extends Codec {
 
     const reader = SmartBuffer.fromBuffer(message.payload)
     message.payload = {
-      red: reader.readUInt8(),
-      green: reader.readUInt8(),
-      blue: reader.readUInt8(),
+      red: reader.readUInt16LE(),
+      green: reader.readUInt16LE(),
+      blue: reader.readUInt16LE(),
       enable: reader.readUInt8() === 1 ? true : false,
     }
 

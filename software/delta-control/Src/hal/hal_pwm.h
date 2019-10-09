@@ -64,8 +64,14 @@ hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency);
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC
+void hal_pwm_set_percentage_f( PWMOutputTimerDef_t pwm_output, float percentage );
+
+PUBLIC
+void hal_pwm_set_byte( PWMOutputTimerDef_t pwm_output, uint8_t duty_cycle );
+
 PUBLIC void
-hal_pwm_set(PWMOutputTimerDef_t pwm_output, uint8_t duty_cycle);
+hal_pwm_set(PWMOutputTimerDef_t pwm_output, uint16_t duty_cycle);
 
 /* -------------------------------------------------------------------------- */
 

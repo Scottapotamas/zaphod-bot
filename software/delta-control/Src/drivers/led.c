@@ -47,12 +47,17 @@ led_set( float r, float g, float b )
 
     //todo apply linear/log conversion for led
 
-    //todo apply whitepoint offset for led
+    uint32_t red    = r*0xFFFF;
+    uint32_t green  = g*0xFFFF;
+    uint32_t blue   = b*0xFFFF;
 
     // Set the final output percentages for the led PWM channels
-    hal_pwm_set( _PWM_TIM_AUX_0, r_duty);
-    hal_pwm_set( _PWM_TIM_AUX_2, g_duty);
-    hal_pwm_set( _PWM_TIM_AUX_1, b_duty);
+    hal_pwm_set( _PWM_TIM_AUX_0, red);
+    hal_pwm_set( _PWM_TIM_AUX_2, green);
+    hal_pwm_set( _PWM_TIM_AUX_1, blue);
+
+    config_set_led_values(red, green, blue);
+}
 
     config_set_led_values(r_duty, g_duty, b_duty);
 }
