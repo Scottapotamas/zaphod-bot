@@ -47,9 +47,11 @@ export const movementQueueSequencer = new SequenceSenderPlugin({
   queueDepthChangeCallback: (deviceManager: DeviceManager, depth: number) => {
     const delta = getDelta(deviceManager)
 
-    delta.addMetadata({
-      uiSideMovementQueueDepth: depth,
-    })
+    if (depth % 10 === 0) {
+      delta.addMetadata({
+        uiSideMovementQueueDepth: depth,
+      })
+    }
   },
 })
 
@@ -91,8 +93,10 @@ export const lightQueueSequencer = new SequenceSenderPlugin({
   queueDepthChangeCallback: (deviceManager: DeviceManager, depth: number) => {
     const delta = getDelta(deviceManager)
 
-    delta.addMetadata({
-      uiSideLightQueueDepth: depth,
-    })
+    if (depth % 10 === 0) {
+      delta.addMetadata({
+        uiSideLightQueueDepth: depth,
+      })
+    }
   },
 })

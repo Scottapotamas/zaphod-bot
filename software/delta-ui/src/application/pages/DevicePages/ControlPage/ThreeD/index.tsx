@@ -24,7 +24,7 @@ export const ThreeD = () => {
   ) || [0, 0, 0]
 
   // Do our scaling and reference frame conversion
-  const headPositionCm = [
+  const headPositionCm: [number, number, number] = [
     -headPosition[0] / 1000,
     headPosition[2] / 1000,
     headPosition[1] / 1000,
