@@ -24,6 +24,7 @@ import { CALL_CALLBACK } from '@electricui/core'
 import { CONTROL_MODES } from './../../../../transport-manager/config/codecs'
 import { Composition } from 'atomic-layout'
 import { Printer } from '@electricui/components-desktop'
+import { SUPERVISOR_STATES } from './../../../../transport-manager/config/codecs'
 import { useExtractSceneName } from './../../../hooks/useExtractSceneName'
 import { useOpenDialogCallFunction } from './../../../hooks/useOpenDialog'
 import { useTriggerAction } from '@electricui/core-actions'
@@ -218,6 +219,14 @@ CollectionsArea CollectionsArea RGBArea
 FramesArea FramesArea FramesArea
 `
 
+function useIsArmed() {
+  const supervisor = useHardwareState<string>(state => state.super.supervisor)
+
+  const isArmed = supervisor === SUPERVISOR_STATES[SUPERVISOR_STATES.ARMED]
+
+  return isArmed
+}
+
 export const SceneController = () => {
   const availableMin = useDeviceMetadataKey('min_frame') || 1
   const availableMax = useDeviceMetadataKey('max_frame') || 2
@@ -228,6 +237,9 @@ export const SceneController = () => {
 
   const [frameStart, setFrameStart] = useState(availableMin)
   const [frameEnd, setFrameEnd] = useState(availableMax)
+
+  const isArmed = useIsArmed()
+  const sceneLoaded = useDeviceMetadataKey('summary_file_path')
 
   return (
     <Composition areas={controllerAreas} gap={10}>
@@ -260,6 +272,7 @@ export const SceneController = () => {
                     })
                   }}
                   style={{ width: '50%' }}
+                  disabled={!isArmed || !sceneLoaded}
                 >
                   Start
                 </BlueprintButton>

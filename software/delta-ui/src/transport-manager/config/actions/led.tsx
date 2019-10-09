@@ -1,14 +1,12 @@
-import { DeviceManager, Message, Device } from '@electricui/core'
 import { Action, RunActionFunction } from '@electricui/core-actions'
-import path from 'path'
-import os from 'os'
-import fs from 'fs'
-
-import { lightQueueSequencer } from './../sequence-senders'
-
-import { getDelta } from './utils'
+import { Device, DeviceManager, Message } from '@electricui/core'
 
 import { LightMove } from './../codecs'
+import fs from 'fs'
+import { getDelta } from './utils'
+import { lightQueueSequencer } from './../sequence-senders'
+import os from 'os'
+import path from 'path'
 
 const queueLight = new Action(
   'queue_light',
@@ -32,4 +30,15 @@ const lightQueuePause = new Action(
   },
 )
 
-export { queueLight, lightQueuePause }
+const clearUILightQueue = new Action(
+  'clear_ui_light_queue',
+  async (
+    deviceManager: DeviceManager,
+    runAction: RunActionFunction,
+    noop: boolean,
+  ) => {
+    lightQueueSequencer.clear()
+  },
+)
+
+export { queueLight, lightQueuePause, clearUILightQueue }

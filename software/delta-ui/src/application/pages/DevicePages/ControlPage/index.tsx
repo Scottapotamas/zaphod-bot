@@ -13,8 +13,8 @@ SystemOverviewArea ThreeDArea
 
 const ControlPage = (props: RouteComponentProps) => (
   <React.Fragment>
-    <IntervalRequester interval={100} variables={['moStat', 'cpos']} />
-    <IntervalRequester interval={200} variables={['mo1', 'mo2', 'mo3']} />
+    <IntervalRequester interval={500} variables={['moStat', 'cpos']} />
+    <IntervalRequester interval={1000} variables={['mo1', 'mo2', 'mo3']} />
 
     <Composition areas={controlAreas} gap={10} templateCols="1fr 1fr">
       {({ ControlArea, SystemOverviewArea, ThreeDArea }) => (

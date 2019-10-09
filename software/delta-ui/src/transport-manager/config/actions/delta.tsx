@@ -1,18 +1,16 @@
-import { DeviceManager, Message, Device } from '@electricui/core'
 import { Action, RunActionFunction } from '@electricui/core-actions'
-import path from 'path'
-import os from 'os'
-import fs from 'fs'
-
-import { getDelta } from './utils'
-
-import { movementQueueSequencer } from './../sequence-senders'
-
+import { Device, DeviceManager, Message } from '@electricui/core'
 import {
   MovementMove,
-  MovementMoveType,
   MovementMoveReference,
+  MovementMoveType,
 } from './../codecs'
+
+import fs from 'fs'
+import { getDelta } from './utils'
+import { movementQueueSequencer } from './../sequence-senders'
+import os from 'os'
+import path from 'path'
 
 // Simplified movements
 async function writeMovement(delta: Device, movement: MovementMove) {
@@ -204,6 +202,36 @@ const movementQueuePause = new Action(
   },
 )
 
+const clearUIMovementQueue = new Action(
+  'clear_ui_movement_queue',
+  async (
+    deviceManager: DeviceManager,
+    runAction: RunActionFunction,
+    paused: boolean,
+  ) => {
+    movementQueueSequencer.clear()
+  },
+)
+const clearQueues = new Action(
+  'clear_queues',
+  async (
+    deviceManager: DeviceManager,
+    runAction: RunActionFunction,
+    noop: boolean,
+  ) => {
+    const delta = getDelta(deviceManager)
+
+    if (!delta) {
+      return
+    }
+
+    const clearQueueMessage = new Message('clmv', null)
+    clearQueueMessage.metadata.type = 0 // TYPES.CALLBACK
+
+    await delta.write(clearQueueMessage)
+  },
+)
+
 export {
   queueMovement,
   movementQueuePause,
@@ -214,4 +242,6 @@ export {
   moveForward,
   moveBack,
   sync,
+  clearUIMovementQueue,
+  clearQueues,
 }

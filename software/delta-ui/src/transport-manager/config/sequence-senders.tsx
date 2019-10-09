@@ -1,17 +1,17 @@
 import {
-  DeviceManager,
   Device,
-  Message,
+  DeviceManager,
   MANAGER_EVENTS,
+  Message,
 } from '@electricui/core'
+
 import { DeviceManagerProxyPlugin } from '@electricui/components-core'
-
 import { SequenceSenderPlugin } from './sequence-sender'
-
 import { getDelta } from './actions/utils'
 
 export const movementQueueSequencer = new SequenceSenderPlugin({
   maxQueueDepth: 75,
+  name: 'mv',
   deviceManagerChunkWriter: async (
     deviceManager: DeviceManager,
     chunk: any,
@@ -55,6 +55,7 @@ export const movementQueueSequencer = new SequenceSenderPlugin({
 
 export const lightQueueSequencer = new SequenceSenderPlugin({
   maxQueueDepth: 125,
+  name: 'li',
   deviceManagerChunkWriter: async (
     deviceManager: DeviceManager,
     chunk: any,

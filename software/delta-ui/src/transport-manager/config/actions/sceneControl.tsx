@@ -20,6 +20,7 @@ interface Collection {
   duration: number
   first_move: number
   last_move: number
+  num_lights: number
   viewer_vertices_path: string
   viewer_uv_path: string
 }
@@ -29,6 +30,7 @@ interface CollectionForUI {
   duration: number
   first_move: number
   last_move: number
+  num_lights: number
   viewer_vertices: ViewerVertices
   viewer_uv: string
 }
@@ -244,10 +246,7 @@ export const stopSceneExecution = new Action(
     })
 
     // Clear queues on the delta
-    const clearQueueMessage = new Message('clmv', null)
-    clearQueueMessage.metadata.type = 0 // TYPES.CALLBACK
-
-    await delta.write(clearQueueMessage)
+    await runAction('clear_queues', {})
 
     console.log('Stopped scene execution')
   },
@@ -280,14 +279,16 @@ export const startSceneExecution = new Action(
     const selectedFrames = summary.frames
       .filter(
         frame =>
-          frame.frame_num > options.frameStart &&
-          frame.frame_num < options.frameEnd,
+          frame.frame_num >= options.frameStart &&
+          frame.frame_num <= options.frameEnd,
       )
       .sort((a, b) => {
         if (a.frame_num < b.frame_num) return -1
         if (a.frame_num > b.frame_num) return 1
         return 0
       })
+
+    console.log('selectedFrames', selectedFrames.map(fr => fr.frame_num))
 
     // Set the metadata that we're starting
     delta.addMetadata({
@@ -301,6 +302,7 @@ export const startSceneExecution = new Action(
 
     // Start iterating over the frames
     for (const frame of selectedFrames) {
+      console.log('Executing frame', frame.frame_num)
       // check if we've stopped execution, cancelling before the next frame
       if (!delta.getMetadata().executing_scene) {
         return
@@ -312,15 +314,13 @@ export const startSceneExecution = new Action(
       delta.addMetadata({
         frames_complete_max: frame.frame_num,
       })
+
+      console.log('Finished frame', frame.frame_num)
     }
 
     delta.addMetadata({
       executing_scene: false,
     })
-
-    // trigger sync(1)
-
-    console.log('Started scene execution')
   },
 )
 
@@ -350,8 +350,11 @@ export const renderFrame = new Action(
         return
       }
 
+      console.log('Starting collection', collection.name)
+
       // render a collection
       await runAction('render_collection', collection)
+      console.log('Ended collection', collection.name)
     }
   },
 )
@@ -377,6 +380,28 @@ export const renderCollection = new Action(
       collection.toolpath_path,
     )
 
+    const amountOfMovements = collection.last_move - collection.first_move
+    const amountOfLights = collection.num_lights
+
+    console.log(
+      'Movements in this collection',
+      collection.name,
+      collection.duration,
+      amountOfMovements,
+    )
+
+    console.log('TURN ON CAMERA CAPTURE IN 3')
+    await new Promise((res, rej) => setTimeout(res, 1000))
+
+    console.log('TURN ON CAMERA CAPTURE IN 2')
+    await new Promise((res, rej) => setTimeout(res, 1000))
+
+    console.log('TURN ON CAMERA CAPTURE IN 1')
+    await new Promise((res, rej) => setTimeout(res, 1000))
+
+    console.log('TURN ON CAMERA CAPTURE IN 0')
+    await new Promise((res, rej) => setTimeout(res, 1000))
+
     // Set gates to false
     // Set metadata "waiting on UI gate - start camera" to false
     // Set metadata "waiting on UI gate - end camera" to false
@@ -398,10 +423,7 @@ export const renderCollection = new Action(
     console.log('Clearing hardware queues')
 
     // Clear queues on the delta
-    const clearQueueMessage = new Message('clmv', null)
-    clearQueueMessage.metadata.type = 0 // TYPES.CALLBACK
-
-    await delta.write(clearQueueMessage)
+    await runAction('clear_queues', {})
 
     console.log('Loading the collection')
 
@@ -413,11 +435,23 @@ export const renderCollection = new Action(
     // Unpause movement queue,
     await runAction('movement_queue_paused', false)
 
+    console.log('Streaming initial movements')
+
+    const amountOfMovesToWaitFor = Math.min(
+      Math.max(Math.floor(amountOfMovements / 2), 1),
+      50,
+    ) // send at least 1, and the smaller of half the moves or 50
+
+    console.log('waiting for', amountOfMovesToWaitFor, 'to be sent')
+
     // Wait until movement queue is somewhat saturated
-    await delta.waitForReply(
+    const { promise: waitForMovementQueueSaturation } = delta.waitForReply(
       message =>
-        message.messageID === 'queue' && message.payload.movements > 50,
+        message.messageID === 'queue' &&
+        message.payload.movements >= amountOfMovesToWaitFor,
     )
+
+    await waitForMovementQueueSaturation
 
     // check if we've stopped execution, cancelling mid collection
     if (!delta.getMetadata().executing_scene) {
@@ -431,10 +465,21 @@ export const renderCollection = new Action(
     // Unpause light queue
     await runAction('light_queue_paused', false)
 
+    const amountOfLightsToWaitFor = Math.min(
+      Math.max(Math.floor(amountOfLights / 2), 1),
+      50,
+    ) // send at least 1, and the smaller of half the moves or 50
+
+    console.log('waiting for', amountOfLightsToWaitFor, 'to be sent')
+
     // Wait until movement queue is somewhat saturated
-    await delta.waitForReply(
-      message => message.messageID === 'queue' && message.payload.lighting > 50,
+    const { promise: waitForLightingQueueSaturation } = delta.waitForReply(
+      message =>
+        message.messageID === 'queue' &&
+        message.payload.lighting >= amountOfLightsToWaitFor,
     )
+
+    await waitForLightingQueueSaturation
 
     // check if we've stopped execution, cancelling mid collection
     if (!delta.getMetadata().executing_scene) {
@@ -453,6 +498,8 @@ export const renderCollection = new Action(
       return
     }
 
+    console.log('Sending sync event')
+
     // Wait until "waiting on UI gate - start camera" to false (the human should trigger the camera)
     // send sync event
     await runAction('sync', 1)
@@ -464,11 +511,23 @@ export const renderCollection = new Action(
 
     // we're now rendering the collection
 
+    console.log('Waiting until queue is empty')
+
     // wait until the movement queue is complete.
-    await delta.waitForReply(
-      message =>
-        message.messageID === 'queue' && message.payload.movements === 0,
+    const { promise: waitForMovementQueueEmpty } = delta.waitForReply(
+      message => {
+        if (message.messageID === 'queue') {
+          const queueDepth = message.payload.movements
+
+          return queueDepth === 0
+        }
+        return false
+      },
     )
+
+    await waitForMovementQueueEmpty
+
+    console.log('Queue emptied')
 
     // check if we've stopped execution, cancelling mid collection
     if (!delta.getMetadata().executing_scene) {
@@ -488,5 +547,17 @@ export const renderCollection = new Action(
     delta.addMetadata({
       executing_collection: false,
     })
+
+    console.log('TURN OFF CAMERA CAPTURE NOW (3)')
+    await new Promise((res, rej) => setTimeout(res, 1000))
+
+    console.log('TURN OFF CAMERA CAPTURE NOW (2)')
+    await new Promise((res, rej) => setTimeout(res, 1000))
+
+    console.log('TURN OFF CAMERA CAPTURE NOW (1)')
+    await new Promise((res, rej) => setTimeout(res, 1000))
+
+    console.log('TURN OFF CAMERA CAPTURE NOW (0)')
+    await new Promise((res, rej) => setTimeout(res, 1000))
   },
 )

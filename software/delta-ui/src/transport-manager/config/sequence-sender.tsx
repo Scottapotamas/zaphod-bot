@@ -1,9 +1,10 @@
 import {
-  DeviceManager,
   Device,
-  Message,
+  DeviceManager,
   MANAGER_EVENTS,
+  Message,
 } from '@electricui/core'
+
 import { DeviceManagerProxyPlugin } from '@electricui/components-core'
 
 export type QueueDepthRequester = (deviceManager: DeviceManager) => Promise<any>
@@ -53,6 +54,11 @@ export interface SequenceSenderPluginOptions {
    * Do something with the device manager when the queue depth changes
    */
   queueDepthChangeCallback: QueueDepthChangeCallback
+
+  /**
+   * Provide a name for the sequence sender
+   */
+  name?: string
 }
 
 export type SubscribeCallback = (depth: number) => void
@@ -66,8 +72,11 @@ export class SequenceSenderPlugin extends DeviceManagerProxyPlugin {
   incomingQueueDepthMessageTransform: IncomingQueueDepthMessageTransform
   queueDepthChangeCallback: QueueDepthChangeCallback
   paused: boolean = true
+  name: string
 
   subscribers: Map<SubscribeCallback, boolean> = new Map()
+
+  debug: (msg: string) => void
 
   constructor(options: SequenceSenderPluginOptions) {
     super()
@@ -77,6 +86,10 @@ export class SequenceSenderPlugin extends DeviceManagerProxyPlugin {
     this.incomingQueueDepthMessageFilter = options.incomingQueueDepthMessageFilter // prettier-ignore
     this.incomingQueueDepthMessageTransform = options.incomingQueueDepthMessageTransform // prettier-ignore
     this.queueDepthChangeCallback = options.queueDepthChangeCallback
+
+    this.name = options.name || '?'
+
+    this.debug = require('debug')(`electricui-sequence-sender-${this.name}`)
   }
 
   onMessage = (device: Device, message: Message) => {
@@ -129,6 +142,10 @@ export class SequenceSenderPlugin extends DeviceManagerProxyPlugin {
       // tell the UI how much is left in _our_ queue
       this.setQueueRemaining(this.queue.length)
 
+      this.debug(
+        `Writing item, UI queue length: ${this.queue.length}, HW queue depth: ${this.currentQueueDepth}`,
+      )
+
       await this.deviceManagerChunkWriter(this.deviceManager!, item)
 
       this.writeSomethingIfWeCan()
@@ -172,5 +189,12 @@ export class SequenceSenderPlugin extends DeviceManagerProxyPlugin {
     if (!paused) {
       this.writeSomethingIfWeCan()
     }
+  }
+
+  /**
+   * Clear the queue
+   */
+  public clear = () => {
+    this.queue = []
   }
 }

@@ -1,7 +1,8 @@
 import { Action, RunActionFunction } from '@electricui/core-actions'
 import { Device, DeviceManager, Message } from '@electricui/core'
-import { lightQueuePause, queueLight } from './led'
 import {
+  clearQueues,
+  clearUIMovementQueue,
   moveBack,
   moveDown,
   moveForward,
@@ -12,6 +13,7 @@ import {
   queueMovement,
   sync,
 } from './delta'
+import { clearUILightQueue, lightQueuePause, queueLight } from './led'
 import {
   openScene,
   renderCollection,
@@ -39,6 +41,9 @@ const wait = new Action(
 )
 
 const actions = [
+  clearQueues,
+  clearUILightQueue,
+  clearUIMovementQueue,
   loadCollection,
   wait,
   setFrame,

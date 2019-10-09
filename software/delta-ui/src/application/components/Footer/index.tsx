@@ -93,6 +93,7 @@ const Footer = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
   return (
     <div className="device-footer">
       <IntervalRequester interval={1000} variables={['sys']} />
+      <IntervalRequester interval={100} variables={['queue']} />
 
       <Navbar style={{ background: 'transparent', boxShadow: 'none' }}>
         <div style={{ margin: '0 auto', width: '100%' }}>

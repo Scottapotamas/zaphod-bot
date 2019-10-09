@@ -1,11 +1,12 @@
 import {
+  DEVICE_EVENTS,
+  Device,
   DeviceManager,
   DeviceMetadata,
-  DEVICE_EVENTS,
   MANAGER_EVENTS,
-  Device,
   isSubset,
 } from '@electricui/core'
+
 import { DeviceManagerProxyPlugin } from '@electricui/components-core'
 
 export type AutoConnectMetadata = Array<DeviceMetadata>
@@ -49,7 +50,6 @@ export class AutoConnectPlugin extends DeviceManagerProxyPlugin {
       if (isSubset(deviceMetadata, subsetMetadata)) {
         // TODO: Remove this after 0.6.4-prerelease.8
         if (device.getUsageRequests().includes('ui')) {
-          console.log('already have a connection')
           return
         }
 
