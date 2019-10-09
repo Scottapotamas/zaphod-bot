@@ -14,7 +14,6 @@
 /* Assert printout requirements */
 #include <string.h>
 #include <stdarg.h>
-#include "hal_uart.h"
 #include "hal_delay.h"
 
 /* Private variables ---------------------------------------------------------*/
@@ -51,7 +50,8 @@ int main(void)
 	//allow interrupts
 	PERMIT();
 
-	while(1)
+    #pragma clang diagnostic ignored "-Wmissing-noreturn"
+    while(1)
 	{
 		if( !app_tasks_run() )
 		{
