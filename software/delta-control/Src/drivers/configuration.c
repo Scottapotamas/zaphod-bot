@@ -81,17 +81,19 @@ typedef struct
 {
 	//pathing engine state idle, running, etc
 	uint8_t	pathing_state;
-
+    //motion handler information
+    uint8_t	motion_state;
 	//information about the current move being executed
-	uint8_t movement_identifier;
 	uint8_t profile_type;
 	uint8_t move_progress;
-
-	//motion handler information
-	uint8_t	motion_state;
-	uint8_t	motion_queue_depth;
-
+    uint16_t movement_identifier;
 } MotionData_t;
+
+typedef struct
+{
+    uint8_t movements;
+    uint8_t lighting;
+} QueueDepths_t;
 
 typedef struct
 {
@@ -108,7 +110,6 @@ typedef struct
     uint8_t green;
     uint8_t blue;
     uint8_t enable;
-    uint8_t queue_depth;
 } LedSetting_t;
 
 
@@ -131,7 +132,7 @@ FanCurve_t 		fan_curve[] =
 TempData_t 		temp_sensors;
 
 SystemStates_t	sys_states;
-
+QueueDepths_t   queue_data;
 MotionData_t 	motion_global;
 MotorData_t 	motion_servo[4];
 Movement_t 		motion_inbound;
@@ -176,6 +177,8 @@ eui_message_t ui_variables[] =
     EUI_CUSTOM("fan", fan_stats),
     EUI_CUSTOM("curve", fan_curve),
     EUI_CUSTOM("temp", temp_sensors),
+
+    EUI_CUSTOM( "queue", queue_data),
 
     // motion related information
     EUI_CUSTOM("moStat", motion_global),
@@ -536,7 +539,8 @@ config_set_motion_state( uint8_t status )
 PUBLIC void
 config_set_motion_queue_depth( uint8_t utilisation )
 {
-	motion_global.motion_queue_depth = utilisation;
+    queue_data.movements = utilisation;
+    eui_send_tracked("queue");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -590,7 +594,8 @@ config_set_led_values( uint8_t red, uint8_t green, uint8_t blue)
 PUBLIC void
 config_set_led_queue_depth( uint8_t utilisation )
 {
-    rgb_led_drive.queue_depth = utilisation;
+    queue_data.lighting = utilisation;
+    eui_send_tracked("queue");
 }
 
 /* ----- Private Functions -------------------------------------------------- */

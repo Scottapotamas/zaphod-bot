@@ -37,7 +37,7 @@ const CPUText = () => {
 }
 
 const QueueText = () => {
-  const queue_depth = useHardwareState(state => state.moStat.queue_depth)
+  const queue_depth = useHardwareState(state => state.queue.movements)
   const is_moving = useHardwareState(state => state.moStat.move_state) == 1
   const queue_depth_ui = useDeviceMetadataKey('uiSideMovementQueueDepth')
   const triggerAction = useTriggerAction()
@@ -70,7 +70,7 @@ const QueueText = () => {
 }
 
 const LEDQueueText = () => {
-  const queue_depth = useHardwareState(state => state.rgb.queue_depth)
+  const queue_depth = useHardwareState(state => state.queue.lighting)
   const queue_depth_ui = useDeviceMetadataKey('uiSideLightQueueDepth')
   const triggerAction = useTriggerAction()
 

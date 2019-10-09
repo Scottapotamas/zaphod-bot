@@ -36,13 +36,13 @@ export const movementQueueSequencer = new SequenceSenderPlugin({
       return false
     }
 
-    return message.deviceID === delta.deviceID && message.messageID === 'moStat'
+    return message.deviceID === delta.deviceID && message.messageID === 'queue'
   },
   incomingQueueDepthMessageTransform: (
     deviceManager: DeviceManager,
     message: Message,
   ) => {
-    return message.payload.queue_depth
+    return message.payload.movements
   },
   queueDepthChangeCallback: (deviceManager: DeviceManager, depth: number) => {
     const delta = getDelta(deviceManager)
@@ -79,13 +79,13 @@ export const lightQueueSequencer = new SequenceSenderPlugin({
       return false
     }
 
-    return message.deviceID === delta.deviceID && message.messageID === 'rgb'
+    return message.deviceID === delta.deviceID && message.messageID === 'queue'
   },
   incomingQueueDepthMessageTransform: (
     deviceManager: DeviceManager,
     message: Message,
   ) => {
-    return message.payload.queue_depth
+    return message.payload.lighting
   },
   queueDepthChangeCallback: (deviceManager: DeviceManager, depth: number) => {
     const delta = getDelta(deviceManager)

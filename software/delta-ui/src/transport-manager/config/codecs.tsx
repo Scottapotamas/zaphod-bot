@@ -75,6 +75,26 @@ export class FanCodec extends Codec {
   }
 }
 
+export class QueueDepthCodec extends Codec {
+  filter(message: Message): boolean {
+    return message.messageID === 'queue'
+  }
+
+  decode(message: Message, push: PushCallback) {
+    if (message.payload === null) {
+      return push(message)
+    }
+
+    const reader = SmartBuffer.fromBuffer(message.payload)
+    message.payload = {
+      movements: reader.readUInt8(),
+      lighting: reader.readUInt8(),
+    }
+
+    return push(message)
+  }
+}
+
 export class TargetPositionCodec extends Codec {
   filter(message: Message): boolean {
     return message.messageID === 'tpos'
@@ -176,12 +196,11 @@ export class MotionDataCodec extends Codec {
     const reader = SmartBuffer.fromBuffer(message.payload)
     message.payload = {
       move_state: reader.readUInt8(),
-      move_id: reader.readUInt8(),
+      queue_state: reader.readUInt8(), // this isn't called the queue state on embedded
       move_type: reader.readUInt8(),
       move_progress: reader.readUInt8(),
 
-      queue_state: reader.readUInt8(),
-      queue_depth: reader.readUInt8(),
+      move_id: reader.readUInt16LE(),
     }
 
     return push(message)
@@ -376,7 +395,6 @@ export class RGBCodec extends Codec {
     packet.writeUInt8(message.payload.green)
     packet.writeUInt8(message.payload.blue)
     packet.writeUInt8(message.payload.enable ? 1 : 0)
-    packet.writeUInt8(message.payload.queue_depth)
 
     message.payload = packet.toBuffer()
 
@@ -394,7 +412,6 @@ export class RGBCodec extends Codec {
       green: reader.readUInt8(),
       blue: reader.readUInt8(),
       enable: reader.readUInt8() === 1 ? true : false,
-      queue_depth: reader.readUInt8(),
     }
 
     return push(message)
@@ -405,6 +422,7 @@ export const customCodecs = [
   new SystemDataCodec(),
   new TempDataCodec(),
   new FanCodec(),
+  new QueueDepthCodec(),
   new TargetPositionCodec(),
   new FirmwareBuildInfoCodec(),
   new MotorDataCodec(),
