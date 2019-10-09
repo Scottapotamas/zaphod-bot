@@ -1,40 +1,37 @@
-import { Card, Icon } from '@blueprintjs/core'
-import { Cell, Grid } from 'styled-css-grid'
-import {
-  IntervalRequester,
-  StateTree,
-  useHardwareState,
-} from '@electricui/components-core'
-
+import { Composition } from 'atomic-layout'
+import { IntervalRequester } from '@electricui/components-core'
 import React from 'react'
 import { RouteComponentProps } from '@reach/router'
 import SystemController from './SystemController'
 import SystemOverview from './SystemOverview'
-import { useDarkMode } from '@electricui/components-desktop'
+import { ThreeD } from './ThreeD'
 
-const ControlPage = (props: RouteComponentProps) => {
-  const isDarkMode = useDarkMode()
+const controlAreas = `
+ControlArea ThreeDArea
+SystemOverviewArea ThreeDArea
+`
 
-  return (
-    <React.Fragment>
-      <IntervalRequester interval={100} variables={['moStat', 'cpos']} />
-      <IntervalRequester interval={200} variables={['mo1', 'mo2', 'mo3']} />
+const ControlPage = (props: RouteComponentProps) => (
+  <React.Fragment>
+    <IntervalRequester interval={100} variables={['moStat', 'cpos']} />
+    <IntervalRequester interval={200} variables={['mo1', 'mo2', 'mo3']} />
 
-      <Grid
-        columns="repeat(auto-fit,minmax(600px,0.6fr))"
-        justifyContent="space-around"
-        alignContent="space-around"
-      >
-        <Cell>
-          <SystemController />
-          <br />
-          <SystemOverview />
-        </Cell>
-
-        <Cell>3d</Cell>
-      </Grid>
-    </React.Fragment>
-  )
-}
+    <Composition areas={controlAreas} gap={10} templateCols="1fr 1fr">
+      {({ ControlArea, SystemOverviewArea, ThreeDArea }) => (
+        <React.Fragment>
+          <ControlArea>
+            <SystemController />
+          </ControlArea>
+          <SystemOverviewArea>
+            <SystemOverview />
+          </SystemOverviewArea>
+          <ThreeDArea>
+            <ThreeD />
+          </ThreeDArea>
+        </React.Fragment>
+      )}
+    </Composition>
+  </React.Fragment>
+)
 
 export default ControlPage

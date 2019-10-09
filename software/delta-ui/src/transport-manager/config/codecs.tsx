@@ -1,4 +1,5 @@
 import { Codec, Message, PushCallback } from '@electricui/core'
+
 import { SmartBuffer } from 'smart-buffer'
 
 export class SystemDataCodec extends Codec {
@@ -195,12 +196,12 @@ export class MotionDataCodec extends Codec {
 
     const reader = SmartBuffer.fromBuffer(message.payload)
     message.payload = {
-      move_state: reader.readUInt8(),
-      queue_state: reader.readUInt8(), // this isn't called the queue state on embedded
-      move_type: reader.readUInt8(),
+      pathing_state: reader.readUInt8(),
+      motion_state: reader.readUInt8(), // this isn't called the queue state on embedded
+      profile_type: reader.readUInt8(),
       move_progress: reader.readUInt8(),
 
-      move_id: reader.readUInt16LE(),
+      movement_identifier: reader.readUInt16LE(),
     }
 
     return push(message)

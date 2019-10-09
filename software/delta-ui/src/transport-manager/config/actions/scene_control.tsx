@@ -3,14 +3,19 @@ import { Device, DeviceManager, Message } from '@electricui/core'
 
 import fs from 'fs'
 import { getDelta } from './utils'
+import path from 'path'
+
+const Datauri = require('datauri')
 
 export type LoadSceneOptions = {
   filePath: string
 }
 
-interface Frame {
-  frame_num: number
-  collection: string
+type Vertices = [number, number, number]
+type ViewerVertices = Array<Vertices>
+
+interface Collection {
+  name: string
   toolpath_path: string
   duration: number
   first_move: number
@@ -19,10 +24,45 @@ interface Frame {
   viewer_uv_path: string
 }
 
+interface CollectionForUI {
+  name: string
+  duration: number
+  first_move: number
+  last_move: number
+  viewer_vertices: ViewerVertices
+  viewer_uv: string
+}
+
+interface Frame {
+  frame_num: number
+  collections: Array<Collection>
+}
+
 interface SummaryFormat {
   collections: Array<string>
   frames: Array<Frame>
 }
+
+export const setFrame = new Action(
+  'set_frame',
+  async (
+    deviceManager: DeviceManager,
+    runAction: RunActionFunction,
+    frame_number: number,
+  ) => {
+    const delta = getDelta(deviceManager)
+
+    if (!delta) {
+      return
+    }
+
+    const current_frame = frame_number
+
+    delta.addMetadata({
+      current_frame,
+    })
+  },
+)
 
 export const openScene = new Action(
   'open_scene',
@@ -46,7 +86,6 @@ export const openScene = new Action(
     const available_collections = summary.collections
     const min_frame = summary.frames.reduce((min, frame) => Math.min(min, frame.frame_num), summary.frames[0].frame_num) // prettier-ignore
     const max_frame = summary.frames.reduce((max, frame) => Math.max(max, frame.frame_num), summary.frames[0].frame_num) // prettier-ignore
-    const current_frame = min_frame
     const selected_collections = available_collections
     const frames_complete_min = min_frame
     const frames_complete_max = min_frame
@@ -75,8 +114,6 @@ export const openScene = new Action(
       available_collections,
       min_frame,
       max_frame,
-      current_frame,
-      selected_collections,
       frames_complete_min,
       frames_complete_max,
       executing_scene,
@@ -87,6 +124,11 @@ export const openScene = new Action(
       frame_start,
       frame_end,
     })
+
+    // Parse the current frame and set it
+    runAction('set_frame', min_frame)
+    // Set the selected collections to all of them
+    runAction('set_selected_collections', available_collections)
 
     console.log('open_scene set to ', summaryFilePath)
   },
@@ -109,9 +151,66 @@ export const setSelectedCollections = new Action(
       return
     }
 
+    const metadata = delta.getMetadata()
+    const summaryFilePath = metadata.summary_file_path
+    const current_frame = metadata.current_frame
+
+    // Parse the summary file (this may be called later than the open_scene action)
+
+    const summaryBytes = fs.readFileSync(summaryFilePath) // just read it all now
+    const summary: SummaryFormat = JSON.parse(summaryBytes.toString())
+
+    // parse out the current frame's data
+
+    const currentFrameData = summary.frames.find(
+      frame => frame.frame_num === current_frame,
+    )
+
+    if (!currentFrameData) {
+      return
+    }
+
+    const selectedCollectionData = currentFrameData.collections.filter(
+      collection => selectedCollections.includes(collection.name),
+    )
+
+    const loadedCollectionData = selectedCollectionData.map(collectionData => {
+      const {
+        viewer_vertices_path,
+        viewer_uv_path,
+        toolpath_path, // we pull this out and throw it away
+        ...rest
+      } = collectionData
+
+      const uvPath = path.join(path.dirname(summaryFilePath), viewer_uv_path)
+      const uvDataURI = new Datauri(uvPath)
+      const viewer_uv = uvDataURI.content // Send down the UV data as a Datauri for simplicity
+
+      const verticesPath = path.join(
+        path.dirname(summaryFilePath),
+        viewer_vertices_path,
+      )
+
+      const verticesBytes = fs.readFileSync(verticesPath) // just read it all now
+      const viewer_vertices: ViewerVertices = JSON.parse(
+        verticesBytes.toString(),
+      )
+
+      const collectionDataForUI: CollectionForUI = {
+        ...rest,
+        viewer_vertices,
+        viewer_uv,
+      }
+
+      return collectionDataForUI
+    })
+
+    // Parse out the data of the current frame for these collections // parse out the collection
+
     // Set the currently selected collections
     delta.addMetadata({
       selected_collections: selectedCollections,
+      loaded_collection_data: loadedCollectionData,
     })
 
     console.log('selected_collections set to ', selectedCollections)

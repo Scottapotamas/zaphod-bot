@@ -45,8 +45,6 @@ const DevicePages = (
             <SystemPage path="system" />
             <DetailPage path="detail" />
           </Router>
-
-          <SceneController />
         </div>
         <Footer deviceID={props.deviceID} {...props} />
       </div>

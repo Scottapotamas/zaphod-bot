@@ -17,12 +17,13 @@ import {
 } from '@electricui/components-core'
 
 import { CALL_CALLBACK } from '@electricui/core'
+import { Composition } from 'atomic-layout'
 import { Printer } from '@electricui/components-desktop'
 import React from 'react'
 
 const SupervisorState = () => {
   const supervisor_state = useHardwareState(state => state.super.supervisor)
-  const is_moving = useHardwareState(state => state.moStat.move_state)
+  const is_moving = useHardwareState(state => state.moStat.pathing_state)
 
   let supervisor_text: string = 'null'
 
@@ -75,58 +76,71 @@ const ArmControlButton = () => {
   )
 }
 
+const systemOverviewAreas = `
+ProgressBar ProgressBarArea
+StateArea PositionArea
+HomeArea ArmArea
+`
+
 const SystemOverview = () => {
   const control_mode = useHardwareState(state => state.super.mode)
 
   return (
     <Card>
-      <ProgressBar accessor={state => state.moStat.move_progress} />
-      <br />
-      <Grid columns={2}>
-        <Cell center middle>
-          <Statistics>
-            <Statistic
-              value={<SupervisorState />}
-              label={<div>{control_mode} MODE</div>}
-            />
-          </Statistics>
-        </Cell>
-        <Cell>
-          <HTMLTable condensed style={{ minWidth: '100%' }}>
-            <tbody>
-              <tr>
-                <td>X</td>
-                <td>
-                  <Printer accessor={state => state.cpos[0] / 1000} /> mm
-                </td>
-              </tr>
-              <tr>
-                <td>Y</td>
-                <td>
-                  <Printer accessor={state => state.cpos[1] / 1000} /> mm
-                </td>
-              </tr>
-              <tr>
-                <td>Z</td>
-                <td>
-                  <Printer accessor={state => state.cpos[2] / 1000} /> mm
-                </td>
-              </tr>
-            </tbody>
-          </HTMLTable>
-        </Cell>
-      </Grid>
-      <br />
-      <Grid columns={2}>
-        <Cell>
-          <ArmControlButton />
-        </Cell>
-        <Cell>
-          <Button fill large intent="success" writer={{ home: CALL_CALLBACK }}>
-            Home
-          </Button>
-        </Cell>
-      </Grid>
+      <Composition areas={systemOverviewAreas} gutter={10}>
+        {({ ProgressBarArea, StateArea, PositionArea, HomeArea, ArmArea }) => (
+          <>
+            <ProgressBarArea>
+              <ProgressBar accessor={state => state.moStat.move_progress} />
+            </ProgressBarArea>
+            <StateArea>
+              <Statistics>
+                <Statistic
+                  value={<SupervisorState />}
+                  label={<div>{control_mode} MODE</div>}
+                />
+              </Statistics>
+            </StateArea>
+            <PositionArea>
+              <HTMLTable condensed style={{ minWidth: '100%' }}>
+                <tbody>
+                  <tr>
+                    <td>X</td>
+                    <td>
+                      <Printer accessor={state => state.cpos[0] / 1000} /> mm
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Y</td>
+                    <td>
+                      <Printer accessor={state => state.cpos[1] / 1000} /> mm
+                    </td>
+                  </tr>
+                  <tr>
+                    <td>Z</td>
+                    <td>
+                      <Printer accessor={state => state.cpos[2] / 1000} /> mm
+                    </td>
+                  </tr>
+                </tbody>
+              </HTMLTable>
+            </PositionArea>
+            <HomeArea>
+              <Button
+                fill
+                large
+                intent="success"
+                writer={{ home: CALL_CALLBACK }}
+              >
+                Home
+              </Button>
+            </HomeArea>
+            <ArmArea>
+              <ArmControlButton />
+            </ArmArea>
+          </>
+        )}
+      </Composition>
     </Card>
   )
 }

@@ -16,6 +16,7 @@ import {
 // Only one that matters now
 import {
   openScene,
+  setFrame,
   setSelectedCollections,
   startSceneExecution,
   stopSceneExecution,
@@ -39,6 +40,7 @@ const actions = [
   loadScene,
   setLoadedScene,
   wait,
+  setFrame,
   queueLight,
   lightQueuePause,
   queueMovement,

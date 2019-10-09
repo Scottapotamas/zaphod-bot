@@ -22,6 +22,7 @@ import React, { ReactElement, useCallback, useEffect, useState } from 'react'
 import { Button } from '@electricui/components-desktop-blueprint'
 import { CALL_CALLBACK } from '@electricui/core'
 import { CONTROL_MODES } from './../../../../transport-manager/config/codecs'
+import { Composition } from 'atomic-layout'
 import { Printer } from '@electricui/components-desktop'
 import { useExtractSceneName } from './../../../hooks/useExtractSceneName'
 import { useOpenDialogCallFunction } from './../../../hooks/useOpenDialog'
@@ -39,11 +40,14 @@ const OpenSceneButton = () => {
   const selectFile = useOpenDialogCallFunction('json', 'Open a scene file', cb)
 
   return (
-    <ButtonGroup>
-      <BlueprintButton fill large onClick={selectFile} icon="document-open">
-        Open Scene
-      </BlueprintButton>
-    </ButtonGroup>
+    <BlueprintButton
+      large
+      onClick={selectFile}
+      icon="document-open"
+      style={{ width: '50%' }}
+    >
+      Open Scene
+    </BlueprintButton>
   )
 }
 
@@ -208,6 +212,12 @@ const CurrentRGB = () => {
   )
 }
 
+const controllerAreas = `
+ButtonAreas ButtonAreas ButtonAreas
+CollectionsArea CollectionsArea RGBArea
+FramesArea FramesArea FramesArea
+`
+
 export const SceneController = () => {
   const availableMin = useDeviceMetadataKey('min_frame') || 1
   const availableMax = useDeviceMetadataKey('max_frame') || 2
@@ -220,56 +230,65 @@ export const SceneController = () => {
   const [frameEnd, setFrameEnd] = useState(availableMax)
 
   return (
-    <div>
-      <ButtonGroup>
-        <OpenSceneButton />
-        {executing ? (
-          <BlueprintButton
-            fill
-            large
-            intent="danger"
-            icon="stop"
-            onClick={() => {
-              triggerAction('stop_scene_execution', {})
-            }}
+    <Composition areas={controllerAreas} gap={10}>
+      {({ ButtonAreas, CollectionsArea, FramesArea, RGBArea }) => (
+        <React.Fragment>
+          <ButtonAreas>
+            <ButtonGroup fill={true}>
+              <OpenSceneButton />
+              {executing ? (
+                <BlueprintButton
+                  large
+                  intent="danger"
+                  style={{ width: '50%' }}
+                  icon="stop"
+                  onClick={() => {
+                    triggerAction('stop_scene_execution', {})
+                  }}
+                >
+                  Stop
+                </BlueprintButton>
+              ) : (
+                <BlueprintButton
+                  large
+                  intent="success"
+                  icon="caret-right"
+                  onClick={() => {
+                    triggerAction('start_scene_execution', {
+                      frameStart,
+                      frameEnd,
+                    })
+                  }}
+                  style={{ width: '50%' }}
+                >
+                  Start
+                </BlueprintButton>
+              )}
+            </ButtonGroup>
+          </ButtonAreas>
+          <CollectionsArea>
+            <CollectionSelector />
+          </CollectionsArea>
+          <FramesArea padding={10}>
+            <FrameController
+              key={`${availableMin}-${availableMax}`} // we do this so we re-init it on each new scene opening
+              frameStart={frameStart}
+              frameEnd={frameEnd}
+              setFrameStart={setFrameStart}
+              setFrameEnd={setFrameEnd}
+              disabled={executing}
+            />
+          </FramesArea>
+          <RGBArea
+            justifyContent="center"
+            alignContent="center"
+            style={{ display: 'grid' }}
           >
-            Stop
-          </BlueprintButton>
-        ) : (
-          <BlueprintButton
-            fill
-            large
-            intent="success"
-            icon="caret-right"
-            onClick={() => {
-              triggerAction('start_scene_execution', {
-                frameStart,
-                frameEnd,
-              })
-            }}
-          >
-            Start
-          </BlueprintButton>
-        )}
-        <Button writer={{ clmv: CALL_CALLBACK }} intent="warning">
-          Clear queue
-        </Button>
-      </ButtonGroup>
-
-      <CurrentRGB />
-
-      <label>Collection selection</label>
-      <CollectionSelector />
-      <label>Frame Selection</label>
-      <FrameController
-        key={`${availableMin}-${availableMax}`} // we do this so we re-init it on each new scene opening
-        frameStart={frameStart}
-        frameEnd={frameEnd}
-        setFrameStart={setFrameStart}
-        setFrameEnd={setFrameEnd}
-        disabled={executing}
-      />
-    </div>
+            <CurrentRGB />
+          </RGBArea>
+        </React.Fragment>
+      )}
+    </Composition>
   )
 }
 

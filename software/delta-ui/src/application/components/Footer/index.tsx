@@ -37,7 +37,7 @@ const CPUText = () => {
 
 const QueueText = () => {
   const queue_depth = useHardwareState(state => state.queue.movements)
-  const is_moving = useHardwareState(state => state.moStat.move_state) == 1
+  const is_moving = useHardwareState(state => state.moStat.pathing_state) == 1
   const queue_depth_ui = useDeviceMetadataKey('uiSideMovementQueueDepth')
 
   let iconColour: Intent
