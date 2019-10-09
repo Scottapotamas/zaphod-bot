@@ -243,6 +243,12 @@ export const stopSceneExecution = new Action(
       executing_collection: false,
     })
 
+    // Clear queues on the delta
+    const clearQueueMessage = new Message('clmv', null)
+    clearQueueMessage.metadata.type = 0 // TYPES.CALLBACK
+
+    await delta.write(clearQueueMessage)
+
     console.log('Stopped scene execution')
   },
 )
@@ -261,8 +267,29 @@ export const startSceneExecution = new Action(
     }
 
     const metadata = delta.getMetadata()
+    const summaryFilePath = metadata.summary_file_path
+    const current_frame = metadata.current_frame
+    const selectedCollections = metadata.selected_collections
 
-    // Set the selected frames and the start and endpoints
+    // Parse the summary file (this may be called later than the open_scene action)
+
+    const summaryBytes = fs.readFileSync(summaryFilePath) // just read it all now
+    const summary: SummaryFormat = JSON.parse(summaryBytes.toString())
+
+    // Find the frames that we're running, sort them by frame number
+    const selectedFrames = summary.frames
+      .filter(
+        frame =>
+          frame.frame_num > options.frameStart &&
+          frame.frame_num < options.frameEnd,
+      )
+      .sort((a, b) => {
+        if (a.frame_num < b.frame_num) return -1
+        if (a.frame_num > b.frame_num) return 1
+        return 0
+      })
+
+    // Set the metadata that we're starting
     delta.addMetadata({
       executing_scene: true,
       current_frame: options.frameStart,
@@ -270,35 +297,22 @@ export const startSceneExecution = new Action(
       frames_complete_max: options.frameStart,
       frame_start: options.frameStart,
       frame_end: options.frameEnd,
-      //  executing_collection: false,
     })
 
-    await new Promise((res, rej) => setTimeout(res, 300))
+    // Start iterating over the frames
+    for (const frame of selectedFrames) {
+      // check if we've stopped execution, cancelling before the next frame
+      if (!delta.getMetadata().executing_scene) {
+        return
+      }
 
-    delta.addMetadata({
-      frames_complete_max: options.frameStart + 1,
-    })
+      // render a collection
+      await runAction('render_frame', frame)
 
-    await new Promise((res, rej) => setTimeout(res, 1000))
-    delta.addMetadata({
-      frames_complete_max: options.frameStart + 2,
-    })
-
-    await new Promise((res, rej) => setTimeout(res, 1000))
-    delta.addMetadata({
-      frames_complete_max: options.frameStart + 3,
-    })
-
-    await new Promise((res, rej) => setTimeout(res, 1000))
-
-    delta.addMetadata({
-      frames_complete_max: options.frameStart + 4,
-    })
-    await new Promise((res, rej) => setTimeout(res, 1000))
-    delta.addMetadata({
-      frames_complete_max: options.frameStart + 5,
-    })
-    await new Promise((res, rej) => setTimeout(res, 1000))
+      delta.addMetadata({
+        frames_complete_max: frame.frame_num,
+      })
+    }
 
     delta.addMetadata({
       executing_scene: false,
@@ -307,5 +321,172 @@ export const startSceneExecution = new Action(
     // trigger sync(1)
 
     console.log('Started scene execution')
+  },
+)
+
+export const renderFrame = new Action(
+  'render_frame',
+  async (
+    deviceManager: DeviceManager,
+    runAction: RunActionFunction,
+    frame: Frame,
+  ) => {
+    const delta = getDelta(deviceManager)
+
+    if (!delta) {
+      return
+    }
+
+    const metadata = delta.getMetadata()
+    const selectedCollections = metadata.selected_collections
+
+    const selectedCollectionData = frame.collections.filter(collection =>
+      selectedCollections.includes(collection.name),
+    )
+
+    for (const collection of selectedCollectionData) {
+      // check if we've stopped execution, cancelling mid frame
+      if (!delta.getMetadata().executing_scene) {
+        return
+      }
+
+      // render a collection
+      await runAction('render_collection', collection)
+    }
+  },
+)
+
+export const renderCollection = new Action(
+  'render_collection',
+  async (
+    deviceManager: DeviceManager,
+    runAction: RunActionFunction,
+    collection: Collection,
+  ) => {
+    const delta = getDelta(deviceManager)
+
+    if (!delta) {
+      return
+    }
+
+    const metadata = delta.getMetadata()
+    const summaryFilePath = metadata.summary_file_path
+
+    const absToolpathPath = path.join(
+      path.dirname(summaryFilePath),
+      collection.toolpath_path,
+    )
+
+    // Set gates to false
+    // Set metadata "waiting on UI gate - start camera" to false
+    // Set metadata "waiting on UI gate - end camera" to false
+    // Set metadata "executing collection" to true
+    delta.addMetadata({
+      executing_collection: true,
+      current_collection: collection.name,
+      waiting_on_ui_gate_start_camera: false,
+      waiting_on_ui_gate_stop_camera: false,
+    })
+
+    console.log('Pausing UI queues')
+
+    // Pause the movement queue
+    await runAction('movement_queue_paused', true)
+    // Pause the light queue
+    await runAction('light_queue_paused', true)
+
+    console.log('Clearing hardware queues')
+
+    // Clear queues on the delta
+    const clearQueueMessage = new Message('clmv', null)
+    clearQueueMessage.metadata.type = 0 // TYPES.CALLBACK
+
+    await delta.write(clearQueueMessage)
+
+    console.log('Loading the collection')
+
+    // Load the collection file
+    await runAction('load_collection', absToolpathPath)
+
+    console.log('Streaming initial movements')
+
+    // Unpause movement queue,
+    await runAction('movement_queue_paused', false)
+
+    // Wait until movement queue is somewhat saturated
+    await delta.waitForReply(
+      message =>
+        message.messageID === 'queue' && message.payload.movements > 50,
+    )
+
+    // check if we've stopped execution, cancelling mid collection
+    if (!delta.getMetadata().executing_scene) {
+      return
+    }
+
+    console.log('Sufficient movements streamed')
+
+    console.log('Streaming initial light ramps')
+
+    // Unpause light queue
+    await runAction('light_queue_paused', false)
+
+    // Wait until movement queue is somewhat saturated
+    await delta.waitForReply(
+      message => message.messageID === 'queue' && message.payload.lighting > 50,
+    )
+
+    // check if we've stopped execution, cancelling mid collection
+    if (!delta.getMetadata().executing_scene) {
+      return
+    }
+
+    console.log('Sufficient light ramps streamed')
+
+    // Wait until light queue is >= the max queue depth
+    // "waiting on UI gate - start camera" to true - modal on UI side, if that and executing collection both true
+
+    // TODO
+
+    // check if we've stopped execution, cancelling mid collection
+    if (!delta.getMetadata().executing_scene) {
+      return
+    }
+
+    // Wait until "waiting on UI gate - start camera" to false (the human should trigger the camera)
+    // send sync event
+    await runAction('sync', 1)
+
+    // check if we've stopped execution, cancelling mid collection
+    if (!delta.getMetadata().executing_scene) {
+      return
+    }
+
+    // we're now rendering the collection
+
+    // wait until the movement queue is complete.
+    await delta.waitForReply(
+      message =>
+        message.messageID === 'queue' && message.payload.movements === 0,
+    )
+
+    // check if we've stopped execution, cancelling mid collection
+    if (!delta.getMetadata().executing_scene) {
+      return
+    }
+
+    // raise a toaster if there are any lights that are still in the queue.
+    // clear both queues.
+
+    // "waiting on UI gate - end camera" to true - modal on UI side, if that and executing collection both true
+
+    // Wait until "waiting on UI gate - end camera" to false (the human should untrigger the camera)
+    // Set metadata "executing collection" to false
+    // increment current frame if next frame is <= max frame
+
+    // We're finished
+    delta.addMetadata({
+      executing_collection: false,
+    })
   },
 )

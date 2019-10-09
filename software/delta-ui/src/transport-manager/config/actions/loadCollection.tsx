@@ -1,74 +1,16 @@
-import { DeviceManager, Message, Device } from '@electricui/core'
 import { Action, RunActionFunction } from '@electricui/core-actions'
+import { Device, DeviceManager, Message } from '@electricui/core'
 
 import fs from 'fs'
-import { getDelta } from './utils'
 
-export type LoadSceneOptions = {
-  filePath: string
-}
-
-const setLoadedScene = new Action(
-  'set_loaded_scene',
+export const loadCollection = new Action(
+  'load_collection',
   async (
     deviceManager: DeviceManager,
     runAction: RunActionFunction,
-    scenePath: string,
+    filePath: string,
   ) => {
-    const delta = getDelta(deviceManager)
-
-    if (!delta) {
-      return
-    }
-
-    delta.addMetadata({
-      loadedScene: scenePath,
-    })
-
-    console.log('set_loaded_scene to ', scenePath)
-  },
-)
-
-const loadScene = new Action(
-  'load_scene',
-  async (
-    deviceManager: DeviceManager,
-    runAction: RunActionFunction,
-    options: LoadSceneOptions,
-  ) => {
-    const { filePath } = options
-
-    console.log('Loading scene', options)
-
-    if (filePath === '') {
-      return
-    }
-
     return parseScene(filePath, runAction)
-  },
-)
-
-const runLoadedScene = new Action(
-  'run_loaded_scene',
-  async (
-    deviceManager: DeviceManager,
-    runAction: RunActionFunction,
-    savePath: string,
-  ) => {
-    const delta = getDelta(deviceManager)
-
-    if (!delta) {
-      return
-    }
-
-    const metadata = delta.getMetadata()
-
-    if (metadata.loadedScene) {
-      runAction('load_scene', metadata.loadedScene)
-      return
-    }
-
-    console.error('aaaaa there is no loaded scene')
   },
 )
 
@@ -199,5 +141,3 @@ async function parseScene(filePath: string, runAction: RunActionFunction) {
     inUse = false
   }
 }
-
-export { loadScene, setLoadedScene, runLoadedScene }

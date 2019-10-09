@@ -1,7 +1,6 @@
 import { Action, RunActionFunction } from '@electricui/core-actions'
 import { Device, DeviceManager, Message } from '@electricui/core'
 import { lightQueuePause, queueLight } from './led'
-import { loadScene, setLoadedScene } from './loadScene'
 import {
   moveBack,
   moveDown,
@@ -13,14 +12,17 @@ import {
   queueMovement,
   sync,
 } from './delta'
-// Only one that matters now
 import {
   openScene,
+  renderCollection,
+  renderFrame,
   setFrame,
   setSelectedCollections,
   startSceneExecution,
   stopSceneExecution,
-} from './scene_control'
+} from './sceneControl'
+
+import { loadCollection } from './loadCollection'
 
 export type WaitOptions = number
 
@@ -37,8 +39,7 @@ const wait = new Action(
 )
 
 const actions = [
-  loadScene,
-  setLoadedScene,
+  loadCollection,
   wait,
   setFrame,
   queueLight,
@@ -56,6 +57,8 @@ const actions = [
   sync,
   openScene,
   setSelectedCollections,
+  renderCollection,
+  renderFrame,
 ]
 
 export default actions
