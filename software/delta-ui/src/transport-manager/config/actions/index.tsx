@@ -1,23 +1,20 @@
-import { DeviceManager, Message, Device } from '@electricui/core'
 import { Action, RunActionFunction } from '@electricui/core-actions'
-import path from 'path'
-import os from 'os'
-import fs from 'fs'
-
+import { Device, DeviceManager, Message } from '@electricui/core'
+import { lightQueuePause, queueLight } from './led'
 import { loadScene, setLoadedScene } from './loadScene'
-
-import { queueLight, lightQueuePause } from './led'
 import {
-  queueMovement,
-  moveUp,
-  movementQueuePause,
+  moveBack,
   moveDown,
+  moveForward,
   moveLeft,
   moveRight,
-  moveForward,
-  moveBack,
+  moveUp,
+  movementQueuePause,
+  queueMovement,
   sync,
 } from './delta'
+// Only one that matters now
+import { openScene, setSelectedCollections } from './scene_control'
 
 export type WaitOptions = number
 
@@ -48,6 +45,8 @@ const actions = [
   moveForward,
   moveBack,
   sync,
+  openScene,
+  setSelectedCollections,
 ]
 
 export default actions
