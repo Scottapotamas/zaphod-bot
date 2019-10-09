@@ -19,6 +19,17 @@ export const ThreeD = () => {
 
   const currentFrame = useCurrentFrame()
 
+  const headPosition = useHardwareState<[number, number, number]>(
+    state => state.cpos,
+  ) || [0, 0, 0]
+
+  // Do our scaling and reference frame conversion
+  const headPositionCm = [
+    -headPosition[0] / 1000,
+    headPosition[2] / 1000,
+    headPosition[1] / 1000,
+  ]
+
   if (!summaryFilePath) {
     return null
   }
@@ -30,6 +41,7 @@ export const ThreeD = () => {
       loadedCollectionData={loadedCollectionData}
       summaryFilePath={summaryFilePath}
       currentFrame={currentFrame}
+      headPosition={headPositionCm}
     />
   )
 }

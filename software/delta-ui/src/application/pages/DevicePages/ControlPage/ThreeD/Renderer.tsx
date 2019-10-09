@@ -25,6 +25,25 @@ const { OrbitControls } = require('./OrbitControls')
 extend(meshline)
 extend({ PolyLineCurve3, OrbitControls }) // add a PolyLineCurve3, OrbitControls components to react-three-fibre
 
+interface CurrentToolHeadPositionProps {
+  headPosition: [number, number, number]
+}
+
+function CurrentToolHeadPosition(props: CurrentToolHeadPositionProps) {
+  const [geo, mat] = useMemo(() => {
+    const geo = new THREE.SphereBufferGeometry(1, 10, 10)
+    const mat = new THREE.MeshBasicMaterial({
+      color: new THREE.Color('lightblue'),
+    })
+    return [geo, mat]
+  }, [])
+  return (
+    <group>
+      <mesh geometry={geo} material={mat} position={props.headPosition} />
+    </group>
+  )
+}
+
 interface FatLineProps {
   curve: THREE.Vector3[]
   tex: string
@@ -107,6 +126,7 @@ interface CameraAndOrbitProps {
   loadedCollectionData: Array<CollectionForUI>
   summaryFilePath: string
   currentFrame: number
+  headPosition: [number, number, number]
 }
 
 function CameraAndOrbitScene(props: CameraAndOrbitProps) {
@@ -127,8 +147,6 @@ function CameraAndOrbitScene(props: CameraAndOrbitProps) {
   })
 
   const [position] = useState([-60, -50, 80])
-
-  console.log(camera.current, controls.current)
 
   const customCameraProps = {
     radius: (size.width + size.height) / 4,
@@ -158,6 +176,7 @@ function CameraAndOrbitScene(props: CameraAndOrbitProps) {
             currentFrame={props.currentFrame}
             loadedCollectionData={props.loadedCollectionData}
           />
+          <CurrentToolHeadPosition headPosition={props.headPosition} />
         </group>
       )}
     </React.Fragment>
@@ -168,6 +187,7 @@ interface RendererProps {
   loadedCollectionData: Array<CollectionForUI>
   summaryFilePath: string
   currentFrame: number
+  headPosition: [number, number, number]
 }
 
 export function Renderer(props: RendererProps) {
@@ -181,6 +201,7 @@ export function Renderer(props: RendererProps) {
           summaryFilePath={props.summaryFilePath}
           currentFrame={props.currentFrame}
           loadedCollectionData={props.loadedCollectionData}
+          headPosition={props.headPosition}
         />
       </Canvas>
     </div>
