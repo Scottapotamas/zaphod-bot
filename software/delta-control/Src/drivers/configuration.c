@@ -110,7 +110,15 @@ typedef struct
     uint16_t green;
     uint16_t blue;
     uint8_t enable;
-} LedSetting_t;
+} LedState_t;
+
+typedef struct
+{
+    int16_t balance_red;
+    int16_t balance_green;
+    int16_t balance_blue;
+    int16_t balance_total;
+} LedSettings_t;
 
 
 SystemData_t 	sys_stats;
@@ -133,13 +141,15 @@ TempData_t 		temp_sensors;
 
 SystemStates_t	sys_states;
 QueueDepths_t   queue_data;
+
 MotionData_t 	motion_global;
 MotorData_t 	motion_servo[4];
 Movement_t 		motion_inbound;
 CartesianPoint_t current_position; //global position of end effector in cartesian space
 CartesianPoint_t target_position;
-LedSetting_t    rgb_led_drive;
 
+LedState_t    rgb_led_drive;
+LedSettings_t rgb_led_settings;
 Fade_t animation_inbound;
 
 char device_nickname[16] = "Zaphod Beeblebot";
@@ -190,6 +200,7 @@ eui_message_t ui_variables[] =
 #endif
 
     EUI_CUSTOM_RO("rgb", rgb_led_drive ),
+    EUI_CUSTOM_RO("ledset", rgb_led_settings ),
 
     EUI_FUNC( "sync", sync_begin_queues ),
     EUI_UINT8( "syncid", sync_id_val ),
@@ -594,6 +605,20 @@ config_set_led_queue_depth( uint8_t utilisation )
 {
     queue_data.lighting = utilisation;
     eui_send_tracked("queue");
+}
+
+PUBLIC void
+config_get_led_whitebalance( int16_t *red_offset, int16_t *green_offset, int16_t *blue_offset )
+{
+    *red_offset      = rgb_led_settings.balance_red;
+    *green_offset    = rgb_led_settings.balance_green;
+    *blue_offset     = rgb_led_settings.balance_blue;
+}
+
+PUBLIC void
+config_get_led_bias( int16_t *offset )
+{
+    *offset      = rgb_led_settings.balance_total;
 }
 
 /* ----- Private Functions -------------------------------------------------- */

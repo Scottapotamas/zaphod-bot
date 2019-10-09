@@ -377,7 +377,6 @@ export type LedStatus = {
   green: number
   blue: number
   enable: boolean
-  queue_depth: number
 }
 
 export class RGBCodec extends Codec {
@@ -418,6 +417,44 @@ export class RGBCodec extends Codec {
   }
 }
 
+export class RGBSettingsCodec extends Codec {
+  filter(message: Message): boolean {
+    return message.messageID === 'ledset'
+  }
+
+  encode(message: Message, push: PushCallback) {
+    if (message.payload === null) {
+      return push(message)
+    }
+    const packet = new SmartBuffer()
+
+    packet.writeUInt16LE(message.payload.offset_red)
+    packet.writeUInt16LE(message.payload.offset_green)
+    packet.writeUInt16LE(message.payload.offset_blue)
+    packet.writeUInt16LE(message.payload.offset_global)
+
+    message.payload = packet.toBuffer()
+
+    return push(message)
+  }
+
+  decode(message: Message, push: PushCallback) {
+    if (message.payload === null) {
+      return push(message)
+    }
+
+    const reader = SmartBuffer.fromBuffer(message.payload)
+    message.payload = {
+      offset_red: reader.readUInt16LE(),
+      offset_green: reader.readUInt16LE(),
+      offset_blue: reader.readUInt16LE(),
+      offset_global: reader.readUInt16LE(),
+    }
+
+    return push(message)
+  }
+}
+
 export const customCodecs = [
   new SystemDataCodec(),
   new TempDataCodec(),
@@ -431,4 +468,5 @@ export const customCodecs = [
   new InboundMotionCodec(),
   new InboundFadeCodec(),
   new RGBCodec(),
+  new RGBSettingsCodec(),
 ]

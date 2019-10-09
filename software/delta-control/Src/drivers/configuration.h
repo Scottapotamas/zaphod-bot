@@ -173,6 +173,12 @@ config_set_led_values(uint16_t red, uint16_t green, uint16_t blue);
 PUBLIC void
 config_set_led_queue_depth( uint8_t utilisation );
 
+PUBLIC void
+config_get_led_whitebalance( int16_t *red_offset, int16_t *green_offset, int16_t *blue_offset );
+
+PUBLIC void
+config_get_led_bias( int16_t *offset );
+
 
 /* ----- End ---------------------------------------------------------------- */
 
