@@ -318,6 +318,9 @@ export const startSceneExecution = new Action(
       console.log('Finished frame', frame.frame_num)
     }
 
+    // Clear queues on the delta
+    await runAction('clear_queues', {})
+
     delta.addMetadata({
       executing_scene: false,
     })
@@ -390,9 +393,6 @@ export const renderCollection = new Action(
       amountOfMovements,
     )
 
-    console.log('TURN ON CAMERA CAPTURE IN 3')
-    await new Promise((res, rej) => setTimeout(res, 1000))
-
     console.log('TURN ON CAMERA CAPTURE IN 2')
     await new Promise((res, rej) => setTimeout(res, 1000))
 
@@ -400,7 +400,6 @@ export const renderCollection = new Action(
     await new Promise((res, rej) => setTimeout(res, 1000))
 
     console.log('TURN ON CAMERA CAPTURE IN 0')
-    await new Promise((res, rej) => setTimeout(res, 1000))
 
     // Set gates to false
     // Set metadata "waiting on UI gate - start camera" to false
@@ -548,9 +547,6 @@ export const renderCollection = new Action(
       executing_collection: false,
     })
 
-    console.log('TURN OFF CAMERA CAPTURE NOW (3)')
-    await new Promise((res, rej) => setTimeout(res, 1000))
-
     console.log('TURN OFF CAMERA CAPTURE NOW (2)')
     await new Promise((res, rej) => setTimeout(res, 1000))
 
@@ -558,6 +554,5 @@ export const renderCollection = new Action(
     await new Promise((res, rej) => setTimeout(res, 1000))
 
     console.log('TURN OFF CAMERA CAPTURE NOW (0)')
-    await new Promise((res, rej) => setTimeout(res, 1000))
   },
 )

@@ -1,4 +1,5 @@
 import { Canvas, useFrame } from 'react-three-fiber'
+import { Card, Divider, HTMLTable } from '@blueprintjs/core'
 import { CollectionForUI, Vertices, ViewerVertices } from './types'
 import {
   IntervalRequester,
@@ -37,11 +38,13 @@ export const ThreeD = () => {
   // Parse the file and find the collections to render out
 
   return (
-    <Renderer
-      loadedCollectionData={loadedCollectionData}
-      summaryFilePath={summaryFilePath}
-      currentFrame={currentFrame}
-      headPosition={headPositionCm}
-    />
+    <Card style={{ width: '100%', height: '100%' }}>
+      <Renderer
+        loadedCollectionData={loadedCollectionData}
+        summaryFilePath={summaryFilePath}
+        currentFrame={currentFrame}
+        headPosition={headPositionCm}
+      />
+    </Card>
   )
 }
