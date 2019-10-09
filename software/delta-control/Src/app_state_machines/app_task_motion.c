@@ -86,7 +86,6 @@ PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __att
     eventSubscribe( (StateTask*)me, MOTION_QUEUE_CLEAR );
     eventSubscribe( (StateTask*)me, MOTION_QUEUE_START );
     eventSubscribe( (StateTask*)me, MOTION_QUEUE_START_SYNC );
-    eventSubscribe( (StateTask*)me, MOTION_QUEUE_PAUSE );
 
     eventSubscribe( (StateTask*)me, PATHING_COMPLETE );
 
@@ -476,10 +475,6 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
                 STATE_TRAN( AppTaskMotion_inactive );   //go back to idle, no point being active with a drained queue
         	}
         	return 0;
-
-        case MOTION_QUEUE_PAUSE:
-            STATE_TRAN( AppTaskMotion_inactive );
-            return 0;
 
         case MOTION_EMERGENCY:
         	STATE_TRAN( AppTaskMotion_recovery );

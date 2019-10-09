@@ -70,7 +70,6 @@ PRIVATE void AppTaskLed_initial( AppTaskLed *me, const StateEvent *e __attribute
     eventSubscribe( (StateTask*)me, LED_CLEAR_QUEUE );
     eventSubscribe( (StateTask*)me, LED_QUEUE_START );
     eventSubscribe( (StateTask*)me, LED_QUEUE_START_SYNC );
-    eventSubscribe( (StateTask*)me, LED_QUEUE_PAUSE );
 
     eventSubscribe( (StateTask*)me, ANIMATION_COMPLETE );
 
@@ -322,11 +321,7 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
             STATE_TRAN( AppTaskLed_inactive );   //go back to idle
             return 0;
         }
-
-        case LED_QUEUE_PAUSE:
-            STATE_TRAN( AppTaskLed_inactive );
-            return 0;
-
+        
         case STATE_EXIT_SIGNAL:
             eventTimerStopIfActive( &me->timer1 );
             return 0;

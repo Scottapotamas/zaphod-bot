@@ -52,7 +52,6 @@ enum AppSignals
 
     MOTION_QUEUE_START,
     MOTION_QUEUE_START_SYNC,
-    MOTION_QUEUE_PAUSE,
     MOTION_QUEUE_ADD,       // Provide movement information for queue processing
     MOTION_QUEUE_CLEAR,	    // empty out pending movements
 
@@ -63,7 +62,6 @@ enum AppSignals
     LED_OFF,            // Turn off led immediately, clear the queue
     LED_QUEUE_START,
     LED_QUEUE_START_SYNC,
-    LED_QUEUE_PAUSE,
     LED_QUEUE_ADD,      // Provide led animation object to queue
     LED_CLEAR_QUEUE,	// empty pending animations
 

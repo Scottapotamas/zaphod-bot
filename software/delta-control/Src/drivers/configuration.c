@@ -200,8 +200,6 @@ eui_message_t ui_variables[] =
     EUI_CUSTOM("inmv", motion_inbound),
     EUI_FUNC("stmv", execute_motion_queue),
     EUI_FUNC("clmv", clear_all_queue),
-    // TODO remove this properly
-//    EUI_FUNC("psmv", pause_motion_queue_execution),
 
     // inbound led animation buffer and 'add to queue'
     EUI_CUSTOM("inlt", animation_inbound),
@@ -643,11 +641,6 @@ PRIVATE void movement_generate_event( void )
 PRIVATE void execute_motion_queue( void )
 {
     eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
-}
-
-PRIVATE void pause_motion_queue_execution( void )
-{
-    eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_PAUSE ) );
 }
 
 PRIVATE void clear_all_queue(void)
