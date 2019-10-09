@@ -144,6 +144,8 @@ config_set_motion_state( uint8_t status );
 PUBLIC void
 config_set_motion_queue_depth( uint8_t utilisation );
 
+PUBLIC float
+config_get_rotation_z();
 
 /* -------------------------------------------------------------------------- */
 

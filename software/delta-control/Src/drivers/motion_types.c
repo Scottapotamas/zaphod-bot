@@ -38,6 +38,19 @@ cartesian_duration_for_speed(CartesianPoint_t *a, CartesianPoint_t *b, mm_per_se
     return distance / target_speed;
 }
 
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+cartesian_rotate_around_z( CartesianPoint_t *a, float degrees )
+{
+    float radians = degrees * M_PI / 180.0;
+    float cos_w = cos(radians);
+    float sin_w = sin(radians);
+
+    a->x = a->x*cos_w - a->y*sin_w;
+    a->y = a->x*sin_w + a->y*cos_w;
+    // a->z = a->z;     // we are rotating around z, so not needed
+}
 
 /* -------------------------------------------------------------------------- */
 

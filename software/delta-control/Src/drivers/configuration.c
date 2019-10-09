@@ -152,6 +152,8 @@ LedState_t    rgb_led_drive;
 LedSettings_t rgb_led_settings;
 Fade_t animation_inbound;
 
+float z_rotation;
+
 char device_nickname[16] = "Zaphod Beeblebot";
 
 PRIVATE void start_mech_cb( void );
@@ -223,6 +225,7 @@ eui_message_t ui_variables[] =
 
     // UI requests a change of operating mode
     EUI_UINT8( "req_mode", mode_request ),
+    EUI_FLOAT( "rotZ", z_rotation),
 
 };
 
@@ -550,6 +553,13 @@ config_set_motion_queue_depth( uint8_t utilisation )
 {
     queue_data.movements = utilisation;
     eui_send_tracked("queue");
+}
+
+PUBLIC float
+config_get_rotation_z()
+{
+    float angle = CLAMP( z_rotation, 0.0f, 360.0f );
+    return angle;
 }
 
 /* -------------------------------------------------------------------------- */

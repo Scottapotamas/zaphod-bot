@@ -18,9 +18,9 @@ CartesianPoint_t offset_position = {
 
 
 //rotate the cartesian co-ordinate space
-int8_t rotate_x = 1;
-int8_t rotate_y = 1;
-int8_t rotate_z = -1;
+int8_t flip_x = 1;
+int8_t flip_y = 1;
+int8_t flip_z = -1;
 
 //delta geometry defines
 float f  = MM_TO_MICRONS( 50.0f );    // radius of motor shafts on base
@@ -83,9 +83,9 @@ PUBLIC KinematicsSolution_t
 kinematics_point_to_angle( CartesianPoint_t input, JointAngles_t *output )
 {
 	//offset the work-area position frame into the kinematics domain position
-	input.x = ( input.x + offset_position.x ) * rotate_x;
-	input.y = ( input.y + offset_position.y ) * rotate_y;
-	input.z = ( input.z + offset_position.z ) * rotate_z;
+	input.x = ( input.x + offset_position.x ) * flip_x;
+	input.y = ( input.y + offset_position.y ) * flip_y;
+	input.z = ( input.z + offset_position.z ) * flip_z;
 
     uint8_t status = delta_angle_plane_calc( input.x, input.y, input.z, &output->a1 );
 
