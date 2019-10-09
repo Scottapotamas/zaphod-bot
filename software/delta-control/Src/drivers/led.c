@@ -109,9 +109,9 @@ led_whitebalance_correct( float *red, float *green, float *blue )
     config_get_led_whitebalance( &wb_r, &wb_g, &wb_b );
 
     // Apply offsets
-    *red   = *red *   ( (float)wb_r / 32767.0f );
-    *green = *green * ( (float)wb_g / 32767.0f );
-    *blue  = *blue *  ( (float)wb_b / 32767.0f );
+    *red   = *red * (1.0 - ( (float)wb_r / 32767.0f ));
+    *green = *green * (1.0 - ( (float)wb_g / 32767.0f ));
+    *blue  = *blue * (1.0 - ( (float)wb_b / 32767.0f ));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -124,7 +124,7 @@ led_power_limit()
 
     // Apply offset based on that value
 
-    return (float)limit / 32767;
+    return 1.0 -((float)limit / 32767);
 }
 
 /* ----- End ---------------------------------------------------------------- */
