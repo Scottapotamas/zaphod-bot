@@ -79,7 +79,7 @@ const ArmControlButton = () => {
 const systemOverviewAreas = `
 ProgressBar ProgressBarArea
 StateArea PositionArea
-HomeArea ArmArea
+ArmArea HomeArea
 `
 
 const SystemOverview = () => {

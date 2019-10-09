@@ -7,13 +7,14 @@ import {
   useRender,
   useThree,
 } from 'react-three-fiber'
+import { CollectionForUI, Vertices, ViewerVertices } from './types'
 import {
   IntervalRequester,
   StateTree,
   useDeviceMetadataKey,
   useHardwareState,
 } from '@electricui/components-core'
-import React, { useEffect, useRef } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 
 import { PolyLineCurve3 } from './PolyLineCurve'
 
@@ -24,39 +25,91 @@ const { OrbitControls } = require('./OrbitControls')
 extend(meshline)
 extend({ PolyLineCurve3, OrbitControls }) // add a PolyLineCurve3, OrbitControls components to react-three-fibre
 
-function Thing() {
-  const ref = useRef<THREE.Mesh>()
+interface FatLineProps {
+  curve: THREE.Vector3[]
+  tex: string
+}
 
-  useFrame(() => {
-    if (!ref || !ref.current) {
-      return
-    }
+function FatLine(props: FatLineProps) {
+  const material = useRef()
+  const [width] = useState(() => 1)
 
-    ref.current.rotation.z += 0.01
-  })
+  const { curve, tex } = props
+  const texture = useMemo(() => new THREE.TextureLoader().load(tex), [tex])
 
   return (
-    <mesh
-      ref={ref}
-      onClick={e => console.log('click')}
-      onPointerOver={e => console.log('hover')}
-      onPointerOut={e => console.log('unhover')}
-    >
-      <planeBufferGeometry attach="geometry" args={[1, 1]} />
-      <meshBasicMaterial
+    <mesh>
+      <meshLine
+        onUpdate={(self: any) => (self.parent.geometry = self.geometry)}
+      >
+        <geometry onUpdate={(self: any) => self.parent.setGeometry(self)}>
+          <polyLineCurve3
+            args={[curve]}
+            onUpdate={(self: any) =>
+              (self.parent.vertices = self.getPoints(curve.length - 1))
+            }
+          />
+        </geometry>
+      </meshLine>
+
+      {/** MeshLineMaterial on the other hand is a regular material, so we can just attach it */}
+      <meshLineMaterial
         attach="material"
-        color="hotpink"
-        opacity={0.5}
+        ref={material}
         transparent
+        depthTest={true}
+        lineWidth={width}
+        useMap={true}
+        map={texture}
       />
     </mesh>
   )
 }
-interface CameraAndOrbitProps {
-  containerRef: HTMLDivElement
+
+interface LoadedLineProps {
+  collection: CollectionForUI
 }
 
-function CameraAndOrbit(props: CameraAndOrbitProps) {
+function LoadedLine(props: LoadedLineProps) {
+  // only recalculate this when the name or duration changes.
+  const processedVertices = useMemo(() => {
+    const collectionVertices = props.collection.viewer_vertices.map(
+      point => new THREE.Vector3(-point[0], point[2], point[1]),
+    )
+
+    return collectionVertices
+  }, [props.collection.name, props.collection.duration])
+
+  return <FatLine curve={processedVertices} tex={props.collection.viewer_uv} />
+}
+
+interface SceneProps {
+  loadedCollectionData: Array<CollectionForUI>
+  summaryFilePath: string
+  currentFrame: number
+}
+
+export function Scene(props: SceneProps) {
+  return (
+    <group>
+      {props.loadedCollectionData.map(collection => (
+        <LoadedLine
+          collection={collection}
+          key={`${props.summaryFilePath}-${props.currentFrame}-${collection.name}`}
+        />
+      ))}
+    </group>
+  )
+}
+
+interface CameraAndOrbitProps {
+  containerRef: HTMLDivElement | null
+  loadedCollectionData: Array<CollectionForUI>
+  summaryFilePath: string
+  currentFrame: number
+}
+
+function CameraAndOrbitScene(props: CameraAndOrbitProps) {
   const camera = useRef<THREE.PerspectiveCamera>(null)
   const controls = useRef<typeof OrbitControls>(null)
 
@@ -66,24 +119,32 @@ function CameraAndOrbit(props: CameraAndOrbitProps) {
     if (camera.current) {
       setDefaultCamera(camera.current)
     }
-  }, [])
+  }, [camera.current])
   useFrame(() => {
     if (controls.current) {
       controls.current.update()
     }
   })
 
-  //  radius={(size.width + size.height) / 4}
+  const [position] = useState([-60, -50, 80])
+
+  console.log(camera.current, controls.current)
+
+  const customCameraProps = {
+    radius: (size.width + size.height) / 4,
+  }
+
   return (
     <React.Fragment>
       <perspectiveCamera
         ref={camera}
         aspect={size.width / size.height}
         fov={75}
-        position={[-3, 0, 8]}
+        position={position}
+        {...(customCameraProps as any)}
         onUpdate={self => self.updateProjectionMatrix()}
       />
-      {camera.current && (
+      {camera.current && props.containerRef && (
         <group>
           <orbitControls
             ref={controls}
@@ -92,22 +153,35 @@ function CameraAndOrbit(props: CameraAndOrbitProps) {
             dampingFactor={0.1}
             rotateSpeed={0.1}
           />
-          <Thing />
+          <Scene
+            summaryFilePath={props.summaryFilePath}
+            currentFrame={props.currentFrame}
+            loadedCollectionData={props.loadedCollectionData}
+          />
         </group>
       )}
     </React.Fragment>
   )
 }
 
-export function Renderer() {
+interface RendererProps {
+  loadedCollectionData: Array<CollectionForUI>
+  summaryFilePath: string
+  currentFrame: number
+}
+
+export function Renderer(props: RendererProps) {
   const containerRef = useRef<HTMLDivElement>(null)
 
   return (
     <div ref={containerRef} style={{ width: '100%', height: '100%' }}>
       <Canvas>
-        {containerRef.current && (
-          <CameraAndOrbit containerRef={containerRef.current} />
-        )}
+        <CameraAndOrbitScene
+          containerRef={containerRef.current}
+          summaryFilePath={props.summaryFilePath}
+          currentFrame={props.currentFrame}
+          loadedCollectionData={props.loadedCollectionData}
+        />
       </Canvas>
     </div>
   )
