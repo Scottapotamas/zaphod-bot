@@ -1,6 +1,6 @@
 import { Button } from '@blueprintjs/core'
 import { Connections } from '../components/ConnectionDeviceList'
-import Logo from '../components/Logo'
+import Landing from '../components/Landing'
 import React from 'react'
 import { RouteComponentProps } from '@reach/router'
 import { ipcRenderer } from 'electron'
@@ -10,7 +10,7 @@ const ConnectionPage = (props: RouteComponentProps) => {
   return (
     <React.Fragment>
       <div style={{ height: '100vh' }}>
-        <Logo />
+        <Landing />
 
         <Connections
           preConnect={deviceID => {
@@ -24,7 +24,8 @@ const ConnectionPage = (props: RouteComponentProps) => {
           }}
           style={{
             minHeight: '40vh',
-            paddingTop: '10vh',
+            paddingTop: '15vh',
+            marginRight: '15vw',
           }}
         />
       </div>
