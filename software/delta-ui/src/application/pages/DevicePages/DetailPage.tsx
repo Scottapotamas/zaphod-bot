@@ -1,10 +1,21 @@
+import React from 'react'
+import { RouteComponentProps } from '@reach/router'
+import { Composition } from 'atomic-layout'
+
 import {
   Button,
   Statistic,
   Statistics,
 } from '@electricui/components-desktop-blueprint'
-import { Card, Divider, HTMLTable, Icon, Label, Text } from '@blueprintjs/core'
-import { Cell, Grid } from 'styled-css-grid'
+import {
+  Card,
+  Divider,
+  HTMLTable,
+  Icon,
+  Label,
+  Text,
+  Tab,
+} from '@blueprintjs/core'
 import {
   IntervalRequester,
   StateTree,
@@ -13,8 +24,6 @@ import {
 
 import { Chart } from '@electricui/components-desktop-charts'
 import { Printer } from '@electricui/components-desktop'
-import React from 'react'
-import { RouteComponentProps } from '@reach/router'
 import ServoData from '../../components/ServoData'
 
 type EnabledDataProps = {
@@ -93,102 +102,206 @@ const MotorSafetyMode = () => {
   return <div>{motors_are_active}</div>
 }
 
-const DetailPage = (props: RouteComponentProps) => {
+const ServoSummaryAreas = `
+a TableArea
+TextArea TableArea
+b TableArea
+`
+
+const ServoSummaryCard = () => {
   const servoA = useHardwareState(state => state.mo1)
   const servoB = useHardwareState(state => state.mo2)
   const servoC = useHardwareState(state => state.mo3)
 
   return (
+    <Card>
+      <Composition
+        areas={ServoSummaryAreas}
+        padding={10}
+        gap={20}
+        templateCols="auto auto"
+      >
+        {({ TextArea, TableArea }) => (
+          <React.Fragment>
+            <TextArea>
+              <Statistic>
+                <Statistic.Label>Motors are</Statistic.Label>
+                <Statistic.Value>
+                  <MotorSafetyMode />
+                </Statistic.Value>
+              </Statistic>
+            </TextArea>
+            <TableArea>
+              <HTMLTable striped>
+                <thead>
+                  <tr>
+                    <th>Enabled</th>
+                    <th>State</th>
+                    <th>Feedback</th>
+                    <th>Power (W)</th>
+                    <th>Target º</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <EnabledIndicator en={servoA.enabled} />
+                    </td>
+                    <td>
+                      <ServoMode state={servoA.state} />
+                    </td>
+                    <td>
+                      <FeedbackIndicator fb={servoA.feedback} />
+                    </td>
+                    <td>{servoA.power.toFixed(1)}</td>
+                    <td>{servoA.target_angle.toFixed(2)}</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <EnabledIndicator en={servoB.enabled} />
+                    </td>
+                    <td>
+                      <ServoMode state={servoB.state} />
+                    </td>
+                    <td>
+                      <FeedbackIndicator fb={servoB.feedback} />
+                    </td>
+                    <td>{servoB.power.toFixed(1)}</td>
+                    <td>{servoB.target_angle.toFixed(2)}</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <EnabledIndicator en={servoC.enabled} />
+                    </td>
+                    <td>
+                      <ServoMode state={servoC.state} />
+                    </td>
+                    <td>
+                      <FeedbackIndicator fb={servoC.feedback} />
+                    </td>
+                    <td>{servoC.power.toFixed(1)}</td>
+                    <td>{servoC.target_angle.toFixed(2)}</td>
+                  </tr>
+                </tbody>
+              </HTMLTable>
+            </TableArea>
+          </React.Fragment>
+        )}
+      </Composition>
+    </Card>
+  )
+}
+
+const FanMode = () => {
+  const fanstate = useHardwareState(state => state.fan.state)
+
+  if (fanstate == 0) {
+    return <div>Off</div>
+  } else if (fanstate == 1) {
+    return <div>Stall</div>
+  } else if (fanstate == 2) {
+    return <div>Startup</div>
+  } else if (fanstate == 3) {
+    return <div>OK</div>
+  }
+
+  return <div>null</div>
+}
+
+const CoolingAreas = `
+TemperaturesArea FanArea
+`
+
+const CoolingInfoCard = () => {
+  const ambient_temp = useHardwareState(state => state.temp.ambient).toFixed(0)
+  const regulator_temp = useHardwareState(
+    state => state.temp.regulator,
+  ).toFixed(0)
+  const supply_temp = useHardwareState(state => state.temp.supply).toFixed(0)
+  const fanspeed = useHardwareState(state => state.fan.rpm).toFixed(0)
+  const fansetting = useHardwareState(state => state.fan.setpoint).toFixed(0)
+
+  return (
+    <Card>
+      <Composition areas={CoolingAreas}>
+        {({ TemperaturesArea, FanArea }) => (
+          <React.Fragment>
+            <TemperaturesArea>
+              <Statistics>
+                <Statistic value={ambient_temp} label={`Ambient`} suffix="º" />
+                <Statistic
+                  value={regulator_temp}
+                  label={`DC-DC Reg`}
+                  suffix="º"
+                />
+                <Statistic value={supply_temp} label={`AC-DC PSU`} suffix="º" />
+              </Statistics>
+            </TemperaturesArea>
+            <FanArea>
+              <Statistics>
+                <Statistic value={<FanMode />} label="operation" />
+                <Statistic value={fanspeed} label={`RPM, at ${fansetting}%`} />
+              </Statistics>
+            </FanArea>
+          </React.Fragment>
+        )}
+      </Composition>
+    </Card>
+  )
+}
+
+const DetailPageAreas = `
+MotorStatsArea MotorGraphArea
+CoolingStatsArea CoolingGraphArea
+`
+
+const DetailPage = (props: RouteComponentProps) => {
+  return (
     <div>
       <IntervalRequester interval={500} variables={['temp']} />
       <IntervalRequester interval={200} variables={['mo1', 'mo2', 'mo3']} />
 
-      <br />
-      <Card>
-        <Grid columns={'30% 70%'} gap="1em">
-          <Cell center middle>
-            <Statistic>
-              <Statistic.Label>Motors are</Statistic.Label>
-              <Statistic.Value>
-                <MotorSafetyMode />
-              </Statistic.Value>
-            </Statistic>
-
-            <br />
-            <HTMLTable striped>
-              <thead>
-                <tr>
-                  <th>Enabled</th>
-                  <th>State</th>
-                  <th>Feedback</th>
-                  <th>Power (W)</th>
-                  <th>Target º</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>
-                    <EnabledIndicator en={servoA.enabled} />
-                  </td>
-                  <td>
-                    <ServoMode state={servoA.state} />
-                  </td>
-                  <td>
-                    <FeedbackIndicator fb={servoA.feedback} />
-                  </td>
-                  <td>{servoA.power.toFixed(1)}</td>
-                  <td>{servoA.target_angle.toFixed(2)}</td>
-                </tr>
-                <tr>
-                  <td>
-                    <EnabledIndicator en={servoB.enabled} />
-                  </td>
-                  <td>
-                    <ServoMode state={servoB.state} />
-                  </td>
-                  <td>
-                    <FeedbackIndicator fb={servoB.feedback} />
-                  </td>
-                  <td>{servoB.power.toFixed(1)}</td>
-                  <td>{servoB.target_angle.toFixed(2)}</td>
-                </tr>
-                <tr>
-                  <td>
-                    <EnabledIndicator en={servoC.enabled} />
-                  </td>
-                  <td>
-                    <ServoMode state={servoC.state} />
-                  </td>
-                  <td>
-                    <FeedbackIndicator fb={servoC.feedback} />
-                  </td>
-                  <td>{servoC.power.toFixed(1)}</td>
-                  <td>{servoC.target_angle.toFixed(2)}</td>
-                </tr>
-              </tbody>
-            </HTMLTable>
-          </Cell>
-          <Cell>
-            <Chart
-              timeseriesKey="motor_angles"
-              duration={30000}
-              yMin={-42}
-              yMax={50}
-              delay={300}
-              height={300}
-            />
-            <br />
-            <Chart
-              timeseriesKey="motor_power"
-              duration={30000}
-              delay={300}
-              yMin={0}
-              yMax={60}
-              height={300}
-            />
-          </Cell>
-        </Grid>
-      </Card>
+      <Composition areas={DetailPageAreas} gap={10} templateCols="auto auto">
+        {({
+          MotorStatsArea,
+          MotorGraphArea,
+          CoolingStatsArea,
+          CoolingGraphArea,
+        }) => (
+          <React.Fragment>
+            <MotorStatsArea>
+              <ServoSummaryCard />
+            </MotorStatsArea>
+            <MotorGraphArea>
+              <Card>
+                <Chart
+                  timeseriesKey="motor_angles"
+                  duration={30000}
+                  yMin={-45}
+                  yMax={50}
+                  delay={100}
+                  height={250}
+                />
+              </Card>
+            </MotorGraphArea>
+            <CoolingStatsArea>
+              <CoolingInfoCard />
+            </CoolingStatsArea>
+            <CoolingGraphArea>
+              <Card>
+                <Chart
+                  timeseriesKey="temperatures"
+                  duration={29000}
+                  yMin={15}
+                  yMax={45}
+                  delay={500}
+                  height={250}
+                />
+              </Card>
+            </CoolingGraphArea>
+          </React.Fragment>
+        )}
+      </Composition>
     </div>
   )
 }

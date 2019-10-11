@@ -29,22 +29,14 @@ export function sourceFactory(device: DeviceID): DataSource[] {
       processor: message => [message.payload.target_angle],
     }),
     new DataSource({
-      name: 'servoA_watts',
-      filter: message => message.messageID === 'mo1',
-      columns: ['A'],
-      processor: message => [message.payload.power],
-    }),
-    new DataSource({
-      name: 'servoB_watts',
-      filter: message => message.messageID === 'mo2',
-      columns: ['B'],
-      processor: message => [message.payload.power],
-    }),
-    new DataSource({
-      name: 'servoC_watts',
-      filter: message => message.messageID === 'mo3',
-      columns: ['C'],
-      processor: message => [message.payload.power],
+      name: 'temp_sensors',
+      filter: message => message.messageID === 'temp',
+      columns: ['Ambient', 'AC-DC', 'DC-DC'],
+      processor: message => [
+        message.payload.ambient,
+        message.payload.supply,
+        message.payload.regulator,
+      ],
     }),
   ]
 }
@@ -56,10 +48,6 @@ export function timeseriesFactories(device: DeviceID): TimeSeriesFactory[] {
       'servoB_angle',
       'servoC_angle',
     ]),
-    new TimeSeriesFactory('motor_power', [
-      'servoA_watts',
-      'servoB_watts',
-      'servoC_watts',
-    ]),
+    new TimeSeriesFactory('temperatures', ['temp_sensors']),
   ]
 }
