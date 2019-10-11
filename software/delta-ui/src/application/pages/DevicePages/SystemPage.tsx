@@ -26,10 +26,12 @@ import { Composition } from 'atomic-layout'
 import { Printer } from '@electricui/components-desktop'
 import { RouteComponentProps } from '@reach/router'
 
+import KinematicsDiagram from '../../components/KinematicsDiagram'
+
 const SensorsActive = () => {
-  const isBlinking =
+  const sensorEnabledState =
     useHardwareState<number>(state => state.sys.sensors_enable) === 1
-  if (isBlinking) {
+  if (sensorEnabledState) {
     return <div>ADC Enabled</div>
   }
 
@@ -37,29 +39,13 @@ const SensorsActive = () => {
 }
 
 const ModuleActive = () => {
-  const isBlinking =
+  const ExpansionModuleState =
     useHardwareState<number>(state => state.sys.module_enable) === 1
-  if (isBlinking) {
+  if (ExpansionModuleState) {
     return <div>Add-in Module On</div>
   }
 
   return <div>Add-in Module Off</div>
-}
-
-const FanMode = () => {
-  const fanstate = useHardwareState(state => state.fan.state)
-
-  if (fanstate == 0) {
-    return <div>Off</div>
-  } else if (fanstate == 1) {
-    return <div>Stall</div>
-  } else if (fanstate == 2) {
-    return <div>Startup</div>
-  } else if (fanstate == 3) {
-    return <div>OK</div>
-  }
-
-  return <div>null</div>
 }
 
 const KinematicsAreas = `
@@ -67,19 +53,23 @@ KinematicsLimitsArea KinematicsValuesArea
 `
 
 const KinematicsInfoCard = () => {
+  const shoulder = useHardwareState(state => state.kinematics.shoulder_radius)
+  const bicep = useHardwareState(state => state.kinematics.bicep_length)
+  const forearm = useHardwareState(state => state.kinematics.forearm_length)
+  const eff = useHardwareState(state => state.kinematics.effector_radius)
+
   return (
     <Card>
       <Composition
         areas={KinematicsAreas}
         gap={30}
         padding={20}
-        templateCols="1fr 2fr"
+        templateCols="1fr auto"
       >
         {({ KinematicsLimitsArea, KinematicsValuesArea }) => (
           <React.Fragment>
             <KinematicsLimitsArea>
               <h2>Kinematics Overview</h2>
-
               <HTMLTable striped style={{ minWidth: '100%' }}>
                 <thead>
                   <td>Axis</td>
@@ -138,23 +128,8 @@ const KinematicsInfoCard = () => {
                   </tr>
                 </tbody>
               </HTMLTable>
-            </KinematicsLimitsArea>
-            <KinematicsValuesArea>
-              Motor shaft radius:{' '}
-              <Printer accessor={state => state.kinematics.shoulder_radius} />
               <br />
-              Bicep lenth:{' '}
-              <Printer accessor={state => state.kinematics.bicep_length} />
-              <br />
-              Forearm lenth:{' '}
-              <Printer accessor={state => state.kinematics.forearm_length} />
-              <br />
-              Effector Radius:{' '}
-              <Printer accessor={state => state.kinematics.effector_radius} />
-              <br />
-              <br />
-              Rotation around Z axis
-              <br />
+              <h3>Adjust Z axis alignment</h3>
               <Slider
                 min={0}
                 max={360}
@@ -165,6 +140,14 @@ const KinematicsInfoCard = () => {
               >
                 <Slider.Handle accessor="rotZ" />
               </Slider>
+            </KinematicsLimitsArea>
+            <KinematicsValuesArea>
+              <KinematicsDiagram
+                shoulderDistance={shoulder}
+                bicepLength={bicep}
+                forearmLength={forearm}
+                effectorDistance={eff}
+              />
             </KinematicsValuesArea>
           </React.Fragment>
         )}
@@ -324,48 +307,6 @@ const CoreSystemsInfoCard = () => {
   )
 }
 
-const CoolingAreas = `
-TemperaturesArea FanArea
-`
-
-const CoolingInfoCard = () => {
-  const ambient_temp = useHardwareState(state => state.temp.ambient).toFixed(0)
-  const regulator_temp = useHardwareState(
-    state => state.temp.regulator,
-  ).toFixed(0)
-  const supply_temp = useHardwareState(state => state.temp.supply).toFixed(0)
-  const fanspeed = useHardwareState(state => state.fan.rpm).toFixed(0)
-  const fansetting = useHardwareState(state => state.fan.setpoint).toFixed(0)
-
-  return (
-    <Card>
-      <Composition areas={CoolingAreas}>
-        {({ TemperaturesArea, FanArea }) => (
-          <React.Fragment>
-            <TemperaturesArea>
-              <Statistics>
-                <Statistic value={ambient_temp} label={`Ambient`} suffix="º" />
-                <Statistic
-                  value={regulator_temp}
-                  label={`DC-DC Reg`}
-                  suffix="º"
-                />
-                <Statistic value={supply_temp} label={`AC-DC PSU`} suffix="º" />
-              </Statistics>
-            </TemperaturesArea>
-            <FanArea>
-              <Statistics>
-                <Statistic value={<FanMode />} label="operation" />
-                <Statistic value={fanspeed} label={`RPM, at ${fansetting}%`} />
-              </Statistics>
-            </FanArea>
-          </React.Fragment>
-        )}
-      </Composition>
-    </Card>
-  )
-}
-
 const SystemAreas = `
 KinematicsArea CPUArea
 ExpansionArea FanArea
@@ -390,9 +331,7 @@ const SystemPage = (props: RouteComponentProps) => {
             <CPUArea>
               <CoreSystemsInfoCard />
             </CPUArea>
-            <FanArea>
-              <CoolingInfoCard />
-            </FanArea>
+            <FanArea></FanArea>
           </React.Fragment>
         )}
       </Composition>
