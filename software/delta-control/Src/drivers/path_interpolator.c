@@ -45,10 +45,6 @@ typedef struct
 
 PRIVATE MotionPlanner_t planner;
 
-PRIVATE void
-planner_clamp_volume( CartesianPoint_t *point );
-
-
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
@@ -78,13 +74,6 @@ path_interpolator_set_objective( Movement_t	* movement_to_process )
 		}
 	}
 
-	// Clamp all inbound points to the motion boundaries, rotate around Z as needed
-	for( uint8_t i = 0; i < planner.current_move.num_pts; i++ )
-	{
-	    planner_clamp_volume( &me->current_move.points[i] );
-        cartesian_rotate_around_z( &me->current_move.points[i], config_get_rotation_z() );
-	}
-
 	// A transit move is from current position to point 1, so overwrite 0 with current position, and then reuse a normal line movement
 	if( me->current_move.type == _POINT_TRANSIT)
 	{
@@ -102,15 +91,6 @@ path_interpolator_set_objective( Movement_t	* movement_to_process )
 	}
 
 	planner.enable = true;
-}
-
-PRIVATE void
-planner_clamp_volume( CartesianPoint_t *point )
-{
-    point->x = CLAMP( point->x, MM_TO_MICRONS(-200), MM_TO_MICRONS(200) );
-    point->y = CLAMP( point->y, MM_TO_MICRONS(-200), MM_TO_MICRONS(200) );
-    point->z = CLAMP( point->z, MM_TO_MICRONS(0), MM_TO_MICRONS(300) );
-
 }
 
 /* -------------------------------------------------------------------------- */

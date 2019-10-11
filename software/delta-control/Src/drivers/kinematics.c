@@ -9,13 +9,20 @@
 
 /* ----- Defines ------------------------------------------------------------ */
 
-//position offset
+//position offset between kinematics space and cartesian user-space
 CartesianPoint_t offset_position = {
     x: 0,
     y: 0,
     z: MM_TO_MICRONS( 190 )
 };
 
+// Constrain motion to the practical parts of the movement volume
+uint32_t x_max = MM_TO_MICRONS(200);
+uint32_t x_min = MM_TO_MICRONS(-200);
+uint32_t y_max = MM_TO_MICRONS(200);
+uint32_t y_min = MM_TO_MICRONS(-200);
+uint32_t z_max = MM_TO_MICRONS(300);
+uint32_t z_min = MM_TO_MICRONS(0);
 
 //rotate the cartesian co-ordinate space
 int8_t flip_x = 1;
@@ -46,6 +53,8 @@ float t;
 PRIVATE KinematicsSolution_t
 delta_angle_plane_calc( float x0, float y0, float z0, float *theta );
 
+PRIVATE void
+kinematics_clamp_volume( CartesianPoint_t *point );
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -68,6 +77,16 @@ kinematics_init( void )
 
 /* -------------------------------------------------------------------------- */
 
+PRIVATE void
+kinematics_clamp_volume( CartesianPoint_t *point )
+{
+    point->x = CLAMP( point->x, x_min, x_max );
+    point->y = CLAMP( point->y, y_min, y_max );
+    point->z = CLAMP( point->z, z_min, z_max );
+}
+
+/* -------------------------------------------------------------------------- */
+
 /*
  * Accept a x/y/z cartesian input, write into provided pointer to angle structure
  * Returns 0 when OK, 1 for error
@@ -82,11 +101,18 @@ kinematics_init( void )
 PUBLIC KinematicsSolution_t
 kinematics_point_to_angle( CartesianPoint_t input, JointAngles_t *output )
 {
-	//offset the work-area position frame into the kinematics domain position
+    // Apply an optional rotation around the Z axis
+    cartesian_point_rotate_around_z(&input, config_get_rotation_z());
+
+    // Limit attempts at out-of-bounds positions
+    kinematics_clamp_volume(&input);
+
+    //offset the work-area position frame into the kinematics domain position
 	input.x = ( input.x + offset_position.x ) * flip_x;
 	input.y = ( input.y + offset_position.y ) * flip_y;
 	input.z = ( input.z + offset_position.z ) * flip_z;
 
+	// Perform kinematics calculations
     uint8_t status = delta_angle_plane_calc( input.x, input.y, input.z, &output->a1 );
 
     if (status == SOLUTION_VALID)

@@ -70,7 +70,7 @@ PUBLIC int32_t
 cartesian_move_distance(Movement_t *movement);
 
 PUBLIC void
-cartesian_rotate_around_z( CartesianPoint_t *a, float degrees );
+cartesian_point_rotate_around_z(CartesianPoint_t *a, float degrees );
 
 PUBLIC int32_t
 cartesian_distance_between(CartesianPoint_t *a, CartesianPoint_t *b);

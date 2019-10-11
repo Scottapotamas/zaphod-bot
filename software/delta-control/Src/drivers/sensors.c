@@ -115,9 +115,9 @@ sensors_input_V( void )
 PUBLIC float
 sensors_servo_A( HalAdcInput_t servo_to_sample )
 {
-	if( servo_to_sample <= HAL_ADC_INPUT_M1_CURRENT && servo_to_sample >= HAL_ADC_INPUT_M4_CURRENT )
+	if( servo_to_sample < HAL_ADC_INPUT_M1_CURRENT || servo_to_sample > HAL_ADC_INPUT_M4_CURRENT )
 	{
-		return -1000.0;
+		return -1000.0f;
 	}
 
 	return hal_current_A( hal_adc_read_avg( servo_to_sample ) );
@@ -126,9 +126,9 @@ sensors_servo_A( HalAdcInput_t servo_to_sample )
 PUBLIC float
 sensors_servo_W( HalAdcInput_t servo_to_sample )
 {
-	if( servo_to_sample <= HAL_ADC_INPUT_M1_CURRENT && servo_to_sample >= HAL_ADC_INPUT_M4_CURRENT )
+	if( servo_to_sample < HAL_ADC_INPUT_M1_CURRENT || servo_to_sample > HAL_ADC_INPUT_M4_CURRENT )
 	{
-		return -1000.0;
+		return -1000.0f;
 	}
 
 	return sensors_input_V() * sensors_servo_A( servo_to_sample );
