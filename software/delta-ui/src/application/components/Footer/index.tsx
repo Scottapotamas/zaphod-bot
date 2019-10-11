@@ -86,9 +86,9 @@ const LEDQueueText = () => {
 const Footer = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
   // const page = props['*'] // we get passed the path as the wildcard, so we read it here
 
-  const psu_voltage = useHardwareState(
-    state => state.sys.input_voltage,
-  ).toFixed(1)
+  const psu_voltage = useHardwareState(state =>
+    state.sys.input_voltage.toFixed(1),
+  )
 
   return (
     <div className="device-footer">
