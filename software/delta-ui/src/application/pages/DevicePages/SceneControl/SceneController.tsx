@@ -160,8 +160,8 @@ const FrameController = (props: FrameControllerProps) => {
 const CollectionSelector = () => {
   const summaryFilePath = useDeviceMetadataKey('summary_file_path')
 
-  const collectionOptions =  useDeviceMetadataKey('available_collections') as Array<string> // prettier-ignore
-  const collectionSelected = useDeviceMetadataKey('selected_collections') as Array<string> // prettier-ignore
+  const collectionOptions =  useDeviceMetadataKey('available_collections') as Array<string> || [] // prettier-ignore
+  const collectionSelected = useDeviceMetadataKey('selected_collections') as Array<string> || [] // prettier-ignore
 
   const triggerAction = useTriggerAction()!
 
