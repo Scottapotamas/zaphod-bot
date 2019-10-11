@@ -380,6 +380,25 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
         	STATE_TRAN( AppTaskSupervisor_arm_error );
         	return 0;
 
+        case MECHANISM_REHOME:
+        {
+            eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
+
+            //request a move to 0,0,0
+            MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
+            motev->move.type = _POINT_TRANSIT;
+            motev->move.ref = _POS_ABSOLUTE;
+            motev->move.duration = 1500;
+            motev->move.identifier = 0;
+            motev->move.num_pts = 1;
+
+            motev->move.points[0].x = 0;
+            motev->move.points[0].y = 0;
+            motev->move.points[0].z = 0;
+            eventPublish( (StateEvent*)motev );
+        }
+            return 0;
+
         case QUEUE_SYNC_MOTION_NEXT:
         {
             // Received the ID of the 'next' motion in the motion queue
@@ -390,8 +409,6 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
             next_sync->id = inbound_sync->id;
 
             eventPublish( (StateEvent*)next_sync );
-
-//            eventPublish( EVENT_NEW( StateEvent, START_QUEUE_SYNC ) );
             return 0;
         }
 
@@ -427,16 +444,12 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
                     eventPublish( (StateEvent*)motor_sync );
                     eventPublish( (StateEvent*)led_sync );
                 }
-
             }
-
             return 0;
         }
 
         case MOVEMENT_REQUEST:
         {
-			//todo work out how to just rename the event target and re-emit the same pointer
-
         	//catch the inbound movement event
 			MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
 
@@ -449,7 +462,6 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
 				memcpy(&motion_request->move, &mpe->move, sizeof(Movement_t));
 				eventPublish( (StateEvent*)motion_request );
 			}
-
         	return 0;
         }
 
