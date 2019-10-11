@@ -18,12 +18,12 @@ CartesianPoint_t offset_position = {
 };
 
 // Constrain motion to the practical parts of the movement volume
-uint32_t x_max = MM_TO_MICRONS(200);
-uint32_t x_min = MM_TO_MICRONS(-200);
-uint32_t y_max = MM_TO_MICRONS(200);
-uint32_t y_min = MM_TO_MICRONS(-200);
-uint32_t z_max = MM_TO_MICRONS(300);
-uint32_t z_min = MM_TO_MICRONS(0);
+int32_t x_max = MM_TO_MICRONS(200);
+int32_t x_min = MM_TO_MICRONS(-200);
+int32_t y_max = MM_TO_MICRONS(200);
+int32_t y_min = MM_TO_MICRONS(-200);
+int32_t z_max = MM_TO_MICRONS(300);
+int32_t z_min = MM_TO_MICRONS(0);
 
 //rotate the cartesian co-ordinate space
 int8_t flip_x = 1;

@@ -43,7 +43,7 @@ cartesian_duration_for_speed(CartesianPoint_t *a, CartesianPoint_t *b, mm_per_se
 PUBLIC void
 cartesian_point_rotate_around_z(CartesianPoint_t *a, float degrees )
 {
-    float radians = degrees * M_PI / 180.0;
+    float radians = degrees * M_PI / 180.0f;
     float cos_w = cos(radians);
     float sin_w = sin(radians);
 
