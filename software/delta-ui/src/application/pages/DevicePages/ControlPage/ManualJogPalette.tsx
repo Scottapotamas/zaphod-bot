@@ -8,12 +8,12 @@ import { CALL_CALLBACK } from '@electricui/core'
 
 const JogButtonAreas = `
 XP YP ZP
-XM YM ZM
+YM XM ZM
 `
 
 interface JogPaletteProps {
-  distance: number
-  time: number
+  distance: Number
+  time: Number
 }
 
 const JogPalette = (props: JogPaletteProps) => {
@@ -66,7 +66,7 @@ const JogPalette = (props: JogPaletteProps) => {
                 },
               }}
             >
-              <Icon icon="arrow-bottom-left" iconSize={50} />
+              <Icon icon="arrow-bottom-right" iconSize={50} />
             </Button>
           </XM>
           <YM>
@@ -82,7 +82,7 @@ const JogPalette = (props: JogPaletteProps) => {
                 },
               }}
             >
-              <Icon icon="arrow-top-left" iconSize={50} />
+              <Icon icon="arrow-bottom-left" iconSize={50} />
             </Button>
           </YM>
           <ZP>
@@ -103,7 +103,6 @@ const JogPalette = (props: JogPaletteProps) => {
             </Button>
           </ZP>
           <ZM>
-            {' '}
             <Button
               large
               fill
