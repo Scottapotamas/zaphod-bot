@@ -5,7 +5,6 @@ import {
   Intent,
   NonIdealState,
 } from '@blueprintjs/core'
-import { Cell, Grid } from 'styled-css-grid'
 import {
   IntervalRequester,
   StateTree,
@@ -35,17 +34,17 @@ const ModeSelectButtons = () => {
               : 'none'
           }
         >
-          Manual
+          Manual Jog
         </Button>
         <Button
-          writer={{ req_mode: 2 }}
+          writer={{ req_mode: 3 }}
           intent={
-            control_mode == CONTROL_MODES[CONTROL_MODES.EVENT]
+            control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]
               ? 'primary'
               : 'none'
           }
         >
-          Event
+          Track
         </Button>
         <Button
           writer={{ req_mode: 4 }}
@@ -58,14 +57,14 @@ const ModeSelectButtons = () => {
           Demo
         </Button>
         <Button
-          writer={{ req_mode: 3 }}
+          writer={{ req_mode: 2 }}
           intent={
-            control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]
+            control_mode == CONTROL_MODES[CONTROL_MODES.EVENT]
               ? 'primary'
               : 'none'
           }
         >
-          Track
+          Run Program
         </Button>
       </ButtonGroup>
     </React.Fragment>
