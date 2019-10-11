@@ -446,10 +446,10 @@ export class RGBSettingsCodec extends Codec {
 
     const reader = SmartBuffer.fromBuffer(message.payload)
     message.payload = {
-      offset_red: reader.readUInt16LE(),
-      offset_green: reader.readUInt16LE(),
-      offset_blue: reader.readUInt16LE(),
-      offset_global: reader.readUInt16LE(),
+      offset_red: reader.readInt16LE(),
+      offset_green: reader.readInt16LE(),
+      offset_blue: reader.readInt16LE(),
+      offset_global: reader.readInt16LE(),
     }
 
     return push(message)
@@ -475,12 +475,12 @@ export class KinematicsInfoCodec extends Codec {
       effector_radius: reader.readUInt32LE() / 1000,
 
       // Limits in cartesian space
-      limit_x_min: reader.readUInt32LE() / 1000,
-      limit_x_max: reader.readUInt32LE() / 1000,
-      limit_y_min: reader.readUInt32LE() / 1000,
-      limit_y_max: reader.readUInt32LE() / 1000,
-      limit_z_min: reader.readUInt32LE() / 1000,
-      limit_z_max: reader.readUInt32LE() / 1000,
+      limit_x_min: reader.readInt32LE() / 1000,
+      limit_x_max: reader.readInt32LE() / 1000,
+      limit_y_min: reader.readInt32LE() / 1000,
+      limit_y_max: reader.readInt32LE() / 1000,
+      limit_z_min: reader.readInt32LE() / 1000,
+      limit_z_max: reader.readInt32LE() / 1000,
 
       // Flags if an axis is inverted
       flip_x: reader.readInt8(),

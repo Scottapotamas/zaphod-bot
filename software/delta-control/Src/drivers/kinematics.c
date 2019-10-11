@@ -75,7 +75,7 @@ kinematics_init( void )
     t = ( f-e ) * tan30/2;
 
     config_set_kinematics_mechanism_info( f, rf, re, e );
-    config_set_kinematics_limits( x_min, x_max, y_min, y_max, z_min, y_max);
+    config_set_kinematics_limits( x_min, x_max, y_min, y_max, z_min, z_max);
     config_set_kinematics_flips( flip_x, flip_y, flip_z );
 }
 
