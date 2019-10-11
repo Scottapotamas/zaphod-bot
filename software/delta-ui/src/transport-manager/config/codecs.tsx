@@ -456,6 +456,42 @@ export class RGBSettingsCodec extends Codec {
   }
 }
 
+export class KinematicsInfoCodec extends Codec {
+  filter(message: Message): boolean {
+    return message.messageID === 'kinematics'
+  }
+
+  decode(message: Message, push: PushCallback) {
+    if (message.payload === null) {
+      return push(message)
+    }
+
+    const reader = SmartBuffer.fromBuffer(message.payload)
+    message.payload = {
+      // Dimensions used in the IK/FK calculations
+      shoulder_radius: reader.readUInt32LE() / 1000,
+      bicep_length: reader.readUInt32LE() / 1000,
+      forearm_length: reader.readUInt32LE() / 1000,
+      effector_radius: reader.readUInt32LE() / 1000,
+
+      // Limits in cartesian space
+      limit_x_min: reader.readUInt32LE() / 1000,
+      limit_x_max: reader.readUInt32LE() / 1000,
+      limit_y_min: reader.readUInt32LE() / 1000,
+      limit_y_max: reader.readUInt32LE() / 1000,
+      limit_z_min: reader.readUInt32LE() / 1000,
+      limit_z_max: reader.readUInt32LE() / 1000,
+
+      // Flags if an axis is inverted
+      flip_x: reader.readInt8(),
+      flip_y: reader.readInt8(),
+      flip_z: reader.readInt8(),
+    }
+
+    return push(message)
+  }
+}
+
 export const customCodecs = [
   new SystemDataCodec(),
   new TempDataCodec(),
@@ -470,4 +506,5 @@ export const customCodecs = [
   new InboundFadeCodec(),
   new RGBCodec(),
   new RGBSettingsCodec(),
+  new KinematicsInfoCodec(),
 ]

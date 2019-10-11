@@ -65,6 +65,30 @@ typedef struct
 
 typedef struct
 {
+    // Dimensions used in the IK/FK calculations
+    uint32_t shoulder_radius_micron;
+    uint32_t bicep_length_micron;
+    uint32_t forearm_length_micron;
+    uint32_t effector_radius_micron;
+
+    // Limits in cartesian space
+    int32_t limit_x_min;
+    int32_t limit_x_max;
+    int32_t limit_y_min;
+    int32_t limit_y_max;
+    int32_t limit_z_min;
+    int32_t limit_z_max;
+
+    // Flags if an axis is inverted
+    int8_t flip_x;
+    int8_t flip_y;
+    int8_t flip_z;
+
+} KinematicsInfo_t;
+
+
+typedef struct
+{
 	uint16_t speed_rpm;
 	uint8_t setpoint_percentage;
 	uint8_t state;
@@ -123,6 +147,7 @@ typedef struct
 
 SystemData_t 	sys_stats;
 BuildInfo_t		fw_info;
+KinematicsInfo_t mechanical_info;
 InternalInterface_t internal_comm_modes;
 InternalIO_t	internal_io_modes;
 ExternalIO_t	external_io_modes;
@@ -179,7 +204,8 @@ eui_message_t ui_variables[] =
     EUI_CHAR_RO_ARRAY("name", device_nickname),
     EUI_CUSTOM("super", sys_states),
     EUI_CUSTOM("fwb", fw_info),
-
+    EUI_CUSTOM_RO( "kinematics", mechanical_info),
+    
     // Configuration of internal and external IO banks
     EUI_CUSTOM("intDA", external_io_modes),
     EUI_CUSTOM("intIO", internal_io_modes),
@@ -449,6 +475,36 @@ config_set_control_mode( uint8_t mode )
 {
 	sys_states.control_mode = mode;
     eui_send_tracked("super");
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+config_set_kinematics_mechanism_info( float shoulder_radius, float bicep_len, float forearm_len, float effector_radius )
+{
+    mechanical_info.shoulder_radius_micron = shoulder_radius;
+    mechanical_info.bicep_length_micron = bicep_len;
+    mechanical_info.forearm_length_micron = forearm_len;
+    mechanical_info.effector_radius_micron = effector_radius;
+}
+
+PUBLIC void
+config_set_kinematics_limits( int32_t xmin, int32_t xmax, int32_t ymin, int32_t ymax, int32_t zmin, int32_t zmax )
+{
+    mechanical_info.limit_x_min = xmin;
+    mechanical_info.limit_x_max = xmax;
+    mechanical_info.limit_y_min = ymin;
+    mechanical_info.limit_y_max = ymax;
+    mechanical_info.limit_z_min = zmin;
+    mechanical_info.limit_z_max = zmax;
+}
+
+PUBLIC void
+config_set_kinematics_flips( int8_t x, int8_t y, int8_t z )
+{
+    mechanical_info.flip_x = x;
+    mechanical_info.flip_y = y;
+    mechanical_info.flip_z = z;
 }
 
 /* -------------------------------------------------------------------------- */
