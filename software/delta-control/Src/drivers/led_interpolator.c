@@ -23,6 +23,7 @@ typedef enum
 {
     ANIMATION_OFF,
     ANIMATION_ON,
+    ANIMATION_MANUAL,
 } RGBState_t;
 
 typedef struct
@@ -31,8 +32,10 @@ typedef struct
 	RGBState_t  currentState;
 	RGBState_t  nextState;
 
-	Fade_t	 	current_fade;		// pointer to the current movement
-	bool		enable;				//if the planner is enabled
+    bool        manual_mode;        // user control
+    bool		animation_mode;		//if the planner is enabled
+
+    Fade_t	 	current_fade;		// pointer to the current movement
     uint32_t   	animation_started;	// timestamp the start
     float       progress_percent;	// calculated progress
 
@@ -71,7 +74,8 @@ led_interpolator_set_objective( Fade_t* fade_to_process )
     LEDPlanner_t *me = &planner;
 
     memcpy( &me->current_fade, fade_to_process, sizeof(Fade_t) );
-    planner.enable = true;
+    planner.manual_mode = false;
+    planner.animation_mode = true;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -85,9 +89,23 @@ led_interpolator_get_progress( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC bool
-led_interpolator_get_move_done( void )
+led_interpolator_get_fade_done(void )
 {
-	return ( planner.progress_percent >= 1.0f - FLT_EPSILON && !planner.enable);
+	return ( planner.progress_percent >= 1.0f - FLT_EPSILON && !planner.animation_mode);
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+led_interpolator_manual_override_on( void )
+{
+    planner.manual_mode = true;
+}
+
+PUBLIC void
+led_interpolator_manual_override_release( void )
+{
+    planner.manual_mode = false;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -118,11 +136,15 @@ led_interpolator_process( void )
 
                 led_set( planner.led_colour.red, planner.led_colour.red, planner.led_colour.red);
 
-			if(planner.enable)
-			{
-                led_enable(true);
-        		STATE_NEXT( ANIMATION_ON );
-			}
+                if(planner.animation_mode)
+                {
+                    STATE_NEXT( ANIMATION_ON );
+                }
+
+                if(planner.manual_mode)
+                {
+                    STATE_NEXT( ANIMATION_MANUAL );
+                }
 
             STATE_EXIT_ACTION
             STATE_END
@@ -132,7 +154,7 @@ led_interpolator_process( void )
             STATE_ENTRY_ACTION
 				me->animation_started = hal_systick_get_ms();
             	me->progress_percent = 0;
-
+                led_enable(true);
                 config_set_led_status(me->currentState);
 
             STATE_TRANSITION_TEST
@@ -175,16 +197,48 @@ led_interpolator_process( void )
                 	// Set the LED channel values in RGB percentages [0.0f -> 1.0f]
                     led_set( output_values.x, output_values.y, output_values.z);
 
-                	//todo update the config/UI data based on these actions
-
             	}
 
             STATE_EXIT_ACTION
-				planner.enable = false;
-//                led_enable(false);
+				planner.animation_mode = false;
 
             STATE_END
             break;
+
+        case ANIMATION_MANUAL:
+            STATE_ENTRY_ACTION
+                config_set_led_status(me->currentState);
+
+        STATE_TRANSITION_TEST
+
+                HSIColour_t manual_setpoint = { 0.0f, 0.0f, 0.0f };
+                GenericColour_t output_values 	= { 0.0f, 0.0f, 0.0f };
+
+                bool enabled = false;
+
+                // Get the user's intended values
+                config_get_led_manual( &manual_setpoint.hue, &manual_setpoint.saturation, &manual_setpoint.intensity, &enabled);
+
+                led_enable(enabled);    // Turn off the LED if the user isn't wanting it on
+
+                // Perform colour translation
+                hsi_to_rgb( manual_setpoint.hue, manual_setpoint.saturation, manual_setpoint.intensity,
+                            &output_values.x, &output_values.y, &output_values.z );
+
+                // Set the LED channel values in RGB percentages [0.0f -> 1.0f]
+                led_set( output_values.x, output_values.y, output_values.z );
+
+                if( !planner.manual_mode )
+                {
+                    STATE_NEXT( ANIMATION_OFF );
+                }
+
+            STATE_EXIT_ACTION
+                led_enable(false);
+            STATE_END
+
+            break;
+
     }
 }
 

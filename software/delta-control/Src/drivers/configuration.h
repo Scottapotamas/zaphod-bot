@@ -183,6 +183,9 @@ PUBLIC void
 config_set_led_values(uint16_t red, uint16_t green, uint16_t blue);
 
 PUBLIC void
+config_get_led_manual( float *h, float *s, float *l, uint8_t *en);
+
+PUBLIC void
 config_set_led_queue_depth( uint8_t utilisation );
 
 PUBLIC void

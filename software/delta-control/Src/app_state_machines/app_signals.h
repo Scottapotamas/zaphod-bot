@@ -65,6 +65,9 @@ enum AppSignals
     LED_QUEUE_ADD,      // Provide led animation object to queue
     LED_CLEAR_QUEUE,	// empty pending animations
 
+    LED_ALLOW_MANUAL_CONTROL,
+    LED_RESTRICT_MANUAL_CONTROL,
+
     START_QUEUE_SYNC,   // Provide a start signal to tasks which follow the id indexed queues. Should contain a BarrierSyncEvent
     QUEUE_SYNC_MOTION_NEXT,
     QUEUE_SYNC_LED_NEXT,

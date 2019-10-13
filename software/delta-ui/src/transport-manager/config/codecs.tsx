@@ -418,6 +418,43 @@ export class RGBCodec extends Codec {
   }
 }
 
+export class RGBManualControl extends Codec {
+  filter(message: Message): boolean {
+    return message.messageID === 'hsv'
+  }
+
+  encode(message: Message, push: PushCallback) {
+    if (message.payload === null) {
+      return push(message)
+    }
+    const packet = new SmartBuffer()
+
+    packet.writeFloatLE(message.payload.hue)
+    packet.writeFloatLE(message.payload.saturation)
+    packet.writeFloatLE(message.payload.lightness)
+    packet.writeUInt8(message.payload.enable)
+    message.payload = packet.toBuffer()
+
+    return push(message)
+  }
+
+  decode(message: Message, push: PushCallback) {
+    if (message.payload === null) {
+      return push(message)
+    }
+
+    const reader = SmartBuffer.fromBuffer(message.payload)
+    message.payload = {
+      hue: reader.readFloatLE(),
+      saturation: reader.readFloatLE(),
+      lightness: reader.readFloatLE(),
+      enable: reader.readInt8(),
+    }
+
+    return push(message)
+  }
+}
+
 export class RGBSettingsCodec extends Codec {
   filter(message: Message): boolean {
     return message.messageID === 'ledset'
@@ -505,6 +542,7 @@ export const customCodecs = [
   new InboundMotionCodec(),
   new InboundFadeCodec(),
   new RGBCodec(),
+  new RGBManualControl(),
   new RGBSettingsCodec(),
   new KinematicsInfoCodec(),
 ]

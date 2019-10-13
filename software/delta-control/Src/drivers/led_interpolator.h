@@ -27,6 +27,14 @@ led_interpolator_set_objective( Fade_t * fade_to_process );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC void
+led_interpolator_manual_override_on( void );
+
+PUBLIC void
+led_interpolator_manual_override_release( void );
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC float
 led_interpolator_get_progress( void );
 

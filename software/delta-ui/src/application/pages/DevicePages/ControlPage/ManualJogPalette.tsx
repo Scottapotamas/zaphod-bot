@@ -6,6 +6,8 @@ import { Composition } from 'atomic-layout'
 import { Button } from '@electricui/components-desktop-blueprint'
 import { CALL_CALLBACK } from '@electricui/core'
 
+import LEDControlPalette from '../../../components/LEDControlPalette'
+
 const JogButtonAreas = `
 XP YP ZP
 YM XM ZM
@@ -126,9 +128,8 @@ const JogPalette = (props: JogPaletteProps) => {
 }
 
 const controllerAreas = `
-SpeedArea DistanceArea a
 SpeedArea DistanceArea KeypadArea
-SpeedArea DistanceArea b
+SpeedArea DistanceArea LightingArea
 `
 
 const ManualJogPalette = () => {
@@ -144,7 +145,7 @@ const ManualJogPalette = () => {
       padding={15}
       templateCols="1fr 1fr 2fr"
     >
-      {({ SpeedArea, DistanceArea, KeypadArea }) => (
+      {({ SpeedArea, DistanceArea, KeypadArea, LightingArea }) => (
         <React.Fragment>
           <SpeedArea>
             <b>Speed</b>
@@ -207,6 +208,9 @@ const ManualJogPalette = () => {
           <KeypadArea>
             <JogPalette distance={jog_distance} time={jog_duration} />
           </KeypadArea>
+          <LightingArea>
+            <LEDControlPalette />
+          </LightingArea>
         </React.Fragment>
       )}
     </Composition>

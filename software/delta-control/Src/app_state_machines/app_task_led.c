@@ -26,6 +26,7 @@ PRIVATE void 	AppTaskLed_initial	( AppTaskLed *me, const StateEvent *e );
 PRIVATE STATE 	AppTaskLed_main		( AppTaskLed *me, const StateEvent *e );
 PRIVATE STATE 	AppTaskLed_inactive	( AppTaskLed *me, const StateEvent *e );
 PRIVATE STATE 	AppTaskLed_active	( AppTaskLed *me, const StateEvent *e );
+PRIVATE STATE 	AppTaskLed_active_manual	( AppTaskLed *me, const StateEvent *e );
 
 
 
@@ -70,6 +71,9 @@ PRIVATE void AppTaskLed_initial( AppTaskLed *me, const StateEvent *e __attribute
     eventSubscribe( (StateTask*)me, LED_CLEAR_QUEUE );
     eventSubscribe( (StateTask*)me, LED_QUEUE_START );
     eventSubscribe( (StateTask*)me, LED_QUEUE_START_SYNC );
+
+    eventSubscribe( (StateTask*)me, LED_ALLOW_MANUAL_CONTROL );
+    eventSubscribe( (StateTask*)me, LED_RESTRICT_MANUAL_CONTROL );
 
     eventSubscribe( (StateTask*)me, ANIMATION_COMPLETE );
 
@@ -186,6 +190,10 @@ PRIVATE STATE AppTaskLed_inactive( AppTaskLed *me, const StateEvent *e )
             // identifier_to_execute
             me->identifier_to_execute = ((BarrierSyncEvent*)e)->id;
             STATE_TRAN( AppTaskLed_active );
+            return 0;
+
+        case LED_ALLOW_MANUAL_CONTROL:
+            STATE_TRAN( AppTaskLed_active_manual );
             return 0;
 
 		case STATE_EXIT_SIGNAL:
@@ -324,6 +332,29 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
         
         case STATE_EXIT_SIGNAL:
             eventTimerStopIfActive( &me->timer1 );
+            return 0;
+    }
+    return (STATE)hsmTop;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE STATE AppTaskLed_active_manual( AppTaskLed *me, const StateEvent *e )
+{
+    switch( e->signal )
+    {
+        case STATE_ENTRY_SIGNAL:
+            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+            led_interpolator_manual_override_on();
+            return 0;
+
+        case LED_RESTRICT_MANUAL_CONTROL:
+            STATE_TRAN( AppTaskLed_inactive );
+            return 0;
+
+        case STATE_EXIT_SIGNAL:
+            eventTimerStopIfActive( &me->timer1 );
+            led_interpolator_manual_override_on();
             return 0;
     }
     return (STATE)hsmTop;

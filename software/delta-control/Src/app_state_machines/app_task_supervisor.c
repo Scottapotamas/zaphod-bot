@@ -500,6 +500,7 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
         case STATE_ENTRY_SIGNAL:
             config_set_main_state( SUPERVISOR_ARMED );
             config_set_control_mode( CONTROL_MANUAL );
+            eventPublish( EVENT_NEW( StateEvent, LED_ALLOW_MANUAL_CONTROL ) );
 
             return 0;
 
@@ -566,6 +567,7 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
             return 0;
 
         case STATE_EXIT_SIGNAL:
+            eventPublish( EVENT_NEW( StateEvent, LED_RESTRICT_MANUAL_CONTROL ) );
 
             return 0;
     }
@@ -580,7 +582,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
         case STATE_ENTRY_SIGNAL:
         	config_set_main_state( SUPERVISOR_ARMED );
         	config_set_control_mode( CONTROL_TRACK );
-
+            eventPublish( EVENT_NEW( StateEvent, LED_ALLOW_MANUAL_CONTROL ) );
             config_reset_tracking_target();     // entering track mode should always reset position
 
         	return 0;
@@ -687,6 +689,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
 
 		case STATE_EXIT_SIGNAL:
             eventTimerStopIfActive( &me->timer1 );
+            eventPublish( EVENT_NEW( StateEvent, LED_RESTRICT_MANUAL_CONTROL ) );
             config_reset_tracking_target();
 			return 0;
     }

@@ -138,6 +138,14 @@ typedef struct
 
 typedef struct
 {
+    float hue;
+    float saturation;
+    float lightness;
+    uint8_t enable;
+} LedControl_t;
+
+typedef struct
+{
     int16_t balance_red;
     int16_t balance_green;
     int16_t balance_blue;
@@ -174,6 +182,7 @@ CartesianPoint_t current_position; //global position of end effector in cartesia
 CartesianPoint_t target_position;
 
 LedState_t    rgb_led_drive;
+LedControl_t  rgb_manual_control;
 LedSettings_t rgb_led_settings;
 Fade_t animation_inbound;
 
@@ -228,7 +237,8 @@ eui_message_t ui_variables[] =
 #endif
 
     EUI_CUSTOM_RO("rgb", rgb_led_drive ),
-    EUI_CUSTOM_RO("ledset", rgb_led_settings ),
+    EUI_CUSTOM( "hsv", rgb_manual_control ),
+    EUI_CUSTOM("ledset", rgb_led_settings ),
 
     EUI_FUNC( "sync", sync_begin_queues ),
     EUI_UINT8( "syncid", sync_id_val ),
@@ -685,6 +695,15 @@ PUBLIC void
 config_get_led_bias( int16_t *offset )
 {
     *offset      = rgb_led_settings.balance_total;
+}
+
+PUBLIC void
+config_get_led_manual( float *h, float *s, float *l, uint8_t *en)
+{
+    *h = rgb_manual_control.hue;
+    *s = rgb_manual_control.saturation;
+    *l = rgb_manual_control.lightness;
+    *en = rgb_manual_control.enable;
 }
 
 /* ----- Private Functions -------------------------------------------------- */
