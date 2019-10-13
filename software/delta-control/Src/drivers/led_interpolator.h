@@ -33,12 +33,7 @@ led_interpolator_get_progress( void );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC bool
-led_interpolator_get_move_done( void );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-led_interpolator_set_home( void );
+led_interpolator_get_fade_done(void );
 
 /* -------------------------------------------------------------------------- */
 

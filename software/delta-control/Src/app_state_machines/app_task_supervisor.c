@@ -501,8 +501,6 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
             config_set_main_state( SUPERVISOR_ARMED );
             config_set_control_mode( CONTROL_MANUAL );
 
-            //set up any recurring monitoring processes
-
             return 0;
 
         case MECHANISM_STOP:

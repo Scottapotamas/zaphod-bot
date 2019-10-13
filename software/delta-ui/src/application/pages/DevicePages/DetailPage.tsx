@@ -24,7 +24,6 @@ import {
 
 import { Chart } from '@electricui/components-desktop-charts'
 import { Printer } from '@electricui/components-desktop'
-import ServoData from '../../components/ServoData'
 
 type EnabledDataProps = {
   en: boolean
@@ -209,7 +208,8 @@ const FanMode = () => {
 }
 
 const CoolingAreas = `
-TemperaturesArea FanArea
+TemperaturesArea
+FanArea
 `
 
 const CoolingInfoCard = () => {
@@ -223,7 +223,7 @@ const CoolingInfoCard = () => {
 
   return (
     <Card>
-      <Composition areas={CoolingAreas}>
+      <Composition areas={CoolingAreas} gap={20}>
         {({ TemperaturesArea, FanArea }) => (
           <React.Fragment>
             <TemperaturesArea>

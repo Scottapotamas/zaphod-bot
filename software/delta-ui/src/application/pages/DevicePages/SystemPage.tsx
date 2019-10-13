@@ -15,7 +15,6 @@ import {
   MenuItem,
   Text,
 } from '@blueprintjs/core'
-import { Cell, Grid } from 'styled-css-grid'
 import {
   IntervalRequester,
   StateTree,

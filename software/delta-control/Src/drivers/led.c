@@ -55,7 +55,6 @@ led_set( float r, float g, float b )
     float setpoint_g = led_luminance_correct( g );
     float setpoint_b = led_luminance_correct( b );
 
-
     led_whitebalance_correct( &setpoint_r, &setpoint_g, &setpoint_b );
     setpoint_r *= led_power_limit();
     setpoint_g *= led_power_limit();

@@ -429,10 +429,10 @@ export class RGBSettingsCodec extends Codec {
     }
     const packet = new SmartBuffer()
 
-    packet.writeUInt16LE(message.payload.offset_red)
-    packet.writeUInt16LE(message.payload.offset_green)
-    packet.writeUInt16LE(message.payload.offset_blue)
-    packet.writeUInt16LE(message.payload.offset_global)
+    packet.writeInt16LE(message.payload.offset_red * 32767)
+    packet.writeInt16LE(message.payload.offset_green * 32767)
+    packet.writeInt16LE(message.payload.offset_blue * 32767)
+    packet.writeInt16LE(message.payload.offset_global * 32767)
 
     message.payload = packet.toBuffer()
 
@@ -446,10 +446,10 @@ export class RGBSettingsCodec extends Codec {
 
     const reader = SmartBuffer.fromBuffer(message.payload)
     message.payload = {
-      offset_red: reader.readInt16LE(),
-      offset_green: reader.readInt16LE(),
-      offset_blue: reader.readInt16LE(),
-      offset_global: reader.readInt16LE(),
+      offset_red: reader.readInt16LE() / 32767,
+      offset_green: reader.readInt16LE() / 32767,
+      offset_blue: reader.readInt16LE() / 32767,
+      offset_global: reader.readInt16LE() / 32767,
     }
 
     return push(message)

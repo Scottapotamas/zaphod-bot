@@ -205,7 +205,7 @@ eui_message_t ui_variables[] =
     EUI_CUSTOM("super", sys_states),
     EUI_CUSTOM("fwb", fw_info),
     EUI_CUSTOM_RO( "kinematics", mechanical_info),
-    
+
     // Configuration of internal and external IO banks
     EUI_CUSTOM("intDA", external_io_modes),
     EUI_CUSTOM("intIO", internal_io_modes),
