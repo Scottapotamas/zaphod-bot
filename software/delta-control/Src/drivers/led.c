@@ -42,6 +42,11 @@ led_enable( bool enable )
 {
     hal_gpio_write_pin( _AUX_ANALOG_0, enable );
     config_set_led_status(enable);
+
+    if( !enable )
+    {
+        config_set_led_values(0, 0, 0);
+    }
 }
 
 /* -------------------------------------------------------------------------- */

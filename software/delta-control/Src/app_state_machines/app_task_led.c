@@ -14,7 +14,6 @@
 #include "led_interpolator.h"
 
 #include "configuration.h"
-#include "hal_gpio.h"
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
@@ -74,6 +73,7 @@ PRIVATE void AppTaskLed_initial( AppTaskLed *me, const StateEvent *e __attribute
 
     eventSubscribe( (StateTask*)me, LED_ALLOW_MANUAL_CONTROL );
     eventSubscribe( (StateTask*)me, LED_RESTRICT_MANUAL_CONTROL );
+    eventSubscribe( (StateTask*)me, LED_MANUAL_SET );
 
     eventSubscribe( (StateTask*)me, ANIMATION_COMPLETE );
 
@@ -350,6 +350,20 @@ PRIVATE STATE AppTaskLed_active_manual( AppTaskLed *me, const StateEvent *e )
 
         case LED_RESTRICT_MANUAL_CONTROL:
             STATE_TRAN( AppTaskLed_inactive );
+            return 0;
+
+        case LED_MANUAL_SET:
+        {
+            LightingManualEvent *lme = (LightingManualEvent*)e;
+
+            if( lme)
+            {
+                led_interpolator_manual_control_set(    lme->colour.hue,
+                                                        lme->colour.saturation,
+                                                        lme->colour.intensity,
+                                                        lme->enabled );
+            }
+        }
             return 0;
 
         case STATE_EXIT_SIGNAL:

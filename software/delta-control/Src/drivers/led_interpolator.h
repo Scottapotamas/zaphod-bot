@@ -33,6 +33,9 @@ led_interpolator_manual_override_on( void );
 PUBLIC void
 led_interpolator_manual_override_release( void );
 
+PUBLIC void
+led_interpolator_manual_control_set( float hue, float saturation, float intensity, bool enabled );
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC float

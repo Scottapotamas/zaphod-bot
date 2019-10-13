@@ -66,6 +66,13 @@ typedef struct LedPlannerEvent__
     Fade_t	animation; // LED animation details
 } LightingPlannerEvent;
 
+typedef struct LedManualEvent__
+{
+    StateEvent	super;      // Encapsulated event reference
+    HSIColour_t	colour;     // LED animation details
+    bool enabled;
+} LightingManualEvent;
+
 /* -------------------------------------------------------------------------- */
 
 /** Tracked position request command */

@@ -198,6 +198,8 @@ PRIVATE void execute_motion_queue( void );
 PRIVATE void pause_motion_queue_execution( void );
 PRIVATE void clear_all_queue(void);
 
+PRIVATE void rgb_manual_led_event( void );
+
 PRIVATE void tracked_position_event( void );
 PRIVATE void movement_generate_event( void );
 PRIVATE void lighting_generate_event( void );
@@ -394,6 +396,11 @@ configuration_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t me
             if( strcmp( (char*)name_rx, "tpos" ) == 0 )
             {
                 tracked_position_event();
+            }
+
+            if( strcmp( (char*)name_rx, "hsv" ) == 0 )
+            {
+                rgb_manual_led_event();
             }
 
             break;
@@ -618,7 +625,7 @@ PUBLIC void
 config_set_motion_queue_depth( uint8_t utilisation )
 {
     queue_data.movements = utilisation;
-    eui_send_tracked("queue");
+//    eui_send_tracked("queue");
 }
 
 PUBLIC float
@@ -680,7 +687,7 @@ PUBLIC void
 config_set_led_queue_depth( uint8_t utilisation )
 {
     queue_data.lighting = utilisation;
-    eui_send_tracked("queue");
+//    eui_send_tracked("queue");
 }
 
 PUBLIC void
@@ -705,6 +712,23 @@ config_get_led_manual( float *h, float *s, float *l, uint8_t *en)
     *l = rgb_manual_control.lightness;
     *en = rgb_manual_control.enable;
 }
+
+PRIVATE void
+rgb_manual_led_event()
+{
+    LightingManualEvent *colour_request = EVENT_NEW( LightingManualEvent,  LED_MANUAL_SET);
+
+    if( colour_request )
+    {
+        colour_request->colour.hue          = rgb_manual_control.hue;
+        colour_request->colour.saturation   = rgb_manual_control.saturation;
+        colour_request->colour.intensity    = rgb_manual_control.lightness;
+        colour_request->enabled = rgb_manual_control.enable;
+
+        eventPublish( (StateEvent*)colour_request );
+    }
+}
+
 
 /* ----- Private Functions -------------------------------------------------- */
 
@@ -738,14 +762,14 @@ PRIVATE void home_mech_cb( void )
 
 PRIVATE void movement_generate_event( void )
 {
-	   MotionPlannerEvent *motion_request = EVENT_NEW( MotionPlannerEvent, MOVEMENT_REQUEST );
+    MotionPlannerEvent *motion_request = EVENT_NEW( MotionPlannerEvent, MOVEMENT_REQUEST );
 
-	   if(motion_request)
-	   {
-		   memcpy(&motion_request->move, &motion_inbound, sizeof(motion_inbound));
-		   eventPublish( (StateEvent*)motion_request );
-		   memset(&motion_inbound, 0, sizeof(motion_inbound));
-	   }
+    if(motion_request)
+    {
+       memcpy(&motion_request->move, &motion_inbound, sizeof(motion_inbound));
+       eventPublish( (StateEvent*)motion_request );
+       memset(&motion_inbound, 0, sizeof(motion_inbound));
+    }
 }
 
 PRIVATE void execute_motion_queue( void )
