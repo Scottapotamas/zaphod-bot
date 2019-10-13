@@ -398,7 +398,7 @@ configuration_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t me
                 tracked_position_event();
             }
 
-            if( strcmp( (char*)name_rx, "hsv" ) == 0 )
+            if( strcmp( (char*)name_rx, "hsv" ) == 0 || strcmp( (char*)name_rx, "ledset" ) == 0 )
             {
                 rgb_manual_led_event();
             }

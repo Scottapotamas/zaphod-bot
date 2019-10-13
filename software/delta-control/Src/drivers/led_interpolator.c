@@ -148,7 +148,6 @@ led_interpolator_process( void )
         case ANIMATION_OFF:
             STATE_ENTRY_ACTION
         		config_set_led_status(me->currentState);
-//                led_set(0,0,0);
 
             STATE_TRANSITION_TEST
 

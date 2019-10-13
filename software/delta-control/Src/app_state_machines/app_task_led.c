@@ -368,7 +368,8 @@ PRIVATE STATE AppTaskLed_active_manual( AppTaskLed *me, const StateEvent *e )
 
         case STATE_EXIT_SIGNAL:
             eventTimerStopIfActive( &me->timer1 );
-            led_interpolator_manual_override_on();
+            led_interpolator_manual_override_release();
+            led_interpolator_off();
             return 0;
     }
     return (STATE)hsmTop;

@@ -25,6 +25,7 @@ import { Composition } from 'atomic-layout'
 import { Printer } from '@electricui/components-desktop'
 import { RouteComponentProps } from '@reach/router'
 
+import LEDCalibrationModal from '../../components/LEDCalibrationModal'
 import KinematicsDiagram from '../../components/KinematicsDiagram'
 
 const SensorsActive = () => {
@@ -167,7 +168,7 @@ const LEDCalibrationCard = () => {
           <React.Fragment>
             <CalibrationArea>
               <h2>LED Calibration</h2>
-              <Button>Start Calibration process</Button>
+              <LEDCalibrationModal />
             </CalibrationArea>
 
             <OffsetDisplayArea>
