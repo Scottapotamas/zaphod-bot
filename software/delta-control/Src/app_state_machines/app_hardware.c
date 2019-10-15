@@ -17,7 +17,7 @@
 #include "fan.h"
 #include "sensors.h"
 #include "clearpath.h"
-
+#include "shutter_release.h"
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -46,6 +46,7 @@ app_hardware_init( void )
     buzzer_init();
     fan_init();
     sensors_init();
+    shutter_init();
 
     //delta main servo motor handlers
     servo_init( _CLEARPATH_1 );

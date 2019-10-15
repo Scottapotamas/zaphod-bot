@@ -15,6 +15,7 @@
 #include "path_interpolator.h"
 #include "led_interpolator.h"
 #include "clearpath.h"
+#include "shutter_release.h"
 
 #include "status.h"
 #include "hal_gpio.h"
@@ -85,6 +86,8 @@ app_background( void )
     }
 
     led_interpolator_process();
+
+    shutter_process();
 
     //process any running movements and allow servo drivers to process commands
     path_interpolator_process();
