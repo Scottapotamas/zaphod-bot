@@ -141,6 +141,15 @@ const SystemOverview = () => {
           </>
         )}
       </Composition>
+      <Button
+        large
+        fill
+        writer={{
+          capture: 2500,
+        }}
+      >
+        Take a 2.5s photo
+      </Button>
     </Card>
   )
 }

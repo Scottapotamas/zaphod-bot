@@ -81,7 +81,7 @@ shutter_process( void )
         case SHUTTER_STATE_OFF:
             STATE_ENTRY_ACTION
 
-                hal_gpio_write_pin( me->control_pin, GPIO_LOW);
+                hal_gpio_write_pin( me->control_pin, GPIO_HIGH);
 
             STATE_TRANSITION_TEST
 
@@ -97,7 +97,7 @@ shutter_process( void )
         case SHUTTER_STATE_ON:
             STATE_ENTRY_ACTION
 
-                hal_gpio_write_pin( me->control_pin , GPIO_HIGH );
+                hal_gpio_write_pin( me->control_pin , GPIO_LOW );
                 me->exposure_timer = hal_systick_get_ms();
 
         STATE_TRANSITION_TEST
@@ -109,7 +109,7 @@ shutter_process( void )
 
             STATE_EXIT_ACTION
 
-                hal_gpio_write_pin( me->control_pin, GPIO_LOW );
+                hal_gpio_write_pin( me->control_pin, GPIO_HIGH );
                 me->capture = false;
 
             STATE_END
