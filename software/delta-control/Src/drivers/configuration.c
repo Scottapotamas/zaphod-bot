@@ -204,9 +204,12 @@ PRIVATE void tracked_position_event( void );
 PRIVATE void movement_generate_event( void );
 PRIVATE void lighting_generate_event( void );
 PRIVATE void sync_begin_queues( void );
+PRIVATE void trigger_camera_capture( void );
 
 uint8_t sync_id_val = 0;
 uint8_t mode_request = 0;
+
+uint32_t camera_shutter_duration_ms = 0;
 
 eui_message_t ui_variables[] =
 {
@@ -263,7 +266,9 @@ eui_message_t ui_variables[] =
 
     // UI requests a change of operating mode
     EUI_UINT8( "req_mode", mode_request ),
+
     EUI_FLOAT( "rotZ", z_rotation),
+    EUI_UINT32( "capture", camera_shutter_duration_ms),
 
 };
 
@@ -401,6 +406,11 @@ configuration_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t me
             if( strcmp( (char*)name_rx, "hsv" ) == 0 || strcmp( (char*)name_rx, "ledset" ) == 0 )
             {
                 rgb_manual_led_event();
+            }
+
+            if( strcmp( (char*)name_rx, "capture" ) == 0 )
+            {
+                trigger_camera_capture();
             }
 
             break;
@@ -820,6 +830,20 @@ PRIVATE void sync_begin_queues( void )
         memcpy(&barrier_ev->id, &sync_id_val, sizeof(sync_id_val));
         eventPublish( (StateEvent*)barrier_ev );
         memset(&sync_id_val, 0, sizeof(sync_id_val));
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+PRIVATE void
+trigger_camera_capture( void )
+{
+    CameraShutterEvent *trigger = EVENT_NEW( CameraShutterEvent, CAMERA_CAPTURE );
+
+    if(trigger)
+    {
+        memcpy(&trigger->exposure_time, &camera_shutter_duration_ms, sizeof(camera_shutter_duration_ms));
+        eventPublish( (StateEvent*)trigger );
+        memset(&camera_shutter_duration_ms, 0, sizeof(camera_shutter_duration_ms));
     }
 }
 

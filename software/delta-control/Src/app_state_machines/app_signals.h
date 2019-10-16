@@ -74,6 +74,8 @@ enum AppSignals
     QUEUE_SYNC_MOTION_NEXT,
     QUEUE_SYNC_LED_NEXT,
 
+    CAMERA_CAPTURE,
+
     /* Last Available Signal - Don't Remove This */
     STATE_MAX_SIGNAL
 };

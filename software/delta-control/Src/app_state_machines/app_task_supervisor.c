@@ -20,6 +20,7 @@
 #include "sensors.h"
 #include "path_interpolator.h"
 #include "configuration.h"
+#include "shutter_release.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -89,6 +90,8 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
 
     eventSubscribe( (StateTask*)me, QUEUE_SYNC_MOTION_NEXT );
     eventSubscribe( (StateTask*)me, QUEUE_SYNC_LED_NEXT );
+
+    eventSubscribe( (StateTask*)me, CAMERA_CAPTURE );
 
     STATE_INIT( &AppTaskSupervisor_main );
 }
@@ -468,6 +471,32 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
 				eventPublish( (StateEvent*)motion_request );
 			}
         	return 0;
+        }
+
+        case CAMERA_CAPTURE:
+        {
+            CameraShutterEvent *trigger = (CameraShutterEvent*)e;
+
+            if( trigger )
+            {
+                // Treat inbound 0 duration captures as a cancel request.
+                // Only attempt a capture if we aren't already
+                // Tell the UI when these rules are violated
+                if( trigger->exposure_time == 0 )
+                {
+                    shutter_cancel();
+                }
+                else if( !shutter_is_exposing() )
+                {
+                    shutter_capture( trigger->exposure_time );
+                }
+                else
+                {
+                    config_report_error("In use. Capture refused");
+                }
+            }
+
+            return 0;
         }
 
         case MODE_TRACK:

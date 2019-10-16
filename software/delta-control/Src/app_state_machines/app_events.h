@@ -91,6 +91,13 @@ typedef struct BarrierSyncEvent__
     uint16_t	id;         // UUID of the movement/lighting that we want to synchronise
 } BarrierSyncEvent;
 
+/* -------------------------------------------------------------------------- */
+
+typedef struct CameraShutterEvent__
+{
+    StateEvent	super;      // Encapsulated event reference
+    uint32_t exposure_time;
+} CameraShutterEvent;
 
 /* ----- End ---------------------------------------------------------------- */
 

@@ -62,6 +62,13 @@ shutter_cancel( void )
     me->capture = false;
 }
 
+PUBLIC bool
+shutter_is_exposing( void )
+{
+    Shutter_t *me = &shutter;
+    return me->capture;
+}
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
