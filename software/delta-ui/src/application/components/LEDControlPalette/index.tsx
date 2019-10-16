@@ -14,7 +14,7 @@ const LEDControlPalette = () => {
         })}
         min={0}
         max={1}
-        stepSize={0.05}
+        stepSize={0.025}
         labelStepSize={0.25}
         labelRenderer={val => `${Math.round(val * 360)}º`}
       >
@@ -30,7 +30,7 @@ const LEDControlPalette = () => {
         })}
         min={0}
         max={1}
-        stepSize={0.05}
+        stepSize={0.025}
         labelStepSize={0.25}
         labelRenderer={val => `${Math.round(val * 100)}%`}
       >
@@ -49,7 +49,7 @@ const LEDControlPalette = () => {
         })}
         min={0}
         max={1}
-        stepSize={0.05}
+        stepSize={0.025}
         labelStepSize={0.25}
         labelRenderer={val => `${Math.round(val * 100)}%`}
       >
