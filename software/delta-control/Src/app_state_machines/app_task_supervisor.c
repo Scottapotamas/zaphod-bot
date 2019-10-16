@@ -124,7 +124,12 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 			   case BUTTON_1:
 				   eventPublish( EVENT_NEW( StateEvent, MECHANISM_STOP ) );
 				   return 0;
-			   default:
+
+               case BUTTON_EXTERNAL:
+                   eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
+                   return 0;
+
+               default:
 				   break;
 		   }
 		   break;

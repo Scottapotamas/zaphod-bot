@@ -49,11 +49,6 @@ app_background( void )
 	//rate limit less important background processes
     if( timer_ms_is_expired( &button_timer ) )
     {
-        if( button_pattern_match( BUTTON_PATTERN_EMERGENCY_SHUTDOWN ) )
-        {
-            //todo stop the motors now or something
-        }
-
         button_process();
     	timer_ms_start( &button_timer, BACKGROUND_RATE_BUTTON_MS );
     }
