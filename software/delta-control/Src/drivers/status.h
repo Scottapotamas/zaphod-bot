@@ -47,6 +47,26 @@ status_green( bool on );
 PUBLIC void
 status_green_toggle( void );
 
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+status_external( bool on );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+status_external_toggle( void );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+status_external_override( bool on );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+status_external_resume( void );
+
 /* ----- End ---------------------------------------------------------------- */
 
 #ifdef __cplusplus

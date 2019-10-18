@@ -18,7 +18,6 @@
 #include "shutter_release.h"
 
 #include "status.h"
-#include "hal_gpio.h"
 #include "sensors.h"
 #include "configuration.h"
 #include "hal_system_speed.h"
@@ -47,17 +46,19 @@ PUBLIC void
 app_background( void )
 {
 	//rate limit less important background processes
+
     if( timer_ms_is_expired( &button_timer ) )
     {
+        // Need to turn the E-Stop light on to power the pullup for the E-STOP button
+        CRITICAL_SECTION_VAR();
+        CRITICAL_SECTION_START();
+        status_external_override(true);
         button_process();
-    	timer_ms_start( &button_timer, BACKGROUND_RATE_BUTTON_MS );
-    }
+        status_external_resume();
+        CRITICAL_SECTION_END();
 
-//    if( timer_ms_is_expired( &buzzer_timer ) )
-//    {
-//        buzzer_process();
-//    	timer_ms_start( &buzzer_timer, BACKGROUND_RATE_BUZZER_MS );
-//    }
+        timer_ms_start( &button_timer, BACKGROUND_RATE_BUTTON_MS );
+    }
 
     if( timer_ms_is_expired( &fan_timer ) )
     {
@@ -80,9 +81,8 @@ app_background( void )
     	timer_ms_start( &adc_timer, BACKGROUND_ADC_SAMPLE_MS );
     }
 
-    led_interpolator_process();
-
     shutter_process();
+    led_interpolator_process();
 
     //process any running movements and allow servo drivers to process commands
     path_interpolator_process();

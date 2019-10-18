@@ -161,6 +161,7 @@ PRIVATE STATE AppTaskSupervisor_disarmed( AppTaskSupervisor *me,
             status_green(false);
             status_yellow(false);
 
+            status_external(false);
         	return 0;
 
         case MECHANISM_START:
@@ -207,6 +208,7 @@ PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
         	config_set_main_state( SUPERVISOR_ARMING );
 
             status_yellow(true);
+            status_external(true);
 
         	//request a motion handler homing process
             eventPublish( EVENT_NEW( StateEvent, MOTION_PREPARE ) );
@@ -283,7 +285,7 @@ PRIVATE STATE AppTaskSupervisor_arm_error( AppTaskSupervisor *me,
         	config_report_error("Arming Error");
 
         	//blink some lights?
-
+            // see status_external(true);
         	return 0;
 
         case MOTION_DISABLED:
@@ -311,6 +313,7 @@ PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
         	config_set_main_state( SUPERVISOR_SUCCESS );
             status_yellow(false);
             status_green(true);
+            status_external(true);
 
         	//start additional subsystems here as required
 
