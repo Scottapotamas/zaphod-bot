@@ -1,6 +1,7 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "sensors.h"
+#include "app_times.h"
 #include "hal_adc.h"
 #include "hal_soft_ic.h"
 #include "hal_temperature.h"
@@ -25,16 +26,16 @@ sensors_init( void )
 PUBLIC void
 sensors_enable( void )
 {
-	hal_adc_start( HAL_ADC_INPUT_M1_CURRENT, 	20 );
-	hal_adc_start( HAL_ADC_INPUT_M2_CURRENT, 	20 );
-	hal_adc_start( HAL_ADC_INPUT_M3_CURRENT, 	20 );
-	hal_adc_start( HAL_ADC_INPUT_M4_CURRENT, 	20 );
-	hal_adc_start( HAL_ADC_INPUT_VOLT_SENSE, 	20 );
-	hal_adc_start( HAL_ADC_INPUT_TEMP_PCB, 		20 );
-	hal_adc_start( HAL_ADC_INPUT_TEMP_REG, 		20 );
-	hal_adc_start( HAL_ADC_INPUT_TEMP_EXT, 		20 );
-	hal_adc_start( HAL_ADC_INPUT_TEMP_INTERNAL, 20 );
-	hal_adc_start( HAL_ADC_INPUT_VREFINT, 		20 );
+	hal_adc_start( HAL_ADC_INPUT_M1_CURRENT, 	ADC_SAMPLE_RATE_MS );
+	hal_adc_start( HAL_ADC_INPUT_M2_CURRENT, 	ADC_SAMPLE_RATE_MS );
+	hal_adc_start( HAL_ADC_INPUT_M3_CURRENT, 	ADC_SAMPLE_RATE_MS );
+	hal_adc_start( HAL_ADC_INPUT_M4_CURRENT, 	ADC_SAMPLE_RATE_MS );
+	hal_adc_start( HAL_ADC_INPUT_VOLT_SENSE, 	ADC_SAMPLE_RATE_MS );
+	hal_adc_start( HAL_ADC_INPUT_TEMP_PCB, 		ADC_SAMPLE_RATE_MS );
+	hal_adc_start( HAL_ADC_INPUT_TEMP_REG, 		ADC_SAMPLE_RATE_MS );
+	hal_adc_start( HAL_ADC_INPUT_TEMP_EXT, 		ADC_SAMPLE_RATE_MS );
+	hal_adc_start( HAL_ADC_INPUT_TEMP_INTERNAL, ADC_SAMPLE_RATE_MS );
+	hal_adc_start( HAL_ADC_INPUT_VREFINT, 		ADC_SAMPLE_RATE_MS );
 
 	hal_soft_ic_start( HAL_SOFT_IC_HALL, 1);
 
