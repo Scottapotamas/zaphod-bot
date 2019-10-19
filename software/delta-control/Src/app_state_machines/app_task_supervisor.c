@@ -66,6 +66,7 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
 {
 	button_init( BUTTON_0, AppTaskSupervisorButtonEvent );
 	button_init( BUTTON_1, AppTaskSupervisorButtonEvent );
+    button_init( BUTTON_EXTERNAL, AppTaskSupervisorButtonEvent );
 
     // Detect user activities
     eventSubscribe( (StateTask*)me, BUTTON_NORMAL_SIGNAL );
@@ -1041,7 +1042,7 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
 PRIVATE void AppTaskSupervisorButtonEvent( ButtonId_t button,
                                           ButtonPressType_t press_type )
 {
-	if(press_type == BUTTON_PRESS_TYPE_NORMAL)
+	if(press_type == BUTTON_PRESS_TYPE_NORMAL || press_type == BUTTON_PRESS_TYPE_DOWN )
 	{
 	    ButtonEvent *be = EVENT_NEW( ButtonEvent, BUTTON_NORMAL_SIGNAL );
 	    if( be )

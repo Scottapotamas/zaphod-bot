@@ -9,6 +9,8 @@
 #include "app_times.h"
 #include "global.h"
 #include "timer_ms.h"
+
+#include "button.h"
 #include "buzzer.h"
 #include "fan.h"
 #include "path_interpolator.h"
