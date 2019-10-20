@@ -226,6 +226,10 @@ interface StartSceneExecutionOptions {
   frameEnd: number
 }
 
+const CAMERA_TRIGGER_ON_DELAY = 250
+const INITIAL_MOVEMENT_DURATION = 500
+const CAMERA_TRIGGER_OFF_DELAY = 250
+
 export const stopSceneExecution = new Action(
   'stop_scene_execution',
   async (
@@ -393,14 +397,6 @@ export const renderCollection = new Action(
       amountOfMovements,
     )
 
-    console.log('TURN ON CAMERA CAPTURE IN 2')
-    await new Promise((res, rej) => setTimeout(res, 1000))
-
-    console.log('TURN ON CAMERA CAPTURE IN 1')
-    await new Promise((res, rej) => setTimeout(res, 1000))
-
-    console.log('TURN ON CAMERA CAPTURE IN 0')
-
     // Set gates to false
     // Set metadata "waiting on UI gate - start camera" to false
     // Set metadata "waiting on UI gate - end camera" to false
@@ -497,6 +493,19 @@ export const renderCollection = new Action(
       return
     }
 
+    console.log('Triggering camera')
+
+    const cameraOnMessage = new Message(
+      'capture',
+      collection.duration + INITIAL_MOVEMENT_DURATION,
+    )
+    cameraOnMessage.metadata.ack = true
+
+    await delta.write(cameraOnMessage)
+
+    console.log(`Waiting ${CAMERA_TRIGGER_ON_DELAY} before syncing`)
+    await new Promise((res, rej) => setTimeout(res, CAMERA_TRIGGER_ON_DELAY))
+
     console.log('Sending sync event')
 
     // Wait until "waiting on UI gate - start camera" to false (the human should trigger the camera)
@@ -547,12 +556,9 @@ export const renderCollection = new Action(
       executing_collection: false,
     })
 
-    console.log('TURN OFF CAMERA CAPTURE NOW (2)')
-    await new Promise((res, rej) => setTimeout(res, 1000))
+    console.log(`Waiting ${CAMERA_TRIGGER_OFF_DELAY} before finishing`)
+    await new Promise((res, rej) => setTimeout(res, CAMERA_TRIGGER_OFF_DELAY))
 
-    console.log('TURN OFF CAMERA CAPTURE NOW (1)')
-    await new Promise((res, rej) => setTimeout(res, 1000))
-
-    console.log('TURN OFF CAMERA CAPTURE NOW (0)')
+    console.log('Camera should have turned off by now.')
   },
 )
