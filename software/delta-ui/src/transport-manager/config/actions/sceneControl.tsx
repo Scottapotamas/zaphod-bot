@@ -249,6 +249,14 @@ export const stopSceneExecution = new Action(
       executing_collection: false,
     })
 
+    // Pause the queues
+    await runAction('movement_queue_paused', true)
+    await runAction('light_queue_paused', true)
+
+    // Clear the queues
+    await runAction('clear_ui_movement_queue', {})
+    await runAction('clear_ui_light_queue', {})
+
     // Clear queues on the delta
     await runAction('clear_queues', {})
 
@@ -307,6 +315,13 @@ export const startSceneExecution = new Action(
     // Start iterating over the frames
     for (const frame of selectedFrames) {
       console.log('Executing frame', frame.frame_num)
+
+      // Set the frame
+      runAction('set_frame', frame.frame_num)
+
+      // reload the collection data for this frame
+      runAction('set_selected_collections', selectedCollections)
+
       // check if we've stopped execution, cancelling before the next frame
       if (!delta.getMetadata().executing_scene) {
         return
@@ -560,5 +575,13 @@ export const renderCollection = new Action(
     await new Promise((res, rej) => setTimeout(res, CAMERA_TRIGGER_OFF_DELAY))
 
     console.log('Camera should have turned off by now.')
+
+    if (collection.duration < 1000) {
+      console.log(
+        'waiting for a minimum of 1 second since the collection was ',
+        collection.duration,
+      )
+      await new Promise((res, rej) => setTimeout(res, 1000))
+    }
   },
 )
