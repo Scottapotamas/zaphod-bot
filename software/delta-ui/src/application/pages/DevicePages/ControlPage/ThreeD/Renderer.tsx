@@ -172,6 +172,7 @@ function CameraAndOrbitScene(props: CameraAndOrbitProps) {
             rotateSpeed={0.1}
           />
           <Scene
+            key={`${props.summaryFilePath}-${props.currentFrame}`}
             summaryFilePath={props.summaryFilePath}
             currentFrame={props.currentFrame}
             loadedCollectionData={props.loadedCollectionData}
