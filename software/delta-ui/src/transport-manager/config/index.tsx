@@ -12,9 +12,12 @@ import { HintValidatorBinaryHandshake } from '@electricui/protocol-binary'
 import { BinaryConnectionHandshake } from '@electricui/protocol-binary-connection-handshake'
 import { MessageQueueBinaryFIFO } from '@electricui/protocol-binary-fifo-queue'
 import { ActionsPlugin } from '@electricui/core-actions'
-
+import {
+  HintValidatorXboxController,
+  XboxOneControllerHintConsumerFactory,
+} from '@electricui/device-xbox-one-controller'
 import { ProcessName, ProcessWS, RequestName, RequestWS } from './metadata'
-
+import { HIDHintProducer } from '@electricui/transport-node-hid'
 import {
   serialConsumer,
   serialProducer,
@@ -66,6 +69,13 @@ function hintValidators(hint: Hint, connection: Connection) {
     return [validator]
   }
 
+  // Xbox Controllers
+  if (hint.getTransportKey() === 'hid') {
+    const validator = new HintValidatorXboxController(hint, connection)
+
+    return [validator]
+  }
+
   return []
 }
 
@@ -88,9 +98,19 @@ const processName = new ProcessName()
 const requestWS = new RequestWS()
 const processWS = new ProcessWS()
 
+// xbox controller
+const HID = require('node-hid')
+
+const xboxConsumer = XboxOneControllerHintConsumerFactory(HID)
+const hidProducer = new HIDHintProducer({ HID })
+
 deviceManager.setCreateHintValidatorsCallback(hintValidators)
-deviceManager.addHintProducers([serialProducer, usbProducer])
-deviceManager.addHintConsumers([serialConsumer, websocketConsumer])
+deviceManager.addHintProducers([serialProducer, usbProducer, hidProducer])
+deviceManager.addHintConsumers([
+  serialConsumer,
+  websocketConsumer,
+  xboxConsumer,
+])
 deviceManager.addHintTransformers([usbToSerialTransformer])
 deviceManager.addDeviceMetadataRequesters([requestName])
 deviceManager.addDiscoveryMetadataProcessors([processName, processWS])
