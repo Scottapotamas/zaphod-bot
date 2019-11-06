@@ -276,10 +276,10 @@ const DetailPage = (props: RouteComponentProps) => {
               <Card>
                 <Chart
                   timeseriesKey="motor_angles"
-                  duration={30000}
-                  yMin={-45}
-                  yMax={50}
-                  delay={100}
+                  duration={25000}
+                  yMin={-60}
+                  yMax={20}
+                  delay={50}
                   height={250}
                 />
               </Card>

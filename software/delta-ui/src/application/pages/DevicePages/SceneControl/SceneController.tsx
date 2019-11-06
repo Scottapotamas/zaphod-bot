@@ -239,7 +239,7 @@ export const SceneController = () => {
   const [frameEnd, setFrameEnd] = useState(availableMax)
 
   const isArmed = useIsArmed()
-  const sceneLoaded = useDeviceMetadataKey('summary_file_path')
+  const sceneFilePath = useDeviceMetadataKey('summary_file_path')
 
   return (
     <Composition areas={controllerAreas} gap={10}>
@@ -272,7 +272,7 @@ export const SceneController = () => {
                     })
                   }}
                   style={{ width: '50%' }}
-                  disabled={!isArmed || !sceneLoaded}
+                  disabled={!isArmed || !sceneFilePath}
                 >
                   Start
                 </BlueprintButton>
@@ -284,7 +284,7 @@ export const SceneController = () => {
           </CollectionsArea>
           <FramesArea padding={10}>
             <FrameController
-              key={`${availableMin}-${availableMax}`} // we do this so we re-init it on each new scene opening
+              key={`${availableMin}-${availableMax}-${sceneFilePath}`} // we do this so we re-init it on each new scene opening
               frameStart={frameStart}
               frameEnd={frameEnd}
               setFrameStart={setFrameStart}

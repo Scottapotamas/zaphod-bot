@@ -260,6 +260,12 @@ export const stopSceneExecution = new Action(
     // Clear queues on the delta
     await runAction('clear_queues', {})
 
+    // Stop the camera if it's on
+    const cameraOffMessage = new Message('capture', 0)
+    cameraOffMessage.metadata.ack = true
+
+    await delta.write(cameraOffMessage)
+
     console.log('Stopped scene execution')
   },
 )

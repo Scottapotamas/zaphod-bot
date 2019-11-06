@@ -195,6 +195,11 @@ export class SequenceSenderPlugin extends DeviceManagerProxyPlugin {
    * Clear the queue
    */
   public clear = () => {
+    console.log('The sequence sender for', this.name, 'has cleared')
+
     this.queue = []
+
+    // Tell the UI the queue has been cleared
+    this.setQueueRemaining(this.queue.length)
   }
 }
