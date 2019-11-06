@@ -109,12 +109,9 @@ PRIVATE STATE AppTaskLed_inactive( AppTaskLed *me, const StateEvent *e )
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-
             // Check for queued events
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
-
         	return 0;
-
 
         case STATE_STEP1_SIGNAL:
         {
@@ -187,7 +184,6 @@ PRIVATE STATE AppTaskLed_inactive( AppTaskLed *me, const StateEvent *e )
             return 0;
 
         case LED_QUEUE_START_SYNC:
-            // identifier_to_execute
             me->identifier_to_execute = ((BarrierSyncEvent*)e)->id;
             STATE_TRAN( AppTaskLed_active );
             return 0;
@@ -258,7 +254,6 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
         {
             // the led interpolation engine has completed the animation execution,
             // loop around to process another event, or go back to inactive and wait for sync
-
             if( eventQueueUsed( &me->super.requestQueue ) )
             {
                 StateEvent * next = eventQueuePeek( &me->super.requestQueue );
