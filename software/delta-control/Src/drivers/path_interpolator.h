@@ -23,7 +23,7 @@ path_interpolator_process( void );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_set_objective( Movement_t	* movement_to_process );
+path_interpolator_set_next(Movement_t	* movement_to_process );
 
 /* -------------------------------------------------------------------------- */
 
@@ -39,6 +39,11 @@ path_interpolator_get_move_done( void );
 
 PUBLIC CartesianPoint_t
 path_interpolator_get_global_position( void );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+path_interpolator_start(void );
 
 /* -------------------------------------------------------------------------- */
 

@@ -51,13 +51,12 @@ PUBLIC void
 path_interpolator_init( void )
 {
     memset( &planner, 0, sizeof( planner ) );
-
 }
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_set_objective( Movement_t	* movement_to_process )
+path_interpolator_set_next(Movement_t *movement_to_process )
 {
 	MotionPlanner_t *me = &planner;
 
@@ -106,7 +105,7 @@ path_interpolator_get_progress( void )
 PUBLIC bool
 path_interpolator_get_move_done( void )
 {
-	return ( planner.progress_percent >= 1.0f - FLT_EPSILON && !planner.enable);
+	return ( planner.progress_percent >= 1.0f - FLT_EPSILON);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -115,6 +114,17 @@ PUBLIC CartesianPoint_t
 path_interpolator_get_global_position( void )
 {
 	return planner.effector_position;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+path_interpolator_start(void )
+{
+    MotionPlanner_t *me = &planner;
+
+    // Request that the statemachine transitions to "ON"
+    me->enable = true;
 }
 
 /* -------------------------------------------------------------------------- */

@@ -376,8 +376,8 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 
                         if( me->identifier_to_execute == 0 || me->identifier_to_execute >= next_move->identifier )
                         {
-                            path_interpolator_set_objective(next_move);
-
+                            path_interpolator_set_next(next_move);
+                            path_interpolator_start();
                             // remove it from the queue
                             eventPoolGarbageCollect( (StateEvent*)next );
                         }
