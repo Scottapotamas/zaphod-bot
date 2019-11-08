@@ -206,7 +206,7 @@ PRIVATE void lighting_generate_event( void );
 PRIVATE void sync_begin_queues( void );
 PRIVATE void trigger_camera_capture( void );
 
-uint8_t sync_id_val = 0;
+uint16_t sync_id_val = 0;
 uint8_t mode_request = 0;
 
 uint32_t camera_shutter_duration_ms = 0;
@@ -246,7 +246,7 @@ eui_message_t ui_variables[] =
     EUI_CUSTOM("ledset", rgb_led_settings ),
 
     EUI_FUNC( "sync", sync_begin_queues ),
-    EUI_UINT8( "syncid", sync_id_val ),
+    EUI_UINT16( "syncid", sync_id_val ),
     EUI_INT32_ARRAY( "tpos", target_position ),
     EUI_INT32_RO_ARRAY( "cpos", current_position ),
 

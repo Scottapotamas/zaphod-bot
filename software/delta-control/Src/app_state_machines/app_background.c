@@ -38,7 +38,7 @@ app_background_init( void )
 	timer_ms_start( &button_timer, 	BACKGROUND_RATE_BUTTON_MS );
 	timer_ms_start( &buzzer_timer, 	BACKGROUND_RATE_BUZZER_MS );
 	timer_ms_start( &fan_timer, 	FAN_EVALUATE_TIME );
-	timer_ms_start(&adc_timer, BACKGROUND_ADC_AVG_POLL_MS );	//refresh ADC readings
+    timer_ms_start(&adc_timer, BACKGROUND_ADC_AVG_POLL_MS );	//refresh ADC readings
 }
 
 /* -------------------------------------------------------------------------- */

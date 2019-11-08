@@ -259,12 +259,13 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
         	me->counter += servo_get_servo_ok(_CLEARPATH_2);
         	me->counter += servo_get_servo_ok(_CLEARPATH_3);
 #ifdef EXPANSION_SERVO
-        	me->counter += servo_get_valid_home( _CLEARPATH_4 );
+        	me->counter += servo_get_servo_ok( _CLEARPATH_4 );
 #endif
 
         	//a servo has dropped offline (fault or otherwise)
         	if( me->counter != SERVO_COUNT )
         	{
+        	    config_report_error("Servo loss");
                 eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
         		STATE_TRAN( AppTaskMotion_recovery );
         	}
@@ -326,7 +327,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
             return 0;
 
         case MOTION_QUEUE_START:
-            me->identifier_to_execute = 0;  // manually added moves have no identifer check, manual starts don't need sync
+            me->identifier_to_execute = 0;  // manually added moves have no identifier check, manual starts don't need sync
             STATE_TRAN( AppTaskMotion_active );
             return 0;
 
@@ -396,7 +397,6 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
             {
                 // the pathing engine has completed the movement execution,
                 // loop around to process another event, or go back to inactive and wait for sync
-
                 if( eventQueueUsed( &me->super.requestQueue ) )
                 {
                     StateEvent * next = eventQueuePeek( &me->super.requestQueue );
@@ -541,7 +541,7 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
         	me->counter -= !servo_get_servo_ok(_CLEARPATH_2);
         	me->counter -= !servo_get_servo_ok(_CLEARPATH_3);
 #ifdef EXPANSION_SERVO
-        	me->counter -= servo_get_valid_home( _CLEARPATH_4 );
+        	me->counter -= servo_get_servo_ok( _CLEARPATH_4 );
 #endif
 
         	if( me->counter <= 0 )

@@ -30,7 +30,7 @@ enum SystemDefines
 	BACKGROUND_RATE_BUZZER_MS	= 10U,	// 100Hz
 	BACKGROUND_ADC_AVG_POLL_MS	= 100U,	//  10Hz
 
-	MOVEMENT_QUEUE_DEPTH_MAX    = 150U,  // movemevent events in the queue
+	MOVEMENT_QUEUE_DEPTH_MAX    = 150U,  // movement events in the queue
     LED_QUEUE_DEPTH_MAX         = 250U,  // LED animations in the queue
 
     EFFECTOR_SPEED_LIMIT        = 350U, // mm/second
