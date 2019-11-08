@@ -152,10 +152,11 @@ PRIVATE STATE AppTaskLed_inactive( AppTaskLed *me, const StateEvent *e )
             }
             else
             {
-                //queue full, clearly the input motion processor isn't abiding by the spec.
-                //shutdown
-                eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
-                //todo make errors for led
+                // Queue full, clearly the host's event processor isn't abiding by the spec.
+                // Even if its non-critical like lighting, we treat this as a fatal error
+                config_report_error("LED Queue Full");
+
+                eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) ); //shutdown motors
             }
 
             config_set_led_queue_depth(eventQueueUsed(&me->super.requestQueue));
@@ -219,24 +220,54 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
                 // grab an event off the queue
                 StateEvent *next = eventQueuePeek(&me->super.requestQueue);
 
-                // start up the pathing engine
-                if (next)
+                if( next )
                 {
                     LightingPlannerEvent *lpe = (LightingPlannerEvent *) next;
                     Fade_t *next_animation = &lpe->animation;
 
-                    if (me->identifier_to_execute == 0 || me->identifier_to_execute >= next_animation->identifier)
+                    // 0 ID's are run immediately - outside queuing rules
+                    if( me->identifier_to_execute == 0 )
                     {
-                        led_interpolator_set_objective( next_animation );
 
-                        // remove it from the queue, we only peeked before
-                        // todo cleanup led queue peek/get behaviour when animation isn't needed
-                        next = eventQueueGet(&me->super.requestQueue);
-                        eventPoolGarbageCollect((StateEvent *) next);
                     }
-                    else
+                    else    // queuing rules apply
                     {
-                        STATE_TRAN(AppTaskLed_inactive);
+                        // Lighting event queue is behind the sync'ed ID needed
+                        if( me->identifier_to_execute >= next_animation->identifier )
+                        {
+                            // Delete moves until we find the matching one
+                            while(    me->identifier_to_execute > next_animation->identifier
+                                   && eventQueueUsed(&me->super.requestQueue) )
+                            {
+                                next = eventQueueGet(&me->super.requestQueue);
+                                eventPoolGarbageCollect((StateEvent *) next);
+
+                                // Pop the event off the queue, grab the next one
+                                next = eventQueuePeek(&me->super.requestQueue);
+                                ASSERT(next );
+
+                                lpe = (LightingPlannerEvent *) next;
+                                next_animation = &lpe->animation;
+                            }
+                        }
+
+                        // Lighting event queue ID matches the sync ID, so execute the lighting animation
+                        if( me->identifier_to_execute == next_animation->identifier )
+                        {
+                            // run it
+                            led_interpolator_set_objective( next_animation );
+
+                            // remove it from the queue, we only peeked before
+                            // todo cleanup led queue peek/get behaviour when animation isn't needed
+                            next = eventQueueGet(&me->super.requestQueue);
+                            eventPoolGarbageCollect((StateEvent *) next);
+                        }
+
+                        // Lighting event queue is 'ahead' of the motion ID's requested, so just wait until needed
+                        if ( me->identifier_to_execute <= next_animation->identifier )
+                        {
+                            STATE_TRAN(AppTaskLed_inactive);
+                        }
                     }
                 }
             }
