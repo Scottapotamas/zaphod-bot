@@ -78,8 +78,10 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] =
 		[ _CLEARPATH_3 ]	= { .pin_enable = _SERVO_3_ENABLE, .pin_direction = _SERVO_3_A, .pin_step = _SERVO_3_B, .pin_feedback = _SERVO_3_HLFB, .pwm_feedback = _HLFB_SERVO_3,
 								.adc_current = HAL_ADC_INPUT_M3_CURRENT, .pin_oc_fault = _SERVO_3_CURRENT_FAULT },
 
-		[ _CLEARPATH_4 ]	= { .pin_enable = _SERVO_4_ENABLE, .pin_direction = _SERVO_4_A, .pin_step = _SERVO_4_B, .pin_feedback = _SERVO_4_HLFB, .pwm_feedback = _HLFB_SERVO_4,
-								.adc_current = HAL_ADC_INPUT_M4_CURRENT, .pin_oc_fault = _SERVO_4_CURRENT_FAULT },
+#ifdef EXPANSION_SERVO
+        [ _CLEARPATH_4 ]	= { .pin_enable = _SERVO_4_ENABLE, .pin_direction = _SERVO_4_A, .pin_step = _SERVO_4_B, .pin_feedback = _SERVO_4_HLFB, .pwm_feedback = _HLFB_SERVO_4,
+                                        .adc_current = HAL_ADC_INPUT_M4_CURRENT, .pin_oc_fault = _SERVO_4_CURRENT_FAULT },
+#endif
 };
 
 PRIVATE int16_t 	convert_angle_steps( float kinematics_shoulder_angle );

@@ -14,7 +14,9 @@ typedef enum
 	_CLEARPATH_1 = 0,
 	_CLEARPATH_2,
 	_CLEARPATH_3,
-	_CLEARPATH_4,
+#ifdef EXPANSION_SERVO
+    _CLEARPATH_4,
+#endif
     _NUMBER_CLEARPATH_SERVOS
 } ClearpathServoInstance_t;
 

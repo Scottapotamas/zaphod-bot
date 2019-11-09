@@ -151,12 +151,10 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
         	//check all the servos have homed successfully
         	me->counter = 0;
-        	me->counter += servo_get_servo_ok(_CLEARPATH_1);
-        	me->counter += servo_get_servo_ok(_CLEARPATH_2);
-        	me->counter += servo_get_servo_ok(_CLEARPATH_3);
-#ifdef EXPANSION_SERVO
-        	me->counter += servo_get_valid_home( _CLEARPATH_4 );
-#endif
+            for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
+            {
+                me->counter -= !servo_get_servo_ok(servo);
+            }
 
         	if( me->counter == SERVO_COUNT )
         	{
@@ -255,12 +253,10 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
         case STATE_TIMEOUT1_SIGNAL:
         	//check all the servos are active
         	me->counter = 0;
-        	me->counter += servo_get_servo_ok(_CLEARPATH_1);
-        	me->counter += servo_get_servo_ok(_CLEARPATH_2);
-        	me->counter += servo_get_servo_ok(_CLEARPATH_3);
-#ifdef EXPANSION_SERVO
-        	me->counter += servo_get_servo_ok( _CLEARPATH_4 );
-#endif
+            for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
+            {
+                me->counter -= !servo_get_servo_ok(servo);
+            }
 
         	//a servo has dropped offline (fault or otherwise)
         	if( me->counter != SERVO_COUNT )
@@ -487,6 +483,7 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
     return (STATE)hsmTop;
 }
 
+/* -------------------------------------------------------------------------- */
 
 PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
 {
@@ -494,23 +491,22 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
     {
 		case STATE_ENTRY_SIGNAL:
 
-		    // disable the motion interpolation engine
-            path_interpolator_stop();
+            // Disable the servo motors
+            for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
+            {
+                servo_stop(servo);
+            }
 
-        	//disable servos
-        	servo_stop( _CLEARPATH_1 );
-        	servo_stop( _CLEARPATH_2 );
-        	servo_stop( _CLEARPATH_3 );
-        #ifdef EXPANSION_SERVO
-        	servo_stop( _CLEARPATH_4 );
-        #endif
+		    // Stop the motion interpolation engine
+            path_interpolator_stop();
 
         	//update state for UI
             config_set_motion_state( TASKSTATE_MOTION_RECOVERY );
 
+            // Come back next loop and clear out queue etc
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
 
-        	//check the motors to ensure shutdown
+        	// Check the motors to ensure shutdown
         	eventTimerStartEvery( &me->timer1,
                                  (StateTask* )me,
                                  (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
@@ -534,15 +530,12 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
             return 0;
 
         case STATE_TIMEOUT1_SIGNAL:
-
-        	//check all the servos are not enabled
+        	//check all the servos are not-enabled
         	me->counter = SERVO_COUNT;
-        	me->counter -= !servo_get_servo_ok(_CLEARPATH_1);
-        	me->counter -= !servo_get_servo_ok(_CLEARPATH_2);
-        	me->counter -= !servo_get_servo_ok(_CLEARPATH_3);
-#ifdef EXPANSION_SERVO
-        	me->counter -= servo_get_servo_ok( _CLEARPATH_4 );
-#endif
+        	for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
+            {
+                me->counter -= !servo_get_servo_ok(servo);
+            }
 
         	if( me->counter <= 0 )
         	{
@@ -551,11 +544,15 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
         	}
         	else
         	{
-        		if( me->retries++ > SERVO_RECOVERY_RETRIES )
+        		if( me->retries++ < SERVO_RECOVERY_RETRIES )
         		{
         			eventTimerStopIfActive(&me->timer1);
                 	STATE_TRAN( AppTaskMotion_recovery );
         		}
+        		else
+                {
+        		    ASSERT( true ); // motors aren't shutdown after repeated attempts -> hardfault
+                }
         	}
 
 			return 0;
