@@ -411,27 +411,6 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
         }
             return 0;
 
-        case QUEUE_SYNC_MOTION_NEXT:
-        {
-            // Received the ID of the 'next' motion in the motion queue
-            BarrierSyncEvent *inbound_sync = (BarrierSyncEvent*)e;
-            me->movement_id = inbound_sync->id;
-
-            BarrierSyncEvent *next_sync = EVENT_NEW( BarrierSyncEvent, START_QUEUE_SYNC );
-            next_sync->id = inbound_sync->id;
-
-            eventPublish( (StateEvent*)next_sync );
-            return 0;
-        }
-
-        case QUEUE_SYNC_LED_NEXT:
-        {
-            BarrierSyncEvent *inbound_sync = (BarrierSyncEvent*)e;
-            uint16_t next_led_id_queued = inbound_sync->id;
-
-            return 0;
-        }
-
         case START_QUEUE_SYNC:
         {
             // Passed in the identifier which we are blocking up against

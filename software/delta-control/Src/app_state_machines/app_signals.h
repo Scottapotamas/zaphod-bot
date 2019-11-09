@@ -55,7 +55,9 @@ enum AppSignals
     MOTION_QUEUE_ADD,       // Provide movement information for queue processing
     MOTION_QUEUE_CLEAR,	    // empty out pending movements
 
+    PATHING_STARTED,    // started executing a move
     PATHING_COMPLETE,   // finished moving along a provided profile path
+
     ANIMATION_COMPLETE, // finished drawing out the led animated colour ramp
 
     /* LED Handler Signals */

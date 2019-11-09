@@ -27,6 +27,11 @@ path_interpolator_set_next(Movement_t	* movement_to_process );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC bool
+path_interpolator_is_ready_for_next( void );
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC float
 path_interpolator_get_progress( void );
 

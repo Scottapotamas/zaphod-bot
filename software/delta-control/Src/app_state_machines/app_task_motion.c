@@ -204,9 +204,6 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
         case STATE_ENTRY_SIGNAL:
             config_set_motion_state( TASKSTATE_MOTION_INACTIVE );
 
-            // Check for queued events
-            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
-
             // Continuously check that the servo's are still happy while holding position
         	eventTimerStartEvery( &me->timer1,
                                  (StateTask* )me,
@@ -214,30 +211,6 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
                                  MS_TO_TICKS( SERVO_HOMING_SUPERVISOR_CHECK_MS ) );
 
         	return 0;
-
-        case STATE_STEP1_SIGNAL:
-            {
-                // Check the queue for pending movements, tell the supervisor the next value in the queue
-                StateEvent *pendingMotion = eventQueuePeek(&me->super.requestQueue);
-
-                if (pendingMotion)
-                {
-                    MotionPlannerEvent *ape = (MotionPlannerEvent *) pendingMotion;
-                    uint16_t id_in_queue = ((Movement_t*)&ape->move)->identifier;
-
-                    if( id_in_queue )
-                    {
-                        // tell the supervisor what the next move in the queue in
-                        BarrierSyncEvent *motor_sync_next = EVENT_NEW( BarrierSyncEvent, QUEUE_SYNC_MOTION_NEXT );
-                        motor_sync_next->id = id_in_queue;
-                        eventPublish( (StateEvent*)motor_sync_next );
-                    }
-                }
-
-                // update the UI with the queue depth
-                config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
-            }
-            return 0;
 
         case STATE_TIMEOUT1_SIGNAL:
         	//check all the servos are active
@@ -267,53 +240,36 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
         case MOTION_QUEUE_START:
             STATE_TRAN( AppTaskMotion_active );
             return 0;
+
+        case MOTION_QUEUE_START_SYNC:
+        {
+            // Check that the ID we got the sync event for matches the current queue head ID
+            // TODO support sync events on ID's which aren't the current head
+            //      consider searching/ditching events until ID matches?
+            StateEvent *pendingMotion = eventQueuePeek(&me->super.requestQueue);
+
+            if (pendingMotion)
+            {
+                MotionPlannerEvent *ape = (MotionPlannerEvent *) pendingMotion;
+                uint16_t id_in_queue = ((Movement_t*)&ape->move)->identifier;
+                uint16_t id_requested = ((BarrierSyncEvent*)e)->id;
+
+                if( id_in_queue == id_requested )
                 {
-                    int32_t speed = cartesian_move_speed(&mpe->move);
-
-                    if( speed < EFFECTOR_SPEED_LIMIT )
-                    {
-                        eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
-
-                        if( mpe->move.identifier == 0 )
-                        {
-                            STATE_TRAN( AppTaskMotion_active );
-                        }
-                    }
-                    else
-                    {
-                        config_report_error("Requested illegal speed");
-                    }
+                    STATE_TRAN( AppTaskMotion_active );
                 }
                 else
                 {
-                    //queue full, clearly the input motion processor isn't abiding by the spec.
-                    config_report_error("Motion Queue Full");
-
-                    //shutdown
-                    eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
-                    STATE_TRAN( AppTaskMotion_recovery );
+                    config_report_error("Sync fail - queued ID mismatch");
                 }
-                config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+            }
+            else
+            {
+                config_report_error("Sync fail - nothing queued");
+            }
 
-			}
-			return 0;
+            return 0;
         }
-
-            //update UI with queue content count
-            config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
-        }
-            return 0;
-
-        case MOTION_QUEUE_START:
-            me->identifier_to_execute = 0;  // manually added moves have no identifier check, manual starts don't need sync
-            STATE_TRAN( AppTaskMotion_active );
-            return 0;
-
-        case MOTION_QUEUE_START_SYNC:
-            // Grab the inbound requested id as part of barrier handling
-            me->identifier_to_execute = ((BarrierSyncEvent*)e)->id;
-            STATE_TRAN( AppTaskMotion_active );
-            return 0;
 
         case MOTION_EMERGENCY:
         	STATE_TRAN( AppTaskMotion_recovery );
@@ -334,63 +290,40 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
     {
 		case STATE_ENTRY_SIGNAL:
             config_set_motion_state( TASKSTATE_MOTION_ACTIVE );
-            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+            AppTaskMotion_commit_queued_move( me );
 
+            if( path_interpolator_is_ready_for_next() )
+            {
+                stateTaskPostReservedEvent(STATE_STEP1_SIGNAL);
+            }
             return 0;
 
         case STATE_STEP1_SIGNAL:
-            {
-                // check for pending events in the queue
-                if( eventQueueUsed( &me->super.requestQueue ) )
-                {
-                    // grab the next event off the queue
-                    StateEvent *next = eventQueueGet( &me->super.requestQueue );
+            AppTaskMotion_commit_queued_move( me );
+            return 0;
 
-                    // start up the pathing engine
-                    if(next)
-                    {
-                        MotionPlannerEvent *ape = (MotionPlannerEvent*)next;
-                        Movement_t *next_move = &ape->move;
-
-                        if( me->identifier_to_execute == 0 || me->identifier_to_execute >= next_move->identifier )
-                        {
-                            path_interpolator_set_next(next_move);
-                            path_interpolator_start();
-                            // remove it from the queue
-                            eventPoolGarbageCollect( (StateEvent*)next );
-                        }
-                    }
-                }
-                else
-                {
-                    // no events in the queue
-                    STATE_TRAN( AppTaskMotion_inactive );
-                }
-
-                config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
-                return 0;
-            }
-
+        // todo add motion handler watching on PATHING_STARTED?
+        //      possibly not needed...
         case PATHING_COMPLETE:
             {
-                // the pathing engine has completed the movement execution,
-                // loop around to process another event, or go back to inactive and wait for sync
+                // the pathing engine completed movement execution,
+                // run another event, or go back to inactive to wait for new instructions
                 if( eventQueueUsed( &me->super.requestQueue ) )
                 {
                     StateEvent * next = eventQueuePeek( &me->super.requestQueue );
+                    ASSERT( next );
+
                     MotionPlannerEvent *ape = (MotionPlannerEvent*)next;
                     Movement_t *next_move = &ape->move;
 
-                    if(next)
+                    if( next_move->duration )
                     {
-                        if( me->identifier_to_execute == 0 || me->identifier_to_execute >= next_move->identifier )
-                        {
-                            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
-                        }
-                        else
-                        {
-                            STATE_TRAN( AppTaskMotion_inactive);
-                        }
+                        // add an item to the queue
+                        stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+                    }
+                    else
+                    {
+                        STATE_TRAN( AppTaskMotion_inactive);
                     }
                 }
                 else
@@ -398,7 +331,6 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
                     STATE_TRAN( AppTaskMotion_inactive);
                 }
 
-                config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
                 return 0;
             }
 

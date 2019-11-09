@@ -109,6 +109,17 @@ path_interpolator_set_next(Movement_t *movement_to_process )
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC bool
+path_interpolator_is_ready_for_next( void )
+{
+    MotionPlanner_t *me = &planner;
+    bool slot_a_ready = ( me->move_a.duration > 0 );
+    bool slot_b_ready = ( me->move_b.duration > 0 );
+    return ( slot_a_ready || slot_b_ready );
+}
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC float
 path_interpolator_get_progress( void )
 {
@@ -215,10 +226,12 @@ path_interpolator_process( void )
 
         case PLANNER_EXECUTE_A:
             STATE_ENTRY_ACTION
+                config_set_pathing_status(me->currentState);
+                eventPublish( EVENT_NEW( StateEvent, PATHING_STARTED ) );
+
                 me->movement_started = hal_systick_get_ms();
                 me->movement_est_complete = me->movement_started + me->move_a.duration;
             	me->progress_percent = 0;
-            	config_set_pathing_status(me->currentState);
             STATE_TRANSITION_TEST
                 path_interpolator_calculate_percentage( me->move_a.duration );
 
@@ -251,10 +264,12 @@ path_interpolator_process( void )
 
         case PLANNER_EXECUTE_B:
             STATE_ENTRY_ACTION
+                config_set_pathing_status(me->currentState);
+                eventPublish( EVENT_NEW( StateEvent, PATHING_STARTED ) );
+
                 me->movement_started = hal_systick_get_ms();
                 me->movement_est_complete = me->movement_started + me->move_b.duration;
                 me->progress_percent = 0;
-                config_set_pathing_status(me->currentState);
             STATE_TRANSITION_TEST
                 path_interpolator_calculate_percentage( me->move_b.duration );
 
