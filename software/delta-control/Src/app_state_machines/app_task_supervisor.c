@@ -218,8 +218,7 @@ PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
         	eventTimerStartEvery( &me->timer1,
                                  (StateTask* )me,
                                  (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
-                                 MS_TO_TICKS( 8000 ) );
-        	//todo use declared servo failure time here
+                                 MS_TO_TICKS( SERVO_HOMING_MAX_MS ) );
         	return 0;
 
         case STATE_TIMEOUT1_SIGNAL:

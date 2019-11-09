@@ -210,7 +210,6 @@ cartesian_point_on_catmull_spline( CartesianPoint_t *p, size_t points, float pos
     float t2 = t * t;
     float t3 = t2 * t;
 
-    // todo consider accelerating with matrix maths (neon) if perf improvements required
     output->x = 0.5f * (
             ( 2*p[1].x ) +
             (  -p[0].x   +   p[2].x ) * t +
