@@ -87,13 +87,15 @@ app_background( void )
 
     //process any running movements and allow servo drivers to process commands
     path_interpolator_process();
-    servo_process( _CLEARPATH_1 );
-    servo_process( _CLEARPATH_2 );
-    servo_process( _CLEARPATH_3 );
 
-#ifdef EXPANSION_SERVO
-    servo_process( _CLEARPATH_4 );
-#endif
+    for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
+    {
+        servo_process( servo );
+    }
+
+
+    
+    
 
 }
 
