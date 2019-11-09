@@ -13,7 +13,7 @@ extern "C" {
 
 /* ----- Types ------------------------------------------------------------- */
 
-//todo refactor HLFBinput to include the hall sensor input, general purpose PWM input
+//todo Cleanup HLFBinput to include the hall sensor input, general purpose PWM input (make it a more generic name etc
 typedef enum
 {
     _HLFB_SERVO_1,
@@ -41,9 +41,7 @@ typedef struct
     uint16_t	duty;		//duty cycle as
 } PWMInputData_t;
 
-
 /* ----- Public Functions -------------------------------------------------- */
-
 
 PUBLIC void
 hal_setup_capture(uint8_t input);

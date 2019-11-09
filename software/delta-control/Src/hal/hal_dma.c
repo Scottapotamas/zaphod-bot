@@ -26,7 +26,7 @@ hal_dma_init( void )
 PUBLIC void
 hal_dma_start( void )
 {
-	//todo something useful here
+
 }
 
 /* -------------------------------------------------------------------------- */
@@ -34,7 +34,7 @@ hal_dma_start( void )
 PUBLIC void
 hal_dma_stop( void )
 {
-	//todo something useful here
+
 }
 
 

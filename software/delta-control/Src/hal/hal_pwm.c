@@ -620,7 +620,6 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 	uint16_t capture_buffer = 0;
 	PWMInputData_t * result = 0;
 
-	//todo refactor pwm input names enum to improve readability of this section
 	/*
 	 * HLFB 1 - TIM3_1/2
 	 * HLFB 2 - TIM4_1/2
@@ -631,23 +630,23 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 
 	if(htim->Instance==TIM1)
 	{
-		result = &input_results[2];
+		result = &input_results[_HLFB_SERVO_3];
 	}
 	else if(htim->Instance==TIM3)
 	{
-		result = &input_results[0];
+		result = &input_results[_HLFB_SERVO_1];
 	}
 	else if(htim->Instance==TIM4)
 	{
-		result = &input_results[1];
+		result = &input_results[_HLFB_SERVO_2];
 	}
 	else if(htim->Instance==TIM5)
 	{
-		result = &input_results[3];
+		result = &input_results[_HLFB_SERVO_4];
 	}
 	else if(htim->Instance==TIM9)
 	{
-		result = &input_results[4];
+		result = &input_results[_FAN_HALL];
 	}
 
 	if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)

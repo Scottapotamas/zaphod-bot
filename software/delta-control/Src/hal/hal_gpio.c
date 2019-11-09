@@ -200,7 +200,7 @@ hal_gpio_init( HalGpioPortPin_t gpio_port_pin_nr,
             break;
 
         case MODE_AF_PP:
-        	//todo decide if we should do anything for defaults, or force the other 'driver' to request pin setups
+        	// Expect the 'alternate mode' driver (UART, PWM etc) to setup the GPIO as required, so ignore it here
         	break;
     }
 
