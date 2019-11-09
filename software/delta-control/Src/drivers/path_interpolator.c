@@ -113,8 +113,8 @@ PUBLIC bool
 path_interpolator_is_ready_for_next( void )
 {
     MotionPlanner_t *me = &planner;
-    bool slot_a_ready = ( me->move_a.duration > 0 );
-    bool slot_b_ready = ( me->move_b.duration > 0 );
+    bool slot_a_ready = ( me->move_a.duration == 0 );
+    bool slot_b_ready = ( me->move_b.duration == 0 );
     return ( slot_a_ready || slot_b_ready );
 }
 

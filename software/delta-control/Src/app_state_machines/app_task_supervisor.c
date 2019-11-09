@@ -407,9 +407,12 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
             motev->move.points[0].x = 0;
             motev->move.points[0].y = 0;
             motev->move.points[0].z = 0;
+
             eventPublish( (StateEvent*)motev );
-        }
+            eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
+
             return 0;
+        }
 
         case START_QUEUE_SYNC:
         {
@@ -543,6 +546,8 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
             motev->move.points[0].y = 0;
             motev->move.points[0].z = 0;
             eventPublish( (StateEvent*)motev );
+
+            eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
         }
             return 0;
 
@@ -559,6 +564,8 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
                 // copy the movement into the new event for the motion handler.
                 memcpy(&motion_request->move, &mpe->move, sizeof(Movement_t));
                 eventPublish( (StateEvent*)motion_request );
+
+                eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
             }
 
             return 0;
@@ -649,6 +656,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
 
                         eventPublish((StateEvent *) motev);
 
+                        eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
                     }
                     else
                     {
@@ -680,6 +688,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
 				motev->move.points[0].y = 0;
 				motev->move.points[0].z = 0;
 				eventPublish( (StateEvent*)motev );
+                eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
 
                 config_reset_tracking_target();
             }
@@ -827,7 +836,9 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
     			motev->move.points[0].z = 0;
 
     			eventPublish( (StateEvent*)motev );
-        	}
+                eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
+
+            }
 
             return 0;
         }
@@ -881,6 +892,8 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
                     motev->move.points[0].z = 0;
 
                     eventPublish( (StateEvent*)motev );
+                    eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
+
                 }
             }
 			return 0;
@@ -970,6 +983,7 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
 			motev->move.points[0].z = 0;
 
 			eventPublish( (StateEvent*)motev );
+            eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
 
             return 0;
         }

@@ -133,13 +133,11 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
         	me->retries = 0;
 
-        	//reset the motors and let them home
-        	servo_start( _CLEARPATH_1 );
-        	servo_start( _CLEARPATH_2 );
-        	servo_start( _CLEARPATH_3 );
-#ifdef EXPANSION_SERVO
-        	servo_start( _CLEARPATH_4 );
-#endif
+        	// Reset the motors and let them home
+            for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
+            {
+                servo_start(servo);
+            }
 
             config_set_motion_state( TASKSTATE_MOTION_HOME );
 
@@ -157,7 +155,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
         	me->counter = 0;
             for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
             {
-                me->counter -= !servo_get_servo_ok(servo);
+                me->counter += servo_get_servo_ok(servo);
             }
 
         	if( me->counter == SERVO_COUNT )
@@ -168,7 +166,6 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
         	}
         	else
         	{
-
         		//allow subsequent homing check retries
         		if( me->retries++ > SERVO_HOMING_SUPERVISOR_RETRIES )
         		{
@@ -217,7 +214,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
         	me->counter = 0;
             for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
             {
-                me->counter -= !servo_get_servo_ok(servo);
+                me->counter += servo_get_servo_ok(servo);
             }
 
         	//a servo has dropped offline (fault or otherwise)
