@@ -32,6 +32,10 @@ PRIVATE STATE 	AppTaskMotion_inactive	( AppTaskMotion *me, const StateEvent *e )
 PRIVATE STATE 	AppTaskMotion_active	( AppTaskMotion *me, const StateEvent *e );
 PRIVATE STATE 	AppTaskMotion_recovery	( AppTaskMotion *me, const StateEvent *e );
 
+PRIVATE void    AppTaskMotion_commit_queued_move( AppTaskMotion *me );
+PRIVATE void    AppTaskMotion_clear_queue( AppTaskMotion *me );
+PRIVATE void    AppTaskMotion_add_event_to_queue( AppTaskMotion *me, const StateEvent *e );
+
 typedef enum
 {
 	TASKSTATE_MOTION_INITIAL = 0,
@@ -176,23 +180,8 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 			return 0;
 
         case MOTION_QUEUE_ADD:
-        	{
-				MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
-
-				// Add the movement request to the queue if we have room
-				uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
-				if( queue_usage <= MOVEMENT_QUEUE_DEPTH_MAX )
-				{
-					if( mpe->move.duration)
-					{
-						eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
-					}
-				}
-
-				//update UI with queue depth
-				config_set_motion_queue_depth( queue_usage );
-        	}
-        	return 0;
+            AppTaskMotion_add_event_to_queue( me, e );
+            return 0;
 
         case MOTION_EMERGENCY:
         	STATE_TRAN( AppTaskMotion_recovery );
@@ -268,14 +257,16 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
 			return 0;
 
         case MOTION_QUEUE_ADD:
-			{
-                MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
+            AppTaskMotion_add_event_to_queue( me, e );
+            return 0;
 
-                ASSERT(mpe->move.duration != 0);
+        case MOTION_QUEUE_CLEAR:
+            AppTaskMotion_clear_queue( me );
+            return 0;
 
-                // Add the movement request to the queue if we have room
-                uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
-                if( queue_usage <= MOVEMENT_QUEUE_DEPTH_MAX )
+        case MOTION_QUEUE_START:
+            STATE_TRAN( AppTaskMotion_active );
+            return 0;
                 {
                     int32_t speed = cartesian_move_speed(&mpe->move);
 
@@ -306,16 +297,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
 
 			}
 			return 0;
-
-        case MOTION_QUEUE_CLEAR:
-        {
-            // Empty the queue
-            StateEvent * next = eventQueueGet( &me->super.requestQueue );
-            while( next )
-            {
-                eventPoolGarbageCollect( (StateEvent*)next );
-                next = eventQueueGet( &me->super.requestQueue );
-            }
+        }
 
             //update UI with queue content count
             config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
@@ -421,55 +403,12 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
             }
 
         case MOTION_QUEUE_ADD:
-        	{
-        		//already in motion, so add this one to the queue
-				MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
-
-				ASSERT(mpe->move.duration != 0);
-
-				// Add the movement request to the queue if we have room
-				uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
-				if( queue_usage <= MOVEMENT_QUEUE_DEPTH_MAX )
-				{
-                    int32_t speed = cartesian_move_speed(&mpe->move);
-
-                    if( speed < EFFECTOR_SPEED_LIMIT )
-                    {
-						eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
-                    }
-                    else
-                    {
-                        config_report_error("Requested illegal speed");
-                    }
-				}
-				else
-				{
-					//queue full, clearly the input motion processor isn't abiding by the spec.
-                    config_report_error("Motion Queue Full");
-
-                    //shutdown
-                    eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
-					STATE_TRAN( AppTaskMotion_recovery );
-				}
-				config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
-        	}
+            AppTaskMotion_add_event_to_queue( me, e );
         	return 0;
 
         case MOTION_QUEUE_CLEAR:
-        	{
-				// Empty the queue
-				StateEvent * next = eventQueueGet( &me->super.requestQueue );
-				while( next )
-				{
-					eventPoolGarbageCollect( (StateEvent*)next );
-					next = eventQueueGet( &me->super.requestQueue );
-				}
-
-                //update UI with queue content count
-                config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
-
-                STATE_TRAN( AppTaskMotion_inactive );   //go back to idle, no point being active with a drained queue
-        	}
+            AppTaskMotion_clear_queue( me );
+            STATE_TRAN( AppTaskMotion_inactive );
         	return 0;
 
         case MOTION_EMERGENCY:
@@ -515,18 +454,7 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
         	return 0;
 
         case STATE_STEP1_SIGNAL:
-        	{
-				//clear out any pending movements from the queue
-				StateEvent * next = eventQueueGet( &me->super.requestQueue );
-				while( next )
-				{
-					eventPoolGarbageCollect( (StateEvent*)next );
-					next = eventQueueGet( &me->super.requestQueue );
-				}
-
-				//update UI with queue content count
-				config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
-        	}
+            AppTaskMotion_clear_queue( me );
             return 0;
 
         case STATE_TIMEOUT1_SIGNAL:
@@ -562,6 +490,88 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
             return 0;
     }
     return (STATE)hsmTop;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void AppTaskMotion_commit_queued_move( AppTaskMotion *me )
+{
+    // Check for pending events in the queue, and the pathing engine is able to accept one
+    if(    path_interpolator_is_ready_for_next()
+           && eventQueueUsed(&me->super.requestQueue) )
+    {
+        // Grab the next event off the queue
+        StateEvent *next = eventQueueGet( &me->super.requestQueue );
+        ASSERT( next );
+
+        MotionPlannerEvent *mpe = (MotionPlannerEvent*)next;
+        Movement_t *next_move = &mpe->move;
+
+        if( next_move->duration )
+        {
+            // Pass this valid move to the pathing engine, and start it
+            path_interpolator_set_next( next_move );
+            path_interpolator_start();
+
+            eventPoolGarbageCollect( (StateEvent*)next ); // Remove it from the queue
+        }
+    }
+
+    // Tell the UI the new queue depth after pulling a move from it
+    config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void AppTaskMotion_clear_queue( AppTaskMotion *me )
+{
+    // Empty the queue
+    StateEvent * next = eventQueueGet( &me->super.requestQueue );
+    while( next )
+    {
+        eventPoolGarbageCollect( (StateEvent*)next );
+        next = eventQueueGet( &me->super.requestQueue );
+    }
+
+    //update UI with queue content count
+    config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void AppTaskMotion_add_event_to_queue( AppTaskMotion *me, const StateEvent *e )
+{
+    //already in motion, so add this one to the queue
+    MotionPlannerEvent *mpe = (MotionPlannerEvent*)e;
+
+    ASSERT(mpe->move.duration != 0);
+
+    // Add the movement request to the queue if we have room
+    uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
+    if( queue_usage <= MOVEMENT_QUEUE_DEPTH_MAX )
+    {
+        int32_t speed = cartesian_move_speed(&mpe->move);
+
+        if( speed < EFFECTOR_SPEED_LIMIT )
+        {
+            eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
+        }
+        else
+        {
+            config_report_error("Requested illegal speed");
+        }
+    }
+    else
+    {
+        //queue full, clearly the input motion processor isn't abiding by the spec.
+        config_report_error("Motion Queue Full");
+
+        //shutdown
+        eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
+        STATE_TRAN( AppTaskMotion_recovery );
+    }
+
+    config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 }
 
 /* ----- End ---------------------------------------------------------------- */
