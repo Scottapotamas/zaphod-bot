@@ -33,8 +33,6 @@ struct AppTaskMotion
     uint8_t 		counter;
     uint8_t			retries;
 
-    uint16_t identifier_to_execute;
-
     MotionPlannerEvent mpe;	//current movement to execute
 
 };
