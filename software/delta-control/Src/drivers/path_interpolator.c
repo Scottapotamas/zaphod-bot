@@ -2,21 +2,24 @@
 
 #include <string.h>
 #include <float.h>
-#include <math.h>
-#include <app_state_machines/app_signals.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "path_interpolator.h"
+
+#include "simple_state_machine.h"
 #include "event_subscribe.h"
+#include "app_signals.h"
+#include "app_events.h"
+#include "global.h"
+
+#include "hal_systick.h"
+
 #include "motion_types.h"
 #include "kinematics.h"
 #include "clearpath.h"
 #include "configuration.h"
-
-#include "global.h"
-#include "simple_state_machine.h"
-#include "hal_systick.h"
+#include "status.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -51,6 +54,9 @@ PRIVATE MotionPlanner_t planner;
 
 PRIVATE void execute_move( Movement_t *move, float percentage );
 PRIVATE void path_interpolator_calculate_percentage( uint16_t move_duration );
+
+PRIVATE void notify_pathing_started( uint16_t move_id );
+PRIVATE void notify_pathing_complete( uint16_t move_id );
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -227,7 +233,7 @@ path_interpolator_process( void )
         case PLANNER_EXECUTE_A:
             STATE_ENTRY_ACTION
                 config_set_pathing_status(me->currentState);
-                eventPublish( EVENT_NEW( StateEvent, PATHING_STARTED ) );
+                notify_pathing_started( me->move_a.identifier );
 
                 me->movement_started = hal_systick_get_ms();
                 me->movement_est_complete = me->movement_started + me->move_a.duration;
@@ -250,7 +256,7 @@ path_interpolator_process( void )
                         STATE_NEXT( PLANNER_OFF );
                     }
 
-                    eventPublish( EVENT_NEW( StateEvent, PATHING_COMPLETE ) );
+                    notify_pathing_complete( me->move_a.identifier );
                 }
                 else
                 {
@@ -265,7 +271,7 @@ path_interpolator_process( void )
         case PLANNER_EXECUTE_B:
             STATE_ENTRY_ACTION
                 config_set_pathing_status(me->currentState);
-                eventPublish( EVENT_NEW( StateEvent, PATHING_STARTED ) );
+                notify_pathing_started( me->move_b.identifier );
 
                 me->movement_started = hal_systick_get_ms();
                 me->movement_est_complete = me->movement_started + me->move_b.duration;
@@ -288,7 +294,7 @@ path_interpolator_process( void )
                         STATE_NEXT( PLANNER_OFF );
                     }
 
-                    eventPublish( EVENT_NEW( StateEvent, PATHING_COMPLETE ) );
+                    notify_pathing_complete( me->move_b.identifier );
                 }
                 else
                 {
@@ -302,6 +308,25 @@ path_interpolator_process( void )
     }
 
 }
+
+PRIVATE void
+notify_pathing_started( uint16_t move_id )
+{
+    BarrierSyncEvent *barrier_ev = EVENT_NEW( BarrierSyncEvent, PATHING_STARTED );
+
+    memcpy( &barrier_ev->id, move_id, sizeof(move_id) );
+    eventPublish( (StateEvent*)barrier_ev );
+}
+
+PRIVATE void
+notify_pathing_complete( uint16_t move_id )
+{
+    BarrierSyncEvent *barrier_ev = EVENT_NEW( BarrierSyncEvent, PATHING_COMPLETE );
+
+    memcpy( &barrier_ev->id, move_id, sizeof(move_id) );
+    eventPublish( (StateEvent*)barrier_ev );
+}
+
 
 PRIVATE void
 execute_move( Movement_t *move, float percentage )
