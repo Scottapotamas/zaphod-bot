@@ -27,7 +27,7 @@ PRIVATE STATE 	AppTaskLed_inactive	( AppTaskLed *me, const StateEvent *e );
 PRIVATE STATE 	AppTaskLed_active	( AppTaskLed *me, const StateEvent *e );
 PRIVATE STATE 	AppTaskLed_active_manual	( AppTaskLed *me, const StateEvent *e );
 
-
+PRIVATE void AppTaskLed_clear_queue( AppTaskLed *me );
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -164,20 +164,8 @@ PRIVATE STATE AppTaskLed_inactive( AppTaskLed *me, const StateEvent *e )
         }
 
         case LED_CLEAR_QUEUE:
-        {
-            // Empty the queue
-            StateEvent * next = eventQueueGet( &me->super.requestQueue );
-            while( next )
-            {
-                eventPoolGarbageCollect( (StateEvent*)next );
-                next = eventQueueGet( &me->super.requestQueue );
-            }
-
-            //update UI with queue content count
-            config_set_led_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
-
+            AppTaskLed_clear_queue( me );
             return 0;
-        }
 
         case LED_QUEUE_START:
             me->identifier_to_execute = 0;
@@ -340,21 +328,9 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
             return 0;
 
         case LED_CLEAR_QUEUE:
-        {
-            // Empty the queue
-            StateEvent * next = eventQueueGet( &me->super.requestQueue );
-            while( next )
-            {
-                eventPoolGarbageCollect( (StateEvent*)next );
-                next = eventQueueGet( &me->super.requestQueue );
-            }
-
-            //update UI with queue content count
-            config_set_led_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
-
-            STATE_TRAN( AppTaskLed_inactive );   //go back to idle
+            AppTaskLed_clear_queue( me );
+            STATE_TRAN( AppTaskLed_inactive );
             return 0;
-        }
         
         case STATE_EXIT_SIGNAL:
             eventTimerStopIfActive( &me->timer1 );
@@ -399,6 +375,23 @@ PRIVATE STATE AppTaskLed_active_manual( AppTaskLed *me, const StateEvent *e )
             return 0;
     }
     return (STATE)hsmTop;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void
+AppTaskLed_clear_queue( AppTaskLed *me )
+{
+    // Empty the queue
+    StateEvent * next = eventQueueGet( &me->super.requestQueue );
+    while( next )
+    {
+        eventPoolGarbageCollect( (StateEvent*)next );
+        next = eventQueueGet( &me->super.requestQueue );
+    }
+
+    //update UI with queue content count
+    config_set_led_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 }
 
 /* ----- End ---------------------------------------------------------------- */
