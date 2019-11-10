@@ -118,9 +118,8 @@ path_interpolator_set_next(Movement_t *movement_to_process )
 PUBLIC bool
 path_interpolator_is_ready_for_next( void )
 {
-    MotionPlanner_t *me = &planner;
-    bool slot_a_ready = ( me->move_a.duration == 0 );
-    bool slot_b_ready = ( me->move_b.duration == 0 );
+    bool slot_a_ready = ( planner.move_a.duration == 0 );
+    bool slot_b_ready = ( planner.move_b.duration == 0 );
     return ( slot_a_ready || slot_b_ready );
 }
 
@@ -174,10 +173,8 @@ path_interpolator_get_global_position( void )
 PUBLIC void
 path_interpolator_start(void )
 {
-    MotionPlanner_t *me = &planner;
-
     // Request that the statemachine transitions to "ON"
-    me->enable = true;
+    planner.enable = true;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -313,8 +310,9 @@ PRIVATE void
 notify_pathing_started( uint16_t move_id )
 {
     BarrierSyncEvent *barrier_ev = EVENT_NEW( BarrierSyncEvent, PATHING_STARTED );
+    uint16_t publish_id = move_id;
+    memcpy( &barrier_ev->id, &publish_id, sizeof(move_id) );
 
-    memcpy( &barrier_ev->id, move_id, sizeof(move_id) );
     eventPublish( (StateEvent*)barrier_ev );
 }
 
@@ -322,8 +320,9 @@ PRIVATE void
 notify_pathing_complete( uint16_t move_id )
 {
     BarrierSyncEvent *barrier_ev = EVENT_NEW( BarrierSyncEvent, PATHING_COMPLETE );
+    uint16_t publish_id = move_id;
+    memcpy( &barrier_ev->id, &publish_id, sizeof(move_id) );
 
-    memcpy( &barrier_ev->id, move_id, sizeof(move_id) );
     eventPublish( (StateEvent*)barrier_ev );
 }
 

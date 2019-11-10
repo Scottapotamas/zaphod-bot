@@ -32,9 +32,6 @@ struct AppTaskMotion
     // ~~~ Task Variables ~~~
     uint8_t 		counter;
     uint8_t			retries;
-
-    MotionPlannerEvent mpe;	//current movement to execute
-
 };
 
 /* ----- Public Functions --------------------------------------------------- */

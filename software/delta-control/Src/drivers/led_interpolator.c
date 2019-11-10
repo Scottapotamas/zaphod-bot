@@ -33,7 +33,7 @@ typedef struct
 	RGBState_t  nextState;
 
     bool        manual_mode;        // user control
-    bool		animation_mode;		//if the planner is enabled
+    bool		animation_run;		//if the planner is enabled
 
     Fade_t	 	current_fade;		// pointer to the current movement
     uint32_t   	animation_started;	// timestamp the start
@@ -74,8 +74,28 @@ led_interpolator_set_objective( Fade_t* fade_to_process )
     LEDPlanner_t *me = &planner;
 
     memcpy( &me->current_fade, fade_to_process, sizeof(Fade_t) );
-    planner.manual_mode = false;
-    planner.animation_mode = true;
+    me->manual_mode = false;
+}
+
+PUBLIC bool
+led_interpolator_is_ready_for_next( void )
+{
+    bool slot_a_ready = ( planner.current_fade.duration == 0 );
+
+    return ( slot_a_ready );
+}
+
+PUBLIC void
+led_interpolator_start(void )
+{
+    planner.animation_run = true;
+}
+
+PUBLIC void
+led_interpolator_stop(void )
+{
+    planner.animation_run = false;
+
 }
 
 /* -------------------------------------------------------------------------- */
@@ -91,7 +111,7 @@ led_interpolator_get_progress( void )
 PUBLIC bool
 led_interpolator_get_fade_done(void )
 {
-	return ( planner.progress_percent >= 1.0f - FLT_EPSILON && !planner.animation_mode);
+	return ( planner.progress_percent >= 1.0f - FLT_EPSILON && !planner.animation_run);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -129,11 +149,13 @@ led_interpolator_manual_control_set( float hue, float saturation, float intensit
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-led_interpolator_off( void )
+led_interpolator_set_dark(void )
 {
 	planner.led_colour.red 		= 0;
 	planner.led_colour.green 	= 0;
 	planner.led_colour.blue 	= 0;
+
+    led_set( planner.led_colour.red, planner.led_colour.red, planner.led_colour.red);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -148,12 +170,12 @@ led_interpolator_process( void )
         case ANIMATION_OFF:
             STATE_ENTRY_ACTION
         		config_set_led_status(me->currentState);
+                led_interpolator_set_dark();
+
+                // todo start a timer so we know how long we've been 'off'
 
             STATE_TRANSITION_TEST
-
-                led_set( planner.led_colour.red, planner.led_colour.red, planner.led_colour.red);
-
-                if(planner.animation_mode)
+                if(planner.animation_run)
                 {
                     STATE_NEXT( ANIMATION_ON );
                 }
@@ -163,17 +185,20 @@ led_interpolator_process( void )
                     STATE_NEXT( ANIMATION_MANUAL );
                 }
 
+                // todo If off for extended period of time, turn the LED driver off
+//                led_enable(false);
+
             STATE_EXIT_ACTION
+                led_enable(true);
             STATE_END
             break;
 
         case ANIMATION_ON:
             STATE_ENTRY_ACTION
-				me->animation_started = hal_systick_get_ms();
-            	me->progress_percent = 0;
-                led_enable(true);
                 config_set_led_status(me->currentState);
 
+				me->animation_started = hal_systick_get_ms();
+            	me->progress_percent = 0;
             STATE_TRANSITION_TEST
 
 				Fade_t *animation = &me->current_fade;
@@ -217,8 +242,8 @@ led_interpolator_process( void )
             	}
 
             STATE_EXIT_ACTION
-				planner.animation_mode = false;
-
+				planner.animation_run = false;
+                memset(&me->current_fade, 0, sizeof(Fade_t));
             STATE_END
             break;
 
@@ -229,16 +254,13 @@ led_interpolator_process( void )
         STATE_TRANSITION_TEST
                 // All the fun for this state is done one-shot when the setting event comes in
                 // See led_interpolator_manual_control_set() earlier in this file
-
                 if( !planner.manual_mode )
                 {
                     STATE_NEXT( ANIMATION_OFF );
                 }
-
             STATE_EXIT_ACTION
-                led_enable(false);
-            STATE_END
 
+            STATE_END
             break;
 
     }

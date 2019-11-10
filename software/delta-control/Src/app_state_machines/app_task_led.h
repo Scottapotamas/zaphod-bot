@@ -30,10 +30,7 @@ struct AppTaskLed
     EventTimer		timer2;
 
     // ~~~ Task Variables ~~~
-    uint16_t identifier_to_execute;
-
-    LightingPlannerEvent lpe;	//current movement to execute
-
+    uint16_t        identifier_to_execute;
 };
 
 /* ----- Public Functions --------------------------------------------------- */
