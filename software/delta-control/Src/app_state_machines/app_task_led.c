@@ -28,6 +28,7 @@ PRIVATE STATE 	AppTaskLed_active	( AppTaskLed *me, const StateEvent *e );
 PRIVATE STATE 	AppTaskLed_active_manual	( AppTaskLed *me, const StateEvent *e );
 
 PRIVATE void AppTaskLed_clear_queue( AppTaskLed *me );
+PRIVATE void AppTaskLed_add_event_to_queue( AppTaskLed *me, const StateEvent *e );
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -138,30 +139,8 @@ PRIVATE STATE AppTaskLed_inactive( AppTaskLed *me, const StateEvent *e )
         return 0;
 
         case LED_QUEUE_ADD:
-        {
-            LightingPlannerEvent *lpe = (LightingPlannerEvent*)e;
-
-            // Add the movement request to the queue if we have room
-            uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
-            if( queue_usage <= LED_QUEUE_DEPTH_MAX )
-            {
-                if( lpe->animation.duration )
-                {
-                    eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
-                }
-            }
-            else
-            {
-                // Queue full, clearly the host's event processor isn't abiding by the spec.
-                // Even if its non-critical like lighting, we treat this as a fatal error
-                config_report_error("LED Queue Full");
-
-                eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) ); //shutdown motors
-            }
-
-            config_set_led_queue_depth(eventQueueUsed(&me->super.requestQueue));
+            AppTaskLed_add_event_to_queue( me, e );
             return 0;
-        }
 
         case LED_CLEAR_QUEUE:
             AppTaskLed_clear_queue( me );
@@ -301,30 +280,7 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
         }
 
         case LED_QUEUE_ADD:
-        {
-            //already in motion, so add this one to the queue
-            LightingPlannerEvent *lpe = (LightingPlannerEvent*)e;
-
-            // Add the movement request to the queue if we have room
-            uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
-            if( queue_usage <= LED_QUEUE_DEPTH_MAX )
-            {
-                if( lpe->animation.duration)
-                {
-                    eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
-                }
-            }
-            else
-            {
-                //queue full, clearly the input processor isn't abiding by the spec.
-                //shutdown
-                uint8_t error = 1;
-                uint8_t breakpoint_line = 1;
-
-            }
-
-            config_set_led_queue_depth(eventQueueUsed(&me->super.requestQueue));
-        }
+            AppTaskLed_add_event_to_queue( me, e );
             return 0;
 
         case LED_CLEAR_QUEUE:
@@ -392,6 +348,30 @@ AppTaskLed_clear_queue( AppTaskLed *me )
 
     //update UI with queue content count
     config_set_led_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void AppTaskLed_add_event_to_queue( AppTaskLed *me, const StateEvent *e )
+{
+    LightingPlannerEvent *lpe = (LightingPlannerEvent*)e;
+
+    // Add the LED animation request to the queue if we have room
+    uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
+    if( queue_usage <= LED_QUEUE_DEPTH_MAX )
+    {
+        if( lpe->animation.duration)
+        {
+            eventQueuePutFIFO( &me->super.requestQueue, (StateEvent*)e );
+        }
+    }
+    else
+    {
+        //queue full, clearly the input processor isn't abiding by the spec.
+        config_report_error("LED Queue Full");
+    }
+
+    config_set_led_queue_depth(eventQueueUsed(&me->super.requestQueue));
 }
 
 /* ----- End ---------------------------------------------------------------- */
