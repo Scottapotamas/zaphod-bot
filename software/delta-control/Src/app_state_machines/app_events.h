@@ -39,8 +39,6 @@ typedef struct ButtonEvent__
     ButtonPressType_t press_type;        /**< Type of button event */
 } ButtonEvent;
 
-/* -------------------------------------------------------------------------- */
-
 /** Report detected button presses */
 typedef struct ButtonPressedEvent__
 {
@@ -62,14 +60,14 @@ typedef struct MotionPlannerEvent__
 /** Lighting command */
 typedef struct LedPlannerEvent__
 {
-    StateEvent	super;     // Encapsulated event reference
-    Fade_t	animation; // LED animation details
+    StateEvent	super;      // Encapsulated event reference
+    Fade_t	animation;      // LED animation details
 } LightingPlannerEvent;
 
 typedef struct LedManualEvent__
 {
     StateEvent	super;      // Encapsulated event reference
-    HSIColour_t	colour;     // LED animation details
+    HSIColour_t	colour;     // LED colour target
     bool enabled;
 } LightingManualEvent;
 
@@ -78,8 +76,8 @@ typedef struct LedManualEvent__
 /** Tracked position request command */
 typedef struct TrackedPositionRequestEvent__
 {
-    StateEvent	super;     // Encapsulated event reference
-    CartesianPoint_t    target; // Position in 3D cartesian space, in microns
+    StateEvent	        super;      // Encapsulated event reference
+    CartesianPoint_t    target;     // Position in 3D cartesian space, in microns
 } TrackedPositionRequestEvent;
 
 /* -------------------------------------------------------------------------- */
