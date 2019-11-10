@@ -392,26 +392,8 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
         	return 0;
 
         case MECHANISM_REHOME:
-        {
-            eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
-
-            //request a move to 0,0,0
-            MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
-            motev->move.type = _POINT_TRANSIT;
-            motev->move.ref = _POS_ABSOLUTE;
-            motev->move.duration = 1500;
-            motev->move.identifier = 0;
-            motev->move.num_pts = 1;
-
-            motev->move.points[0].x = 0;
-            motev->move.points[0].y = 0;
-            motev->move.points[0].z = 0;
-
-            eventPublish( (StateEvent*)motev );
-            eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
-
+            AppTaskSupervisorPublishRehomeEvent();
             return 0;
-        }
 
         case START_QUEUE_SYNC:
         {
@@ -527,22 +509,7 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
             return 0;
 
         case MECHANISM_REHOME:
-        {
-            //request a move to 0,0,0
-            MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
-            motev->move.type = _POINT_TRANSIT;
-            motev->move.ref = _POS_ABSOLUTE;
-            motev->move.duration = 1500;
-            motev->move.identifier = 0;
-            motev->move.num_pts = 1;
-
-            motev->move.points[0].x = 0;
-            motev->move.points[0].y = 0;
-            motev->move.points[0].z = 0;
-            eventPublish( (StateEvent*)motev );
-
-            eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
-        }
+            AppTaskSupervisorPublishRehomeEvent();
             return 0;
 
         case MOVEMENT_REQUEST:
@@ -670,22 +637,8 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
         	return 0;
 
         case MECHANISM_REHOME:
-        	{
-	        	//request a move to 0,0,0
-				MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
-				motev->move.type = _POINT_TRANSIT;
-				motev->move.ref = _POS_ABSOLUTE;
-				motev->move.duration = 1500;
-				motev->move.num_pts = 1;
-
-				motev->move.points[0].x = 0;
-				motev->move.points[0].y = 0;
-				motev->move.points[0].z = 0;
-				eventPublish( (StateEvent*)motev );
-                eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
-
-                config_reset_tracking_target();
-            }
+            AppTaskSupervisorPublishRehomeEvent();
+            config_reset_tracking_target();
 			return 0;
 
         case MODE_DEMO:
@@ -1018,6 +971,29 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
 			return 0;
     }
     return (STATE)AppTaskSupervisor_main;
+}
+
+/* -------------------------------------------------------------------------- */
+
+// Tell the motion handler to clear queue, queue a new move to home, and start the move
+PRIVATE void AppTaskSupervisorPublishRehomeEvent( void )
+{
+    eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
+
+    //request a move to 0,0,0
+    MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
+    motev->move.type = _POINT_TRANSIT;
+    motev->move.ref = _POS_ABSOLUTE;
+    motev->move.duration = 1500;
+    motev->move.identifier = 0;
+    motev->move.num_pts = 1;
+
+    motev->move.points[0].x = 0;
+    motev->move.points[0].y = 0;
+    motev->move.points[0].z = 0;
+
+    eventPublish( (StateEvent*)motev );
+    eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
 }
 
 /* -------------------------------------------------------------------------- */

@@ -33,7 +33,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me, const 
 
 PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me, const StateEvent *e );
 
-
+PRIVATE void AppTaskSupervisorPublishRehomeEvent( void );
 PRIVATE void AppTaskSupervisorButtonEvent( ButtonId_t button, ButtonPressType_t press_type );
 
 /* ----- End ---------------------------------------------------------------- */
