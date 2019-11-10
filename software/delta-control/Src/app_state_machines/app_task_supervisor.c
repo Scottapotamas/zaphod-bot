@@ -415,24 +415,19 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
 
         case START_QUEUE_SYNC:
         {
-            // Passed in the identifier which we are blocking up against
+            // Passed in the identifier which we are blocking against
             BarrierSyncEvent *inbound_sync = (BarrierSyncEvent*)e;
-            uint16_t sync_id = inbound_sync->id;
-            //get the current head queue id of the motion and led handlers
 
             if( inbound_sync )
             {
-                if( sync_id )   //non-zero syncs only - zero is reserved for immediate moves etc
+                if( inbound_sync->id )   //non-zero syncs only - zero is reserved for immediate moves etc
                 {
-                    me->movement_id = sync_id;
-                    me->lighting_id = sync_id;
-
                     // Create sync start events for the motion and led tasks
                     BarrierSyncEvent *motor_sync = EVENT_NEW( BarrierSyncEvent, MOTION_QUEUE_START_SYNC );
                     BarrierSyncEvent *led_sync = EVENT_NEW( BarrierSyncEvent, LED_QUEUE_START_SYNC );
 
-                    motor_sync->id = me->movement_id;
-                    led_sync->id = me->lighting_id;
+                    motor_sync->id = inbound_sync->id;
+                    led_sync->id = inbound_sync->id;
 
                     eventPublish( (StateEvent*)motor_sync );
                     eventPublish( (StateEvent*)led_sync );
