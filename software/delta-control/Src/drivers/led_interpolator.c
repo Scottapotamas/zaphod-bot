@@ -7,15 +7,17 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "led_interpolator.h"
-#include "led_types.h"
-#include "configuration.h"
-#include "led.h"
-#include "global.h"
 
 #include "simple_state_machine.h"
 #include "event_subscribe.h"
-#include <app_state_machines/app_signals.h>
+#include "app_signals.h"
+#include "app_times.h"
 #include "hal_systick.h"
+
+#include "global.h"
+#include "led_types.h"
+#include "led.h"
+#include "configuration.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -112,7 +114,7 @@ led_interpolator_start(void )
 }
 
 PUBLIC void
-led_interpolator_stop(void )
+led_interpolator_stop( void )
 {
     planner.animation_run = false;
     memset(&planner.fade_a, 0, sizeof(Fade_t));
@@ -130,7 +132,7 @@ led_interpolator_get_progress( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC bool
-led_interpolator_get_fade_done(void )
+led_interpolator_get_fade_done( void )
 {
 	return ( planner.progress_percent >= 1.0f - FLT_EPSILON && !planner.animation_run);
 }
@@ -193,8 +195,8 @@ led_interpolator_process( void )
         		config_set_led_status( me->currentState );
                 led_interpolator_set_dark();
 
-                // todo start a timer so we know how long we've been 'off'
-
+                // Track how long we've been off for
+                me->animation_started = hal_systick_get_ms();
             STATE_TRANSITION_TEST
                 if( me->animation_run )
                 {
@@ -213,8 +215,11 @@ led_interpolator_process( void )
                     STATE_NEXT( ANIMATION_MANUAL );
                 }
 
-                // todo If off for extended period of time, turn the LED driver off
-//                led_enable(false);
+                // If off for extended period of time, turn the LED driver off
+                if( hal_systick_get_ms() - me->animation_started >= LED_SLEEP_TIMER )
+                {
+                    led_enable( false );
+                }
 
             STATE_EXIT_ACTION
                 led_enable( true );
