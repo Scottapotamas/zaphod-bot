@@ -37,6 +37,7 @@ typedef struct
 
     bool        manual_mode;        // user control
     bool		animation_run;		// if the planner is enabled
+    uint16_t    execute_id;
 
     Fade_t	 	fade_a;		        // pointer to a movement
     Fade_t	 	fade_b;		        // pointer to b movement
@@ -108,7 +109,14 @@ led_interpolator_is_ready_for_next( void )
 }
 
 PUBLIC void
-led_interpolator_start(void )
+led_interpolator_start_id( uint16_t id )
+{
+    planner.execute_id = id;
+    led_interpolator_start();
+}
+
+PUBLIC void
+led_interpolator_start( void )
 {
     planner.animation_run = true;
 }
@@ -200,11 +208,11 @@ led_interpolator_process( void )
             STATE_TRANSITION_TEST
                 if( me->animation_run )
                 {
-                    if( me->fade_a.duration )
+                    if( me->fade_a.duration && me->fade_a.identifier == me->execute_id )
                     {
                         STATE_NEXT( ANIMATION_EXECUTE_A );
                     }
-                    else if( me->fade_b.duration )
+                    else if( me->fade_b.duration && me->fade_b.identifier == me->execute_id )
                     {
                         STATE_NEXT( ANIMATION_EXECUTE_B );
                     }
@@ -241,7 +249,7 @@ led_interpolator_process( void )
                 }
                 else if( led_interpolator_get_fade_done() )
                 {
-                    if( me->fade_b.duration )
+                    if( me->fade_b.duration && me->fade_b.identifier == me->execute_id )
                     {
                         STATE_NEXT( ANIMATION_EXECUTE_B );
                     }
@@ -277,7 +285,7 @@ led_interpolator_process( void )
                 }
                 else if( led_interpolator_get_fade_done() )
                 {
-                    if( me->fade_a.duration )
+                    if( me->fade_a.duration && me->fade_a.identifier == me->execute_id )
                     {
                         STATE_NEXT( ANIMATION_EXECUTE_A );
                     }
