@@ -64,6 +64,7 @@ enum FanDefines
 enum LedDefines
 {
     LED_FREQUENCY_HZ        = 1000U,	//  1kHz
+    LED_SLEEP_TIMER         = 2500U,
 };
 
 /* -------------------------------------------------------------------------- */
