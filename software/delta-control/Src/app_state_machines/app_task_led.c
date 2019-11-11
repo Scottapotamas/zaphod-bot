@@ -160,11 +160,9 @@ PRIVATE STATE AppTaskLed_inactive( AppTaskLed *me, const StateEvent *e )
                     pending_fade = &lpe->animation;
                 }
 
-                if( id_requested >= pending_fade->identifier )
-                {
-                    // Lighting event queue ID matches the sync ID, so execute the lighting animation
-                    STATE_TRAN( AppTaskLed_active );
-                }
+                // Lighting event queue ID matches the sync ID, so execute the lighting animation
+                STATE_TRAN( AppTaskLed_active );
+
             }
             else  // no events in the queue
             {
