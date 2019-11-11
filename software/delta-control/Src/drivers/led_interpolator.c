@@ -142,7 +142,7 @@ led_interpolator_get_progress( void )
 PUBLIC bool
 led_interpolator_get_fade_done( void )
 {
-	return ( planner.progress_percent >= 1.0f - FLT_EPSILON && !planner.animation_run);
+	return ( planner.progress_percent >= 1.0f - FLT_EPSILON );
 }
 
 /* -------------------------------------------------------------------------- */
