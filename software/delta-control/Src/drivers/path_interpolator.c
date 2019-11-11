@@ -52,6 +52,7 @@ typedef struct
 
 PRIVATE MotionPlanner_t planner;
 
+PRIVATE void path_interpolator_premove_transforms( Movement_t *move );
 PRIVATE void path_interpolator_execute_move(Movement_t *move, float percentage );
 PRIVATE void path_interpolator_calculate_percentage( uint16_t move_duration );
 
@@ -84,33 +85,6 @@ path_interpolator_set_next(Movement_t *movement_to_process )
     }
 
 	memcpy( movement_insert_slot, movement_to_process, sizeof(Movement_t) );
-
-	//apply current position to a relative movement
-	if( movement_insert_slot->ref == _POS_RELATIVE )
-	{
-		for( uint8_t i = 0; i < movement_insert_slot->num_pts; i++ )
-		{
-            movement_insert_slot->points[i].x += me->effector_position.x;
-            movement_insert_slot->points[i].y += me->effector_position.y;
-            movement_insert_slot->points[i].z += me->effector_position.z;
-		}
-	}
-
-	// A transit move is from current position to point 1, so overwrite 0 with current position, and then reuse a normal line movement
-	if( movement_insert_slot->type == _POINT_TRANSIT)
-	{
-		if(movement_insert_slot->num_pts == 1)
-		{
-			movement_insert_slot->points[1].x = movement_insert_slot->points[0].x;
-			movement_insert_slot->points[1].y = movement_insert_slot->points[0].y;
-			movement_insert_slot->points[1].z = movement_insert_slot->points[0].z;
-			movement_insert_slot->num_pts = 2;
-		}
-
-		movement_insert_slot->points[0].x = me->effector_position.x;
-		movement_insert_slot->points[0].y = me->effector_position.y;
-		movement_insert_slot->points[0].z = me->effector_position.z;
-	}
 }
 
 /* -------------------------------------------------------------------------- */
@@ -236,6 +210,7 @@ path_interpolator_process( void )
                 config_set_pathing_status(me->currentState);
                 path_interpolator_notify_pathing_started(me->move_a.identifier);
 
+                path_interpolator_premove_transforms( &me->move_a );
                 me->movement_started = hal_systick_get_ms();
                 me->movement_est_complete = me->movement_started + me->move_a.duration;
             	me->progress_percent = 0;
@@ -274,6 +249,7 @@ path_interpolator_process( void )
                 config_set_pathing_status(me->currentState);
                 path_interpolator_notify_pathing_started(me->move_b.identifier);
 
+                path_interpolator_premove_transforms( &me->move_b );
                 me->movement_started = hal_systick_get_ms();
                 me->movement_est_complete = me->movement_started + me->move_b.duration;
                 me->progress_percent = 0;
@@ -311,25 +287,35 @@ path_interpolator_process( void )
 }
 
 PRIVATE void
-path_interpolator_notify_pathing_started(uint16_t move_id )
+path_interpolator_premove_transforms( Movement_t *move )
 {
-    BarrierSyncEvent *barrier_ev = EVENT_NEW( BarrierSyncEvent, PATHING_STARTED );
-    uint16_t publish_id = move_id;
-    memcpy( &barrier_ev->id, &publish_id, sizeof(move_id) );
+    //apply current position to a relative movement
+    if( move->ref == _POS_RELATIVE )
+    {
+        for( uint8_t i = 0; i < move->num_pts; i++ )
+        {
+            move->points[i].x += planner.effector_position.x;
+            move->points[i].y += planner.effector_position.y;
+            move->points[i].z += planner.effector_position.z;
+        }
+    }
 
-    eventPublish( (StateEvent*)barrier_ev );
+    // A transit move is from current position to point 1, so overwrite 0 with current position, and then reuse a normal line movement
+    if( move->type == _POINT_TRANSIT)
+    {
+        if(move->num_pts == 1)
+        {
+            move->points[1].x = move->points[0].x;
+            move->points[1].y = move->points[0].y;
+            move->points[1].z = move->points[0].z;
+            move->num_pts = 2;
+        }
+
+        move->points[0].x = planner.effector_position.x;
+        move->points[0].y = planner.effector_position.y;
+        move->points[0].z = planner.effector_position.z;
+    }
 }
-
-PRIVATE void
-path_interpolator_notify_pathing_complete(uint16_t move_id )
-{
-    BarrierSyncEvent *barrier_ev = EVENT_NEW( BarrierSyncEvent, PATHING_COMPLETE );
-    uint16_t publish_id = move_id;
-    memcpy( &barrier_ev->id, &publish_id, sizeof(move_id) );
-
-    eventPublish( (StateEvent*)barrier_ev );
-}
-
 
 PRIVATE void
 path_interpolator_execute_move(Movement_t *move, float percentage )
@@ -348,13 +334,11 @@ path_interpolator_execute_move(Movement_t *move, float percentage )
             break;
 
         case _CATMULL_SPLINE:
-            cartesian_point_on_catmull_spline(move->points, move->num_pts, percentage,
-                                              &target);
+            cartesian_point_on_catmull_spline(move->points, move->num_pts, percentage, &target);
             break;
 
         case _BEZIER_QUADRATIC:
-            cartesian_point_on_quadratic_bezier(move->points, move->num_pts, percentage,
-                                                &target);
+            cartesian_point_on_quadratic_bezier(move->points, move->num_pts, percentage, &target);
             break;
 
         case _BEZIER_CUBIC:
@@ -378,6 +362,26 @@ path_interpolator_execute_move(Movement_t *move, float percentage )
     config_set_position( target.x, target.y, target.z );
     memcpy( &planner.effector_position, &target, sizeof(CartesianPoint_t));
     config_set_movement_data( move->identifier, move->type, (uint8_t)(percentage*100) );
+}
+
+PRIVATE void
+path_interpolator_notify_pathing_started(uint16_t move_id )
+{
+    BarrierSyncEvent *barrier_ev = EVENT_NEW( BarrierSyncEvent, PATHING_STARTED );
+    uint16_t publish_id = move_id;
+    memcpy( &barrier_ev->id, &publish_id, sizeof(move_id) );
+
+    eventPublish( (StateEvent*)barrier_ev );
+}
+
+PRIVATE void
+path_interpolator_notify_pathing_complete(uint16_t move_id )
+{
+    BarrierSyncEvent *barrier_ev = EVENT_NEW( BarrierSyncEvent, PATHING_COMPLETE );
+    uint16_t publish_id = move_id;
+    memcpy( &barrier_ev->id, &publish_id, sizeof(move_id) );
+
+    eventPublish( (StateEvent*)barrier_ev );
 }
 
 /* ----- End ---------------------------------------------------------------- */
