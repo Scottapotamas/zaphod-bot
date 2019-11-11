@@ -52,11 +52,11 @@ typedef struct
 
 PRIVATE MotionPlanner_t planner;
 
-PRIVATE void execute_move( Movement_t *move, float percentage );
+PRIVATE void path_interpolator_execute_move(Movement_t *move, float percentage );
 PRIVATE void path_interpolator_calculate_percentage( uint16_t move_duration );
 
-PRIVATE void notify_pathing_started( uint16_t move_id );
-PRIVATE void notify_pathing_complete( uint16_t move_id );
+PRIVATE void path_interpolator_notify_pathing_started(uint16_t move_id );
+PRIVATE void path_interpolator_notify_pathing_complete(uint16_t move_id );
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -234,7 +234,7 @@ path_interpolator_process( void )
         case PLANNER_EXECUTE_A:
             STATE_ENTRY_ACTION
                 config_set_pathing_status(me->currentState);
-                notify_pathing_started( me->move_a.identifier );
+                path_interpolator_notify_pathing_started(me->move_a.identifier);
 
                 me->movement_started = hal_systick_get_ms();
                 me->movement_est_complete = me->movement_started + me->move_a.duration;
@@ -257,11 +257,11 @@ path_interpolator_process( void )
                         STATE_NEXT( PLANNER_OFF );
                     }
 
-                    notify_pathing_complete( me->move_a.identifier );
+                    path_interpolator_notify_pathing_complete(me->move_a.identifier);
                 }
                 else
                 {
-                    execute_move( &me->move_a, me->progress_percent );
+                    path_interpolator_execute_move(&me->move_a, me->progress_percent);
                 }
 
             STATE_EXIT_ACTION
@@ -272,7 +272,7 @@ path_interpolator_process( void )
         case PLANNER_EXECUTE_B:
             STATE_ENTRY_ACTION
                 config_set_pathing_status(me->currentState);
-                notify_pathing_started( me->move_b.identifier );
+                path_interpolator_notify_pathing_started(me->move_b.identifier);
 
                 me->movement_started = hal_systick_get_ms();
                 me->movement_est_complete = me->movement_started + me->move_b.duration;
@@ -295,11 +295,11 @@ path_interpolator_process( void )
                         STATE_NEXT( PLANNER_OFF );
                     }
 
-                    notify_pathing_complete( me->move_b.identifier );
+                    path_interpolator_notify_pathing_complete(me->move_b.identifier);
                 }
                 else
                 {
-                    execute_move( &me->move_b, me->progress_percent );
+                    path_interpolator_execute_move(&me->move_b, me->progress_percent);
                 }
 
             STATE_EXIT_ACTION
@@ -311,7 +311,7 @@ path_interpolator_process( void )
 }
 
 PRIVATE void
-notify_pathing_started( uint16_t move_id )
+path_interpolator_notify_pathing_started(uint16_t move_id )
 {
     BarrierSyncEvent *barrier_ev = EVENT_NEW( BarrierSyncEvent, PATHING_STARTED );
     uint16_t publish_id = move_id;
@@ -321,7 +321,7 @@ notify_pathing_started( uint16_t move_id )
 }
 
 PRIVATE void
-notify_pathing_complete( uint16_t move_id )
+path_interpolator_notify_pathing_complete(uint16_t move_id )
 {
     BarrierSyncEvent *barrier_ev = EVENT_NEW( BarrierSyncEvent, PATHING_COMPLETE );
     uint16_t publish_id = move_id;
@@ -332,7 +332,7 @@ notify_pathing_complete( uint16_t move_id )
 
 
 PRIVATE void
-execute_move( Movement_t *move, float percentage )
+path_interpolator_execute_move(Movement_t *move, float percentage )
 {
     CartesianPoint_t target 	= { 0, 0, 0 };	//target position in cartesian space
     JointAngles_t angle_target 	= { 0, 0, 0 };	//target motor shaft angle in degrees
