@@ -22,7 +22,8 @@
 typedef enum
 {
     ANIMATION_OFF,
-    ANIMATION_ON,
+    ANIMATION_EXECUTE_A,
+    ANIMATION_EXECUTE_B,
     ANIMATION_MANUAL,
 } RGBState_t;
 
@@ -33,10 +34,12 @@ typedef struct
 	RGBState_t  nextState;
 
     bool        manual_mode;        // user control
-    bool		animation_run;		//if the planner is enabled
+    bool		animation_run;		// if the planner is enabled
 
-    Fade_t	 	current_fade;		// pointer to the current movement
+    Fade_t	 	fade_a;		        // pointer to a movement
+    Fade_t	 	fade_b;		        // pointer to b movement
     uint32_t   	animation_started;	// timestamp the start
+    uint32_t    animation_est_complete;
     float       progress_percent;	// calculated progress
 
     RGBColour_t	led_colour;	        // current channel outputs
@@ -46,6 +49,12 @@ typedef struct
 /* ----- Private Variables -------------------------------------------------- */
 
 PRIVATE LEDPlanner_t planner;
+
+PRIVATE void
+led_interpolator_calculate_percentage( uint16_t fade_duration );
+
+PRIVATE void
+led_interpolator_execute_fade(Fade_t *fade, float percentage );
 
 PRIVATE FadeSolution_t
 hsi_lerp_linear( HSIColour_t p[], size_t points, float pos_weight, HSIColour_t* output );
@@ -72,17 +81,28 @@ PUBLIC void
 led_interpolator_set_objective( Fade_t* fade_to_process )
 {
     LEDPlanner_t *me = &planner;
+    Fade_t *fade_insert_slot = { 0 };   // allows us to put the new fade into whichever slot is available
 
-    memcpy( &me->current_fade, fade_to_process, sizeof(Fade_t) );
+    if( me->currentState == ANIMATION_EXECUTE_B || me->currentState == ANIMATION_OFF )
+    {
+        fade_insert_slot = &me->fade_a;
+    }
+    else if ( me->currentState == ANIMATION_EXECUTE_A )
+    {
+        fade_insert_slot = &me->fade_b;
+    }
+
+    memcpy( fade_insert_slot, fade_to_process, sizeof(Fade_t) );
     me->manual_mode = false;
 }
 
 PUBLIC bool
 led_interpolator_is_ready_for_next( void )
 {
-    bool slot_a_ready = ( planner.current_fade.duration == 0 );
+    bool slot_a_ready = (planner.fade_a.duration == 0 );
+    bool slot_b_ready = (planner.fade_b.duration == 0 );
 
-    return ( slot_a_ready );
+    return ( slot_a_ready || slot_b_ready );
 }
 
 PUBLIC void
@@ -95,7 +115,8 @@ PUBLIC void
 led_interpolator_stop(void )
 {
     planner.animation_run = false;
-
+    memset(&planner.fade_a, 0, sizeof(Fade_t));
+    memset( &planner.fade_b, 0, sizeof(Fade_t));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -169,18 +190,25 @@ led_interpolator_process( void )
     {
         case ANIMATION_OFF:
             STATE_ENTRY_ACTION
-        		config_set_led_status(me->currentState);
+        		config_set_led_status( me->currentState );
                 led_interpolator_set_dark();
 
                 // todo start a timer so we know how long we've been 'off'
 
             STATE_TRANSITION_TEST
-                if(planner.animation_run)
+                if( me->animation_run )
                 {
-                    STATE_NEXT( ANIMATION_ON );
+                    if( me->fade_a.duration )
+                    {
+                        STATE_NEXT( ANIMATION_EXECUTE_A );
+                    }
+                    else if( me->fade_b.duration )
+                    {
+                        STATE_NEXT( ANIMATION_EXECUTE_B );
+                    }
                 }
 
-                if(planner.manual_mode)
+                if( me->manual_mode )
                 {
                     STATE_NEXT( ANIMATION_MANUAL );
                 }
@@ -189,61 +217,79 @@ led_interpolator_process( void )
 //                led_enable(false);
 
             STATE_EXIT_ACTION
-                led_enable(true);
+                led_enable( true );
             STATE_END
             break;
 
-        case ANIMATION_ON:
+        case ANIMATION_EXECUTE_A:
             STATE_ENTRY_ACTION
-                config_set_led_status(me->currentState);
-
-				me->animation_started = hal_systick_get_ms();
-            	me->progress_percent = 0;
+                config_set_led_status( me->currentState );
+                me->animation_started = hal_systick_get_ms();
+                me->animation_est_complete = me->animation_started + me->fade_a.duration;
+                me->progress_percent = 0;
             STATE_TRANSITION_TEST
+                led_interpolator_calculate_percentage( me->fade_a.duration );
 
-				Fade_t *animation = &me->current_fade;
+                if( !me->animation_run || !me->fade_a.duration )
+                {
+                    STATE_NEXT( ANIMATION_OFF );
+                }
+                else if( led_interpolator_get_fade_done() )
+                {
+                    if( me->fade_b.duration )
+                    {
+                        STATE_NEXT( ANIMATION_EXECUTE_B );
+                    }
+                    else
+                    {
+                        STATE_NEXT( ANIMATION_OFF );
+                    }
 
-            	HSIColour_t 	fade_target 	= { 0.0f, 0.0f, 0.0f };
-            	GenericColour_t output_values 	= { 0.0f, 0.0f, 0.0f };
-
-            	//calculate current target completion based on time
-            	// time remaining is the allotted duration - time used (start to now), divide by the duration to get 0.0->1.0 progress
-            	uint32_t time_used = hal_systick_get_ms() - me->animation_started;
-            	me->progress_percent = (float)( time_used ) / animation->duration;
-
-            	if( me->progress_percent >= 1.0f - FLT_EPSILON )
-            	{
-            		//fade is complete, the planner can stop now
                     eventPublish( EVENT_NEW( StateEvent, ANIMATION_COMPLETE ) );
-            		STATE_NEXT( ANIMATION_OFF );
-            	}
-            	else
-            	{
-                	switch( animation->type )
-                	{
-    					case _INSTANT_CHANGE:
-    						fade_target.hue 		= animation->input_colours[0].hue;
-    						fade_target.saturation 	= animation->input_colours[0].saturation;
-    						fade_target.intensity 	= animation->input_colours[0].intensity;
-
-    						break;
-
-    					case _LINEAR_RAMP:
-    						hsi_lerp_linear(animation->input_colours, animation->num_pts, me->progress_percent, &fade_target);
-    						break;
-                	}
-
-    				// Perform colour compensation adjustments
-                	hsi_to_rgb(fade_target.hue, fade_target.saturation, fade_target.intensity, &output_values.x, &output_values.y, &output_values.z);
-
-                	// Set the LED channel values in RGB percentages [0.0f -> 1.0f]
-                    led_set( output_values.x, output_values.y, output_values.z);
-
-            	}
+                }
+                else
+                {
+                    led_interpolator_execute_fade( &me->fade_a, me->progress_percent );
+                }
 
             STATE_EXIT_ACTION
-				planner.animation_run = false;
-                memset(&me->current_fade, 0, sizeof(Fade_t));
+                memset(&me->fade_a, 0, sizeof(Fade_t));
+            STATE_END
+            break;
+
+        case ANIMATION_EXECUTE_B:
+            STATE_ENTRY_ACTION
+                config_set_led_status( me->currentState );
+                me->animation_started = hal_systick_get_ms();
+                me->animation_est_complete = me->animation_started + me->fade_b.duration;
+                me->progress_percent = 0;
+        STATE_TRANSITION_TEST
+                led_interpolator_calculate_percentage( me->fade_b.duration );
+
+                if( !me->animation_run || !me->fade_b.duration )
+                {
+                    STATE_NEXT( ANIMATION_OFF );
+                }
+                else if( led_interpolator_get_fade_done() )
+                {
+                    if( me->fade_a.duration )
+                    {
+                        STATE_NEXT( ANIMATION_EXECUTE_A );
+                    }
+                    else
+                    {
+                        STATE_NEXT( ANIMATION_OFF );
+                    }
+
+                    eventPublish( EVENT_NEW(StateEvent, ANIMATION_COMPLETE) );
+                }
+                else
+                {
+                    led_interpolator_execute_fade( &me->fade_b, me->progress_percent );
+                }
+
+            STATE_EXIT_ACTION
+                memset(&me->fade_b, 0, sizeof(Fade_t));
             STATE_END
             break;
 
@@ -264,6 +310,56 @@ led_interpolator_process( void )
             break;
 
     }
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void
+led_interpolator_calculate_percentage( uint16_t fade_duration )
+{
+    LEDPlanner_t *me = &planner;
+
+    // calculate current target completion based on time elapsed
+    // time remaining is the allotted duration - time used (start to now), divide by the duration to get 0.0->1.0 progress
+    uint32_t time_used = hal_systick_get_ms() - me->animation_started;
+
+    if( fade_duration )
+    {
+        me->progress_percent = (float)( time_used ) / fade_duration;
+    }
+    else
+    {
+        me->progress_percent = 0;
+    }
+}
+
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void
+led_interpolator_execute_fade(Fade_t *fade, float percentage )
+{
+    HSIColour_t 	fade_target 	= { 0.0f, 0.0f, 0.0f };
+    GenericColour_t output_values 	= { 0.0f, 0.0f, 0.0f };
+
+    switch( fade->type )
+    {
+        case _INSTANT_CHANGE:
+            fade_target.hue 		= fade->input_colours[0].hue;
+            fade_target.saturation 	= fade->input_colours[0].saturation;
+            fade_target.intensity 	= fade->input_colours[0].intensity;
+            break;
+
+        case _LINEAR_RAMP:
+            hsi_lerp_linear(fade->input_colours, fade->num_pts, percentage, &fade_target);
+            break;
+    }
+
+    // Perform colour compensation adjustments
+    hsi_to_rgb(fade_target.hue, fade_target.saturation, fade_target.intensity, &output_values.x, &output_values.y, &output_values.z);
+
+    // Set the LED channel values in RGB percentages [0.0f -> 1.0f]
+    led_set( output_values.x, output_values.y, output_values.z);
 }
 
 /* -------------------------------------------------------------------------- */
