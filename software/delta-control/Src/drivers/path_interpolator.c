@@ -215,14 +215,18 @@ path_interpolator_process( void )
         case PLANNER_OFF:
             STATE_ENTRY_ACTION
         		config_set_pathing_status(me->currentState);
-
             STATE_TRANSITION_TEST
-
-			if( planner.enable && me->move_a.duration )
-			{
-        		STATE_NEXT(PLANNER_EXECUTE_A );
-			}
-
+                if( planner.enable )
+                {
+                    if( me->move_a.duration )
+                    {
+                        STATE_NEXT( PLANNER_EXECUTE_A );
+                    }
+                    else if( me->move_b.duration )
+                    {
+                        STATE_NEXT( PLANNER_EXECUTE_B );
+                    }
+                }
             STATE_EXIT_ACTION
             STATE_END
             break;
