@@ -86,11 +86,11 @@ led_interpolator_set_objective( Fade_t* fade_to_process )
     LEDPlanner_t *me = &planner;
     Fade_t *fade_insert_slot = { 0 };   // allows us to put the new fade into whichever slot is available
 
-    if( me->currentState == ANIMATION_EXECUTE_B || me->currentState == ANIMATION_OFF )
+    if( me->fade_a.duration == 0 )
     {
         fade_insert_slot = &me->fade_a;
     }
-    else if ( me->currentState == ANIMATION_EXECUTE_A )
+    else if( me->fade_b.duration == 0 )
     {
         fade_insert_slot = &me->fade_b;
     }
@@ -106,6 +106,15 @@ led_interpolator_is_ready_for_next( void )
     bool slot_b_ready = (planner.fade_b.duration == 0 );
 
     return ( slot_a_ready || slot_b_ready );
+}
+
+PUBLIC bool
+led_interpolator_is_empty( void )
+{
+    bool slot_a_empty = (planner.fade_a.duration == 0 );
+    bool slot_b_empty = (planner.fade_b.duration == 0 );
+
+    return ( slot_a_empty && slot_b_empty );
 }
 
 PUBLIC void
