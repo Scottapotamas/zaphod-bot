@@ -200,7 +200,7 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
 
         case STATE_STEP1_SIGNAL:
             AppTaskLed_commit_queued_fade( me );
-
+            AppTaskLed_commit_queued_fade( me );
             return 0;
 
         case ANIMATION_COMPLETE:
@@ -214,7 +214,7 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
                 LightingPlannerEvent *lpe = (LightingPlannerEvent*)next;
                 Fade_t *next_animation = &lpe->animation;
 
-                if( me->identifier_to_execute == next_animation->identifier )
+                if( next_animation->identifier >= me->identifier_to_execute )
                 {
                     stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
                 }
@@ -232,24 +232,16 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
         }
 
         case PATHING_STARTED:
-        {
-            // todo this is the sync for the next move in the queue
-            // tell the LED interpolator to start
-            uint16_t id_started = ((BarrierSyncEvent*)e)->id; // ID coming in from the barrier event
-            me->identifier_to_execute = id_started;
-
+            me->identifier_to_execute = ((BarrierSyncEvent*)e)->id;
+            led_interpolator_start_id( ((BarrierSyncEvent*)e)->id ); // start queued LED animation
             return 0;
-        }
 
         case PATHING_COMPLETE:
-        {
             // todo use this 'move completed' along with ANIMATION_COMPLETE to work out:
             //      if the lighting is over-running the movement -> off -> inactive
             //      if the movement has stopped and no LED queue items are -> inactive
-            uint16_t id_completed = ((BarrierSyncEvent*)e)->id; // ID coming in from the barrier event
 
             return 0;
-        }
 
         case LED_QUEUE_ADD:
             AppTaskLed_add_event_to_queue( me, e );
@@ -262,6 +254,7 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
         
         case STATE_EXIT_SIGNAL:
             eventTimerStopIfActive( &me->timer1 );
+            led_interpolator_stop();
             return 0;
     }
     return (STATE)hsmTop;
@@ -358,7 +351,7 @@ PRIVATE void AppTaskLed_commit_queued_fade( AppTaskLed *me )
 
         if( next_animation->duration )
         {
-            // Run the valid lighting 'fade' animation
+            // Add the valid lighting 'fade' animation to the ping-pong buffer
             led_interpolator_set_objective( next_animation );
             eventPoolGarbageCollect( (StateEvent *) next );
         }
