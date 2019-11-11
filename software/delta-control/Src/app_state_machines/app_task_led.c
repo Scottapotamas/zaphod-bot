@@ -218,10 +218,11 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
                 }
                 else
                 {
+                    // todo reassess this state transition conditional
                     STATE_TRAN( AppTaskLed_inactive );
                 }
             }
-            else
+            else if( led_interpolator_is_empty() )
             {
                 STATE_TRAN( AppTaskLed_inactive);
             }

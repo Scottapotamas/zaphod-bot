@@ -75,11 +75,11 @@ path_interpolator_set_next(Movement_t *movement_to_process )
 	MotionPlanner_t *me = &planner;
 	Movement_t *movement_insert_slot = { 0 };   // allows us to put the new move into whichever slot is available
 
-	if( me->currentState == PLANNER_EXECUTE_B || me->currentState == PLANNER_OFF )
+	if( me->move_a.duration == 0 )
     {
 	    movement_insert_slot = &me->move_a;
     }
-	else if ( me->currentState == PLANNER_EXECUTE_A )
+	else if ( me->move_b.duration == 0 )
     {
         movement_insert_slot = &me->move_b;
     }
