@@ -10,7 +10,11 @@ General system runs with event driven HSM design patterns, while background task
 
 Uses the `arm-gcc-eabi-none` toolchain, should build with fairly standard flags.
 
+Requires a copy of [a copy of `electricui-embedded`](https://github.com/electricui/electricui-embedded)  cloned into `Drivers/electricui`, as this isn't included in the repo.
 
+It might be required to remove or exclude the `electricui-embedded` sub-directories `test` and `examples`  from the build.
+
+CLion workspace files are in the repo, so building from the CMakeLists should be reasonably straightforward.
 
 ## Flashing and Debugging
 
