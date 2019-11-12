@@ -1,3 +1,0 @@
-[submodule "software/delta-control/Drivers/electricui"]
-	path = software/delta-control/Drivers/electricui
-	url = https://github.com/Scottapotamas/electricui-embedded

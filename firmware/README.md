@@ -1,4 +1,4 @@
-# Software Readme
+# Embedded Firmware Readme
 
 STM32F4 firmware for the zaphod-controller PCB. Manages the delta's servos and handles movement processing.
 
@@ -6,9 +6,19 @@ Uses the CubeMX HAL as the starting base, with my own HAL on top of (or replacin
 
 General system runs with event driven HSM design patterns, while background tasks use somewhat simple statemachines to handle operation.
 
+## Building
+
+Uses the `arm-gcc-eabi-none` toolchain, should build with fairly standard flags.
+
+
+
 ## Flashing and Debugging
 
 I use CLion as my IDE alongside a JLink.
+
+Depending on the version, either run a remote GDB server, or use CLion's integrated support.
+
+### Manually running GDB server
 
 Run the JLinkGDBServer as the remote GDB server instance with 
 
