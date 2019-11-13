@@ -512,10 +512,7 @@ export class KinematicsInfoCodec extends Codec {
       effector_radius: reader.readUInt32LE() / 1000,
 
       // Limits in cartesian space
-      limit_x_min: reader.readInt32LE() / 1000,
-      limit_x_max: reader.readInt32LE() / 1000,
-      limit_y_min: reader.readInt32LE() / 1000,
-      limit_y_max: reader.readInt32LE() / 1000,
+      limit_radius: reader.readInt32LE() / 1000,
       limit_z_min: reader.readInt32LE() / 1000,
       limit_z_max: reader.readInt32LE() / 1000,
 

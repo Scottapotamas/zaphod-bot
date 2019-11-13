@@ -101,7 +101,7 @@ PUBLIC void
 config_set_kinematics_mechanism_info( float shoulder_radius, float bicep_len, float forearm_len, float effector_radius );
 
 PUBLIC void
-config_set_kinematics_limits( int32_t xmin, int32_t xmax, int32_t ymin, int32_t ymax, int32_t zmin, int32_t zmax );
+config_set_kinematics_limits( int32_t radius, int32_t zmin, int32_t zmax );
 
 PUBLIC void
 config_set_kinematics_flips( int8_t x, int8_t y, int8_t z );

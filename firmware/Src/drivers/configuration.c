@@ -72,10 +72,7 @@ typedef struct
     uint32_t effector_radius_micron;
 
     // Limits in cartesian space
-    int32_t limit_x_min;
-    int32_t limit_x_max;
-    int32_t limit_y_min;
-    int32_t limit_y_max;
+    int32_t limit_radius;
     int32_t limit_z_min;
     int32_t limit_z_max;
 
@@ -516,12 +513,9 @@ config_set_kinematics_mechanism_info( float shoulder_radius, float bicep_len, fl
 }
 
 PUBLIC void
-config_set_kinematics_limits( int32_t xmin, int32_t xmax, int32_t ymin, int32_t ymax, int32_t zmin, int32_t zmax )
+config_set_kinematics_limits( int32_t radius, int32_t zmin, int32_t zmax )
 {
-    mechanical_info.limit_x_min = xmin;
-    mechanical_info.limit_x_max = xmax;
-    mechanical_info.limit_y_min = ymin;
-    mechanical_info.limit_y_max = ymax;
+    mechanical_info.limit_radius = radius;
     mechanical_info.limit_z_min = zmin;
     mechanical_info.limit_z_max = zmax;
 }

@@ -18,12 +18,10 @@ CartesianPoint_t offset_position = {
 };
 
 // Constrain motion to the practical parts of the movement volume
-int32_t x_max = MM_TO_MICRONS(200);
-int32_t x_min = MM_TO_MICRONS(-200);
-int32_t y_max = MM_TO_MICRONS(200);
-int32_t y_min = MM_TO_MICRONS(-200);
-int32_t z_max = MM_TO_MICRONS(300);
+int32_t z_max = MM_TO_MICRONS(200);
 int32_t z_min = MM_TO_MICRONS(0);
+
+int32_t radius = MM_TO_MICRONS( 225 );
 
 //rotate the cartesian co-ordinate space
 int8_t flip_x = 1;
@@ -75,18 +73,50 @@ kinematics_init( void )
     t = ( f-e ) * tan30/2;
 
     config_set_kinematics_mechanism_info( f, rf, re, e );
-    config_set_kinematics_limits( x_min, x_max, y_min, y_max, z_min, z_max);
+    config_set_kinematics_limits( radius, z_min, z_max);
     config_set_kinematics_flips( flip_x, flip_y, flip_z );
 }
 
 /* -------------------------------------------------------------------------- */
 
+/*
+ * Clamps the position within the allowable cylindrical shaped workspace
+ *
+ * We assume (because duh) that the cylinder is centered at x = 0, y = 0,
+ * pointing 'up' -> height following the vertical axis (z).
+ *
+ * The check+clamp is performed as a chain of 'most common' conditions to exit early.
+ * - if the point is within a naiive diamond area contained within the circle, exit
+ * - perform a pythagorean distance check against the radius
+ * - Calculate a scalar to clamp illegal positions to the circle radius
+ */
+
 PRIVATE void
 kinematics_clamp_volume( CartesianPoint_t *point )
 {
-    point->x = CLAMP( point->x, x_min, x_max );
-    point->y = CLAMP( point->y, y_min, y_max );
+    // Check 'height' is within the bounds
     point->z = CLAMP( point->z, z_min, z_max );
+
+    uint32_t dx = abs( point->x );    // if using off-center circle, use abs(x - center_x)
+    uint32_t dy = abs( point->y );
+
+    // Quickly check if the point is outside the radius-sized diamond area inside the circle
+    if( (dx + dy) >= radius )
+    {
+        // Calculate and compare the distance properly
+        float distance2 = (float)dx*(float)dx + (float)dy*(float)dy;
+        float radius2 = (float)radius*(float)radius;
+
+        // Clamp position within the circle's radius
+        if( distance2 >= radius2 )    // Pythagorean distance check
+        {
+            float scale_factor = radius2 / distance2;
+            point->x *= scale_factor;
+            point->y *= scale_factor;
+        }
+    }
+
+    // TODO consider conical volume restrictions to maximise usable area
 }
 
 /* -------------------------------------------------------------------------- */

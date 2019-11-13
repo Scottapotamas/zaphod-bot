@@ -72,43 +72,21 @@ const KinematicsInfoCard = () => {
               <h2>Kinematics Overview</h2>
               <HTMLTable striped style={{ minWidth: '100%' }}>
                 <thead>
-                  <td>Axis</td>
+                  <td></td>
                   <td>Min</td>
                   <td>Max</td>
                   <td>Inverted</td>
                 </thead>
                 <tbody>
                   <tr>
-                    <td>X</td>
+                    <td>Radius</td>
+                    <td></td>
                     <td>
                       <Printer
-                        accessor={state => state.kinematics.limit_x_min}
+                        accessor={state => state.kinematics.limit_radius}
                       />
                     </td>
-                    <td>
-                      <Printer
-                        accessor={state => state.kinematics.limit_x_max}
-                      />
-                    </td>
-                    <td>
-                      <Printer accessor={state => state.kinematics.flip_x} />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Y</td>
-                    <td>
-                      <Printer
-                        accessor={state => state.kinematics.limit_y_min}
-                      />
-                    </td>
-                    <td>
-                      <Printer
-                        accessor={state => state.kinematics.limit_y_max}
-                      />
-                    </td>
-                    <td>
-                      <Printer accessor={state => state.kinematics.flip_y} />
-                    </td>
+                    <td></td>
                   </tr>
                   <tr>
                     <td>Z</td>
