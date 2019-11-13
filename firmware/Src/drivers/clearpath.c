@@ -166,7 +166,6 @@ servo_process( ClearpathServoInstance_t servo )
     Servo_t *me = &clearpath[servo];
 
     float servo_power = sensors_servo_W( ServoHardwareMap[servo].adc_current );
-
     me->feedback_ok = hal_gpio_read_pin(ServoHardwareMap[servo].pin_feedback);
 
     switch( me->currentState )
@@ -216,16 +215,13 @@ servo_process( ClearpathServoInstance_t servo )
 
         case SERVO_STATE_HOMING:
             STATE_ENTRY_ACTION
-
 				//EN pin high starts homing process on clearpath servo
 				//servo homing behaviour is defined with the clearpath setup software, uses torque based end-stop sensing
 				hal_gpio_write_pin( ServoHardwareMap[servo].pin_enable, SERVO_ENABLE );
 
             	me->home_complete = 0;
             	me->timer = hal_systick_get_ms();
-
             STATE_TRANSITION_TEST
-
 				//the HLFB output pin will be set to speed mode, outputs 45Hz PWM where DC% relates to the velocity.
 				//expect the motor to slowly home, stop, move to the neutral point, then stop
 				//guard times for min and max homing delays (how long the motor would take in worst case to home
@@ -250,9 +246,12 @@ servo_process( ClearpathServoInstance_t servo )
 					{
 						//motor stopped moving after the minimum time period, which indicates a successful home procedure
 						me->enabled = SERVO_ENABLE;
-						me->angle_current_steps = convert_angle_steps(-44.0f);
-						me->angle_target_steps = me->angle_current_steps;
-					    STATE_NEXT( SERVO_STATE_IDLE );
+						me->angle_current_steps = convert_angle_steps(-42.0f);
+                        config_motor_target_angle( servo, -42.0f);  // update UI have angles before a target is sent in
+
+                        me->angle_target_steps = me->angle_current_steps;
+
+                        STATE_NEXT( SERVO_STATE_IDLE );
 					}
 				}
 
@@ -261,7 +260,6 @@ servo_process( ClearpathServoInstance_t servo )
 				{
 				    STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
 				}
-
             STATE_EXIT_ACTION
 
             STATE_END
@@ -269,11 +267,8 @@ servo_process( ClearpathServoInstance_t servo )
 
         case SERVO_STATE_IDLE:
             STATE_ENTRY_ACTION
-
     			me->timer = hal_systick_get_ms();
-
             STATE_TRANSITION_TEST
-
 				if( me->angle_current_steps != me->angle_target_steps)
 				{
 					STATE_NEXT( SERVO_STATE_ACTIVE );
@@ -294,7 +289,6 @@ servo_process( ClearpathServoInstance_t servo )
 				{
 					STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
 				}
-
             STATE_EXIT_ACTION
 
             STATE_END
@@ -302,11 +296,8 @@ servo_process( ClearpathServoInstance_t servo )
 
         case SERVO_STATE_IDLE_HIGH_LOAD:
             STATE_ENTRY_ACTION
-
 				me->timer = hal_systick_get_ms();
-
             STATE_TRANSITION_TEST
-
 				if( me->angle_current_steps != me->angle_target_steps)
 				{
 					STATE_NEXT( SERVO_STATE_ACTIVE );
@@ -338,7 +329,6 @@ servo_process( ClearpathServoInstance_t servo )
 				{
 					STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
 				}
-
             STATE_EXIT_ACTION
 
             STATE_END
@@ -398,7 +388,6 @@ servo_process( ClearpathServoInstance_t servo )
                 {
                     STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
                 }
-
             STATE_EXIT_ACTION
 
             STATE_END
