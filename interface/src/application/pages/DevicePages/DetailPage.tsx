@@ -6,6 +6,8 @@ import {
   Button,
   Statistic,
   Statistics,
+  Slider,
+  Switch,
 } from '@electricui/components-desktop-blueprint'
 import {
   Card,
@@ -246,6 +248,13 @@ const CoolingInfoCard = () => {
           </React.Fragment>
         )}
       </Composition>
+      Fan Controls
+      <Slider min={0} max={100} labelStepSize={25}>
+        <Slider.Handle accessor="fan_man_speed" />
+      </Slider>
+      <Switch unchecked={{ fan_manual_en: 0 }} checked={{ fan_manual_en: 1 }}>
+        Manual Fan Control
+      </Switch>
     </Card>
   )
 }
@@ -258,7 +267,7 @@ CoolingStatsArea CoolingGraphArea
 const DetailPage = (props: RouteComponentProps) => {
   return (
     <div>
-      <IntervalRequester interval={500} variables={['temp']} />
+      <IntervalRequester interval={500} variables={['temp, fan']} />
       <IntervalRequester interval={200} variables={['mo1', 'mo2', 'mo3']} />
 
       <Composition areas={DetailPageAreas} gap={10} templateCols="auto auto">
@@ -277,6 +286,7 @@ const DetailPage = (props: RouteComponentProps) => {
                 <Chart
                   timeseriesKey="motor_angles"
                   duration={25000}
+                  hideLegend={false}
                   yMin={-60}
                   yMax={20}
                   delay={50}
@@ -292,6 +302,7 @@ const DetailPage = (props: RouteComponentProps) => {
                 <Chart
                   timeseriesKey="temperatures"
                   duration={29000}
+                  hideLegend={false}
                   yMin={15}
                   yMax={45}
                   delay={500}
