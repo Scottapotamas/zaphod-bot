@@ -30,6 +30,7 @@ typedef struct
     uint8_t      speed;			//as a percentage 0-100, what the fan should be at 'now'
     uint8_t      set_speed;		//as a percentage 0-100, requested speed target
     uint32_t     startup_timer;	//amount of time to 'blip' the fan for reliable starts
+    bool         manual_control;
 } Fan_t;
 
 /* ----- Private Variables -------------------------------------------------- */
@@ -76,7 +77,7 @@ fan_process( void )
 
 	//get the current fan speed
 	uint16_t fan_hall_rpm = sensors_fan_speed_RPM();
-
+    me->manual_control = config_get_fan_manual_control();
     switch( me->currentState )
     {
         case FAN_STATE_OFF:
@@ -101,7 +102,6 @@ fan_process( void )
 
         case FAN_STATE_STALL:
             STATE_ENTRY_ACTION
-
 			//stop the fan because we think it's stalled
 			me->speed = 0;
 			me->startup_timer = hal_systick_get_ms();
@@ -126,17 +126,15 @@ fan_process( void )
 
         case FAN_STATE_START:
             STATE_ENTRY_ACTION
-
 				//set PWM to 100% for configurable short period
         		me->speed = 100;
             	me->startup_timer = hal_systick_get_ms();
 
             STATE_TRANSITION_TEST
-
-				//has timer expired
+				//has the timer expired
             	if( (hal_systick_get_ms() - me->startup_timer) > FAN_STARTUP_TIME_MS )
             	{
-                    STATE_NEXT( FAN_STATE_ON );
+            	    STATE_NEXT(FAN_STATE_ON );
             	}
 
             STATE_EXIT_ACTION
@@ -145,13 +143,19 @@ fan_process( void )
 
         case FAN_STATE_ON:
             STATE_ENTRY_ACTION
-
 				me->speed = me->set_speed;
 
             STATE_TRANSITION_TEST
-
-				//recalculate target speed based on temperature reading
-				me->set_speed = fan_speed_at_temp( sensors_expansion_C() );
+                if( me->manual_control )
+                {
+                    // userspace 0-100% speed control over fan
+                    me->set_speed = CLAMP( config_get_fan_target(), 0, 100 );
+                }
+                else
+                {
+                    // calculate target speed based on temperature reading
+                    me->set_speed = fan_speed_at_temp( sensors_expansion_C() );
+                }
 
 				//speed change req while running
 				if( me->set_speed != me->speed )
@@ -173,7 +177,6 @@ fan_process( void )
             	}
 
             STATE_EXIT_ACTION
-
 
             STATE_END
             break;

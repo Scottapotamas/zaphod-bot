@@ -270,9 +270,9 @@ void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency)
 // O-100% as a float
 PUBLIC void hal_pwm_set_percentage_f( PWMOutputTimerDef_t pwm_output, float percentage )
 {
-    if(percentage >= 0.000 && percentage <= 100.000)
+    if(percentage >= 0.0f && percentage <= 100.0f)
     {
-        uint16_t duty_as_u16 = (percentage/100.0)*0xFFFFU;
+        uint16_t duty_as_u16 = (percentage/100.0f)*0xFFFFU;
         hal_pwm_set( pwm_output, duty_as_u16 );
     }
     else
