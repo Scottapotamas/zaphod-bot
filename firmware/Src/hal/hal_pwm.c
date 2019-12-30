@@ -191,15 +191,9 @@ void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency)
 			break;
 	}
 
-//    #define MAX_RELOAD               0xFFFF	//16-bit timer capability
     #define PWM_PERIOD_DEFAULT  1024
 
-//    uint32_t period_cycles 	= ( SystemCoreClock / 2 ) / frequency;
-//    uint16_t prescaler 		= (uint16_t)(period_cycles / MAX_RELOAD + 1);
-//    uint16_t overflow 		= (uint16_t)((period_cycles + (prescaler / 2)) / prescaler);
-//    uint16_t duty_counts 	= overflow * duty_cycle / 100;	//duty cycle percentage of overflow
-
-    tim_handle->Init.Prescaler 		= (uint32_t)( SystemCoreClock / ( frequency * PWM_PERIOD_DEFAULT ) );//prescaler;
+    tim_handle->Init.Prescaler 		= (uint32_t)( SystemCoreClock / ( frequency * PWM_PERIOD_DEFAULT ) ); //prescaler
 	tim_handle->Init.Period 		= PWM_PERIOD_DEFAULT; //overflow;
 	tim_handle->Init.CounterMode 	= TIM_COUNTERMODE_UP;
 	tim_handle->Init.ClockDivision 	= TIM_CLOCKDIVISION_DIV1;
@@ -336,7 +330,7 @@ PUBLIC void hal_pwm_set(PWMOutputTimerDef_t pwm_output, uint16_t duty_cycle)
     TIM_OC_InitTypeDef sConfigOC;
     sConfigOC.OCMode 				= TIM_OCMODE_PWM1;
     sConfigOC.Pulse 				= ( MIN( duty_cycle, 0xFFFFU ) * period ) / 0xFFFFU;
-    sConfigOC.OCPolarity 			= TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCPolarity 			= TIM_OCPOLARITY_LOW;
     sConfigOC.OCFastMode 			= TIM_OCFAST_DISABLE;
 
     HAL_TIM_PWM_ConfigChannel(tim_handle, &sConfigOC, channel);

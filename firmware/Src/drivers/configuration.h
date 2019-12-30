@@ -108,6 +108,12 @@ config_set_kinematics_flips( int8_t x, int8_t y, int8_t z );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC bool
+config_get_fan_manual_control( void );
+
+PUBLIC uint8_t
+config_get_fan_target( void );
+
 PUBLIC void
 config_set_fan_percentage( uint8_t percent );
 

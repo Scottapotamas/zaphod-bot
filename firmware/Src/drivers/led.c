@@ -65,16 +65,17 @@ led_set( float r, float g, float b )
     setpoint_g *= led_power_limit();
     setpoint_b *= led_power_limit();
 
-    uint16_t led_r = CLAMP( setpoint_r, 0.0f, 1.0f )*0xFFFF;
-    uint16_t led_g = CLAMP( setpoint_g, 0.0f, 1.0f )*0xFFFF;
-    uint16_t led_b = CLAMP( setpoint_b, 0.0f, 1.0f )*0xFFFF;
+    setpoint_r = CLAMP( setpoint_r, 0.0f, 1.0f );
+    setpoint_g = CLAMP( setpoint_g, 0.0f, 1.0f );
+    setpoint_b = CLAMP( setpoint_b, 0.0f, 1.0f );
 
-    // Set the final output percentages for the led PWM channels
-    hal_pwm_set( _PWM_TIM_AUX_0, led_r);
-    hal_pwm_set( _PWM_TIM_AUX_2, led_g);
-    hal_pwm_set( _PWM_TIM_AUX_1, led_b);
+    // Set the output duty cycles for the led PWM channels
+    // PWM peripheral expects 0-100 percentage input, and we need to invert the polarity of the duty cycle
+    hal_pwm_set_percentage_f( _PWM_TIM_AUX_0, (setpoint_r * -1.0 + 1.0) * 100.0f);
+    hal_pwm_set_percentage_f( _PWM_TIM_AUX_2, (setpoint_g * -1.0 + 1.0) * 100.0f);
+    hal_pwm_set_percentage_f( _PWM_TIM_AUX_1, (setpoint_b * -1.0 + 1.0) * 100.0f);
 
-    config_set_led_values(led_r, led_g, led_b);
+    config_set_led_values(setpoint_r*0xFFFF, setpoint_g*0xFFFF, setpoint_b*0xFFFF);
 }
 
 /* -------------------------------------------------------------------------- */

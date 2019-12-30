@@ -91,6 +91,9 @@ typedef struct
 	uint8_t state;
 } FanData_t;
 
+uint8_t fan_manual_setpoint = 0;
+uint8_t fan_manual_enable = 0;
+
 typedef struct
 {
 	float pcb_ambient;
@@ -226,6 +229,10 @@ eui_message_t ui_variables[] =
     EUI_CUSTOM("fan", fan_stats),
     EUI_CUSTOM("curve", fan_curve),
     EUI_CUSTOM("temp", temp_sensors),
+
+    #warning "remove this after use"
+    EUI_UINT8("fan_man_speed", fan_manual_setpoint),
+    EUI_UINT8( "fan_manual_en", fan_manual_enable),
 
     EUI_CUSTOM( "queue", queue_data),
 
@@ -529,6 +536,18 @@ config_set_kinematics_flips( int8_t x, int8_t y, int8_t z )
 }
 
 /* -------------------------------------------------------------------------- */
+
+PUBLIC bool
+config_get_fan_manual_control()
+{
+    return (fan_manual_enable > 0);
+}
+
+PUBLIC uint8_t
+config_get_fan_target( void )
+{
+    return fan_manual_setpoint;
+}
 
 PUBLIC void
 config_set_fan_percentage( uint8_t percent )
