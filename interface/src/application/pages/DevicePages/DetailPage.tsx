@@ -1,6 +1,6 @@
 import React from 'react'
 import { RouteComponentProps } from '@reach/router'
-import { Composition } from 'atomic-layout'
+import { Composition, Box } from 'atomic-layout'
 
 import {
   Button,
@@ -248,13 +248,23 @@ const CoolingInfoCard = () => {
           </React.Fragment>
         )}
       </Composition>
-      Fan Controls
-      <Slider min={0} max={100} labelStepSize={25}>
-        <Slider.Handle accessor="fan_man_speed" />
-      </Slider>
-      <Switch unchecked={{ fan_manual_en: 0 }} checked={{ fan_manual_en: 1 }}>
-        Manual Fan Control
-      </Switch>
+      <br />
+      <br />
+      <Composition gap={20} templateCols="1fr 2fr">
+        <Box>
+          <Switch
+            unchecked={{ fan_manual_en: 0 }}
+            checked={{ fan_manual_en: 1 }}
+          >
+            Manual Fan Control
+          </Switch>
+        </Box>
+        <Box>
+          <Slider min={0} max={100} labelStepSize={25}>
+            <Slider.Handle accessor="fan_man_speed" />
+          </Slider>
+        </Box>
+      </Composition>
     </Card>
   )
 }
@@ -267,7 +277,7 @@ CoolingStatsArea CoolingGraphArea
 const DetailPage = (props: RouteComponentProps) => {
   return (
     <div>
-      <IntervalRequester interval={500} variables={['temp, fan']} />
+      <IntervalRequester interval={500} variables={['temp', 'fan']} />
       <IntervalRequester interval={200} variables={['mo1', 'mo2', 'mo3']} />
 
       <Composition areas={DetailPageAreas} gap={10} templateCols="auto auto">
