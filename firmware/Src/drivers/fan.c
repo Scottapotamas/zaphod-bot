@@ -7,6 +7,7 @@
 #include "fan.h"
 #include "simple_state_machine.h"
 #include "hal_pwm.h"
+#include "hal_hard_ic.h"
 #include "hal_systick.h"
 #include "sensors.h"
 #include "app_times.h"
@@ -53,6 +54,8 @@ fan_init( void )
     //get a pointer to the fan curve configuration table
     fan_curve = config_get_fan_curve_ptr();
     hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ );
+
+    hal_setup_capture( _FAN_HALL );
 
     //todo setup input capture peripheral instead of relying on soft IC implementation
 }
