@@ -13,38 +13,33 @@ extern "C" {
 
 /* ----- Types ------------------------------------------------------------- */
 
-//todo Cleanup HLFBinput to include the hall sensor input, general purpose PWM input (make it a more generic name etc
 typedef enum
 {
-    _HLFB_SERVO_1,
-	_HLFB_SERVO_2,
-	_HLFB_SERVO_3,
-	_HLFB_SERVO_4,
-	_FAN_HALL,
-	_HLFB_SERVO_NUM
-} HLFBTimerDef_t;
-
-typedef struct
-{
-	//todo update comments with correct units
-    uint16_t	frequency;	//frequency in
-    uint16_t	duty;		//duty cycle as
-} PWMInputData_t;
+    HAL_HARD_IC_HLFB_SERVO_1,
+	HAL_HARD_IC_HLFB_SERVO_2,
+	HAL_HARD_IC_HLFB_SERVO_3,
+	HAL_HARD_IC_HLFB_SERVO_4,
+	HAL_HARD_IC_FAN_HALL,
+	HAL_HARD_IC_NUM
+} InputCaptureSignal_t;
 
 /* ----- Public Functions -------------------------------------------------- */
 
 PUBLIC void
-hal_setup_capture(uint8_t input);
+hal_hard_ic_init( void );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-debug_get_ic();
+PUBLIC uint32_t
+hal_hard_ic_read_avg( InputCaptureSignal_t input );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-hal_pwm_capture( uint8_t servo_number );
+PUBLIC uint32_t
+hal_hard_ic_read_peak( InputCaptureSignal_t input );
+
+/* -------------------------------------------------------------------------- */
+
 
 /* -------------------------------------------------------------------------- */
 

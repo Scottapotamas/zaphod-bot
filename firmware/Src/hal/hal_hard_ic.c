@@ -1,14 +1,19 @@
 /* ----- System Includes ---------------------------------------------------- */
 
+#include <string.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "hal_hard_ic.h"
 #include "hal_gpio.h"
+#include "average_short.h"
+#include "qassert.h"
 
 #include "stm32f4xx_hal.h"
 
 /* ----- Defines ------------------------------------------------------------ */
+
+DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 /*
  * TACH    - TIM9_1
@@ -16,16 +21,7 @@
  * HLFB 2 - TIM4_1/2
  * HLFB 3 - TIM1_1/2
  * HLFB 4 - TIM5_1/2
- *
- * A and B are on same TIM as HLFB, but not planned for use right now
- *
- * FAN     - TIM10_1
- * BUZZER  - TIM11_1
- * AUX0    - TIM2_1
- * AUX1    - TIM12_2
- * AUX2    - TIM12_1
- */
-
+*/
 
 /* ----- Variables ---------------------------------------------------------- */
 
@@ -38,94 +34,84 @@ TIM_HandleTypeDef htim5;
 // Fan Hall Input
 TIM_HandleTypeDef htim9;
 
-PWMInputData_t input_results[ _HLFB_SERVO_NUM + 1 ];	//todo use updated inputs enum after refactor
+PRIVATE uint32_t       ic_values[HAL_HARD_IC_NUM];      // raw values per calculation
+PRIVATE uint32_t       ic_peaks[HAL_HARD_IC_NUM];       // track the running highest value
+PRIVATE AverageShort_t ic_averages[HAL_HARD_IC_NUM];    // simple average over a span
 
 /* ----- Private Functions -------------------------------------------------- */
+
+PRIVATE void
+hal_setup_capture(uint8_t input);
 
 PRIVATE void
 HAL_TIM_MspPostInit( TIM_HandleTypeDef* htim );
 
 /* ----- Public Functions --------------------------------------------------- */
 
-void hal_setup_capture(uint8_t input)
+PUBLIC void
+hal_hard_ic_init( void )
+{
+    memset( &ic_values,    0, sizeof( ic_values ) );
+    memset( &ic_peaks,    0, sizeof( ic_peaks ) );
+    memset( &ic_averages, 0, sizeof( ic_averages ) );
+
+    average_short_init(&ic_averages[HAL_HARD_IC_FAN_HALL], 4 );
+//    average_short_init( &ic_averages[HAL_HARD_IC_HLFB_SERVO_1],    4 );
+
+    hal_setup_capture(HAL_HARD_IC_FAN_HALL );
+}
+
+PUBLIC bool
+hal_hard_ic_valid( InputCaptureSignal_t input )
+{
+    REQUIRE(input < HAL_HARD_IC_NUM );
+    return ic_averages[input].counter > 0;
+}
+
+{
+PRIVATE void
+hal_setup_capture(uint8_t input)
 {
 	TIM_HandleTypeDef* tim_handle = 0;
 
 	switch (input)
 	{
-		case _HLFB_SERVO_1:
+		case HAL_HARD_IC_HLFB_SERVO_1:
 			tim_handle = &htim3;
 			tim_handle->Instance = TIM3;
 			break;
 
-		case _HLFB_SERVO_2:
+		case HAL_HARD_IC_HLFB_SERVO_2:
 			tim_handle = &htim4;
 			tim_handle->Instance = TIM4;
 			break;
 
-		case _HLFB_SERVO_3:
+		case HAL_HARD_IC_HLFB_SERVO_3:
 			tim_handle = &htim1;
 			tim_handle->Instance = TIM1;
 			break;
 
-		case _HLFB_SERVO_4:
+		case HAL_HARD_IC_HLFB_SERVO_4:
 			tim_handle = &htim5;
 			tim_handle->Instance = TIM5;
 			break;
 
-		case _FAN_HALL:
+		case HAL_HARD_IC_FAN_HALL:
 			tim_handle = &htim9;
 			tim_handle->Instance = TIM9;
-
-            hal_gpio_init_alternate(_FAN_TACHO, MODE_AF_PP, GPIO_AF3_TIM9, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL);
-
-            HAL_NVIC_SetPriority( TIM1_BRK_TIM9_IRQn, 4, 3 );
-            HAL_NVIC_EnableIRQ( TIM1_BRK_TIM9_IRQn );
-
     }
 
 	// Setup the Timer
     tim_handle->Init.Period 			= 0xFFFF;
-    tim_handle->Init.Prescaler 			= 0;  //839
+    tim_handle->Init.Prescaler 			= 200;
     tim_handle->Init.ClockDivision 		= TIM_CLOCKDIVISION_DIV1;
     tim_handle->Init.CounterMode 		= TIM_COUNTERMODE_UP;
     tim_handle->Init.RepetitionCounter 	= 0;
-
-    if (HAL_TIM_Base_Init(tim_handle) != HAL_OK)
-    {
-        _Error_Handler(__FILE__, __LINE__);
-    }
 
     if (HAL_TIM_IC_Init(tim_handle) != HAL_OK)
     {
         _Error_Handler(__FILE__, __LINE__);
     }
-
-
-    // Slave Config
-    TIM_SlaveConfigTypeDef sSlaveConfig;
-
-    sSlaveConfig.SlaveMode     = TIM_SLAVEMODE_RESET;
-    sSlaveConfig.InputTrigger  = TIM_TS_TI1FP1;//TIM_TS_TI2FP2;
-    sSlaveConfig.TriggerPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
-    sSlaveConfig.TriggerFilter = 1;
-
-    if(HAL_TIM_SlaveConfigSynchronization(tim_handle, &sSlaveConfig) != HAL_OK)
-    {
-        _Error_Handler(__FILE__, __LINE__);
-    }
-
-
-    // Master Config
-    TIM_MasterConfigTypeDef sMasterConfig;
-
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-    sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
-    if (HAL_TIMEx_MasterConfigSynchronization(tim_handle, &sMasterConfig) != HAL_OK)
-    {
-        _Error_Handler(__FILE__, __LINE__);
-    }
-
 
     // Setup the Input Capture Channel
     TIM_IC_InitTypeDef sConfigIC;
@@ -139,32 +125,11 @@ void hal_setup_capture(uint8_t input)
         _Error_Handler(__FILE__, __LINE__);
     }
 
-    sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_FALLING;
-    if (HAL_TIM_IC_ConfigChannel(tim_handle, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
-    {
-        _Error_Handler(__FILE__, __LINE__);
-    }
-
-
     // Start the Input capture in Interrupt mode
-    HAL_TIM_IC_Start(tim_handle, TIM_CHANNEL_1);
-    HAL_TIM_IC_Start(tim_handle, TIM_CHANNEL_2);
+    HAL_TIM_IC_Start_IT(tim_handle, TIM_CHANNEL_1);
 
-}
+    HAL_TIM_MspPostInit(tim_handle);
 
-PUBLIC void debug_get_ic()
-{
-    TIM_HandleTypeDef* tim_handle = 0;
-
-    tim_handle = &htim9;
-    tim_handle->Instance = TIM9;
-
-    uint32_t timval = HAL_TIM_ReadCapturedValue(tim_handle,TIM_CHANNEL_1 );
-
-    if(timval < 0)
-    {
-        _Error_Handler(__FILE__, __LINE__);
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -196,20 +161,10 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* tim_pwmHandle)
 		hal_gpio_init_alternate( _SERVO_4_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM5, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
-	if( tim_pwmHandle->Instance == TIM2 )
-	{
-		__HAL_RCC_TIM2_CLK_ENABLE();
-	}
-
-	if( tim_pwmHandle->Instance == TIM12 )
-	{
-		__HAL_RCC_TIM12_CLK_ENABLE();
-	}
-
     if( tim_pwmHandle->Instance == TIM9 )
     {
     	__HAL_RCC_TIM9_CLK_ENABLE();
-		hal_gpio_init_alternate( _FAN_HALL, GPIO_MODE_AF_PP, GPIO_AF3_TIM9, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+		hal_gpio_init_alternate(HAL_HARD_IC_FAN_HALL, GPIO_MODE_AF_PP, GPIO_AF3_TIM9, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
     }
 }
 
@@ -253,7 +208,7 @@ void HAL_TIM_IC_MspInit(TIM_HandleTypeDef* tim_icHandle)
 	if( tim_icHandle->Instance == TIM9 )
     {
     	__HAL_RCC_TIM9_CLK_ENABLE();
-		hal_gpio_init_alternate( _FAN_HALL, GPIO_MODE_AF_PP, GPIO_AF3_TIM9, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+		hal_gpio_init_alternate( _FAN_TACHO, GPIO_MODE_AF_PP, GPIO_AF3_TIM9, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 		HAL_NVIC_SetPriority( TIM1_BRK_TIM9_IRQn, 6, 3 );
 		HAL_NVIC_EnableIRQ( TIM1_BRK_TIM9_IRQn );
     }
@@ -262,13 +217,12 @@ void HAL_TIM_IC_MspInit(TIM_HandleTypeDef* tim_icHandle)
 
 /* -------------------------------------------------------------------------- */
 
-
 PRIVATE void
 HAL_TIM_MspPostInit( TIM_HandleTypeDef* htim )
 {
 	if( htim->Instance==TIM9 )
 	{
-		hal_gpio_init_alternate( _FAN_HALL, GPIO_MODE_AF_PP, GPIO_AF3_TIM9, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+		hal_gpio_init_alternate( _FAN_TACHO, GPIO_MODE_AF_PP, GPIO_AF3_TIM9, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
 	//unused servo A and B pins, used for potential step/direction outputs in future
@@ -368,7 +322,8 @@ void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef* tim_icHandle)
 	{
 		__HAL_RCC_TIM9_CLK_DISABLE();
 		hal_gpio_disable_pin( _FAN_TACHO );
-	}
+        HAL_NVIC_DisableIRQ(TIM1_BRK_TIM9_IRQn);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -382,63 +337,74 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
 	{
 	}
-
-
 }
+
+
+bool ic_capture_started;
+uint32_t counts_a;
+uint32_t counts_b;
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
 	uint16_t capture_buffer = 0;
-	PWMInputData_t * result = 0;
 
-	/*
-	 * HLFB 1 - TIM3_1/2
-	 * HLFB 2 - TIM4_1/2
-	 * HLFB 3 - TIM1_1/2
-	 * HLFB 4 - TIM5_1/2
-	 * TACH   - TIM9_1
-	 */
+    //HLFB 1 - TIM3_1/2
+    //HLFB 2 - TIM4_1/2
+    //HLFB 3 - TIM1_1/2
+    //HLFB 4 - TIM5_1/2
+    //TACH   - TIM9_1
 
 	if(htim->Instance==TIM1)
 	{
-		result = &input_results[_HLFB_SERVO_3];
+//        HAL_HARD_IC_HLFB_SERVO_3
 	}
 	else if(htim->Instance==TIM3)
 	{
-		result = &input_results[_HLFB_SERVO_1];
+//        HAL_HARD_IC_HLFB_SERVO_1
 	}
 	else if(htim->Instance==TIM4)
 	{
-		result = &input_results[_HLFB_SERVO_2];
+//        HAL_HARD_IC_HLFB_SERVO_2
 	}
 	else if(htim->Instance==TIM5)
 	{
-		result = &input_results[_HLFB_SERVO_4];
+//        HAL_HARD_IC_HLFB_SERVO_4
 	}
 	else if(htim->Instance==TIM9)
 	{
-		result = &input_results[_FAN_HALL];
+        if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
+        {
+            capture_buffer = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
+
+            // Catch the first edge to start our timing reference
+            if( !ic_capture_started )
+            {
+                counts_a = capture_buffer;
+                ic_capture_started = true;
+            }
+            else    // second edge is the other half of the square-wave
+            {
+                uint32_t delta_counts = 0;
+                counts_b = capture_buffer;
+
+                // Calculate the count delta between the two edges
+                if (counts_b > counts_a) {
+                    delta_counts = counts_b - counts_a;
+                }
+                else if (counts_b < counts_a)
+                {
+                    delta_counts = ((0xFFFF - counts_a) + counts_b) + 1;
+                }
+
+                ic_values[HAL_HARD_IC_FAN_HALL] = (HAL_RCC_GetPCLK2Freq() / delta_counts) / 100;
+                average_short_update(&ic_averages[HAL_HARD_IC_FAN_HALL], (uint16_t)ic_values[HAL_HARD_IC_FAN_HALL] );
+                ic_peaks[HAL_HARD_IC_FAN_HALL] = MAX(ic_peaks[HAL_HARD_IC_FAN_HALL], ic_values[HAL_HARD_IC_FAN_HALL] );
+
+                ic_capture_started = false;   // reset to catch the next 'new' edge.
+            }
+        }
 	}
 
-	if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
-	{
-
-	}
-
-	if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2)
-	{
-		capture_buffer = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_2);
-
-		if (capture_buffer != 0)
-		{
-			result->duty 		= ( HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1) * 100 ) / capture_buffer;
-			result->frequency 	= ( HAL_RCC_GetHCLKFreq() / 2 ) / capture_buffer;
-		}
-		else
-		{
-			result->duty 		= 0;
-			result->frequency 	= 0;
-		}
-	}
 }
+
 /* ----- End ---------------------------------------------------------------- */
