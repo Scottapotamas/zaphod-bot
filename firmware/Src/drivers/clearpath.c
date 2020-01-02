@@ -10,7 +10,7 @@
 #include "hal_systick.h"
 #include "hal_delay.h"
 #include "hal_gpio.h"
-#include "hal_pwm.h"
+#include "hal_hard_ic.h"
 
 #include "global.h"
 #include "qassert.h"
@@ -55,7 +55,6 @@ typedef struct
 	HalGpioPortPin_t 	pin_direction;
 	HalGpioPortPin_t 	pin_step;
 	HalGpioPortPin_t 	pin_feedback;
-	HLFBTimerDef_t		pwm_feedback;
 
 	//Current Sense IC
 	HalAdcInput_t		adc_current;
@@ -69,18 +68,34 @@ PRIVATE Servo_t clearpath[ _NUMBER_CLEARPATH_SERVOS ];
 
 PRIVATE const ServoHardware_t ServoHardwareMap[] =
 {
-		[ _CLEARPATH_1 ]	= { .pin_enable = _SERVO_1_ENABLE, .pin_direction = _SERVO_1_A, .pin_step = _SERVO_1_B, .pin_feedback = _SERVO_1_HLFB, .pwm_feedback = _HLFB_SERVO_1,
-								.adc_current = HAL_ADC_INPUT_M1_CURRENT, .pin_oc_fault = _SERVO_1_CURRENT_FAULT },
+		[ _CLEARPATH_1 ]	= {     .pin_enable = _SERVO_1_ENABLE,
+                                    .pin_direction = _SERVO_1_A,
+                                    .pin_step = _SERVO_1_B,
+                                    .pin_feedback = _SERVO_1_HLFB,
+                                    .adc_current = HAL_ADC_INPUT_M1_CURRENT,
+                                    .pin_oc_fault = _SERVO_1_CURRENT_FAULT },
 
-		[ _CLEARPATH_2 ]	= { .pin_enable = _SERVO_2_ENABLE, .pin_direction = _SERVO_2_A, .pin_step = _SERVO_2_B, .pin_feedback = _SERVO_2_HLFB, .pwm_feedback = _HLFB_SERVO_2,
-								.adc_current = HAL_ADC_INPUT_M2_CURRENT, .pin_oc_fault = _SERVO_2_CURRENT_FAULT },
+		[ _CLEARPATH_2 ]	= {     .pin_enable = _SERVO_2_ENABLE,
+                                    .pin_direction = _SERVO_2_A,
+                                    .pin_step = _SERVO_2_B, .pin_feedback = _SERVO_2_HLFB,
+                                    .adc_current = HAL_ADC_INPUT_M2_CURRENT,
+                                    .pin_oc_fault = _SERVO_2_CURRENT_FAULT },
 
-		[ _CLEARPATH_3 ]	= { .pin_enable = _SERVO_3_ENABLE, .pin_direction = _SERVO_3_A, .pin_step = _SERVO_3_B, .pin_feedback = _SERVO_3_HLFB, .pwm_feedback = _HLFB_SERVO_3,
-								.adc_current = HAL_ADC_INPUT_M3_CURRENT, .pin_oc_fault = _SERVO_3_CURRENT_FAULT },
+		[ _CLEARPATH_3 ]	= {     .pin_enable = _SERVO_3_ENABLE,
+                                    .pin_direction = _SERVO_3_A,
+                                    .pin_step = _SERVO_3_B,
+                                    .pin_feedback = _SERVO_3_HLFB,
+                                    .adc_current = HAL_ADC_INPUT_M3_CURRENT,
+                                    .pin_oc_fault = _SERVO_3_CURRENT_FAULT },
 
 #ifdef EXPANSION_SERVO
-        [ _CLEARPATH_4 ]	= { .pin_enable = _SERVO_4_ENABLE, .pin_direction = _SERVO_4_A, .pin_step = _SERVO_4_B, .pin_feedback = _SERVO_4_HLFB, .pwm_feedback = _HLFB_SERVO_4,
-                                        .adc_current = HAL_ADC_INPUT_M4_CURRENT, .pin_oc_fault = _SERVO_4_CURRENT_FAULT },
+        [ _CLEARPATH_4 ]	= { .pin_enable = _SERVO_4_ENABLE,
+                                .pin_direction = _SERVO_4_A,
+                                .pin_step = _SERVO_4_B,
+                                .pin_feedback = _SERVO_4_HLFB,
+                                .pwm_feedback = HAL_HARD_IC_HLFB_SERVO_4,
+                                .adc_current = HAL_ADC_INPUT_M4_CURRENT,
+                                .pin_oc_fault = _SERVO_4_CURRENT_FAULT },
 #endif
 };
 

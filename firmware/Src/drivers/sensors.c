@@ -3,7 +3,7 @@
 #include "sensors.h"
 #include "app_times.h"
 #include "hal_adc.h"
-#include "hal_soft_ic.h"
+#include "hal_hard_ic.h"
 #include "hal_temperature.h"
 #include "hal_power.h"
 #include "hal_systick.h"
@@ -138,9 +138,11 @@ sensors_servo_W( HalAdcInput_t servo_to_sample )
 PUBLIC uint16_t
 sensors_fan_speed_RPM( void )
 {
-	//rpm = 60 * rps, where rps = 1000msec / duration (msec) of rising edge width
+    // 1hz = 60rpm
 	//two hall pulses per revolution
-	uint16_t rpm = 60 * ((1000 / 2)/hal_soft_ic_read_avg( HAL_SOFT_IC_HALL ) );
+
+	float hall_frequency = hal_hard_ic_read_avg(HAL_HARD_IC_FAN_HALL );
+	uint16_t rpm = 60 * (hall_frequency / 2);
     config_set_fan_rpm( rpm );
 	return rpm;
 }

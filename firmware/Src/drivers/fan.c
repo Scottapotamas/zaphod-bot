@@ -55,9 +55,6 @@ fan_init( void )
     fan_curve = config_get_fan_curve_ptr();
     hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ );
 
-    hal_setup_capture( _FAN_HALL );
-
-    //todo setup input capture peripheral instead of relying on soft IC implementation
 }
 
 /* -------------------------------------------------------------------------- */
@@ -81,6 +78,7 @@ fan_process( void )
 	//get the current fan speed
 	uint16_t fan_hall_rpm = sensors_fan_speed_RPM();
     me->manual_control = config_get_fan_manual_control();
+
     switch( me->currentState )
     {
         case FAN_STATE_OFF:
