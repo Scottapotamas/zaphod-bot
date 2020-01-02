@@ -47,7 +47,7 @@ PRIVATE void
 hal_setup_capture(uint8_t input);
 
 PRIVATE void
-HAL_TIM_MspPostInit( TIM_HandleTypeDef* htim );
+hal_hard_ic_process_duty_cycle( TIM_HandleTypeDef *htim, InputCaptureSignal_t signal );
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -190,9 +190,6 @@ hal_setup_capture(uint8_t input)
 
     // Start the Input capture in Interrupt mode
     HAL_TIM_IC_Start_IT(tim_handle, TIM_CHANNEL_1);
-
-    // Make sure the IO is setup properly
-//    HAL_TIM_MspPostInit(tim_handle);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -313,59 +310,31 @@ void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef* tim_icHandle)
 
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
-    //HLFB 1 - TIM3_1/2
-    //HLFB 2 - TIM4_1/2
-    //HLFB 3 - TIM1_1/2
-    //HLFB 4 - TIM5_1/2
-    //TACH   - TIM9_1
+    // Store timestamps of rising/falling edges,
+    // calculate duty cycles for HLFB signals
+    // Calculate frequency for fan tachometer
 
 	if(htim->Instance==TIM1)
 	{
-//        HAL_HARD_IC_HLFB_SERVO_3
+        hal_hard_ic_process_duty_cycle(htim, HAL_HARD_IC_HLFB_SERVO_3);
 	}
 	else if(htim->Instance==TIM3)
 	{
-//        HAL_HARD_IC_HLFB_SERVO_1
+        hal_hard_ic_process_duty_cycle(htim, HAL_HARD_IC_HLFB_SERVO_1);
 	}
 	else if(htim->Instance==TIM4)
 	{
-//        HAL_HARD_IC_HLFB_SERVO_2
+        hal_hard_ic_process_duty_cycle(htim, HAL_HARD_IC_HLFB_SERVO_2);
 	}
 	else if(htim->Instance==TIM5)
 	{
-        if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
-        {
-            if (!ic_state[HAL_HARD_IC_HLFB_SERVO_4].first_edge_done) // if the first value is not captured
-            {
-                ic_state[HAL_HARD_IC_HLFB_SERVO_4].cnt_a = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1); // read the first value
-                ic_state[HAL_HARD_IC_HLFB_SERVO_4].first_edge_done = true;
-
-                // Change the polarity to falling edge
-                __HAL_TIM_SET_CAPTUREPOLARITY(htim, TIM_CHANNEL_1, TIM_INPUTCHANNELPOLARITY_FALLING);
-            }
-            else
-            {
-                ic_state[HAL_HARD_IC_HLFB_SERVO_4].cnt_b = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);  // read second value
-                __HAL_TIM_SET_COUNTER(htim, 0);  // reset the counter
-
-                if (ic_state[HAL_HARD_IC_HLFB_SERVO_4].cnt_b > ic_state[HAL_HARD_IC_HLFB_SERVO_4].cnt_a)
-                {
-                    ic_values[HAL_HARD_IC_HLFB_SERVO_4] = ic_state[HAL_HARD_IC_HLFB_SERVO_4].cnt_b - ic_state[HAL_HARD_IC_HLFB_SERVO_4].cnt_a;;
-                    average_short_update(&ic_averages[HAL_HARD_IC_HLFB_SERVO_4], (uint16_t)ic_values[HAL_HARD_IC_HLFB_SERVO_4] );
-                    ic_peaks[HAL_HARD_IC_HLFB_SERVO_4] = MAX(ic_peaks[HAL_HARD_IC_HLFB_SERVO_4], ic_values[HAL_HARD_IC_HLFB_SERVO_4] );
-                }
-
-                ic_state[HAL_HARD_IC_HLFB_SERVO_4].first_edge_done = false;
-
-                // set polarity to rising edge
-                __HAL_TIM_SET_CAPTUREPOLARITY(htim, TIM_CHANNEL_1, TIM_INPUTCHANNELPOLARITY_RISING);
-            }
-        }
+        hal_hard_ic_process_duty_cycle(htim, HAL_HARD_IC_HLFB_SERVO_4);
 	}
 	else if(htim->Instance==TIM9)
 	{
         if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
         {
+            // Measure frequency of the hall effect sensor
 
             // Catch the first edge to start our timing reference
             if( !ic_state[HAL_HARD_IC_FAN_HALL].first_edge_done )
@@ -396,6 +365,40 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
         }
 	}
 
+}
+
+PRIVATE void
+hal_hard_ic_process_duty_cycle( TIM_HandleTypeDef *htim, InputCaptureSignal_t signal )
+{
+    // All HLFB signals are on channel 1 of their respective timers
+    if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
+    {
+        if (!ic_state[signal].first_edge_done) // if the first value is not captured
+        {
+            ic_state[signal].cnt_a = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1); // read the first value
+            ic_state[signal].first_edge_done = true;
+
+            // Change the polarity to falling edge
+            __HAL_TIM_SET_CAPTUREPOLARITY(htim, TIM_CHANNEL_1, TIM_INPUTCHANNELPOLARITY_FALLING);
+        }
+        else
+        {
+            ic_state[signal].cnt_b = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);  // read second value
+            __HAL_TIM_SET_COUNTER(htim, 0);  // reset the counter
+
+            if (ic_state[signal].cnt_b > ic_state[signal].cnt_a)
+            {
+                ic_values[signal] = ic_state[signal].cnt_b - ic_state[signal].cnt_a;;
+                average_short_update(&ic_averages[signal], (uint16_t)ic_values[signal] );
+                ic_peaks[signal] = MAX(ic_peaks[signal], ic_values[signal] );
+            }
+
+            ic_state[signal].first_edge_done = false;
+
+            // set polarity to rising edge
+            __HAL_TIM_SET_CAPTUREPOLARITY(htim, TIM_CHANNEL_1, TIM_INPUTCHANNELPOLARITY_RISING);
+        }
+    }
 }
 
 /* ----- End ---------------------------------------------------------------- */

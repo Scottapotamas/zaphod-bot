@@ -54,7 +54,7 @@ typedef struct
 	HalGpioPortPin_t 	pin_enable;
 	HalGpioPortPin_t 	pin_direction;
 	HalGpioPortPin_t 	pin_step;
-	HalGpioPortPin_t 	pin_feedback;
+    InputCaptureSignal_t 	ic_feedback;
 
 	//Current Sense IC
 	HalAdcInput_t		adc_current;
@@ -71,20 +71,21 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] =
 		[ _CLEARPATH_1 ]	= {     .pin_enable = _SERVO_1_ENABLE,
                                     .pin_direction = _SERVO_1_A,
                                     .pin_step = _SERVO_1_B,
-                                    .pin_feedback = _SERVO_1_HLFB,
+                                    .ic_feedback = HAL_HARD_IC_HLFB_SERVO_1,
                                     .adc_current = HAL_ADC_INPUT_M1_CURRENT,
                                     .pin_oc_fault = _SERVO_1_CURRENT_FAULT },
 
 		[ _CLEARPATH_2 ]	= {     .pin_enable = _SERVO_2_ENABLE,
                                     .pin_direction = _SERVO_2_A,
-                                    .pin_step = _SERVO_2_B, .pin_feedback = _SERVO_2_HLFB,
+                                    .pin_step = _SERVO_2_B,
+                                    .ic_feedback = HAL_HARD_IC_HLFB_SERVO_2,
                                     .adc_current = HAL_ADC_INPUT_M2_CURRENT,
                                     .pin_oc_fault = _SERVO_2_CURRENT_FAULT },
 
 		[ _CLEARPATH_3 ]	= {     .pin_enable = _SERVO_3_ENABLE,
                                     .pin_direction = _SERVO_3_A,
                                     .pin_step = _SERVO_3_B,
-                                    .pin_feedback = _SERVO_3_HLFB,
+                                    .ic_feedback = HAL_HARD_IC_HLFB_SERVO_3,
                                     .adc_current = HAL_ADC_INPUT_M3_CURRENT,
                                     .pin_oc_fault = _SERVO_3_CURRENT_FAULT },
 
@@ -92,12 +93,13 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] =
         [ _CLEARPATH_4 ]	= { .pin_enable = _SERVO_4_ENABLE,
                                 .pin_direction = _SERVO_4_A,
                                 .pin_step = _SERVO_4_B,
-                                .pin_feedback = _SERVO_4_HLFB,
-                                .pwm_feedback = HAL_HARD_IC_HLFB_SERVO_4,
+                                .ic_feedback = HAL_HARD_IC_HLFB_SERVO_4,
                                 .adc_current = HAL_ADC_INPUT_M4_CURRENT,
                                 .pin_oc_fault = _SERVO_4_CURRENT_FAULT },
 #endif
 };
+
+PRIVATE float       servo_get_hlfb_percent( ClearpathServoInstance_t servo );
 
 PRIVATE int16_t 	convert_angle_steps( float kinematics_shoulder_angle );
 
@@ -109,8 +111,6 @@ PUBLIC void
 servo_init( ClearpathServoInstance_t servo )
 {
 	memset( &clearpath[servo], 0, sizeof( Servo_t ) );
-
-	//init the hlfb input capture?
 
 }
 
@@ -149,6 +149,8 @@ servo_set_target_angle( ClearpathServoInstance_t servo, float angle_degrees )
 
 }
 
+/* -------------------------------------------------------------------------- */
+
 PUBLIC float
 servo_get_current_angle( ClearpathServoInstance_t servo)
 {
@@ -157,6 +159,8 @@ servo_get_current_angle( ClearpathServoInstance_t servo)
 	return convert_steps_angle( me->angle_current_steps );
 }
 
+/* -------------------------------------------------------------------------- */
+
 PUBLIC bool
 servo_get_move_done( ClearpathServoInstance_t servo)
 {
@@ -164,6 +168,8 @@ servo_get_move_done( ClearpathServoInstance_t servo)
 
 	return ( me->angle_current_steps == me->angle_target_steps );
 }
+
+/* -------------------------------------------------------------------------- */
 
 PUBLIC bool
 servo_get_servo_ok(ClearpathServoInstance_t servo)
@@ -175,13 +181,36 @@ servo_get_servo_ok(ClearpathServoInstance_t servo)
 
 /* -------------------------------------------------------------------------- */
 
+float mapf(float val, float in_min, float in_max, float out_min, float out_max) {
+    return (val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+PRIVATE float
+servo_get_hlfb_percent( ClearpathServoInstance_t servo )
+{
+    // HLFB from servos is a 582Hz square-wave, where 5% < x < 95% is used for torque/speed output
+    // DutyCycles under 5% represents 'not asserted' or 'off'
+
+    // IC value is a integer representing the 'on' section of the wave in us
+    uint32_t fb_avg = hal_hard_ic_read_avg(ServoHardwareMap[servo].ic_feedback);
+
+    // 0.055679% per count
+    // min of 48 at 4.2%
+    // max of 1687 at 96.5%
+    float percentage = mapf( fb_avg, 48, 1687, 4.2f,96.5f );
+
+    return CLAMP(percentage, 0.0f, 95.0f);;
+}
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC void
 servo_process( ClearpathServoInstance_t servo )
 {
     Servo_t *me = &clearpath[servo];
 
     float servo_power = sensors_servo_W( ServoHardwareMap[servo].adc_current );
-    me->feedback_ok = hal_gpio_read_pin(ServoHardwareMap[servo].pin_feedback);
+    me->feedback_ok = ( servo_get_hlfb_percent(servo) > 5.0f );
 
     switch( me->currentState )
     {

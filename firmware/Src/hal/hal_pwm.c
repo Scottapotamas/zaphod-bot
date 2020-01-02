@@ -280,7 +280,7 @@ HAL_TIM_MspPostInit( TIM_HandleTypeDef* htim )
 
 	if( htim->Instance == TIM11 )
 	{
-//		hal_gpio_init_alternate( _BUZZER, GPIO_MODE_AF_PP, GPIO_AF3_TIM11, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+		hal_gpio_init_alternate( _BUZZER, GPIO_MODE_AF_PP, GPIO_AF3_TIM11, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
 	}
 
 	if( htim->Instance == TIM2 )
