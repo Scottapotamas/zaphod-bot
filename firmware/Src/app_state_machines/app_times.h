@@ -50,7 +50,7 @@ enum CommunicationDefines
 
 enum FanDefines
 {
-	FAN_EVALUATE_TIME		= 250U,	//   4Hz
+	FAN_EVALUATE_TIME		= 100U,
 	FAN_STARTUP_TIME_MS		= 1000U,
 	FAN_STALL_WAIT_TIME_MS	= 3000U,
 	FAN_STALL_FAULT_RPM		= 140U,

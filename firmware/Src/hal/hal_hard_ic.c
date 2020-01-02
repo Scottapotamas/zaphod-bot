@@ -68,7 +68,33 @@ hal_hard_ic_valid( InputCaptureSignal_t input )
     return ic_averages[input].counter > 0;
 }
 
+/* -------------------------------------------------------------------------- */
+
+PUBLIC uint32_t
+hal_hard_ic_read( InputCaptureSignal_t input )
 {
+    REQUIRE(input < HAL_HARD_IC_NUM );
+    return (uint32_t)average_short_get_last( &ic_averages[input] );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC uint32_t
+hal_hard_ic_read_avg( InputCaptureSignal_t input )
+{
+    REQUIRE(input < HAL_HARD_IC_NUM );
+    return (uint32_t)average_short_get_average( &ic_averages[input] );
+}
+
+PUBLIC uint32_t
+hal_hard_ic_read_peak( InputCaptureSignal_t input )
+{
+    REQUIRE(input < HAL_HARD_IC_NUM );
+    return ic_peaks[input];
+}
+
+/* -------------------------------------------------------------------------- */
+
 PRIVATE void
 hal_setup_capture(uint8_t input)
 {

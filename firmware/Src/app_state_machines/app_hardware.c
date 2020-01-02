@@ -7,7 +7,7 @@
 #include "hal_dma.h"
 #include "hal_adc.h"
 #include "hal_gpio.h"
-#include "hal_soft_ic.h"
+#include "hal_hard_ic.h"
 #include "hal_watchdog.h"
 #include "hal_system_speed.h"
 
@@ -40,7 +40,7 @@ app_hardware_init( void )
     hal_systick_init();
     hal_dma_init();
     hal_adc_init();
-    hal_soft_ic_init();	//todo get hardware timer input capture working on tim9 for fan speed
+    hal_hard_ic_init();
 
 	configuration_init();
     buzzer_init();

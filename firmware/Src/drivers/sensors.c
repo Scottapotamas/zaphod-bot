@@ -37,8 +37,6 @@ sensors_enable( void )
 	hal_adc_start( HAL_ADC_INPUT_TEMP_INTERNAL, ADC_SAMPLE_RATE_MS );
 	hal_adc_start( HAL_ADC_INPUT_VREFINT, 		ADC_SAMPLE_RATE_MS );
 
-	hal_soft_ic_start( HAL_SOFT_IC_HALL, 1);
-
 	config_sensors_enable(true);
 }
 
@@ -59,8 +57,6 @@ sensors_disable( void )
 	hal_adc_stop( HAL_ADC_INPUT_TEMP_EXT 		);
 	hal_adc_stop( HAL_ADC_INPUT_TEMP_INTERNAL 	);
 	hal_adc_stop( HAL_ADC_INPUT_VREFINT			);
-
-	hal_soft_ic_stop( HAL_SOFT_IC_HALL );
 
 	config_sensors_enable(false);
 }
