@@ -230,7 +230,6 @@ eui_message_t ui_variables[] =
     EUI_CUSTOM("curve", fan_curve),
     EUI_CUSTOM("temp", temp_sensors),
 
-    #warning "remove this after use"
     EUI_UINT8("fan_man_speed", fan_manual_setpoint),
     EUI_UINT8( "fan_manual_en", fan_manual_enable),
 
