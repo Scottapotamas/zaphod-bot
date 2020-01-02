@@ -123,7 +123,7 @@ typedef struct
 {
     uint8_t enabled;
 	uint8_t state;
-	uint8_t feedback;
+	uint16_t feedback;
 	float target_angle;
 	float power;
 } MotorData_t;
@@ -672,9 +672,9 @@ config_motor_state( uint8_t servo, uint8_t state )
 }
 
 PUBLIC void
-config_motor_feedback( uint8_t servo, uint8_t fb )
+config_motor_feedback( uint8_t servo, float percentage )
 {
-	motion_servo[servo].feedback = fb;
+	motion_servo[servo].feedback = percentage * 10;
 }
 
 PUBLIC void

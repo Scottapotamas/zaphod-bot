@@ -172,7 +172,7 @@ PUBLIC void
 config_motor_state( uint8_t servo, uint8_t state );
 
 PUBLIC void
-config_motor_feedback( uint8_t servo, uint8_t fb );
+config_motor_feedback( uint8_t servo, float percentage );
 
 PUBLIC void
 config_motor_power( uint8_t servo, float watts );

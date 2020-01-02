@@ -152,7 +152,8 @@ const ServoSummaryCard = () => {
                       <ServoMode state={servoA.state} />
                     </td>
                     <td>
-                      <FeedbackIndicator fb={servoA.feedback} />
+                      {servoA.feedback}%
+                      {/* <FeedbackIndicator fb={servoA.feedback} /> */}
                     </td>
                     <td>{servoA.power.toFixed(1)}</td>
                     <td>{servoA.target_angle.toFixed(2)}</td>
@@ -165,7 +166,8 @@ const ServoSummaryCard = () => {
                       <ServoMode state={servoB.state} />
                     </td>
                     <td>
-                      <FeedbackIndicator fb={servoB.feedback} />
+                      {servoB.feedback}%
+                      {/* <FeedbackIndicator fb={servoB.feedback} /> */}
                     </td>
                     <td>{servoB.power.toFixed(1)}</td>
                     <td>{servoB.target_angle.toFixed(2)}</td>
@@ -178,7 +180,8 @@ const ServoSummaryCard = () => {
                       <ServoMode state={servoC.state} />
                     </td>
                     <td>
-                      <FeedbackIndicator fb={servoC.feedback} />
+                      {servoC.feedback}%
+                      {/* <FeedbackIndicator fb={servoC.feedback} /> */}
                     </td>
                     <td>{servoC.power.toFixed(1)}</td>
                     <td>{servoC.target_angle.toFixed(2)}</td>

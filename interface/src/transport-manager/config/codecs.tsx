@@ -174,8 +174,7 @@ export class MotorDataCodec extends Codec {
     message.payload = {
       enabled: reader.readUInt8() === 0x01 ? true : false,
       state: reader.readUInt8(),
-      feedback: reader.readUInt8(),
-      _: reader.readUInt8(),
+      feedback: reader.readUInt16LE() / 10,
       target_angle: reader.readFloatLE(),
       power: reader.readFloatLE(),
     }

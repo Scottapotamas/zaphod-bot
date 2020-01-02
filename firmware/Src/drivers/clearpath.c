@@ -210,7 +210,8 @@ servo_process( ClearpathServoInstance_t servo )
     Servo_t *me = &clearpath[servo];
 
     float servo_power = sensors_servo_W( ServoHardwareMap[servo].adc_current );
-    me->feedback_ok = ( servo_get_hlfb_percent(servo) > 5.0f );
+    float servo_feedback = servo_get_hlfb_percent(servo);
+    me->feedback_ok = ( servo_feedback > 5.0f );
 
     switch( me->currentState )
     {
@@ -440,7 +441,7 @@ servo_process( ClearpathServoInstance_t servo )
 
     config_motor_state( servo , me->currentState);
     config_motor_enable( servo, me->enabled );
-    config_motor_feedback( servo, me->feedback_ok );
+    config_motor_feedback( servo, servo_feedback );
     config_motor_power( servo, servo_power);
 
 }
