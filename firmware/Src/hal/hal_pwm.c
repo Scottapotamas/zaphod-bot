@@ -92,7 +92,6 @@ void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency)
 			break;
 	}
 
-
     tim_handle->Init.Prescaler 		= (uint32_t)( SystemCoreClock / ( frequency * PWM_PERIOD_DEFAULT ) ); //prescaler
 	tim_handle->Init.Period 		= PWM_PERIOD_DEFAULT; //overflow;
 	tim_handle->Init.CounterMode 	= TIM_COUNTERMODE_UP;
@@ -106,10 +105,6 @@ void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency)
 			_Error_Handler(__FILE__, __LINE__);
 		}
 	}
-
-//    TIM_ClockConfigTypeDef sClockSourceConfig;
-//    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
-//    HAL_TIM_ConfigClockSource( tim_handle, &sClockSourceConfig );
 
 	if (HAL_TIM_PWM_Init(tim_handle) != HAL_OK)
 	{
@@ -301,4 +296,37 @@ HAL_TIM_MspPostInit( TIM_HandleTypeDef* htim )
 
 }
 
+// TIM Group 3 - PWM Input
+void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* tim_pwmHandle)
+{
+    if( tim_pwmHandle->Instance == TIM1 )
+    {
+        __HAL_RCC_TIM1_CLK_ENABLE();
+        hal_gpio_init_alternate( _SERVO_3_HLFB, GPIO_MODE_AF_PP, GPIO_AF1_TIM1, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+    }
+
+    if( tim_pwmHandle->Instance == TIM3 )
+    {
+        __HAL_RCC_TIM3_CLK_ENABLE();
+        hal_gpio_init_alternate( _SERVO_1_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM3, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+    }
+
+    if( tim_pwmHandle->Instance == TIM4 )
+    {
+        __HAL_RCC_TIM4_CLK_ENABLE();
+        hal_gpio_init_alternate( _SERVO_2_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM4, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+    }
+
+    if( tim_pwmHandle->Instance == TIM5 )
+    {
+        __HAL_RCC_TIM5_CLK_ENABLE();
+        hal_gpio_init_alternate( _SERVO_4_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM5, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+    }
+
+    if( tim_pwmHandle->Instance == TIM9 )
+    {
+        __HAL_RCC_TIM9_CLK_ENABLE();
+        hal_gpio_init_alternate(_FAN_TACHO, GPIO_MODE_AF_PP, GPIO_AF3_TIM9, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+    }
+}
 /* ----- End ---------------------------------------------------------------- */
