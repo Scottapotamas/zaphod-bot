@@ -188,16 +188,16 @@ float mapf(float val, float in_min, float in_max, float out_min, float out_max) 
 PRIVATE float
 servo_get_hlfb_percent( ClearpathServoInstance_t servo )
 {
-    // HLFB from servos is a 582Hz square-wave, where 5% < x < 95% is used for torque/speed output
+    // HLFB from servos is a 482Hz square-wave, where 5% < x < 95% is used for torque/speed output
     // DutyCycles under 5% represents 'not asserted' or 'off'
 
     // IC value is a integer representing the 'on' section of the wave in us
     uint32_t fb_avg = hal_hard_ic_read_avg(ServoHardwareMap[servo].ic_feedback);
 
     // 0.055679% per count
-    // min of 48 at 4.2%
-    // max of 1687 at 96.5%
-    float percentage = mapf( fb_avg, 48, 1687, 4.2f,96.5f );
+    // min of 62 at 4.0%
+    // max of 2041 at 97.0%
+    float percentage = mapf( fb_avg, 62, 2041, 4.0f,97.0f );
 
     return CLAMP(percentage, 0.0f, 95.0f);;
 }

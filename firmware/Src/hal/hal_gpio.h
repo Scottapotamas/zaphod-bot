@@ -32,6 +32,7 @@ typedef enum
     MODE_OUT_PP,    // Push-Pull Output
     MODE_OUT_OD,    // Open drain Output
 	MODE_AF_PP,		// Push-Pull alternative function
+	MODE_AF_OD,     // Open-Drain alternative function
 } HalGpioMode_t;
 
 /** Enum with all the GPIO pins defined. See schematic for more detail */

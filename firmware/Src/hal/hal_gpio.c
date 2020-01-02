@@ -97,7 +97,7 @@ const HalGpioDef_t HalGpioHardwareMap[] =
 		[ _BUZZER                  ]   = { .mode = MODE_AF_PP,     .port = PORT_B, .pin = PIN_9, .initial = 1 },
 
 		[ _FAN_PWM                 ]   = { .mode = MODE_AF_PP,     .port = PORT_B, .pin = PIN_8, .initial = 0 },
-		[ _FAN_TACHO               ]   = { .mode = MODE_AF_PP,     .port = PORT_E, .pin = PIN_5, .initial = 0 },
+		[ _FAN_TACHO               ]   = { .mode = MODE_INPUT,     .port = PORT_E, .pin = PIN_5, .initial = 0 },
 
 		[ _TEMP_PCB_AMBIENT        ]   = { .mode = MODE_ANALOG,    .port = PORT_C, .pin = PIN_0, .initial = 0 },
 		[ _TEMP_PCB_PSU            ]   = { .mode = MODE_ANALOG,    .port = PORT_C, .pin = PIN_1, .initial = 0 },
@@ -121,28 +121,28 @@ const HalGpioDef_t HalGpioHardwareMap[] =
 		[ _SERVO_1_A               ]   = { .mode = MODE_OUT_PP,    .port = PORT_C, .pin = PIN_8,  .initial = 0 },
 		[ _SERVO_1_B               ]   = { .mode = MODE_OUT_PP,    .port = PORT_C, .pin = PIN_9,  .initial = 0 },
 		[ _SERVO_1_ENABLE          ]   = { .mode = MODE_OUT_PP,    .port = PORT_C, .pin = PIN_7,  .initial = 0 },
-		[ _SERVO_1_HLFB            ]   = { .mode = MODE_AF_PP,     .port = PORT_C, .pin = PIN_6,  .initial = 0 },
+		[ _SERVO_1_HLFB            ]   = { .mode = MODE_INPUT,     .port = PORT_C, .pin = PIN_6,  .initial = 0 },
 		[ _SERVO_1_CURRENT         ]   = { .mode = MODE_ANALOG,    .port = PORT_C, .pin = PIN_5,  .initial = 0 },
 		[ _SERVO_1_CURRENT_FAULT   ]   = { .mode = MODE_INPUT,     .port = PORT_D, .pin = PIN_11, .initial = 0 },
 
 		[ _SERVO_2_A               ]   = { .mode = MODE_OUT_PP,    .port = PORT_D, .pin = PIN_14, .initial = 0 },
 		[ _SERVO_2_B               ]   = { .mode = MODE_OUT_PP,    .port = PORT_D, .pin = PIN_15, .initial = 0 },
 		[ _SERVO_2_ENABLE          ]   = { .mode = MODE_OUT_PP,    .port = PORT_D, .pin = PIN_13, .initial = 0 },
-		[ _SERVO_2_HLFB            ]   = { .mode = MODE_AF_PP,     .port = PORT_D, .pin = PIN_12, .initial = 0 },
+		[ _SERVO_2_HLFB            ]   = { .mode = MODE_INPUT,     .port = PORT_D, .pin = PIN_12, .initial = 0 },
 		[ _SERVO_2_CURRENT         ]   = { .mode = MODE_ANALOG,    .port = PORT_C, .pin = PIN_4,  .initial = 0 },
 		[ _SERVO_2_CURRENT_FAULT   ]   = { .mode = MODE_INPUT,     .port = PORT_D, .pin = PIN_10, .initial = 0 },
 
 		[ _SERVO_3_A               ]   = { .mode = MODE_OUT_PP,    .port = PORT_E, .pin = PIN_13, .initial = 0 },
 		[ _SERVO_3_B               ]   = { .mode = MODE_OUT_PP,    .port = PORT_E, .pin = PIN_14, .initial = 0 },
 		[ _SERVO_3_ENABLE          ]   = { .mode = MODE_OUT_PP,    .port = PORT_E, .pin = PIN_12, .initial = 0 },
-		[ _SERVO_3_HLFB            ]   = { .mode = MODE_AF_PP,     .port = PORT_E, .pin = PIN_9,  .initial = 0 },
+		[ _SERVO_3_HLFB            ]   = { .mode = MODE_INPUT,     .port = PORT_E, .pin = PIN_9,  .initial = 0 },
 		[ _SERVO_3_CURRENT         ]   = { .mode = MODE_ANALOG,    .port = PORT_A, .pin = PIN_7,  .initial = 0 },
 		[ _SERVO_3_CURRENT_FAULT   ]   = { .mode = MODE_INPUT,     .port = PORT_B, .pin = PIN_1,  .initial = 0 },
 
 		[ _SERVO_4_A               ]   = { .mode = MODE_OUT_PP,    .port = PORT_A, .pin = PIN_2, .initial = 0 },
 		[ _SERVO_4_B               ]   = { .mode = MODE_OUT_PP,    .port = PORT_A, .pin = PIN_3, .initial = 0 },
 		[ _SERVO_4_ENABLE          ]   = { .mode = MODE_OUT_PP,    .port = PORT_A, .pin = PIN_1, .initial = 0 },
-		[ _SERVO_4_HLFB            ]   = { .mode = MODE_AF_PP,     .port = PORT_A, .pin = PIN_0, .initial = 0 },
+		[ _SERVO_4_HLFB            ]   = { .mode = MODE_INPUT,     .port = PORT_A, .pin = PIN_0, .initial = 0 },
 		[ _SERVO_4_CURRENT         ]   = { .mode = MODE_ANALOG,    .port = PORT_A, .pin = PIN_6, .initial = 0 },
 		[ _SERVO_4_CURRENT_FAULT   ]   = { .mode = MODE_INPUT,     .port = PORT_B, .pin = PIN_0, .initial = 0 },
 };
@@ -159,6 +159,8 @@ hal_gpio_configure_defaults( void )
         const HalGpioDef_t *m = &HalGpioHardwareMap[portpin];
         hal_gpio_init( portpin, m->mode, m->initial );
     }
+
+    HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PIN1);
 }
 
 /* -------------------------------------------------------------------------- */
