@@ -37,7 +37,7 @@ sensors_enable( void )
 	hal_adc_start( HAL_ADC_INPUT_TEMP_INTERNAL, ADC_SAMPLE_RATE_MS );
 	hal_adc_start( HAL_ADC_INPUT_VREFINT, 		ADC_SAMPLE_RATE_MS );
 
-	config_sensors_enable(true);
+    config_set_sensors_enabled(true);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -58,7 +58,7 @@ sensors_disable( void )
 	hal_adc_stop( HAL_ADC_INPUT_TEMP_INTERNAL 	);
 	hal_adc_stop( HAL_ADC_INPUT_VREFINT			);
 
-	config_sensors_enable(false);
+    config_set_sensors_enabled(false);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -127,6 +127,7 @@ sensors_servo_W( HalAdcInput_t servo_to_sample )
 	{
 		return -1000.0f;
 	}
+
 
 	return sensors_input_V() * sensors_servo_A( servo_to_sample );
 }

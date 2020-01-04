@@ -79,10 +79,10 @@ PUBLIC void
 config_set_cpu_temp( float temp );
 
 PUBLIC void
-config_sensors_enable( bool enable );
+config_set_sensors_enabled(bool enable );
 
 PUBLIC void
-config_module_enable( bool enable );
+config_set_module_enable(bool enable );
 
 PUBLIC void
 config_set_input_voltage( float voltage );

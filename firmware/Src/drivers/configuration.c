@@ -34,28 +34,6 @@ typedef struct
 
 typedef struct
 {
-	uint8_t mode_group_0;	//UART
-	uint8_t mode_group_1;	//I2C
-} InternalInterface_t;
-
-typedef struct
-{
-	uint8_t aux_0;	//PWM, IO capable
-	uint8_t aux_1;	//PWM, IO capable
-	uint8_t aux_2;	//PWM, IO capable
-	uint8_t aux_3;	//DAC/ADC/IO capable
-	uint8_t aux_4;  //DAC/ADC/IO capable
-} InternalIO_t;
-
-typedef struct
-{
-	uint8_t mode_group_0;	//uart capable IO pair
-	uint8_t mode_group_1;	//CAN capable IO pair
-	bool usb_enabled;
-} ExternalIO_t;
-
-typedef struct
-{
 	char build_branch[8];
 	char build_info[12];
 	char build_date[10];
@@ -184,7 +162,7 @@ CartesianPoint_t target_position;
 LedState_t    rgb_led_drive;
 LedControl_t  rgb_manual_control;
 LedSettings_t rgb_led_settings;
-Fade_t animation_inbound;
+Fade_t light_fade_inbound;
 
 float z_rotation;
 
@@ -195,7 +173,6 @@ PRIVATE void stop_mech_cb( void );
 PRIVATE void emergency_stop_cb( void );
 PRIVATE void home_mech_cb( void );
 PRIVATE void execute_motion_queue( void );
-PRIVATE void pause_motion_queue_execution( void );
 PRIVATE void clear_all_queue(void);
 
 PRIVATE void rgb_manual_led_event( void );
@@ -213,19 +190,14 @@ uint32_t camera_shutter_duration_ms = 0;
 
 eui_message_t ui_variables[] =
 {
-    // higher level system setup information
+    // Higher level system setup information
     EUI_CUSTOM("sys", sys_stats),
     EUI_CHAR_RO_ARRAY("name", device_nickname),
     EUI_CUSTOM("super", sys_states),
     EUI_CUSTOM("fwb", fw_info),
     EUI_CUSTOM_RO( "kinematics", mechanical_info),
 
-    // Configuration of internal and external IO banks
-    EUI_CUSTOM("intDA", external_io_modes),
-    EUI_CUSTOM("intIO", internal_io_modes),
-    EUI_CUSTOM("extIO", internal_comm_modes),
-
-    // temperature and cooling system
+    // Temperature and cooling system
     EUI_CUSTOM("fan", fan_stats),
     EUI_CUSTOM("curve", fan_curve),
     EUI_CUSTOM("temp", temp_sensors),
@@ -233,33 +205,34 @@ eui_message_t ui_variables[] =
     EUI_UINT8("fan_man_speed", fan_manual_setpoint),
     EUI_UINT8( "fan_manual_en", fan_manual_enable),
 
-    EUI_CUSTOM( "queue", queue_data),
 
     // motion related information
-    EUI_CUSTOM("moStat", motion_global),
-    EUI_CUSTOM("mo1", motion_servo[0]),
-    EUI_CUSTOM("mo2", motion_servo[1]),
-    EUI_CUSTOM("mo3", motion_servo[2]),
+    EUI_CUSTOM_RO( "queue", queue_data),
+
+    EUI_CUSTOM_RO("moStat", motion_global),
+    EUI_CUSTOM_RO("mo1", motion_servo[0]),
+    EUI_CUSTOM_RO("mo2", motion_servo[1]),
+    EUI_CUSTOM_RO("mo3", motion_servo[2]),
 #ifdef EXPANSION_SERVO
-    EUI_CUSTOM("mo4", motion_servo[3]),
+    EUI_CUSTOM_RO("mo4", motion_servo[3]),
 #endif
 
     EUI_CUSTOM_RO("rgb", rgb_led_drive ),
     EUI_CUSTOM( "hsv", rgb_manual_control ),
     EUI_CUSTOM("ledset", rgb_led_settings ),
 
-    EUI_FUNC( "sync", sync_begin_queues ),
-    EUI_UINT16( "syncid", sync_id_val ),
-    EUI_INT32_ARRAY( "tpos", target_position ),
-    EUI_INT32_RO_ARRAY( "cpos", current_position ),
 
     //inbound movement buffer and 'add to queue' callback
+    EUI_CUSTOM("inlt", light_fade_inbound),
     EUI_CUSTOM("inmv", motion_inbound),
+
     EUI_FUNC("stmv", execute_motion_queue),
     EUI_FUNC("clmv", clear_all_queue),
+    EUI_FUNC( "sync", sync_begin_queues ),
+    EUI_UINT16( "syncid", sync_id_val ),
 
-    // inbound led animation buffer and 'add to queue'
-    EUI_CUSTOM("inlt", animation_inbound),
+    EUI_INT32_ARRAY( "tpos", target_position ),
+    EUI_INT32_RO_ARRAY( "cpos", current_position ),
 
     // Event trigger callbacks
     EUI_FUNC("estop", emergency_stop_cb),
@@ -303,18 +276,8 @@ configuration_set_defaults( void )
 	strcpy(&fw_info.build_time, ProgramBuildTime );
 	strcpy(&fw_info.build_type, ProgramBuildType );
 
-	//Set the configurable IO to off
-	internal_comm_modes.mode_group_0 	= PIN_INACTIVE;
-	internal_comm_modes.mode_group_1 	= PIN_INACTIVE;
-	external_io_modes.mode_group_0 		= PIN_INACTIVE;
-	external_io_modes.mode_group_1 		= PIN_INACTIVE;
-	external_io_modes.usb_enabled 		= false;
-
-	internal_io_modes.aux_0 			= PIN_INACTIVE;
-	internal_io_modes.aux_1 			= PIN_INACTIVE;
-	internal_io_modes.aux_2 			= PIN_INACTIVE;
-	internal_io_modes.aux_3 			= PIN_INACTIVE;
-	internal_io_modes.aux_4 			= PIN_INACTIVE;
+	// Load settings from flash memory
+    configuration_load();
 
 }
 
@@ -344,7 +307,6 @@ configuration_electric_setup( void )
 {
     EUI_TRACK( ui_variables );
     eui_setup_identifier( (char*)HAL_UUID, 12 );	//header byte is 96-bit, therefore 12-bytes
-
 }
 
 PUBLIC void
@@ -473,13 +435,13 @@ config_set_cpu_temp( float temp )
 }
 
 PUBLIC void
-config_sensors_enable( bool enable )
+config_set_sensors_enabled(bool enable )
 {
 	sys_stats.sensors_enable = enable;
 }
 
 void
-config_module_enable(bool enabled)
+config_set_module_enable(bool enabled)
 {
 	sys_stats.module_enable = enabled;
 }
@@ -825,9 +787,9 @@ PRIVATE void lighting_generate_event( void )
 
     if(lighting_request)
     {
-        memcpy(&lighting_request->animation, &animation_inbound, sizeof(animation_inbound));
+        memcpy(&lighting_request->animation, &light_fade_inbound, sizeof(light_fade_inbound));
         eventPublish( (StateEvent*)lighting_request );
-        memset(&animation_inbound, 0, sizeof(animation_inbound));
+        memset(&light_fade_inbound, 0, sizeof(light_fade_inbound));
     }
 }
 
