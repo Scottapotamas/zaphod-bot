@@ -2829,4 +2829,40 @@ F 10 "1" V 2735 5650 20  0001 C CNN "Supplier Price Break"
 	1    2400 5800
 	0    1    1    0   
 $EndComp
+$Comp
+L appli_resistor:1K00_1608M R71
+U 1 1 5E1250C2
+P 14150 8125
+F 0 "R71" V 13962 7975 50  0000 C CNN
+F 1 "1K00_1608M" V 14042 7975 35  0000 C CNN
+F 2 "Applidyne_Resistor:RESC1608X50N" V 14260 7975 20  0001 C CNN
+F 3 "http://www.farnell.com/datasheets/1723233.pdf" V 14285 7975 20  0001 C CNN
+F 4 "MULTICOMP" V 14335 7975 20  0001 C CNN "manf"
+F 5 "MCHP03W8F1001T5E" V 14360 7975 20  0001 C CNN "manf#"
+F 6 "Element14" V 14385 7975 20  0001 C CNN "Supplier"
+F 7 "1576283" V 14410 7975 20  0001 C CNN "Supplier Part No"
+F 8 "http://au.element14.com/multicomp/mchp03w8f1001t5e/resistor-thick-film-1k-0-125w/dp/1576283" V 14435 7975 20  0001 C CNN "Supplier URL"
+F 9 "0.011" V 14460 7975 20  0001 C CNN "Supplier Price"
+F 10 "50+" V 14485 7975 20  0001 C CNN "Supplier Price Break"
+	1    14150 8125
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	14150 8425 14150 8475
+Wire Wire Line
+	14150 8475 14250 8475
+Wire Wire Line
+	14250 8475 14250 8325
+Wire Wire Line
+	14250 8325 14375 8325
+Connection ~ 14375 8325
+Wire Wire Line
+	14150 8125 14150 8075
+Wire Wire Line
+	14150 8075 14250 8075
+Wire Wire Line
+	14250 8075 14250 8225
+Wire Wire Line
+	14250 8225 14375 8225
+Connection ~ 14375 8225
 $EndSCHEMATC
