@@ -61,6 +61,12 @@ app_background( void )
         timer_ms_start( &button_timer, BACKGROUND_RATE_BUTTON_MS );
     }
 
+    if( timer_ms_is_expired( &buzzer_timer ) )
+    {
+        buzzer_process();
+        timer_ms_start( &buzzer_timer, BACKGROUND_RATE_BUZZER_MS );
+    }
+
     if( timer_ms_is_expired( &fan_timer ) )
     {
         fan_process();

@@ -48,6 +48,15 @@ enum CommunicationDefines
 
 /* -------------------------------------------------------------------------- */
 
+enum BuzzerDefines
+{
+    BUZZER_TONE_LOW = 2400,
+    BUZZER_TONE_NORMAL = 4400,
+    BUZZER_TONE_HIGH = 8800,
+};
+
+/* -------------------------------------------------------------------------- */
+
 enum FanDefines
 {
 	FAN_EVALUATE_TIME		= 100U,

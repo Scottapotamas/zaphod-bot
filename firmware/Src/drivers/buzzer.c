@@ -8,6 +8,7 @@
 #include "simple_state_machine.h"
 #include "hal_pwm.h"
 #include "hal_systick.h"
+#include "app_times.h"
 
 /* ----- Private Types ------------------------------------------------------ */
 
@@ -91,7 +92,7 @@ buzzer_process( void )
             STATE_ENTRY_ACTION
 
                 buzzer.timer = hal_systick_get_ms();
-            	hal_pwm_set( _PWM_TIM_BUZZER, 50 );
+                hal_pwm_set_percentage_f( _PWM_TIM_BUZZER, 50 );
 
             STATE_TRANSITION_TEST
 
@@ -102,7 +103,7 @@ buzzer_process( void )
 
             STATE_EXIT_ACTION
 
-                hal_pwm_set( _PWM_TIM_BUZZER, 0 );
+                hal_pwm_set_percentage_f( _PWM_TIM_BUZZER, 0 );
 
             STATE_END
             break;
