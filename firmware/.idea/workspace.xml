@@ -13,8 +13,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5807f310-86a7-4c2a-9b30-ff232d3bffd0" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/README.md" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/basics/hello-blink/hello-blink.ino" beforeDir="false" />
@@ -63,6 +61,16 @@
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/utilities/test_eui_macro.c" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/utilities/test_eui_offset_validation.c" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/valgrind_on_tests.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/app_state_machines/app_background.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/app_state_machines/app_background.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/app_state_machines/app_hardware.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/app_state_machines/app_hardware.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/drivers/clearpath.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/drivers/clearpath.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/drivers/configuration.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/drivers/configuration.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/drivers/configuration.h" beforeDir="false" afterPath="$PROJECT_DIR$/Src/drivers/configuration.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/hal/hal_hard_ic.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/hal/hal_hard_ic.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/usb_device.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/usb_device.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/usb_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/Src/usb_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/usbd_cdc_if.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/usbd_cdc_if.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../interface/src/application/pages/DevicePages/DetailPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../interface/src/application/pages/DevicePages/DetailPage.tsx" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -73,41 +81,37 @@
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
-  <component name="FindInProjectRecents">
-    <findStrings>
-      <find>offset</find>
-      <find>MA_</find>
-      <find>electricui</find>
-      <find>msgID</find>
-      <find>eui</find>
-      <find>interface</find>
-      <find>fan_stats</find>
-      <find>SystemStates_t</find>
-      <find>config_set_main_state</find>
-      <find>Mai</find>
-      <find>supervisor</find>
-      <find>movement_generate_event</find>
-      <find>set</find>
-      <find>write</find>
-      <find>TIM2</find>
-      <find>__FLT_EPSILON__</find>
-      <find>move_progress</find>
-      <find>event</find>
-      <find>MODE_TRACK</find>
-      <find>soft ic</find>
-      <find>mpw</find>
-      <find>PREPARE</find>
-      <find>config_set_path</find>
-      <find>duty</find>
-      <find>qult</find>
-      <find>motion_global</find>
-      <find>publish</find>
-      <find>pause</find>
-      <find>identifier_to_execute</find>
-      <find>queue</find>
-    </findStrings>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
   </component>
+  <component name="EmbeddedSvdWindowState">
+    <option name="columnWidths">
+      <list>
+        <option value="187" />
+        <option value="82" />
+        <option value="984" />
+      </list>
+    </option>
+    <option name="columnOrder">
+      <list>
+        <option value="Name" />
+        <option value="Value" />
+        <option value="Description" />
+      </list>
+    </option>
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
@@ -124,7 +128,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="language.cpp.clang-tidy" />
+    <property name="settings.editor.selected.configurable" value="CPPToolchains" />
     <property name="ts.external.directory.path" value="$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external" />
   </component>
   <component name="RecentsManager">
@@ -153,6 +157,7 @@
   <component name="RunManager" selected="Embedded GDB Server.Build and JLink">
     <configuration name="Build" type="CMakeRunConfiguration" factoryName="Application" singleton="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="delta-control" TARGET_NAME="delta-control.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="delta-control" RUN_TARGET_NAME="delta-control.elf">
       <method v="2">
+        <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_GenerateBuildInfo" />
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
@@ -197,7 +202,12 @@
       <workItem from="1563254880267" duration="29555000" />
       <workItem from="1563328064075" duration="24989000" />
       <workItem from="1563434906828" duration="1212000" />
-      <workItem from="1573609002995" duration="574000" />
+      <workItem from="1573609002995" duration="12177000" />
+      <workItem from="1576813851158" duration="608000" />
+      <workItem from="1577845446990" duration="20227000" />
+      <workItem from="1577807569364" duration="23952000" />
+      <workItem from="1577969879873" duration="3904000" />
+      <workItem from="1578135173952" duration="5192000" />
     </task>
     <servers />
   </component>
@@ -218,7 +228,9 @@
       <map>
         <entry key="MAIN">
           <value>
-            <State />
+            <State>
+              <option name="COLUMN_ORDER" />
+            </State>
           </value>
         </entry>
       </map>

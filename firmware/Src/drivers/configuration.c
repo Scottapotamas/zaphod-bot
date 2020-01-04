@@ -143,9 +143,6 @@ typedef struct
 SystemData_t 	sys_stats;
 BuildInfo_t		fw_info;
 KinematicsInfo_t mechanical_info;
-InternalInterface_t internal_comm_modes;
-InternalIO_t	internal_io_modes;
-ExternalIO_t	external_io_modes;
 
 FanData_t 		fan_stats;
 FanCurve_t 		fan_curve[] =
