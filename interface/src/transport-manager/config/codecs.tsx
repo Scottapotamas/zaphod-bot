@@ -525,6 +525,54 @@ export class KinematicsInfoCodec extends Codec {
   }
 }
 
+export class PowerCalibrationCodec extends Codec {
+  filter(message: Message): boolean {
+    return message.messageID === 'pwr_cal'
+  }
+
+  /* Trim values applied after sensor averaging/conversion
+    int16_t voltage;          // in mV
+    int16_t current_servo_1;  // in mA
+    int16_t current_servo_2;
+    int16_t current_servo_3;
+    int16_t current_servo_4;
+*/
+
+  encode(message: Message, push: PushCallback) {
+    if (message.payload === null) {
+      return push(message)
+    }
+    const packet = new SmartBuffer()
+
+    packet.writeInt16LE(message.payload.voltage)
+    packet.writeInt16LE(message.payload.current_servo_1)
+    packet.writeInt16LE(message.payload.current_servo_2)
+    packet.writeInt16LE(message.payload.current_servo_3)
+    packet.writeInt16LE(message.payload.current_servo_4)
+
+    message.payload = packet.toBuffer()
+
+    return push(message)
+  }
+
+  decode(message: Message, push: PushCallback) {
+    if (message.payload === null) {
+      return push(message)
+    }
+
+    const reader = SmartBuffer.fromBuffer(message.payload)
+    message.payload = {
+      voltage: reader.readInt16LE(),
+      current_servo_1: reader.readInt16LE(),
+      current_servo_2: reader.readInt16LE(),
+      current_servo_3: reader.readInt16LE(),
+      current_servo_4: reader.readInt16LE(),
+    }
+
+    return push(message)
+  }
+}
+
 export const customCodecs = [
   new SystemDataCodec(),
   new TempDataCodec(),
@@ -541,4 +589,5 @@ export const customCodecs = [
   new RGBManualControl(),
   new RGBSettingsCodec(),
   new KinematicsInfoCodec(),
+  new PowerCalibrationCodec(),
 ]

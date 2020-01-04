@@ -163,6 +163,12 @@ config_set_motion_queue_depth( uint8_t utilisation );
 PUBLIC float
 config_get_rotation_z();
 
+PUBLIC int16_t
+config_get_voltage_trim_mV( void );
+
+PUBLIC int16_t
+config_get_servo_trim_mA( uint8_t servo);
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void

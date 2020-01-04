@@ -108,6 +108,15 @@ typedef struct
 
 typedef struct
 {
+    int16_t voltage;
+    int16_t current_servo_1;
+    int16_t current_servo_2;
+    int16_t current_servo_3;
+    int16_t current_servo_4;
+} PowerCalibration_t;
+
+typedef struct
+{
     uint16_t red;
     uint16_t green;
     uint16_t blue;
@@ -155,6 +164,8 @@ QueueDepths_t   queue_data;
 
 MotionData_t 	motion_global;
 MotorData_t 	motion_servo[4];
+PowerCalibration_t power_trims;
+
 Movement_t 		motion_inbound;
 CartesianPoint_t current_position; //global position of end effector in cartesian space
 CartesianPoint_t target_position;
@@ -217,6 +228,7 @@ eui_message_t ui_variables[] =
     EUI_CUSTOM_RO("mo4", motion_servo[3]),
 #endif
 
+    EUI_CUSTOM( "pwr_cal", power_trims ),
     EUI_CUSTOM_RO("rgb", rgb_led_drive ),
     EUI_CUSTOM( "hsv", rgb_manual_control ),
     EUI_CUSTOM("ledset", rgb_led_settings ),
@@ -617,6 +629,27 @@ config_get_rotation_z()
 {
     float angle = CLAMP( z_rotation, 0.0f, 360.0f );
     return angle;
+}
+
+PUBLIC int16_t config_get_voltage_trim_mV( void )
+{
+    return power_trims.voltage;
+}
+
+PUBLIC int16_t config_get_servo_trim_mA( uint8_t servo)
+{
+    switch( servo )
+    {
+        case 0: // Servo 1
+            return power_trims.current_servo_1;
+        case 1: // Servo 2
+            return power_trims.current_servo_2;
+        case 2: // Servo 3
+            return power_trims.current_servo_3;
+        case 3: // Servo 4
+            return power_trims.current_servo_4;
+
+    }
 }
 
 /* -------------------------------------------------------------------------- */
