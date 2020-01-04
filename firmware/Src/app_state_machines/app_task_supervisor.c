@@ -210,6 +210,7 @@ PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
 
             status_yellow(true);
             status_external(true);
+            buzzer_sound(BUZZER_ARMING_START_NUM, BUZZER_ARMING_START_TONE, BUZZER_ARMING_START_DURATION);
 
         	//request a motion handler homing process
             eventPublish( EVENT_NEW( StateEvent, MOTION_PREPARE ) );
@@ -284,9 +285,9 @@ PRIVATE STATE AppTaskSupervisor_arm_error( AppTaskSupervisor *me,
         	//send message to UI
         	config_report_error("Arming Error");
 
-        	//blink some lights?
-            // see status_external(true);
-        	return 0;
+            buzzer_sound(BUZZER_ARMING_ERROR_NUM, BUZZER_ARMING_ERROR_TONE, BUZZER_ARMING_ERROR_DURATION);
+
+            return 0;
 
         case MOTION_DISABLED:
             STATE_TRAN( AppTaskSupervisor_disarmed );
@@ -311,9 +312,11 @@ PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
         case STATE_ENTRY_SIGNAL:
         	// update state for UI
         	config_set_main_state( SUPERVISOR_SUCCESS );
+
             status_yellow(false);
             status_green(true);
             status_external(true);
+            buzzer_sound(BUZZER_ARMING_OK_NUM, BUZZER_ARMING_OK_TONE, BUZZER_ARMING_OK_DURATION);
 
         	//start additional subsystems here as required
 
@@ -729,6 +732,8 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
             eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
             eventPublish( EVENT_NEW( StateEvent, LED_CLEAR_QUEUE ) );
 
+            buzzer_sound(BUZZER_MODE_CHANGE_NUM, BUZZER_MODE_CHANGE_TONE, BUZZER_MODE_CHANGE_DURATION);
+
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
 
         	eventTimerStartEvery( &me->timer1,
@@ -877,7 +882,9 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
 		case STATE_EXIT_SIGNAL:
             config_set_control_mode( me->selected_control_mode );
             eventTimerStopIfActive( &me->timer1 );
-			return 0;
+
+            buzzer_sound(BUZZER_MODE_CHANGED_NUM, BUZZER_MODE_CHANGED_TONE, BUZZER_MODE_CHANGED_DURATION);
+            return 0;
     }
     return (STATE)AppTaskSupervisor_main;
 }
