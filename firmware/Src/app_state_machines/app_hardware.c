@@ -8,6 +8,7 @@
 #include "hal_adc.h"
 #include "hal_gpio.h"
 #include "hal_hard_ic.h"
+#include "hal_flashmem.h"
 #include "hal_watchdog.h"
 #include "hal_system_speed.h"
 
@@ -42,6 +43,7 @@ app_hardware_init( void )
     hal_adc_init();
     hal_hard_ic_init();
 
+    hal_flashmem_init();
 	configuration_init();
     buzzer_init();
     fan_init();
