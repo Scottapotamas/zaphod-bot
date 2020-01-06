@@ -5,6 +5,7 @@
 #include "configuration.h"
 #include "electricui.h"
 
+#include "hal_flashmem.h"
 #include "hal_uuid.h"
 #include "app_version.h"
 #include "app_times.h"
