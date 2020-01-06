@@ -158,9 +158,11 @@ hal_flashmem_store( uint16_t id, uint8_t *data, uint16_t len)
         StoredVariableHeader_t new_metadata;
         new_metadata.id = id;
         new_metadata.len = len;
-        uint32_t *header_word = &new_metadata;
 
-        HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, *header_word, sizeof(StoredVariableHeader_t));
+        uint32_t header_word = 0;
+        memcpy( &header_word, &new_metadata, 4);
+
+        HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, new_entry_addr, header_word);
         new_entry_addr += 0x01;
 
         // don't write anything into the address field yet
@@ -277,7 +279,7 @@ hal_flashmem_find_end_address( uint8_t sector )
         if( tmp_entry->id != 0xFFFF && tmp_entry->len != 0xFFFF)
         {
             // there's data, move the address to that of the next entry
-            scan_addr += 1 + tmp_entry->len;  // remember to skip 1-word for the address
+            scan_addr += 1 + (tmp_entry->len / 4);  // remember to skip 1-word for the address
             // TODO Follow data to new address based on assumption instead of searching every entry
         }
         else
@@ -312,8 +314,7 @@ hal_flashmem_find_variable_entry( uint16_t identifier )
         // 'Read' the entry metadata
         tmp_entry = (StoredVariableHeader_t *)scan_addr;
         uint32_t *replacement_entry_ptr;
-        replacement_entry_ptr = scan_addr;
-        replacement_entry_ptr += 1;
+        replacement_entry_ptr = scan_addr+1;
 
         // Check the entry at this address has data (id and size both must be non-zero
         if( tmp_entry->id != 0xFFFF && tmp_entry->len != 0xFFFF)
