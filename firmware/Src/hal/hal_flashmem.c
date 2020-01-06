@@ -47,15 +47,13 @@
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void hal_flashmem_prepare( void );
+PRIVATE uint32_t* hal_flashmem_find_end_address( uint8_t sector );
 
-PRIVATE uint32_t hal_flashmem_find_end_address( uint8_t sector );
-
-PRIVATE uint32_t hal_flashmem_find_variable_entry(uint16_t identifier );
+PRIVATE uint32_t* hal_flashmem_find_variable_entry(uint16_t identifier );
 
 PRIVATE void hal_flashmem_migrate_sector( uint8_t new_sector );
 
-PRIVATE void hal_flashmem_erase_sector(uint32_t address);
+PRIVATE void hal_flashmem_erase_sector(uint8_t sector);
 
 PRIVATE bool hal_flashmem_is_sector_active( uint8_t sector_to_check );
 
@@ -63,13 +61,11 @@ PRIVATE uint32_t hal_flashmem_get_sector_number(uint32_t address);
 
 PRIVATE uint32_t hal_flashmem_get_sector_address(uint8_t sector);
 
+PRIVATE uint8_t hal_flashmem_get_other_sector( uint8_t sector );
+
 PRIVATE void hal_flashmem_unlock( void );
 
 PRIVATE void hal_flashmem_lock( void );
-
-uint8_t FLASH_OB_GetRDP(void);              // private to stm32f4xx_hal_flash_ex.c
-
-PRIVATE bool hal_flashmem_readout_protection_enabled( void );
 
 
 /* -------------------------------------------------------------------------- */
@@ -77,25 +73,18 @@ PRIVATE bool hal_flashmem_readout_protection_enabled( void );
 typedef struct {
     uint16_t id;
     uint16_t len;
-    uint32_t new_address;
+//    uint32_t new_address;
 } StoredVariableHeader_t;
 
 uint8_t sector_in_use = 0;
-uint32_t address_of_end = 0;
+uint32_t *address_of_end = 0;
 
 /* -------------------------------------------------------------------------- */
-//    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
+
 
 PUBLIC void
 hal_flashmem_init(void )
 {
-    // Check if the flash is accessible before we try to init
-    if( hal_flashmem_readout_protection_enabled() )
-    {
-        // uh what?
-        _Error_Handler(__FILE__, __LINE__);
-    }
-
     // Work out which bank of memory is the current one
     if( hal_flashmem_is_sector_active(PAGE0_ID) )
     {
@@ -107,7 +96,7 @@ hal_flashmem_init(void )
     }
     else    // neither sector is in use, therefore we should get one ready
     {
-        hal_flashmem_prepare();
+        hal_flashmem_wipe_and_prepare();
     }
 
     // Walk through the data and find the 'end' of the written data
@@ -120,11 +109,14 @@ hal_flashmem_init(void )
 PUBLIC void
 hal_flashmem_store( uint16_t id, uint8_t *data, uint16_t len)
 {
+    FORBID();
     hal_flashmem_unlock();
 
     // Find the address of the last record for the given ID
-    uint32_t entry_addr = hal_flashmem_find_variable_entry( id );
+    uint32_t *entry_addr = 0;
     StoredVariableHeader_t *existing_metadata;
+
+    entry_addr = hal_flashmem_find_variable_entry( id );
     existing_metadata = (StoredVariableHeader_t *)entry_addr;
 
     uint8_t store_state = 0;    // 0 = null, 1 = identical data early exit, 2 = no previous entry, 3 = previous entry updated
@@ -145,7 +137,7 @@ hal_flashmem_store( uint16_t id, uint8_t *data, uint16_t len)
         else
         {
             // Write the address of the new entry into the current entry
-            HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, entry_addr+4, address_of_end );
+            HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, entry_addr+1, address_of_end );
             store_state = 3;
         }
 
@@ -159,35 +151,44 @@ hal_flashmem_store( uint16_t id, uint8_t *data, uint16_t len)
     // Write a new entry to store the data
     if(store_state != 1 )
     {
+        uint16_t payload_bytes_written = 0;
+        uint32_t *new_entry_addr = address_of_end;
+
         // Prepare the header information for the new entry
         StoredVariableHeader_t new_metadata;
         new_metadata.id = id;
         new_metadata.len = len;
-        new_metadata.new_address = 0xFFFFFFFF;  // don't write anything there right now
+        uint32_t *header_word = &new_metadata;
 
-        uint16_t payload_bytes_written = 0;
+        HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, *header_word, sizeof(StoredVariableHeader_t));
+        new_entry_addr += 0x01;
 
-        uint32_t new_entry_addr = address_of_end;
-        HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, new_entry_addr, new_metadata.id);
-        new_entry_addr += 2;
-        HAL_FLASH_Program(FLASH_TYPEPROGRAM_HALFWORD, new_entry_addr, new_metadata.len);
-        new_entry_addr += 2;
         // don't write anything into the address field yet
-        new_entry_addr += 4;
+        new_entry_addr += 0x01;
 
         // Write the payload into flash
-        for( payload_bytes_written = 0; payload_bytes_written <= len; )
+        for( payload_bytes_written = 0; payload_bytes_written < len; )
         {
-            // TODO flash words until near end of payload, then cleanly word align with padding zeros
-            HAL_FLASH_Program( FLASH_TYPEPROGRAM_WORD, new_entry_addr+payload_bytes_written, data[payload_bytes_written] );
+            uint32_t data_to_write = 0;
+
+            if( len-payload_bytes_written >= 4 )
+            {
+                data_to_write = data[ payload_bytes_written ];
+            }
+            else
+            {
+                memcpy( &data_to_write, &data[payload_bytes_written], len-payload_bytes_written);
+            }
+
+            HAL_FLASH_Program( FLASH_TYPEPROGRAM_WORD, new_entry_addr+(payload_bytes_written/4), data_to_write );
             payload_bytes_written += 4;
         }
 
-        address_of_end = new_entry_addr + payload_bytes_written + 1;
+        address_of_end = new_entry_addr + (payload_bytes_written/4);
     }
 
     hal_flashmem_lock();
-
+    PERMIT();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -197,11 +198,14 @@ hal_flashmem_store( uint16_t id, uint8_t *data, uint16_t len)
 PUBLIC uint16_t
 hal_flashmem_retrieve(uint16_t id, uint8_t *buffer, uint16_t buff_len)
 {
-    uint32_t entry_addr = hal_flashmem_find_variable_entry( id );
-    StoredVariableHeader_t *ret_metadata;
-    ret_metadata = (StoredVariableHeader_t *)entry_addr;
+    FORBID();
 
+    uint32_t *entry_addr = 0;
+    StoredVariableHeader_t *ret_metadata;
     uint16_t bytes_to_copy = 0;
+
+    entry_addr = hal_flashmem_find_variable_entry( id );
+    ret_metadata = (StoredVariableHeader_t *)entry_addr;
 
     // Check that the entry is valid
     if( entry_addr && ret_metadata->id )
@@ -222,20 +226,22 @@ hal_flashmem_retrieve(uint16_t id, uint8_t *buffer, uint16_t buff_len)
         memcpy( &buffer, &entry_addr, bytes_to_copy);
     }
 
+    PERMIT();
     return bytes_to_copy;
 }
 
 /* -------------------------------------------------------------------------- */
 
 // Wipe both sectors, put the magic word in the first sector
-PRIVATE void
-hal_flashmem_prepare( void )
+PUBLIC void
+hal_flashmem_wipe_and_prepare( void )
 {
+    FORBID();
     hal_flashmem_unlock();
 
     // Wipe the two storage sectors
-    hal_flashmem_erase_sector( hal_flashmem_get_sector_address( PAGE0_ID ) );
-    hal_flashmem_erase_sector( hal_flashmem_get_sector_address( PAGE1_ID ) );
+    hal_flashmem_erase_sector( PAGE0_ID );
+    hal_flashmem_erase_sector( PAGE1_ID );
 
     // Write the magic word into the base of the sector to indicate active use
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, hal_flashmem_get_sector_address(PAGE0_ID), PAGE_ACTIVE_MARKER );
@@ -243,16 +249,20 @@ hal_flashmem_prepare( void )
     sector_in_use = PAGE0_ID;
 
     hal_flashmem_lock();
+    PERMIT();
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE uint32_t
+PRIVATE uint32_t *
 hal_flashmem_find_end_address( uint8_t sector )
 {
     // first entry starts one FULLWORD from the sector base address
-    uint32_t scan_addr = hal_flashmem_get_sector_address( sector ) + PAGE_MARKER_LENGTH;
-    uint32_t sector_limit_addr = hal_flashmem_get_sector_address( sector+1 );
+    uint32_t *scan_addr = 0;
+    uint32_t *sector_limit_addr = 0;
+
+    scan_addr           = hal_flashmem_get_sector_address( sector ) + PAGE_MARKER_LENGTH;
+    sector_limit_addr   = hal_flashmem_get_sector_address( sector+1 ) - 1;
 
     bool end_found = false;
     StoredVariableHeader_t *tmp_entry;
@@ -263,11 +273,11 @@ hal_flashmem_find_end_address( uint8_t sector )
         // 'Read' the entry metadata
         tmp_entry = (StoredVariableHeader_t *)scan_addr;
 
-        // Check the entry at this address has data (id and size both must be non-zero
-        if( tmp_entry->id && tmp_entry->len )
+        // Check the entry at this address has data (id and size both must be non-FFFF
+        if( tmp_entry->id != 0xFFFF && tmp_entry->len != 0xFFFF)
         {
             // there's data, move the address to that of the next entry
-            scan_addr += 4 + tmp_entry->len;  // remember to skip 4-bytes for the address
+            scan_addr += 1 + tmp_entry->len;  // remember to skip 1-word for the address
             // TODO Follow data to new address based on assumption instead of searching every entry
         }
         else
@@ -285,11 +295,13 @@ hal_flashmem_find_end_address( uint8_t sector )
     return scan_addr;
 }
 
-PRIVATE uint32_t
-hal_flashmem_find_variable_entry(uint16_t identifier )
+PRIVATE uint32_t *
+hal_flashmem_find_variable_entry( uint16_t identifier )
 {
-    uint32_t scan_addr = hal_flashmem_get_sector_address( sector_in_use ) + PAGE_MARKER_LENGTH;
-    uint32_t sector_limit_addr = hal_flashmem_get_sector_address( sector_in_use+1 );
+    uint32_t *scan_addr = 0;
+    uint32_t *sector_limit_addr = 0;
+    scan_addr = hal_flashmem_get_sector_address( sector_in_use ) + PAGE_MARKER_LENGTH;
+    sector_limit_addr = hal_flashmem_get_sector_address( sector_in_use+1 ) - 1;
 
     bool id_found = false;
     StoredVariableHeader_t *tmp_entry;
@@ -299,17 +311,20 @@ hal_flashmem_find_variable_entry(uint16_t identifier )
     {
         // 'Read' the entry metadata
         tmp_entry = (StoredVariableHeader_t *)scan_addr;
+        uint32_t *replacement_entry_ptr;
+        replacement_entry_ptr = scan_addr;
+        replacement_entry_ptr += 1;
 
         // Check the entry at this address has data (id and size both must be non-zero
-        if( tmp_entry->id && tmp_entry->len )
+        if( tmp_entry->id != 0xFFFF && tmp_entry->len != 0xFFFF)
         {
             // Is the current entry the right ID?
             if( tmp_entry->id == identifier)
             {
                 // check the address metadata field to see if there's a newer entry
-                if( tmp_entry->new_address != FLASH_WORD_UNWRITTEN)
+                if( replacement_entry_ptr != FLASH_WORD_UNWRITTEN)
                 {
-                    scan_addr = tmp_entry->new_address; // search there next pass
+                    scan_addr = replacement_entry_ptr; // search there next pass
                 }
                 else
                 {
@@ -319,7 +334,7 @@ hal_flashmem_find_variable_entry(uint16_t identifier )
             else
             {
                 // check the next entry in the block next pass
-                scan_addr += 4 + tmp_entry->len;  // remember to skip 4-bytes for the address
+                scan_addr += 1 + (tmp_entry->len/4);  // remember to skip 1-word for the address
             }
         }
         else    // found the end of data somehow
@@ -349,7 +364,7 @@ hal_flashmem_migrate_sector( uint8_t new_sector )
     hal_flashmem_store( new_sector, &sector_marker, sizeof(sector_marker) );
 
     // Wipe the old sector
-    hal_flashmem_erase_sector( hal_flashmem_get_sector_address( old_sector ) );
+    hal_flashmem_erase_sector( old_sector );
 
     // We are now using a new sector
     sector_in_use = new_sector;
@@ -358,21 +373,26 @@ hal_flashmem_migrate_sector( uint8_t new_sector )
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void
-hal_flashmem_erase_sector(uint32_t address)
+hal_flashmem_erase_sector(uint8_t sector)
 {
+    hal_flashmem_unlock();
+
     uint32_t flash_status = 0x00;   // error sector address, 0xFFFFFFFFU written when ok
 
     FLASH_EraseInitTypeDef sErase;
     sErase.VoltageRange = FLASH_VOLTAGE_SETTING;
     sErase.TypeErase = FLASH_TYPEERASE_SECTORS;
     sErase.NbSectors = 1;
-    sErase.Sector = hal_flashmem_get_sector_number(address);
+    sErase.Sector = sector;
+    sErase.Banks = 0;
 
     if( HAL_FLASHEx_Erase(&sErase, &flash_status) != HAL_OK )
     {
         // TODO handle flash erase error gracefully?
         _Error_Handler(__FILE__, __LINE__);
     }
+
+    hal_flashmem_unlock();
 }
 
 PRIVATE bool
@@ -479,9 +499,26 @@ hal_flashmem_get_sector_address(uint8_t sector)
 
 /* -------------------------------------------------------------------------- */
 
+PRIVATE uint8_t
+hal_flashmem_get_other_sector( uint8_t sector )
+{
+    if( sector == PAGE0_ID )
+    {
+        return PAGE1_ID;
+    }
+    else if( sector == PAGE1_ID )
+    {
+        return PAGE0_ID;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
 PRIVATE void
 hal_flashmem_unlock( void )
 {
+
+    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
     HAL_FLASH_Unlock();
 }
 
@@ -489,16 +526,6 @@ PRIVATE void
 hal_flashmem_lock( void )
 {
     HAL_FLASH_Lock();
-}
-
-/* -------------------------------------------------------------------------- */
-
-// OB_RDP_LEVEL_0 when protection off,
-// OB_RDP_LEVEL_1 for memory protection,
-// OB_RDP_LEVEL_2 when full chip protected
-PRIVATE bool hal_flashmem_readout_protection_enabled( void )
-{
-    return !( FLASH_OB_GetRDP() == OB_RDP_LEVEL_0 );
 }
 
 /* ----- End ---------------------------------------------------------------- */
