@@ -19,12 +19,12 @@ hal_flashmem_init(void );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-hal_flashmem_store(uint16_t address, uint8_t *data, uint16_t len);
+hal_flashmem_store(uint16_t id, uint8_t *data, uint16_t len);
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-hal_flashmem_retrieve(uint16_t address, uint8_t *data, uint16_t len);
+hal_flashmem_retrieve(uint16_t id, uint8_t *data, uint16_t len);
 
 /* ----- End ---------------------------------------------------------------- */
 
