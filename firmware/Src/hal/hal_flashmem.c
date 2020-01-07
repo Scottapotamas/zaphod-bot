@@ -77,7 +77,7 @@ typedef struct {
 } StoredVariableHeader_t;
 
 uint8_t sector_in_use = 0;
-uint32_t *address_of_end = 0;
+uint32_t address_of_end = 0;
 
 /* -------------------------------------------------------------------------- */
 
@@ -125,9 +125,8 @@ hal_flashmem_store( uint16_t id, uint8_t *data, uint16_t len)
     // or just write nothing if the data is identical to the existing version in storage
     if( entry_addr && existing_metadata->id )
     {
-        entry_addr += sizeof(StoredVariableHeader_t);   // payload is after the header
         uint32_t *entry_payload_addr;
-        entry_payload_addr = entry_addr+sizeof(StoredVariableHeader_t);
+        entry_payload_addr = entry_addr+1;    // replaced payload address is after the header (1 word)
 
         // Check if the entry payload is different from the requested store
         if( existing_metadata->len == len && memcmp( entry_payload_addr, data, len ) == 0 )
@@ -137,7 +136,7 @@ hal_flashmem_store( uint16_t id, uint8_t *data, uint16_t len)
         else
         {
             // Write the address of the new entry into the current entry
-            HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, entry_addr+1, address_of_end );
+            HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, entry_payload_addr, address_of_end );
             store_state = 3;
         }
 
@@ -249,6 +248,7 @@ hal_flashmem_wipe_and_prepare( void )
     HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, hal_flashmem_get_sector_address(PAGE0_ID), PAGE_ACTIVE_MARKER );
 
     sector_in_use = PAGE0_ID;
+    address_of_end = hal_flashmem_get_sector_address(sector_in_use)+4;
 
     hal_flashmem_lock();
     PERMIT();
@@ -267,19 +267,20 @@ hal_flashmem_find_end_address( uint8_t sector )
     sector_limit_addr   = hal_flashmem_get_sector_address( sector+1 ) - 1;
 
     bool end_found = false;
-    StoredVariableHeader_t *tmp_entry;
+    StoredVariableHeader_t tmp_entry;
 
     // Walk though entries until we find blank space
     while( scan_addr < sector_limit_addr && !end_found )
     {
         // 'Read' the entry metadata
-        tmp_entry = (StoredVariableHeader_t *)scan_addr;
+        uint32_t header = *scan_addr;
+        memcpy(&tmp_entry, &header, sizeof(header));
 
         // Check the entry at this address has data (id and size both must be non-FFFF
-        if( tmp_entry->id != 0xFFFF && tmp_entry->len != 0xFFFF)
+        if( tmp_entry.id != 0xFFFF && tmp_entry.len != 0xFFFF)
         {
             // there's data, move the address to that of the next entry
-            scan_addr += 1 + (tmp_entry->len / 4);  // remember to skip 1-word for the address
+            scan_addr += 1 + (tmp_entry.len / 4);  // remember to skip 1-word for the address
             // TODO Follow data to new address based on assumption instead of searching every entry
         }
         else
@@ -306,26 +307,28 @@ hal_flashmem_find_variable_entry( uint16_t identifier )
     sector_limit_addr = hal_flashmem_get_sector_address( sector_in_use+1 ) - 1;
 
     bool id_found = false;
-    StoredVariableHeader_t *tmp_entry;
+    StoredVariableHeader_t tmp_entry;
 
     // Walk though entries until we find our ID, then follow the chain of address to the last one
     while( scan_addr < sector_limit_addr && !id_found )
     {
         // 'Read' the entry metadata
-        tmp_entry = (StoredVariableHeader_t *)scan_addr;
+        uint32_t header = *scan_addr;
+        memcpy(&tmp_entry, &header, sizeof(header));
+
         uint32_t *replacement_entry_ptr;
         replacement_entry_ptr = scan_addr+1;
 
         // Check the entry at this address has data (id and size both must be non-zero
-        if( tmp_entry->id != 0xFFFF && tmp_entry->len != 0xFFFF)
+        if( tmp_entry.id != 0xFFFF && tmp_entry.len != 0xFFFF)
         {
             // Is the current entry the right ID?
-            if( tmp_entry->id == identifier)
+            if( tmp_entry.id == identifier)
             {
                 // check the address metadata field to see if there's a newer entry
-                if( replacement_entry_ptr != FLASH_WORD_UNWRITTEN)
+                if( *replacement_entry_ptr != FLASH_WORD_UNWRITTEN)
                 {
-                    scan_addr = replacement_entry_ptr; // search there next pass
+                    scan_addr = *replacement_entry_ptr; // search there next pass
                 }
                 else
                 {
@@ -335,7 +338,7 @@ hal_flashmem_find_variable_entry( uint16_t identifier )
             else
             {
                 // check the next entry in the block next pass
-                scan_addr += 1 + (tmp_entry->len/4);  // remember to skip 1-word for the address
+                scan_addr += 1 + (tmp_entry.len/4);  // remember to skip 1-word for the address
             }
         }
         else    // found the end of data somehow
