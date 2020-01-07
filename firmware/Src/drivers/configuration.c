@@ -192,6 +192,7 @@ PRIVATE void lighting_generate_event( void );
 PRIVATE void sync_begin_queues( void );
 PRIVATE void trigger_camera_capture( void );
 
+PRIVATE void configuration_wipe( void );
 uint16_t sync_id_val = 0;
 uint8_t mode_request = 0;
 
@@ -256,6 +257,8 @@ eui_message_t ui_variables[] =
     EUI_FLOAT( "rotZ", z_rotation),
     EUI_UINT32( "capture", camera_shutter_duration_ms),
 
+    EUI_FUNC( "save", configuration_save ),
+    EUI_FUNC("wipe", configuration_wipe ),
 };
 
 /* ----- Public Functions --------------------------------------------------- */
@@ -263,8 +266,11 @@ eui_message_t ui_variables[] =
 PUBLIC void
 configuration_init( void )
 {
-	//perform any setup here if needed
-	configuration_set_defaults();
+    //perform any setup here if needed
+    configuration_set_defaults();
+
+    // Load settings from flash memory
+    configuration_load();
 
 }
 
@@ -286,18 +292,20 @@ configuration_set_defaults( void )
 	strcpy(&fw_info.build_time, ProgramBuildTime );
 	strcpy(&fw_info.build_type, ProgramBuildType );
 
-	// Load settings from flash memory
-    configuration_load();
-
 }
 
 /* -------------------------------------------------------------------------- */
 
+#define PERSIST_ID_CAL_POWER 1
+#define PERSIST_ID_CAL_LED 2
+#define PERSIST_ID_FAN_CURVE 3
+
 PUBLIC void
 configuration_load( void )
 {
-	//load settings from memory
-	//todo implement flash storage mechanism
+    // Load the data from non-volatile storage
+    hal_flashmem_retrieve( PERSIST_ID_CAL_POWER, &power_trims, sizeof(PowerCalibration_t));
+    hal_flashmem_retrieve( PERSIST_ID_CAL_LED, &rgb_led_settings, sizeof(LedSettings_t));
 
 }
 
@@ -307,7 +315,13 @@ PUBLIC void
 configuration_save( void )
 {
 	//save settings to memory
+    hal_flashmem_store(PERSIST_ID_CAL_POWER, &power_trims, sizeof(PowerCalibration_t));
+    hal_flashmem_store(PERSIST_ID_CAL_LED, &rgb_led_settings, sizeof(LedSettings_t));
 
+}
+PRIVATE void configuration_wipe( void )
+{
+    hal_flashmem_wipe_and_prepare();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -646,7 +660,8 @@ PUBLIC int16_t config_get_servo_trim_mA( uint8_t servo)
             return power_trims.current_servo_3;
         case 3: // Servo 4
             return power_trims.current_servo_4;
-
+        default:
+            return 0;
     }
 }
 

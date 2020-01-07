@@ -66,10 +66,10 @@ hal_adc_init( void )
 	memset( &adc_averages, 0, sizeof( adc_averages ) );
 
 	average_short_init( &adc_averages[HAL_ADC_INPUT_VREFINT], 	  32 );
-	average_short_init( &adc_averages[HAL_ADC_INPUT_M1_CURRENT],  32 );
-	average_short_init( &adc_averages[HAL_ADC_INPUT_M2_CURRENT],  32 );
-	average_short_init( &adc_averages[HAL_ADC_INPUT_M3_CURRENT],  32 );
-	average_short_init( &adc_averages[HAL_ADC_INPUT_M4_CURRENT],  32 );
+	average_short_init( &adc_averages[HAL_ADC_INPUT_M1_CURRENT],  50 );
+	average_short_init( &adc_averages[HAL_ADC_INPUT_M2_CURRENT],  50 );
+	average_short_init( &adc_averages[HAL_ADC_INPUT_M3_CURRENT],  50 );
+	average_short_init( &adc_averages[HAL_ADC_INPUT_M4_CURRENT],  50 );
 	average_short_init( &adc_averages[HAL_ADC_INPUT_VOLT_SENSE],  32 );
 	average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_PCB],    32 );
 	average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_REG],    32 );
