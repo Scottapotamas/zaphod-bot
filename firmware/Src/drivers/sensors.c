@@ -105,7 +105,7 @@ PUBLIC float
 sensors_input_V( void )
 {
 	float input_voltage = hal_voltage_V( hal_adc_read_avg( HAL_ADC_INPUT_VOLT_SENSE ) );
-	input_voltage += (float)config_get_voltage_trim_mV() / 100.0f;
+	input_voltage += (float)config_get_voltage_trim_mV()/1000;
 
     config_set_input_voltage( input_voltage );
 	return input_voltage;
@@ -120,7 +120,7 @@ sensors_servo_A( HalAdcInput_t servo_to_sample )
 	}
 
 	float measured_current      = hal_current_A( hal_adc_read_avg( servo_to_sample ) );
-	float calibration_offset    = (float)config_get_servo_trim_mA(config_get_voltage_trim_mV) / 100;
+	float calibration_offset    = (float)config_get_servo_trim_mA(servo_to_sample)/1000;
 
 	return measured_current + calibration_offset;
 }
