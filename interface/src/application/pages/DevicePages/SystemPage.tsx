@@ -4,7 +4,9 @@ import {
   Slider,
   Statistic,
   Statistics,
+  NumberInput,
 } from '@electricui/components-desktop-blueprint'
+import { CALL_CALLBACK } from '@electricui/core'
 import {
   ButtonGroup,
   Card,
@@ -20,7 +22,7 @@ import {
   StateTree,
   useHardwareState,
 } from '@electricui/components-core'
-import { Composition } from 'atomic-layout'
+import { Composition, Box } from 'atomic-layout'
 
 import { Printer } from '@electricui/components-desktop'
 import { RouteComponentProps } from '@reach/router'
@@ -194,6 +196,77 @@ const LEDCalibrationCard = () => {
   )
 }
 
+const PowerCalibrationCard = () => {
+  return (
+    <Card>
+      <Composition templateCols="1fr 1fr" gap={20}>
+        <Box>
+          <Statistic
+            accessor={state => state.sys.input_voltage}
+            label="Voltage"
+          />
+          <br />
+          <NumberInput
+            accessor={state => state.pwr_cal.voltage}
+            writer={value => ({
+              pwr_cal: {
+                voltage: value,
+              },
+            })}
+            style={{ maxWidth: '100px' }}
+          />
+        </Box>
+        <Box>
+          <Statistic accessor={state => state.mo1.power} label="Servo 1" />
+          <br />
+          <NumberInput
+            accessor={state => state.pwr_cal.current_servo_1}
+            writer={value => ({
+              pwr_cal: {
+                current_servo_1: value,
+              },
+            })}
+            style={{ maxWidth: '100px' }}
+          />
+        </Box>
+        <Box>
+          <Statistic accessor={state => state.mo2.power} label="Servo 2" />
+          <br />
+          <NumberInput
+            accessor={state => state.pwr_cal.current_servo_2}
+            writer={value => ({
+              pwr_cal: {
+                current_servo_2: value,
+              },
+            })}
+            style={{ maxWidth: '100px' }}
+          />
+        </Box>
+        <Box>
+          <Statistic accessor={state => state.mo3.power} label="Servo 3" />
+          <br />
+          <NumberInput
+            accessor={state => state.pwr_cal.current_servo_3}
+            writer={value => ({
+              pwr_cal: {
+                current_servo_3: value,
+              },
+            })}
+            style={{ maxWidth: '100px' }}
+          />
+        </Box>
+      </Composition>
+      <Button
+        writer={{
+          save: CALL_CALLBACK,
+        }}
+      >
+        Save Calibration Values
+      </Button>
+    </Card>
+  )
+}
+
 const CoreInfoAreas = `
 CPUArea FirmwareArea
 `
@@ -222,6 +295,10 @@ const CoreSystemsInfoCard = () => {
               <br />
               <SensorsActive />
               <ModuleActive />
+              <br />
+              <Button writer={{ wipe: CALL_CALLBACK }}>
+                Wipe stored settings
+              </Button>
             </CPUArea>
             <FirmwareArea>
               <h3>Firmware Build Info</h3>
@@ -287,29 +364,39 @@ const CoreSystemsInfoCard = () => {
 
 const SystemAreas = `
 KinematicsArea CPUArea
-ExpansionArea FanArea
+LEDCalibrationArea PowerCalibrationArea
 `
 
 const SystemPage = (props: RouteComponentProps) => {
   return (
     <div>
-      <IntervalRequester interval={250} variables={['sys']} />
+      <IntervalRequester
+        interval={100}
+        variables={['sys', 'mo1', 'mo2', 'mo3']}
+      />
       <IntervalRequester interval={2000} variables={['curve']} />
       <IntervalRequester interval={350} variables={['fan']} />
 
       <Composition areas={SystemAreas} gap={20} templateCols="1fr 1fr">
-        {({ KinematicsArea, ExpansionArea, CPUArea, FanArea }) => (
+        {({
+          KinematicsArea,
+          LEDCalibrationArea,
+          CPUArea,
+          PowerCalibrationArea,
+        }) => (
           <React.Fragment>
             <KinematicsArea>
               <KinematicsInfoCard />
             </KinematicsArea>
-            <ExpansionArea>
+            <LEDCalibrationArea>
               <LEDCalibrationCard />
-            </ExpansionArea>
+            </LEDCalibrationArea>
             <CPUArea>
               <CoreSystemsInfoCard />
             </CPUArea>
-            <FanArea></FanArea>
+            <PowerCalibrationArea>
+              <PowerCalibrationCard />
+            </PowerCalibrationArea>
           </React.Fragment>
         )}
       </Composition>
