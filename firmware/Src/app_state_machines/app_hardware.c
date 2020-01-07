@@ -39,11 +39,12 @@ app_hardware_init( void )
     status_red( 	true );
 
     hal_systick_init();
+    hal_flashmem_init();
+
     hal_dma_init();
     hal_adc_init();
     hal_hard_ic_init();
 
-    hal_flashmem_init();
 	configuration_init();
     buzzer_init();
     fan_init();
