@@ -125,8 +125,10 @@ hal_flashmem_store( uint16_t id, uint8_t *data, uint16_t len)
     // or just write nothing if the data is identical to the existing version in storage
     if( entry_addr && existing_metadata->id )
     {
+        uint32_t *entry_next_address_addr;
         uint32_t *entry_payload_addr;
-        entry_payload_addr = entry_addr+1;    // replaced payload address is after the header (1 word)
+        entry_next_address_addr = entry_addr+1;    // replaced payload address is after the header (1 word)
+        entry_payload_addr = entry_addr+1+1;        // payload is after the header and after the next-address value
 
         // Check if the entry payload is different from the requested store
         if( existing_metadata->len == len && memcmp( entry_payload_addr, data, len ) == 0 )
@@ -136,7 +138,7 @@ hal_flashmem_store( uint16_t id, uint8_t *data, uint16_t len)
         else
         {
             // Write the address of the new entry into the current entry
-            HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, entry_payload_addr, address_of_end );
+            HAL_FLASH_Program(FLASH_TYPEPROGRAM_WORD, entry_next_address_addr, address_of_end );
             store_state = 3;
         }
 
@@ -174,7 +176,7 @@ hal_flashmem_store( uint16_t id, uint8_t *data, uint16_t len)
 
             if( len-payload_bytes_written >= 4 )
             {
-                data_to_write = data[ payload_bytes_written ];
+                memcpy( &data_to_write, &data[payload_bytes_written], sizeof(uint32_t));
             }
             else
             {
@@ -211,7 +213,7 @@ hal_flashmem_retrieve(uint16_t id, uint8_t *buffer, uint16_t buff_len)
     // Check that the entry is valid
     if( entry_addr && ret_metadata->id )
     {
-        entry_addr += sizeof(StoredVariableHeader_t);   // payload is after the header
+        entry_addr += 1 + 1;   // payload is after the header and replacement address word
 
         if( ret_metadata->len > buff_len )
         {
@@ -224,7 +226,7 @@ hal_flashmem_retrieve(uint16_t id, uint8_t *buffer, uint16_t buff_len)
         }
 
         // Copy the valid data into the user's buffer
-        memcpy( &buffer, &entry_addr, bytes_to_copy);
+        memcpy( buffer, entry_addr, bytes_to_copy);
     }
 
     PERMIT();
