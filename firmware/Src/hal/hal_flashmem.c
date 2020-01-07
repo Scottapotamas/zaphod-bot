@@ -183,11 +183,11 @@ hal_flashmem_store( uint16_t id, uint8_t *data, uint16_t len)
                 memcpy( &data_to_write, &data[payload_bytes_written], len-payload_bytes_written);
             }
 
-            HAL_FLASH_Program( FLASH_TYPEPROGRAM_WORD, new_entry_addr+(payload_bytes_written/4), data_to_write );
+            HAL_FLASH_Program( FLASH_TYPEPROGRAM_WORD, new_entry_addr+((payload_bytes_written+3)/4), data_to_write );
             payload_bytes_written += 4;
         }
 
-        address_of_end = new_entry_addr + (payload_bytes_written/4);
+        address_of_end = new_entry_addr + ((payload_bytes_written/3)/4);
     }
 
     hal_flashmem_lock();
@@ -282,7 +282,7 @@ hal_flashmem_find_end_address( uint8_t sector )
         if( tmp_entry.id != 0xFFFF && tmp_entry.len != 0xFFFF)
         {
             // there's data, move the address to that of the next entry
-            scan_addr += 1 + (tmp_entry.len / 4);  // remember to skip 1-word for the address
+            scan_addr += 1+1 + ((tmp_entry.len+3) / 4);  // skip 1-word for header, skip 1-word for the address field
             // TODO Follow data to new address based on assumption instead of searching every entry
         }
         else
