@@ -6,6 +6,7 @@
 
 #include "hal_hard_ic.h"
 #include "hal_gpio.h"
+#include "hal_systick.h"
 #include "average_short.h"
 #include "qassert.h"
 
@@ -33,6 +34,7 @@ typedef struct
 {
     uint32_t cnt_a;
     uint32_t cnt_b;
+    uint32_t timestamp;
     bool first_edge_done;
 } HalHardICIntermediate_t;
 
@@ -301,10 +303,36 @@ void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef* tim_icHandle)
 
 /* -------------------------------------------------------------------------- */
 
-//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-//{
-//
-//}
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+
+
+}
+
+/* -------------------------------------------------------------------------- */
+
+#define IC_TIMEOUT_HLFB 5 // milliseconds
+#define IC_TIMEOUT_FAN 100 // milliseconds
+
+// Periodically (ideally faster than every 5msec), check if the IC callbacks have been firing to determine
+// if the signal is just solid low/high.
+PUBLIC void hal_hard_ic_process( void )
+{
+    for( InputCaptureSignal_t signal = 0; signal < HAL_HARD_IC_NUM; signal++ )
+    {
+        // Choose a timeout appropriate for the input signal frequency
+        uint16_t timeout = ( signal == HAL_HARD_IC_FAN_HALL )? IC_TIMEOUT_FAN : IC_TIMEOUT_HLFB;
+
+        // Check if the IC has timed out
+        if( (hal_systick_get_ms() >= ic_state[signal].timestamp + timeout ) )
+        {
+            ic_values[signal] = 0;
+            average_short_update(&ic_averages[signal], (uint16_t)ic_values[signal] );
+            ic_peaks[signal] = MAX(ic_peaks[signal], ic_values[signal] );
+        }
+    }
+}
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -362,6 +390,8 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 
                 ic_state[HAL_HARD_IC_FAN_HALL].first_edge_done = false;   // reset to catch the next 'new' edge.
             }
+
+            ic_state[HAL_HARD_IC_FAN_HALL].timestamp = hal_systick_get_ms();
         }
 	}
 
@@ -398,6 +428,7 @@ hal_hard_ic_process_duty_cycle( TIM_HandleTypeDef *htim, InputCaptureSignal_t si
             // set polarity to rising edge
             __HAL_TIM_SET_CAPTUREPOLARITY(htim, TIM_CHANNEL_1, TIM_INPUTCHANNELPOLARITY_RISING);
         }
+        ic_state[signal].timestamp = hal_systick_get_ms();
     }
 }
 

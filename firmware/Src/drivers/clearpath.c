@@ -54,6 +54,8 @@ typedef struct
 	HalGpioPortPin_t 	pin_enable;
 	HalGpioPortPin_t 	pin_direction;
 	HalGpioPortPin_t 	pin_step;
+    HalGpioPortPin_t 	pin_feedback;
+
     InputCaptureSignal_t 	ic_feedback;
 
 	//Current Sense IC
@@ -71,6 +73,7 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] =
 		[ _CLEARPATH_1 ]	= {     .pin_enable = _SERVO_1_ENABLE,
                                     .pin_direction = _SERVO_1_A,
                                     .pin_step = _SERVO_1_B,
+                                    .pin_feedback = _SERVO_1_HLFB,
                                     .ic_feedback = HAL_HARD_IC_HLFB_SERVO_1,
                                     .adc_current = HAL_ADC_INPUT_M1_CURRENT,
                                     .pin_oc_fault = _SERVO_1_CURRENT_FAULT },
@@ -78,6 +81,7 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] =
 		[ _CLEARPATH_2 ]	= {     .pin_enable = _SERVO_2_ENABLE,
                                     .pin_direction = _SERVO_2_A,
                                     .pin_step = _SERVO_2_B,
+                                    .pin_feedback = _SERVO_2_HLFB,
                                     .ic_feedback = HAL_HARD_IC_HLFB_SERVO_2,
                                     .adc_current = HAL_ADC_INPUT_M2_CURRENT,
                                     .pin_oc_fault = _SERVO_2_CURRENT_FAULT },
@@ -85,6 +89,7 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] =
 		[ _CLEARPATH_3 ]	= {     .pin_enable = _SERVO_3_ENABLE,
                                     .pin_direction = _SERVO_3_A,
                                     .pin_step = _SERVO_3_B,
+                                    .pin_feedback = _SERVO_3_HLFB,
                                     .ic_feedback = HAL_HARD_IC_HLFB_SERVO_3,
                                     .adc_current = HAL_ADC_INPUT_M3_CURRENT,
                                     .pin_oc_fault = _SERVO_3_CURRENT_FAULT },
@@ -93,6 +98,7 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] =
         [ _CLEARPATH_4 ]	= { .pin_enable = _SERVO_4_ENABLE,
                                 .pin_direction = _SERVO_4_A,
                                 .pin_step = _SERVO_4_B,
+                                .pin_feedback = _SERVO_4_HLFB,
                                 .ic_feedback = HAL_HARD_IC_HLFB_SERVO_4,
                                 .adc_current = HAL_ADC_INPUT_M4_CURRENT,
                                 .pin_oc_fault = _SERVO_4_CURRENT_FAULT },
@@ -185,21 +191,33 @@ float mapf(float val, float in_min, float in_max, float out_min, float out_max) 
     return (val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+// HLFB from servos is a 482Hz square-wave, where 5% < x < 95% is used for torque/speed output
+// DutyCycles under 5% represents 'not asserted' or 'off'
+
 PRIVATE float
 servo_get_hlfb_percent( ClearpathServoInstance_t servo )
 {
-    // HLFB from servos is a 482Hz square-wave, where 5% < x < 95% is used for torque/speed output
-    // DutyCycles under 5% represents 'not asserted' or 'off'
-
-    // IC value is a integer representing the 'on' section of the wave in us
-    uint32_t fb_avg = hal_hard_ic_read_avg(ServoHardwareMap[servo].ic_feedback);
+    // InputCapture value is a integer representing the 'on' duration of the wave in us
 
     // 0.055679% per count
     // min of 62 at 4.0%
     // max of 2041 at 97.0%
-    float percentage = mapf( fb_avg, 62, 2041, 4.0f,97.0f );
 
-    return CLAMP(percentage, 0.0f, 95.0f);;
+    float percentage = 0.0f;
+
+    // If there is a valid IC value, grab the average IC duration and convert to a percentage
+    if( hal_hard_ic_read(ServoHardwareMap[servo].ic_feedback) > 60 )
+    {
+        percentage = mapf( hal_hard_ic_read_avg(ServoHardwareMap[servo].ic_feedback), 62, 2041, 4.0f,97.0f );
+        CLAMP(percentage, 5.0f, 95.0f);
+    }
+    else
+    {
+        // IC hasn't fired recently, so the signal is likely DC LOW or HIGH
+        percentage = (hal_gpio_read_pin(ServoHardwareMap[servo].pin_feedback))? 100.0f: 0.0f;
+    }
+
+    return percentage;
 }
 
 /* -------------------------------------------------------------------------- */
