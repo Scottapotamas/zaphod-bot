@@ -12,6 +12,7 @@
 #include "event_subscribe.h"
 #include "app_events.h"
 #include "app_signals.h"
+#include "buzzer.h"
 
 typedef struct
 {
@@ -318,10 +319,13 @@ configuration_save( void )
     hal_flashmem_store(PERSIST_ID_CAL_POWER, &power_trims, sizeof(PowerCalibration_t));
     hal_flashmem_store(PERSIST_ID_CAL_LED, &rgb_led_settings, sizeof(LedSettings_t));
 
+    buzzer_sound(2,4000,50);
 }
+
 PRIVATE void configuration_wipe( void )
 {
     hal_flashmem_wipe_and_prepare();
+    buzzer_sound(1,1000,100);
 }
 
 /* -------------------------------------------------------------------------- */
