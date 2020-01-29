@@ -122,6 +122,7 @@ setupElectricUIHandlers(mainWindows)
  */
 
 const isMac = process.platform === 'darwin'
+const isWin = process.platform === 'win32'
 
 const template = [
   // { role: 'appMenu' }
@@ -193,31 +194,29 @@ const template = [
           setSettingFromWinManager('darkMode', !userDark)
         },
       },
-      {
-        label: 'Use system dark mode',
-        click: () => {
-          setSettingFromWinManager('darkMode', null)
-        },
-      },
+      // System dark mode detection isn't available/reliable on nix
+      ...(isMac || isWin
+        ? [
+            {
+              label: 'Use system dark mode',
+              click: () => {
+                setSettingFromWinManager('darkMode', null)
+              },
+            },
+          ]
+        : []),
 
       { type: 'separator' },
-      { role: 'reload' },
-      { role: 'forcereload' },
-      { role: 'toggledevtools' },
-      { type: 'separator' },
-      { role: 'resetzoom' },
+      // Window magnification options
       { role: 'zoomin' },
       { role: 'zoomout' },
+      { role: 'resetzoom' },
       { type: 'separator' },
+      // Fullscreen Toggle
       { role: 'togglefullscreen' },
-    ],
-  },
-  // { role: 'windowMenu' }
-  {
-    label: 'Window',
-    submenu: [
-      { role: 'minimize' },
-      { role: 'zoom' },
+
+      // { role: 'minimize' },
+      // { role: 'zoom' },
       ...(isMac
         ? [
             { type: 'separator' },
@@ -228,11 +227,40 @@ const template = [
         : [{ role: 'close' }]),
     ],
   },
+  ...(process.env.NODE_ENV === 'development'
+    ? [
+        {
+          label: 'DevTools',
+          submenu: [
+            { role: 'reload' },
+            { role: 'forcereload' },
+            { type: 'separator' },
+
+            { role: 'toggledevtools' },
+            {
+              label: 'Show Transport Window',
+              click: () => {
+                const electricWindow = getElectricWindow()
+
+                if (electricWindow) {
+                  electricWindow.show()
+                  electricWindow.webContents.openDevTools({
+                    mode: 'undocked',
+                  })
+                }
+              },
+            },
+          ],
+        },
+      ]
+    : []),
   {
     role: 'help',
     submenu: [
+      { role: 'reload' },
+      { type: 'separator' },
       {
-        label: 'Learn More about Electric UI',
+        label: 'Learn more about Electric UI',
         click() {
           require('electron').shell.openExternal('https://electricui.com')
         },
