@@ -7,8 +7,8 @@ import {
 import {
   CONTROL_MODES,
   SUPERVISOR_STATES,
-} from './../../../../transport-manager/config/codecs'
-import { Card, Divider, HTMLTable } from '@blueprintjs/core'
+} from '../../../transport-manager/config/codecs'
+import { Divider, HTMLTable } from '@blueprintjs/core'
 import { Cell, Grid } from 'styled-css-grid'
 import {
   IntervalRequester,
@@ -77,31 +77,27 @@ const ArmControlButton = () => {
 }
 
 const systemOverviewAreas = `
-ProgressBar ProgressBarArea
-StateArea PositionArea
-ArmArea HomeArea
+RobotMode PositionOutput
+ArmButton HomeButton
 `
 
 const SystemOverview = () => {
   const control_mode = useHardwareState(state => state.super.mode)
 
   return (
-    <Card>
-      <Composition areas={systemOverviewAreas} gutter={10}>
-        {({ ProgressBarArea, StateArea, PositionArea, HomeArea, ArmArea }) => (
+    <div>
+      <Composition areas={systemOverviewAreas} gutter={20}>
+        {Areas => (
           <>
-            <ProgressBarArea>
-              <ProgressBar accessor={state => state.moStat.move_progress} />
-            </ProgressBarArea>
-            <StateArea>
+            <Areas.RobotMode>
               <Statistics>
                 <Statistic
                   value={<SupervisorState />}
                   label={<div>{control_mode} MODE</div>}
                 />
               </Statistics>
-            </StateArea>
-            <PositionArea>
+            </Areas.RobotMode>
+            <Areas.PositionOutput>
               <HTMLTable condensed style={{ minWidth: '100%' }}>
                 <tbody>
                   <tr>
@@ -124,8 +120,8 @@ const SystemOverview = () => {
                   </tr>
                 </tbody>
               </HTMLTable>
-            </PositionArea>
-            <HomeArea>
+            </Areas.PositionOutput>
+            <Areas.HomeButton>
               <Button
                 fill
                 large
@@ -134,14 +130,14 @@ const SystemOverview = () => {
               >
                 Home
               </Button>
-            </HomeArea>
-            <ArmArea>
+            </Areas.HomeButton>
+            <Areas.ArmButton>
               <ArmControlButton />
-            </ArmArea>
+            </Areas.ArmButton>
           </>
         )}
       </Composition>
-    </Card>
+    </div>
   )
 }
 

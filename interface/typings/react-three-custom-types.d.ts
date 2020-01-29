@@ -1,7 +1,7 @@
 import { ReactThreeFiber } from 'react-three-fiber/src/three-types'
 import * as THREE from 'three'
 import { PerspectiveCamera } from 'three'
-import { PolyLineCurve3 } from '../src/application/pages/DevicePages/ControlPage/ThreeD/PolyLineCurve'
+import { PolyLineCurve3 } from '../src/application/pages/DevicePages/DataViews/ThreeD/PolyLineCurve'
 
 declare global {
   namespace JSX {
