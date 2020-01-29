@@ -1,23 +1,12 @@
-import {
-  Button as BlueprintButton,
-  ButtonGroup,
-  Card,
-  Intent,
-  NonIdealState,
-} from '@blueprintjs/core'
-import {
-  IntervalRequester,
-  StateTree,
-  useHardwareState,
-} from '@electricui/components-core'
+import { ButtonGroup, NonIdealState, Navbar } from '@blueprintjs/core'
+import { useHardwareState } from '@electricui/components-core'
+
+import React from 'react'
 
 import { Button } from '@electricui/components-desktop-blueprint'
-import { CALL_CALLBACK } from '@electricui/core'
-import { CONTROL_MODES } from './../../../../transport-manager/config/codecs'
+import { CONTROL_MODES } from '../../../../transport-manager/config/codecs'
 import EventPalette from './EventPalette'
 import ManualJogPalette from './ManualJogPalette'
-import { Printer } from '@electricui/components-desktop'
-import React from 'react'
 import TrackPalette from './TrackPalette'
 
 const ModeSelectButtons = () => {
@@ -27,42 +16,38 @@ const ModeSelectButtons = () => {
     <React.Fragment>
       <ButtonGroup fill>
         <Button
+          minimal
+          large
+          icon="move"
           writer={{ req_mode: 1 }}
-          intent={
-            control_mode == CONTROL_MODES[CONTROL_MODES.MANUAL]
-              ? 'primary'
-              : 'none'
-          }
+          active={control_mode == CONTROL_MODES[CONTROL_MODES.MANUAL]}
         >
           Manual Jog
         </Button>
         <Button
+          minimal
+          large
+          icon="flow-end"
           writer={{ req_mode: 3 }}
-          intent={
-            control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]
-              ? 'primary'
-              : 'none'
-          }
+          active={control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]}
         >
           Track
         </Button>
         <Button
+          minimal
+          large
+          icon="projects"
           writer={{ req_mode: 4 }}
-          intent={
-            control_mode == CONTROL_MODES[CONTROL_MODES.DEMO]
-              ? 'primary'
-              : 'none'
-          }
+          active={control_mode == CONTROL_MODES[CONTROL_MODES.DEMO]}
         >
           Demo
         </Button>
         <Button
+          minimal
+          large
+          icon="document-open"
           writer={{ req_mode: 2 }}
-          intent={
-            control_mode == CONTROL_MODES[CONTROL_MODES.EVENT]
-              ? 'primary'
-              : 'none'
-          }
+          active={control_mode == CONTROL_MODES[CONTROL_MODES.EVENT]}
         >
           Run Program
         </Button>
@@ -101,11 +86,11 @@ const ControlSurfaceFromMode = () => {
 
 const SystemController = () => {
   return (
-    <Card style={{ minHeight: '300px' }}>
+    <div style={{ minHeight: '300px' }}>
       <ModeSelectButtons />
       <br />
       <ControlSurfaceFromMode />
-    </Card>
+    </div>
   )
 }
 

@@ -14,6 +14,7 @@ import { Renderer } from './Renderer'
 const useCurrentFrame = () => {
   return useDeviceMetadataKey('current_frame') as number
 }
+
 export const ThreeD = () => {
   const summaryFilePath = useDeviceMetadataKey('summary_file_path') as string
   const loadedCollectionData = useDeviceMetadataKey('loaded_collection_data') as Array<CollectionForUI> || [] // prettier-ignore

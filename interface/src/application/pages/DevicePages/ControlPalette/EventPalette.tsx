@@ -5,7 +5,7 @@ import {
   IntervalRequester,
 } from '@electricui/components-core'
 
-import { SceneController } from './../SceneControl/SceneController'
+import { SceneController } from './SceneControl/SceneController'
 
 const EventPalette = () => {
   const sceneFilePath = useDeviceMetadataKey('summary_file_path')

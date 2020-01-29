@@ -1,4 +1,11 @@
-import { Alignment, Button, Navbar } from '@blueprintjs/core'
+import {
+  Alignment,
+  Button,
+  Navbar,
+  Popover,
+  Position,
+  Tooltip,
+} from '@blueprintjs/core'
 import {
   IntervalRequester,
   useDeviceConnect,
@@ -21,54 +28,48 @@ const Header = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
   const page = props['*'] // we get passed the path as the wildcard, so we read it here
 
   return (
-    <div className="device-header">
+    <div>
       <Navbar style={{ background: 'transparent', boxShadow: 'none' }}>
         <div style={{ margin: '0 auto', width: '100%' }}>
           <Navbar.Group align={Alignment.LEFT}>
-            <Button
-              minimal
-              large
-              icon="home"
-              text="Back"
-              onClick={() => {
-                navigate('/')
-              }}
-            />
+            <Tooltip content="Back to device list" position={Position.BOTTOM}>
+              <Button
+                minimal
+                large
+                icon="key-backspace"
+                onClick={() => {
+                  navigate('/')
+                }}
+              />
+            </Tooltip>
           </Navbar.Group>
 
           <Navbar.Group align={Alignment.RIGHT}>
-            <Button
-              minimal
-              large
-              icon="dashboard"
-              text="Control"
-              onClick={() => {
-                navigate(`/devices/${props.deviceID}/`)
-              }}
-              active={page === ''}
-            />
+            <Popover
+              content={
+                <div style={{ width: '200px', height: '400px' }}>
+                  Settings go here!
+                </div>
+              }
+              position={Position.BOTTOM}
+            >
+              <Tooltip content="Settings" position={Position.BOTTOM}>
+                <Button minimal large icon="settings" />
+              </Tooltip>
+            </Popover>
 
-            <Button
-              minimal
-              large
-              icon="timeline-line-chart"
-              text="Detail"
-              onClick={() => {
-                navigate(`/devices/${props.deviceID}/detail`)
-              }}
-              active={page === 'detail'}
-            />
-            <Navbar.Divider />
-            <Button
-              minimal
-              large
-              icon="settings"
-              text="System"
-              onClick={() => {
-                navigate(`/devices/${props.deviceID}/system`)
-              }}
-              active={page === 'secondary'}
-            />
+            <Popover
+              content={
+                <div style={{ width: '200px', height: '400px' }}>
+                  Info goes here
+                </div>
+              }
+              position={Position.BOTTOM}
+            >
+              <Tooltip content="System Info" position={Position.BOTTOM}>
+                <Button minimal large icon="info-sign" />
+              </Tooltip>
+            </Popover>
           </Navbar.Group>
         </div>
       </Navbar>
