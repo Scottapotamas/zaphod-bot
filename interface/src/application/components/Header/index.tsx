@@ -13,7 +13,7 @@ import { RouteComponentProps } from '@reach/router'
 import { navigate } from '@electricui/utility-electron'
 
 import { CoreSystemsInfoCard } from './SystemInfoBlock'
-import { LEDCalibrationCard, PowerCalibrationCard } from './SystemConfigBlock'
+import { SystemSettingsCard } from './SystemConfigBlock'
 
 interface InjectDeviceIDFromLocation {
   deviceID?: string
@@ -44,8 +44,7 @@ const Header = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
             <Popover
               content={
                 <div style={{ width: 'auto', height: 'auto' }}>
-                  <LEDCalibrationCard />
-                  <PowerCalibrationCard />
+                  <SystemSettingsCard />
                 </div>
               }
               position={Position.BOTTOM}
