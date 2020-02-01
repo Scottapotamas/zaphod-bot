@@ -15,7 +15,13 @@ SystemInfo Visualisation
 
 const MainWindow = (props: RouteComponentProps) => (
   <React.Fragment>
-    <Composition areas={controlAreas} gap={10} templateCols="1fr 1fr">
+    <Composition
+      areas={controlAreas}
+      gap={10}
+      templateCols="1fr 1fr"
+      alignContent="space-between"
+      style={{ height: '100%' }}
+    >
       {Areas => (
         <React.Fragment>
           <Areas.Control>
