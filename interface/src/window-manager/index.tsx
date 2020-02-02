@@ -1,18 +1,19 @@
-import { app, BrowserWindow, Menu } from 'electron'
-import { join as pathJoin } from 'path'
-import { format as formatUrl } from 'url'
-
+import { BrowserWindow, Menu, app } from 'electron'
 import {
+  fetchSystemDarkModeFromWinManager,
+  getElectricWindow,
+  getSettingFromWinManager,
   installDevTools,
+  setSettingFromWinManager,
   setupElectricUIHandlers,
   setupSettingsListenersWindowManager,
   setupSettingsPathing,
-  setSettingFromWinManager,
-  getSettingFromWinManager,
-  fetchSystemDarkModeFromWinManager,
 } from '@electricui/utility-electron'
 
-const isDevelopment = process.env.NODE_ENV !== 'production'
+import { format as formatUrl } from 'url'
+import { join as pathJoin } from 'path'
+
+const isDevelopment = process.env.NODE_ENV === 'development'
 
 // Setup persistent settings helpers
 setupSettingsPathing()
@@ -25,17 +26,15 @@ function createMainWindow() {
   const window = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
+      devTools: isDevelopment, // Only allow devTools in development mode
     },
     minHeight: 680,
     minWidth: 1200,
     height: 680,
     width: 1500,
     title: 'Electric UI',
+    backgroundColor: '#191b1d', // This needs to be set to something so the background on resize can be changed to match the dark / light mode theme
   })
-
-  if (isDevelopment) {
-    window.webContents.openDevTools()
-  }
 
   if (isDevelopment) {
     window.loadURL(
@@ -68,7 +67,11 @@ function createMainWindow() {
     })
   })
 
-  installDevTools()
+  if (isDevelopment) {
+    // Only install extensions in developer mode
+    installDevTools()
+    window.webContents.openDevTools()
+  }
 
   return window
 }
@@ -122,7 +125,6 @@ setupElectricUIHandlers(mainWindows)
  */
 
 const isMac = process.platform === 'darwin'
-const isWin = process.platform === 'win32'
 
 const template = [
   // { role: 'appMenu' }
@@ -147,7 +149,26 @@ const template = [
   // { role: 'fileMenu' }
   {
     label: 'File',
-    submenu: [{ role: 'quit', label: 'Quit Electric UI' }], // isMac ? { role: 'close' } : { role: 'quit' }
+    submenu: [
+      ...(process.env.NODE_ENV === 'development'
+        ? [
+            {
+              label: 'Show Transport Window',
+              click: () => {
+                const electricWindow = getElectricWindow()
+
+                if (electricWindow) {
+                  electricWindow.show()
+                  electricWindow.webContents.openDevTools({
+                    mode: 'undocked',
+                  })
+                }
+              },
+            },
+          ]
+        : []),
+      { role: 'quit', label: 'Quit Electric UI' },
+    ], // isMac ? { role: 'close' } : { role: 'quit' }
   },
   // { role: 'editMenu' }
   {
@@ -194,29 +215,31 @@ const template = [
           setSettingFromWinManager('darkMode', !userDark)
         },
       },
-      // System dark mode detection isn't available/reliable on nix
-      ...(isMac || isWin
-        ? [
-            {
-              label: 'Use system dark mode',
-              click: () => {
-                setSettingFromWinManager('darkMode', null)
-              },
-            },
-          ]
-        : []),
+      {
+        label: 'Use system dark mode',
+        click: () => {
+          setSettingFromWinManager('darkMode', null)
+        },
+      },
 
       { type: 'separator' },
-      // Window magnification options
+      { role: 'reload' },
+      { role: 'forcereload' },
+      { role: 'toggledevtools' },
+      { type: 'separator' },
+      { role: 'resetzoom' },
       { role: 'zoomin' },
       { role: 'zoomout' },
-      { role: 'resetzoom' },
       { type: 'separator' },
-      // Fullscreen Toggle
       { role: 'togglefullscreen' },
-
-      // { role: 'minimize' },
-      // { role: 'zoom' },
+    ],
+  },
+  // { role: 'windowMenu' }
+  {
+    label: 'Window',
+    submenu: [
+      { role: 'minimize' },
+      { role: 'zoom' },
       ...(isMac
         ? [
             { type: 'separator' },
@@ -227,38 +250,9 @@ const template = [
         : [{ role: 'close' }]),
     ],
   },
-  ...(process.env.NODE_ENV === 'development'
-    ? [
-        {
-          label: 'DevTools',
-          submenu: [
-            { role: 'reload' },
-            { role: 'forcereload' },
-            { type: 'separator' },
-
-            { role: 'toggledevtools' },
-            {
-              label: 'Show Transport Window',
-              click: () => {
-                const electricWindow = getElectricWindow()
-
-                if (electricWindow) {
-                  electricWindow.show()
-                  electricWindow.webContents.openDevTools({
-                    mode: 'undocked',
-                  })
-                }
-              },
-            },
-          ],
-        },
-      ]
-    : []),
   {
     role: 'help',
     submenu: [
-      { role: 'reload' },
-      { type: 'separator' },
       {
         label: 'Learn more about Electric UI',
         click() {

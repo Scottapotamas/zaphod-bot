@@ -1,20 +1,20 @@
 import './device-pages.css'
 
 import { RouteComponentProps, Router } from '@reach/router'
-import React from 'react'
 
 import { DisconnectionModal } from '@electricui/components-desktop-blueprint'
-import { navigate } from '@electricui/utility-electron'
+import { Header } from '../../components/Header'
 import { Intent } from '@blueprintjs/core'
+import React from 'react'
+import { navigate } from '@electricui/utility-electron'
 
-import Header from '../../components/Header'
 import MainWindow from './MainWindow'
 
 interface InjectDeviceIDFromLocation {
   deviceID?: string
 }
 
-const DevicePages = (
+export const DevicePages = (
   props: RouteComponentProps & InjectDeviceIDFromLocation,
 ) => {
   if (!props.deviceID) {
@@ -43,5 +43,3 @@ const DevicePages = (
     </React.Fragment>
   )
 }
-
-export default DevicePages

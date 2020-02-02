@@ -5,7 +5,7 @@ import deltaDark from './delta-dark.png'
 
 import { useDarkMode } from '@electricui/components-desktop'
 
-const Landing = () => {
+export const Landing = () => {
   const isDark = useDarkMode()
 
   if (isDark) {
@@ -40,5 +40,3 @@ const Landing = () => {
     />
   )
 }
-
-export default Landing

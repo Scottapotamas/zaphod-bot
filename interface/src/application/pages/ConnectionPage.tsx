@@ -1,25 +1,38 @@
-import { Button } from '@blueprintjs/core'
-import { Connections } from '../components/ConnectionDeviceList'
-import Landing from '../components/Landing'
-import React from 'react'
-import { RouteComponentProps } from '@reach/router'
-import { ipcRenderer } from 'electron'
-import { navigate } from '@electricui/utility-electron'
+import { Button, Classes } from '@blueprintjs/core'
+import { Link, RouteComponentProps } from '@reach/router'
 
-const ConnectionPage = (props: RouteComponentProps) => {
+import { Connections } from '@electricui/components-desktop-blueprint'
+import { Landing } from '../components/Landing'
+import React from 'react'
+import { navigate } from '@electricui/utility-electron'
+import { useDeviceMetadataKey } from '@electricui/components-core'
+
+const CardInternals = () => {
+  const metadataName = useDeviceMetadataKey('name') || 'No name'
+
+  return (
+    <React.Fragment>
+      <h3 className={Classes.HEADING}>{metadataName}</h3>
+      <p>Device information!</p>
+    </React.Fragment>
+  )
+}
+
+export const ConnectionPage = (props: RouteComponentProps) => {
   return (
     <React.Fragment>
       <div style={{ height: '100vh' }}>
         <Landing />
 
         <Connections
-          preConnect={deviceID => {
-            navigate(`/device_loading/${deviceID}`)
-          }}
-          postHandshake={deviceID => {
-            navigate(`/devices/${deviceID}`)
-          }}
-          onFailure={deviceID => {
+          preConnect={deviceID => navigate(`/device_loading/${deviceID}`)}
+          postHandshake={deviceID =>
+            deviceID.includes('xbox')
+              ? navigate(`/xbox/${deviceID}`)
+              : navigate(`/devices/${deviceID}`)
+          }
+          onFailure={(deviceID, err) => {
+            console.log('Connections component got error', err, deviceID)
             navigate(`/`)
           }}
           style={{
@@ -27,18 +40,9 @@ const ConnectionPage = (props: RouteComponentProps) => {
             paddingTop: '15vh',
             marginRight: '15vw',
           }}
+          internalCardComponent={<CardInternals />}
         />
       </div>
-      <Button
-        onClick={() => {
-          ipcRenderer.send('open-debug-window')
-        }}
-        style={{ position: 'fixed', bottom: 10, right: 10 }}
-      >
-        Show transport window
-      </Button>
     </React.Fragment>
   )
 }
-
-export default ConnectionPage

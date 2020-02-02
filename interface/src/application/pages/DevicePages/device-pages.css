@@ -14,13 +14,6 @@
   background: #fff;
 }
 
-.device-footer {
-  box-shadow: 0 0 0 1px rgba(16, 22, 26, 0.15), 0 0 0 rgba(16, 22, 26, 0),
-    0 0 0 rgba(16, 22, 26, 0);
-  z-index: 1;
-  background: #fefefe;
-}
-
 .device-content {
   flex: 1;
   padding: 1.15em;
@@ -39,9 +32,5 @@
 }
 
 .bp3-dark .device-header {
-  background: #232b31;
-}
-
-.bp3-dark .device-footer {
   background: #232b31;
 }

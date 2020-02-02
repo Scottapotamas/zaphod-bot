@@ -1,14 +1,14 @@
 import { Store } from 'redux'
 
-import { default as configureStoreDev } from './configureStore.dev'
-import { default as configureStoreProd } from './configureStore.prod'
+import { configureStore as configureStoreProd } from './configureStore.prod'
+import { configureStore as configureStoreDev } from './configureStore.dev'
 
-let configureStore: () => Store
+let configureStoreWithEnv: () => Store
 
 if (process.env.NODE_ENV === 'production') {
-  configureStore = configureStoreProd
+  configureStoreWithEnv = configureStoreProd
 } else {
-  configureStore = configureStoreDev
+  configureStoreWithEnv = configureStoreDev
 }
 
-export default configureStore
+export const configureStore = configureStoreWithEnv

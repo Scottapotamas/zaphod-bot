@@ -7,33 +7,33 @@ import {
   Hint,
   MessageRouterLogRatioMetadata,
 } from '@electricui/core'
-
-import { HintValidatorBinaryHandshake } from '@electricui/protocol-binary'
-import { BinaryConnectionHandshake } from '@electricui/protocol-binary-connection-handshake'
-import { MessageQueueBinaryFIFO } from '@electricui/protocol-binary-fifo-queue'
-import { ActionsPlugin } from '@electricui/core-actions'
-
-import { ProcessName, ProcessWS, RequestName, RequestWS } from './metadata'
-
+import { ProcessName, RequestName } from './metadata'
 import {
   serialConsumer,
   serialProducer,
   usbProducer,
   usbToSerialTransformer,
 } from './serial'
-import { websocketConsumer } from './websocket'
-import actions from './actions'
 
+import { BinaryConnectionHandshake } from '@electricui/protocol-binary-connection-handshake'
+import { HintValidatorBinaryHandshake } from '@electricui/protocol-binary'
+import { MessageQueueBinaryFIFO } from '@electricui/protocol-binary-fifo-queue'
+
+import { ActionsPlugin } from '@electricui/core-actions'
 import { AutoConnectPlugin } from './autoconnect'
 import { movementQueueSequencer, lightQueueSequencer } from './sequence-senders'
 
-//import { bleConsumer, bleProducer } from './ble'
+import actions from './actions'
 
-const deviceManager = new DeviceManager()
+/**
+ * Create our device manager!
+ */
+export const deviceManager = new DeviceManager()
 
 function createRouter(device: Device) {
   return new MessageRouterLogRatioMetadata({ device, reportRankings: true })
 }
+
 function createQueue(device: Device) {
   return new MessageQueueBinaryFIFO({
     device,
@@ -47,21 +47,9 @@ function hintValidators(hint: Hint, connection: Connection) {
 
   // Serial
   if (hint.getTransportKey() === 'serial') {
-    const validator = new HintValidatorBinaryHandshake(hint, connection, 2000) // 2 second timeout
-
-    return [validator]
-  }
-
-  // Wifi
-  if (hint.getTransportKey() === 'websockets') {
-    const validator = new HintValidatorBinaryHandshake(hint, connection, 5000) // 5 second timeout
-
-    return [validator]
-  }
-
-  // BLE
-  if (hint.getTransportKey() === 'ble') {
-    const validator = new HintValidatorBinaryHandshake(hint, connection, 10000) // 10 second timeout
+    const validator = new HintValidatorBinaryHandshake(hint, connection, {
+      timeout: 2000, // 2 second timeout
+    })
 
     return [validator]
   }
@@ -72,9 +60,7 @@ function hintValidators(hint: Hint, connection: Connection) {
 function createHandshakes(device: Device) {
   const metadata = device.getMetadata()
 
-  const deviceType = metadata.type
-
-  // Otherwise its an eUI device, do the binary handshakes
+  // Assume it's an eUI device, do the binary handshakes
   const connectionHandshakeReadWrite = new BinaryConnectionHandshake({
     device: device,
     preset: 'default',
@@ -85,15 +71,13 @@ function createHandshakes(device: Device) {
 
 const requestName = new RequestName()
 const processName = new ProcessName()
-const requestWS = new RequestWS()
-const processWS = new ProcessWS()
 
 deviceManager.setCreateHintValidatorsCallback(hintValidators)
 deviceManager.addHintProducers([serialProducer, usbProducer])
-deviceManager.addHintConsumers([serialConsumer, websocketConsumer])
+deviceManager.addHintConsumers([serialConsumer])
 deviceManager.addHintTransformers([usbToSerialTransformer])
 deviceManager.addDeviceMetadataRequesters([requestName])
-deviceManager.addDiscoveryMetadataProcessors([processName, processWS])
+deviceManager.addDiscoveryMetadataProcessors([processName])
 deviceManager.setCreateRouterCallback(createRouter)
 deviceManager.setCreateQueueCallback(createQueue)
 deviceManager.setCreateHandshakesCallback(createHandshakes)
@@ -109,8 +93,8 @@ deviceManager.addConnectionMetadataRules([
   new ConnectionMetadataRule(
     ['packetLoss', 'consecutiveHeartbeats'],
     ({ packetLoss, consecutiveHeartbeats }) => {
-      // If there are more than three consecutive heartbeats, then for
-      // packet loss reasons, the connection is acceptable
+      // If there are more than three consecutive heartbeats, the connection
+      // is considered acceptable despite potential previous packet loss.
       if (consecutiveHeartbeats > 3) {
         return true
       }
@@ -120,6 +104,7 @@ deviceManager.addConnectionMetadataRules([
     },
   ),
 ])
+
 const actionsPlugin = new ActionsPlugin()
 actionsPlugin.addActions(actions)
 
@@ -135,7 +120,7 @@ deviceManager.addPlugins([
   lightQueueSequencer,
 ])
 
-// start polling immediately!
+// start polling immediately.
 deviceManager.poll()
 
 if (module.hot) {
@@ -166,5 +151,3 @@ if (module.hot) {
     )
   }
 }
-
-export default deviceManager

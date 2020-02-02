@@ -1,8 +1,12 @@
-import { Button } from '@blueprintjs/core'
-import { DeviceIDContextProvider } from '@electricui/components-core'
 import React from 'react'
+import { Button } from '@blueprintjs/core'
 import { RouteComponentProps } from '@reach/router'
 import { navigate } from '@electricui/utility-electron'
+
+import { DeviceIDContextProvider } from '@electricui/components-core'
+import { NonIdealState } from '@blueprintjs/core'
+
+import { remote } from 'electron'
 
 interface InjectDeviceIDFromLocation {
   deviceID?: string
@@ -11,7 +15,7 @@ interface PotentialErrorState {
   hasError: boolean
 }
 
-class WrapDeviceContextWithLocation extends React.Component<
+export class WrapDeviceContextWithLocation extends React.Component<
   RouteComponentProps & InjectDeviceIDFromLocation,
   PotentialErrorState
 > {
@@ -36,15 +40,38 @@ class WrapDeviceContextWithLocation extends React.Component<
     if (this.state.hasError) {
       // You can render any custom fallback UI
       return (
-        <div>
-          Something went wrong, go back?
-          <Button
-            onClick={() => {
-              navigate('/')
-            }}
-          >
-            Back
-          </Button>
+        <div style={{ height: '100vh' }}>
+          <NonIdealState
+            icon="error"
+            title="An error occurred"
+            description={
+              <React.Fragment>
+                <p>Something went wrong, go back to the connections page?</p>
+                {process.env.NODE_ENV === 'development' ? (
+                  <React.Fragment>
+                    <p>Open the devtools to view the error. </p>
+                    <Button
+                      onClick={() =>
+                        remote.getCurrentWindow().webContents.openDevTools()
+                      }
+                    >
+                      Open Devtools
+                    </Button>
+                    <br />
+                  </React.Fragment>
+                ) : null}
+                <br />
+                <Button
+                  onClick={() => {
+                    navigate('/')
+                  }}
+                  intent="primary"
+                >
+                  Go Back
+                </Button>
+              </React.Fragment>
+            }
+          />
         </div>
       )
     }
@@ -56,5 +83,3 @@ class WrapDeviceContextWithLocation extends React.Component<
     )
   }
 }
-
-export default WrapDeviceContextWithLocation
