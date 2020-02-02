@@ -199,24 +199,10 @@ const CollectionSelector = () => {
   )
 }
 
-const CurrentRGB = () => {
-  const red_led = useHardwareState(state => state.rgb.red)
-  const green_led = useHardwareState(state => state.rgb.green)
-  const blue_led = useHardwareState(state => state.rgb.blue)
-
-  return (
-    <Icon
-      icon="full-circle"
-      iconSize={60}
-      color={`rgb(${red_led},${green_led},${blue_led})`}
-    />
-  )
-}
-
 const controllerAreas = `
-ButtonAreas ButtonAreas ButtonAreas
-CollectionsArea CollectionsArea RGBArea
-FramesArea FramesArea FramesArea
+ButtonAreas
+CollectionsArea 
+FramesArea 
 `
 
 function useIsArmed() {
@@ -292,13 +278,6 @@ export const SceneController = () => {
               disabled={executing}
             />
           </FramesArea>
-          <RGBArea
-            justifyContent="center"
-            alignContent="center"
-            style={{ display: 'grid' }}
-          >
-            <CurrentRGB />
-          </RGBArea>
         </React.Fragment>
       )}
     </Composition>
