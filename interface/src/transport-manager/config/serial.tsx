@@ -67,8 +67,6 @@ const serialTransportFactory = new TransportFactory(options => {
 
   const codecPipeline = new CodecDuplexPipeline()
 
-  // Create instances of the custom codecs
-
   // Pass the array of custom codecs to the pipeline
   codecPipeline.addCodecs(customCodecs)
 
@@ -112,14 +110,14 @@ const serialConsumer = new DiscoveryHintConsumer({
   factory: serialTransportFactory,
   canConsume: (hint: Hint) => {
     if (hint.getTransportKey() === 'serial') {
-      const identification = hint.getIdentification()
-
-      // TODO: Write docs to explain that this is a good spot to
-      // define which serial ports you want to attempt connection with
+      // If you wanted to filter for specific serial devices, you would modify this section, removing the
+      // return statement below and uncommenting the block below it, modifying it to your needs.
 
       return true
 
       /*
+      const identification = hint.getIdentification()
+
       return (
         identification.manufacturer && (
           identification.manufacturer.includes('Arduino') ||

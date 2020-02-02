@@ -24,7 +24,15 @@ import {
   useHardwareState,
 } from '@electricui/components-core'
 
-import { Chart } from '@electricui/components-desktop-charts'
+import {
+  ChartContainer,
+  LineChart,
+  RealTimeDomain,
+  TimeAxis,
+  VerticalAxis,
+} from '@electricui/components-desktop-charts'
+import { MessageDataSource } from '@electricui/core-timeseries'
+
 import { Printer } from '@electricui/components-desktop'
 
 const FanMode = () => {
@@ -47,6 +55,7 @@ const CoolingAreas = `
   TemperaturesArea
   FanArea
   `
+const temperatureDataSource = new MessageDataSource('temp')
 
 export const CoolingDetails = () => {
   const ambient_temp = useHardwareState(state => state.temp.ambient).toFixed(0)
@@ -59,15 +68,29 @@ export const CoolingDetails = () => {
 
   return (
     <div>
-      <Chart
-        timeseriesKey="temperatures"
-        duration={29000}
-        hideLegend={false}
-        yMin={15}
-        yMax={45}
-        delay={500}
-        height={250}
-      />
+      <IntervalRequester variables={['temp']} interval={1000} />
+      <ChartContainer>
+        <LineChart
+          dataSource={temperatureDataSource}
+          accessor={state => state.temp.ambient}
+          maxItems={1000}
+        />
+        <LineChart
+          dataSource={temperatureDataSource}
+          accessor={state => state.temp.regulator}
+          maxItems={1000}
+        />
+        <LineChart
+          dataSource={temperatureDataSource}
+          accessor={state => state.temp.supply}
+          maxItems={1000}
+        />
+        {/* Plot a 10-minute window */}
+        <RealTimeDomain window={600000} delay={250} />
+        <TimeAxis />
+        <VerticalAxis />
+      </ChartContainer>
+
       <Composition areas={CoolingAreas} gap={20}>
         {({ TemperaturesArea, FanArea }) => (
           <React.Fragment>

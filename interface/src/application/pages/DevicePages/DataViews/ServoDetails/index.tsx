@@ -3,6 +3,14 @@ import { RouteComponentProps } from '@reach/router'
 import { Composition, Box } from 'atomic-layout'
 
 import {
+  ChartContainer,
+  LineChart,
+  RealTimeDomain,
+  TimeAxis,
+  VerticalAxis,
+} from '@electricui/components-desktop-charts'
+
+import {
   Button,
   Statistic,
   Statistics,
@@ -24,7 +32,7 @@ import {
   useHardwareState,
 } from '@electricui/components-core'
 
-import { Chart } from '@electricui/components-desktop-charts'
+import { MessageDataSource } from '@electricui/core-timeseries'
 import { Printer } from '@electricui/components-desktop'
 
 type EnabledDataProps = {
@@ -194,18 +202,55 @@ const ServoSummaryCard = () => {
   )
 }
 
+const servo1DataSource = new MessageDataSource('mo1')
+const servo2DataSource = new MessageDataSource('mo2')
+const servo3DataSource = new MessageDataSource('mo3')
+
 export const ServoDetails = () => {
   return (
     <div>
-      <Chart
-        timeseriesKey="motor_angles"
-        duration={25000}
-        hideLegend={false}
-        yMin={-60}
-        yMax={20}
-        delay={50}
-        height={250}
-      />
+      <IntervalRequester variables={['mo1', 'mo2', 'mo3']} interval={50} />
+      <ChartContainer>
+        <LineChart
+          dataSource={servo1DataSource}
+          accessor={state => state.mo1.target_angle}
+          maxItems={10000}
+        />
+        <LineChart
+          dataSource={servo2DataSource}
+          accessor={state => state.mo2.target_angle}
+          maxItems={10000}
+        />
+        <LineChart
+          dataSource={servo3DataSource}
+          accessor={state => state.mo3.target_angle}
+          maxItems={10000}
+        />
+        <RealTimeDomain window={10000} />
+        <TimeAxis />
+        <VerticalAxis />
+      </ChartContainer>
+
+      <ChartContainer>
+        <LineChart
+          dataSource={servo1DataSource}
+          accessor={state => state.mo1.power}
+          maxItems={10000}
+        />
+        <LineChart
+          dataSource={servo2DataSource}
+          accessor={state => state.mo2.power}
+          maxItems={10000}
+        />
+        <LineChart
+          dataSource={servo3DataSource}
+          accessor={state => state.mo3.power}
+          maxItems={10000}
+        />
+        <RealTimeDomain window={10000} />
+        <TimeAxis />
+        <VerticalAxis />
+      </ChartContainer>
       <ServoSummaryCard />
     </div>
   )

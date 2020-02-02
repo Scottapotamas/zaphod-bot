@@ -20,7 +20,9 @@ interface InjectDeviceIDFromLocation {
   '*'?: string // we get passed the path as the wildcard
 }
 
-const Header = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
+export const Header = (
+  props: RouteComponentProps & InjectDeviceIDFromLocation,
+) => {
   const page = props['*'] // we get passed the path as the wildcard, so we read it here
 
   return (
@@ -73,5 +75,3 @@ const Header = (props: RouteComponentProps & InjectDeviceIDFromLocation) => {
     </div>
   )
 }
-
-export default Header
