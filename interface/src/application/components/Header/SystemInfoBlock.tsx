@@ -1,4 +1,4 @@
-import { HTMLTable } from '@blueprintjs/core'
+import { HTMLTable, Icon, Intent } from '@blueprintjs/core'
 import {
   IntervalRequester,
   useHardwareState,
@@ -29,8 +29,45 @@ const ModuleActive = () => {
   return <div>Add-in Module Off</div>
 }
 
-export const CoreSystemsInfoCard = () => {
+const CPUText = () => {
   const cpu_percentage = useHardwareState(state => state.sys.cpu_load)
+  let iconColour: Intent
+
+  if (cpu_percentage >= 0 && cpu_percentage < 60) {
+    iconColour = Intent.SUCCESS
+  } else if (cpu_percentage > 60 && cpu_percentage < 85) {
+    iconColour = Intent.WARNING
+  } else {
+    iconColour = Intent.DANGER
+  }
+
+  return (
+    <div>
+      <Icon icon="time" intent={iconColour} iconSize={50} /> {cpu_percentage}%
+    </div>
+  )
+}
+
+const CPUTemperature = () => {
+  const cpu_temp = useHardwareState(state => state.sys.cpu_temp).toFixed(0)
+  let iconColour: Intent
+
+  if (cpu_temp >= 0 && cpu_temp < 60) {
+    iconColour = Intent.SUCCESS
+  } else if (cpu_temp > 60 && cpu_temp < 85) {
+    iconColour = Intent.WARNING
+  } else {
+    iconColour = Intent.DANGER
+  }
+
+  return (
+    <div>
+      <Icon icon="time" intent={iconColour} iconSize={50} /> {cpu_temp}º
+    </div>
+  )
+}
+
+export const CoreSystemsInfoCard = () => {
   const cpu_clock = useHardwareState(state => state.sys.cpu_clock)
   const cpu_temp = useHardwareState(state => state.sys.cpu_temp).toFixed(0)
 
@@ -45,14 +82,10 @@ export const CoreSystemsInfoCard = () => {
         <IntervalRequester interval={200} variables={['sys']} />
         <Composition templateCols="auto" gap={20} justifyItems="center">
           <Box>
-            <Statistic
-              value={cpu_percentage}
-              label={`load at ${cpu_clock}MHz`}
-              suffix="%"
-            />
+            <Statistic value={<CPUText />} label={`load at ${cpu_clock}MHz`} />
           </Box>
           <Box>
-            <Statistic value={cpu_temp} label="CPU Temp" suffix="º" />
+            <Statistic value={<CPUTemperature />} label="CPU Temp" />
           </Box>
           <Box>
             <Composition templateCols="1fr 1fr" justifyItems="center">
