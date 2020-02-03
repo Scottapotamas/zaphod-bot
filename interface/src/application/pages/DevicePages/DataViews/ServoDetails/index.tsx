@@ -34,6 +34,7 @@ import {
 
 import { MessageDataSource } from '@electricui/core-timeseries'
 import { Printer } from '@electricui/components-desktop'
+import { ServoTelemetry } from '../../../../../transport-manager/config/codecs'
 
 type EnabledDataProps = {
   en: boolean
@@ -118,9 +119,10 @@ const ServoSummaryAreas = `
   `
 
 const ServoSummaryCard = () => {
-  const servoA = useHardwareState(state => state.mo1)
-  const servoB = useHardwareState(state => state.mo2)
-  const servoC = useHardwareState(state => state.mo3)
+  const motors: ServoTelemetry[] | null = useHardwareState(state => state.servo)
+  if (motors === null) {
+    return <span>No motor telemetry available...</span>
+  }
 
   return (
     <Composition
@@ -151,48 +153,22 @@ const ServoSummaryCard = () => {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>
-                    <EnabledIndicator en={servoA.enabled} />
-                  </td>
-                  <td>
-                    <ServoMode state={servoA.state} />
-                  </td>
-                  <td>
-                    {servoA.feedback}%
-                    {/* <FeedbackIndicator fb={servoA.feedback} /> */}
-                  </td>
-                  <td>{servoA.power.toFixed(1)}</td>
-                  <td>{servoA.target_angle.toFixed(2)}</td>
-                </tr>
-                <tr>
-                  <td>
-                    <EnabledIndicator en={servoB.enabled} />
-                  </td>
-                  <td>
-                    <ServoMode state={servoB.state} />
-                  </td>
-                  <td>
-                    {servoB.feedback}%
-                    {/* <FeedbackIndicator fb={servoB.feedback} /> */}
-                  </td>
-                  <td>{servoB.power.toFixed(1)}</td>
-                  <td>{servoB.target_angle.toFixed(2)}</td>
-                </tr>
-                <tr>
-                  <td>
-                    <EnabledIndicator en={servoC.enabled} />
-                  </td>
-                  <td>
-                    <ServoMode state={servoC.state} />
-                  </td>
-                  <td>
-                    {servoC.feedback}%
-                    {/* <FeedbackIndicator fb={servoC.feedback} /> */}
-                  </td>
-                  <td>{servoC.power.toFixed(1)}</td>
-                  <td>{servoC.target_angle.toFixed(2)}</td>
-                </tr>
+                {motors.map((clearpath, index) => (
+                  <tr>
+                    <td>
+                      <EnabledIndicator en={clearpath.enabled} />
+                    </td>
+                    <td>
+                      <ServoMode state={clearpath.state} />
+                    </td>
+                    <td>
+                      {clearpath.feedback}%
+                      {/* <FeedbackIndicator fb={servoA.feedback} /> */}
+                    </td>
+                    <td>{clearpath.power.toFixed(1)}</td>
+                    <td>{clearpath.target_angle.toFixed(2)}</td>
+                  </tr>
+                ))}
               </tbody>
             </HTMLTable>
           </TableArea>
@@ -202,51 +178,38 @@ const ServoSummaryCard = () => {
   )
 }
 
-const servo1DataSource = new MessageDataSource('mo1')
-const servo2DataSource = new MessageDataSource('mo2')
-const servo3DataSource = new MessageDataSource('mo3')
+const servoTelemetryDataSource = new MessageDataSource('servo')
 
 export const ServoDetails = () => {
+  const motors: ServoTelemetry[] | null = useHardwareState(state => state.servo)
+  if (motors === null) {
+    return <span>No motor telemetry available...</span>
+  }
+
   return (
     <div>
-      <IntervalRequester variables={['mo1', 'mo2', 'mo3']} interval={50} />
+      <IntervalRequester variables={['servo']} interval={100} />
       <ChartContainer>
-        <LineChart
-          dataSource={servo1DataSource}
-          accessor={state => state.mo1.target_angle}
-          maxItems={10000}
-        />
-        <LineChart
-          dataSource={servo2DataSource}
-          accessor={state => state.mo2.target_angle}
-          maxItems={10000}
-        />
-        <LineChart
-          dataSource={servo3DataSource}
-          accessor={state => state.mo3.target_angle}
-          maxItems={10000}
-        />
+        {motors.map((clearpath, index) => (
+          <LineChart
+            dataSource={servoTelemetryDataSource}
+            accessor={state => state.servo[index].target_angle}
+            maxItems={10000}
+          />
+        ))}
         <RealTimeDomain window={10000} />
         <TimeAxis />
         <VerticalAxis />
       </ChartContainer>
 
       <ChartContainer>
-        <LineChart
-          dataSource={servo1DataSource}
-          accessor={state => state.mo1.power}
-          maxItems={10000}
-        />
-        <LineChart
-          dataSource={servo2DataSource}
-          accessor={state => state.mo2.power}
-          maxItems={10000}
-        />
-        <LineChart
-          dataSource={servo3DataSource}
-          accessor={state => state.mo3.power}
-          maxItems={10000}
-        />
+        {motors.map((clearpath, index) => (
+          <LineChart
+            dataSource={servoTelemetryDataSource}
+            accessor={state => state.servo[index].power}
+            maxItems={10000}
+          />
+        ))}
         <RealTimeDomain window={10000} />
         <TimeAxis />
         <VerticalAxis />

@@ -187,30 +187,45 @@ export class FirmwareBuildInfoCodec extends Codec {
   }
 }
 
+export type ServoTelemetry = {
+  enabled: boolean
+  state: number
+  feedback: number
+  target_angle: number
+  power: number
+}
+
 export class MotorDataCodec extends Codec {
   filter(message: Message): boolean {
-    return (
-      message.messageID === 'mo1' ||
-      message.messageID === 'mo2' ||
-      message.messageID === 'mo3'
-    )
+    return message.messageID === 'servo'
   }
 
-  decode(message: Message, push: PushCallback) {
+  decode(
+    message: Message<Buffer>,
+    push: PushCallback<Message<ServoTelemetry[] | null>>,
+  ) {
+    // The null case
     if (message.payload === null) {
-      return push(message)
+      return push((message as unknown) as Message<null>)
     }
 
     const reader = SmartBuffer.fromBuffer(message.payload)
-    message.payload = {
-      enabled: reader.readUInt8() === 0x01 ? true : false,
-      state: reader.readUInt8(),
-      feedback: reader.readUInt16LE() / 10,
-      target_angle: reader.readFloatLE(),
-      power: reader.readFloatLE(),
+
+    const servoStats: ServoTelemetry[] = []
+
+    while (reader.remaining() > 0) {
+      const motor: ServoTelemetry = {
+        enabled: reader.readUInt8() === 0x01 ? true : false,
+        state: reader.readUInt8(),
+        feedback: reader.readUInt16LE() / 10,
+        target_angle: reader.readFloatLE(),
+        power: reader.readFloatLE(),
+      }
+      servoStats.push(motor)
     }
 
-    return push(message)
+    // Push it up the pipeline
+    return push(message.setPayload(servoStats))
   }
 }
 

@@ -9,7 +9,7 @@ import {
   SUPERVISOR_STATES,
 } from '../../../transport-manager/config/codecs'
 import { Divider, HTMLTable } from '@blueprintjs/core'
-import { Cell, Grid } from 'styled-css-grid'
+
 import {
   IntervalRequester,
   StateTree,
