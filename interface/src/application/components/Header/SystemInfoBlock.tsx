@@ -69,7 +69,6 @@ const CPUTemperature = () => {
 
 export const CoreSystemsInfoCard = () => {
   const cpu_clock = useHardwareState(state => state.sys.cpu_clock)
-  const cpu_temp = useHardwareState(state => state.sys.cpu_temp).toFixed(0)
 
   return (
     <Composition
@@ -104,10 +103,10 @@ export const CoreSystemsInfoCard = () => {
           <tbody>
             <tr>
               <td>
-                <b>Version</b>
+                <b>Name</b>
               </td>
               <td>
-                <Printer accessor={state => state.fwb.version} />
+                <Printer accessor={state => state.fwb.name} />
               </td>
             </tr>
             <tr>
