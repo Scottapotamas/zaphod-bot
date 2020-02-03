@@ -132,6 +132,29 @@ export class TargetPositionCodec extends Codec {
   }
 }
 
+export function splitBufferByLength(toSplit: Buffer, splitLength: number) {
+  const chunks = []
+  const n = toSplit.length
+  let i = 0
+
+  // if the result is only going to be one chunk, just return immediately.
+  if (toSplit.length < splitLength) {
+    return [toSplit]
+  }
+  while (i < n) {
+    let end = i + splitLength
+    chunks.push(toSplit.slice(i, end))
+    i = end
+  }
+  return chunks
+}
+
+// char build_branch[8];
+// char build_info[12];
+// char build_date[10];
+// char build_time[8];
+// char build_type[8];
+
 export class FirmwareBuildInfoCodec extends Codec {
   filter(message: Message): boolean {
     return message.messageID === 'fwb'
@@ -142,14 +165,22 @@ export class FirmwareBuildInfoCodec extends Codec {
       return push(message)
     }
 
-    const reader = SmartBuffer.fromBuffer(message.payload)
+    const payloadBuffer = message.payload as Buffer
+
+    console.log('Buffer: ' + payloadBuffer.toString('hex'))
+
+    const chunks = splitBufferByLength(payloadBuffer, 12)
+    const strings = chunks.map(chunk =>
+      SmartBuffer.fromBuffer(chunk).readStringNT(),
+    )
+
     message.payload = {
-      branch: 'Master',
-      info: 'bajasdkjaskdhj',
-      date: 'today, or something',
-      time: 'just then',
-      type: 'DEBUG',
-      version: '0.2.6',
+      branch: strings[0],
+      info: strings[1],
+      date: strings[2],
+      time: strings[3],
+      type: strings[4],
+      name: strings[5],
     }
 
     return push(message)
