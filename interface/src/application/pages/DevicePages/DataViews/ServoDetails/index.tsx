@@ -188,7 +188,7 @@ export const ServoDetails = () => {
 
   return (
     <div>
-      <IntervalRequester variables={['servo']} interval={100} />
+      <IntervalRequester variables={['servo']} interval={50} />
       <ChartContainer>
         {motors.map((clearpath, index) => (
           <LineChart
@@ -197,7 +197,7 @@ export const ServoDetails = () => {
             maxItems={10000}
           />
         ))}
-        <RealTimeDomain window={10000} />
+        <RealTimeDomain window={10000} yMin={-45} yMax={20} />
         <TimeAxis />
         <VerticalAxis />
       </ChartContainer>
