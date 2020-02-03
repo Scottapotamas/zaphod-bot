@@ -163,7 +163,11 @@ SystemStates_t	sys_states;
 QueueDepths_t   queue_data;
 
 MotionData_t 	motion_global;
+MotorData_t 	motion_servo[3];
+#ifdef EXPANSION_SERVO
 MotorData_t 	motion_servo[4];
+#endif
+
 PowerCalibration_t power_trims;
 
 Movement_t 		motion_inbound;
@@ -222,12 +226,7 @@ eui_message_t ui_variables[] =
     EUI_CUSTOM_RO( "queue", queue_data),
 
     EUI_CUSTOM_RO("moStat", motion_global),
-    EUI_CUSTOM_RO("mo1", motion_servo[0]),
-    EUI_CUSTOM_RO("mo2", motion_servo[1]),
-    EUI_CUSTOM_RO("mo3", motion_servo[2]),
-#ifdef EXPANSION_SERVO
-    EUI_CUSTOM_RO("mo4", motion_servo[3]),
-#endif
+    EUI_CUSTOM_RO("servo", motion_servo),
 
     EUI_CUSTOM( "pwr_cal", power_trims ),
     EUI_CUSTOM_RO("rgb", rgb_led_drive ),
