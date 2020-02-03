@@ -348,17 +348,22 @@ const LEDCalibrationCard = () => {
   )
 }
 
+import { ServoTelemetry } from '../../../transport-manager/config/codecs'
+
 const PowerCalibrationCard = () => {
+  const servo4: ServoTelemetry | null = useHardwareState(
+    state => state.servo[3],
+  )
+
+  let expansion_servo = servo4 !== null
+
   return (
     <Composition templateCols="1fr" justifyItems="center">
       <Box>
         <h2>Power Calibration</h2>
       </Box>
       <Box>
-        <IntervalRequester
-          variables={['sys', 'mo1', 'mo2', 'mo3']}
-          interval={100}
-        />
+        <IntervalRequester variables={['sys', 'servo']} interval={250} />
         <HTMLTable striped style={{ minWidth: '100%' }}>
           <thead>
             <tr>
@@ -392,7 +397,7 @@ const PowerCalibrationCard = () => {
                 <b>Servo 1</b>
               </td>
               <td>
-                <Printer accessor={state => state.mo1.power} />
+                <Printer accessor={state => state.servo[0].power} />
               </td>
               <td>
                 <NumberInput
@@ -411,7 +416,7 @@ const PowerCalibrationCard = () => {
                 <b>Servo 2</b>
               </td>
               <td>
-                <Printer accessor={state => state.mo2.power} />
+                <Printer accessor={state => state.servo[1].power} />
               </td>
               <td>
                 <NumberInput
@@ -430,7 +435,7 @@ const PowerCalibrationCard = () => {
                 <b>Servo 3</b>
               </td>
               <td>
-                <Printer accessor={state => state.mo3.power} />
+                <Printer accessor={state => state.servo[2].power} />
               </td>
               <td>
                 <NumberInput
@@ -444,25 +449,30 @@ const PowerCalibrationCard = () => {
                 />
               </td>
             </tr>
-            <tr>
-              <td>
-                <b>Servo 4</b>
-              </td>
-              <td>
-                <Printer accessor={state => state.mo4.power} />
-              </td>
-              <td>
-                <NumberInput
-                  accessor={state => state.pwr_cal.voltage}
-                  writer={value => ({
-                    pwr_cal: {
-                      voltage: value,
-                    },
-                  })}
-                  style={{ maxWidth: '150px' }}
-                />
-              </td>
-            </tr>
+
+            {expansion_servo ? (
+              <></>
+            ) : (
+              <tr>
+                <td>
+                  <b>Servo 4</b>
+                </td>
+                <td>
+                  <Printer accessor={state => state.servo[3].power} />
+                </td>
+                <td>
+                  <NumberInput
+                    accessor={state => state.pwr_cal.voltage}
+                    writer={value => ({
+                      pwr_cal: {
+                        voltage: value,
+                      },
+                    })}
+                    style={{ maxWidth: '150px' }}
+                  />
+                </td>
+              </tr>
+            )}
           </tbody>
         </HTMLTable>
       </Box>
