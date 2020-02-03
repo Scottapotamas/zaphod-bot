@@ -24,7 +24,7 @@ const DataViews = () => {
           </h3>
         </Box>
         <Box>
-          <Tooltip content="3D View">
+          <Tooltip content="3D View" position={Position.BOTTOM}>
             <Button
               minimal
               large
@@ -35,7 +35,7 @@ const DataViews = () => {
           </Tooltip>
         </Box>
         <Box>
-          <Tooltip content="Servo Health">
+          <Tooltip content="Servo Health" position={Position.BOTTOM}>
             <Button
               minimal
               large
@@ -46,7 +46,7 @@ const DataViews = () => {
           </Tooltip>
         </Box>
         <Box>
-          <Tooltip content="Thermals">
+          <Tooltip content="Thermals" position={Position.BOTTOM}>
             <Button
               minimal
               large

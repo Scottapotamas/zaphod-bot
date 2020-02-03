@@ -52,9 +52,9 @@ const CPUTemperature = () => {
   const cpu_temp = useHardwareState(state => state.sys.cpu_temp).toFixed(0)
   let iconColour: Intent
 
-  if (cpu_temp >= 0 && cpu_temp < 60) {
+  if (cpu_temp >= 0 && cpu_temp < 40) {
     iconColour = Intent.SUCCESS
-  } else if (cpu_temp > 60 && cpu_temp < 85) {
+  } else if (cpu_temp > 40 && cpu_temp < 65) {
     iconColour = Intent.WARNING
   } else {
     iconColour = Intent.DANGER
@@ -62,7 +62,7 @@ const CPUTemperature = () => {
 
   return (
     <div>
-      <Icon icon="time" intent={iconColour} iconSize={50} /> {cpu_temp}º
+      <Icon icon="snowflake" intent={iconColour} iconSize={50} /> {cpu_temp}º
     </div>
   )
 }
