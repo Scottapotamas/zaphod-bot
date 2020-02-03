@@ -127,6 +127,14 @@ export const CoreSystemsInfoCard = () => {
             </tr>
             <tr>
               <td>
+                <b>Type</b>
+              </td>
+              <td>
+                <Printer accessor={state => state.fwb.type} />
+              </td>
+            </tr>
+            <tr>
+              <td>
                 <b>Date</b>
               </td>
               <td>
@@ -139,14 +147,6 @@ export const CoreSystemsInfoCard = () => {
               </td>
               <td>
                 <Printer accessor={state => state.fwb.time} />
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <b>Type</b>
-              </td>
-              <td>
-                <Printer accessor={state => state.fwb.type} />
               </td>
             </tr>
           </tbody>
