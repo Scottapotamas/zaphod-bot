@@ -36,11 +36,12 @@ typedef struct
 
 typedef struct
 {
-	char build_branch[8];
+	char build_branch[12];
 	char build_info[12];
-	char build_date[10];
-	char build_time[8];
-	char build_type[8];
+	char build_date[12];
+	char build_time[12];
+	char build_type[12];
+    char build_name[12];
 } BuildInfo_t;
 
 typedef struct
@@ -286,13 +287,14 @@ configuration_set_defaults( void )
 	memset(&fw_info.build_date, 0, sizeof(fw_info.build_date));
 	memset(&fw_info.build_time, 0, sizeof(fw_info.build_time));
 	memset(&fw_info.build_type, 0, sizeof(fw_info.build_type));
+    memset(&fw_info.build_name, 0, sizeof(fw_info.build_name));
 
 	strcpy(&fw_info.build_branch, ProgramBuildBranch );
 	strcpy(&fw_info.build_info, ProgramBuildInfo );
 	strcpy(&fw_info.build_date, ProgramBuildDate );
 	strcpy(&fw_info.build_time, ProgramBuildTime );
 	strcpy(&fw_info.build_type, ProgramBuildType );
-
+    strcpy(&fw_info.build_name, ProgramName );
 }
 
 /* -------------------------------------------------------------------------- */
