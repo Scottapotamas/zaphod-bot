@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Build and JLink" type="com.jetbrains.cidr.embedded.customgdbserver.type" factoryName="com.jetbrains.cidr.embedded.customgdbserver.factory" PROGRAM_PARAMS="-if SWD -device STM32F429VG" PASS_PARENT_ENVS_2="true" PROJECT_NAME="delta-control" TARGET_NAME="delta-control.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="delta-control" RUN_TARGET_NAME="delta-control.elf">
-    <custom-gdb-server version="1" gdb-connect="tcp:localhost:2331" executable="/opt/jlink/JLinkGDBServer" reset-cmd="monitor reset" warmup-ms="0" download-type="UPDATED_ONLY" />
+  <configuration default="false" name="Build and JLink" type="com.jetbrains.cidr.embedded.customgdbserver.type" factoryName="com.jetbrains.cidr.embedded.customgdbserver.factory" PROGRAM_PARAMS="-if SWD -device STM32F429VG" PASS_PARENT_ENVS_2="true" PROJECT_NAME="delta-control" TARGET_NAME="delta-control.elf" CONFIG_NAME="Debug-ARM" RUN_TARGET_PROJECT_NAME="delta-control" RUN_TARGET_NAME="delta-control.elf">
+    <custom-gdb-server version="1" gdb-connect="tcp:localhost:2331" executable="/opt/jlink/JLinkGDBServer" warmup-ms="0" download-type="ALWAYS" reset-cmd="monitor reset" />
     <method v="2">
       <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
     </method>

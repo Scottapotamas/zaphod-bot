@@ -8,11 +8,19 @@
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
-      <configuration PROFILE_NAME="Debug" CONFIG_NAME="Debug" />
+      <configuration PROFILE_NAME="Debug-ARM" CONFIG_NAME="Debug" TOOLCHAIN_NAME="ARM">
+        <ADDITIONAL_GENERATION_ENVIRONMENT>
+          <envs>
+            <env name="PATH" value="/sbin:/bin:/usr/sbin:/usr/bin:/usr/share/avr/bin:/snap/bin:/opt/gcc-arm-none-eabi/gcc-arm-none-eabi-7-2018-q2-update/bin" />
+          </envs>
+        </ADDITIONAL_GENERATION_ENVIRONMENT>
+      </configuration>
     </configurations>
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5807f310-86a7-4c2a-9b30-ff232d3bffd0" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/runConfigurations/Build.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/Build_and_JLink.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/runConfigurations/Build_and_JLink.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/README.md" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/basics/hello-blink/hello-blink.ino" beforeDir="false" />
