@@ -181,36 +181,38 @@ const ServoSummaryCard = () => {
 const servoTelemetryDataSource = new MessageDataSource('servo')
 
 export const ServoDetails = () => {
-  const motors: ServoTelemetry[] | null = useHardwareState(state => state.servo)
-  if (motors === null) {
-    return <span>No motor telemetry available...</span>
-  }
+  const numMotors: number | null = useHardwareState(
+    state => (state.servo || []).length,
+  )
 
   return (
     <div>
       <IntervalRequester variables={['servo']} interval={50} />
       <ChartContainer>
-        {motors.map((clearpath, index) => (
-          <LineChart
-            dataSource={servoTelemetryDataSource}
-            accessor={state => state.servo[index].target_angle}
-            maxItems={10000}
-          />
-        ))}
+        {Array.from(new Array(numMotors)).map((_, index) => {
+          console.log(index)
+          return (
+            <LineChart
+              dataSource={servoTelemetryDataSource}
+              accessor={state => state.servo[index].target_angle}
+              maxItems={10000}
+            />
+          )
+        })}
         <RealTimeDomain window={10000} yMin={-45} yMax={20} />
         <TimeAxis />
         <VerticalAxis />
       </ChartContainer>
 
       <ChartContainer>
-        {motors.map((clearpath, index) => (
+        {Array.from(new Array(numMotors)).map((_, index) => (
           <LineChart
             dataSource={servoTelemetryDataSource}
             accessor={state => state.servo[index].power}
             maxItems={10000}
           />
         ))}
-        <RealTimeDomain window={10000} />
+        <RealTimeDomain window={10000} yMin={0} yMax={50} />
         <TimeAxis />
         <VerticalAxis />
       </ChartContainer>
