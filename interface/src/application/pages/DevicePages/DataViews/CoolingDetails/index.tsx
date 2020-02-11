@@ -69,6 +69,8 @@ export const CoolingDetails = () => {
   return (
     <div>
       <IntervalRequester variables={['temp']} interval={1000} />
+      <IntervalRequester variables={['fan']} interval={250} />
+
       <ChartContainer>
         <LineChart
           dataSource={temperatureDataSource}
