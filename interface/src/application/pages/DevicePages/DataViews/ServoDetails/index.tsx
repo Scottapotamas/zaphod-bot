@@ -25,6 +25,7 @@ import {
   Label,
   Text,
   Tab,
+  Colors,
 } from '@blueprintjs/core'
 import {
   IntervalRequester,
@@ -33,7 +34,7 @@ import {
 } from '@electricui/components-core'
 
 import { MessageDataSource } from '@electricui/core-timeseries'
-import { Printer } from '@electricui/components-desktop'
+import { Printer, useDarkMode } from '@electricui/components-desktop'
 import { ServoTelemetry } from '../../../../../transport-manager/config/codecs'
 
 type EnabledDataProps = {
@@ -178,6 +179,14 @@ const ServoSummaryCard = () => {
   )
 }
 
+const lightModeColours = [
+  Colors.RED1,
+  Colors.GREEN1,
+  Colors.BLUE1,
+  Colors.GOLD1,
+]
+const darkModeColours = [Colors.RED5, Colors.GREEN5, Colors.BLUE5, Colors.GOLD5]
+
 const servoTelemetryDataSource = new MessageDataSource('servo')
 
 export const ServoDetails = () => {
@@ -185,20 +194,21 @@ export const ServoDetails = () => {
     state => (state.servo || []).length,
   )
 
+  const isDark = useDarkMode()
+  const servoColours = darkModeColours //isDark ? darkModeColours : lightModeColours
+
   return (
     <div>
       <IntervalRequester variables={['servo']} interval={50} />
       <ChartContainer>
-        {Array.from(new Array(numMotors)).map((_, index) => {
-          console.log(index)
-          return (
-            <LineChart
-              dataSource={servoTelemetryDataSource}
-              accessor={state => state.servo[index].target_angle}
-              maxItems={10000}
-            />
-          )
-        })}
+        {Array.from(new Array(numMotors)).map((_, index) => (
+          <LineChart
+            dataSource={servoTelemetryDataSource}
+            accessor={state => state.servo[index].target_angle}
+            maxItems={10000}
+            color={servoColours[index]}
+          />
+        ))}
         <RealTimeDomain window={10000} yMin={-45} yMax={20} />
         <TimeAxis />
         <VerticalAxis />
@@ -210,6 +220,7 @@ export const ServoDetails = () => {
             dataSource={servoTelemetryDataSource}
             accessor={state => state.servo[index].power}
             maxItems={10000}
+            color={servoColours[index]}
           />
         ))}
         <RealTimeDomain window={10000} yMin={0} yMax={50} />
