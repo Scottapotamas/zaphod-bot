@@ -209,11 +209,10 @@ export const ServoDetails = () => {
             color={servoColours[index]}
           />
         ))}
-        <RealTimeDomain window={10000} yMin={-45} yMax={20} />
+        <RealTimeDomain window={10000} yMin={-45} yMax={20} delay={100} />
         <TimeAxis />
         <VerticalAxis />
       </ChartContainer>
-
       <ChartContainer>
         {Array.from(new Array(numMotors)).map((_, index) => (
           <LineChart
@@ -223,7 +222,7 @@ export const ServoDetails = () => {
             color={servoColours[index]}
           />
         ))}
-        <RealTimeDomain window={10000} yMin={0} yMax={50} />
+        <RealTimeDomain window={10000} yMin={0} yMax={50} delay={100} />
         <TimeAxis />
         <VerticalAxis />
       </ChartContainer>
