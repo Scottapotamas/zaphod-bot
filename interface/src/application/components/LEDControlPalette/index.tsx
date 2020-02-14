@@ -7,11 +7,7 @@ const LEDControlPalette = () => {
     <React.Fragment>
       <Slider
         showTrackFill={false}
-        writer={values => ({
-          hsv: {
-            hue: values.hue_handle,
-          },
-        })}
+        writer={(state, values) => (state.hsv.hue = values.hue_handle)}
         min={0}
         max={1}
         stepSize={0.025}
@@ -23,11 +19,7 @@ const LEDControlPalette = () => {
       <br />
       <Slider
         showTrackFill={false}
-        writer={values => ({
-          hsv: {
-            saturation: values.sat_handle,
-          },
-        })}
+        writer={(state, values) => (state.hsv.saturation = values.sat_handle)}
         min={0}
         max={1}
         stepSize={0.025}
@@ -42,11 +34,9 @@ const LEDControlPalette = () => {
       <br />
       <Slider
         showTrackFill={false}
-        writer={values => ({
-          hsv: {
-            lightness: values.intensity_handle,
-          },
-        })}
+        writer={(state, values) =>
+          (state.hsv.lightness = values.intensity_handle)
+        }
         min={0}
         max={1}
         stepSize={0.025}
@@ -64,13 +54,10 @@ const LEDControlPalette = () => {
           large
           innerLabel="OFF"
           innerLabelChecked="ON"
-          checked={{
-            enable: 1,
-          }}
-          unchecked={{
-            enable: 0,
-          }}
-          accessor="hsv"
+          unchecked={0}
+          checked={1}
+          accessor={state => state.hsv.enable}
+          writer={(state, value) => (state.hsv.enable = value)}
         >
           Enable LED
         </Switch>
