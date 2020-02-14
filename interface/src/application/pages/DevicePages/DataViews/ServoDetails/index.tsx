@@ -15,7 +15,6 @@ import {
   Statistic,
   Statistics,
   Slider,
-  Switch,
 } from '@electricui/components-desktop-blueprint'
 import {
   Card,

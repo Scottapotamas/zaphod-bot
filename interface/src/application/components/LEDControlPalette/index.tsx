@@ -64,16 +64,13 @@ const LEDControlPalette = () => {
           large
           innerLabel="OFF"
           innerLabelChecked="ON"
-          unchecked={{
-            hsv: {
-              enable: 0,
-            },
-          }}
           checked={{
-            hsv: {
-              enable: 1,
-            },
+            enable: 1,
           }}
+          unchecked={{
+            enable: 0,
+          }}
+          accessor="hsv"
         >
           Enable LED
         </Switch>

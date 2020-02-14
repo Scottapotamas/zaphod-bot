@@ -907,13 +907,13 @@
   resolved "https://registry.eui.io/@electricui%2fchartjs-plugin-streaming/-/chartjs-plugin-streaming-0.6.12.tgz#3b73c40a45607f5475445c2fbe67d049f100615f"
   integrity sha512-HyohspyPBn4iIHDzNTM7PzPoXuou71/LlWptt5SCirFHXj0Dz0nhSnmuFbYtP1p4rXckCqjyKpAM82smre2qRQ==
 
-"@electricui/charts@^0.6.15-prerelease.13":
-  version "0.6.15-prerelease.13"
-  resolved "https://registry.eui.io/@electricui%2fcharts/-/charts-0.6.15-prerelease.13.tgz#7fa31db2f92b6a23e846734ee1f023e848583842"
-  integrity sha512-7RM1sV89sA64u7OoeKzMlTO8EK1OZyxjEkjfL4JXyGtRzlEmid52gG0yoXf3VMU/GYOjCSuWOABLEwuRWTHXMw==
+"@electricui/charts@^0.6.15-prerelease.14":
+  version "0.6.15-prerelease.14"
+  resolved "https://registry.eui.io/@electricui%2fcharts/-/charts-0.6.15-prerelease.14.tgz#ed5c21c6b8cf6d7fb9e0e1b0f2b90974a63d6b8f"
+  integrity sha512-oSPaPR7Ux/nZKRQ5y2OlCauLspxVLBnJtMRCHlee95z0Ruvdpzwv09y9UXeeu3IggSQqdQQHH5BBcW9zu8GNqw==
   dependencies:
     "@electricui/core" "^0.6.15-prerelease.13"
-    "@electricui/core-timeseries" "^0.6.15-prerelease.13"
+    "@electricui/core-timeseries" "^0.6.15-prerelease.14"
     "@electricui/pondjs" "^0.6.15-prerelease.0"
     "@electricui/timeseries" "^0.6.15-prerelease.9"
     chart.js "^2.8.0"
@@ -938,44 +938,45 @@
     debug "^4.1.1"
     moize "^5.4.1"
 
-"@electricui/components-core@^0.6.15-prerelease.13":
-  version "0.6.15-prerelease.13"
-  resolved "https://registry.eui.io/@electricui%2fcomponents-core/-/components-core-0.6.15-prerelease.13.tgz#4d47796481c73f3ae1fdcb202482ed91c9ad2105"
-  integrity sha512-qfv3Rgu6ytRzPJoTEBvyv6Setfs3FkUFaex1rQCnH22oMmnX++mbu0zzDSfiobbqTQ2p9sJOcBBG3YOBvgvQTQ==
+"@electricui/components-core@^0.6.15-prerelease.14":
+  version "0.6.15-prerelease.14"
+  resolved "https://registry.eui.io/@electricui%2fcomponents-core/-/components-core-0.6.15-prerelease.14.tgz#2fc39e825013a9baa1ac6841376e3fceef38f76b"
+  integrity sha512-QW4vbfx07Xq4edfVt9AmcosAH4MiryZHywxIbeh57t+216Yw5Xgh5cdCWXQZDAqXLVjJ8rrc5gT/UUbwAwrWbg==
   dependencies:
     "@electricui/core" "^0.6.15-prerelease.13"
-    "@electricui/core-redux-state" "^0.6.15-prerelease.13"
+    "@electricui/core-redux-state" "^0.6.15-prerelease.14"
     "@electricui/utility-ipc" "^0.6.15-prerelease.0"
     debug "^4.1.1"
     moize "^5.4.1"
 
-"@electricui/components-desktop-blueprint@^0.6.15-prerelease.13":
-  version "0.6.15-prerelease.13"
-  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop-blueprint/-/components-desktop-blueprint-0.6.15-prerelease.13.tgz#99b423832cb7da1ceb3f5570b742f5f1f0f6a64b"
-  integrity sha512-eB/1T3ohKPpBsO68XCfFrNS7i/xlSccytrkaHZ+lPJ0RYifFipt5by5JTIcwmwP19f3o9dSo1C4ZkXXBpDRE2Q==
+"@electricui/components-desktop-blueprint@^0.6.15-prerelease.14":
+  version "0.6.15-prerelease.14"
+  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop-blueprint/-/components-desktop-blueprint-0.6.15-prerelease.14.tgz#f91fda0e2d8a5e3ae92063ae70f08bf3bdd7a33d"
+  integrity sha512-50OWz/hjrURo97KcReoG2jJQ4T2+I8ttSgnqEfIMaNXRDPLrKr/Sm5uM/qYGxs3aVDbkfqgTUn75q1llk7dGtw==
   dependencies:
     "@blueprintjs/core" "^3.22.0"
     "@blueprintjs/icons" "^3.12.0"
-    "@electricui/components-core" "^0.6.15-prerelease.13"
-    "@electricui/components-desktop" "^0.6.15-prerelease.13"
-    "@electricui/components-desktop-charts" "^0.6.15-prerelease.13"
+    "@electricui/components-core" "^0.6.15-prerelease.14"
+    "@electricui/components-desktop" "^0.6.15-prerelease.14"
+    "@electricui/components-desktop-charts" "^0.6.15-prerelease.14"
     "@electricui/core" "^0.6.15-prerelease.13"
-    "@electricui/core-timeseries" "^0.6.15-prerelease.13"
+    "@electricui/core-timeseries" "^0.6.15-prerelease.14"
     atomic-layout "^0.10.2"
     classnames "^2.2.6"
     lodash.debounce "^4.0.8"
+    lodash.throttle "^4.1.1"
     react-helmet "^5.2.1"
 
-"@electricui/components-desktop-charts@^0.6.15-prerelease.13":
-  version "0.6.15-prerelease.13"
-  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop-charts/-/components-desktop-charts-0.6.15-prerelease.13.tgz#22526ed6a5bfff529a315bf9c210b18648f8aa31"
-  integrity sha512-HcrFFG+x8tXUV1xbUsVvRVqP3MlwF/pOyJTU0mvT+fDKoUALqrPL0qwA7yipmuEZjVAyo6/Q0f6B79XwE8neJQ==
+"@electricui/components-desktop-charts@^0.6.15-prerelease.14":
+  version "0.6.15-prerelease.14"
+  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop-charts/-/components-desktop-charts-0.6.15-prerelease.14.tgz#68e43fe691c95f86b55cfa363f9638c54eb8c072"
+  integrity sha512-Cci4H1Sv1auelDwE00fnpyTKOjU4Z+VQlPblI27r37pba3NTlMVZOqvSG34fIvjtdJ12w42cfEkKnmbtAWvd8A==
   dependencies:
-    "@electricui/charts" "^0.6.15-prerelease.13"
-    "@electricui/components-core" "^0.6.15-prerelease.13"
-    "@electricui/components-desktop" "^0.6.15-prerelease.13"
+    "@electricui/charts" "^0.6.15-prerelease.14"
+    "@electricui/components-core" "^0.6.15-prerelease.14"
+    "@electricui/components-desktop" "^0.6.15-prerelease.14"
     "@electricui/core" "^0.6.15-prerelease.13"
-    "@electricui/core-timeseries" "^0.6.15-prerelease.13"
+    "@electricui/core-timeseries" "^0.6.15-prerelease.14"
     "@electricui/pondjs" "^0.6.15-prerelease.0"
     "@electricui/timeseries" "^0.6.15-prerelease.9"
     chart.js "^2.8.0"
@@ -988,12 +989,12 @@
     utility-types "^3.5.0"
     victory "^34.0.1"
 
-"@electricui/components-desktop@^0.6.15-prerelease.13":
-  version "0.6.15-prerelease.13"
-  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop/-/components-desktop-0.6.15-prerelease.13.tgz#519dbe26e7592ca0b1f280ef8f1328f5e1a81b06"
-  integrity sha512-ee9xd1z/85xb2YZBsseyPe4ZtYnk8xknazKQ3yGGMAJ0OFm1XG6+sJ70Lgz9uAduWYl1AHzeaXUbnFAsB7caww==
+"@electricui/components-desktop@^0.6.15-prerelease.14":
+  version "0.6.15-prerelease.14"
+  resolved "https://registry.eui.io/@electricui%2fcomponents-desktop/-/components-desktop-0.6.15-prerelease.14.tgz#73cf00d43d4d8acca34f03269edd896a84c58c07"
+  integrity sha512-QizBityzdFwkuVS9ro2i/iJWuGgi8HdnTNlvsIvA0Y5vxKS6jdKZjdhWWdANUoSZgBMF+2MBmJzCbGIPRjL1HQ==
   dependencies:
-    "@electricui/components-core" "^0.6.15-prerelease.13"
+    "@electricui/components-core" "^0.6.15-prerelease.14"
     "@electricui/core" "^0.6.15-prerelease.13"
     "@electricui/utility-electron" "^0.6.15-prerelease.0"
     react-pretty-numbers "^3.0.0"
@@ -1016,22 +1017,22 @@
     deepmerge "^4.1.1"
     typesafe-actions "^4.4.2"
 
-"@electricui/core-redux-state@^0.6.15-prerelease.13":
-  version "0.6.15-prerelease.13"
-  resolved "https://registry.eui.io/@electricui%2fcore-redux-state/-/core-redux-state-0.6.15-prerelease.13.tgz#cad028f0c6bb3781cd136c4a8662d4c2b9bcc0c4"
-  integrity sha512-wev7FzMLTlw9sN8ud/0IFsgi07wbAeud6I1CHn/3H1ag0yWepznUMmd3ConU8EjwREWcrUGlst+QSzWhbYAGuQ==
+"@electricui/core-redux-state@^0.6.15-prerelease.14":
+  version "0.6.15-prerelease.14"
+  resolved "https://registry.eui.io/@electricui%2fcore-redux-state/-/core-redux-state-0.6.15-prerelease.14.tgz#ef891a0887b4c90cf991e49aaab136859989082a"
+  integrity sha512-8Yj13g6djwnUgww2/ftdmkYm5vgu3YqIna+UN5gax8ntVaIC0q5bFJMnCYmf79L8l5Q9h4sw6n+l/9C3qmV0Ew==
   dependencies:
     debug "^4.1.1"
     deepmerge "^4.2.2"
     immer "^5.3.4"
     typesafe-actions "^4.4.2"
 
-"@electricui/core-timeseries@^0.6.15-prerelease.13":
-  version "0.6.15-prerelease.13"
-  resolved "https://registry.eui.io/@electricui%2fcore-timeseries/-/core-timeseries-0.6.15-prerelease.13.tgz#8cb2556f43e37d905699aa26acdbdad3ed9c8888"
-  integrity sha512-yVfpAHY7/On/h7BScumsv6VDIeJ9EiMZzc7ScSotIPFrne88OsvndFftQBFCd09l3WE9FLXb5hatLesoSRZnfw==
+"@electricui/core-timeseries@^0.6.15-prerelease.14":
+  version "0.6.15-prerelease.14"
+  resolved "https://registry.eui.io/@electricui%2fcore-timeseries/-/core-timeseries-0.6.15-prerelease.14.tgz#06069a904604fe198f96c6feeba966ea3b6ef7e3"
+  integrity sha512-tbfBGHKDlCrYYZpm/nwYoWd0CB+Q7pcdXudTgP0MU16yKr+knDt1V52/J8xzX5ge2+6AmMih3Rbh/axgSSYmnQ==
   dependencies:
-    "@electricui/components-core" "^0.6.15-prerelease.13"
+    "@electricui/components-core" "^0.6.15-prerelease.14"
     "@electricui/core" "^0.6.15-prerelease.13"
     "@electricui/pondjs" "^0.6.15-prerelease.0"
     "@electricui/timeseries" "^0.6.15-prerelease.9"
@@ -6252,6 +6253,11 @@ lodash.memoize@^4.1.2:
   version "4.1.2"
   resolved "https://registry.yarnpkg.com/lodash.memoize/-/lodash.memoize-4.1.2.tgz#bcc6c49a42a2840ed997f323eada5ecd182e0bfe"
   integrity sha1-vMbEmkKihA7Zl/Mj6tpezRguC/4=
+
+lodash.throttle@^4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/lodash.throttle/-/lodash.throttle-4.1.1.tgz#c23e91b710242ac70c37f1e1cda9274cc39bf2f4"
+  integrity sha1-wj6RtxAkKscMN/HhzaknTMOb8vQ=
 
 lodash.uniq@^4.5.0:
   version "4.5.0"
