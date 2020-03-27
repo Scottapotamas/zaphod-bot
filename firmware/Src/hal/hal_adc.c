@@ -5,7 +5,6 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "hal_adc.h"
-#include "hal_dma.h"
 #include "hal_gpio.h"
 
 #include "qassert.h"
@@ -287,6 +286,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
   {
     /* ADC1 clock enable */
     __HAL_RCC_ADC1_CLK_ENABLE();
+    __HAL_RCC_DMA2_CLK_ENABLE();
 
     //Initialise the GPIO as analog mode if they haven't been already
     	//this should be done as part of the default setup in the hal_gpio called during the hardware setup
@@ -307,6 +307,9 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)
     {
       _Error_Handler(__FILE__, __LINE__);
     }
+
+    HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 1, 1);
+    HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
 
     __HAL_LINKDMA(adcHandle, DMA_Handle, hdma_adc1);
   }

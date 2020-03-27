@@ -12,7 +12,6 @@
 #include "app_task_communication.h"
 #include "configuration.h"
 #include "hal_uart.h"
-#include "usbd_cdc_if.h"
 
 #include "electricui.h"
 
@@ -198,7 +197,7 @@ AppTaskCommunication_tx_put_module( uint8_t *c, uint16_t length )
 PRIVATE void
 AppTaskCommunication_tx_put_usb( uint8_t *c, uint16_t length )
 {
-	CDC_Transmit_FS( c, length );
+
 }
 
 /* -------------------------------------------------------------------------- */

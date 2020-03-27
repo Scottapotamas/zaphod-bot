@@ -4,7 +4,6 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "hal_systick.h"
-#include "hal_dma.h"
 #include "hal_adc.h"
 #include "hal_gpio.h"
 #include "hal_hard_ic.h"
@@ -41,7 +40,6 @@ app_hardware_init( void )
     hal_systick_init();
     hal_flashmem_init();
 
-    hal_dma_init();
     hal_adc_init();
     hal_hard_ic_init();
 

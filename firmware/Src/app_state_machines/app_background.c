@@ -67,7 +67,7 @@ app_background( void )
 
     if( timer_ms_is_expired( &hard_ic_timer ) )
     {
-        hal_hard_ic_process();
+//        hal_hard_ic_process();
         timer_ms_start( &hard_ic_timer, BACKGROUND_RATE_HARD_IC_MS );
     }
 
