@@ -143,7 +143,7 @@ sensors_fan_speed_RPM( void )
     // 1hz = 60rpm
 	//two hall pulses per revolution
 
-	float hall_frequency = hal_hard_ic_read_avg(HAL_HARD_IC_FAN_HALL );
+	float hall_frequency = hal_hard_ic_read(HAL_HARD_IC_FAN_HALL );
 	uint16_t rpm = 60 * (hall_frequency / 2);
     config_set_fan_rpm( rpm );
 	return rpm;

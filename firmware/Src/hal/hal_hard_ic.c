@@ -7,7 +7,6 @@
 #include "hal_hard_ic.h"
 #include "hal_gpio.h"
 #include "hal_systick.h"
-#include "average_short.h"
 #include "qassert.h"
 
 #include "stm32f4xx_hal.h"
@@ -39,9 +38,7 @@ typedef struct
 } HalHardICIntermediate_t;
 
 PRIVATE HalHardICIntermediate_t ic_state[HAL_HARD_IC_NUM];  // holding values used to calculate edge durations
-PRIVATE uint32_t       ic_values[HAL_HARD_IC_NUM];      // raw values per calculation
-PRIVATE uint32_t       ic_peaks[HAL_HARD_IC_NUM];       // track the running highest value
-PRIVATE AverageShort_t ic_averages[HAL_HARD_IC_NUM];    // simple average over a span
+PRIVATE uint32_t                ic_values[HAL_HARD_IC_NUM]; // raw values per calculation
 
 /* ----- Private Functions -------------------------------------------------- */
 
@@ -57,28 +54,12 @@ PUBLIC void
 hal_hard_ic_init( void )
 {
     memset( &ic_values,    0, sizeof( ic_values ) );
-    memset( &ic_peaks,    0, sizeof( ic_peaks ) );
-    memset( &ic_averages, 0, sizeof( ic_averages ) );
-
-    average_short_init(&ic_averages[HAL_HARD_IC_FAN_HALL], 5 );
-    average_short_init( &ic_averages[HAL_HARD_IC_HLFB_SERVO_1],    30 );
-    average_short_init( &ic_averages[HAL_HARD_IC_HLFB_SERVO_2],    30 );
-    average_short_init( &ic_averages[HAL_HARD_IC_HLFB_SERVO_3],    30 );
-    average_short_init( &ic_averages[HAL_HARD_IC_HLFB_SERVO_4],    30 );
 
     hal_setup_capture(HAL_HARD_IC_FAN_HALL );
-    hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_1 );
-    hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_2 );
-    hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_3 );
-
-    hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_4 );
-}
-
-PUBLIC bool
-hal_hard_ic_valid( InputCaptureSignal_t input )
-{
-    REQUIRE(input < HAL_HARD_IC_NUM );
-    return ic_averages[input].counter > 0;
+//    hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_1 );
+//    hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_2 );
+//    hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_3 );
+//    hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_4 );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -87,23 +68,7 @@ PUBLIC uint32_t
 hal_hard_ic_read( InputCaptureSignal_t input )
 {
     REQUIRE(input < HAL_HARD_IC_NUM );
-    return (uint32_t)average_short_get_last( &ic_averages[input] );
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC uint32_t
-hal_hard_ic_read_avg( InputCaptureSignal_t input )
-{
-    REQUIRE(input < HAL_HARD_IC_NUM );
-    return (uint32_t)average_short_get_average( &ic_averages[input] );
-}
-
-PUBLIC uint32_t
-hal_hard_ic_read_peak( InputCaptureSignal_t input )
-{
-    REQUIRE(input < HAL_HARD_IC_NUM );
-    return ic_peaks[input];
+    return ic_values[input];
 }
 
 /* -------------------------------------------------------------------------- */
@@ -253,8 +218,6 @@ void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* tim_pwmHandle)
 		__HAL_RCC_TIM1_CLK_DISABLE();
 
 		hal_gpio_disable_pin( _SERVO_3_HLFB );
-//		hal_gpio_disable_pin( _SERVO_3_A );
-//		hal_gpio_disable_pin( _SERVO_3_B );
 	}
 	else if(tim_pwmHandle->Instance==TIM2)
 	{
@@ -265,24 +228,18 @@ void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* tim_pwmHandle)
 		__HAL_RCC_TIM3_CLK_DISABLE();
 
 		hal_gpio_disable_pin( _SERVO_1_HLFB );
-//		hal_gpio_disable_pin( _SERVO_1_A );
-//		hal_gpio_disable_pin( _SERVO_1_B );
 	}
 	else if(tim_pwmHandle->Instance==TIM4)
 	{
 		__HAL_RCC_TIM4_CLK_DISABLE();
 
 		hal_gpio_disable_pin( _SERVO_2_HLFB );
-//		hal_gpio_disable_pin( _SERVO_2_A );
-//		hal_gpio_disable_pin( _SERVO_2_B );
 	}
 	else if(tim_pwmHandle->Instance==TIM5)
 	{
 		__HAL_RCC_TIM5_CLK_DISABLE();
 
 		hal_gpio_disable_pin( _SERVO_4_HLFB );
-//		hal_gpio_disable_pin( _SERVO_4_A );
-//		hal_gpio_disable_pin( _SERVO_4_B );
 	}
 	else if(tim_pwmHandle->Instance==TIM12)
 	{
@@ -311,28 +268,19 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 /* -------------------------------------------------------------------------- */
 
-#define IC_TIMEOUT_HLFB 5 // milliseconds
+#define IC_TIMEOUT_HLFB 21 // milliseconds (50Hz signal)
 #define IC_TIMEOUT_FAN 100 // milliseconds
 
-// Periodically (ideally faster than every 5msec), check if the IC callbacks have been firing to determine
-// if the signal is just solid low/high.
-PUBLIC void hal_hard_ic_process( void )
+// Performs a check if the IC callbacks has been firing recently to determine
+// if the IC value is valid
+PUBLIC bool hal_hard_ic_is_recent( InputCaptureSignal_t signal )
 {
-    for( InputCaptureSignal_t signal = 0; signal < HAL_HARD_IC_NUM; signal++ )
-    {
-        // Choose a timeout appropriate for the input signal frequency
-        uint16_t timeout = ( signal == HAL_HARD_IC_FAN_HALL )? IC_TIMEOUT_FAN : IC_TIMEOUT_HLFB;
+    // Choose a timeout appropriate for the input signal frequency
+    uint16_t timeout = ( signal == HAL_HARD_IC_FAN_HALL )? IC_TIMEOUT_FAN : IC_TIMEOUT_HLFB;
 
-        // Check if the IC has timed out
-        if( (hal_systick_get_ms() >= ic_state[signal].timestamp + timeout ) )
-        {
-            ic_values[signal] = 0;
-            average_short_update(&ic_averages[signal], (uint16_t)ic_values[signal] );
-            ic_peaks[signal] = MAX(ic_peaks[signal], ic_values[signal] );
-        }
-    }
+    // returns false if the IC hasn't had a new event within the timeout period
+    return (hal_systick_get_ms() <= ic_state[signal].timestamp + timeout );
 }
-
 
 /* -------------------------------------------------------------------------- */
 
@@ -357,7 +305,7 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 	else if(htim->Instance==TIM5)
 	{
         hal_hard_ic_process_duty_cycle(htim, HAL_HARD_IC_HLFB_SERVO_4);
-	}
+    }
 	else if(htim->Instance==TIM9)
 	{
         if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
@@ -385,8 +333,6 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
                 }
 
                 ic_values[HAL_HARD_IC_FAN_HALL] = (HAL_RCC_GetPCLK2Freq() / delta_counts) / 100;
-                average_short_update(&ic_averages[HAL_HARD_IC_FAN_HALL], (uint16_t)ic_values[HAL_HARD_IC_FAN_HALL] );
-                ic_peaks[HAL_HARD_IC_FAN_HALL] = MAX(ic_peaks[HAL_HARD_IC_FAN_HALL], ic_values[HAL_HARD_IC_FAN_HALL] );
 
                 ic_state[HAL_HARD_IC_FAN_HALL].first_edge_done = false;   // reset to catch the next 'new' edge.
             }
@@ -419,8 +365,6 @@ hal_hard_ic_process_duty_cycle( TIM_HandleTypeDef *htim, InputCaptureSignal_t si
             if (ic_state[signal].cnt_b > ic_state[signal].cnt_a)
             {
                 ic_values[signal] = ic_state[signal].cnt_b - ic_state[signal].cnt_a;;
-                average_short_update(&ic_averages[signal], (uint16_t)ic_values[signal] );
-                ic_peaks[signal] = MAX(ic_peaks[signal], ic_values[signal] );
             }
 
             ic_state[signal].first_edge_done = false;

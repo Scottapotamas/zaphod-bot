@@ -206,9 +206,9 @@ servo_get_hlfb_percent( ClearpathServoInstance_t servo )
     float percentage = 0.0f;
 
     // If there is a valid IC value, grab the average IC duration and convert to a percentage
-    if( hal_hard_ic_read(ServoHardwareMap[servo].ic_feedback) > 60 )
+    if( hal_hard_ic_is_recent(ServoHardwareMap[servo].ic_feedback) )
     {
-        percentage = mapf( hal_hard_ic_read_avg(ServoHardwareMap[servo].ic_feedback), 62, 2041, 4.0f,97.0f );
+        percentage = mapf( hal_hard_ic_read(ServoHardwareMap[servo].ic_feedback), 62, 2041, 4.0f,97.0f );
         CLAMP(percentage, 5.0f, 95.0f);
     }
     else
@@ -285,7 +285,6 @@ servo_process( ClearpathServoInstance_t servo )
             	me->home_complete = 0;
             	me->timer = hal_systick_get_ms();
             STATE_TRANSITION_TEST
-				//the HLFB output pin will be set to speed mode, outputs 45Hz PWM where DC% relates to the velocity.
 				//expect the motor to slowly home, stop, move to the neutral point, then stop
 				//guard times for min and max homing delays (how long the motor would take in worst case to home
             	if( me->feedback_ok )
