@@ -1,21 +1,22 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "hal_watchdog.h"
-#include "stm32f4xx_hal.h"
-
-/* -------------------------------------------------------------------------- */
-
-IWDG_HandleTypeDef hiwdg;
+#include "stm32f4xx_ll_iwdg.h"
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
 hal_watchdog_init( uint32_t timeout_ms )
 {
-    hiwdg.Instance = IWDG;
-    hiwdg.Init.Prescaler = IWDG_PRESCALER_256; /* 125Hz or 8ms ticks */
-    hiwdg.Init.Reload = MAX( 1UL, MIN( 4095UL, timeout_ms / 8UL ) );
-    HAL_IWDG_Init( &hiwdg );
+    LL_IWDG_Enable(IWDG);
+    LL_IWDG_EnableWriteAccess(IWDG);
+    LL_IWDG_SetPrescaler(IWDG, LL_IWDG_PRESCALER_256);
+    LL_IWDG_SetReloadCounter(IWDG, MAX( 1UL, MIN( 4095UL, timeout_ms / 8UL ) ));
+
+    while (LL_IWDG_IsReady(IWDG) != 1)
+    {
+
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -25,7 +26,7 @@ hal_watchdog_init( uint32_t timeout_ms )
 PUBLIC void
 hal_watchdog_refresh( void )
 {
-    HAL_IWDG_Refresh( &hiwdg );
+    LL_IWDG_ReloadCounter(IWDG);
 }
 
 /* ----- End ---------------------------------------------------------------- */
