@@ -10,7 +10,6 @@ extern "C" {
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
-#include "stm32f4xx_hal.h"
 #include "qassert.h"
 
 /* ----- Defines ------------------------------------------------------------ */
