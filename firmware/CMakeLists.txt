@@ -35,6 +35,10 @@ set(CMAKE_CXX_STANDARD 11)
 #add_definitions(-DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -D__FPU_PRESENT=1 )
 add_definitions(-D__weak=__attribute__\(\(weak\)\) -D__DEBUG -D__packed=__attribute__\(\(__packed__\)\) -DUSE_HAL_DRIVER -DSTM32F429xx )
 
+if (USE_FULL_LL_DRIVER)
+    add_definitions(-DUSE_FULL_LL_DRIVER=1)
+endif (USE_FULL_LL_DRIVER)
+
 file(GLOB_RECURSE SOURCES "Drivers/*.*" "Src/*.*" "startup/*.*")
 
 include_directories(Src Src/app_state_machines Src/hal Src/drivers Src/utility Drivers/STM32F4xx_HAL_Driver/Inc Drivers/electricui Drivers/STM32F4xx_HAL_Driver/Inc/Legacy Drivers/STM32_USB_Device_Library/Core/Inc Drivers/STM32_USB_Device_Library/Class/CDC/Inc Drivers/CMSIS/Device/ST/STM32F4xx/Include Drivers/CMSIS/Include)

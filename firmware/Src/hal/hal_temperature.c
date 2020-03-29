@@ -5,8 +5,6 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "hal_temperature.h"
-#include "qassert.h"
-#include "stm32f4xx_hal.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -43,7 +41,7 @@ hal_temperature_micro_degrees_C( uint32_t raw_adc )
  * 10K resistance at 25C, 5% tolerance
  * Assumes 2.4k low side resistor, thermistor fed from AVCC
  *
- * Conversion designed for 0-120°C operation
+ * Conversion designed for 0-120ï¿½C operation
  * */
 
 PUBLIC float
@@ -67,7 +65,7 @@ hal_temperature_pcb_degrees_C( uint32_t raw_adc )
  * 10K resistance at 25C, '1% tolerance' claimed
  * Assumes 2.4k low side resistor, thermistor fed from AVCC
  *
- * Conversion designed for 0-120°C operation
+ * Conversion designed for 0-120ï¿½C operation
  * */
 
 PUBLIC float
