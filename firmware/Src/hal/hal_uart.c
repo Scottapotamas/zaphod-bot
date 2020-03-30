@@ -24,9 +24,8 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 /* ----- Defines ------------------------------------------------------------ */
 
 
-#warning "Fix cludge in fifo size due to eUI not being respectful of output processing time"
-#define  HAL_UART_RX_FIFO_SIZE      128
-#define  HAL_UART_TX_FIFO_SIZE      128
+#define  HAL_UART_RX_FIFO_SIZE      256
+#define  HAL_UART_TX_FIFO_SIZE      256
 
 #define HAL_UART_RX_DMA_BUFFER_SIZE 64
 

@@ -1,11 +1,11 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "stm32f4xx_hal.h"
 
 #include "stm32f4xx_ll_rcc.h"
 #include "stm32f4xx_ll_system.h"
 #include "stm32f4xx_ll_pwr.h"
 #include "stm32f4xx_ll_utils.h"
+#include "stm32f4xx_ll_bus.h"
 
 #include "global.h"
 #include "qassert.h"
@@ -14,12 +14,12 @@
 #include "status.h"
 #include "hal_watchdog.h"
 #include "hal_system_speed.h"
+#include "hal_delay.h"
 
 /* Assert printout requirements */
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include "hal_delay.h"
 
 /* Private variables ---------------------------------------------------------*/
 #if defined(NASSERT) || defined(NDEBUG)
@@ -29,17 +29,18 @@
 #endif
 
 /* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
+void init_core( void );
+void system_clock_config( void );
 
 /* Private function prototypes -----------------------------------------------*/
 
 //application entry point from startup_stm32f429xx.s
 int main(void)
 {
-	HAL_Init();             //Reset peripherals, init flash etc
-	SystemClock_Config();   //Setup the system clock
-	app_hardware_init();    //Initialise IO, peripherals etc
+    init_core();            //Reset peripherals, init flash etc
+	system_clock_config();  // Clocks
 
+	app_hardware_init();    //Initialise IO, peripherals etc
 	app_tasks_init();       //start the task handler
 
 	//allow interrupts
@@ -59,8 +60,38 @@ int main(void)
 	}
 }
 
+void init_core( void )
+{
+    LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_SYSCFG);
+    LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_PWR);
+
+    NVIC_SetPriorityGrouping(NVIC_PRIORITYGROUP_4);
+
+    // MemoryManagement_IRQn interrupt configuration
+    HAL_NVIC_SetPriority(MemoryManagement_IRQn, 0, 0);
+
+    // BusFault_IRQn interrupt configuration
+    HAL_NVIC_SetPriority(BusFault_IRQn, 0, 0);
+
+    // UsageFault_IRQn interrupt configuration
+    HAL_NVIC_SetPriority(UsageFault_IRQn, 0, 0);
+
+    // SVCall_IRQn interrupt configuration
+    HAL_NVIC_SetPriority(SVCall_IRQn, 0, 0);
+
+    // DebugMonitor_IRQn interrupt configuration
+    HAL_NVIC_SetPriority(DebugMonitor_IRQn, 0, 0);
+
+    // PendSV_IRQn interrupt configuration
+    HAL_NVIC_SetPriority(PendSV_IRQn, 0, 0);
+
+    // SysTick_IRQn interrupt configuration
+    HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
+
+}
+
 // Startup the internal and external clocks, set PLL etc
-void SystemClock_Config(void)
+void system_clock_config(void)
 {
     LL_FLASH_SetLatency(LL_FLASH_LATENCY_5);
 
@@ -71,28 +102,26 @@ void SystemClock_Config(void)
 
     LL_PWR_SetRegulVoltageScaling(LL_PWR_REGU_VOLTAGE_SCALE1);
     LL_PWR_DisableOverDriveMode();
-    LL_RCC_HSE_Enable();
 
-    /* Wait till HSE is ready */
+    LL_RCC_HSE_Enable();
     while(LL_RCC_HSE_IsReady() != 1)
     {
-
+        asm("nop");
     }
-    LL_RCC_LSI_Enable();
 
-    /* Wait till LSI is ready */
+    LL_RCC_LSI_Enable();
     while(LL_RCC_LSI_IsReady() != 1)
     {
-
+        asm("nop");
     }
+
     LL_RCC_PLL_ConfigDomain_SYS(LL_RCC_PLLSOURCE_HSE, LL_RCC_PLLM_DIV_4, 168, LL_RCC_PLLP_DIV_2);
     LL_RCC_PLL_ConfigDomain_48M(LL_RCC_PLLSOURCE_HSE, LL_RCC_PLLM_DIV_4, 168, LL_RCC_PLLQ_DIV_7);
-    LL_RCC_PLL_Enable();
 
-    /* Wait till PLL is ready */
+    LL_RCC_PLL_Enable();
     while(LL_RCC_PLL_IsReady() != 1)
     {
-
+        asm("nop");
     }
 
     LL_RCC_SetAHBPrescaler(LL_RCC_SYSCLK_DIV_1);
@@ -100,31 +129,14 @@ void SystemClock_Config(void)
     LL_RCC_SetAPB2Prescaler(LL_RCC_APB2_DIV_4);
     LL_RCC_SetSysClkSource(LL_RCC_SYS_CLKSOURCE_PLL);
 
-    /* Wait till System clock is ready */
     while(LL_RCC_GetSysClkSource() != LL_RCC_SYS_CLKSOURCE_STATUS_PLL)
     {
-
+        asm("nop");
     }
+
+    LL_Init1msTick(168000000);
     LL_SetSystemCoreClock(168000000);
-
-    /* Update the time base */
-    if (HAL_InitTick (TICK_INT_PRIORITY) != HAL_OK)
-    {
-        Error_Handler();
-    };
-
     LL_RCC_SetTIMPrescaler(LL_RCC_TIM_PRESCALER_TWICE);
-
-
-
-    // Configure the Systick interrupt time
-    HAL_SYSTICK_Config(HAL_RCC_GetHCLKFreq() / 1000);
-
-    // Configure the Systick
-    HAL_SYSTICK_CLKSourceConfig(SYSTICK_CLKSOURCE_HCLK);
-
-    // SysTick_IRQn interrupt configuration
-    HAL_NVIC_SetPriority(SysTick_IRQn, 0, 0);
 }
 
 void onAssert__( const char * file,
