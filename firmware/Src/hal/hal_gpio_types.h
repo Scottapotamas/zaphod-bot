@@ -31,6 +31,9 @@ typedef enum
     PORT_F = (5),
     PORT_G = (6),
     PORT_H = (7),
+    PORT_I = (8),
+    PORT_J = (9),
+    PORT_K = (10),
 } HalGpioPortNr_t;
 
 /** Pin Numbers */
