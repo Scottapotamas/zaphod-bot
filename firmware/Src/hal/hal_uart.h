@@ -10,6 +10,7 @@ extern "C" {
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
+#include "stm32f4xx_ll_gpio.h"
 
 /* ----- Types ------------------------------------------------------------- */
 
@@ -20,8 +21,6 @@ typedef enum
     HAL_UART_PORT_MODULE,
     HAL_UART_NUM_PORTS
 } HalUartPort_t;
-
-typedef void (*HalUartRxCallback_t)( HalUartPort_t port, uint8_t c );
 
 /* -------------------------------------------------------------------------- */
 /* --- UART INTERFACE                                                     --- */
@@ -111,16 +110,6 @@ hal_uart_write( HalUartPort_t port, const uint8_t * data, uint32_t length );
 
 /* -------------------------------------------------------------------------- */
 
-/* Register a receive handler.
- * Called directly from UART ISR. When this is used, there is no buffering
- * available and the hal_uart_get is no longer functional.
- */
-
-PUBLIC void
-hal_uart_set_rx_handler( HalUartPort_t port, HalUartRxCallback_t rxFunc );
-
-/* -------------------------------------------------------------------------- */
-
 /* Returns number of available characters in the RX FIFO queue. */
 
 PUBLIC uint32_t
@@ -143,16 +132,6 @@ hal_uart_rx_get( HalUartPort_t port );
 
 PUBLIC uint32_t
 hal_uart_read( HalUartPort_t port, uint8_t * buffer, uint32_t bufferlen );
-
-/* -------------------------------------------------------------------------- */
-
-/* Blocking printf to the UART.
- * To be used within assert and fault handlers to print fault
- * information.
- */
-
-PUBLIC void
-hal_uart_printf_direct( HalUartPort_t port, const char * format, ... );
 
 /* ----- End ---------------------------------------------------------------- */
 

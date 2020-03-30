@@ -59,6 +59,13 @@ fifo_used( fifo_t * restrict f );
 
 /* -------------------------------------------------------------------------- */
 
+/** Returns the amount of data in the fifo _in_ a sequential block of memory. */
+
+PUBLIC uint32_t
+fifo_used_linear( fifo_t * restrict f );
+
+/* -------------------------------------------------------------------------- */
+
 /** Returns the amount of free space in the fifo. */
 
 PUBLIC uint32_t
@@ -101,6 +108,24 @@ fifo_write( fifo_t * restrict f, const uint8_t * buf, uint32_t nbytes );
 
 PUBLIC uint32_t
 fifo_read( fifo_t * restrict f, uint8_t * buf, uint32_t nbytes );
+
+/* -------------------------------------------------------------------------- */
+
+/** Get the pointer to the tail, if the proposed nbytes is legal
+ *  Only use this function while promising that underlying data isn't mutated
+ */
+
+PUBLIC uint32_t*
+fifo_get_tail_ptr( fifo_t * restrict f, uint32_t nbytes );
+
+/* -------------------------------------------------------------------------- */
+
+/** Moves the tail forwards by nbytes, functionally skipping data (partial flush)
+ *  Returns number bytes flushed
+ */
+
+PUBLIC uint32_t
+fifo_skip( fifo_t * restrict f, uint32_t nbytes );
 
 /* ----- End ---------------------------------------------------------------- */
 
