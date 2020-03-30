@@ -122,7 +122,7 @@ hal_uart_init( HalUartPort_t port )
             hal_uart_dma_init( h );
             hal_uart_set_baudrate( h->port, UART_EXTERNAL_BAUD );
 
-            HAL_NVIC_SetPriority( UART5_IRQn, 12, 0 );
+            HAL_NVIC_SetPriority( UART5_IRQn, 7, 1 );
             HAL_NVIC_EnableIRQ( UART5_IRQn );
             break;
 
@@ -147,7 +147,7 @@ hal_uart_init( HalUartPort_t port )
             hal_uart_dma_init( h );
             hal_uart_set_baudrate( h->port, UART_INTERNAL_BAUD );
 
-            HAL_NVIC_SetPriority( USART1_IRQn, 12, 0 );
+            HAL_NVIC_SetPriority( USART1_IRQn, 7, 0 );
             HAL_NVIC_EnableIRQ( USART1_IRQn );
             break;
 
@@ -174,8 +174,11 @@ hal_uart_init( HalUartPort_t port )
             hal_uart_dma_init( h );
             hal_uart_set_baudrate( h->port, UART_MODULE_BAUD );
 
-            HAL_NVIC_SetPriority( USART2_IRQn, 12, 0 );
+            HAL_NVIC_SetPriority( USART2_IRQn, 5, 0 );
             HAL_NVIC_EnableIRQ( USART2_IRQn );
+
+            LL_DMA_EnableStream(h->dma_peripheral, h->dma_stream_rx);     // rx stream
+            LL_USART_Enable(h->usart);
             break;
 
         default:

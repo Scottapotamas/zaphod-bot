@@ -5,8 +5,10 @@
 /* -------------------------------------------------------------------------- */
 
 #include "hal_systick.h"
+#include "stm32f4xx_ll_cortex.h"
+#include "stm32f4xx_ll_utils.h"
+#include "stm32f4xx_ll_rcc.h"
 #include "qassert.h"
-#include "stm32f4xx_hal.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -34,7 +36,11 @@ hal_systick_init( void )
 {
     /* Use systick as time base source and configure 1ms tick
      * (default clock after Reset is HSI) */
-    HAL_InitTick(TICK_INT_PRIORITY);
+
+    // Called earlier by LL_Init1msTick() in the main system clock setup stage
+//    LL_InitTick( rcc_clks.HCLK_Frequency, 1000U );
+
+    LL_SYSTICK_EnableIT();
 }
 
 /* -------------------------------------------------------------------------- */

@@ -232,6 +232,15 @@ AppTaskCommunication_rx_callback_cdc( uint8_t c )
 
 }
 
+PUBLIC void
+AppTaskCommunication_rx_tick( void )
+{
+    while( hal_uart_rx_data_available( HAL_UART_PORT_MODULE ) )
+    {
+        eui_parse( hal_uart_rx_get( HAL_UART_PORT_MODULE ), &communication_interface[LINK_MODULE]);
+    }
+}
+
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void

@@ -232,15 +232,18 @@ hal_gpio_init_alternate( HalGpioPortPin_t 	gpio_port_pin_nr,
     ENSURE( m->port <= PORT_H );
     ENSURE( m->pin <= PIN_15 );
 
+    uint32_t pin = hal_gpio_mcu_pin( m->pin );
+    GPIO_TypeDef *port = hal_gpio_mcu_port( m->port );
+
     hal_gpio_mcu_rcc_clock_enable( m->port );
 
-    LL_GPIO_SetPinMode( hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), LL_GPIO_MODE_ALTERNATE);
-    LL_GPIO_SetPinSpeed(hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), speed);
-    LL_GPIO_SetPinOutputType(hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), mode);
-    LL_GPIO_SetPinPull( hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), pull);
+    LL_GPIO_SetPinMode( port, pin, LL_GPIO_MODE_ALTERNATE);
+    LL_GPIO_SetPinSpeed(port, pin, speed);
+    LL_GPIO_SetPinOutputType(port, pin, mode);
+    LL_GPIO_SetPinPull( port, pin, pull);
 
-    ( alternative_function <= LL_GPIO_AF_7 ) ? LL_GPIO_SetAFPin_0_7( hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), alternative_function )
-                                             : LL_GPIO_SetAFPin_8_15( hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), alternative_function );
+    ( pin <= LL_GPIO_PIN_7 ) ? LL_GPIO_SetAFPin_0_7( port, pin, alternative_function )
+                             : LL_GPIO_SetAFPin_8_15( port, pin, alternative_function );
 
 }
 
