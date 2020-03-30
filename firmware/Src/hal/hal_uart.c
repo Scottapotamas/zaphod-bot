@@ -797,7 +797,7 @@ DMA1_Stream5_IRQHandler( void )
 void
 DMA1_Stream6_IRQHandler( void )
 {
-    if (LL_DMA_IsEnabledIT_TC(DMA1, LL_DMA_STREAM_7) && LL_DMA_IsActiveFlag_TC6(DMA1))
+    if (LL_DMA_IsEnabledIT_TC(DMA1, LL_DMA_STREAM_6) && LL_DMA_IsActiveFlag_TC6(DMA1))
     {
         LL_DMA_ClearFlag_TC6(DMA1);
         hal_uart_tx_completed( hal_uart_port(USART2) );
