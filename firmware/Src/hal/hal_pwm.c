@@ -3,12 +3,18 @@
 
 /* ----- Local Includes ----------------------------------------------------- */
 
+#include "stm32f4xx_ll_bus.h"
+#include "stm32f4xx_ll_gpio.h"
+
 #include "hal_pwm.h"
 #include "hal_gpio.h"
+#include "qassert.h"
 
 #include "stm32f4xx_hal.h"
 
 /* ----- Defines ------------------------------------------------------------ */
+
+DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 #define PWM_PERIOD_DEFAULT  1024
 
@@ -102,13 +108,13 @@ void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency)
 	{
 		if (HAL_TIM_Base_Init(tim_handle) != HAL_OK)
 		{
-			_Error_Handler(__FILE__, __LINE__);
+			ASSERT( false );
 		}
 	}
 
 	if (HAL_TIM_PWM_Init(tim_handle) != HAL_OK)
 	{
-		_Error_Handler(__FILE__, __LINE__);
+		ASSERT( false );
 	}
 
 	//TIM2 has master config according to cubemx output
@@ -121,7 +127,7 @@ void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency)
 
 		if (HAL_TIMEx_MasterConfigSynchronization(tim_handle, &sMasterConfig) != HAL_OK)
 		{
-			_Error_Handler(__FILE__, __LINE__);
+			ASSERT( false );
 		}
 	}
 
@@ -138,7 +144,7 @@ void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency)
 	{
 		if (HAL_TIM_PWM_ConfigChannel(tim_handle, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
 		{
-			_Error_Handler(__FILE__, __LINE__);
+			ASSERT( false );
 		}
 		HAL_TIM_PWM_Start(tim_handle,TIM_CHANNEL_2);
 	}
@@ -146,7 +152,7 @@ void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency)
 	{
 		if (HAL_TIM_PWM_ConfigChannel(tim_handle, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
 		{
-			_Error_Handler(__FILE__, __LINE__);
+			ASSERT( false );
 		}
 		HAL_TIM_PWM_Start(tim_handle,TIM_CHANNEL_1);
 	}
@@ -242,15 +248,17 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
 {
 	if( tim_baseHandle->Instance == TIM10 )
 	{
-		__HAL_RCC_TIM10_CLK_ENABLE();
-		hal_gpio_init_alternate( _FAN_PWM, GPIO_MODE_AF_PP, GPIO_AF3_TIM10, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
-	}
+        LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM10);
+        hal_gpio_init_alternate( _FAN_PWM, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
+
+    }
 
 	if( tim_baseHandle->Instance == TIM11 )
 	{
-		__HAL_RCC_TIM11_CLK_ENABLE();
-		hal_gpio_init_alternate( _BUZZER, GPIO_MODE_AF_PP, GPIO_AF3_TIM11, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
-	}
+		LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_TIM11);
+        hal_gpio_init_alternate( _BUZZER, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
+
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -260,11 +268,12 @@ HAL_TIM_Base_MspDeInit( TIM_HandleTypeDef* tim_baseHandle )
 {
     if(tim_baseHandle->Instance==TIM10)
     {
-        __HAL_RCC_TIM10_CLK_DISABLE();
+        LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM10);
     }
     else if(tim_baseHandle->Instance==TIM11)
     {
-        __HAL_RCC_TIM11_CLK_DISABLE();
+        LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM11);
+
     }
 }
 
@@ -275,23 +284,23 @@ HAL_TIM_MspPostInit( TIM_HandleTypeDef* htim )
 {
 	if( htim->Instance == TIM10 )
 	{
-		hal_gpio_init_alternate( _FAN_PWM, GPIO_MODE_AF_PP, GPIO_AF3_TIM10, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+        hal_gpio_init_alternate( _FAN_PWM, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 	}
 
 	if( htim->Instance == TIM11 )
 	{
-		hal_gpio_init_alternate( _BUZZER, GPIO_MODE_AF_PP, GPIO_AF3_TIM11, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+        hal_gpio_init_alternate( _BUZZER, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 	}
 
 	if( htim->Instance == TIM2 )
 	{
-		hal_gpio_init_alternate( _AUX_PWM_0, GPIO_MODE_AF_PP, GPIO_AF1_TIM2, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+        hal_gpio_init_alternate( _AUX_PWM_0, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_1, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 	}
 
 	if( htim->Instance==TIM12 )
 	{
-		hal_gpio_init_alternate( _AUX_PWM_1, GPIO_MODE_AF_PP, GPIO_AF9_TIM12, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
-		hal_gpio_init_alternate( _AUX_PWM_2, GPIO_MODE_AF_PP, GPIO_AF9_TIM12, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+        hal_gpio_init_alternate( _AUX_PWM_1, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_9, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
+        hal_gpio_init_alternate( _AUX_PWM_2, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_9, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 	}
 
 }
@@ -301,32 +310,32 @@ void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* tim_pwmHandle)
 {
     if( tim_pwmHandle->Instance == TIM1 )
     {
-        __HAL_RCC_TIM1_CLK_ENABLE();
-        hal_gpio_init_alternate( _SERVO_3_HLFB, GPIO_MODE_AF_PP, GPIO_AF1_TIM1, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+        LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_TIM1);
+        hal_gpio_init_alternate( _SERVO_3_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_1, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
     }
 
     if( tim_pwmHandle->Instance == TIM3 )
     {
-        __HAL_RCC_TIM3_CLK_ENABLE();
-        hal_gpio_init_alternate( _SERVO_1_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM3, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+        LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_TIM3);
+        hal_gpio_init_alternate( _SERVO_1_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
     }
 
     if( tim_pwmHandle->Instance == TIM4 )
     {
-        __HAL_RCC_TIM4_CLK_ENABLE();
-        hal_gpio_init_alternate( _SERVO_2_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM4, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+        LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_TIM4);
+        hal_gpio_init_alternate( _SERVO_2_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
     }
 
     if( tim_pwmHandle->Instance == TIM5 )
     {
-        __HAL_RCC_TIM5_CLK_ENABLE();
-        hal_gpio_init_alternate( _SERVO_4_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM5, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+        LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_TIM5);
+        hal_gpio_init_alternate( _SERVO_4_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
     }
 
     if( tim_pwmHandle->Instance == TIM9 )
     {
-        __HAL_RCC_TIM9_CLK_ENABLE();
-        hal_gpio_init_alternate(_FAN_TACHO, GPIO_MODE_AF_PP, GPIO_AF3_TIM9, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+        LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_TIM9);
+        hal_gpio_init_alternate( _FAN_TACHO, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
     }
 }
 /* ----- End ---------------------------------------------------------------- */

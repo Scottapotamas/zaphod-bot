@@ -4,6 +4,9 @@
 
 /* ----- Local Includes ----------------------------------------------------- */
 
+#include "stm32f4xx_ll_bus.h"
+#include "stm32f4xx_ll_gpio.h"
+
 #include "hal_hard_ic.h"
 #include "hal_gpio.h"
 #include "hal_systick.h"
@@ -131,7 +134,7 @@ hal_setup_capture(uint8_t input)
 
     if (HAL_TIM_IC_Init(tim_handle) != HAL_OK)
     {
-        _Error_Handler(__FILE__, __LINE__);
+       ASSERT( false );
     }
 
     // Setup the Master as needed
@@ -141,7 +144,7 @@ hal_setup_capture(uint8_t input)
         sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
         if (HAL_TIMEx_MasterConfigSynchronization(tim_handle, &sMasterConfig) != HAL_OK)
         {
-            _Error_Handler(__FILE__, __LINE__);
+           ASSERT( false );
         }
     }
 
@@ -152,7 +155,7 @@ hal_setup_capture(uint8_t input)
     sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
     if (HAL_TIM_IC_ConfigChannel(tim_handle, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
     {
-        _Error_Handler(__FILE__, __LINE__);
+       ASSERT( false );
     }
 
     // Start the Input capture in Interrupt mode
@@ -167,41 +170,46 @@ void HAL_TIM_IC_MspInit(TIM_HandleTypeDef* tim_icHandle)
 
 	if( tim_icHandle->Instance == TIM1 )
 	{
-		__HAL_RCC_TIM1_CLK_ENABLE();
-		hal_gpio_init_alternate( _SERVO_3_HLFB, GPIO_MODE_AF_PP, GPIO_AF1_TIM1, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
-		HAL_NVIC_SetPriority( TIM1_CC_IRQn, 4, 1 );
+        LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM1);
+        hal_gpio_init_alternate( _SERVO_3_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_1, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
+
+        HAL_NVIC_SetPriority( TIM1_CC_IRQn, 4, 1 );
 		HAL_NVIC_EnableIRQ( TIM1_CC_IRQn );
 		//todo work out if the interrupt assignment here is correct
 	}
 
 	if( tim_icHandle->Instance == TIM3 )
 	{
-		__HAL_RCC_TIM3_CLK_ENABLE();
-		hal_gpio_init_alternate( _SERVO_1_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM3, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
-		HAL_NVIC_SetPriority( TIM3_IRQn, 4, 2 );
+        LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM3);
+        hal_gpio_init_alternate( _SERVO_1_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
+
+        HAL_NVIC_SetPriority( TIM3_IRQn, 4, 2 );
 		HAL_NVIC_EnableIRQ( TIM3_IRQn );
 	}
 
 	if( tim_icHandle->Instance == TIM4 )
 	{
-		__HAL_RCC_TIM4_CLK_ENABLE();
-		hal_gpio_init_alternate( _SERVO_2_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM4, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+        LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM4);
+        hal_gpio_init_alternate( _SERVO_2_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
+
 		HAL_NVIC_SetPriority( TIM4_IRQn, 4, 3 );
 		HAL_NVIC_EnableIRQ( TIM4_IRQn );
 	}
 
 	if( tim_icHandle->Instance == TIM5 )
 	{
-		__HAL_RCC_TIM5_CLK_ENABLE();
-		hal_gpio_init_alternate( _SERVO_4_HLFB, GPIO_MODE_AF_PP, GPIO_AF2_TIM5, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+        LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM5);
+        hal_gpio_init_alternate( _SERVO_4_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
+
 		HAL_NVIC_SetPriority( TIM5_IRQn, 4, 4 );
 		HAL_NVIC_EnableIRQ( TIM5_IRQn );
 	}
 
 	if( tim_icHandle->Instance == TIM9 )
     {
-    	__HAL_RCC_TIM9_CLK_ENABLE();
-		hal_gpio_init_alternate( _FAN_TACHO, GPIO_MODE_AF_PP, GPIO_AF3_TIM9, GPIO_SPEED_FREQ_LOW, GPIO_NOPULL );
+        LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM9);
+        hal_gpio_init_alternate( _FAN_TACHO, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
+
 		HAL_NVIC_SetPriority( TIM1_BRK_TIM9_IRQn, 6, 3 );
 		HAL_NVIC_EnableIRQ( TIM1_BRK_TIM9_IRQn );
     }
@@ -215,35 +223,31 @@ void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* tim_pwmHandle)
 {
 	if(tim_pwmHandle->Instance==TIM1)
 	{
-		__HAL_RCC_TIM1_CLK_DISABLE();
-
+        LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM1);
 		hal_gpio_disable_pin( _SERVO_3_HLFB );
 	}
 	else if(tim_pwmHandle->Instance==TIM2)
 	{
-		__HAL_RCC_TIM2_CLK_DISABLE();
+        LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM2);
 	}
 	else if(tim_pwmHandle->Instance==TIM3)
 	{
-		__HAL_RCC_TIM3_CLK_DISABLE();
-
+        LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM3);
 		hal_gpio_disable_pin( _SERVO_1_HLFB );
 	}
 	else if(tim_pwmHandle->Instance==TIM4)
 	{
-		__HAL_RCC_TIM4_CLK_DISABLE();
-
+        LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM4);
 		hal_gpio_disable_pin( _SERVO_2_HLFB );
 	}
 	else if(tim_pwmHandle->Instance==TIM5)
 	{
-		__HAL_RCC_TIM5_CLK_DISABLE();
-
+        LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM5);
 		hal_gpio_disable_pin( _SERVO_4_HLFB );
 	}
 	else if(tim_pwmHandle->Instance==TIM12)
 	{
-		__HAL_RCC_TIM12_CLK_DISABLE();
+        LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM12);
 	}
 }
 
@@ -252,7 +256,8 @@ void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef* tim_icHandle)
 {
 	if(tim_icHandle->Instance==TIM9)
 	{
-		__HAL_RCC_TIM9_CLK_DISABLE();
+        LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM9);
+
 		hal_gpio_disable_pin( _FAN_TACHO );
         HAL_NVIC_DisableIRQ(TIM1_BRK_TIM9_IRQn);
     }

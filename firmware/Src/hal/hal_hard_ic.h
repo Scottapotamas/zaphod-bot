@@ -30,23 +30,13 @@ hal_hard_ic_init( void );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC bool
-hal_hard_ic_valid( InputCaptureSignal_t input );
-
-/* -------------------------------------------------------------------------- */
-
 PUBLIC uint32_t
 hal_hard_ic_read( InputCaptureSignal_t input );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC uint32_t
-hal_hard_ic_read_avg( InputCaptureSignal_t input );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC uint32_t
-hal_hard_ic_read_peak( InputCaptureSignal_t input );
+PUBLIC bool
+hal_hard_ic_is_recent( InputCaptureSignal_t signal );
 
 /* ----- End ---------------------------------------------------------------- */
 
