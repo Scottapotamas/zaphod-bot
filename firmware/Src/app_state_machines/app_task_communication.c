@@ -135,22 +135,22 @@ PRIVATE STATE AppTaskCommunication_electric_ui( AppTaskCommunication *me,
         	switch (me->instance) {
 				case INTERFACE_UART_MODULE:
 		            hal_uart_init( HAL_UART_PORT_MODULE );
-		            hal_uart_set_baudrate( HAL_UART_PORT_MODULE, MODULE_BAUD );
-		        	hal_uart_set_rx_handler(HAL_UART_PORT_MODULE, AppTaskCommunication_rx_callback_uart );
+
+                    // todo poll the uart fifo for data
 
 					break;
 
 				case INTERFACE_UART_INTERNAL:
 		            hal_uart_init( HAL_UART_PORT_INTERNAL );
-		            hal_uart_set_baudrate( HAL_UART_PORT_INTERNAL, EXTERNAL_BAUD );
-		        	hal_uart_set_rx_handler(HAL_UART_PORT_INTERNAL, AppTaskCommunication_rx_callback_uart );
+
+                    // todo poll the uart fifo for data
 
 					break;
 
 				case INTERFACE_UART_EXTERNAL:
 		            hal_uart_init( HAL_UART_PORT_EXTERNAL );
-		            hal_uart_set_baudrate( HAL_UART_PORT_EXTERNAL, INTERNAL_BAUD );
-		        	hal_uart_set_rx_handler(HAL_UART_PORT_EXTERNAL, AppTaskCommunication_rx_callback_uart );
+
+                    // todo poll the uart fifo for data
 
 					break;
 

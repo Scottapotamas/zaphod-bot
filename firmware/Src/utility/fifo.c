@@ -72,6 +72,30 @@ fifo_used( fifo_t * restrict f )
 
 /* -------------------------------------------------------------------------- */
 
+/** Returns the amount of data in a sequential run in the fifo
+  * i.e doesn't count bytes which cross over the overflow boundary
+  * This can be at max the capacity less 1
+  */
+
+PUBLIC uint32_t
+fifo_used_linear( fifo_t * restrict f )
+{
+    if( f->head != f->tail )
+    {
+        if( f->head > f->tail )
+        {
+            return f->head - f->tail;
+        }
+        else
+        {
+            return f->capacity - f->tail;   // from tail to end of buffer
+        }
+    }
+    return 0;
+}
+
+/* -------------------------------------------------------------------------- */
+
 /** Returns the amount of data free in the fifo. */
 
 PUBLIC uint32_t
@@ -175,6 +199,45 @@ fifo_read( fifo_t * restrict f, uint8_t * buf, uint32_t nbytes )
          }
      }
      return count;
+}
+
+/* -------------------------------------------------------------------------- */
+
+/** Returns a pointer to the tail position. If the nbytes length is illegal, returns null */
+
+PUBLIC uint32_t*
+fifo_get_tail_ptr( fifo_t * restrict f, uint32_t nbytes )
+{
+    uint32_t *ptr = NULL;
+
+    if( nbytes <= fifo_used_linear(f)  )
+    {
+        ptr = f->buf[f->tail];
+    }
+
+    return ptr;
+}
+
+/* -------------------------------------------------------------------------- */
+
+/** Moves/flushes the tail forward by nbytes */
+
+PUBLIC uint32_t
+fifo_skip( fifo_t * restrict f, uint32_t nbytes )
+{
+    if( nbytes <= fifo_used_linear(f) )
+    {
+        f->tail += nbytes;
+
+        if( f->tail >= f->capacity )
+        {
+            f->tail = 0;
+        }
+
+        return nbytes;
+    }
+
+    return 0;
 }
 
 /* ----- Private Functions -------------------------------------------------- */
