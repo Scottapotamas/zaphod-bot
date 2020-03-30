@@ -237,7 +237,7 @@ extern "C" {
 #endif /* HAL_EXTI_MODULE_ENABLED */
 
 #ifdef HAL_GPIO_MODULE_ENABLED
-#include "stm32f4xx_hal_gpio.h"
+//#include "stm32f4xx_hal_gpio.h"
 #endif /* HAL_GPIO_MODULE_ENABLED */
 
 #ifdef HAL_DMA_MODULE_ENABLED
@@ -249,7 +249,7 @@ extern "C" {
 #endif /* HAL_CORTEX_MODULE_ENABLED */
 
 #ifdef HAL_ADC_MODULE_ENABLED
-#include "stm32f4xx_hal_adc.h"
+//#include "stm32f4xx_hal_adc.h"
 #endif /* HAL_ADC_MODULE_ENABLED */
 
 #ifdef HAL_CAN_MODULE_ENABLED
@@ -321,7 +321,7 @@ extern "C" {
 #endif /* HAL_I2S_MODULE_ENABLED */
 
 #ifdef HAL_IWDG_MODULE_ENABLED
-#include "stm32f4xx_hal_iwdg.h"
+//#include "stm32f4xx_hal_iwdg.h"
 #endif /* HAL_IWDG_MODULE_ENABLED */
 
 #ifdef HAL_LTDC_MODULE_ENABLED

@@ -212,7 +212,7 @@ fifo_get_tail_ptr( fifo_t * restrict f, uint32_t nbytes )
 
     if( nbytes <= fifo_used_linear(f)  )
     {
-        ptr = f->buf[f->tail];
+        ptr = &f->buf[f->tail];
     }
 
     return ptr;

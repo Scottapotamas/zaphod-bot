@@ -1,6 +1,7 @@
 /* ----- System Includes ---------------------------------------------------- */
 
 #include <string.h>
+#include <stm32f4xx_ll_rcc.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 
@@ -337,7 +338,12 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
                     delta_counts = ((0xFFFF - ic_state[HAL_HARD_IC_FAN_HALL].cnt_a) + ic_state[HAL_HARD_IC_FAN_HALL].cnt_b) + 1;
                 }
 
-                ic_values[HAL_HARD_IC_FAN_HALL] = (HAL_RCC_GetPCLK2Freq() / delta_counts) / 100;
+                // todo cleanup hard ic irq
+
+                LL_RCC_ClocksTypeDef rcc_clks = { 0 };
+                LL_RCC_GetSystemClocksFreq(&rcc_clks);
+
+                ic_values[HAL_HARD_IC_FAN_HALL] = (rcc_clks.PCLK2_Frequency / delta_counts) / 100;
 
                 ic_state[HAL_HARD_IC_FAN_HALL].first_edge_done = false;   // reset to catch the next 'new' edge.
             }

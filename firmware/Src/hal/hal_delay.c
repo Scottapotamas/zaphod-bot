@@ -4,8 +4,7 @@
 
 #include "hal_delay.h"
 #include "global.h"
-#include "qassert.h"
-#include "stm32f4xx_hal.h"
+#include "stm32f4xx_ll_utils.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -14,7 +13,7 @@
 PUBLIC void
 hal_delay_ms( uint32_t delay_ms )
 {
-    HAL_Delay( delay_ms );
+    LL_mDelay( delay_ms );
 }
 
 /* -------------------------------------------------------------------------- */
