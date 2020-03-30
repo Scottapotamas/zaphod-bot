@@ -1,5 +1,6 @@
 /* ----- System Includes ---------------------------------------------------- */
 
+#include "stm32f4xx_ll_pwr.h"
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_gpio.h"
 
@@ -169,8 +170,7 @@ hal_gpio_configure_defaults( void )
         hal_gpio_init( portpin, m->mode, m->initial );
     }
 
-    // TODO LL disable wakeup pin PA1
-//    HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PIN1);
+    LL_PWR_DisableWakeUpPin(LL_PWR_WAKEUP_PIN1);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -236,7 +236,7 @@ hal_gpio_init_alternate( HalGpioPortPin_t 	gpio_port_pin_nr,
 
     LL_GPIO_SetPinMode( hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), LL_GPIO_MODE_ALTERNATE);
     LL_GPIO_SetPinSpeed(hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), speed);
-    LL_GPIO_SetPinOutputType(hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), LL_GPIO_OUTPUT_PUSHPULL);
+    LL_GPIO_SetPinOutputType(hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), mode);
     LL_GPIO_SetPinPull( hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), pull);
 
     ( alternative_function <= LL_GPIO_AF_7 ) ? LL_GPIO_SetAFPin_0_7( hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), alternative_function )
@@ -370,7 +370,7 @@ hal_gpio_mcu_rcc_clock_enable( const HalGpioPortNr_t port_nr )
         case PORT_I: LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOI); break;
         case PORT_J: LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOJ); break;
         case PORT_K: LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOK); break;
-        default:    break;
+        default:    ASSERT( false ); break;
     }
 }
 
