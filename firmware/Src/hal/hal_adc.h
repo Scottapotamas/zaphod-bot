@@ -10,7 +10,6 @@ extern "C" {
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
-#include "stm32f4xx_hal.h"
 
 /* ----- Types ------------------------------------------------------------- */
 
@@ -29,7 +28,6 @@ typedef enum
     HAL_ADC_INPUT_NUM
 } HalAdcInput_t;
 
-extern ADC_HandleTypeDef hadc1;
 
 /* ------------------------- Functions Prototypes --------------------------- */
 
@@ -82,6 +80,14 @@ hal_adc_stop( HalAdcInput_t input );
 
 PUBLIC void
 hal_adc_tick( void );
+
+/* -------------------------------------------------------------------------- */
+
+void ADC_IRQHandler(void);
+
+/* -------------------------------------------------------------------------- */
+
+void DMA2_Stream0_IRQHandler(void);
 
 /* -------------------------------------------------------------------------- */
 
