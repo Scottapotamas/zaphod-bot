@@ -16,6 +16,11 @@
 PRIVATE GPIO_TypeDef *
 hal_gpio_mcu_port( HalGpioPortNr_t port_nr );
 
+/** Map the pin nr to a STM32 LL_PIN */
+
+PRIVATE uint32_t
+hal_gpio_mcu_pin( HalGpioPinNr_t pin_nr );
+
 /** Enable peripheral clock */
 
 PRIVATE void
@@ -229,13 +234,13 @@ hal_gpio_init_alternate( HalGpioPortPin_t 	gpio_port_pin_nr,
 
     hal_gpio_mcu_rcc_clock_enable( m->port );
 
-    LL_GPIO_SetPinMode( hal_gpio_mcu_port( m->port ), HAL_GPIO_PIN_MASK( m->pin ), LL_GPIO_MODE_ALTERNATE);
-    LL_GPIO_SetPinSpeed(hal_gpio_mcu_port( m->port ), HAL_GPIO_PIN_MASK( m->pin ), speed);
-    LL_GPIO_SetPinOutputType(hal_gpio_mcu_port( m->port ), HAL_GPIO_PIN_MASK( m->pin ), LL_GPIO_OUTPUT_PUSHPULL);
-    LL_GPIO_SetPinPull( hal_gpio_mcu_port( m->port ), HAL_GPIO_PIN_MASK( m->pin ), pull);
+    LL_GPIO_SetPinMode( hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), LL_GPIO_MODE_ALTERNATE);
+    LL_GPIO_SetPinSpeed(hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), speed);
+    LL_GPIO_SetPinOutputType(hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), LL_GPIO_OUTPUT_PUSHPULL);
+    LL_GPIO_SetPinPull( hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), pull);
 
-    ( alternative_function <= LL_GPIO_AF_7 ) ? LL_GPIO_SetAFPin_0_7( hal_gpio_mcu_port( m->port ), HAL_GPIO_PIN_MASK( m->pin ), alternative_function )
-                                             : LL_GPIO_SetAFPin_8_15( hal_gpio_mcu_port( m->port ), HAL_GPIO_PIN_MASK( m->pin ), alternative_function );
+    ( alternative_function <= LL_GPIO_AF_7 ) ? LL_GPIO_SetAFPin_0_7( hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), alternative_function )
+                                             : LL_GPIO_SetAFPin_8_15( hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ), alternative_function );
 
 }
 
@@ -250,7 +255,7 @@ hal_gpio_read_pin( HalGpioPortPin_t gpio_port_pin_nr )
     const HalGpioDef_t *m = &HalGpioHardwareMap[gpio_port_pin_nr];
 
     //return true when high
-    return LL_GPIO_IsInputPinSet( hal_gpio_mcu_port( m->port ), HAL_GPIO_PIN_MASK( m->pin ) );
+    return LL_GPIO_IsInputPinSet( hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -262,8 +267,8 @@ hal_gpio_write_pin( HalGpioPortPin_t gpio_port_pin_nr, bool on )
 {
     const HalGpioDef_t *m = &HalGpioHardwareMap[gpio_port_pin_nr];
 
-    ( on )  ? LL_GPIO_SetOutputPin(   hal_gpio_mcu_port( m->port ), HAL_GPIO_PIN_MASK( m->pin ) )
-            : LL_GPIO_ResetOutputPin( hal_gpio_mcu_port( m->port ), HAL_GPIO_PIN_MASK( m->pin ) );
+    ( on )  ? LL_GPIO_SetOutputPin(   hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ) )
+            : LL_GPIO_ResetOutputPin( hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -275,7 +280,7 @@ hal_gpio_toggle_pin( HalGpioPortPin_t gpio_port_pin_nr )
 {
     const HalGpioDef_t *m = &HalGpioHardwareMap[gpio_port_pin_nr];
 
-    LL_GPIO_TogglePin( hal_gpio_mcu_port( m->port ), HAL_GPIO_PIN_MASK( m->pin ) );
+    LL_GPIO_TogglePin( hal_gpio_mcu_port( m->port ), hal_gpio_mcu_pin( m->pin ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -287,7 +292,10 @@ hal_gpio_disable_pin( HalGpioPortPin_t gpio_port_pin_nr )
 {
     const HalGpioDef_t *m = &HalGpioHardwareMap[gpio_port_pin_nr];
 
-    hal_gpio_deinit( m->port, m->pin );
+    // TODO GPIO LL de-init specific pin
+    //LL_GPIO_DeInit( m->port );
+
+//    hal_gpio_deinit( m->port, m->pin );
 }
 
 /* ----- Private Function Implementations ----------------------------------- */
@@ -310,11 +318,40 @@ hal_gpio_mcu_port( HalGpioPortNr_t port_nr )
         case PORT_F: port = GPIOF; break;
         case PORT_G: port = GPIOG; break;
         case PORT_H: port = GPIOH; break;
+        case PORT_I: port = GPIOI; break;
+        case PORT_J: port = GPIOJ; break;
+        case PORT_K: port = GPIOK; break;
         default:     ASSERT( false );
     }
     return port;
 }
 
+PRIVATE uint32_t
+hal_gpio_mcu_pin( HalGpioPinNr_t pin_nr )
+{
+    uint32_t pin = 0;
+    switch( pin_nr )
+    {
+        case PIN_0: pin = LL_GPIO_PIN_0; break;
+        case PIN_1: pin = LL_GPIO_PIN_1; break;
+        case PIN_2: pin = LL_GPIO_PIN_2; break;
+        case PIN_3: pin = LL_GPIO_PIN_3; break;
+        case PIN_4: pin = LL_GPIO_PIN_4; break;
+        case PIN_5: pin = LL_GPIO_PIN_5; break;
+        case PIN_6: pin = LL_GPIO_PIN_6; break;
+        case PIN_7: pin = LL_GPIO_PIN_7; break;
+        case PIN_8: pin = LL_GPIO_PIN_8; break;
+        case PIN_9: pin = LL_GPIO_PIN_9; break;
+        case PIN_10: pin = LL_GPIO_PIN_10; break;
+        case PIN_11: pin = LL_GPIO_PIN_11; break;
+        case PIN_12: pin = LL_GPIO_PIN_12; break;
+        case PIN_13: pin = LL_GPIO_PIN_13; break;
+        case PIN_14: pin = LL_GPIO_PIN_14; break;
+        case PIN_15: pin = LL_GPIO_PIN_15; break;
+        default:    ASSERT( false );
+    }
+    return pin;
+}
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void
@@ -330,6 +367,9 @@ hal_gpio_mcu_rcc_clock_enable( const HalGpioPortNr_t port_nr )
         case PORT_F: LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOF); break;
         case PORT_G: LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOG); break;
         case PORT_H: LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOH); break;
+        case PORT_I: LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOI); break;
+        case PORT_J: LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOJ); break;
+        case PORT_K: LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_GPIOK); break;
         default:    break;
     }
 }
@@ -342,8 +382,8 @@ PRIVATE void
 hal_gpio_init_as_analog( HalGpioPortNr_t port_nr,
                             HalGpioPinNr_t  pin_nr )
 {
-    LL_GPIO_SetPinMode( hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ), LL_GPIO_MODE_ANALOG);
-    LL_GPIO_SetPinPull( hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ), LL_GPIO_PULL_NO);
+    LL_GPIO_SetPinMode( hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ), LL_GPIO_MODE_ANALOG);
+    LL_GPIO_SetPinPull( hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ), LL_GPIO_PULL_NO);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -354,8 +394,8 @@ PRIVATE void
 hal_gpio_init_as_input( HalGpioPortNr_t port_nr,
                             HalGpioPinNr_t  pin_nr )
 {
-    LL_GPIO_SetPinMode( hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ), LL_GPIO_MODE_INPUT);
-    LL_GPIO_SetPinPull( hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ), LL_GPIO_PULL_NO);
+    LL_GPIO_SetPinMode( hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ), LL_GPIO_MODE_INPUT);
+    LL_GPIO_SetPinPull( hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ), LL_GPIO_PULL_NO);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -366,8 +406,8 @@ PRIVATE void
 hal_gpio_init_as_input_with_pullup( HalGpioPortNr_t port_nr,
                                         HalGpioPinNr_t  pin_nr )
 {
-    LL_GPIO_SetPinMode( hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ), LL_GPIO_MODE_INPUT);
-    LL_GPIO_SetPinPull( hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ), LL_GPIO_PULL_UP);
+    LL_GPIO_SetPinMode( hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ), LL_GPIO_MODE_INPUT);
+    LL_GPIO_SetPinPull( hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ), LL_GPIO_PULL_UP);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -379,13 +419,13 @@ hal_gpio_init_as_output_od( HalGpioPortNr_t port_nr,
                                 HalGpioPinNr_t  pin_nr,
                                 bool            initial_state )
 {
-    LL_GPIO_SetPinMode( hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ), LL_GPIO_MODE_OUTPUT);
-    LL_GPIO_SetPinSpeed(hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ), LL_GPIO_SPEED_FREQ_LOW);
-    LL_GPIO_SetPinOutputType(hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ), LL_GPIO_OUTPUT_OPENDRAIN);
-    LL_GPIO_SetPinPull( hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ), LL_GPIO_PULL_UP);
+    LL_GPIO_SetPinMode( hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ), LL_GPIO_MODE_OUTPUT);
+    LL_GPIO_SetPinSpeed(hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ), LL_GPIO_SPEED_FREQ_LOW);
+    LL_GPIO_SetPinOutputType(hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ), LL_GPIO_OUTPUT_OPENDRAIN);
+    LL_GPIO_SetPinPull( hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ), LL_GPIO_PULL_UP);
 
-    ( initial_state )   ? LL_GPIO_SetOutputPin(   hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ) )
-                        : LL_GPIO_ResetOutputPin( hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ) );
+    ( initial_state )   ? LL_GPIO_SetOutputPin(   hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ) )
+                        : LL_GPIO_ResetOutputPin( hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -397,13 +437,13 @@ hal_gpio_init_as_output_pp( HalGpioPortNr_t port_nr,
                                 HalGpioPinNr_t  pin_nr,
                                 bool            initial_state )
 {
-    LL_GPIO_SetPinMode( hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ), LL_GPIO_MODE_OUTPUT);
-    LL_GPIO_SetPinSpeed(hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ), LL_GPIO_SPEED_FREQ_LOW);
-    LL_GPIO_SetPinOutputType(hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ), LL_GPIO_OUTPUT_PUSHPULL);
-    LL_GPIO_SetPinPull( hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ), LL_GPIO_PULL_NO);
+    LL_GPIO_SetPinMode( hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ), LL_GPIO_MODE_OUTPUT);
+    LL_GPIO_SetPinSpeed(hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ), LL_GPIO_SPEED_FREQ_LOW);
+    LL_GPIO_SetPinOutputType(hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ), LL_GPIO_OUTPUT_PUSHPULL);
+    LL_GPIO_SetPinPull( hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ), LL_GPIO_PULL_NO);
 
-    ( initial_state )   ? LL_GPIO_SetOutputPin(   hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ) )
-                        : LL_GPIO_ResetOutputPin( hal_gpio_mcu_port( port_nr ), HAL_GPIO_PIN_MASK( pin_nr ) );
+    ( initial_state )   ? LL_GPIO_SetOutputPin(   hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ) )
+                        : LL_GPIO_ResetOutputPin( hal_gpio_mcu_port( port_nr ), hal_gpio_mcu_pin( pin_nr ) );
 }
 
 /* -------------------------------------------------------------------------- */
