@@ -148,7 +148,7 @@ hal_system_speed_sleep( void )
     //Go to sleep. Wake on interrupt.
 //    HAL_PWR_EnterSLEEPMode( PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI );
 
-    LL_PWR_SetRegulModeDS(LL_PWR_REGU_DSMODE_MAIN);
+//    LL_PWR_SetRegulModeDS(LL_PWR_REGU_DSMODE_MAIN);
 
     __WFI();
 

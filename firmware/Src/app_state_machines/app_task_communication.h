@@ -55,6 +55,11 @@ appTaskCommunicationCreate(	 AppTaskCommunication *me,
 							 const uint8_t     eventQueueSize,
 							 const CommunicationInstance_t instance );
 
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+AppTaskCommunication_rx_tick( void );
+
 /* ----- End ---------------------------------------------------------------- */
 
 #ifdef __cplusplus
