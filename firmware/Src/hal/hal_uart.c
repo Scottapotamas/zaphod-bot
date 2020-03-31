@@ -35,13 +35,6 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 /* ----- Types -------------------------------------------------------------- */
 
-typedef enum
-{
-    HAL_UART_IRQ_IDLE_LINE,
-    HAL_UART_IRQ_TRANSFER_HALF,
-    HAL_UART_IRQ_TRANSFER_FULL,
-} HalUartIRQReason_t;
-
 typedef struct
 {
     HalUartPort_t   port;           // Human friendly enum name
@@ -116,14 +109,17 @@ hal_uart_init( HalUartPort_t port )
 
             LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_UART5);
 
-            hal_gpio_init_alternate( _EXT_OUTPUT_0, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_8, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_UP );
-            hal_gpio_init_alternate( _EXT_INPUT_0, 	LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_8, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_UP );
+            hal_gpio_init_alternate( _EXT_OUTPUT_0, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_8, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_UP );
+            hal_gpio_init_alternate( _EXT_INPUT_0, 	LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_8, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_UP );
 
             hal_uart_dma_init( h );
             hal_uart_set_baudrate( h->port, UART_EXTERNAL_BAUD );
 
-            HAL_NVIC_SetPriority( UART5_IRQn, 7, 1 );
-            HAL_NVIC_EnableIRQ( UART5_IRQn );
+            NVIC_SetPriority(UART5_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 6, 0));
+            NVIC_EnableIRQ(UART5_IRQn);
+
+            LL_DMA_EnableStream(h->dma_peripheral, h->dma_stream_rx);     // rx stream
+            LL_USART_Enable(h->usart);
             break;
 
         case HAL_UART_PORT_INTERNAL:
@@ -141,14 +137,17 @@ hal_uart_init( HalUartPort_t port )
 
             LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_USART1);
 
-            hal_gpio_init_alternate( _AUX_UART_RX, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_UP );
-            hal_gpio_init_alternate( _AUX_UART_TX, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_UP );
+            hal_gpio_init_alternate( _AUX_UART_RX, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_UP );
+            hal_gpio_init_alternate( _AUX_UART_TX, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_UP );
 
             hal_uart_dma_init( h );
             hal_uart_set_baudrate( h->port, UART_INTERNAL_BAUD );
 
-            HAL_NVIC_SetPriority( USART1_IRQn, 7, 0 );
-            HAL_NVIC_EnableIRQ( USART1_IRQn );
+            NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 6, 0));
+            NVIC_EnableIRQ(USART1_IRQn);
+
+            LL_DMA_EnableStream(h->dma_peripheral, h->dma_stream_rx);     // rx stream
+            LL_USART_Enable(h->usart);
             break;
 
         case HAL_UART_PORT_MODULE:
@@ -166,16 +165,16 @@ hal_uart_init( HalUartPort_t port )
 
             LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART2);
 
-            hal_gpio_init_alternate( _CARD_UART_RX, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_UP );
-            hal_gpio_init_alternate( _CARD_UART_TX, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_UP );
-            hal_gpio_init_alternate( _CARD_UART_CTS, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
-            hal_gpio_init_alternate( _CARD_UART_RTS, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
+            hal_gpio_init_alternate( _CARD_UART_RX, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_UP );
+            hal_gpio_init_alternate( _CARD_UART_TX, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_UP );
+//            hal_gpio_init_alternate( _CARD_UART_CTS, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
+//            hal_gpio_init_alternate( _CARD_UART_RTS, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
 
             hal_uart_dma_init( h );
             hal_uart_set_baudrate( h->port, UART_MODULE_BAUD );
 
-            HAL_NVIC_SetPriority( USART2_IRQn, 5, 0 );
-            HAL_NVIC_EnableIRQ( USART2_IRQn );
+            NVIC_SetPriority(USART2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 6, 0));
+            NVIC_EnableIRQ(USART2_IRQn);
 
             LL_DMA_EnableStream(h->dma_peripheral, h->dma_stream_rx);     // rx stream
             LL_USART_Enable(h->usart);
@@ -228,6 +227,8 @@ hal_uart_set_baudrate( HalUartPort_t port, uint32_t baudrate )
 {
     HalUart_t * h = &hal_uart[port];
     LL_USART_InitTypeDef USART_InitStruct = {0};
+
+    LL_USART_DeInit( h->usart );
 
     USART_InitStruct.BaudRate = baudrate;
     USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
