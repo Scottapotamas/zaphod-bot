@@ -20,17 +20,17 @@
 #include "stm32f4xx_it.h"
 
 /* External variables --------------------------------------------------------*/
-extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
-extern DMA_HandleTypeDef hdma_adc1;
+//extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
+//extern DMA_HandleTypeDef hdma_adc1;
 
 //Timers allocated to servos (HLFB on CH1/2 as PWM input, A and B are ch 3, 4
-extern TIM_HandleTypeDef htim1;
-extern TIM_HandleTypeDef htim3;
-extern TIM_HandleTypeDef htim4;
-extern TIM_HandleTypeDef htim5;
+//extern TIM_HandleTypeDef htim1;
+//extern TIM_HandleTypeDef htim3;
+//extern TIM_HandleTypeDef htim4;
+//extern TIM_HandleTypeDef htim5;
 
 //Fan
-extern TIM_HandleTypeDef htim9;
+//extern TIM_HandleTypeDef htim9;
 
 /******************************************************************************/
 /*           Cortex-M4 Processor Interruption and Exception Handlers          */ 
@@ -150,17 +150,7 @@ void PendSV_Handler(void)
 /**
   * @brief This function handles System tick timer.
   */
-void SysTick_Handler(void)
-{
-  /* USER CODE BEGIN SysTick_IRQn 0 */
 
-  /* USER CODE END SysTick_IRQn 0 */
-  HAL_IncTick();
-  HAL_SYSTICK_IRQHandler();
-  /* USER CODE BEGIN SysTick_IRQn 1 */
-
-  /* USER CODE END SysTick_IRQn 1 */
-}
 
 /******************************************************************************/
 /* STM32F4xx Peripheral Interrupt Handlers                                    */
@@ -183,25 +173,3 @@ void OTG_FS_IRQHandler(void)
   /* USER CODE END OTG_FS_IRQn 1 */
 }
 
-/* USER CODE BEGIN 1 */
-
-void TIM1_BRK_TIM9_IRQHandler( void )
-{
-	HAL_TIM_IRQHandler(&htim9);
-	HAL_TIM_IRQHandler(&htim1);
-}
-
-void TIM3_IRQHandler( void )
-{
-	HAL_TIM_IRQHandler(&htim3);
-}
-
-void TIM4_IRQHandler( void )
-{
-	HAL_TIM_IRQHandler(&htim4);
-}
-
-void TIM5_IRQHandler( void )
-{
-	HAL_TIM_IRQHandler( &htim5 );
-}

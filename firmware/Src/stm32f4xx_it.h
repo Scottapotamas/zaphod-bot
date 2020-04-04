@@ -40,7 +40,6 @@
 #endif 
 
 /* Includes ------------------------------------------------------------------*/
-#include "stm32f4xx_hal.h"
 #include "main.h"
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
@@ -64,6 +63,8 @@ void TIM3_IRQHandler( void );
 void TIM4_IRQHandler( void );
 void TIM5_IRQHandler( void );
 
+void DMA1_Stream5_IRQHandler(void);
+void DMA1_Stream6_IRQHandler(void);
 
 #ifdef __cplusplus
 }
