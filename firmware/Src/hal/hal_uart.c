@@ -723,7 +723,7 @@ DMA1_Stream7_IRQHandler( void )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
+void
 USART1_IRQHandler( void )
 {
     if (LL_USART_IsEnabledIT_IDLE(USART1) && LL_USART_IsActiveFlag_IDLE(USART1))
@@ -765,7 +765,7 @@ DMA2_Stream7_IRQHandler( void )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
+void
 USART2_IRQHandler( void )
 {
     if (LL_USART_IsEnabledIT_IDLE(USART2) && LL_USART_IsActiveFlag_IDLE(USART2))

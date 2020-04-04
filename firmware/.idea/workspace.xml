@@ -8,7 +8,7 @@
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
-      <configuration PROFILE_NAME="Debug-ARM" CONFIG_NAME="Debug" TOOLCHAIN_NAME="ARM">
+      <configuration PROFILE_NAME="Default-ARM" TOOLCHAIN_NAME="ARM">
         <ADDITIONAL_GENERATION_ENVIRONMENT>
           <envs>
             <env name="PATH" value="/sbin:/bin:/usr/sbin:/usr/bin:/usr/share/avr/bin:/snap/bin:/opt/gcc-arm-none-eabi/gcc-arm-none-eabi-7-2018-q2-update/bin" />
@@ -19,7 +19,39 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5807f310-86a7-4c2a-9b30-ff232d3bffd0" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.cproject" beforeDir="false" afterPath="$PROJECT_DIR$/.cproject" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/Build.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/runConfigurations/Build.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/Build_and_JLink.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/runConfigurations/Build_and_JLink.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.mxproject" beforeDir="false" afterPath="$PROJECT_DIR$/.mxproject" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists_template.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists_template.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_cortex.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_def.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_dma_ex.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ex.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_pcd_ex.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_tim_ex.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_ll_usb.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_cortex.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_dma_ex.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ex.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_flash_ramfunc.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_pcd_ex.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_hal_tim_ex.c" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Src/stm32f4xx_ll_usb.c" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/README.md" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/basics/hello-blink/hello-blink.ino" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/basics/multiple-interfaces/multiple-interfaces.ino" beforeDir="false" />
@@ -67,19 +99,32 @@
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/utilities/test_eui_macro.c" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/utilities/test_eui_offset_validation.c" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/valgrind_on_tests.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/STM32F429VETx_FLASH.ld" beforeDir="false" afterPath="$PROJECT_DIR$/STM32F429VETx_FLASH.ld" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Src/app_state_machines/app_background.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/app_state_machines/app_background.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/app_state_machines/app_hardware.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/app_state_machines/app_hardware.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/app_state_machines/app_task_communication.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/app_state_machines/app_task_communication.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/app_state_machines/app_tasks.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/app_state_machines/app_tasks.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Src/app_state_machines/app_times.h" beforeDir="false" afterPath="$PROJECT_DIR$/Src/app_state_machines/app_times.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Src/app_state_machines/build_info.h" beforeDir="false" afterPath="$PROJECT_DIR$/Src/app_state_machines/build_info.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Src/drivers/clearpath.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/drivers/clearpath.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Src/drivers/configuration.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/drivers/configuration.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Src/drivers/configuration.h" beforeDir="false" afterPath="$PROJECT_DIR$/Src/drivers/configuration.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Src/drivers/sensors.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/drivers/sensors.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Src/hal/hal_flashmem.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/hal/hal_flashmem.c" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Src/hal/hal_flashmem.h" beforeDir="false" afterPath="$PROJECT_DIR$/Src/hal/hal_flashmem.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Src/hal/hal_hard_ic.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/hal/hal_hard_ic.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Src/hal/hal_hard_ic.h" beforeDir="false" afterPath="$PROJECT_DIR$/Src/hal/hal_hard_ic.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../interface/src/application/pages/DevicePages/DataViews/CoolingDetails/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../interface/src/application/pages/DevicePages/DataViews/CoolingDetails/index.tsx" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../interface/src/application/pages/DevicePages/DataViews/ServoDetails/index.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../interface/src/application/pages/DevicePages/DataViews/ServoDetails/index.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/hal/hal_pwm.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/hal/hal_pwm.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/hal/hal_system_speed.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/hal/hal_system_speed.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/hal/hal_systick.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/hal/hal_systick.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/hal/hal_uart.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/hal/hal_uart.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/hal/hal_uart.h" beforeDir="false" afterPath="$PROJECT_DIR$/Src/hal/hal_uart.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/main.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/main.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/main.h" beforeDir="false" afterPath="$PROJECT_DIR$/Src/main.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/stm32f4xx_hal_conf.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/stm32f4xx_it.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/stm32f4xx_it.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Src/stm32f4xx_it.h" beforeDir="false" afterPath="$PROJECT_DIR$/Src/stm32f4xx_it.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/delta-control Debug.cfg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/delta-control.ioc" beforeDir="false" afterPath="$PROJECT_DIR$/delta-control.ioc" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/startup/startup_stm32f429xx.s" beforeDir="false" afterPath="$PROJECT_DIR$/startup/startup_stm32f429xx.s" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -108,7 +153,7 @@
       <list>
         <option value="187" />
         <option value="82" />
-        <option value="984" />
+        <option value="892" />
       </list>
     </option>
     <option name="columnOrder">
@@ -119,7 +164,7 @@
       </list>
     </option>
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Debug-ARM" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="CMakeBuildProfile:Default-ARM" />
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
@@ -138,7 +183,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="SearchEverywhereHistoryKey" value="sqrt()&#9;null&#9;null" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/CreateBuildInfo.sh" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -161,7 +206,7 @@
       <command value="ls" />
     </option>
   </component>
-  <component name="RunManager" selected="Embedded GDB Server.Build and JLink">
+  <component name="RunManager" selected="OpenOCD Download &amp; Run.delta-control.elf">
     <configuration name="Build" type="CMakeRunConfiguration" factoryName="Application" singleton="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="delta-control" TARGET_NAME="delta-control.elf" CONFIG_NAME="Debug-ARM" RUN_TARGET_PROJECT_NAME="delta-control" RUN_TARGET_NAME="delta-control.elf">
       <method v="2">
         <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_GenerateBuildInfo" />
@@ -169,9 +214,16 @@
         <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_CodeSizeReport" />
       </method>
     </configuration>
+    <configuration name="delta-control.elf" type="com.jetbrains.cidr.embedded.openocd.conf.type" factoryName="com.jetbrains.cidr.embedded.openocd.conf.factory" nameIsGenerated="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="delta-control" TARGET_NAME="delta-control.elf" CONFIG_NAME="Default-ARM" RUN_TARGET_PROJECT_NAME="delta-control" RUN_TARGET_NAME="delta-control.elf">
+      <openocd gdb-port="3333" telnet-port="4444" board-config="board/st_nucleo_f4.cfg" reset-type="INIT" download-type="ALWAYS" />
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <list>
       <item itemvalue="CMake Application.Build" />
       <item itemvalue="Embedded GDB Server.Build and JLink" />
+      <item itemvalue="OpenOCD Download &amp; Run.delta-control.elf" />
     </list>
   </component>
   <component name="ServiceViewManager">
@@ -247,6 +299,15 @@
       <workItem from="1583211836830" duration="1271000" />
       <workItem from="1585264808518" duration="19000" />
       <workItem from="1585308174734" duration="2832000" />
+      <workItem from="1585352332008" duration="9345000" />
+      <workItem from="1585451450308" duration="3958000" />
+      <workItem from="1585480111646" duration="11678000" />
+      <workItem from="1585529098720" duration="42554000" />
+      <workItem from="1585628770403" duration="12670000" />
+      <workItem from="1585650065750" duration="3617000" />
+      <workItem from="1585700533657" duration="2172000" />
+      <workItem from="1585979630470" duration="1768000" />
+      <workItem from="1585982589168" duration="18301000" />
     </task>
     <servers />
   </component>
@@ -276,97 +337,118 @@
     </option>
   </component>
   <component name="WindowStateProjectService">
-    <state x="308" y="378" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1585308610519">
+    <state x="308" y="378" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1586004096076">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state x="308" y="378" key="#com.intellij.execution.impl.EditConfigurationsDialog/40.0.2520.1440@40.0.2520.1440" timestamp="1585308610519" />
+    <state x="308" y="378" key="#com.intellij.execution.impl.EditConfigurationsDialog/40.0.2520.1440@40.0.2520.1440" timestamp="1586004096076" />
     <state x="614" y="550" width="451" height="479" key="#com.intellij.tools.ToolEditorDialog" timestamp="1585308604534">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
     <state x="614" y="550" width="451" height="479" key="#com.intellij.tools.ToolEditorDialog/40.0.2520.1440@40.0.2520.1440" timestamp="1585308604534" />
-    <state width="425" height="466" key="DebuggerActiveHint" timestamp="1581564275322">
+    <state width="746" height="466" key="DebuggerActiveHint" timestamp="1586002501927">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="425" height="466" key="DebuggerActiveHint/40.0.2520.1440@40.0.2520.1440" timestamp="1581564275322" />
-    <state x="628" y="462" width="424" height="508" key="FileChooserDialogImpl" timestamp="1585308599658">
+    <state width="746" height="466" key="DebuggerActiveHint/40.0.2520.1440@40.0.2520.1440" timestamp="1586002501927" />
+    <state x="628" y="462" width="424" height="508" key="FileChooserDialogImpl" timestamp="1586003643478">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state x="628" y="462" width="424" height="508" key="FileChooserDialogImpl/40.0.2520.1440@40.0.2520.1440" timestamp="1585308599658" />
-    <state width="1214" height="309" key="GridCell.Tab.0.bottom" timestamp="1585315331860">
+    <state x="628" y="462" width="424" height="508" key="FileChooserDialogImpl/40.0.2520.1440@40.0.2520.1440" timestamp="1586003643478" />
+    <state width="1228" height="478" key="GridCell.Tab.0.bottom" timestamp="1586006108359">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1214" height="309" key="GridCell.Tab.0.bottom/40.0.2520.1440@40.0.2520.1440" timestamp="1585315331860" />
-    <state width="1214" height="309" key="GridCell.Tab.0.center" timestamp="1585315331858">
+    <state width="1228" height="478" key="GridCell.Tab.0.bottom/40.0.2520.1440@40.0.2520.1440" timestamp="1586006108359" />
+    <state width="1228" height="478" key="GridCell.Tab.0.center" timestamp="1586006108359">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1214" height="309" key="GridCell.Tab.0.center/40.0.2520.1440@40.0.2520.1440" timestamp="1585315331858" />
-    <state width="1214" height="309" key="GridCell.Tab.0.left" timestamp="1585315331858">
+    <state width="1228" height="478" key="GridCell.Tab.0.center/40.0.2520.1440@40.0.2520.1440" timestamp="1586006108359" />
+    <state width="1228" height="478" key="GridCell.Tab.0.left" timestamp="1586006108359">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1214" height="309" key="GridCell.Tab.0.left/40.0.2520.1440@40.0.2520.1440" timestamp="1585315331858" />
-    <state width="1214" height="309" key="GridCell.Tab.0.right" timestamp="1585315331858">
+    <state width="1228" height="478" key="GridCell.Tab.0.left/40.0.2520.1440@40.0.2520.1440" timestamp="1586006108359" />
+    <state width="1228" height="478" key="GridCell.Tab.0.right" timestamp="1586006108359">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1214" height="309" key="GridCell.Tab.0.right/40.0.2520.1440@40.0.2520.1440" timestamp="1585315331858" />
-    <state width="1214" height="309" key="GridCell.Tab.1.bottom" timestamp="1585315349597">
+    <state width="1228" height="478" key="GridCell.Tab.0.right/40.0.2520.1440@40.0.2520.1440" timestamp="1586006108359" />
+    <state width="1228" height="478" key="GridCell.Tab.1.bottom" timestamp="1586006108257">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1214" height="309" key="GridCell.Tab.1.bottom/40.0.2520.1440@40.0.2520.1440" timestamp="1585315349597" />
-    <state width="1214" height="309" key="GridCell.Tab.1.center" timestamp="1585315349597">
+    <state width="1228" height="478" key="GridCell.Tab.1.bottom/40.0.2520.1440@40.0.2520.1440" timestamp="1586006108257" />
+    <state width="1228" height="478" key="GridCell.Tab.1.center" timestamp="1586006108257">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1214" height="309" key="GridCell.Tab.1.center/40.0.2520.1440@40.0.2520.1440" timestamp="1585315349597" />
-    <state width="1214" height="309" key="GridCell.Tab.1.left" timestamp="1585315349596">
+    <state width="1228" height="478" key="GridCell.Tab.1.center/40.0.2520.1440@40.0.2520.1440" timestamp="1586006108257" />
+    <state width="1228" height="478" key="GridCell.Tab.1.left" timestamp="1586006108257">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1214" height="309" key="GridCell.Tab.1.left/40.0.2520.1440@40.0.2520.1440" timestamp="1585315349596" />
-    <state width="1214" height="309" key="GridCell.Tab.1.right" timestamp="1585315349597">
+    <state width="1228" height="478" key="GridCell.Tab.1.left/40.0.2520.1440@40.0.2520.1440" timestamp="1586006108257" />
+    <state width="1228" height="478" key="GridCell.Tab.1.right" timestamp="1586006108257">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1214" height="309" key="GridCell.Tab.1.right/40.0.2520.1440@40.0.2520.1440" timestamp="1585315349597" />
-    <state width="1214" height="309" key="GridCell.Tab.2.bottom" timestamp="1585315331713">
+    <state width="1228" height="478" key="GridCell.Tab.1.right/40.0.2520.1440@40.0.2520.1440" timestamp="1586006108257" />
+    <state width="1228" height="478" key="GridCell.Tab.2.bottom" timestamp="1586006108258">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1214" height="309" key="GridCell.Tab.2.bottom/40.0.2520.1440@40.0.2520.1440" timestamp="1585315331713" />
-    <state width="1214" height="309" key="GridCell.Tab.2.center" timestamp="1585315331712">
+    <state width="1228" height="478" key="GridCell.Tab.2.bottom/40.0.2520.1440@40.0.2520.1440" timestamp="1586006108258" />
+    <state width="1228" height="478" key="GridCell.Tab.2.center" timestamp="1586006108257">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1214" height="309" key="GridCell.Tab.2.center/40.0.2520.1440@40.0.2520.1440" timestamp="1585315331712" />
-    <state width="1214" height="309" key="GridCell.Tab.2.left" timestamp="1585315331712">
+    <state width="1228" height="478" key="GridCell.Tab.2.center/40.0.2520.1440@40.0.2520.1440" timestamp="1586006108257" />
+    <state width="1228" height="478" key="GridCell.Tab.2.left" timestamp="1586006108257">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1214" height="309" key="GridCell.Tab.2.left/40.0.2520.1440@40.0.2520.1440" timestamp="1585315331712" />
-    <state width="1214" height="309" key="GridCell.Tab.2.right" timestamp="1585315331713">
+    <state width="1228" height="478" key="GridCell.Tab.2.left/40.0.2520.1440@40.0.2520.1440" timestamp="1586006108257" />
+    <state width="1228" height="478" key="GridCell.Tab.2.right" timestamp="1586006108257">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1214" height="309" key="GridCell.Tab.2.right/40.0.2520.1440@40.0.2520.1440" timestamp="1585315331713" />
-    <state x="354" y="355" key="SettingsEditor" timestamp="1585264816005">
+    <state width="1228" height="478" key="GridCell.Tab.2.right/40.0.2520.1440@40.0.2520.1440" timestamp="1586006108257" />
+    <state x="354" y="355" key="SettingsEditor" timestamp="1585998442479">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state x="354" y="355" key="SettingsEditor/40.0.2520.1440@40.0.2520.1440" timestamp="1585264816005" />
-    <state x="1261" y="549" key="com.intellij.ide.util.TipDialog" timestamp="1583211836848">
+    <state x="354" y="355" key="SettingsEditor/40.0.2520.1440@40.0.2520.1440" timestamp="1585998442479" />
+    <state x="1261" y="549" key="com.intellij.ide.util.TipDialog" timestamp="1585701110889">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state x="1261" y="549" key="com.intellij.ide.util.TipDialog/40.0.2520.1440@40.0.2520.1440" timestamp="1583211836848" />
+    <state x="1261" y="549" key="com.intellij.ide.util.TipDialog/40.0.2520.1440@40.0.2520.1440" timestamp="1585701110889" />
     <state x="722" y="458" width="245" height="519" key="com.intellij.tools.ToolSelectDialog.dimensionServiceKey" timestamp="1585308605519">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
     <state x="722" y="458" width="245" height="519" key="com.intellij.tools.ToolSelectDialog.dimensionServiceKey/40.0.2520.1440@40.0.2520.1440" timestamp="1585308605519" />
-    <state x="1127" y="460" width="871" height="518" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2" timestamp="1581421172374">
+    <state x="1127" y="460" width="871" height="518" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2" timestamp="1586002813068">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state x="1127" y="460" width="871" height="518" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/40.0.2520.1440@40.0.2520.1440" timestamp="1581421172374" />
+    <state x="1127" y="460" width="871" height="518" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/40.0.2520.1440@40.0.2520.1440" timestamp="1586002813068" />
+    <state x="1513" y="178" width="1047" height="892" key="dock-window-1" timestamp="1585651048070">
+      <screen x="40" y="0" width="2520" height="1440" />
+    </state>
+    <state x="1513" y="178" width="1047" height="892" key="dock-window-1/40.0.2520.1440@40.0.2520.1440" timestamp="1585651048070" />
+    <state x="595" y="365" width="501" height="706" key="refactoring.ChangeSignatureDialog" timestamp="1585652254695">
+      <screen x="40" y="0" width="2520" height="1440" />
+    </state>
+    <state x="595" y="365" width="501" height="706" key="refactoring.ChangeSignatureDialog/40.0.2520.1440@40.0.2520.1440" timestamp="1585652254695" />
+    <state x="514" y="338" width="672" height="677" key="run.anything.popup" timestamp="1585541760862">
+      <screen x="40" y="0" width="2520" height="1440" />
+    </state>
+    <state x="514" y="338" width="672" height="677" key="run.anything.popup/40.0.2520.1440@40.0.2520.1440" timestamp="1585541760862" />
+    <state x="439" y="368" width="672" height="160" key="search.everywhere.popup" timestamp="1585996675242">
+      <screen x="40" y="0" width="2520" height="1440" />
+    </state>
+    <state x="439" y="368" width="672" height="160" key="search.everywhere.popup/40.0.2520.1440@40.0.2520.1440" timestamp="1585996675242" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/Src/main.c</url>
-          <line>157</line>
-          <option name="timeStamp" value="23" />
+          <url>file://$PROJECT_DIR$/Src/stm32f4xx_it.c</url>
+          <line>56</line>
+          <option name="timeStamp" value="34" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>
+    <watches-manager>
+      <configuration name="com.jetbrains.cidr.embedded.openocd.conf.type">
+        <watch expression="tick_timer" />
+      </configuration>
+    </watches-manager>
   </component>
   <component name="masterDetails">
     <states>

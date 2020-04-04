@@ -43,12 +43,12 @@ MEMORY
 {
     RAM (xrw)               : ORIGIN = 0x20000000,  LENGTH = 192K
     CCMRAM (rw)             : ORIGIN = 0x10000000,  LENGTH = 64K
-    FLASH_BOOT (rx)         : ORIGIN = 0x08000000,  LENGTH = 32K
-    EMULATED_EEPROM (rwx)   : ORIGIN = 0x08008000,  LENGTH = 32K
-    FLASH (rx)              : ORIGIN = 0x08010000,  LENGTH = 448K
+    FLASH (rx)              : ORIGIN = 0x08000000,  LENGTH = 512K
 }
 /* See page 78 of ST doc RM0090 for single bank flash memory layout. */
 /* Layout in sequential sectors is as follows: 16k, 16k, 16k, 16k, 64k, 128k, 128k, 128k */
+/*    FLASH_BOOT (rx)         : ORIGIN = 0x08000000,  LENGTH = 32K */
+/*    EMULATED_EEPROM (rwx)   : ORIGIN = 0x08008000,  LENGTH = 32K
 
 /* Define output sections */
 SECTIONS
@@ -59,7 +59,7 @@ SECTIONS
     . = ALIGN(4);
     KEEP(*(.isr_vector)) /* Startup code */
     . = ALIGN(4);
-  } >FLASH_BOOT
+  } >FLASH
 
   /* The program code and other data goes into FLASH */
   .text :

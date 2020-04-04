@@ -27,6 +27,8 @@ typedef struct
 /* Ensure the hook pointers are all init before main starts */
 PRIVATE TickHook_t  tick_hooks[HAL_SYSTICK_MAX_HOOKS] = { { 0 } };
 
+uint32_t tick_timer = 0;
+
 /* -------------------------------------------------------------------------- */
 
 /** Enable and init system tick. Configure for the current system clock */
@@ -39,6 +41,7 @@ hal_systick_init( void )
 
     // Called earlier by LL_Init1msTick() in the main system clock setup stage
 //    LL_InitTick( rcc_clks.HCLK_Frequency, 1000U );
+    tick_timer = 0;
 
     LL_SYSTICK_EnableIT();
 }
@@ -50,7 +53,7 @@ hal_systick_init( void )
 PUBLIC uint32_t
 hal_systick_get_ms( void )
 {
-    return HAL_GetTick();
+    return tick_timer;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -117,6 +120,13 @@ HAL_SYSTICK_Callback(void)
             }
         }
     }
+}
+
+/* -------------------------------------------------------------------------- */
+
+void SysTick_Handler(void)
+{
+    tick_timer++;
 }
 
 /* ----- End ---------------------------------------------------------------- */
