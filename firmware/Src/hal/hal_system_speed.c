@@ -8,9 +8,9 @@
 
 #include "stm32f4xx_ll_pwr.h"
 #include "stm32f4xx_ll_rcc.h"
+#include "stm32f4xx_ll_cortex.h"
 
 #include "hal_system_speed.h"
-#include "stm32f4xx_hal.h"
 
 /* ----- Private Types ------------------------------------------------------ */
 
@@ -149,7 +149,7 @@ hal_system_speed_sleep( void )
 //    HAL_PWR_EnterSLEEPMode( PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI );
 
 //    LL_PWR_SetRegulModeDS(LL_PWR_REGU_DSMODE_MAIN);
-
+    LL_LPM_EnableSleep();
     __WFI();
 
     // Offset 0x010 is the system-control-register
