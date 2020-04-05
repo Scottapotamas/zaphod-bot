@@ -9,6 +9,7 @@
 #include "app_times.h"
 #include "global.h"
 #include "timer_ms.h"
+#include "app_task_communication.h"
 
 #include "button.h"
 #include "buzzer.h"
@@ -22,8 +23,9 @@
 #include "sensors.h"
 #include "configuration.h"
 #include "hal_system_speed.h"
-
+#include "hal_adc.h"
 #include "hal_hard_ic.h"
+
 /* -------------------------------------------------------------------------- */
 
 PRIVATE timer_ms_t 	button_timer 	= 0;
@@ -51,6 +53,8 @@ PUBLIC void
 app_background( void )
 {
 	//rate limit less important background processes
+    AppTaskCommunication_rx_tick();
+    hal_adc_tick();
 
     if( timer_ms_is_expired( &button_timer ) )
     {

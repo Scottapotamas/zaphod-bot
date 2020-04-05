@@ -146,16 +146,8 @@ hal_system_speed_sleep( void )
     cc_when_sleeping = DWT->CYCCNT;
 
     //Go to sleep. Wake on interrupt.
-//    HAL_PWR_EnterSLEEPMode( PWR_MAINREGULATOR_ON, PWR_SLEEPENTRY_WFI );
-
-//    LL_PWR_SetRegulModeDS(LL_PWR_REGU_DSMODE_MAIN);
     LL_LPM_EnableSleep();
     __WFI();
-
-    // Offset 0x010 is the system-control-register
-    // Base addr 0xE000E000UL
-    // Block addr 0xE000E000UL + 0x0D00UL = ED00E000
-    // Clear the bit from Mask  ((uint32_t)1UL << 2U))
 
     cc_asleep_time += DWT->CYCCNT - cc_when_sleeping;
     cc_when_woken = DWT->CYCCNT;

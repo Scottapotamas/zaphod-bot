@@ -107,7 +107,7 @@ hal_systick_unhook( voidTickHookFuncPtr hookfunc )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-HAL_SYSTICK_Callback(void)
+hal_systick_callback(void)
 {
     for( uint8_t handler = 0; handler < HAL_SYSTICK_MAX_HOOKS; handler++ )
     {
@@ -127,6 +127,7 @@ HAL_SYSTICK_Callback(void)
 void SysTick_Handler(void)
 {
     tick_timer++;
+    hal_systick_callback();
 }
 
 /* ----- End ---------------------------------------------------------------- */

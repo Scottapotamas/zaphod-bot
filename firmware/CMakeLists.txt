@@ -60,6 +60,7 @@ include_directories(Src Src/app_state_machines Src/hal Src/drivers Src/utility D
 include_directories(Drivers/electricui/src)
 
 add_executable(${PROJECT_NAME}.elf ${SOURCES} ${LINKER_SCRIPT})
+target_link_libraries(${PROJECT_NAME}.elf m)
 
 set(CMAKE_EXE_LINKER_FLAGS
         "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map=${PROJECT_BINARY_DIR}/${PROJECT_NAME}.map")

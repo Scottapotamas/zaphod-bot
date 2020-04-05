@@ -36,42 +36,7 @@ hal_uart_init( HalUartPort_t port );
 /** Deinit the UARTs */
 
 PUBLIC void
-hal_uart_deinit( HalUartPort_t port );
-
-/* -------------------------------------------------------------------------- */
-
-/* Reset the UART (for after clock speed change) */
-
-PUBLIC void
-hal_uart_reinit( HalUartPort_t port );
-
-/* -------------------------------------------------------------------------- */
-
-/** Activate the UART peripheral */
-
-PUBLIC void
-hal_uart_activate( HalUartPort_t port );
-
-/* -------------------------------------------------------------------------- */
-
-/** Deactivate the UART peripheral */
-
-PUBLIC void
-hal_uart_deactivate( HalUartPort_t port );
-
-/* -------------------------------------------------------------------------- */
-
-/** Configure the UART baudrate */
-
-PUBLIC void
-hal_uart_set_baudrate( HalUartPort_t port, uint32_t baudrate );
-
-/* -------------------------------------------------------------------------- */
-
-/** Get the current UART baudrate */
-
-PUBLIC uint32_t
-hal_uart_get_baudrate( HalUartPort_t port );
+hal_uart_global_deinit( void );
 
 /* -------------------------------------------------------------------------- */
 
@@ -132,6 +97,37 @@ hal_uart_rx_get( HalUartPort_t port );
 
 PUBLIC uint32_t
 hal_uart_read( HalUartPort_t port, uint8_t * buffer, uint32_t bufferlen );
+
+/* -------------------------------------------------------------------------- */
+
+void
+UART5_IRQHandler( void );
+
+void
+USART1_IRQHandler( void );
+
+void
+USART2_IRQHandler( void );
+
+/* -------------------------------------------------------------------------- */
+
+void
+DMA1_Stream0_IRQHandler( void );
+
+void
+DMA1_Stream7_IRQHandler( void );
+
+void
+DMA2_Stream2_IRQHandler( void );
+
+void
+DMA2_Stream7_IRQHandler( void );
+
+void
+DMA1_Stream5_IRQHandler( void );
+
+void
+DMA1_Stream6_IRQHandler( void );
 
 /* ----- End ---------------------------------------------------------------- */
 
