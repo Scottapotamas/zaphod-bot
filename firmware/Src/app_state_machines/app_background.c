@@ -1,16 +1,16 @@
 /* ----- System Includes ---------------------------------------------------- */
 
-
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "app_background.h"
-#include "event_subscribe.h"
-#include "app_signals.h"
 #include "app_times.h"
 #include "global.h"
 #include "timer_ms.h"
 #include "app_task_communication.h"
 
+#include "sensors.h"
+#include "hal_system_speed.h"
+#include "hal_adc.h"
 #include "button.h"
 #include "buzzer.h"
 #include "fan.h"
@@ -19,12 +19,7 @@
 #include "clearpath.h"
 #include "shutter_release.h"
 
-#include "status.h"
-#include "sensors.h"
 #include "configuration.h"
-#include "hal_system_speed.h"
-#include "hal_adc.h"
-#include "hal_hard_ic.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -32,7 +27,6 @@ PRIVATE timer_ms_t 	button_timer 	= 0;
 PRIVATE timer_ms_t 	buzzer_timer 	= 0;
 PRIVATE timer_ms_t 	fan_timer 		= 0;
 PRIVATE timer_ms_t 	adc_timer 		= 0;
-PRIVATE timer_ms_t 	hard_ic_timer 		= 0;
 
 /* -------------------------------------------------------------------------- */
 
@@ -43,8 +37,6 @@ app_background_init( void )
 	timer_ms_start( &buzzer_timer, 	BACKGROUND_RATE_BUZZER_MS );
 	timer_ms_start( &fan_timer, 	FAN_EVALUATE_TIME );
     timer_ms_start(&adc_timer, BACKGROUND_ADC_AVG_POLL_MS );	//refresh ADC readings
-    timer_ms_start(&hard_ic_timer, BACKGROUND_RATE_HARD_IC_MS );	// Input capture timeout checks
-
 }
 
 /* -------------------------------------------------------------------------- */
@@ -67,12 +59,6 @@ app_background( void )
         CRITICAL_SECTION_END();
 
         timer_ms_start( &button_timer, BACKGROUND_RATE_BUTTON_MS );
-    }
-
-    if( timer_ms_is_expired( &hard_ic_timer ) )
-    {
-//        hal_hard_ic_process();
-        timer_ms_start( &hard_ic_timer, BACKGROUND_RATE_HARD_IC_MS );
     }
 
     if( timer_ms_is_expired( &buzzer_timer ) )
