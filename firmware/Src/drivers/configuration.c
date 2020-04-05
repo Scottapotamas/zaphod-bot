@@ -259,6 +259,7 @@ eui_message_t ui_variables[] =
     EUI_UINT32( "capture", camera_shutter_duration_ms),
 
     EUI_FUNC( "save", configuration_save ),
+    EUI_FUNC("load", configuration_load ),
     EUI_FUNC("wipe", configuration_wipe ),
 };
 
@@ -271,7 +272,7 @@ configuration_init( void )
     configuration_set_defaults();
 
     // Load settings from flash memory
-    configuration_load();
+//    configuration_load();
 
 }
 

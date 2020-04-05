@@ -9,7 +9,7 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "hal_flashmem.h"
-#include "stm32f4xx_hal.h"
+//#include "stm32f4xx_hal.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -28,7 +28,7 @@
 #define ADDR_FLASH_SECTOR_10    ((uint32_t)0x080C0000) /* Base @ of Sector 10, 128 Kbyte */
 #define ADDR_FLASH_SECTOR_11    ((uint32_t)0x080E0000) /* Base @ of Sector 11, 128 Kbyte */
 
-#define FLASH_VOLTAGE_SETTING FLASH_VOLTAGE_RANGE_3
+//#define FLASH_VOLTAGE_SETTING FLASH_VOLTAGE_RANGE_3
 
 // Sectors reserved for non-volatile storage
 #define FLASH_START_ADDRESS  ADDR_FLASH_SECTOR_2
@@ -37,8 +37,8 @@
 #define PAGE_SIZE   0x4000  // Page size = 16KByte
 #define PAGE_COUNT  2       // 2 sectors reserved for NV storage
 
-#define PAGE0_ID    FLASH_SECTOR_2
-#define PAGE1_ID    FLASH_SECTOR_3
+//#define PAGE0_ID    FLASH_SECTOR_2
+//#define PAGE1_ID    FLASH_SECTOR_3
 
 #define PAGE_ACTIVE_MARKER  (uint32_t)0xDEADBEEF
 #define PAGE_MARKER_LENGTH  4
@@ -85,6 +85,7 @@ uint32_t address_of_end = 0;
 PUBLIC void
 hal_flashmem_init(void )
 {
+    /*
     // Work out which bank of memory is the current one
     if( hal_flashmem_is_sector_active(PAGE0_ID) )
     {
@@ -101,15 +102,32 @@ hal_flashmem_init(void )
 
     // Walk through the data and find the 'end' of the written data
     address_of_end = hal_flashmem_find_end_address( sector_in_use );
-
+*/
 }
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
+hal_flashmem_debug( uint16_t id )
+{
+   /* uint16_t data[35] = {0};
+
+    uint32_t *address;
+    address = hal_flashmem_get_sector_address( PAGE0_ID );
+
+    memcpy( &data, address, sizeof(data) );
+
+    if( *(uint32_t *)&data[0] == 0xDEADBEEF )
+    {
+        volatile uint32_t value = 0xBAAF;
+    }*/
+}
+
+
+PUBLIC void
 hal_flashmem_store( uint16_t id, uint8_t *data, uint16_t len)
 {
-    FORBID();
+    /*FORBID();
     hal_flashmem_unlock();
 
     // Find the address of the last record for the given ID
@@ -191,7 +209,7 @@ hal_flashmem_store( uint16_t id, uint8_t *data, uint16_t len)
     }
 
     hal_flashmem_lock();
-    PERMIT();
+    PERMIT();*/
 }
 
 /* -------------------------------------------------------------------------- */
@@ -202,7 +220,7 @@ PUBLIC uint16_t
 hal_flashmem_retrieve(uint16_t id, uint8_t *buffer, uint16_t buff_len)
 {
 //    FORBID();
-
+/*
     uint32_t *entry_addr = 0;
     StoredVariableHeader_t *ret_metadata;
     uint16_t bytes_to_copy = 0;
@@ -230,7 +248,8 @@ hal_flashmem_retrieve(uint16_t id, uint8_t *buffer, uint16_t buff_len)
     }
 
 //    PERMIT();
-    return bytes_to_copy;
+    return bytes_to_copy;*/
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -239,7 +258,7 @@ hal_flashmem_retrieve(uint16_t id, uint8_t *buffer, uint16_t buff_len)
 PUBLIC void
 hal_flashmem_wipe_and_prepare( void )
 {
-    FORBID();
+   /* FORBID();
     hal_flashmem_unlock();
 
     // Wipe the two storage sectors
@@ -253,7 +272,7 @@ hal_flashmem_wipe_and_prepare( void )
     address_of_end = hal_flashmem_get_sector_address(sector_in_use)+4;
 
     hal_flashmem_lock();
-    PERMIT();
+    PERMIT();*/
 }
 
 /* -------------------------------------------------------------------------- */
@@ -270,6 +289,8 @@ hal_flashmem_find_end_address( uint8_t sector )
 
     bool end_found = false;
     StoredVariableHeader_t tmp_entry;
+
+    hal_flashmem_debug(1);
 
     // Walk though entries until we find blank space
     while( scan_addr < sector_limit_addr && !end_found )
@@ -381,7 +402,7 @@ hal_flashmem_migrate_sector( uint8_t new_sector )
 PRIVATE void
 hal_flashmem_erase_sector(uint8_t sector)
 {
-    hal_flashmem_unlock();
+    /*hal_flashmem_unlock();
 
     uint32_t flash_status = 0x00;   // error sector address, 0xFFFFFFFFU written when ok
 
@@ -398,7 +419,7 @@ hal_flashmem_erase_sector(uint8_t sector)
         _Error_Handler(__FILE__, __LINE__);
     }
 
-    hal_flashmem_unlock();
+    hal_flashmem_unlock();*/
 }
 
 PRIVATE bool
@@ -416,7 +437,7 @@ hal_flashmem_is_sector_active( uint8_t sector_to_check )
 PRIVATE uint32_t
 hal_flashmem_get_sector_number(uint32_t address)
 {
-    uint32_t sector = 0;
+    /*uint32_t sector = 0;
 
     if(address < ADDR_FLASH_SECTOR_1 && address >= ADDR_FLASH_SECTOR_0)
     {
@@ -462,11 +483,12 @@ hal_flashmem_get_sector_number(uint32_t address)
     {
         sector = FLASH_SECTOR_10;
     }
-    else	/*(Address < FLASH_END_ADDR && Address >= ADDR_FLASH_SECTOR_11)*/
+    else	*//*(Address < FLASH_END_ADDR && Address >= ADDR_FLASH_SECTOR_11)*//*
     {
         sector = FLASH_SECTOR_11;
     }
-    return sector;
+    return sector;*/
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -474,7 +496,7 @@ hal_flashmem_get_sector_number(uint32_t address)
 PRIVATE uint32_t
 hal_flashmem_get_sector_address(uint8_t sector)
 {
-    switch( sector )
+    /*switch( sector )
     {
         case FLASH_SECTOR_0:
             return ADDR_FLASH_SECTOR_0;
@@ -500,7 +522,8 @@ hal_flashmem_get_sector_address(uint8_t sector)
             return ADDR_FLASH_SECTOR_10;
         case FLASH_SECTOR_11:
             return ADDR_FLASH_SECTOR_11;
-    }
+    }*/
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -508,14 +531,15 @@ hal_flashmem_get_sector_address(uint8_t sector)
 PRIVATE uint8_t
 hal_flashmem_get_other_sector( uint8_t sector )
 {
-    if( sector == PAGE0_ID )
+/*    if( sector == PAGE0_ID )
     {
         return PAGE1_ID;
     }
     else if( sector == PAGE1_ID )
     {
         return PAGE0_ID;
-    }
+    }*/
+    return 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -524,14 +548,14 @@ PRIVATE void
 hal_flashmem_unlock( void )
 {
 
-    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
-    HAL_FLASH_Unlock();
+//    __HAL_FLASH_CLEAR_FLAG(FLASH_FLAG_OPERR | FLASH_FLAG_WRPERR | FLASH_FLAG_PGAERR | FLASH_FLAG_PGPERR | FLASH_FLAG_PGSERR);
+//    HAL_FLASH_Unlock();
 }
 
 PRIVATE void
 hal_flashmem_lock( void )
 {
-    HAL_FLASH_Lock();
+//    HAL_FLASH_Lock();
 }
 
 /* ----- End ---------------------------------------------------------------- */
