@@ -5,27 +5,17 @@
 
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_gpio.h"
+#include "stm32f4xx_ll_tim.h"
 
 #include "hal_pwm.h"
 #include "hal_gpio.h"
 #include "qassert.h"
-
-#include "stm32f4xx_hal.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 #define PWM_PERIOD_DEFAULT  1024
-
-#define FAN_PRESCALER		0
-#define FAN_PWM_PERIOD 		3359
-
-#define BUZZER_PRESCALER	1
-#define BUZZER_PWM_PERIOD	16800
-
-#define AUX_PRESCALER		0
-#define AUX_PWM_PERIOD		4800
 
 /*
  * TACH    - TIM9_1
@@ -43,122 +33,107 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
  * AUX2    - TIM12_1
  */
 
-
-/* ----- Variables ---------------------------------------------------------- */
-
-// Fan Output
-TIM_HandleTypeDef htim10;
-
-// Buzzer
-TIM_HandleTypeDef htim11;
-
-// Internal Aux PWM outputs
-TIM_HandleTypeDef htim2;
-TIM_HandleTypeDef htim12;
-
-/* ----- Private Functions -------------------------------------------------- */
-
 PRIVATE void
-HAL_TIM_MspPostInit( TIM_HandleTypeDef* htim );
+hal_pwm_configure_peripheral( TIM_TypeDef* TIMx, uint32_t channel, uint32_t frequency );
 
 /* ----- Public Functions --------------------------------------------------- */
 
 void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency)
 {
-	TIM_HandleTypeDef* tim_handle = 0;
+    LL_TIM_OC_InitTypeDef tim_oc_initstruct = {0};
+    LL_TIM_InitTypeDef    tim_initstruct = {0};
 
-	switch(pwm_output)
+    switch(pwm_output)
 	{
 		case _PWM_TIM_FAN:
-			tim_handle = &htim10;
-			tim_handle->Instance = TIM10;
-			break;
+            LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM10);
+            hal_gpio_init_alternate( _FAN_PWM, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_DOWN );
+
+            NVIC_SetPriority(TIM1_UP_TIM10_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 7, 5));
+            NVIC_EnableIRQ(TIM1_UP_TIM10_IRQn);
+
+            hal_pwm_configure_peripheral(TIM10, LL_TIM_CHANNEL_CH1, frequency );
+            break;
 
 		case _PWM_TIM_BUZZER:
-			tim_handle = &htim11;
-			tim_handle->Instance = TIM11;
-			break;
+            LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM11);
+            hal_gpio_init_alternate( _BUZZER, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_DOWN );
+
+            NVIC_SetPriority(TIM1_TRG_COM_TIM11_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 7, 4));
+            NVIC_EnableIRQ(TIM1_TRG_COM_TIM11_IRQn);
+
+            hal_pwm_configure_peripheral(TIM11, LL_TIM_CHANNEL_CH1, frequency );
+            break;
 
 		case _PWM_TIM_AUX_0:
-			tim_handle = &htim2;
-			tim_handle->Instance = TIM2;
+            LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM2);
+            hal_gpio_init_alternate( _AUX_PWM_0, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_1, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_DOWN );
+
+            NVIC_SetPriority(TIM2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 7, 3));
+            NVIC_EnableIRQ(TIM2_IRQn);
+
+            hal_pwm_configure_peripheral(TIM2, LL_TIM_CHANNEL_CH1, frequency );
 			break;
 
 		case _PWM_TIM_AUX_1:
-			tim_handle = &htim12;
-			tim_handle->Instance = TIM12;
+            LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM12);
+            hal_gpio_init_alternate( _AUX_PWM_1, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_9, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_DOWN );
+
+            NVIC_SetPriority(TIM8_BRK_TIM12_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 7, 3));
+            NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);
+
+            hal_pwm_configure_peripheral(TIM12, LL_TIM_CHANNEL_CH2, frequency );
 			break;
 
 		case _PWM_TIM_AUX_2:
-			tim_handle = &htim12;
-			tim_handle->Instance = TIM12;
+            LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM12);
+            hal_gpio_init_alternate( _AUX_PWM_1, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_9, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_DOWN );
+
+            NVIC_SetPriority(TIM8_BRK_TIM12_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 7, 3));
+            NVIC_EnableIRQ(TIM8_BRK_TIM12_IRQn);
+
+            hal_pwm_configure_peripheral(TIM12, LL_TIM_CHANNEL_CH1, frequency );
 			break;
 		default:
-
+            ASSERT(false);
 			break;
 	}
 
-    tim_handle->Init.Prescaler 		= (uint32_t)( SystemCoreClock / ( frequency * PWM_PERIOD_DEFAULT ) ); //prescaler
-	tim_handle->Init.Period 		= PWM_PERIOD_DEFAULT; //overflow;
-	tim_handle->Init.CounterMode 	= TIM_COUNTERMODE_UP;
-	tim_handle->Init.ClockDivision 	= TIM_CLOCKDIVISION_DIV1;
+}
 
-	//no base for AUX outputs (according to cubeMX export)?
-	if( pwm_output == _PWM_TIM_FAN || pwm_output == _PWM_TIM_BUZZER )
-	{
-		if (HAL_TIM_Base_Init(tim_handle) != HAL_OK)
-		{
-			ASSERT( false );
-		}
-	}
+/* -------------------------------------------------------------------------- */
 
-	if (HAL_TIM_PWM_Init(tim_handle) != HAL_OK)
-	{
-		ASSERT( false );
-	}
+PRIVATE void
+hal_pwm_configure_peripheral( TIM_TypeDef* TIMx, uint32_t channel, uint32_t frequency )
+{
+    LL_TIM_OC_InitTypeDef tim_oc_initstruct = {0};
+    LL_TIM_InitTypeDef    tim_initstruct = {0};
 
-	//TIM2 has master config according to cubemx output
-	if( pwm_output == _PWM_TIM_AUX_0)
-	{
-		TIM_MasterConfigTypeDef sMasterConfig;
+    tim_initstruct.Prescaler         = (uint32_t)( SystemCoreClock / ( frequency * PWM_PERIOD_DEFAULT ) );
+    tim_initstruct.CounterMode       = LL_TIM_COUNTERMODE_UP;
+    tim_initstruct.Autoreload        = PWM_PERIOD_DEFAULT;
+    tim_initstruct.ClockDivision     = LL_TIM_CLOCKDIVISION_DIV1;
+    tim_initstruct.RepetitionCounter = (uint8_t)0x00;
 
-		sMasterConfig.MasterOutputTrigger 	= TIM_TRGO_RESET;
-		sMasterConfig.MasterSlaveMode 		= TIM_MASTERSLAVEMODE_DISABLE;
+    LL_TIM_Init(TIMx, &tim_initstruct);
+    LL_TIM_EnableARRPreload(TIMx);
 
-		if (HAL_TIMEx_MasterConfigSynchronization(tim_handle, &sMasterConfig) != HAL_OK)
-		{
-			ASSERT( false );
-		}
-	}
+    tim_oc_initstruct.OCMode       = LL_TIM_OCMODE_PWM1;
+    tim_oc_initstruct.OCState      = LL_TIM_OCSTATE_DISABLE;
+    tim_oc_initstruct.OCNState     = LL_TIM_OCSTATE_DISABLE;
+    tim_oc_initstruct.CompareValue = ( (LL_TIM_GetAutoReload(TIMx) + 1 ) / 2);
+    tim_oc_initstruct.OCPolarity   = LL_TIM_OCPOLARITY_LOW;
+    tim_oc_initstruct.OCNPolarity  = LL_TIM_OCPOLARITY_LOW;     // LL_TIM_OCPOLARITY_LOW
+    tim_oc_initstruct.OCIdleState  = LL_TIM_OCIDLESTATE_LOW;
+    tim_oc_initstruct.OCNIdleState = LL_TIM_OCIDLESTATE_LOW;
 
-	TIM_OC_InitTypeDef sConfigOC;
+    LL_TIM_OC_Init(TIMx, channel, &tim_oc_initstruct);
+    LL_TIM_OC_EnablePreload(TIMx, channel);
 
-	sConfigOC.OCMode 				= TIM_OCMODE_PWM1;
-	sConfigOC.Pulse 				= 1;
-	sConfigOC.OCPolarity 			= TIM_OCPOLARITY_HIGH;
-	sConfigOC.OCFastMode 			= TIM_OCFAST_DISABLE;
-
-	//todo see if tim12 is happy having a full setup repeated for Ch2 output, or if Ch1 and Ch2 need to be done at same time.
-	//aux2 is on ch2, everything else is on ch1
-	if( pwm_output == _PWM_TIM_AUX_2)
-	{
-		if (HAL_TIM_PWM_ConfigChannel(tim_handle, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
-		{
-			ASSERT( false );
-		}
-		HAL_TIM_PWM_Start(tim_handle,TIM_CHANNEL_2);
-	}
-	else
-	{
-		if (HAL_TIM_PWM_ConfigChannel(tim_handle, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
-		{
-			ASSERT( false );
-		}
-		HAL_TIM_PWM_Start(tim_handle,TIM_CHANNEL_1);
-	}
-
-	// Set the GPIO configurations to suit AF as needed
-	HAL_TIM_MspPostInit(tim_handle);
+    // Enable output channel
+    LL_TIM_CC_EnableChannel(TIMx, channel);
+    LL_TIM_EnableCounter(TIMx);
+    LL_TIM_GenerateEvent_UPDATE(TIMx);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -188,154 +163,40 @@ PUBLIC void hal_pwm_set_byte( PWMOutputTimerDef_t pwm_output, uint8_t duty_cycle
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void hal_pwm_set(PWMOutputTimerDef_t pwm_output, uint16_t duty_cycle)
-{
-	TIM_HandleTypeDef* tim_handle = 0;
-    uint32_t channel = 0;
+PRIVATE void hal_pwm_set(PWMOutputTimerDef_t pwm_output, uint16_t duty_cycle) {
+    uint32_t signal_period = 0;
 
-	switch(pwm_output)
-	{
-		case _PWM_TIM_FAN:
-			tim_handle = &htim10;
-			tim_handle->Instance = TIM10;
-            channel = TIM_CHANNEL_1;
-			break;
-
-		case _PWM_TIM_BUZZER:
-			tim_handle = &htim11;
-			tim_handle->Instance = TIM11;
-            channel = TIM_CHANNEL_1;
-			break;
-
-		case _PWM_TIM_AUX_0:
-			tim_handle = &htim2;
-			tim_handle->Instance = TIM2;
-            channel = TIM_CHANNEL_1;
+    switch (pwm_output)
+    {
+        case _PWM_TIM_FAN:
+            signal_period = LL_TIM_GetAutoReload(TIM10) + 1;
+            LL_TIM_OC_SetCompareCH1(TIM10, (MIN(duty_cycle, 0xFFFFU) * signal_period) / 0xFFFFU);
             break;
 
-		case _PWM_TIM_AUX_1:
-			tim_handle = &htim12;
-			tim_handle->Instance = TIM12;
-            channel = TIM_CHANNEL_1;
-			break;
+        case _PWM_TIM_BUZZER:
+            signal_period = LL_TIM_GetAutoReload(TIM11) + 1;
+            LL_TIM_OC_SetCompareCH1(TIM11, (MIN(duty_cycle, 0xFFFFU) * signal_period) / 0xFFFFU);
+            break;
 
-		case _PWM_TIM_AUX_2:
-			tim_handle = &htim12;
-			tim_handle->Instance = TIM12;
-            channel = TIM_CHANNEL_2;
-			break;
-		default:
+        case _PWM_TIM_AUX_0:
+            signal_period = LL_TIM_GetAutoReload(TIM2) + 1;
+            LL_TIM_OC_SetCompareCH1(TIM2, (MIN(duty_cycle, 0xFFFFU) * signal_period) / 0xFFFFU);
+            break;
 
-			break;
-	}
+        case _PWM_TIM_AUX_1:
+            signal_period = LL_TIM_GetAutoReload(TIM12) + 1;
+            LL_TIM_OC_SetCompareCH1(TIM12, (MIN(duty_cycle, 0xFFFFU) * signal_period) / 0xFFFFU);
+            break;
 
-    uint32_t period = tim_handle->Init.Period;  //get
+        case _PWM_TIM_AUX_2:
+            signal_period = LL_TIM_GetAutoReload(TIM12) + 1;
+            LL_TIM_OC_SetCompareCH2(TIM12, (MIN(duty_cycle, 0xFFFFU) * signal_period) / 0xFFFFU);
+            break;
 
-    TIM_OC_InitTypeDef sConfigOC;
-    sConfigOC.OCMode 				= TIM_OCMODE_PWM1;
-    sConfigOC.Pulse 				= ( MIN( duty_cycle, 0xFFFFU ) * period ) / 0xFFFFU;
-    sConfigOC.OCPolarity 			= TIM_OCPOLARITY_LOW;
-    sConfigOC.OCFastMode 			= TIM_OCFAST_DISABLE;
-
-    HAL_TIM_PWM_ConfigChannel(tim_handle, &sConfigOC, channel);
-    HAL_TIM_PWM_Start(tim_handle, channel);
-}
-
-/* -------------------------------------------------------------------------- */
-
-//TIM Base Functions
-void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* tim_baseHandle)
-{
-	if( tim_baseHandle->Instance == TIM10 )
-	{
-        LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM10);
-        hal_gpio_init_alternate( _FAN_PWM, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
-
-    }
-
-	if( tim_baseHandle->Instance == TIM11 )
-	{
-		LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_TIM11);
-        hal_gpio_init_alternate( _BUZZER, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
-
+        default:
+            ASSERT(false);
+            break;
     }
 }
 
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-HAL_TIM_Base_MspDeInit( TIM_HandleTypeDef* tim_baseHandle )
-{
-    if(tim_baseHandle->Instance==TIM10)
-    {
-        LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM10);
-    }
-    else if(tim_baseHandle->Instance==TIM11)
-    {
-        LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM11);
-
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void
-HAL_TIM_MspPostInit( TIM_HandleTypeDef* htim )
-{
-	if( htim->Instance == TIM10 )
-	{
-        hal_gpio_init_alternate( _FAN_PWM, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
-	}
-
-	if( htim->Instance == TIM11 )
-	{
-        hal_gpio_init_alternate( _BUZZER, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
-	}
-
-	if( htim->Instance == TIM2 )
-	{
-        hal_gpio_init_alternate( _AUX_PWM_0, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_1, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
-	}
-
-	if( htim->Instance==TIM12 )
-	{
-        hal_gpio_init_alternate( _AUX_PWM_1, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_9, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
-        hal_gpio_init_alternate( _AUX_PWM_2, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_9, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
-	}
-
-}
-
-// TIM Group 3 - PWM Input
-void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* tim_pwmHandle)
-{
-    if( tim_pwmHandle->Instance == TIM1 )
-    {
-        LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_TIM1);
-        hal_gpio_init_alternate( _SERVO_3_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_1, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
-    }
-
-    if( tim_pwmHandle->Instance == TIM3 )
-    {
-        LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_TIM3);
-        hal_gpio_init_alternate( _SERVO_1_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
-    }
-
-    if( tim_pwmHandle->Instance == TIM4 )
-    {
-        LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_TIM4);
-        hal_gpio_init_alternate( _SERVO_2_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
-    }
-
-    if( tim_pwmHandle->Instance == TIM5 )
-    {
-        LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_TIM5);
-        hal_gpio_init_alternate( _SERVO_4_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
-    }
-
-    if( tim_pwmHandle->Instance == TIM9 )
-    {
-        LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_TIM9);
-        hal_gpio_init_alternate( _FAN_TACHO, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
-    }
-}
 /* ----- End ---------------------------------------------------------------- */
