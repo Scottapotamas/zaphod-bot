@@ -6,6 +6,7 @@
 #include "hal_systick.h"
 #include "hal_adc.h"
 #include "hal_gpio.h"
+#include "hal_uart.h"
 #include "hal_hard_ic.h"
 #include "hal_flashmem.h"
 #include "hal_watchdog.h"
@@ -38,6 +39,11 @@ app_hardware_init( void )
     status_red( 	true );
 
     hal_systick_init();
+
+    // We need to do a full reset of usart clocks/peripherals on boot, as the DMA setup seems
+    // to cling onto error flags across firmware flashing - making debugging hard
+    hal_uart_global_deinit();
+
     hal_flashmem_init();
 
     hal_adc_init();

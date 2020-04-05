@@ -112,7 +112,6 @@ void app_tasks_init( void )
     app_background_init();
 
     /* ~~~ State Machines Initialisation ~~~ */
-
     StateTask *t;
 
     //Handle communications (comms to computers/phones etc)
@@ -153,7 +152,6 @@ void app_tasks_init( void )
     stateTaskerStartTask( &mainTasker, t );
 
     hal_systick_hook( 1, eventTimerTick );
-
 }
 
 /* -------------------------------------------------------------------------- */
