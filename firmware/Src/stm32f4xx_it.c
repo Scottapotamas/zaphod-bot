@@ -21,16 +21,6 @@
 
 /* External variables --------------------------------------------------------*/
 //extern PCD_HandleTypeDef hpcd_USB_OTG_FS;
-//extern DMA_HandleTypeDef hdma_adc1;
-
-//Timers allocated to servos (HLFB on CH1/2 as PWM input, A and B are ch 3, 4
-//extern TIM_HandleTypeDef htim1;
-//extern TIM_HandleTypeDef htim3;
-//extern TIM_HandleTypeDef htim4;
-//extern TIM_HandleTypeDef htim5;
-
-//Fan
-//extern TIM_HandleTypeDef htim9;
 
 /******************************************************************************/
 /*           Cortex-M4 Processor Interruption and Exception Handlers          */ 
