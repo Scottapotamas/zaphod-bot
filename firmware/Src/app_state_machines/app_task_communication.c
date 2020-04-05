@@ -135,23 +135,14 @@ PRIVATE STATE AppTaskCommunication_electric_ui( AppTaskCommunication *me,
         	switch (me->instance) {
 				case INTERFACE_UART_MODULE:
 		            hal_uart_init( HAL_UART_PORT_MODULE );
-
-                    // todo poll the uart fifo for data
-
 					break;
 
 				case INTERFACE_UART_INTERNAL:
 		            hal_uart_init( HAL_UART_PORT_INTERNAL );
-
-                    // todo poll the uart fifo for data
-
 					break;
 
 				case INTERFACE_UART_EXTERNAL:
 		            hal_uart_init( HAL_UART_PORT_EXTERNAL );
-
-                    // todo poll the uart fifo for data
-
 					break;
 
 				case INTERFACE_USB_EXTERNAL:
@@ -238,6 +229,8 @@ AppTaskCommunication_rx_tick( void )
     while( hal_uart_rx_data_available( HAL_UART_PORT_MODULE ) )
     {
         eui_parse( hal_uart_rx_get( HAL_UART_PORT_MODULE ), &communication_interface[LINK_MODULE]);
+//        uint8_t byte_loopback = hal_uart_rx_get(HAL_UART_PORT_MODULE);
+//        hal_uart_put(HAL_UART_PORT_MODULE, byte_loopback);
     }
 }
 

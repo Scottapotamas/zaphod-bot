@@ -24,8 +24,8 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 /* ----- Defines ------------------------------------------------------------ */
 
 
-#define  HAL_UART_RX_FIFO_SIZE      256
-#define  HAL_UART_TX_FIFO_SIZE      256
+#define  HAL_UART_RX_FIFO_SIZE      250
+#define  HAL_UART_TX_FIFO_SIZE      250
 
 #define HAL_UART_RX_DMA_BUFFER_SIZE 64
 
@@ -57,7 +57,7 @@ typedef struct
 
     // Raw DMA buffer,
     volatile uint8_t dma_rx_buffer[HAL_UART_RX_DMA_BUFFER_SIZE];
-    uint8_t         dma_rx_pos;
+    uint32_t         dma_rx_pos;
 
 } HalUart_t;
 
@@ -68,19 +68,25 @@ PRIVATE HalUart_t hal_uart[HAL_UART_NUM_PORTS];
 /* ----- Private Functions -------------------------------------------------- */
 
 PRIVATE void
-hal_uart_dma_init( HalUart_t * h );
+hal_uart_dma_init(HalUartPort_t port);
 
 PRIVATE void
-hal_uart_dma_irq_setup( HalUart_t * h, uint32_t stream, uint8_t preempt_priority, uint8_t sub_priority);
+hal_uart_dma_irq_setup( DMA_TypeDef *DMAx, uint32_t stream, uint8_t preempt_priority, uint8_t sub_priority);
 
 PRIVATE void
-hal_uart_clear_dma_tx_flags( HalUart_t * h );
+hal_uart_peripheral_init( USART_TypeDef *USARTx, uint32_t baudrate );
 
 PRIVATE void
-hal_uart_tx_start( HalUart_t *h );
+hal_uart_clear_dma_tx_flags( DMA_TypeDef *DMAx, uint32_t stream_tx );
 
 PRIVATE void
-hal_uart_tx_completed( HalUart_t *h );
+hal_uart_start_tx(HalUart_t *h );
+
+PRIVATE void
+hal_uart_completed_tx(HalUart_t *h );
+
+PRIVATE void
+hal_usart_irq_rx_handler(HalUart_t *h);
 
 
 /* ----- USART Interface ---------------------------------------------------- */
@@ -96,10 +102,6 @@ hal_uart_init( HalUartPort_t port )
         case HAL_UART_PORT_EXTERNAL:
             h->port = HAL_UART_PORT_EXTERNAL;
             h->usart = UART5;
-
-            fifo_init( &h->tx_fifo, h->tx_buffer, HAL_UART_TX_FIFO_SIZE );
-            fifo_init( &h->rx_fifo, h->rx_buffer, HAL_UART_RX_FIFO_SIZE );
-
             // See STM DMA Controller Description AN4031 Section 1.1.1 for Stream/Channel matrix
             h->dma_peripheral   = DMA1;
             h->dma_stream_tx    = LL_DMA_STREAM_7;
@@ -107,17 +109,19 @@ hal_uart_init( HalUartPort_t port )
             h->dma_stream_rx    = LL_DMA_STREAM_0;
             h->dma_channel_rx   = LL_DMA_CHANNEL_4;
 
+            fifo_init( &h->tx_fifo, h->tx_buffer, HAL_UART_TX_FIFO_SIZE );
+            fifo_init( &h->rx_fifo, h->rx_buffer, HAL_UART_RX_FIFO_SIZE );
+
             LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_UART5);
+            LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
 
-            hal_gpio_init_alternate( _EXT_OUTPUT_0, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_8, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_UP );
-            hal_gpio_init_alternate( _EXT_INPUT_0, 	LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_8, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_UP );
+            hal_gpio_init_alternate( _EXT_OUTPUT_0, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_8, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
+            hal_gpio_init_alternate( _EXT_INPUT_0, 	LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_8, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
 
-            hal_uart_dma_init( h );
-            hal_uart_set_baudrate( h->port, UART_EXTERNAL_BAUD );
+            hal_uart_dma_init(HAL_UART_PORT_EXTERNAL);
+            hal_uart_peripheral_init( h->usart, UART_EXTERNAL_BAUD );
 
-            NVIC_SetPriority(UART5_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 6, 0));
-            NVIC_EnableIRQ(UART5_IRQn);
-
+            // Start it up
             LL_DMA_EnableStream(h->dma_peripheral, h->dma_stream_rx);     // rx stream
             LL_USART_Enable(h->usart);
             break;
@@ -125,26 +129,23 @@ hal_uart_init( HalUartPort_t port )
         case HAL_UART_PORT_INTERNAL:
             h->port = HAL_UART_PORT_INTERNAL;
             h->usart = USART1;
-
-            fifo_init( &h->tx_fifo, h->tx_buffer, HAL_UART_TX_FIFO_SIZE );
-            fifo_init( &h->rx_fifo, h->rx_buffer, HAL_UART_RX_FIFO_SIZE );
-
             h->dma_peripheral   = DMA2;
             h->dma_stream_tx    = LL_DMA_STREAM_7;
             h->dma_channel_tx   = LL_DMA_CHANNEL_4;
             h->dma_stream_rx    = LL_DMA_STREAM_2;
             h->dma_channel_rx   = LL_DMA_CHANNEL_4;
 
+            fifo_init( &h->tx_fifo, h->tx_buffer, HAL_UART_TX_FIFO_SIZE );
+            fifo_init( &h->rx_fifo, h->rx_buffer, HAL_UART_RX_FIFO_SIZE );
+
             LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_USART1);
+            LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA2);
 
-            hal_gpio_init_alternate( _AUX_UART_RX, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_UP );
-            hal_gpio_init_alternate( _AUX_UART_TX, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_UP );
+            hal_gpio_init_alternate( _AUX_UART_RX, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
+            hal_gpio_init_alternate( _AUX_UART_TX, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
 
-            hal_uart_dma_init( h );
-            hal_uart_set_baudrate( h->port, UART_INTERNAL_BAUD );
-
-            NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 6, 0));
-            NVIC_EnableIRQ(USART1_IRQn);
+            hal_uart_dma_init(HAL_UART_PORT_INTERNAL);
+            hal_uart_peripheral_init( h->usart, UART_INTERNAL_BAUD );
 
             LL_DMA_EnableStream(h->dma_peripheral, h->dma_stream_rx);     // rx stream
             LL_USART_Enable(h->usart);
@@ -153,28 +154,25 @@ hal_uart_init( HalUartPort_t port )
         case HAL_UART_PORT_MODULE:
             h->port = HAL_UART_PORT_MODULE;
             h->usart = USART2;
-
-            fifo_init( &h->tx_fifo, h->tx_buffer, HAL_UART_TX_FIFO_SIZE );
-            fifo_init( &h->rx_fifo, h->rx_buffer, HAL_UART_RX_FIFO_SIZE );
-
             h->dma_peripheral   = DMA1;
             h->dma_stream_tx    = LL_DMA_STREAM_6;
             h->dma_channel_tx   = LL_DMA_CHANNEL_4;
             h->dma_stream_rx    = LL_DMA_STREAM_5;
             h->dma_channel_rx   = LL_DMA_CHANNEL_4;
 
-            LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART2);
+            fifo_init( &h->tx_fifo, h->tx_buffer, HAL_UART_TX_FIFO_SIZE );
+            fifo_init( &h->rx_fifo, h->rx_buffer, HAL_UART_RX_FIFO_SIZE );
 
-            hal_gpio_init_alternate( _CARD_UART_RX, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_UP );
-            hal_gpio_init_alternate( _CARD_UART_TX, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_UP );
+            LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_USART2);
+            LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
+
+            hal_gpio_init_alternate( _CARD_UART_RX, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
+            hal_gpio_init_alternate( _CARD_UART_TX, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
 //            hal_gpio_init_alternate( _CARD_UART_CTS, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
 //            hal_gpio_init_alternate( _CARD_UART_RTS, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
 
-            hal_uart_dma_init( h );
-            hal_uart_set_baudrate( h->port, UART_MODULE_BAUD );
-
-            NVIC_SetPriority(USART2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 6, 0));
-            NVIC_EnableIRQ(USART2_IRQn);
+            hal_uart_dma_init(HAL_UART_PORT_MODULE);
+            hal_uart_peripheral_init( h->usart, UART_MODULE_BAUD );
 
             LL_DMA_EnableStream(h->dma_peripheral, h->dma_stream_rx);     // rx stream
             LL_USART_Enable(h->usart);
@@ -183,96 +181,25 @@ hal_uart_init( HalUartPort_t port )
         default:
             break;
     }
+
 }
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-hal_uart_deinit( HalUartPort_t port )
+hal_uart_global_deinit( void )
 {
-    // TODO uart_deinit() - Actually teardown gpio, usart, dma, irq
+    // Disable UART
+    LL_USART_DeInit(UART5);
+    LL_USART_DeInit(USART1);
+    LL_USART_DeInit(USART2);
 
-	HalUart_t * h = &hal_uart[port];
-	switch( port )
-	{
-		case HAL_UART_PORT_EXTERNAL:
-			h->port = HAL_UART_PORT_EXTERNAL;
-			h->usart = UART5;
+    // Disable DMA streams
+    LL_DMA_DeInit(DMA1, LL_DMA_STREAM_5);
+    LL_DMA_DeInit(DMA1, LL_DMA_STREAM_6);
 
-			break;
-
-		case HAL_UART_PORT_INTERNAL:
-			h->port = HAL_UART_PORT_INTERNAL;
-			h->usart = USART1;
-
-			break;
-
-		case HAL_UART_PORT_MODULE:
-			h->port = HAL_UART_PORT_MODULE;
-			h->usart = USART2;
-
-			break;
-
-		default:
-			break;
-	}
 }
 
-/* -------------------------------------------------------------------------- */
-
-/* Change the UART baudrate */
-
-PUBLIC void
-hal_uart_set_baudrate( HalUartPort_t port, uint32_t baudrate )
-{
-    HalUart_t * h = &hal_uart[port];
-    LL_USART_InitTypeDef USART_InitStruct = {0};
-
-    LL_USART_DeInit( h->usart );
-
-    USART_InitStruct.BaudRate = baudrate;
-    USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
-    USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
-    USART_InitStruct.Parity = LL_USART_PARITY_NONE;
-    USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX_RX;
-    USART_InitStruct.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
-    USART_InitStruct.OverSampling = LL_USART_OVERSAMPLING_16;
-    LL_USART_Init(h->usart, &USART_InitStruct);
-
-    LL_USART_ConfigAsyncMode(h->usart);
-    LL_USART_EnableDMAReq_TX(h->usart);
-    LL_USART_EnableDMAReq_RX(h->usart);
-    LL_USART_EnableIT_IDLE(h->usart);
-}
-
-/* -------------------------------------------------------------------------- */
-
-/* Get the UART baudrate */
-
-PUBLIC uint32_t
-hal_uart_get_baudrate( HalUartPort_t port )
-{
-    HalUart_t * h = &hal_uart[port];
-
-    //todo implement get_baudrate() properly by fetching peripheral clock
-    /*
-        uint32_t periphclk;
-        LL_RCC_ClocksTypeDef rcc_clocks;
-        LL_RCC_GetSystemClocksFreq(&rcc_clocks);
-
-        if (USARTx == USART1)
-        {
-            periphclk = rcc_clocks.PCLK2_Frequency;
-        }
-        else if (USARTx == USART2)
-        {
-            periphclk = rcc_clocks.PCLK1_Frequency;
-        }
-        // etc, see stm32f4xx_ll_usart LL_USART_Init() for reference
-     */
-    //LL_USART_GetBaudRate(h->usart, periphclk, LL_USART_OVERSAMPLING_16);
-    return 115200;
-}
 /* -------------------------------------------------------------------------- */
 
 /* Non-blocking send for a single character to the UART tx FIFO queue.
@@ -284,11 +211,10 @@ hal_uart_put( HalUartPort_t port, uint8_t ch )
 {
     HalUart_t * h = &hal_uart[port];
 
-    CRITICAL_SECTION_VAR();
-    CRITICAL_SECTION_START();
+
     uint32_t sent = fifo_write( &h->tx_fifo, &ch, 1 );
-    CRITICAL_SECTION_END();
-    hal_uart_tx_start( h );
+
+    hal_uart_start_tx( h );
     return (sent == 1);
 }
 
@@ -299,16 +225,14 @@ hal_uart_put( HalUartPort_t port, uint8_t ch )
 PUBLIC void
 hal_uart_flush( HalUartPort_t port )
 {
-    CRITICAL_SECTION_VAR();
-
     HalUart_t * h = &hal_uart[port];
     uint32_t used;
+
     do
     {
-        CRITICAL_SECTION_START();
         used = fifo_used( &h->tx_fifo );
-        CRITICAL_SECTION_END();
-    } while( used > 0 );
+    }
+    while( used > 0 );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -325,7 +249,7 @@ hal_uart_put_blocking( HalUartPort_t port, uint8_t ch )
     uint32_t timeout = 100000;
     while( ( --timeout > 0) && ( fifo_free( &h->tx_fifo ) == 0 ) ) {}
     uint32_t sent = fifo_write( &h->tx_fifo, &ch, 1 );
-    hal_uart_tx_start( h );
+    hal_uart_start_tx( h );
     return (sent == 1);
 }
 
@@ -340,11 +264,17 @@ PUBLIC uint32_t
 hal_uart_write( HalUartPort_t port, const uint8_t * data, uint32_t length )
 {
     HalUart_t * h = &hal_uart[port];
+    uint32_t sent = 0;
 
-    uint32_t sent = fifo_write( &h->tx_fifo, data, length );
-    hal_uart_tx_start( h );
+    if( fifo_free( &h->tx_fifo ) >= length )
+    {
+        sent = fifo_write( &h->tx_fifo, data, length );
+        hal_uart_start_tx( h );
+    }
+
     return sent;
 }
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -370,10 +300,8 @@ hal_uart_rx_get( HalUartPort_t port )
     HalUart_t * h = &hal_uart[port];
 
     uint8_t c = 0;
-    CRITICAL_SECTION_VAR();
-    CRITICAL_SECTION_START();
     fifo_read( &h->rx_fifo, &c, 1 );
-    CRITICAL_SECTION_END();
+
     return c;
 }
 
@@ -388,135 +316,20 @@ hal_uart_read( HalUartPort_t port, uint8_t * data, uint32_t maxlength )
 {
     HalUart_t * h = &hal_uart[port];
     uint32_t len;
-    CRITICAL_SECTION_VAR();
-    CRITICAL_SECTION_START();
+
     len = fifo_read( &h->rx_fifo, data, maxlength );
-    CRITICAL_SECTION_END();
+
     return len;
 }
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void
-hal_uart_tx_start( HalUart_t *h )
+hal_uart_dma_init(HalUartPort_t port)
 {
-    CRITICAL_SECTION_VAR();
-    CRITICAL_SECTION_START();
+    HalUart_t * h = &hal_uart[port];
 
-    // If transfer is not on-going
-    if (!LL_DMA_IsEnabledStream(h->dma_peripheral, h->dma_stream_tx))
-    {
-        h->tx_sneak_bytes = fifo_used_linear(&h->tx_fifo);
-
-        // Limit maximum transmit burst size
-        if (h->tx_sneak_bytes > 32)
-        {
-            h->tx_sneak_bytes = 32;
-        }
-
-        // Transmit any data left in the buffer
-        if (h->tx_sneak_bytes > 0)
-        {
-            // ask the fifo for the pointer to our data
-            void* ptr = fifo_get_tail_ptr( &h->tx_fifo, h->tx_sneak_bytes );;
-
-            if( ptr )   // nullptr check
-            {
-                LL_DMA_SetDataLength(h->dma_peripheral, h->dma_stream_tx, h->tx_sneak_bytes);
-                LL_DMA_SetMemoryAddress(h->dma_peripheral, h->dma_stream_tx, (uint32_t)ptr);
-
-                hal_uart_clear_dma_tx_flags( h );
-                LL_DMA_EnableStream(h->dma_peripheral, h->dma_stream_tx);
-            }
-        }
-    }
-
-    CRITICAL_SECTION_END();
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void hal_uart_clear_dma_tx_flags( HalUart_t * h )
-{
-    /* Clear all tx DMA interrupt flags */
-    switch( h->dma_stream_tx )
-    {
-        case LL_DMA_STREAM_0:
-            LL_DMA_ClearFlag_TC0(h->dma_peripheral);
-            LL_DMA_ClearFlag_HT0(h->dma_peripheral);
-            LL_DMA_ClearFlag_DME0(h->dma_peripheral);
-            LL_DMA_ClearFlag_FE0(h->dma_peripheral);
-            LL_DMA_ClearFlag_TE0(h->dma_peripheral);
-            break;
-        case LL_DMA_STREAM_1:
-            LL_DMA_ClearFlag_TC1(h->dma_peripheral);
-            LL_DMA_ClearFlag_HT1(h->dma_peripheral);
-            LL_DMA_ClearFlag_DME1(h->dma_peripheral);
-            LL_DMA_ClearFlag_FE1(h->dma_peripheral);
-            LL_DMA_ClearFlag_TE1(h->dma_peripheral);
-            break;
-        case LL_DMA_STREAM_2:
-            LL_DMA_ClearFlag_TC2(h->dma_peripheral);
-            LL_DMA_ClearFlag_HT2(h->dma_peripheral);
-            LL_DMA_ClearFlag_DME2(h->dma_peripheral);
-            LL_DMA_ClearFlag_FE2(h->dma_peripheral);
-            LL_DMA_ClearFlag_TE2(h->dma_peripheral);
-            break;
-        case LL_DMA_STREAM_3:
-            LL_DMA_ClearFlag_TC3(h->dma_peripheral);
-            LL_DMA_ClearFlag_HT3(h->dma_peripheral);
-            LL_DMA_ClearFlag_DME3(h->dma_peripheral);
-            LL_DMA_ClearFlag_FE3(h->dma_peripheral);
-            LL_DMA_ClearFlag_TE3(h->dma_peripheral);
-            break;
-        case LL_DMA_STREAM_4:
-            LL_DMA_ClearFlag_TC4(h->dma_peripheral);
-            LL_DMA_ClearFlag_HT4(h->dma_peripheral);
-            LL_DMA_ClearFlag_DME4(h->dma_peripheral);
-            LL_DMA_ClearFlag_FE4(h->dma_peripheral);
-            LL_DMA_ClearFlag_TE4(h->dma_peripheral);
-            break;
-        case LL_DMA_STREAM_5:
-            LL_DMA_ClearFlag_TC5(h->dma_peripheral);
-            LL_DMA_ClearFlag_HT5(h->dma_peripheral);
-            LL_DMA_ClearFlag_DME5(h->dma_peripheral);
-            LL_DMA_ClearFlag_FE5(h->dma_peripheral);
-            LL_DMA_ClearFlag_TE5(h->dma_peripheral);
-            break;
-        case LL_DMA_STREAM_6:
-            LL_DMA_ClearFlag_TC6(h->dma_peripheral);
-            LL_DMA_ClearFlag_HT6(h->dma_peripheral);
-            LL_DMA_ClearFlag_DME6(h->dma_peripheral);
-            LL_DMA_ClearFlag_FE6(h->dma_peripheral);
-            LL_DMA_ClearFlag_TE6(h->dma_peripheral);
-            break;
-        case LL_DMA_STREAM_7:
-            LL_DMA_ClearFlag_TC7(h->dma_peripheral);
-            LL_DMA_ClearFlag_HT7(h->dma_peripheral);
-            LL_DMA_ClearFlag_DME7(h->dma_peripheral);
-            LL_DMA_ClearFlag_FE7(h->dma_peripheral);
-            LL_DMA_ClearFlag_TE7(h->dma_peripheral);
-            break;
-        default:
-            ASSERT( false );
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void
-hal_uart_dma_init( HalUart_t * h )
-{
-    if( h->dma_peripheral == DMA1 )
-    {
-        LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA1);
-    }
-    else if( h->dma_peripheral == DMA2 )
-    {
-        LL_AHB1_GRP1_EnableClock(LL_AHB1_GRP1_PERIPH_DMA2);
-    }
-
-    // TX DMA setup
+    /* USART2_TX Init */
     LL_DMA_SetChannelSelection(h->dma_peripheral, h->dma_stream_tx, h->dma_channel_tx);
     LL_DMA_SetDataTransferDirection(h->dma_peripheral, h->dma_stream_tx, LL_DMA_DIRECTION_MEMORY_TO_PERIPH);
     LL_DMA_SetStreamPriorityLevel(h->dma_peripheral, h->dma_stream_tx, LL_DMA_PRIORITY_LOW);
@@ -527,13 +340,12 @@ hal_uart_dma_init( HalUart_t * h )
     LL_DMA_SetMemorySize(h->dma_peripheral, h->dma_stream_tx, LL_DMA_MDATAALIGN_BYTE);
     LL_DMA_DisableFifoMode(h->dma_peripheral, h->dma_stream_tx);
 
-    LL_DMA_SetPeriphAddress(h->dma_peripheral, h->dma_stream_tx, (uint32_t)&h->usart->DR);
-    LL_DMA_EnableIT_TC(h->dma_peripheral, h->dma_stream_tx); // Enable TX TC interrupt
+    LL_DMA_SetPeriphAddress(h->dma_peripheral, h->dma_stream_tx, (uint32_t) &h->usart->DR);
+    LL_DMA_EnableIT_TC(h->dma_peripheral, h->dma_stream_tx); /* Enable TX TC interrupt */
 
-    hal_uart_dma_irq_setup( h, h->dma_stream_tx, 5, 1);
+    hal_uart_dma_irq_setup( h->dma_peripheral, h->dma_stream_tx, 5, 1);
 
-
-    // RX DMA setup
+    /* USART2_RX Init */
     LL_DMA_SetChannelSelection(h->dma_peripheral, h->dma_stream_rx, h->dma_channel_rx);
     LL_DMA_SetDataTransferDirection(h->dma_peripheral, h->dma_stream_rx, LL_DMA_DIRECTION_PERIPH_TO_MEMORY);
     LL_DMA_SetStreamPriorityLevel(h->dma_peripheral, h->dma_stream_rx, LL_DMA_PRIORITY_LOW);
@@ -544,27 +356,25 @@ hal_uart_dma_init( HalUart_t * h )
     LL_DMA_SetMemorySize(h->dma_peripheral, h->dma_stream_rx, LL_DMA_MDATAALIGN_BYTE);
     LL_DMA_DisableFifoMode(h->dma_peripheral, h->dma_stream_rx);
 
-    // Specify the inbound circular buffer address/length
-    LL_DMA_SetPeriphAddress(h->dma_peripheral, h->dma_stream_rx, (uint32_t)&h->usart->DR);
-    LL_DMA_SetMemoryAddress(h->dma_peripheral, h->dma_stream_rx, (uint32_t)h->dma_rx_buffer);
+    LL_DMA_SetPeriphAddress(h->dma_peripheral, h->dma_stream_rx, (uint32_t) &h->usart->DR);
+    LL_DMA_SetMemoryAddress(h->dma_peripheral, h->dma_stream_rx, (uint32_t) h->dma_rx_buffer);
     LL_DMA_SetDataLength(h->dma_peripheral, h->dma_stream_rx, HAL_UART_RX_DMA_BUFFER_SIZE);
 
     /* Enable HT & TC interrupts */
     LL_DMA_EnableIT_HT(h->dma_peripheral, h->dma_stream_rx);
     LL_DMA_EnableIT_TC(h->dma_peripheral, h->dma_stream_rx);
 
-    hal_uart_dma_irq_setup( h, h->dma_stream_rx, 5, 0);
-
+    hal_uart_dma_irq_setup( h->dma_peripheral, h->dma_stream_rx, 5, 0);
 }
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void
-hal_uart_dma_irq_setup( HalUart_t * h, uint32_t stream, uint8_t preempt_priority, uint8_t sub_priority)
+hal_uart_dma_irq_setup( DMA_TypeDef *DMAx, uint32_t stream, uint8_t preempt_priority, uint8_t sub_priority)
 {
     int32_t irq_num = 0;
 
-    if( h->dma_peripheral == DMA1 )
+    if( DMAx == DMA1 )
     {
         switch( stream )
         {
@@ -582,7 +392,7 @@ hal_uart_dma_irq_setup( HalUart_t * h, uint32_t stream, uint8_t preempt_priority
         NVIC_SetPriority(irq_num, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), preempt_priority, sub_priority));
         NVIC_EnableIRQ(irq_num);
     }
-    else if( h->dma_peripheral == DMA2 )
+    else if( DMAx == DMA2 )
     {
         switch( stream )
         {
@@ -605,16 +415,175 @@ hal_uart_dma_irq_setup( HalUart_t * h, uint32_t stream, uint8_t preempt_priority
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void
+hal_uart_peripheral_init( USART_TypeDef *USARTx, uint32_t baudrate )
+{
+    // USART Peripheral Setup
+    LL_USART_InitTypeDef USART_InitStruct = {0};
+
+    USART_InitStruct.BaudRate = baudrate;
+    USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
+    USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
+    USART_InitStruct.Parity = LL_USART_PARITY_NONE;
+    USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX_RX;
+    USART_InitStruct.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
+    USART_InitStruct.OverSampling = LL_USART_OVERSAMPLING_16;
+    LL_USART_Init(USARTx, &USART_InitStruct);
+
+    LL_USART_ConfigAsyncMode(USARTx);
+    LL_USART_EnableDMAReq_TX(USARTx);
+    LL_USART_EnableDMAReq_RX(USARTx);
+    LL_USART_EnableIT_IDLE(USARTx);
+
+    // Setup the USART interrupt priorities
+    if( USARTx == USART1 )
+    {
+        NVIC_SetPriority(USART1_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
+        NVIC_EnableIRQ(USART1_IRQn);
+    }
+    else if( USARTx == USART2 )
+    {
+        NVIC_SetPriority(USART2_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
+        NVIC_EnableIRQ(USART2_IRQn);
+    }
+    else if( USARTx == UART5 )
+    {
+        NVIC_SetPriority(UART5_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 5, 0));
+        NVIC_EnableIRQ(UART5_IRQn);
+    }
+
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void hal_uart_clear_dma_tx_flags( DMA_TypeDef *DMAx, uint32_t stream_tx )
+{
+    // Clear all tx DMA interrupt flags
+    switch( stream_tx )
+    {
+        case LL_DMA_STREAM_0:
+            LL_DMA_ClearFlag_TC0(DMAx);
+            LL_DMA_ClearFlag_HT0(DMAx);
+            LL_DMA_ClearFlag_DME0(DMAx);
+            LL_DMA_ClearFlag_FE0(DMAx);
+            LL_DMA_ClearFlag_TE0(DMAx);
+            break;
+        case LL_DMA_STREAM_1:
+            LL_DMA_ClearFlag_TC1(DMAx);
+            LL_DMA_ClearFlag_HT1(DMAx);
+            LL_DMA_ClearFlag_DME1(DMAx);
+            LL_DMA_ClearFlag_FE1(DMAx);
+            LL_DMA_ClearFlag_TE1(DMAx);
+            break;
+        case LL_DMA_STREAM_2:
+            LL_DMA_ClearFlag_TC2(DMAx);
+            LL_DMA_ClearFlag_HT2(DMAx);
+            LL_DMA_ClearFlag_DME2(DMAx);
+            LL_DMA_ClearFlag_FE2(DMAx);
+            LL_DMA_ClearFlag_TE2(DMAx);
+            break;
+        case LL_DMA_STREAM_3:
+            LL_DMA_ClearFlag_TC3(DMAx);
+            LL_DMA_ClearFlag_HT3(DMAx);
+            LL_DMA_ClearFlag_DME3(DMAx);
+            LL_DMA_ClearFlag_FE3(DMAx);
+            LL_DMA_ClearFlag_TE3(DMAx);
+            break;
+        case LL_DMA_STREAM_4:
+            LL_DMA_ClearFlag_TC4(DMAx);
+            LL_DMA_ClearFlag_HT4(DMAx);
+            LL_DMA_ClearFlag_DME4(DMAx);
+            LL_DMA_ClearFlag_FE4(DMAx);
+            LL_DMA_ClearFlag_TE4(DMAx);
+            break;
+        case LL_DMA_STREAM_5:
+            LL_DMA_ClearFlag_TC5(DMAx);
+            LL_DMA_ClearFlag_HT5(DMAx);
+            LL_DMA_ClearFlag_DME5(DMAx);
+            LL_DMA_ClearFlag_FE5(DMAx);
+            LL_DMA_ClearFlag_TE5(DMAx);
+            break;
+        case LL_DMA_STREAM_6:
+            LL_DMA_ClearFlag_TC6(DMAx);
+            LL_DMA_ClearFlag_HT6(DMAx);
+            LL_DMA_ClearFlag_DME6(DMAx);
+            LL_DMA_ClearFlag_FE6(DMAx);
+            LL_DMA_ClearFlag_TE6(DMAx);
+            break;
+        case LL_DMA_STREAM_7:
+            LL_DMA_ClearFlag_TC7(DMAx);
+            LL_DMA_ClearFlag_HT7(DMAx);
+            LL_DMA_ClearFlag_DME7(DMAx);
+            LL_DMA_ClearFlag_FE7(DMAx);
+            LL_DMA_ClearFlag_TE7(DMAx);
+            break;
+        default:
+            ASSERT( false );
+    }
+}
+
+/* ------------------------------------------------------------------*/
+
+PRIVATE void
+hal_uart_start_tx(HalUart_t *h )
+{
+    uint32_t primask;
+
+    primask = __get_PRIMASK();
+    __disable_irq();
+
+    /* If transfer is not on-going */
+    if (!LL_DMA_IsEnabledStream(h->dma_peripheral, h->dma_stream_tx))
+    {
+        h->tx_sneak_bytes = fifo_used_linear( &h->tx_fifo );
+
+        // Limit maximum size to transmit at a time
+        if (h->tx_sneak_bytes > 32)
+        {
+            h->tx_sneak_bytes = 32;
+        }
+
+        // Transmit remaining data
+        if (h->tx_sneak_bytes > 0)
+        {
+            void* ptr = fifo_get_tail_ptr( &h->tx_fifo, h->tx_sneak_bytes );
+
+            LL_DMA_SetDataLength(h->dma_peripheral, h->dma_stream_tx, h->tx_sneak_bytes);
+            LL_DMA_SetMemoryAddress(h->dma_peripheral, h->dma_stream_tx, (uint32_t)ptr);
+
+            hal_uart_clear_dma_tx_flags(h->dma_peripheral, h->dma_stream_tx);
+
+            /* Start transfer */
+            LL_DMA_EnableStream(h->dma_peripheral, h->dma_stream_tx);
+        }
+    }
+
+    __set_PRIMASK(primask);
+}
+
+PRIVATE void
+hal_uart_completed_tx(HalUart_t *h )
+{
+    fifo_skip( &h->tx_fifo, h->tx_sneak_bytes );
+    hal_uart_start_tx( h );
+}
+
+
+/* ------------------------------------------------------------------*/
+
+// Tracks data handled by RX DMA and passes data off for higher-level storage/parsing etc.
+// Called when the RX DMA interrupts for half or full buffer fire, and when line-idle occurs
+
+PRIVATE void
 hal_usart_irq_rx_handler(HalUart_t *h)
 {
     // Calculate current head index
-    uint8_t current_pos = DIM( h->dma_rx_buffer) - LL_DMA_GetDataLength(h->dma_peripheral, h->dma_stream_rx);
+    uint32_t current_pos = HAL_UART_RX_DMA_BUFFER_SIZE - LL_DMA_GetDataLength(h->dma_peripheral, h->dma_stream_rx);
 
     // Has DMA given us new data?
-    if( current_pos != h->dma_rx_pos )
+    if (current_pos != h->dma_rx_pos)
     {
         // Data hasn't hit the end yet
-        if( current_pos > h->dma_rx_pos )
+        if (current_pos > h->dma_rx_pos)
         {
             fifo_write( &h->rx_fifo, (const uint8_t *)&h->dma_rx_buffer[h->dma_rx_pos], current_pos - h->dma_rx_pos );
         }
@@ -624,51 +593,22 @@ hal_usart_irq_rx_handler(HalUart_t *h)
             fifo_write( &h->rx_fifo, (const uint8_t *)&h->dma_rx_buffer[h->dma_rx_pos], DIM(h->dma_rx_buffer) - h->dma_rx_pos );
 
             // Read from the start of the buffer to the current head
-            if( current_pos > 0 )
+            if (current_pos > 0)
             {
                 fifo_write(&h->rx_fifo, (const uint8_t *)&h->dma_rx_buffer[0], current_pos );
+
             }
         }
     }
-
     // Remember the current head position
     h->dma_rx_pos = current_pos;
 
     // Check if we've reached the end of the buffer, move the head to the start
-    if( h->dma_rx_pos == DIM(h->dma_rx_buffer) )
+    if (h->dma_rx_pos == HAL_UART_RX_DMA_BUFFER_SIZE)
     {
         h->dma_rx_pos = 0;
     }
 }
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void
-hal_uart_tx_completed( HalUart_t *h )
-{
-
-    // Flush the bytes we just sent out
-    fifo_skip( &h->tx_fifo, h->tx_sneak_bytes );
-
-    // Send more queued data if needed
-    hal_uart_tx_start( h );
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE HalUart_t *
-hal_uart_port( USART_TypeDef * usart )
-{
-    for( HalUartPort_t p = 0; p < HAL_UART_NUM_PORTS; p++)
-    {
-        if( hal_uart[p].usart == usart )
-        {
-            return &hal_uart[p];
-        }
-    }
-    return NULL;
-}
-
 
 /* -------------------------------------------------------------------------- */
 
@@ -682,7 +622,7 @@ UART5_IRQHandler( void )
         LL_USART_ClearFlag_IDLE(UART5);
 
         // Check for data to process
-        hal_usart_irq_rx_handler(hal_uart_port(UART5));
+        hal_usart_irq_rx_handler( &hal_uart[HAL_UART_PORT_EXTERNAL] );
     }
 }
 
@@ -696,14 +636,14 @@ DMA1_Stream0_IRQHandler( void )
         LL_DMA_ClearFlag_HT0(DMA1);
 
         // Check for data to process
-        hal_usart_irq_rx_handler(hal_uart_port(UART5));
+        hal_usart_irq_rx_handler( &hal_uart[HAL_UART_PORT_EXTERNAL] );
     }
 
     // Full transfer complete
     if (LL_DMA_IsEnabledIT_TC(DMA1, LL_DMA_STREAM_0) && LL_DMA_IsActiveFlag_TC0(DMA1))
     {
         LL_DMA_ClearFlag_TC0(DMA1);
-        hal_usart_irq_rx_handler(hal_uart_port(UART5));
+        hal_usart_irq_rx_handler( &hal_uart[HAL_UART_PORT_EXTERNAL] );
     }
 }
 
@@ -714,10 +654,10 @@ DMA1_Stream7_IRQHandler( void )
     // Transfer complete
     if (LL_DMA_IsEnabledIT_TC(DMA1, LL_DMA_STREAM_7) && LL_DMA_IsActiveFlag_TC7(DMA1))
     {
-        LL_DMA_ClearFlag_TC7(DMA1);                  // Clear transfer complete flag
+        LL_DMA_ClearFlag_TC7(DMA1); // Clear transfer complete flag
 
-        // Flush the data we just finished transfering, and send more as needed
-        hal_uart_tx_completed( hal_uart_port(UART5) );
+        // Flush the data we just finished transferring, and send more as needed
+        hal_uart_completed_tx(&hal_uart[HAL_UART_PORT_EXTERNAL]);
     }
 }
 
@@ -729,7 +669,7 @@ USART1_IRQHandler( void )
     if (LL_USART_IsEnabledIT_IDLE(USART1) && LL_USART_IsActiveFlag_IDLE(USART1))
     {
         LL_USART_ClearFlag_IDLE(USART1);
-        hal_usart_irq_rx_handler(hal_uart_port(USART1));
+        hal_usart_irq_rx_handler( &hal_uart[HAL_UART_PORT_INTERNAL]  );
     }
 }
 
@@ -741,14 +681,14 @@ DMA2_Stream2_IRQHandler( void )
     if (LL_DMA_IsEnabledIT_HT(DMA2, LL_DMA_STREAM_2) && LL_DMA_IsActiveFlag_HT2(DMA2))
     {
         LL_DMA_ClearFlag_HT2(DMA2);
-        hal_usart_irq_rx_handler(hal_uart_port(USART1));
+        hal_usart_irq_rx_handler( &hal_uart[HAL_UART_PORT_INTERNAL]  );
     }
 
     // Full transfer complete
     if (LL_DMA_IsEnabledIT_TC(DMA2, LL_DMA_STREAM_2) && LL_DMA_IsActiveFlag_TC2(DMA2))
     {
         LL_DMA_ClearFlag_TC2(DMA2);
-        hal_usart_irq_rx_handler(hal_uart_port(USART1));
+        hal_usart_irq_rx_handler( &hal_uart[HAL_UART_PORT_INTERNAL]  );
     }
 }
 
@@ -759,19 +699,21 @@ DMA2_Stream7_IRQHandler( void )
     if (LL_DMA_IsEnabledIT_TC(DMA2, LL_DMA_STREAM_7) && LL_DMA_IsActiveFlag_TC7(DMA2))
     {
         LL_DMA_ClearFlag_TC7(DMA2);
-        hal_uart_tx_completed( hal_uart_port(USART1) );
+        hal_uart_completed_tx( &hal_uart[HAL_UART_PORT_INTERNAL] );
     }
 }
+
 
 /* -------------------------------------------------------------------------- */
 
 void
 USART2_IRQHandler( void )
 {
+    /* Check for IDLE line interrupt */
     if (LL_USART_IsEnabledIT_IDLE(USART2) && LL_USART_IsActiveFlag_IDLE(USART2))
     {
         LL_USART_ClearFlag_IDLE(USART2);
-        hal_usart_irq_rx_handler(hal_uart_port(USART2));
+        hal_usart_irq_rx_handler(&hal_uart[HAL_UART_PORT_MODULE]);
     }
 }
 
@@ -779,18 +721,18 @@ USART2_IRQHandler( void )
 void
 DMA1_Stream5_IRQHandler( void )
 {
-    // Half transfer complete
+    // Half-transfer complete interrupt
     if (LL_DMA_IsEnabledIT_HT(DMA1, LL_DMA_STREAM_5) && LL_DMA_IsActiveFlag_HT5(DMA1))
     {
         LL_DMA_ClearFlag_HT5(DMA1);
-        hal_usart_irq_rx_handler(hal_uart_port(USART2));
+        hal_usart_irq_rx_handler(&hal_uart[HAL_UART_PORT_MODULE]);
     }
 
-    // Full transfer complete
+    // Transfer-complete interrupt
     if (LL_DMA_IsEnabledIT_TC(DMA1, LL_DMA_STREAM_5) && LL_DMA_IsActiveFlag_TC5(DMA1))
     {
         LL_DMA_ClearFlag_TC5(DMA1);
-        hal_usart_irq_rx_handler(hal_uart_port(USART2));
+        hal_usart_irq_rx_handler(&hal_uart[HAL_UART_PORT_MODULE]);
     }
 }
 
@@ -798,10 +740,11 @@ DMA1_Stream5_IRQHandler( void )
 void
 DMA1_Stream6_IRQHandler( void )
 {
+    // Check transfer-complete interrupt
     if (LL_DMA_IsEnabledIT_TC(DMA1, LL_DMA_STREAM_6) && LL_DMA_IsActiveFlag_TC6(DMA1))
     {
         LL_DMA_ClearFlag_TC6(DMA1);
-        hal_uart_tx_completed( hal_uart_port(USART2) );
+        hal_uart_completed_tx(&hal_uart[HAL_UART_PORT_MODULE]);
     }
 }
 

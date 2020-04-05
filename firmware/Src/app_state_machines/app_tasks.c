@@ -153,8 +153,6 @@ void app_tasks_init( void )
     stateTaskerStartTask( &mainTasker, t );
 
     hal_systick_hook( 1, eventTimerTick );
-    hal_systick_hook( 1, hal_adc_tick );
-    hal_systick_hook( 1, AppTaskCommunication_rx_tick );
 
 }
 
