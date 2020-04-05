@@ -18,6 +18,7 @@
 #include "led_interpolator.h"
 #include "clearpath.h"
 #include "shutter_release.h"
+#include "status.h"
 
 #include "configuration.h"
 
@@ -51,12 +52,9 @@ app_background( void )
     if( timer_ms_is_expired( &button_timer ) )
     {
         // Need to turn the E-Stop light on to power the pullup for the E-STOP button
-        CRITICAL_SECTION_VAR();
-        CRITICAL_SECTION_START();
         status_external_override(true);
         button_process();
         status_external_resume();
-        CRITICAL_SECTION_END();
 
         timer_ms_start( &button_timer, BACKGROUND_RATE_BUTTON_MS );
     }
@@ -79,11 +77,10 @@ app_background( void )
         sensors_ambient_C();
         sensors_expansion_C();
         sensors_microcontroller_C();
-
         sensors_input_V();
 
         config_set_cpu_load( hal_system_speed_get_load() );
-        config_set_cpu_clock( hal_system_speed_get_speed() );
+        config_set_cpu_clock( hal_system_speed_get_speed() );   // todo only update this value if it changes
 
     	timer_ms_start(&adc_timer, BACKGROUND_ADC_AVG_POLL_MS );
     }

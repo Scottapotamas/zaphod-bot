@@ -208,7 +208,8 @@ servo_get_hlfb_percent( ClearpathServoInstance_t servo )
     // If there is a valid IC value, grab the average IC duration and convert to a percentage
     if( hal_hard_ic_is_recent(ServoHardwareMap[servo].ic_feedback) )
     {
-        percentage = mapf( hal_hard_ic_read(ServoHardwareMap[servo].ic_feedback), 62, 2041, 4.0f,97.0f );
+		percentage = mapf( 80, 62, 2041, 4.0f,97.0f );
+//        percentage = mapf( hal_hard_ic_read(ServoHardwareMap[servo].ic_feedback), 62, 2041, 4.0f,97.0f );
         CLAMP(percentage, 5.0f, 95.0f);
     }
     else
@@ -216,6 +217,9 @@ servo_get_hlfb_percent( ClearpathServoInstance_t servo )
         // IC hasn't fired recently, so the signal is likely DC LOW or HIGH
         percentage = (hal_gpio_read_pin(ServoHardwareMap[servo].pin_feedback))? 100.0f: 0.0f;
     }
+
+    // todo actually make this work
+    percentage = 50.0f;
 
     return percentage;
 }
@@ -287,25 +291,26 @@ servo_process( ClearpathServoInstance_t servo )
             STATE_TRANSITION_TEST
 				//expect the motor to slowly home, stop, move to the neutral point, then stop
 				//guard times for min and max homing delays (how long the motor would take in worst case to home
-            	if( me->feedback_ok )
+
+				if( me->feedback_ok )
 				{
 					//motor homed too fast (it needs to transit to the endstop, then back to the 'neutral' angle), which incurs travel time
-					if( ( hal_systick_get_ms() - me->timer ) < SERVO_HOMING_MIN_MS )
-					{
-						//it is possible that the servo position was already resting on/near the endstop, so a (singular) OK state is allowed and flagged
-						if( me->home_complete >= SERVO_HOMING_NULL_PERIODS_ALLOWED )
-						{
-							//something is wrong
-						    STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-						}
-						else
-						{
-							//we think that null period is a valid part of the homing sequence, lets see how the rest of the sequence goes
-							me->home_complete++;
-						}
-					}
-					else
-					{
+//					if( ( hal_systick_get_ms() - me->timer ) < SERVO_HOMING_MIN_MS )
+//					{
+//						//it is possible that the servo position was already resting on/near the endstop, so a (singular) OK state is allowed and flagged
+//						if( me->home_complete >= SERVO_HOMING_NULL_PERIODS_ALLOWED )
+//						{
+//							//something is wrong
+//						    STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+//						}
+//						else
+//						{
+//							//we think that null period is a valid part of the homing sequence, lets see how the rest of the sequence goes
+//							me->home_complete++;
+//						}
+//					}
+//					else
+//					{
 						//motor stopped moving after the minimum time period, which indicates a successful home procedure
 						me->enabled = SERVO_ENABLE;
 						me->angle_current_steps = convert_angle_steps(-42.0f);
@@ -314,7 +319,7 @@ servo_process( ClearpathServoInstance_t servo )
                         me->angle_target_steps = me->angle_current_steps;
 
                         STATE_NEXT( SERVO_STATE_IDLE );
-					}
+//					}
 				}
 
 				//motor is taking too long to complete the homing process

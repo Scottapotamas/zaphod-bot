@@ -31,6 +31,8 @@ hal_flashmem_retrieve(uint16_t id, uint8_t *buffer, uint16_t buff_len);
 PUBLIC void
 hal_flashmem_wipe_and_prepare( void );
 
+PUBLIC void
+hal_flashmem_debug( uint16_t id );
 /* ----- End ---------------------------------------------------------------- */
 
 #ifdef __cplusplus
