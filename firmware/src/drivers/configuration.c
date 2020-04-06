@@ -174,12 +174,12 @@ Movement_t 		motion_inbound;
 CartesianPoint_t current_position; //global position of end effector in cartesian space
 CartesianPoint_t target_position;
 
-LedState_t    rgb_led_drive;
-LedControl_t  rgb_manual_control;
-LedSettings_t rgb_led_settings;
-Fade_t light_fade_inbound;
+LedState_t      rgb_led_drive;
+LedControl_t    rgb_manual_control;
+LedSettings_t   rgb_led_settings;
+Fade_t          light_fade_inbound;
 
-float z_rotation;
+float z_rotation = 0;
 
 char device_nickname[16] = "Zaphod Beeblebot";
 

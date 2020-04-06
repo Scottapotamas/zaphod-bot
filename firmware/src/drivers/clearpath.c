@@ -197,29 +197,14 @@ float mapf(float val, float in_min, float in_max, float out_min, float out_max) 
 PRIVATE float
 servo_get_hlfb_percent( ClearpathServoInstance_t servo )
 {
-    // InputCapture value is a integer representing the 'on' duration of the wave in us
-
-    // 0.055679% per count
-    // min of 62 at 4.0%
-    // max of 2041 at 97.0%
-
     float percentage = 0.0f;
 
-    // If there is a valid IC value, grab the average IC duration and convert to a percentage
-    if( hal_hard_ic_is_recent(ServoHardwareMap[servo].ic_feedback) )
-    {
-		percentage = mapf( 80, 62, 2041, 4.0f,97.0f );
-//        percentage = mapf( hal_hard_ic_read(ServoHardwareMap[servo].ic_feedback), 62, 2041, 4.0f,97.0f );
-        CLAMP(percentage, 5.0f, 95.0f);
-    }
-    else
-    {
-        // IC hasn't fired recently, so the signal is likely DC LOW or HIGH
-        percentage = (hal_gpio_read_pin(ServoHardwareMap[servo].pin_feedback))? 100.0f: 0.0f;
-    }
+    // Assumes the hardware input capture driver returns us the value in percent
+    percentage = hal_hard_ic_read( ServoHardwareMap[servo].ic_feedback );
+    CLAMP(percentage, 5.0f, 95.0f);
 
-    // todo actually make this work
-    percentage = 50.0f;
+    // IC hasn't fired recently, so the signal is likely DC LOW or HIGH
+    //percentage = (hal_gpio_read_pin(ServoHardwareMap[servo].pin_feedback))? 100.0f: 0.0f;
 
     return percentage;
 }
@@ -233,7 +218,7 @@ servo_process( ClearpathServoInstance_t servo )
 
     float servo_power = sensors_servo_W( ServoHardwareMap[servo].adc_current );
     float servo_feedback = servo_get_hlfb_percent(servo);
-    me->feedback_ok = ( servo_feedback > 5.0f );
+    me->feedback_ok = ( servo_feedback > 5.0f && servo_feedback < 95.0f );
 
     switch( me->currentState )
     {
