@@ -54,10 +54,10 @@ add_definitions(-DPREFETCH_ENABLE=1 -DINSTRUCTION_CACHE_ENABLE=1 -DDATA_CACHE_EN
 
 add_definitions(-DSTM32F429xx)
 
-file(GLOB_RECURSE SOURCES "Drivers/*.*" "Src/*.*" "startup/*.*")
+file(GLOB_RECURSE SOURCES "vendor/*.*" "src/*.*" "startup/*.*")
 
-include_directories(Src Src/app_state_machines Src/hal Src/drivers Src/utility Drivers/electricui Drivers/STM32F4xx_HAL_Driver/Inc Drivers/CMSIS/Device/ST/STM32F4xx/Include Drivers/CMSIS/Include)
-include_directories(Drivers/electricui/src)
+include_directories(src src/app_state_machines src/hal src/drivers src/utility vendor/electricui vendor/STM32F4xx_HAL_Driver/Inc vendor/CMSIS/Device/ST/STM32F4xx/Include vendor/CMSIS/Include)
+include_directories(vendor/electricui/src)
 
 add_executable(${PROJECT_NAME}.elf ${SOURCES} ${LINKER_SCRIPT})
 target_link_libraries(${PROJECT_NAME}.elf m)

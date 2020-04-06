@@ -3,7 +3,7 @@
   <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
   <component name="CidrRootsConfiguration">
     <sourceRoots>
-      <file path="$PROJECT_DIR$/Drivers/electricui" />
+      <file path="$PROJECT_DIR$/vendor/electricui" />
     </sourceRoots>
     <excludeRoots>
       <file path="$PROJECT_DIR$/Drivers/electricui/examples" />
