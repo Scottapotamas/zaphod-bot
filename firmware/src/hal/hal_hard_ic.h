@@ -30,13 +30,21 @@ hal_hard_ic_init( void );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC void
+hal_setup_capture(uint8_t input);
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC uint32_t
 hal_hard_ic_read( InputCaptureSignal_t input );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC bool
-hal_hard_ic_is_recent( InputCaptureSignal_t signal );
+void TIM3_IRQHandler(void);
+void TIM4_IRQHandler(void);
+void TIM1_CC_IRQHandler(void);
+void TIM5_IRQHandler(void);
+void TIM1_BRK_TIM9_IRQHandler(void);
 
 /* ----- End ---------------------------------------------------------------- */
 
