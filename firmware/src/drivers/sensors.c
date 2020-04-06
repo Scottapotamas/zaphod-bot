@@ -6,7 +6,6 @@
 #include "hal_hard_ic.h"
 #include "hal_temperature.h"
 #include "hal_power.h"
-#include "hal_systick.h"
 #include "configuration.h"
 
 /* ----- Public Functions --------------------------------------------------- */
@@ -52,9 +51,9 @@ sensors_disable( void )
 	hal_adc_stop( HAL_ADC_INPUT_M3_CURRENT 		);
 	hal_adc_stop( HAL_ADC_INPUT_M4_CURRENT 		);
 	hal_adc_stop( HAL_ADC_INPUT_VOLT_SENSE 		);
-	hal_adc_stop( HAL_ADC_INPUT_TEMP_PCB 		);
-	hal_adc_stop( HAL_ADC_INPUT_TEMP_REG 		);
-	hal_adc_stop( HAL_ADC_INPUT_TEMP_EXT 		);
+	hal_adc_stop( HAL_ADC_INPUT_TEMP_PCB 		    );
+	hal_adc_stop( HAL_ADC_INPUT_TEMP_REG 		    );
+	hal_adc_stop( HAL_ADC_INPUT_TEMP_EXT 		    );
 	hal_adc_stop( HAL_ADC_INPUT_TEMP_INTERNAL 	);
 	hal_adc_stop( HAL_ADC_INPUT_VREFINT			);
 
@@ -132,7 +131,6 @@ sensors_servo_W( HalAdcInput_t servo_to_sample )
 	{
 		return -1000.0f;
 	}
-
 
 	return sensors_input_V() * sensors_servo_A( servo_to_sample );
 }

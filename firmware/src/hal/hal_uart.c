@@ -13,6 +13,7 @@
 #include "stm32f4xx_ll_rcc.h"
 
 #include "global.h"
+#include "app_times.h"
 #include "hal_uart.h"
 #include "hal_gpio.h"
 #include "fifo.h"
@@ -29,10 +30,6 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 #define  HAL_UART_TX_FIFO_SIZE      250
 
 #define HAL_UART_RX_DMA_BUFFER_SIZE 64
-
-#define UART_EXTERNAL_BAUD	115200
-#define UART_INTERNAL_BAUD	115200
-#define UART_MODULE_BAUD	115200
 
 /* ----- Types -------------------------------------------------------------- */
 
@@ -120,7 +117,7 @@ hal_uart_init( HalUartPort_t port )
             hal_gpio_init_alternate( _EXT_INPUT_0, 	LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_8, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
 
             hal_uart_dma_init(HAL_UART_PORT_EXTERNAL);
-            hal_uart_peripheral_init( h->usart, UART_EXTERNAL_BAUD );
+            hal_uart_peripheral_init( h->usart, EXTERNAL_BAUD );
 
             // Start it up
             LL_DMA_EnableStream(h->dma_peripheral, h->dma_stream_rx);     // rx stream
@@ -146,7 +143,7 @@ hal_uart_init( HalUartPort_t port )
             hal_gpio_init_alternate( _AUX_UART_TX, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
 
             hal_uart_dma_init(HAL_UART_PORT_INTERNAL);
-            hal_uart_peripheral_init( h->usart, UART_INTERNAL_BAUD );
+            hal_uart_peripheral_init( h->usart, INTERNAL_BAUD );
 
             LL_DMA_EnableStream(h->dma_peripheral, h->dma_stream_rx);     // rx stream
             LL_USART_Enable(h->usart);
@@ -173,7 +170,7 @@ hal_uart_init( HalUartPort_t port )
 //            hal_gpio_init_alternate( _CARD_UART_RTS, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
 
             hal_uart_dma_init(HAL_UART_PORT_MODULE);
-            hal_uart_peripheral_init( h->usart, UART_MODULE_BAUD );
+            hal_uart_peripheral_init( h->usart, MODULE_BAUD );
 
             LL_DMA_EnableStream(h->dma_peripheral, h->dma_stream_rx);     // rx stream
             LL_USART_Enable(h->usart);
