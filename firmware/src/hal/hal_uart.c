@@ -10,6 +10,7 @@
 #include "stm32f4xx_ll_usart.h"
 #include "stm32f4xx_ll_dma.h"
 #include "stm32f4xx_ll_bus.h"
+#include "stm32f4xx_ll_rcc.h"
 
 #include "global.h"
 #include "hal_uart.h"
@@ -417,17 +418,27 @@ hal_uart_dma_irq_setup( DMA_TypeDef *DMAx, uint32_t stream, uint8_t preempt_prio
 PRIVATE void
 hal_uart_peripheral_init( USART_TypeDef *USARTx, uint32_t baudrate )
 {
-    // USART Peripheral Setup
-    LL_USART_InitTypeDef USART_InitStruct = {0};
+    LL_RCC_ClocksTypeDef rcc_clocks = {0};
+    uint32_t periphclk = 0;
 
-    USART_InitStruct.BaudRate = baudrate;
-    USART_InitStruct.DataWidth = LL_USART_DATAWIDTH_8B;
-    USART_InitStruct.StopBits = LL_USART_STOPBITS_1;
-    USART_InitStruct.Parity = LL_USART_PARITY_NONE;
-    USART_InitStruct.TransferDirection = LL_USART_DIRECTION_TX_RX;
-    USART_InitStruct.HardwareFlowControl = LL_USART_HWCONTROL_NONE;
-    USART_InitStruct.OverSampling = LL_USART_OVERSAMPLING_16;
-    LL_USART_Init(USARTx, &USART_InitStruct);
+    LL_RCC_GetSystemClocksFreq(&rcc_clocks);
+
+    if (USARTx == USART1)
+    {
+        periphclk = rcc_clocks.PCLK2_Frequency;
+    }
+    else    // USART2 and UART5 are on PCLK1
+    {
+        periphclk = rcc_clocks.PCLK1_Frequency;
+    }
+
+    LL_USART_SetBaudRate( USARTx, periphclk, LL_USART_OVERSAMPLING_16, baudrate);
+    LL_USART_SetDataWidth( USARTx, LL_USART_DATAWIDTH_8B);
+    LL_USART_SetStopBitsLength( USARTx, LL_USART_STOPBITS_1 );
+    LL_USART_SetParity( USARTx, LL_USART_PARITY_NONE );
+    LL_USART_SetTransferDirection( USARTx, LL_USART_DIRECTION_TX_RX );
+    LL_USART_SetHWFlowCtrl( USARTx, LL_USART_HWCONTROL_NONE );
+    LL_USART_SetOverSampling( USARTx, LL_USART_OVERSAMPLING_16 );
 
     LL_USART_ConfigAsyncMode(USARTx);
     LL_USART_EnableDMAReq_TX(USARTx);

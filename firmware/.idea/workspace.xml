@@ -389,7 +389,7 @@
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
-          <url>file://$PROJECT_DIR$/Src/stm32f4xx_it.c</url>
+          <url>file://$PROJECT_DIR$/src/stm32f4xx_it.c</url>
           <line>46</line>
           <option name="timeStamp" value="34" />
         </line-breakpoint>
