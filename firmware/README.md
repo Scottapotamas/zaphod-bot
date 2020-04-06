@@ -2,7 +2,7 @@
 
 STM32F4 firmware for the zaphod-controller PCB. Manages the delta's servos and handles movement processing.
 
-Uses the CubeMX HAL as the starting base, with my own HAL on top of (or replacing) as applicable. Written for the STM32F429VET6 target microcontroller.
+Uses the ST LL (LowLayer) hal as a base, with my own HAL on top of (or replacing) as applicable. Written for the STM32F429VET6 target microcontroller.
 
 General system runs with event driven HSM design patterns, while background tasks use somewhat simple statemachines to handle operation.
 
@@ -10,7 +10,7 @@ General system runs with event driven HSM design patterns, while background task
 
 Uses the `arm-gcc-eabi-none` toolchain, should build with fairly standard flags.
 
-Requires a copy of [a copy of `electricui-embedded`](https://github.com/electricui/electricui-embedded)  cloned into `Drivers/electricui`, as this isn't included in the repo.
+Requires a copy of [a copy of `electricui-embedded`](https://github.com/electricui/electricui-embedded)  cloned into `vendor/electricui`, as this isn't included in the repo.
 
 It might be required to remove or exclude the `electricui-embedded` sub-directories `test` and `examples`  from the build.
 

@@ -40,9 +40,6 @@ hal_pwm_configure_peripheral( TIM_TypeDef* TIMx, uint32_t channel, uint32_t freq
 
 void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency)
 {
-    LL_TIM_OC_InitTypeDef tim_oc_initstruct = {0};
-    LL_TIM_InitTypeDef    tim_initstruct = {0};
-
     switch(pwm_output)
 	{
 		case _PWM_TIM_FAN:
@@ -106,28 +103,33 @@ void hal_pwm_generation(PWMOutputTimerDef_t pwm_output, uint16_t frequency)
 PRIVATE void
 hal_pwm_configure_peripheral( TIM_TypeDef* TIMx, uint32_t channel, uint32_t frequency )
 {
-    LL_TIM_OC_InitTypeDef tim_oc_initstruct = {0};
-    LL_TIM_InitTypeDef    tim_initstruct = {0};
-
-    tim_initstruct.Prescaler         = (uint32_t)( SystemCoreClock / ( frequency * PWM_PERIOD_DEFAULT ) );
-    tim_initstruct.CounterMode       = LL_TIM_COUNTERMODE_UP;
-    tim_initstruct.Autoreload        = PWM_PERIOD_DEFAULT;
-    tim_initstruct.ClockDivision     = LL_TIM_CLOCKDIVISION_DIV1;
-    tim_initstruct.RepetitionCounter = (uint8_t)0x00;
-
-    LL_TIM_Init(TIMx, &tim_initstruct);
+    LL_TIM_SetPrescaler(TIMx, (uint32_t)( SystemCoreClock / ( frequency * PWM_PERIOD_DEFAULT ) ));
+    LL_TIM_SetCounterMode(TIMx, LL_TIM_COUNTERMODE_UP);
+    LL_TIM_SetAutoReload(TIMx, PWM_PERIOD_DEFAULT);
+    LL_TIM_SetClockDivision(TIMx, LL_TIM_CLOCKDIVISION_DIV1);
+    LL_TIM_SetRepetitionCounter(TIMx, (uint8_t)0x00);
     LL_TIM_EnableARRPreload(TIMx);
 
-    tim_oc_initstruct.OCMode       = LL_TIM_OCMODE_PWM1;
-    tim_oc_initstruct.OCState      = LL_TIM_OCSTATE_DISABLE;
-    tim_oc_initstruct.OCNState     = LL_TIM_OCSTATE_DISABLE;
-    tim_oc_initstruct.CompareValue = ( (LL_TIM_GetAutoReload(TIMx) + 1 ) / 2);
-    tim_oc_initstruct.OCPolarity   = LL_TIM_OCPOLARITY_LOW;
-    tim_oc_initstruct.OCNPolarity  = LL_TIM_OCPOLARITY_LOW;     // LL_TIM_OCPOLARITY_LOW
-    tim_oc_initstruct.OCIdleState  = LL_TIM_OCIDLESTATE_LOW;
-    tim_oc_initstruct.OCNIdleState = LL_TIM_OCIDLESTATE_LOW;
+    LL_TIM_OC_SetMode(TIMx, channel, LL_TIM_OCMODE_PWM1);
+    LL_TIM_OC_SetPolarity(TIMx, channel, LL_TIM_OCPOLARITY_LOW);
+    LL_TIM_OC_SetIdleState(TIMx, channel, LL_TIM_OCIDLESTATE_LOW);
 
-    LL_TIM_OC_Init(TIMx, channel, &tim_oc_initstruct);
+    switch(channel)
+    {
+        case LL_TIM_CHANNEL_CH1:
+            LL_TIM_OC_SetCompareCH1(TIMx, ( (LL_TIM_GetAutoReload(TIMx) + 1 ) / 2) );
+            break;
+        case LL_TIM_CHANNEL_CH2:
+            LL_TIM_OC_SetCompareCH2(TIMx, ( (LL_TIM_GetAutoReload(TIMx) + 1 ) / 2) );
+            break;
+        case LL_TIM_CHANNEL_CH3:
+            LL_TIM_OC_SetCompareCH2(TIMx, ( (LL_TIM_GetAutoReload(TIMx) + 1 ) / 2) );
+            break;
+        case LL_TIM_CHANNEL_CH4:
+            LL_TIM_OC_SetCompareCH2(TIMx, ( (LL_TIM_GetAutoReload(TIMx) + 1 ) / 2) );
+            break;
+    }
+
     LL_TIM_OC_EnablePreload(TIMx, channel);
 
     // Enable output channel

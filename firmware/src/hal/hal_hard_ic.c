@@ -97,6 +97,13 @@ hal_setup_capture(uint8_t input)
 //
 //            tim_handle->Init.Prescaler  = HLFB_PRESCALE;
 //            tim_handle->Init.Period     = HLFB_PERIOD;
+
+//            LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM3);
+//            hal_gpio_init_alternate( _SERVO_1_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
+//
+//            HAL_NVIC_SetPriority( TIM3_IRQn, 4, 2 );
+//            HAL_NVIC_EnableIRQ( TIM3_IRQn );
+
             break;
 
 		case HAL_HARD_IC_HLFB_SERVO_2:
@@ -105,6 +112,13 @@ hal_setup_capture(uint8_t input)
 //
 //            tim_handle->Init.Prescaler  = HLFB_PRESCALE;
 //            tim_handle->Init.Period     = HLFB_PERIOD;
+
+//            LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM4);
+//            hal_gpio_init_alternate( _SERVO_2_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
+//
+//            HAL_NVIC_SetPriority( TIM4_IRQn, 4, 3 );
+//            HAL_NVIC_EnableIRQ( TIM4_IRQn );
+
             break;
 
 		case HAL_HARD_IC_HLFB_SERVO_3:
@@ -113,6 +127,13 @@ hal_setup_capture(uint8_t input)
 //
 //            tim_handle->Init.Prescaler  = HLFB_PRESCALE;
 //            tim_handle->Init.Period     = HLFB_PERIOD;
+
+//            LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM1);
+//            hal_gpio_init_alternate( _SERVO_3_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_1, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
+//
+//            HAL_NVIC_SetPriority( TIM1_CC_IRQn, 4, 1 );
+//            HAL_NVIC_EnableIRQ( TIM1_CC_IRQn );
+
             break;
 
 		case HAL_HARD_IC_HLFB_SERVO_4:
@@ -121,11 +142,16 @@ hal_setup_capture(uint8_t input)
 //
 //            tim_handle->Init.Prescaler  = HLFB_PRESCALE;
 //            tim_handle->Init.Period     = HLFB_PERIOD;
+
+//            LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM5);
+//            hal_gpio_init_alternate( _SERVO_4_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
+//
+//            HAL_NVIC_SetPriority( TIM5_IRQn, 4, 4 );
+//            HAL_NVIC_EnableIRQ( TIM5_IRQn );
             break;
 
 		case HAL_HARD_IC_FAN_HALL:
 			//TIM9;
-            LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM9);
             LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM9);
 
             hal_gpio_init_alternate( _FAN_TACHO, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
@@ -177,86 +203,6 @@ hal_setup_capture(uint8_t input)
 
 /* -------------------------------------------------------------------------- */
 
-// TIM Group 4 - Input Capture
-/*void HAL_TIM_IC_MspInit(TIM_HandleTypeDef* tim_icHandle)
-{
-
-	if( tim_icHandle->Instance == TIM1 )
-	{
-        LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM1);
-        hal_gpio_init_alternate( _SERVO_3_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_1, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
-
-        HAL_NVIC_SetPriority( TIM1_CC_IRQn, 4, 1 );
-		HAL_NVIC_EnableIRQ( TIM1_CC_IRQn );
-		//todo work out if the interrupt assignment here is correct
-	}
-
-	if( tim_icHandle->Instance == TIM3 )
-	{
-        LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM3);
-        hal_gpio_init_alternate( _SERVO_1_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
-
-        HAL_NVIC_SetPriority( TIM3_IRQn, 4, 2 );
-		HAL_NVIC_EnableIRQ( TIM3_IRQn );
-	}
-
-	if( tim_icHandle->Instance == TIM4 )
-	{
-        LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM4);
-        hal_gpio_init_alternate( _SERVO_2_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
-
-		HAL_NVIC_SetPriority( TIM4_IRQn, 4, 3 );
-		HAL_NVIC_EnableIRQ( TIM4_IRQn );
-	}
-
-	if( tim_icHandle->Instance == TIM5 )
-	{
-        LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM5);
-        hal_gpio_init_alternate( _SERVO_4_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
-
-		HAL_NVIC_SetPriority( TIM5_IRQn, 4, 4 );
-		HAL_NVIC_EnableIRQ( TIM5_IRQn );
-	}
-
-}*/
-
-/* -------------------------------------------------------------------------- */
-
-// TIM Group 3 - PWM Input
-/*void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* tim_pwmHandle)
-{
-	if(tim_pwmHandle->Instance==TIM1)
-	{
-        LL_APB2_GRP1_DisableClock(LL_APB2_GRP1_PERIPH_TIM1);
-		hal_gpio_disable_pin( _SERVO_3_HLFB );
-	}
-	else if(tim_pwmHandle->Instance==TIM2)
-	{
-        LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM2);
-	}
-	else if(tim_pwmHandle->Instance==TIM3)
-	{
-        LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM3);
-		hal_gpio_disable_pin( _SERVO_1_HLFB );
-	}
-	else if(tim_pwmHandle->Instance==TIM4)
-	{
-        LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM4);
-		hal_gpio_disable_pin( _SERVO_2_HLFB );
-	}
-	else if(tim_pwmHandle->Instance==TIM5)
-	{
-        LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM5);
-		hal_gpio_disable_pin( _SERVO_4_HLFB );
-	}
-	else if(tim_pwmHandle->Instance==TIM12)
-	{
-        LL_APB1_GRP1_DisableClock(LL_APB1_GRP1_PERIPH_TIM12);
-	}
-}*/
-
-/* -------------------------------------------------------------------------- */
-
 PUBLIC uint32_t
 hal_hard_ic_read( InputCaptureSignal_t input )
 {
@@ -302,45 +248,6 @@ PUBLIC bool hal_hard_ic_is_recent( InputCaptureSignal_t signal )
 	{
         hal_hard_ic_process_duty_cycle(htim, HAL_HARD_IC_HLFB_SERVO_4);
     }
-	else if(htim->Instance==TIM9)
-	{
-        if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1)
-        {
-            // Measure frequency of the hall effect sensor
-
-            // Catch the first edge to start our timing reference
-            if( !ic_state[HAL_HARD_IC_FAN_HALL].first_edge_done )
-            {
-                ic_state[HAL_HARD_IC_FAN_HALL].cnt_a = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
-                ic_state[HAL_HARD_IC_FAN_HALL].first_edge_done = true;
-            }
-            else    // second edge is the other half of the square-wave
-            {
-                uint32_t delta_counts = 0;
-                ic_state[HAL_HARD_IC_FAN_HALL].cnt_b = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
-
-                // Calculate the count delta between the two edges
-                if (ic_state[HAL_HARD_IC_FAN_HALL].cnt_b > ic_state[HAL_HARD_IC_FAN_HALL].cnt_a) {
-                    delta_counts = ic_state[HAL_HARD_IC_FAN_HALL].cnt_b - ic_state[HAL_HARD_IC_FAN_HALL].cnt_a;
-                }
-                else if (ic_state[HAL_HARD_IC_FAN_HALL].cnt_b < ic_state[HAL_HARD_IC_FAN_HALL].cnt_a)
-                {
-                    delta_counts = ((0xFFFF - ic_state[HAL_HARD_IC_FAN_HALL].cnt_a) + ic_state[HAL_HARD_IC_FAN_HALL].cnt_b) + 1;
-                }
-
-                // todo cleanup hard ic irq
-
-                LL_RCC_ClocksTypeDef rcc_clks = { 0 };
-                LL_RCC_GetSystemClocksFreq(&rcc_clks);
-
-                ic_values[HAL_HARD_IC_FAN_HALL] = (rcc_clks.PCLK2_Frequency / delta_counts) / 100;
-
-                ic_state[HAL_HARD_IC_FAN_HALL].first_edge_done = false;   // reset to catch the next 'new' edge.
-            }
-
-            ic_state[HAL_HARD_IC_FAN_HALL].timestamp = hal_systick_get_ms();
-        }
-	}
 
 }*/
 
