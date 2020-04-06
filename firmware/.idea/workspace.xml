@@ -20,7 +20,6 @@
   <component name="ChangeListManager">
     <list default="true" id="5807f310-86a7-4c2a-9b30-ff232d3bffd0" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_flash_ramfunc.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/README.md" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/basics/hello-blink/hello-blink.ino" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/basics/multiple-interfaces/multiple-interfaces.ino" beforeDir="false" />
@@ -68,11 +67,6 @@
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/utilities/test_eui_macro.c" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/utilities/test_eui_offset_validation.c" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/valgrind_on_tests.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Src/app_state_machines/app_background.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/app_state_machines/app_background.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Src/drivers/clearpath.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/drivers/clearpath.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Src/drivers/configuration.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/drivers/configuration.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Src/hal/hal_flashmem.c" beforeDir="false" afterPath="$PROJECT_DIR$/Src/hal/hal_flashmem.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Src/hal/hal_flashmem.h" beforeDir="false" afterPath="$PROJECT_DIR$/Src/hal/hal_flashmem.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -116,6 +110,12 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
+  <component name="JsFlowSettings">
+    <service-enabled>true</service-enabled>
+    <exe-path />
+    <other-services-enabled>true</other-services-enabled>
+    <auto-save>true</auto-save>
+  </component>
   <component name="MacroExpansionManager">
     <option name="directoryName" value="DfKeFJfM" />
   </component>
@@ -141,7 +141,7 @@
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="CMakeSettings" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
     <property name="ts.external.directory.path" value="$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external" />
   </component>
   <component name="RecentsManager">
@@ -156,7 +156,7 @@
     </option>
   </component>
   <component name="RunManager" selected="OpenOCD Download &amp; Run.delta-control.elf">
-    <configuration name="Build" type="CMakeRunConfiguration" factoryName="Application" singleton="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="delta-control" TARGET_NAME="delta-control.elf" CONFIG_NAME="Debug-ARM" RUN_TARGET_PROJECT_NAME="delta-control" RUN_TARGET_NAME="delta-control.elf">
+    <configuration name="Build" type="CMakeRunConfiguration" factoryName="Application" singleton="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="delta-control" TARGET_NAME="delta-control.elf" CONFIG_NAME="Default-ARM" RUN_TARGET_PROJECT_NAME="delta-control" RUN_TARGET_NAME="delta-control.elf">
       <method v="2">
         <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_GenerateBuildInfo" />
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -262,6 +262,8 @@
       <workItem from="1585979630470" duration="1768000" />
       <workItem from="1585982589168" duration="25948000" />
       <workItem from="1586052410225" duration="26335000" />
+      <workItem from="1586097653411" duration="1208000" />
+      <workItem from="1586098873611" duration="46000" />
     </task>
     <servers />
   </component>
@@ -302,58 +304,58 @@
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
     <state x="628" y="462" width="424" height="508" key="FileChooserDialogImpl/40.0.2520.1440@40.0.2520.1440" timestamp="1586003643478" />
-    <state width="1595" height="478" key="GridCell.Tab.0.bottom" timestamp="1586086418644">
+    <state width="1595" height="478" key="GridCell.Tab.0.bottom" timestamp="1586097446927">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1595" height="478" key="GridCell.Tab.0.bottom/40.0.2520.1440@40.0.2520.1440" timestamp="1586086418644" />
-    <state width="1595" height="478" key="GridCell.Tab.0.center" timestamp="1586086418643">
+    <state width="1595" height="478" key="GridCell.Tab.0.bottom/40.0.2520.1440@40.0.2520.1440" timestamp="1586097446927" />
+    <state width="1595" height="478" key="GridCell.Tab.0.center" timestamp="1586097446927">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1595" height="478" key="GridCell.Tab.0.center/40.0.2520.1440@40.0.2520.1440" timestamp="1586086418643" />
-    <state width="1595" height="478" key="GridCell.Tab.0.left" timestamp="1586086418643">
+    <state width="1595" height="478" key="GridCell.Tab.0.center/40.0.2520.1440@40.0.2520.1440" timestamp="1586097446927" />
+    <state width="1595" height="478" key="GridCell.Tab.0.left" timestamp="1586097446926">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1595" height="478" key="GridCell.Tab.0.left/40.0.2520.1440@40.0.2520.1440" timestamp="1586086418643" />
-    <state width="1595" height="478" key="GridCell.Tab.0.right" timestamp="1586086418644">
+    <state width="1595" height="478" key="GridCell.Tab.0.left/40.0.2520.1440@40.0.2520.1440" timestamp="1586097446926" />
+    <state width="1595" height="478" key="GridCell.Tab.0.right" timestamp="1586097446927">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1595" height="478" key="GridCell.Tab.0.right/40.0.2520.1440@40.0.2520.1440" timestamp="1586086418644" />
-    <state width="1595" height="478" key="GridCell.Tab.1.bottom" timestamp="1586086418645">
+    <state width="1595" height="478" key="GridCell.Tab.0.right/40.0.2520.1440@40.0.2520.1440" timestamp="1586097446927" />
+    <state width="1595" height="478" key="GridCell.Tab.1.bottom" timestamp="1586097461940">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1595" height="478" key="GridCell.Tab.1.bottom/40.0.2520.1440@40.0.2520.1440" timestamp="1586086418645" />
-    <state width="1595" height="478" key="GridCell.Tab.1.center" timestamp="1586086418644">
+    <state width="1595" height="478" key="GridCell.Tab.1.bottom/40.0.2520.1440@40.0.2520.1440" timestamp="1586097461940" />
+    <state width="1595" height="478" key="GridCell.Tab.1.center" timestamp="1586097461939">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1595" height="478" key="GridCell.Tab.1.center/40.0.2520.1440@40.0.2520.1440" timestamp="1586086418644" />
-    <state width="1595" height="478" key="GridCell.Tab.1.left" timestamp="1586086418644">
+    <state width="1595" height="478" key="GridCell.Tab.1.center/40.0.2520.1440@40.0.2520.1440" timestamp="1586097461939" />
+    <state width="1595" height="478" key="GridCell.Tab.1.left" timestamp="1586097461939">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1595" height="478" key="GridCell.Tab.1.left/40.0.2520.1440@40.0.2520.1440" timestamp="1586086418644" />
-    <state width="1595" height="478" key="GridCell.Tab.1.right" timestamp="1586086418644">
+    <state width="1595" height="478" key="GridCell.Tab.1.left/40.0.2520.1440@40.0.2520.1440" timestamp="1586097461939" />
+    <state width="1595" height="478" key="GridCell.Tab.1.right" timestamp="1586097461940">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1595" height="478" key="GridCell.Tab.1.right/40.0.2520.1440@40.0.2520.1440" timestamp="1586086418644" />
-    <state width="1595" height="478" key="GridCell.Tab.2.bottom" timestamp="1586086418646">
+    <state width="1595" height="478" key="GridCell.Tab.1.right/40.0.2520.1440@40.0.2520.1440" timestamp="1586097461940" />
+    <state width="1595" height="478" key="GridCell.Tab.2.bottom" timestamp="1586097446834">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1595" height="478" key="GridCell.Tab.2.bottom/40.0.2520.1440@40.0.2520.1440" timestamp="1586086418646" />
-    <state width="1595" height="478" key="GridCell.Tab.2.center" timestamp="1586086418645">
+    <state width="1595" height="478" key="GridCell.Tab.2.bottom/40.0.2520.1440@40.0.2520.1440" timestamp="1586097446834" />
+    <state width="1595" height="478" key="GridCell.Tab.2.center" timestamp="1586097446833">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1595" height="478" key="GridCell.Tab.2.center/40.0.2520.1440@40.0.2520.1440" timestamp="1586086418645" />
-    <state width="1595" height="478" key="GridCell.Tab.2.left" timestamp="1586086418645">
+    <state width="1595" height="478" key="GridCell.Tab.2.center/40.0.2520.1440@40.0.2520.1440" timestamp="1586097446833" />
+    <state width="1595" height="478" key="GridCell.Tab.2.left" timestamp="1586097446833">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1595" height="478" key="GridCell.Tab.2.left/40.0.2520.1440@40.0.2520.1440" timestamp="1586086418645" />
-    <state width="1595" height="478" key="GridCell.Tab.2.right" timestamp="1586086418645">
+    <state width="1595" height="478" key="GridCell.Tab.2.left/40.0.2520.1440@40.0.2520.1440" timestamp="1586097446833" />
+    <state width="1595" height="478" key="GridCell.Tab.2.right" timestamp="1586097446834">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state width="1595" height="478" key="GridCell.Tab.2.right/40.0.2520.1440@40.0.2520.1440" timestamp="1586086418645" />
-    <state x="354" y="355" key="SettingsEditor" timestamp="1585998442479">
+    <state width="1595" height="478" key="GridCell.Tab.2.right/40.0.2520.1440@40.0.2520.1440" timestamp="1586097446834" />
+    <state x="94" y="563" key="SettingsEditor" timestamp="1586098859357">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
-    <state x="354" y="355" key="SettingsEditor/40.0.2520.1440@40.0.2520.1440" timestamp="1585998442479" />
+    <state x="94" y="563" key="SettingsEditor/40.0.2520.1440@40.0.2520.1440" timestamp="1586098859357" />
     <state x="1261" y="549" key="com.intellij.ide.util.TipDialog" timestamp="1585701110889">
       <screen x="40" y="0" width="2520" height="1440" />
     </state>
@@ -398,6 +400,15 @@
         <watch expression="me-&gt;speed" />
       </configuration>
     </watches-manager>
+  </component>
+  <component name="XSLT-Support.FileAssociations.UIState">
+    <expand>
+      <path>
+        <item name="delta-control" type="b2602c69:ProjectViewProjectNode" />
+        <item name="firmware" type="462c0819:PsiDirectoryNode" />
+      </path>
+    </expand>
+    <select />
   </component>
   <component name="masterDetails">
     <states>
