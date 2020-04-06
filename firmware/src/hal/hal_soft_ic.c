@@ -8,6 +8,7 @@
 #include "hal_gpio.h"
 #include "hal_systick.h"
 #include "average_short.h"
+#include "qassert.h"
 
 /* ---------------- Lower Level Peripheral ---------------------------------- */
 
@@ -48,7 +49,7 @@ hal_soft_ic_init( void )
 	memset( &soft_ic_averages, 0, sizeof( soft_ic_averages ) );
 	memset( &soft_ic_last_state, 0, sizeof( soft_ic_last_state ) );
 	memset( &soft_ic_timer,    0, sizeof( soft_ic_timer ) );
-	memset( &soft_ic_duration, 0, sizeof( soft_ic_averages ) );
+	memset( &soft_ic_duration, 0, sizeof( soft_ic_duration ) );
 
 	average_short_init( &soft_ic_averages[HAL_SOFT_IC_HALL], 5 );
 }
