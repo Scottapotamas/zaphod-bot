@@ -135,12 +135,12 @@ hal_adc_init( void )
     // Enable DMA transfer interruption: transfer error
     LL_DMA_EnableIT_TE(DMA2, LL_DMA_STREAM_0);
 
-    // Enable the DMA transfer */
+    // Enable the DMA transfer
     LL_DMA_EnableStream(DMA2,LL_DMA_STREAM_0);
 
 
-    //Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
-    NVIC_SetPriority(ADC_IRQn, 2); /* ADC IRQ greater priority than DMA IRQ */
+    // Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
+    NVIC_SetPriority(ADC_IRQn, 2); /* ADC IRQ needs greater priority than DMA IRQ */
     NVIC_EnableIRQ(ADC_IRQn);
 
     LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_ADC1);

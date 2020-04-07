@@ -221,11 +221,10 @@ hal_gpio_init( HalGpioPortPin_t gpio_port_pin_nr,
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-hal_gpio_init_alternate( HalGpioPortPin_t 	gpio_port_pin_nr,
-               	   	   	 uint32_t    		mode,
-						 uint32_t    		alternative_function,
-						 uint32_t    		speed,
-						 uint32_t    		pull)
+hal_gpio_init_alternate(HalGpioPortPin_t gpio_port_pin_nr,
+                        uint32_t alternative_function,
+                        uint32_t speed,
+                        uint32_t pull )
 {
     const HalGpioDef_t *m = &HalGpioHardwareMap[gpio_port_pin_nr];
 
@@ -239,7 +238,6 @@ hal_gpio_init_alternate( HalGpioPortPin_t 	gpio_port_pin_nr,
 
     LL_GPIO_SetPinMode( port, pin, LL_GPIO_MODE_ALTERNATE);
     LL_GPIO_SetPinSpeed(port, pin, speed);
-    LL_GPIO_SetPinOutputType(port, pin, mode);
     LL_GPIO_SetPinPull( port, pin, pull);
 
     ( pin <= LL_GPIO_PIN_7 ) ? LL_GPIO_SetAFPin_0_7( port, pin, alternative_function )
