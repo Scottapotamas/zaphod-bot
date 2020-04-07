@@ -40,6 +40,7 @@ hal_hard_ic_read( InputCaptureSignal_t input );
 
 /* -------------------------------------------------------------------------- */
 
+void TIM8_CC_IRQHandler(void);
 void TIM3_IRQHandler(void);
 void TIM4_IRQHandler(void);
 void TIM1_CC_IRQHandler(void);

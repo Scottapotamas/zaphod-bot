@@ -57,7 +57,7 @@ hal_hard_ic_init( void )
     ic_state[HAL_HARD_IC_FAN_HALL].tim_clock = SystemCoreClock / 2;
 
     hal_setup_capture(HAL_HARD_IC_FAN_HALL );
-//    hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_1 );
+    hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_1 );
     hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_2 );
     hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_3 );
 
@@ -68,21 +68,37 @@ hal_hard_ic_init( void )
 
 /* -------------------------------------------------------------------------- */
 
+// Uncomment this define to use the TIM3 peripheral for HLFB1, otherwise TIM8 is used.
+// TIM8 might be needed for more important uses elsewhere, as TIM8 is one of the few "enhanced functionality" timers
+//#define HLFB_TIM_3 1
+
 PUBLIC void
 hal_setup_capture(uint8_t input)
 {
 	switch (input)
 	{
 		case HAL_HARD_IC_HLFB_SERVO_1:
-            // TIM3
+            // TIM3 or TIM8
+
+#ifdef HLFB_TIM_3
             LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM3);
 
             hal_gpio_init_alternate( _SERVO_1_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
 
-            NVIC_SetPriority(TIM3_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 7, 1));
+            NVIC_SetPriority(TIM3_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 8, 2));
             NVIC_EnableIRQ(TIM3_IRQn);
 
             hal_hard_ic_configure_pwm_input( TIM3 );
+#else
+            LL_APB2_GRP1_EnableClock(LL_APB2_GRP1_PERIPH_TIM8);
+
+            hal_gpio_init_alternate( _SERVO_1_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
+
+            NVIC_SetPriority(TIM8_CC_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 8, 2));
+            NVIC_EnableIRQ(TIM8_CC_IRQn);
+
+            hal_hard_ic_configure_pwm_input( TIM8 );
+#endif
             break;
 
 		case HAL_HARD_IC_HLFB_SERVO_2:
@@ -91,7 +107,7 @@ hal_setup_capture(uint8_t input)
 
             hal_gpio_init_alternate( _SERVO_2_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
 
-            NVIC_SetPriority(TIM4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 7, 2));
+            NVIC_SetPriority(TIM4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 8, 2));
             NVIC_EnableIRQ(TIM4_IRQn);
 
             hal_hard_ic_configure_pwm_input( TIM4 );
@@ -103,7 +119,7 @@ hal_setup_capture(uint8_t input)
 
             hal_gpio_init_alternate( _SERVO_3_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_1, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
 
-            NVIC_SetPriority(TIM1_CC_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 7, 3));
+            NVIC_SetPriority(TIM1_CC_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 8, 2));
             NVIC_EnableIRQ(TIM1_CC_IRQn);
 
             hal_hard_ic_configure_pwm_input( TIM1 );
@@ -115,7 +131,7 @@ hal_setup_capture(uint8_t input)
 
             hal_gpio_init_alternate( _SERVO_4_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
 
-            NVIC_SetPriority(TIM5_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 7, 4));
+            NVIC_SetPriority(TIM5_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 8, 2));
             NVIC_EnableIRQ(TIM5_IRQn);
 
             hal_hard_ic_configure_pwm_input( TIM5 );
@@ -127,7 +143,7 @@ hal_setup_capture(uint8_t input)
 
             hal_gpio_init_alternate( _FAN_TACHO, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_MEDIUM, LL_GPIO_PULL_NO );
 
-            NVIC_SetPriority(TIM1_BRK_TIM9_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 8, 4));
+            NVIC_SetPriority(TIM1_BRK_TIM9_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(), 8, 1));
             NVIC_EnableIRQ(TIM1_BRK_TIM9_IRQn);
 
             // Timer Clock Configuration
@@ -181,13 +197,13 @@ hal_hard_ic_configure_pwm_input( TIM_TypeDef* TIMx )
     //LL_TIM_SetAutoReload(TIMx, 0xFFFF);
 
     // IC Channel 1
-    LL_TIM_IC_SetFilter(TIMx, LL_TIM_CHANNEL_CH1, LL_TIM_IC_FILTER_FDIV1);
+    LL_TIM_IC_SetFilter(TIMx, LL_TIM_CHANNEL_CH1, LL_TIM_IC_FILTER_FDIV4_N8);
     LL_TIM_IC_SetPrescaler(TIMx, LL_TIM_CHANNEL_CH1, LL_TIM_ICPSC_DIV1);
     LL_TIM_IC_SetPolarity(TIMx, LL_TIM_CHANNEL_CH1, LL_TIM_IC_POLARITY_RISING);
     LL_TIM_IC_SetActiveInput(TIMx, LL_TIM_CHANNEL_CH1, LL_TIM_ACTIVEINPUT_DIRECTTI);
 
     // IC Channel 2
-    LL_TIM_IC_SetFilter(TIMx, LL_TIM_CHANNEL_CH2, LL_TIM_IC_FILTER_FDIV1);
+    LL_TIM_IC_SetFilter(TIMx, LL_TIM_CHANNEL_CH2, LL_TIM_IC_FILTER_FDIV4_N8);
     LL_TIM_IC_SetPrescaler(TIMx, LL_TIM_CHANNEL_CH2, LL_TIM_ICPSC_DIV1);
     LL_TIM_IC_SetPolarity(TIMx, LL_TIM_CHANNEL_CH2, LL_TIM_IC_POLARITY_FALLING);
     LL_TIM_IC_SetActiveInput(TIMx, LL_TIM_CHANNEL_CH2, LL_TIM_ACTIVEINPUT_INDIRECTTI);
@@ -197,8 +213,9 @@ hal_hard_ic_configure_pwm_input( TIM_TypeDef* TIMx )
     {
         LL_TIM_SetSlaveMode(TIMx, LL_TIM_SLAVEMODE_RESET);
         LL_TIM_SetTriggerInput(TIMx, LL_TIM_TS_TI1FP1 );
-        LL_TIM_ConfigETR(TIMx, LL_TIM_ETR_POLARITY_NONINVERTED, LL_TIM_ETR_PRESCALER_DIV1, LL_TIM_ETR_FILTER_FDIV1);
-        LL_TIM_EnableMasterSlaveMode(TIMx);
+        LL_TIM_ConfigETR(TIMx, LL_TIM_ETR_POLARITY_NONINVERTED, LL_TIM_ETR_PRESCALER_DIV1, LL_TIM_ETR_FILTER_FDIV4_N8);
+//        LL_TIM_EnableMasterSlaveMode(TIMx);
+        LL_TIM_DisableMasterSlaveMode(TIMx);
     }
     else
     {
@@ -256,6 +273,11 @@ hal_hard_ic_pwmic_irq_handler(InputCaptureSignal_t input, TIM_TypeDef *TIMx)
 }
 
 // Servo 1 HLFB
+void TIM8_CC_IRQHandler(void)
+{
+    hal_hard_ic_pwmic_irq_handler(HAL_HARD_IC_HLFB_SERVO_1, TIM8);
+}
+
 void TIM3_IRQHandler(void)
 {
     hal_hard_ic_pwmic_irq_handler(HAL_HARD_IC_HLFB_SERVO_1, TIM3);
