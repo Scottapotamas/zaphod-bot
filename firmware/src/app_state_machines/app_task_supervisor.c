@@ -70,6 +70,8 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
 
     // Detect user activities
     eventSubscribe( (StateTask*)me, BUTTON_NORMAL_SIGNAL );
+    eventSubscribe( (StateTask*)me, BUTTON_PRESSED_SIGNAL );
+
     eventSubscribe( (StateTask*)me, MECHANISM_START );
     eventSubscribe( (StateTask*)me, MECHANISM_STOP );
     eventSubscribe( (StateTask*)me, MECHANISM_REHOME );
@@ -129,14 +131,22 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 				   eventPublish( EVENT_NEW( StateEvent, MECHANISM_STOP ) );
 				   return 0;
 
-               case BUTTON_EXTERNAL:
-                   eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
-                   return 0;
-
                default:
 				   break;
 		   }
 		   break;
+
+        case BUTTON_PRESSED_SIGNAL:
+            switch( ((ButtonPressedEvent*)e)->id )
+            {
+                case BUTTON_EXTERNAL:
+                    eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
+                    return 0;
+
+                default:
+                    break;
+            }
+            break;
 
         case STATE_INIT_SIGNAL:
             STATE_INIT( &AppTaskSupervisor_disarmed );
@@ -1012,7 +1022,7 @@ PRIVATE void AppTaskSupervisorPublishRehomeEvent( void )
 PRIVATE void AppTaskSupervisorButtonEvent( ButtonId_t button,
                                           ButtonPressType_t press_type )
 {
-	if(press_type == BUTTON_PRESS_TYPE_NORMAL || press_type == BUTTON_PRESS_TYPE_DOWN )
+	if(press_type == BUTTON_PRESS_TYPE_NORMAL )
 	{
 	    ButtonEvent *be = EVENT_NEW( ButtonEvent, BUTTON_NORMAL_SIGNAL );
 	    if( be )
@@ -1022,6 +1032,16 @@ PRIVATE void AppTaskSupervisorButtonEvent( ButtonId_t button,
 	        eventPublish( (StateEvent*)be );
 	    }
 	}
+	else if( press_type == BUTTON_PRESS_TYPE_DOWN )
+    {
+        ButtonEvent *be = EVENT_NEW( ButtonEvent, BUTTON_PRESSED_SIGNAL );
+        if( be )
+        {
+            be->id = button;
+            be->press_type = press_type;
+            eventPublish( (StateEvent*)be );
+        }
+    }
 
 }
 /* ----- End ---------------------------------------------------------------- */
