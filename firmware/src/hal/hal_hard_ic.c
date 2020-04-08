@@ -17,6 +17,11 @@
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
+#define FAN_IC_PRESCALE 1U
+#define FAN_TIM_PRESCALE 250U
+#define FAN_TIM_CLOCK 84000000UL
+#define FAN_IC_EDGES_PER_PERIOD 1
+
 /* ----- Variables ---------------------------------------------------------- */
 
 typedef struct
@@ -24,19 +29,12 @@ typedef struct
     uint32_t cnt_a;
     uint32_t cnt_b;
 
-    // todo reduce wasted RAM by only providing allocation for these values if we need them
-    uint32_t tim_clock;
-    uint32_t tim_prescale;
-    uint32_t ic_prescale;
-
-    uint8_t trigger_per_cycle;  // 1 for rising/falling edge, 2 for both edge trigger
-
     bool first_edge_done;
 
 } HalHardICIntermediate_t;
 
-PRIVATE HalHardICIntermediate_t ic_state[HAL_HARD_IC_NUM];  // holding values used to calculate edge durations
-PRIVATE uint32_t                ic_values[HAL_HARD_IC_NUM]; // raw values per calculation
+PRIVATE HalHardICIntermediate_t fan_state;  // holding values used to calculate edge durations
+PRIVATE uint32_t                ic_values[HAL_HARD_IC_NUM]; // Calculated duty cycle or frequency values, x100 for precision
 
 /* ----- Private Functions -------------------------------------------------- */
 
@@ -51,10 +49,8 @@ hal_hard_ic_pwmic_irq_handler(InputCaptureSignal_t input, TIM_TypeDef *TIMx);
 PUBLIC void
 hal_hard_ic_init( void )
 {
-    memset( &ic_state,  0, sizeof( ic_state ) );
+    memset( &fan_state,  0, sizeof( fan_state ) );
     memset( &ic_values, 0, sizeof( ic_values ) );
-
-    ic_state[HAL_HARD_IC_FAN_HALL].tim_clock = SystemCoreClock / 2;
 
     hal_setup_capture(HAL_HARD_IC_FAN_HALL );
     hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_1 );
@@ -148,30 +144,34 @@ hal_setup_capture(uint8_t input)
 
             // Timer Clock Configuration
             LL_TIM_SetClockDivision(TIM9, LL_TIM_CLOCKDIVISION_DIV4);
-            LL_TIM_SetPrescaler(TIM9, 200);     //__LL_TIM_CALC_PSC(SystemCoreClock, 10000));
+            LL_TIM_SetPrescaler(TIM9, FAN_TIM_PRESCALE);     //__LL_TIM_CALC_PSC(SystemCoreClock, 10000));
             // LL_TIM_SetAutoReload(TIM9, __LL_TIM_CALC_ARR(SystemCoreClock/2, LL_TIM_GetPrescaler(TIM9), 10));
 
             LL_TIM_DisableMasterSlaveMode(TIM9);
 
             // Input Capture Configuration
             LL_TIM_IC_SetActiveInput(TIM9, LL_TIM_CHANNEL_CH1, LL_TIM_ACTIVEINPUT_DIRECTTI);
-            LL_TIM_IC_SetFilter(TIM9, LL_TIM_CHANNEL_CH1, LL_TIM_IC_FILTER_FDIV2_N8);
-            LL_TIM_IC_SetPrescaler(TIM9, LL_TIM_CHANNEL_CH1, LL_TIM_ICPSC_DIV1);
+            LL_TIM_IC_SetFilter(TIM9, LL_TIM_CHANNEL_CH1, LL_TIM_IC_FILTER_FDIV16_N8);
+            LL_TIM_IC_SetPrescaler(TIM9, LL_TIM_CHANNEL_CH1, LL_TIM_ICPSC_DIV1);    // FAN_IC_PRESCALE
             LL_TIM_IC_SetPolarity(TIM9, LL_TIM_CHANNEL_CH1, LL_TIM_IC_POLARITY_RISING);
 
             // Store the edge-trigger setting so we know how many triggers occur per period
             if (LL_TIM_IC_GetPolarity(TIM9, LL_TIM_CHANNEL_CH1) == LL_TIM_IC_POLARITY_BOTHEDGE)
             {
-                ic_state[HAL_HARD_IC_FAN_HALL].trigger_per_cycle = 2;
+                // rising AND falling edge
+                ASSERT( FAN_IC_EDGES_PER_PERIOD == 2 );
             }
             else
             {
-                ic_state[HAL_HARD_IC_FAN_HALL].trigger_per_cycle = 1;
+                // Just the rising OR falling edge
+                ASSERT( FAN_IC_EDGES_PER_PERIOD == 1 );
             }
 
-            // Store the prescaler values for faster access in interrupts
-            ic_state[HAL_HARD_IC_FAN_HALL].tim_prescale = LL_TIM_GetPrescaler(TIM9);   // Timer prescale ratio
-            ic_state[HAL_HARD_IC_FAN_HALL].ic_prescale = __LL_TIM_GET_ICPSC_RATIO(LL_TIM_IC_GetPrescaler(TIM9, LL_TIM_CHANNEL_CH1)); // Input capture prescale ratio
+            // Check that we've defined the prescale divisor correctly
+            ASSERT( FAN_IC_PRESCALE == __LL_TIM_GET_ICPSC_RATIO(LL_TIM_IC_GetPrescaler(TIM9, LL_TIM_CHANNEL_CH1)) );
+
+            // Check that we've defined the timer prescaler value correctly
+            ASSERT( FAN_TIM_PRESCALE == LL_TIM_GetPrescaler(TIM9) );
 
             // Enable Counter, channel and interrupt
             LL_TIM_EnableIT_CC1(TIM9);
@@ -187,12 +187,15 @@ hal_setup_capture(uint8_t input)
 
 }
 
+
 PRIVATE void
 hal_hard_ic_configure_pwm_input( TIM_TypeDef* TIMx )
 {
     // Timer Clock Configuration
     LL_TIM_SetClockDivision(TIMx, LL_TIM_CLOCKDIVISION_DIV4);
-    LL_TIM_SetPrescaler(TIMx, 200);
+
+    // The prescaler is setup so the 45Hz squarewave from the Clearpath servo's _just_ fits within the 16-bit counter
+    LL_TIM_SetPrescaler(TIMx, 60);
     LL_TIM_SetCounterMode(TIMx, LL_TIM_COUNTERMODE_UP);
     //LL_TIM_SetAutoReload(TIMx, 0xFFFF);
 
@@ -237,7 +240,13 @@ hal_hard_ic_configure_pwm_input( TIM_TypeDef* TIMx )
 PUBLIC uint32_t
 hal_hard_ic_read( InputCaptureSignal_t input )
 {
-    return ic_values[input];
+    return ic_values[input]/100;
+}
+
+PUBLIC float
+hal_hard_ic_read_f( InputCaptureSignal_t input )
+{
+    return (float)ic_values[input]/100;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -255,7 +264,7 @@ hal_hard_ic_pwmic_irq_handler(InputCaptureSignal_t input, TIM_TypeDef *TIMx)
         if( cnt_a != 0 )
         {
             uint32_t cnt_b = LL_TIM_IC_GetCaptureCH2( TIMx );
-            ic_values[input] = (cnt_b * 100) / cnt_a;
+            ic_values[input] = (cnt_b * 10000) / (cnt_a);
 
             // TODO optionally calculate frequency for this signal
             // uint32_t frequency = TimerClock  / (1*cnt_a);
@@ -311,23 +320,23 @@ void TIM1_BRK_TIM9_IRQHandler(void)
 
         static uint32_t cnt_delta = 0;
 
-        if( !ic_state[HAL_HARD_IC_FAN_HALL].first_edge_done ) // First edge timestamp
+        if( !fan_state.first_edge_done ) // First edge timestamp
         {
-            ic_state[HAL_HARD_IC_FAN_HALL].cnt_a = LL_TIM_IC_GetCaptureCH1(TIM9);
-            ic_state[HAL_HARD_IC_FAN_HALL].first_edge_done = true;
+            fan_state.cnt_a = LL_TIM_IC_GetCaptureCH1(TIM9);
+            fan_state.first_edge_done = true;
         }
-        else if( ic_state[HAL_HARD_IC_FAN_HALL].first_edge_done ) // Second edge
+        else if( fan_state.first_edge_done ) // Second edge
         {
-            ic_state[HAL_HARD_IC_FAN_HALL].cnt_b = LL_TIM_IC_GetCaptureCH1(TIM9);
+            fan_state.cnt_b = LL_TIM_IC_GetCaptureCH1(TIM9);
 
             // Calculate the counts elapsed
-            if (ic_state[HAL_HARD_IC_FAN_HALL].cnt_b > ic_state[HAL_HARD_IC_FAN_HALL].cnt_a)
+            if (fan_state.cnt_b > fan_state.cnt_a)
             {
-                cnt_delta = (ic_state[HAL_HARD_IC_FAN_HALL].cnt_b - ic_state[HAL_HARD_IC_FAN_HALL].cnt_a);
+                cnt_delta = (fan_state.cnt_b - fan_state.cnt_a);
             }
-            else if (ic_state[HAL_HARD_IC_FAN_HALL].cnt_b < ic_state[HAL_HARD_IC_FAN_HALL].cnt_a)
+            else if (fan_state.cnt_b < fan_state.cnt_a)
             {
-                cnt_delta = ((0xFFFFU - ic_state[HAL_HARD_IC_FAN_HALL].cnt_a) + ic_state[HAL_HARD_IC_FAN_HALL].cnt_b) + 1;
+                cnt_delta = ((0xFFFFU - fan_state.cnt_a) + fan_state.cnt_b) + 1;
             }
             else    // overflowing capture - need to adjust timer prescale value
             {
@@ -336,10 +345,10 @@ void TIM1_BRK_TIM9_IRQHandler(void)
             }
 
             // Calculate the signal frequency
-            ic_values[HAL_HARD_IC_FAN_HALL] = (ic_state[HAL_HARD_IC_FAN_HALL].tim_clock * ic_state[HAL_HARD_IC_FAN_HALL].ic_prescale )
-                                              / ( cnt_delta * (ic_state[HAL_HARD_IC_FAN_HALL].tim_prescale+1) * ic_state[HAL_HARD_IC_FAN_HALL].trigger_per_cycle );
+            ic_values[HAL_HARD_IC_FAN_HALL] = (FAN_TIM_CLOCK * FAN_IC_PRESCALE * 100)
+                                              / ( cnt_delta * (FAN_TIM_PRESCALE+1) * FAN_IC_EDGES_PER_PERIOD );
 
-            ic_state[HAL_HARD_IC_FAN_HALL].first_edge_done = false;
+            fan_state.first_edge_done = false;
         }
     }
 }

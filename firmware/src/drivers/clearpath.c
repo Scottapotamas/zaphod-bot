@@ -191,20 +191,21 @@ float mapf(float val, float in_min, float in_max, float out_min, float out_max) 
     return (val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-// HLFB from servos is a 482Hz square-wave, where 5% < x < 95% is used for torque/speed output
-// DutyCycles under 5% represents 'not asserted' or 'off'
+/* -------------------------------------------------------------------------- */
 
+// Returns servo feedback torque as a percentage from -100% to 100% of rated capability
 PRIVATE float
 servo_get_hlfb_percent( ClearpathServoInstance_t servo )
 {
     float percentage = 0.0f;
 
-    // Assumes the hardware input capture driver returns us the value in percent
-    percentage = hal_hard_ic_read( ServoHardwareMap[servo].ic_feedback );
-    CLAMP(percentage, 5.0f, 95.0f);
+    // HLFB from servos is a square-wave where 5% < x < 95% is used for torque/speed output
+    // The hardware input capture driver returns us the value as %duty cycle
+    // 65% DC => 1/3rd max torque in +ve direction
 
-    // IC hasn't fired recently, so the signal is likely DC LOW or HIGH
-    //percentage = (hal_gpio_read_pin(ServoHardwareMap[servo].pin_feedback))? 100.0f: 0.0f;
+    // Get the HLFB duty, and scale to -100% to +100% range
+    percentage = hal_hard_ic_read_f( ServoHardwareMap[servo].ic_feedback ) * 2.05 - 100.0;
+    CLAMP(percentage, -100.0f, 100.0f);
 
     return percentage;
 }
