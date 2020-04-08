@@ -50,9 +50,9 @@ typedef ButtonEvent			EventsMediumType;
 typedef MotionPlannerEvent 	EventsLargeType;
 
 // ~~~ Event Pool Storage ~~~
-EventsSmallType     eventsSmall[10];//  __attribute__ ((section (".ccmram")));
-EventsMediumType    eventsMedium[15];//  __attribute__ ((section (".ccmram")));
-EventsLargeType     eventsLarge[400];   __attribute__ ((section (".ccmram")));
+EventsSmallType     eventsSmall[10];    //  __attribute__ ((section (".ccmram")))
+EventsMediumType    eventsMedium[15];   //  __attribute__ ((section (".ccmram")))
+EventsLargeType __attribute__((section (".ccmram")))    eventsLarge[400];
 
 // ~~~ Event Subscription Data ~~~
 EventSubscribers eventSubscriberList[STATE_MAX_SIGNAL];

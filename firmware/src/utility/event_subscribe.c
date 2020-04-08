@@ -130,7 +130,7 @@ eventPublish( const StateEvent *e )
                     // Failed to deliver event to subscribed queue
                     // (queue is full)
                     fully_delivered = false;
-                    ASSERT_PRINTF( false, "e=%d, t=%d", e->signal, p );
+//                    ASSERT_PRINTF( false, "e=%d, t=%d", e->signal, p );
                 }
             }
 
