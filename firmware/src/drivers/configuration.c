@@ -104,7 +104,7 @@ typedef struct
 {
     uint8_t enabled;
 	uint8_t state;
-	uint16_t feedback;
+	int16_t feedback;
 	float target_angle;
 	float power;
 } MotorData_t;
