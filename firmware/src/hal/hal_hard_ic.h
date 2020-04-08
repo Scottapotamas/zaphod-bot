@@ -40,6 +40,11 @@ hal_hard_ic_read( InputCaptureSignal_t input );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC float
+hal_hard_ic_read_f( InputCaptureSignal_t input );
+
+/* -------------------------------------------------------------------------- */
+
 void TIM8_CC_IRQHandler(void);
 void TIM3_IRQHandler(void);
 void TIM4_IRQHandler(void);
