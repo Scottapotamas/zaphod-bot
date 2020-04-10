@@ -78,6 +78,7 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
 
     eventSubscribe( (StateTask*)me, MOVEMENT_REQUEST );
     eventSubscribe( (StateTask*)me, TRACKED_TARGET_REQUEST);
+
     // motion handler events
     eventSubscribe( (StateTask*)me, MOTION_ERROR );
     eventSubscribe( (StateTask*)me, MOTION_HOMED );

@@ -119,14 +119,32 @@ enum ServoDefines
 	SERVO_HOME_OFFSET				= 25U,
 
 	//Homing parameters
-	SERVO_INTERRUPTED_DISABLE_DELAY_MIN_MS	= 50U,
-	SERVO_HOMING_MIN_MS 					= 100U,
-	SERVO_HOMING_MAX_MS 					= 9000U,
+	SERVO_HOMING_CALIBRATION_SAMPLES        = 10U,
+    SERVO_HOMING_CALIBRATION_MS             = (SERVO_HOMING_CALIBRATION_SAMPLES*22U), //45hz -> 22ms per sample,
+    SERVO_HOMING_CALIBRATION_TORQUE         = 10U, // maximum torque we expect to see during torque calibration
+
+    SERVO_HOMING_ENDSTOP_TRANSIT_TORQUE     = 20U, // shutdown if servo exceeds this limit during the move towards the endstop
+    SERVO_HOMING_ENDSTOP_RAMP_MIN           = 15U,  // lower limit % of torque expected to trigger homing endstop behaviour
+    SERVO_HOMING_ENDSTOP_RAMP_MAX           = 25U,  // upper limit % of torque expected to home
+
+    SERVO_HOMING_FOLDBACK_CHECK_START_MS    = 200U,  // ms after peak to start checking foldback level
+    SERVO_HOMING_FOLDBACK_CHECK_END_MS      = 500U,
+
+    SERVO_HOMING_FOLDBACK_TORQUE_MIN        = 4U,    // % torque we expect to read while doing foldback
+    SERVO_HOMING_FOLDBACK_TORQUE_MAX        = 6U,
+
+    SERVO_HOMING_SIMILARITY_PERCENT         = 1U,    // % torque error allowed during stabilisation period
+    SERVO_HOMING_SIMILARITY_MS 		        = 200U, // time the torque needs to be stable before considering homing move complete
+    SERVO_HOMING_COMPLETE_MAX_MS 		    = 500U,
+
+
+    SERVO_HOMING_MAX_MS                     = 9000U,
+
 	SERVO_HOMING_NULL_PERIODS_ALLOWED 		= 2U,
 	SERVO_HOMING_SUPERVISOR_CHECK_MS		= 500U,
 	SERVO_HOMING_SUPERVISOR_RETRIES			= (SERVO_HOMING_MAX_MS / SERVO_HOMING_SUPERVISOR_CHECK_MS) + 1,
 
-	SERVO_RECOVERY_DWELL_MS					= 50,
+	SERVO_RECOVERY_DWELL_MS					= 50U,
 	SERVO_RECOVERY_RETRIES					= 7U,
 
 
@@ -136,8 +154,9 @@ enum ServoDefines
 
 	//Error evaluation parameters
 	SERVO_IDLE_POWER_ALERT_W 				= 40U,
-	SERVO_IDLE_SETTLE_MS					= 50U,
-	SERVO_IDLE_POWER_TRIP_MS				= 900U,
+    SERVO_IDLE_TORQUE_ALERT 				= 30U,
+    SERVO_IDLE_SETTLE_MS					= 50U,
+	SERVO_IDLE_LOAD_TRIP_MS				    = 900U,
 	SERVO_OC_FAULT							= false,
 	SERVO_OC_OK								= true,
 
