@@ -21,6 +21,7 @@
 #include "path_interpolator.h"
 #include "configuration.h"
 #include "shutter_release.h"
+#include "demonstration.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -130,7 +131,7 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 
 			   case BUTTON_1:
 				   eventPublish( EVENT_NEW( StateEvent, MECHANISM_STOP ) );
-				   return 0;
+                   return 0;
 
                default:
 				   break;
@@ -692,9 +693,24 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
         	config_set_main_state( SUPERVISOR_ARMED );
         	config_set_control_mode( CONTROL_DEMO );
 
-        	//todo write demonstration programs and a way to run through a sequence of them
+            demonstration_init();
 
-        	return 0;
+            // Load up a queue of events
+            demonstration_prepare_sequence();
+
+            eventTimerStartOnce( &me->timer1,
+                                 (StateTask* )me,
+                                 (StateEvent* )&stateEventReserved[ STATE_TIMEOUT1_SIGNAL ],
+                                 MS_TO_TICKS( 2000 ) );
+
+            return 0;
+
+        case STATE_TIMEOUT1_SIGNAL:
+
+            // Start the event queue
+            eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
+
+            return 0;
 
         case MECHANISM_STOP:
         	STATE_TRAN( AppTaskSupervisor_disarm_graceful );
@@ -724,7 +740,7 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
             return 0;
 
 		case STATE_EXIT_SIGNAL:
-
+            eventTimerStopIfActive(&me->timer1);
 			return 0;
     }
     return (STATE)AppTaskSupervisor_main;
