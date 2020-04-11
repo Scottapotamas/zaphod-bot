@@ -14,38 +14,42 @@
 /* -------------------------------------------------------------------------- */
 
 #define POINT_MM( X, Y, Z ) { .x=MM_TO_MICRONS(X), .y=MM_TO_MICRONS(Y), .z=MM_TO_MICRONS(Z) }
+#define POINT( X, Y, Z ) { .x=X, .y=Y, .z=Z }
 
-// Create an acceleration shaped line movement powered by a catmull spline with control points near the start and end points
-#define SHAPING_WEIGHT 0.01 // how aggressively to acceleration shape catmull "lines"
-
-#define POINT_PAIR_CATMULL_MM( X1, Y1, Z1, X2, Y2, Z2 ) { \
-    POINT_MM(X1, Y1, Z1), \
-    POINT_MM(X1 + ((X2 - X1) * SHAPING_WEIGHT), Y1 + ((Y2 - Y1) * SHAPING_WEIGHT), Z1 + ((Z2 - Z1) * SHAPING_WEIGHT)), \
-    POINT_MM(X2 + ((X1 - X2) * SHAPING_WEIGHT), Y2 + ((Y1 - Y2) * SHAPING_WEIGHT), Z2 + ((Z1 - Z2) * SHAPING_WEIGHT)), \
-    POINT_MM(X2, Y2, Z2) \
+// Create an acceleration shaped line movement powered by a bezier curve with control points near the start and end points
+#define INTERP_AB( A, B, WEIGHT ) (A + ((B - A) * WEIGHT))
+#define POINT_PAIR_CUBIC( X1, Y1, Z1, X2, Y2, Z2, SMOOTH ) { \
+    POINT( X1, Y1, Z1 ), \
+    POINT( INTERP_AB(X1, X2, SMOOTH), INTERP_AB(Y1, Y2, SMOOTH), INTERP_AB(Z1, Z2, SMOOTH) ), \
+    POINT( INTERP_AB(X2, X1, SMOOTH), INTERP_AB(Y2, Y1, SMOOTH), INTERP_AB(Z2, Z1, SMOOTH) ), \
+    POINT( X2, Y2, Z2 ) \
 }
 
-
-
-#define MOVE_TO( DURATION, POINT ) {.type =_POINT_TRANSIT, .ref =_POS_ABSOLUTE, .identifier=0, .duration=DURATION, .num_pts=1, .points={ POINT }}
+#define DELAY_MOVEMENT( DURATION ) {.type =_POINT_TRANSIT, .ref =_POS_RELATIVE, .identifier=0, .duration=DURATION, .num_pts=1, .points={ {0,0,0} }}
+#define MOVE_TO( DURATION, TO ) {.type =_POINT_TRANSIT, .ref =_POS_ABSOLUTE, .identifier=0, .duration=DURATION, .num_pts=1, .points={ TO }}
 #define MOVE_BETWEEN( DURATION, FROM, TO ) {.type =_LINE, .ref =_POS_ABSOLUTE, .identifier=0, .duration=DURATION, .num_pts=2, .points={ FROM, TO}}
-#define MOVE_BETWEEN_SMOOTH( DURATION, X1, Y1, Z1, X2, Y2, Z2 ) {.type =_CATMULL_SPLINE, .ref =_POS_ABSOLUTE, .identifier=0, .duration=DURATION, .num_pts=4, .points=POINT_PAIR_CATMULL_MM(X1, Y1, Z1, X2, Y2, Z2) }
-
+#define MOVE_BETWEEN_SMOOTH( DURATION, SMOOTH, X1, Y1, Z1, X2, Y2, Z2 ) {.type =_BEZIER_CUBIC, .ref =_POS_ABSOLUTE, .identifier=0, .duration=DURATION, .num_pts=4, .points=POINT_PAIR_CUBIC(X1*1000, Y1*1000, Z1*1000, X2*1000, Y2*1000, Z2*1000, SMOOTH) }
 
 /* -------------------------------------------------------------------------- */
 
 static const Movement_t demo_one[] = {
-        MOVE_BETWEEN_SMOOTH(2000, 0,0,0, 0,0,50),
-//        MOVE_TO( 2000, POINT_MM(0,0,50)),
+        // Move from the home point to our normal height
+        MOVE_BETWEEN_SMOOTH(1000, 0.005f, 0,0,0, 0,0,50),
 
-        MOVE_TO( 500,  POINT_MM(20,0,50)),
-        MOVE_TO( 1000, POINT_MM(-20,0,50)),
-        MOVE_TO( 500,  POINT_MM(0,0,50)),
+        DELAY_MOVEMENT( 200 ),
+        MOVE_BETWEEN_SMOOTH(500,  0.05f, 0,0,50, 0,60,50),
+        MOVE_BETWEEN_SMOOTH(1000, 0.05f, 0,60,50, 0,-60,50),
+        MOVE_BETWEEN_SMOOTH(500,  0.05f, 0,-60,50, 0,0,50),
+        DELAY_MOVEMENT( 100 ),
+        MOVE_BETWEEN_SMOOTH(500,  0.05f, 0,0,50, 60,0,50),
+        MOVE_BETWEEN_SMOOTH(1000, 0.05f, 60,0,50, -60,0,50),
+        MOVE_BETWEEN_SMOOTH(500,  0.05f, -60,0,50, 0,0,50),
 
-        MOVE_TO( 500,  POINT_MM(0,20,50)),
-        MOVE_TO( 1000, POINT_MM(0,-20,50)),
-        MOVE_TO( 500,  POINT_MM(0,0,50)),
 
+
+        // Go home
+        DELAY_MOVEMENT( 2000 ),
+        MOVE_TO( 2000, POINT_MM(0,0,0)),
 
 //        {.type =_POINT_TRANSIT, .ref =_POS_ABSOLUTE, .identifier=1, .duration=500, .num_pts=2, .points={ {.x = 23, .y=53, .z=50}, {.x = 5, .y=3, .z=8} }},
         };
