@@ -80,11 +80,12 @@ cartesian_move_distance(Movement_t *movement)
             for (uint32_t i = 1; i < SPEED_SAMPLE_RESOLUTION; i++)
             {
                 // convert the step into a 0-1 float for 'percentage across line' input
-                float sample_t = i / SPEED_SAMPLE_RESOLUTION;
+                float sample_t = (float)i / SPEED_SAMPLE_RESOLUTION;
 
                 // sample the position of the effector using the relevant interp processor
-                switch( movement->ref )
+                switch( movement->type )
                 {
+
                     case _BEZIER_QUADRATIC:
                         cartesian_point_on_quadratic_bezier(movement->points, movement->num_pts, sample_t,
                                                             &sample_point);
@@ -97,6 +98,11 @@ cartesian_move_distance(Movement_t *movement)
 
                     case _CATMULL_SPLINE:
                         cartesian_point_on_catmull_spline(movement->points, movement->num_pts, sample_t, &sample_point);
+                        break;
+
+                    case _POINT_TRANSIT:
+                    case _LINE:
+                        // these shouldn't be solved by slice-summation
                         break;
                 }
 
@@ -126,8 +132,8 @@ int32_t cartesian_distance_between(CartesianPoint_t *a, CartesianPoint_t *b)
         int32_t delta_x = a->x - b->x;
         int32_t delta_y = a->y - b->y;
         int32_t delta_z = a->z - b->z;
-        float dist =  sqrtf( (delta_x*delta_x) + (delta_y*delta_y) + (delta_z*delta_z) ) ;
-        distance = abs( dist );
+        float dist =  sqrtf( (float)(delta_x*delta_x) + (float)(delta_y*delta_y) + (float)(delta_z*delta_z) ) ;
+        distance = fabsf( dist );
     }
 
     return distance;
@@ -200,8 +206,8 @@ cartesian_point_on_catmull_spline( CartesianPoint_t *p, size_t points, float pos
     /* Derivation from http://www.mvps.org/directx/articles/catmull/
      *
 								[  0  2  0  0 ]   [ p0 ]
-	q(t) = 0.5( t, t^2, t^3 ) * [ -1  0  1  0 ] * [ p1 ]
-								[  2 -5  4 -1 ]   [ p2 ]
+	q(t) = 0.5( t, t^2, t^3 ) * | -1  0  1  0 | * | p1 |
+								|  2 -5  4 -1 |   | p2 |
 								[ -1  3 -3  1 ]   [ p3 ]
      */
 
@@ -288,7 +294,7 @@ cartesian_point_on_cubic_bezier( CartesianPoint_t *p, size_t points, float pos_w
 {
     if(points < 4)
     {
-        // need 3 points for quadratic solution
+        // need 4 points for cubic solution
         return SOLUTION_ERROR;
     }
 
