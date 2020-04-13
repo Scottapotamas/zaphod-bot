@@ -383,27 +383,28 @@ configuration_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t me
 
             }
 
-            if( strcmp( (char*)name_rx, "inmv" ) == 0 )
+            if( strcmp( (char*)name_rx, "inmv" ) == 0 && header.data_len )
             {
                 movement_generate_event();
             }
 
-            if( strcmp( (char*)name_rx, "inlt" ) == 0 )
+            if( strcmp( (char*)name_rx, "inlt" ) == 0 && header.data_len )
             {
                 lighting_generate_event();
             }
 
-            if( strcmp( (char*)name_rx, "tpos" ) == 0 )
+            if( strcmp( (char*)name_rx, "tpos" ) == 0 && header.data_len )
             {
                 tracked_position_event();
             }
 
-            if( strcmp( (char*)name_rx, "hsv" ) == 0 || strcmp( (char*)name_rx, "ledset" ) == 0 )
+            if( (    strcmp( (char*)name_rx, "hsv" ) == 0  ||  strcmp( (char*)name_rx, "ledset" ) == 0 )
+                  && header.data_len )
             {
                 rgb_manual_led_event();
             }
 
-            if( strcmp( (char*)name_rx, "capture" ) == 0 )
+            if( strcmp( (char*)name_rx, "capture" ) == 0 && header.data_len )
             {
                 trigger_camera_capture();
             }
