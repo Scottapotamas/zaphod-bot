@@ -36,16 +36,30 @@ static const Movement_t demo_one[] = {
         // Move from the home point to our normal height
         MOVE_BETWEEN_SMOOTH(1000, 0.005f, 0,0,0, 0,0,50),
 
-        DELAY_MOVEMENT( 200 ),
+//        MOVE_BETWEEN( 1000, POINT_MM(0,0,50), POINT_MM(-60,0,50)),
+//        MOVE_BETWEEN( 1000, POINT_MM(-60,0,50), POINT_MM(60,0,50)),
+//        MOVE_BETWEEN( 1000, POINT_MM(60,0,50), POINT_MM(0,0,50)),
+
+        // linear moves on x axis, then linear moves on y axis
+        DELAY_MOVEMENT( 100 ),
+        MOVE_BETWEEN_SMOOTH(1000, 0.05f, 0,0,50, -60,0,50),
+        MOVE_BETWEEN_SMOOTH(1000, 0.05f, -60,0,50, 60,0,50),
+        MOVE_BETWEEN_SMOOTH(1000, 0.05f, 60,0,50, 0,0,50),
+        DELAY_MOVEMENT( 100 ),
         MOVE_BETWEEN_SMOOTH(500,  0.05f, 0,0,50, 0,60,50),
-        MOVE_BETWEEN_SMOOTH(1000, 0.05f, 0,60,50, 0,-60,50),
+        MOVE_BETWEEN_SMOOTH(250, 0.01f, 0,60,50, 0,-60,50),
         MOVE_BETWEEN_SMOOTH(500,  0.05f, 0,-60,50, 0,0,50),
         DELAY_MOVEMENT( 100 ),
-        MOVE_BETWEEN_SMOOTH(500,  0.05f, 0,0,50, 60,0,50),
-        MOVE_BETWEEN_SMOOTH(1000, 0.05f, 60,0,50, -60,0,50),
-        MOVE_BETWEEN_SMOOTH(500,  0.05f, -60,0,50, 0,0,50),
 
-
+        // rectangle on xy plane
+        MOVE_BETWEEN_SMOOTH(800,  0.001f, 0,0,50, 45,45,50),
+        DELAY_MOVEMENT( 100 ),
+        MOVE_BETWEEN_SMOOTH(200,  0.01f, 45,45,50, -45,45,50),
+        MOVE_BETWEEN_SMOOTH(200,  0.01f, -45,45,50, -45,-45,50),
+        MOVE_BETWEEN_SMOOTH(200,  0.01f, -45,-45,50, 45,-45,50),
+        MOVE_BETWEEN_SMOOTH(200,  0.01f, 45,-45,50, 45,45,50),
+        DELAY_MOVEMENT( 100 ),
+        MOVE_BETWEEN_SMOOTH(600,  0.001f, 45,45,50, 0,0,50),
 
         // Go home
         DELAY_MOVEMENT( 2000 ),
