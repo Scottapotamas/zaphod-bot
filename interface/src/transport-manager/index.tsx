@@ -1,14 +1,11 @@
-require('@electricui/helpers')
-
-import { ipcRenderer } from 'electron'
-import React from 'react'
-import ReactDOM from 'react-dom'
-
-import { setupProxyServer } from '@electricui/components-core'
-
-import { deviceManager } from './config'
+import 'source-map-support/register'
 
 import { Debug } from './pages/Debug'
+import React from 'react'
+import ReactDOM from 'react-dom'
+import { deviceManager } from './config'
+import { ipcRenderer } from 'electron'
+import { setupProxyServer } from '@electricui/components-core'
 
 const root = document.createElement('div')
 document.body.appendChild(root)

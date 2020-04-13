@@ -1,80 +1,22 @@
-import { Toaster as BlueprintToaster, Position } from '@blueprintjs/core'
-import {
-  CONNECTION_STATE,
-  ConnectionMetadata,
-  DeviceMetadata,
-  HANDSHAKE_STATES,
-  Message,
-} from '@electricui/core'
-import {
-  InjectedDeviceManagerProps,
-  UI_EVENTS,
-  withDeviceManager,
-} from '@electricui/components-core'
-import React, { Component } from 'react'
+import { React, useCallback } from 'react'
+import { Toaster, Position } from '@blueprintjs/core'
+import { Message } from '@electricui/core'
+import { useMessageSubscription } from '@electricui/components-core'
 
-export const Toaster = BlueprintToaster.create({
+const ToastEmitter = Toaster.create({
   className: 'error-toaster',
   position: Position.TOP,
 })
 
-class BreadFactoryWithoutDeviceManager extends Component<
-  InjectedDeviceManagerProps
-> {
-  errorCounter: Map<string, number> = new Map()
-  errorTimer: Map<string, number> = new Map()
-
-  componentDidMount() {
-    const { deviceManager } = this.props
-
-    deviceManager.on(UI_EVENTS.COMMITTED, this.receiveMessage) // prettier-ignore
-
-    console.log()
-  }
-
-  componentWillUnmount() {
-    const { deviceManager } = this.props
-
-    deviceManager.removeListener(UI_EVENTS.COMMITTED, this.receiveMessage) // prettier-ignore
-  }
-
-  receiveMessage = (message: Message) => {
-    if (message.metadata.internal) return
-
-    if (message.deviceID === null) {
-      console.warn('Found a message with a null deviceID', message)
-      return
+export function ToastConnector() {
+  const toastFunction = useCallback((message: Message) => {
+    if (message.messageID === 'error') {
+      ToastEmitter.show(
+        { message: message.payload, intent: 'warning' },
+        message.payload,
+      )
     }
-
-    if (message.messageID === 'err') {
-      if (
-        this.errorCounter.has(message.payload) &&
-        this.errorTimer.get(message.payload)! > new Date().getTime()
-      ) {
-        const counter = this.errorCounter.get(message.payload)! + 1
-
-        this.errorCounter.set(message.payload, counter)
-        this.errorTimer.set(message.payload, new Date().getTime() + 10000)
-
-        Toaster.show(
-          { message: `${message.payload} (${counter})`, intent: 'warning' },
-          message.payload,
-        )
-      } else {
-        Toaster.show(
-          { message: message.payload, intent: 'warning' },
-          message.payload,
-        )
-        this.errorCounter.set(message.payload, 0)
-        this.errorTimer.set(message.payload, new Date().getTime() + 10000)
-      }
-    }
-  }
-
-  render() {
-    // we never render anything
-    return null
-  }
+  }, [])
+  useMessageSubscription(toastFunction)
+  return null
 }
-
-export const BreadFactory = withDeviceManager(BreadFactoryWithoutDeviceManager)

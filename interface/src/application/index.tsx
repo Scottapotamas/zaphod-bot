@@ -1,10 +1,4 @@
-require('@electricui/helpers')
-
-import './normalize.css'
-import '@blueprintjs/icons/lib/css/blueprint-icons.css'
-import '@blueprintjs/core/lib/css/blueprint.css'
-import '@electricui/components-desktop-blueprint/lib/bundle.css'
-import './index.css'
+import 'source-map-support/register'
 
 import React from 'react'
 import ReactDOM from 'react-dom'

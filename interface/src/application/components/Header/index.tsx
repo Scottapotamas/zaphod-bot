@@ -7,7 +7,7 @@ import {
   Tooltip,
 } from '@blueprintjs/core'
 
-import { BreadFactory } from '../../Toaster'
+import { ToastConnector } from '../../Toaster'
 import React from 'react'
 import { RouteComponentProps } from '@reach/router'
 import { navigate } from '@electricui/utility-electron'
@@ -71,7 +71,7 @@ export const Header = (
           </Navbar.Group>
         </div>
       </Navbar>
-      <BreadFactory />
+      <ToastConnector />
     </div>
   )
 }

@@ -31,7 +31,10 @@ import {
   TimeAxis,
   VerticalAxis,
 } from '@electricui/components-desktop-charts'
-import { MessageDataSource } from '@electricui/core-timeseries'
+import {
+  MessageDataSource,
+  RollingStorageRequest,
+} from '@electricui/core-timeseries'
 
 import { Printer } from '@electricui/components-desktop'
 
@@ -68,8 +71,13 @@ export const CoolingDetails = () => {
 
   return (
     <div>
-      <IntervalRequester variables={['temp']} interval={1000} />
+      <IntervalRequester variables={['temp']} interval={500} />
       <IntervalRequester variables={['fan']} interval={250} />
+      <RollingStorageRequest
+        dataSource={temperatureDataSource}
+        maxItems={300}
+        persist
+      />
 
       <ChartContainer>
         <LineChart
@@ -88,7 +96,7 @@ export const CoolingDetails = () => {
           maxItems={1000}
         />
         {/* Plot a 10-minute window */}
-        <RealTimeDomain window={600000} delay={250} />
+        <RealTimeDomain window={[5000, 10_000, 20_000, 60_000]} delay={500} />
         <TimeAxis />
         <VerticalAxis />
       </ChartContainer>
@@ -115,23 +123,6 @@ export const CoolingDetails = () => {
             </FanArea>
           </React.Fragment>
         )}
-      </Composition>
-      <br />
-      <br />
-      <Composition gap={20} templateCols="1fr 2fr">
-        <Box>
-          <Switch
-            unchecked={{ fan_manual_en: 0 }}
-            checked={{ fan_manual_en: 1 }}
-          >
-            Manual Fan Control
-          </Switch>
-        </Box>
-        <Box>
-          <Slider min={0} max={100} labelStepSize={25}>
-            <Slider.Handle accessor="fan_man_speed" />
-          </Slider>
-        </Box>
       </Composition>
     </div>
   )

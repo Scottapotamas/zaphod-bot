@@ -5,7 +5,7 @@ import React from 'react'
 
 import { Button } from '@electricui/components-desktop-blueprint'
 import { CONTROL_MODES } from '../../../../transport-manager/config/codecs'
-import EventPalette from './EventPalette'
+// import EventPalette from './EventPalette'
 import ManualJogPalette from './ManualJogPalette'
 import TrackPalette from './TrackPalette'
 
@@ -19,7 +19,9 @@ const ModeSelectButtons = () => {
           minimal
           large
           icon="move"
-          writer={{ req_mode: 1 }}
+          writer={state => {
+            state.req_mode = 1
+          }}
           active={control_mode == CONTROL_MODES[CONTROL_MODES.MANUAL]}
         >
           Manual Jog
@@ -28,7 +30,9 @@ const ModeSelectButtons = () => {
           minimal
           large
           icon="flow-end"
-          writer={{ req_mode: 3 }}
+          writer={state => {
+            state.req_mode = 3
+          }}
           active={control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]}
         >
           Track
@@ -37,7 +41,9 @@ const ModeSelectButtons = () => {
           minimal
           large
           icon="projects"
-          writer={{ req_mode: 4 }}
+          writer={state => {
+            state.req_mode = 4
+          }}
           active={control_mode == CONTROL_MODES[CONTROL_MODES.DEMO]}
         >
           Demo
@@ -46,7 +52,9 @@ const ModeSelectButtons = () => {
           minimal
           large
           icon="document-open"
-          writer={{ req_mode: 2 }}
+          writer={state => {
+            state.req_mode = 2
+          }}
           active={control_mode == CONTROL_MODES[CONTROL_MODES.EVENT]}
         >
           Run Program
@@ -69,7 +77,13 @@ const ControlSurfaceFromMode = () => {
   } else if (control_mode == CONTROL_MODES[CONTROL_MODES.MANUAL]) {
     return <ManualJogPalette />
   } else if (control_mode == CONTROL_MODES[CONTROL_MODES.EVENT]) {
-    return <EventPalette />
+    // return <EventPalette />
+    return (
+      <NonIdealState
+        title="Event Pannel Broken"
+        description="Scott broke this when updating the ui to latest versions"
+      />
+    )
   } else if (control_mode == CONTROL_MODES[CONTROL_MODES.DEMO]) {
     return (
       <NonIdealState

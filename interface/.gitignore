@@ -54,3 +54,9 @@ dist
 
 # Release folder
 release
+
+# Yarn
+.yarn/*
+!.yarn/releases
+!.yarn/plugins
+.pnp.*

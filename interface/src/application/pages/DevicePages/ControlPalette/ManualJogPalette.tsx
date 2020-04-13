@@ -26,14 +26,14 @@ const JogPalette = (props: JogPaletteProps) => {
           <XP>
             <Button
               large
-              writer={{
-                inmv: {
+              writer={state => {
+                state.inmv = {
                   type: 0,
                   reference: 1,
                   id: 0,
                   duration: props.time,
                   points: [[props.distance, 0, 0]],
-                },
+                }
               }}
             >
               <Icon icon="arrow-top-left" iconSize={50} />
@@ -42,14 +42,14 @@ const JogPalette = (props: JogPaletteProps) => {
           <YP>
             <Button
               large
-              writer={{
-                inmv: {
+              writer={state => {
+                state.inmv = {
                   type: 0,
                   reference: 1,
                   id: 0,
                   duration: props.time,
                   points: [[0, props.distance, 0]],
-                },
+                }
               }}
             >
               <Icon icon="arrow-top-right" iconSize={50} />
@@ -58,14 +58,14 @@ const JogPalette = (props: JogPaletteProps) => {
           <XM>
             <Button
               large
-              writer={{
-                inmv: {
+              writer={state => {
+                state.inmv = {
                   type: 0,
                   reference: 1,
                   id: 0,
                   duration: props.time,
                   points: [[-props.distance, 0, 0]],
-                },
+                }
               }}
             >
               <Icon icon="arrow-bottom-right" iconSize={50} />
@@ -74,14 +74,14 @@ const JogPalette = (props: JogPaletteProps) => {
           <YM>
             <Button
               large
-              writer={{
-                inmv: {
+              writer={state => {
+                state.inmv = {
                   type: 0,
                   reference: 1,
                   id: 0,
                   duration: props.time,
                   points: [[0, -props.distance, 0]],
-                },
+                }
               }}
             >
               <Icon icon="arrow-bottom-left" iconSize={50} />
@@ -91,14 +91,14 @@ const JogPalette = (props: JogPaletteProps) => {
             <Button
               large
               fill
-              writer={{
-                inmv: {
+              writer={state => {
+                state.inmv = {
                   type: 0,
                   reference: 1,
                   id: 0,
                   duration: props.time,
                   points: [[0, 0, props.distance]],
-                },
+                }
               }}
             >
               <Icon icon="arrow-up" iconSize={50} />
@@ -108,14 +108,14 @@ const JogPalette = (props: JogPaletteProps) => {
             <Button
               large
               fill
-              writer={{
-                inmv: {
+              writer={state => {
+                state.inmv = {
                   type: 0,
                   reference: 1,
                   id: 0,
                   duration: props.time,
                   points: [[0, 0, -props.distance]],
-                },
+                }
               }}
             >
               <Icon icon="arrow-down" iconSize={50} />

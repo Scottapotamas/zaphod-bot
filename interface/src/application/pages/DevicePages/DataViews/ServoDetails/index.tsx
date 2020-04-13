@@ -32,7 +32,10 @@ import {
   useHardwareState,
 } from '@electricui/components-core'
 
-import { MessageDataSource } from '@electricui/core-timeseries'
+import {
+  MessageDataSource,
+  RollingStorageRequest,
+} from '@electricui/core-timeseries'
 import { Printer, useDarkMode } from '@electricui/components-desktop'
 import { ServoTelemetry } from '../../../../../transport-manager/config/codecs'
 
@@ -199,6 +202,12 @@ export const ServoDetails = () => {
   return (
     <div>
       <IntervalRequester variables={['servo']} interval={50} />
+      <RollingStorageRequest
+        dataSource={servoTelemetryDataSource}
+        maxItems={250}
+        persist
+      />
+
       <ChartContainer>
         {Array.from(new Array(numMotors)).map((_, index) => (
           <LineChart
@@ -209,6 +218,19 @@ export const ServoDetails = () => {
           />
         ))}
         <RealTimeDomain window={10000} yMin={-45} yMax={20} delay={100} />
+        <TimeAxis />
+        <VerticalAxis />
+      </ChartContainer>
+      <ChartContainer>
+        {Array.from(new Array(numMotors)).map((_, index) => (
+          <LineChart
+            dataSource={servoTelemetryDataSource}
+            accessor={state => state.servo[index].feedback}
+            maxItems={10000}
+            color={servoColours[index]}
+          />
+        ))}
+        <RealTimeDomain window={10000} yMin={-100} yMax={100} delay={100} />
         <TimeAxis />
         <VerticalAxis />
       </ChartContainer>

@@ -217,7 +217,7 @@ export class MotorDataCodec extends Codec {
       const motor: ServoTelemetry = {
         enabled: reader.readUInt8() === 0x01 ? true : false,
         state: reader.readUInt8(),
-        feedback: reader.readUInt16LE() / 10,
+        feedback: reader.readInt16LE() / 10,
         target_angle: reader.readFloatLE(),
         power: reader.readFloatLE(),
       }

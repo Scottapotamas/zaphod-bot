@@ -55,14 +55,23 @@ const ArmControlButton = () => {
           large
           disabled
           intent="none"
-          writer={{ disarm: CALL_CALLBACK }}
+          writer={state => {
+            state.disarm = CALL_CALLBACK
+          }}
         >
           Select a mode before arming
         </Button>
       )
     } else {
       return (
-        <Button fill large intent="warning" writer={{ arm: CALL_CALLBACK }}>
+        <Button
+          fill
+          large
+          intent="warning"
+          writer={state => {
+            state.arm = CALL_CALLBACK
+          }}
+        >
           Arm ({control_mode})
         </Button>
       )
@@ -70,7 +79,14 @@ const ArmControlButton = () => {
   }
 
   return (
-    <Button fill large intent="primary" writer={{ disarm: CALL_CALLBACK }}>
+    <Button
+      fill
+      large
+      intent="primary"
+      writer={state => {
+        state.disarm = CALL_CALLBACK
+      }}
+    >
       Disarm
     </Button>
   )
@@ -126,7 +142,9 @@ const SystemOverview = () => {
                 fill
                 large
                 intent="success"
-                writer={{ home: CALL_CALLBACK }}
+                writer={state => {
+                  state.home = CALL_CALLBACK
+                }}
               >
                 Home
               </Button>

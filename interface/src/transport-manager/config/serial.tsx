@@ -1,33 +1,31 @@
 import {
-  Codec,
-  CodecDuplexPipeline,
-  ConnectionInterface,
-  ConnectionStaticMetadataReporter,
-  DiscoveryHintConsumer,
-  Hint,
-  Message,
-  PushCallback,
-  TransportFactory,
-  TypeCache,
-} from '@electricui/core'
-import {
   BinaryPipeline,
   BinaryTypeCachePipeline,
   DeliverabilityManagerBinaryProtocol,
   QueryManagerBinaryProtocol,
 } from '@electricui/protocol-binary'
-import { COBSPipeline } from '@electricui/protocol-binary-cobs'
-import { defaultCodecList } from '@electricui/protocol-binary-codecs'
-import { HeartbeatConnectionMetadataReporter } from '@electricui/protocol-binary-heartbeats'
+import {
+  CodecDuplexPipeline,
+  ConnectionInterface,
+  ConnectionStaticMetadataReporter,
+  DiscoveryHintConsumer,
+  Hint,
+  TransportFactory,
+  TypeCache,
+} from '@electricui/core'
 import {
   SerialPortHintProducer,
   SerialPortHintTransformer,
   SerialTransport,
+  SerialTransportOptions,
 } from '@electricui/transport-node-serial'
-import { USBHintProducer } from '@electricui/transport-node-usb-discovery'
-import { BinaryLargePacketHandlerPipeline } from '@electricui/protocol-binary-large-packet-handler'
 
+import { BinaryLargePacketHandlerPipeline } from '@electricui/protocol-binary-large-packet-handler'
+import { COBSPipeline } from '@electricui/protocol-binary-cobs'
+import { HeartbeatConnectionMetadataReporter } from '@electricui/protocol-binary-heartbeats'
+import { USBHintProducer } from '@electricui/transport-node-usb-discovery'
 import { customCodecs } from './codecs'
+import { defaultCodecList } from '@electricui/protocol-binary-codecs'
 
 const typeCache = new TypeCache()
 
@@ -37,7 +35,7 @@ const USB = require('@electricui/node-usb')
 
 const serialProducer = new SerialPortHintProducer({
   SerialPort,
-  baudRate: 115200,
+  baudRate: 500000,
 })
 
 const usbProducer = new USBHintProducer({
@@ -131,11 +129,14 @@ const serialConsumer = new DiscoveryHintConsumer({
     const identification = hint.getIdentification()
     const configuration = hint.getConfiguration()
 
-    return {
+    const options: SerialTransportOptions = {
       SerialPort,
       comPath: identification.comPath,
       baudRate: configuration.baudRate,
+      // if you have an Arduino that resets on connection, uncomment this line to delay the connection
+      // attachmentDelay: 2500,
     }
+    return options
   },
 })
 

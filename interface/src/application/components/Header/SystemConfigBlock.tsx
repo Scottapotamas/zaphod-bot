@@ -27,8 +27,6 @@ import {
 import { Printer } from '@electricui/components-desktop'
 import { CALL_CALLBACK } from '@electricui/core'
 
-import LEDCalibrationModal from '../LEDCalibrationModal'
-
 import KinematicsDiagram from '../KinematicsDiagram'
 
 const KinematicsAreas = `
@@ -123,50 +121,50 @@ const LEDCalibrationCard = () => {
             <h3>Whitebalance Check</h3>
             <ButtonGroup fill>
               <Button
-                writer={{
-                  hsv: {
+                writer={state => {
+                  state.hsv = {
                     hue: 0,
                     saturation: 0,
                     lightness: 0,
                     enable: 0,
-                  },
+                  }
                 }}
               >
                 Off
               </Button>
 
               <Button
-                writer={{
-                  hsv: {
+                writer={state => {
+                  state.hsv = {
                     hue: 0,
                     saturation: 0,
                     lightness: 0.1,
                     enable: 1,
-                  },
+                  }
                 }}
               >
                 10%
               </Button>
               <Button
-                writer={{
-                  hsv: {
+                writer={state => {
+                  state.hsv = {
                     hue: 0,
                     saturation: 0,
                     lightness: 0.5,
                     enable: 1,
-                  },
+                  }
                 }}
               >
                 50%
               </Button>
               <Button
-                writer={{
-                  hsv: {
+                writer={state => {
+                  state.hsv = {
                     hue: 0,
                     saturation: 0,
                     lightness: 1.0,
                     enable: 1,
-                  },
+                  }
                 }}
               >
                 100%
@@ -176,13 +174,13 @@ const LEDCalibrationCard = () => {
             <h3>Colour Check</h3>
             <ButtonGroup fill>
               <Button
-                writer={{
-                  hsv: {
+                writer={state => {
+                  state.hsv = {
                     hue: 0,
                     saturation: 0.0,
                     lightness: 0.0,
                     enable: 0,
-                  },
+                  }
                 }}
               >
                 Off
@@ -190,39 +188,39 @@ const LEDCalibrationCard = () => {
 
               <Button
                 intent="danger"
-                writer={{
-                  hsv: {
+                writer={state => {
+                  state.hsv = {
                     hue: 0,
                     saturation: 1.0,
                     lightness: 0.5,
                     enable: 1,
-                  },
+                  }
                 }}
               >
                 Red
               </Button>
               <Button
                 intent="success"
-                writer={{
-                  hsv: {
+                writer={state => {
+                  state.hsv = {
                     hue: 0.33,
                     saturation: 1,
                     lightness: 0.5,
                     enable: 1,
-                  },
+                  }
                 }}
               >
                 Green
               </Button>
               <Button
                 intent="primary"
-                writer={{
-                  hsv: {
+                writer={state => {
+                  state.hsv = {
                     hue: 0.66,
                     saturation: 0,
                     lightness: 0.5,
                     enable: 1,
-                  },
+                  }
                 }}
               >
                 Blue

@@ -19,11 +19,11 @@ import { BinaryConnectionHandshake } from '@electricui/protocol-binary-connectio
 import { HintValidatorBinaryHandshake } from '@electricui/protocol-binary'
 import { MessageQueueBinaryFIFO } from '@electricui/protocol-binary-fifo-queue'
 
-import { ActionsPlugin } from '@electricui/core-actions'
+// import { ActionsPlugin } from '@electricui/core-actions'
 import { AutoConnectPlugin } from './autoconnect'
 import { movementQueueSequencer, lightQueueSequencer } from './sequence-senders'
 
-import actions from './actions'
+// import actions from './actions'
 
 /**
  * Create our device manager!
@@ -105,8 +105,8 @@ deviceManager.addConnectionMetadataRules([
   ),
 ])
 
-const actionsPlugin = new ActionsPlugin()
-actionsPlugin.addActions(actions)
+// const actionsPlugin = new ActionsPlugin()
+// actionsPlugin.addActions(actions)
 
 const autoConnectPlugin = new AutoConnectPlugin([
   // { type: 'Camera' },
@@ -114,8 +114,8 @@ const autoConnectPlugin = new AutoConnectPlugin([
 ])
 
 deviceManager.addPlugins([
-  actionsPlugin,
-  autoConnectPlugin,
+  // actionsPlugin,
+  //autoConnectPlugin,
   movementQueueSequencer,
   lightQueueSequencer,
 ])

@@ -10,6 +10,8 @@ import {
 // Request and Process a 'name' for every device
 
 class RequestName extends DiscoveryMetadataRequester {
+  name: 'request-name'
+
   canRequestMetadata(device: Device) {
     return true
   }

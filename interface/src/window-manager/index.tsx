@@ -1,5 +1,9 @@
+import 'source-map-support/register'
+
 import { BrowserWindow, Menu, app } from 'electron'
 import {
+  ExternallyResolvedPromise,
+  createdNewUIWindow,
   fetchSystemDarkModeFromWinManager,
   getElectricWindow,
   getSettingFromWinManager,
@@ -15,6 +19,9 @@ import { join as pathJoin } from 'path'
 
 const isDevelopment = process.env.NODE_ENV === 'development'
 
+// Disallow process reuse
+app.allowRendererProcessReuse = false
+
 // Setup persistent settings helpers
 setupSettingsPathing()
 setupSettingsListenersWindowManager()
@@ -22,18 +29,21 @@ setupSettingsListenersWindowManager()
 // global reference to mainWindows (necessary to prevent window from being garbage collected)
 let mainWindows: Array<BrowserWindow> = []
 
+const transportReady = setupElectricUIHandlers(mainWindows)
+
 function createMainWindow() {
   const window = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
       devTools: isDevelopment, // Only allow devTools in development mode
     },
-    minHeight: 770,
+    minHeight: 680,
     minWidth: 1200,
-    height: 900,
-    width: 1450,
-    title: 'Deep Thought',
+    height: 680,
+    width: 1200,
+    title: 'Electric UI',
     backgroundColor: '#191b1d', // This needs to be set to something so the background on resize can be changed to match the dark / light mode theme
+    show: false, // The window is shown once the transport manager is ready
   })
 
   if (isDevelopment) {
@@ -73,6 +83,9 @@ function createMainWindow() {
     window.webContents.openDevTools()
   }
 
+  // Notify the handler that we have a new window
+  createdNewUIWindow(window)
+
   return window
 }
 
@@ -100,7 +113,16 @@ app.on('activate', () => {
 
 // create main BrowserWindow when electron is ready
 app.on('ready', () => {
-  mainWindows.push(createMainWindow()) // add a new window
+  const firstWindow = createMainWindow()
+  mainWindows.push(firstWindow) // add a new window
+
+  const firstWindowReady = new ExternallyResolvedPromise()
+  firstWindow.once('ready-to-show', firstWindowReady.resolve)
+
+  // Wait until the transport and the window is ready before showing the first window
+  Promise.all([firstWindowReady.getPromise(), transportReady]).then(() => {
+    firstWindow.show()
+  })
 
   // A secure policy to prevent running scripts external to this browser.
 
@@ -117,8 +139,6 @@ app.on('ready', () => {
   })
   */
 })
-
-setupElectricUIHandlers(mainWindows)
 
 /**
  * Setup our main menu bar
@@ -149,26 +169,7 @@ const template = [
   // { role: 'fileMenu' }
   {
     label: 'File',
-    submenu: [
-      ...(process.env.NODE_ENV === 'development'
-        ? [
-            {
-              label: 'Show Transport Window',
-              click: () => {
-                const electricWindow = getElectricWindow()
-
-                if (electricWindow) {
-                  electricWindow.show()
-                  electricWindow.webContents.openDevTools({
-                    mode: 'undocked',
-                  })
-                }
-              },
-            },
-          ]
-        : []),
-      { role: 'quit', label: 'Quit Electric UI' },
-    ], // isMac ? { role: 'close' } : { role: 'quit' }
+    submenu: [{ role: 'quit', label: 'Quit Electric UI' }],
   },
   // { role: 'editMenu' }
   {
@@ -223,23 +224,13 @@ const template = [
       },
 
       { type: 'separator' },
-      { role: 'reload' },
-      { role: 'forcereload' },
-      { role: 'toggledevtools' },
-      { type: 'separator' },
-      { role: 'resetzoom' },
+      // Window magnification options
       { role: 'zoomin' },
       { role: 'zoomout' },
+      { role: 'resetzoom' },
       { type: 'separator' },
+      // Fullscreen Toggle
       { role: 'togglefullscreen' },
-    ],
-  },
-  // { role: 'windowMenu' }
-  {
-    label: 'Window',
-    submenu: [
-      { role: 'minimize' },
-      { role: 'zoom' },
       ...(isMac
         ? [
             { type: 'separator' },
@@ -247,14 +238,43 @@ const template = [
             { type: 'separator' },
             { role: 'window' },
           ]
-        : [{ role: 'close' }]),
+        : [{ type: 'separator' }, { role: 'close' }]),
     ],
   },
+  ...(process.env.NODE_ENV === 'development'
+    ? [
+        {
+          label: 'DevTools',
+          submenu: [
+            { role: 'reload' },
+            { role: 'forcereload' },
+            { type: 'separator' },
+
+            { role: 'toggledevtools' },
+            {
+              label: 'Show Transport Window',
+              click: () => {
+                const electricWindow = getElectricWindow()
+
+                if (electricWindow) {
+                  electricWindow.show()
+                  electricWindow.webContents.openDevTools({
+                    mode: 'undocked',
+                  })
+                }
+              },
+            },
+          ],
+        },
+      ]
+    : []),
   {
     role: 'help',
     submenu: [
+      { role: 'reload' },
+      { type: 'separator' },
       {
-        label: 'Learn more about Electric UI',
+        label: 'Learn More about Electric UI',
         click() {
           require('electron').shell.openExternal('https://electricui.com')
         },
