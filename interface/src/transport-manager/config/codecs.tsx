@@ -34,6 +34,50 @@ export class SystemDataCodec extends Codec {
   }
 }
 
+export type TaskStatistics = {
+  id: number
+  ready: boolean
+  queue_used: number
+  queue_max: number
+  waiting_max: number
+  burst_max: number
+  name: string
+}
+
+export class TaskStatisticsCodec extends Codec {
+  filter(message: Message): boolean {
+    return message.messageID === 'tasks'
+  }
+
+  decode(
+    message: Message<Buffer>,
+    push: PushCallback<Message<TaskStatistics[] | null>>,
+  ) {
+    if (message.payload === null) {
+      return push((message as unknown) as Message<null>)
+    }
+
+    const reader = SmartBuffer.fromBuffer(message.payload)
+
+    const taskStats: TaskStatistics[] = []
+
+    while (reader.remaining() > 0) {
+      const task: TaskStatistics = {
+        id: reader.readUInt8(),
+        ready: reader.readUInt8() === 0x01 ? true : false,
+        queue_used: reader.readUInt8(),
+        queue_max: reader.readUInt8(),
+        waiting_max: reader.readUInt32LE(),
+        burst_max: reader.readUInt32LE(),
+        name: reader.readString(12, 'utf8');
+      }
+      taskStats.push(task)
+    }
+
+    return push(message.setPayload(taskStats))
+  }
+}
+
 export class TempDataCodec extends Codec {
   filter(message: Message): boolean {
     return message.messageID === 'temp'
@@ -166,8 +210,6 @@ export class FirmwareBuildInfoCodec extends Codec {
     }
 
     const payloadBuffer = message.payload as Buffer
-
-    console.log('Buffer: ' + payloadBuffer.toString('hex'))
 
     const chunks = splitBufferByLength(payloadBuffer, 12)
     const strings = chunks.map(chunk =>
@@ -621,6 +663,7 @@ export class PowerCalibrationCodec extends Codec {
 
 export const customCodecs = [
   new SystemDataCodec(),
+  new TaskStatisticsCodec(),
   new TempDataCodec(),
   new FanCodec(),
   new QueueDepthCodec(),

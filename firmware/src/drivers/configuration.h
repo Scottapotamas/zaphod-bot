@@ -81,7 +81,12 @@ PUBLIC void
 config_set_cpu_clock(uint32_t clock);
 
 PUBLIC void
+config_update_task_statistics(void );
+
+PUBLIC void
 config_set_cpu_temp( float temp );
+
+/* -------------------------------------------------------------------------- */
 
 PUBLIC void
 config_set_sensors_enabled(bool enable );

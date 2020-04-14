@@ -5,6 +5,9 @@
 #include "configuration.h"
 #include "electricui.h"
 
+#include "app_tasks.h"
+#include "app_task_ids.h"
+
 #include "hal_flashmem.h"
 #include "hal_uuid.h"
 #include "app_version.h"
@@ -43,6 +46,16 @@ typedef struct
 	char build_type[12];
     char build_name[12];
 } BuildInfo_t;
+
+typedef struct {
+    uint8_t id;             // index of the task (pseudo priority)
+    uint8_t ready;
+    uint8_t queue_used;
+    uint8_t queue_max;
+    uint32_t waiting_max;
+    uint32_t burst_max;
+    char name[12];          // human readable taskname set during app_tasks setup
+} Task_Info_t;
 
 typedef struct
 {
@@ -145,6 +158,7 @@ typedef struct
 
 SystemData_t 	sys_stats;
 BuildInfo_t		fw_info;
+Task_Info_t task_info[TASK_MAX] = {0};
 KinematicsInfo_t mechanical_info;
 
 FanData_t 		fan_stats;
@@ -208,12 +222,12 @@ uint32_t camera_shutter_duration_ms = 0;
 eui_message_t ui_variables[] =
 {
     // Higher level system setup information
-    EUI_CUSTOM("sys", sys_stats),
     EUI_CHAR_RO_ARRAY("name", device_nickname),
     EUI_CHAR_RO_ARRAY("reset_type", reset_cause),
-
+    EUI_CUSTOM("sys", sys_stats),
     EUI_CUSTOM("super", sys_states),
     EUI_CUSTOM("fwb", fw_info),
+    EUI_CUSTOM("tasks", task_info),
     EUI_CUSTOM_RO( "kinematics", mechanical_info),
 
     // Temperature and cooling system
@@ -223,7 +237,6 @@ eui_message_t ui_variables[] =
 
     EUI_UINT8("fan_man_speed", fan_manual_setpoint),
     EUI_UINT8( "fan_manual_en", fan_manual_enable),
-
 
     // motion related information
     EUI_CUSTOM_RO( "queue", queue_data),
@@ -438,7 +451,7 @@ PUBLIC void
 config_set_reset_cause( const char * reset_description )
 {
     memset(&reset_cause, 0, sizeof(reset_cause));
-    strcpy(&reset_cause, reset_description );
+    strcpy((char *) &reset_cause, reset_description );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -472,10 +485,34 @@ config_set_cpu_clock(uint32_t clock)
 }
 
 PUBLIC void
+config_update_task_statistics( void )
+{
+    for( uint8_t id = (TASK_MAX-1); id > 0; id-- )
+    {
+        StateTask *t = app_task_by_id( id );
+        if( t )
+        {
+            task_info[id].id            = t->id;
+            task_info[id].ready         = t->ready;
+            task_info[id].queue_used    = t->eventQueue.used;
+            task_info[id].queue_max     = t->eventQueue.max;
+            task_info[id].waiting_max       = t->waiting_max;
+            task_info[id].burst_max     = t->burst_max;
+
+            memset(&task_info[id].name, 0, sizeof(task_info[0].name));
+            strcpy((char *) &task_info[id].name, t->name );
+        }
+    }
+    //app_task_clear_statistics();
+}
+
+PUBLIC void
 config_set_cpu_temp( float temp )
 {
 	sys_stats.cpu_temp = temp;
 }
+
+/* -------------------------------------------------------------------------- */
 
 PUBLIC void
 config_set_sensors_enabled(bool enable )

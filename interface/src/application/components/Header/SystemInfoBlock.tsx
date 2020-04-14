@@ -71,6 +71,10 @@ export const CoreSystemsInfoCard = () => {
   const cpu_clock = useHardwareState(state => state.sys.cpu_clock)
   const last_reset_reason = useHardwareState(state => state.reset_type)
 
+  const num_tasks: number | null = useHardwareState(
+    state => (state.tasks || []).length,
+  )
+
   return (
     <Composition
       templateCols="1fr 1fr"
@@ -79,7 +83,7 @@ export const CoreSystemsInfoCard = () => {
       gap={30}
     >
       <Box>
-        <IntervalRequester interval={200} variables={['sys']} />
+        <IntervalRequester interval={200} variables={['sys', 'tasks']} />
         <Composition templateCols="auto" gap={20} justifyItems="center">
           <Box>
             <Statistic value={<CPUText />} label={`load at ${cpu_clock}MHz`} />
@@ -151,6 +155,54 @@ export const CoreSystemsInfoCard = () => {
                 <Printer accessor={state => state.fwb.time} />
               </td>
             </tr>
+          </tbody>
+        </HTMLTable>
+      </Box>
+      <Box>
+        <HTMLTable striped style={{ minWidth: '100%' }}>
+          <thead>
+            <tr>
+              <th>Task</th>
+              <th>ID</th>
+              <th>Ready</th>
+              <th>Queue Usage</th>
+              <th>Waiting Max</th>
+              <th>Burst Max</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Array.from(new Array(num_tasks)).map((_, index) => (
+              <>
+                <tr>
+                  <td>
+                    <b>
+                      <Printer accessor={state => state.tasks[index].name} />
+                    </b>
+                  </td>
+                  <td>
+                    <Printer accessor={state => state.tasks[index].id} />
+                  </td>
+                  <td>
+                    <Printer accessor={state => state.tasks[index].ready} />
+                  </td>
+                  <td>
+                    <Printer
+                      accessor={state => state.tasks[index].queue_used}
+                    />{' '}
+                    /{' '}
+                    <Printer accessor={state => state.tasks[index].queue_max} />
+                  </td>
+                  <td>
+                    <Printer
+                      accessor={state => state.tasks[index].waiting_max}
+                    />
+                  </td>
+                  <td>
+                    <Printer accessor={state => state.tasks[index].burst_max} />
+                  </td>
+                </tr>
+              </>
+            ))}
           </tbody>
         </HTMLTable>
       </Box>

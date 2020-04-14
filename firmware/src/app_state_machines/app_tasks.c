@@ -9,7 +9,6 @@
 #include "state_tasker.h"
 #include "event_subscribe.h"
 #include "qassert.h"
-#include "app_config.h"
 #include "app_task_ids.h"
 #include "app_signals.h"
 #include "app_events.h"
@@ -26,8 +25,6 @@
 #include "button.h"
 #include "hal_button.h"
 #include "hal_systick.h"
-#include "hal_delay.h"
-#include "hal_adc.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -130,7 +127,7 @@ void app_tasks_init( void )
 							 appTaskMotionQueue,
 							 DIM(appTaskMotionQueue) );
 
-    stateTaskerAddTask( &mainTasker, t, TASK_MOTION, "Illuminator" );
+    stateTaskerAddTask( &mainTasker, t, TASK_MOTION, "Movement" );
     stateTaskerStartTask( &mainTasker, t );
 
     // Handle LED control
@@ -140,7 +137,7 @@ void app_tasks_init( void )
                              appTaskLedQueue,
                              DIM(appTaskLedQueue) );
 
-    stateTaskerAddTask( &mainTasker, t, TASK_LIGHTING, "Plannner" );
+    stateTaskerAddTask( &mainTasker, t, TASK_LIGHTING, "Lighting" );
     stateTaskerStartTask( &mainTasker, t );
 
     //Overseer task
@@ -148,7 +145,7 @@ void app_tasks_init( void )
                                  appTaskSupervisorEventQueue,
                                  DIM(appTaskSupervisorEventQueue) );
 
-    stateTaskerAddTask( &mainTasker, t, TASK_SUPERVISOR, "Super" );
+    stateTaskerAddTask( &mainTasker, t, TASK_SUPERVISOR, "Supervisor" );
     stateTaskerStartTask( &mainTasker, t );
 
     hal_systick_hook( 1, eventTimerTick );
