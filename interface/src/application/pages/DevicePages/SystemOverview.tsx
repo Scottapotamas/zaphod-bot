@@ -100,8 +100,13 @@ ArmButton HomeButton
 const SystemOverview = () => {
   const control_mode = useHardwareState(state => state.super.mode)
 
+  const x_position = useHardwareState(state => state.cpos[0]) / 1000
+  const y_position = useHardwareState(state => state.cpos[1]) / 1000
+  const z_position = useHardwareState(state => state.cpos[2]) / 1000
+
   return (
     <div>
+      <IntervalRequester variables={['cpos']} interval={50} />
       <Composition areas={systemOverviewAreas} gutter={20}>
         {Areas => (
           <>
@@ -118,21 +123,15 @@ const SystemOverview = () => {
                 <tbody>
                   <tr>
                     <td>X</td>
-                    <td>
-                      <Printer accessor={state => state.cpos[0] / 1000} /> mm
-                    </td>
+                    <td>{x_position.toFixed(2)} mm</td>
                   </tr>
                   <tr>
                     <td>Y</td>
-                    <td>
-                      <Printer accessor={state => state.cpos[1] / 1000} /> mm
-                    </td>
+                    <td>{y_position.toFixed(2)} mm</td>
                   </tr>
                   <tr>
                     <td>Z</td>
-                    <td>
-                      <Printer accessor={state => state.cpos[2] / 1000} /> mm
-                    </td>
+                    <td>{z_position.toFixed(2)} mm</td>
                   </tr>
                 </tbody>
               </HTMLTable>

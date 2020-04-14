@@ -51,7 +51,13 @@ type ServoModeDataProps = {
   state: number
   // SERVO_STATE_INACTIVE,
   // SERVO_STATE_ERROR_RECOVERY,
-  // SERVO_STATE_HOMING,
+
+  // SERVO_STATE_HOMING_CALIBRATE_TORQUE,
+  // SERVO_STATE_HOMING_FIND_ENDSTOP,
+  // SERVO_STATE_HOMING_FOUND_ENDSTOP,
+  // SERVO_STATE_HOMING_CHECK_FOLDBACK,
+  // SERVO_STATE_HOMING_SUCCESS,
+
   // SERVO_STATE_IDLE,
   // SERVO_STATE_IDLE_HIGH_LOAD,
   // SERVO_STATE_ACTIVE,
@@ -81,12 +87,20 @@ const ServoMode = (props: ServoModeDataProps) => {
   } else if (props.state == 1) {
     return <div>Recovery</div>
   } else if (props.state == 2) {
-    return <div>Homing</div>
+    return <div>Calibration</div>
   } else if (props.state == 3) {
-    return <div>Static</div>
+    return <div>Find endstop</div>
   } else if (props.state == 4) {
-    return <div>High Load</div>
+    return <div>Found endstop</div>
   } else if (props.state == 5) {
+    return <div>Foldback</div>
+  } else if (props.state == 6) {
+    return <div>Home successful</div>
+  } else if (props.state == 7) {
+    return <div>Static</div>
+  } else if (props.state == 8) {
+    return <div>High Load</div>
+  } else if (props.state == 9) {
     return <div>Motion</div>
   }
 
@@ -137,12 +151,14 @@ const ServoSummaryCard = () => {
       {({ TextArea, TableArea }) => (
         <React.Fragment>
           <TextArea>
-            <Statistic>
-              <Statistic.Label>Motors are</Statistic.Label>
-              <Statistic.Value>
-                <MotorSafetyMode />
-              </Statistic.Value>
-            </Statistic>
+            <Statistics>
+              <Statistic>
+                <Statistic.Label>Motors are</Statistic.Label>
+                <Statistic.Value>
+                  <MotorSafetyMode />
+                </Statistic.Value>
+              </Statistic>
+            </Statistics>
           </TextArea>
           <TableArea>
             <HTMLTable striped>
@@ -164,10 +180,7 @@ const ServoSummaryCard = () => {
                     <td>
                       <ServoMode state={clearpath.state} />
                     </td>
-                    <td>
-                      {clearpath.feedback}%
-                      {/* <FeedbackIndicator fb={servoA.feedback} /> */}
-                    </td>
+                    <td>{clearpath.feedback.toFixed(1)}%</td>
                     <td>{clearpath.power.toFixed(1)}</td>
                     <td>{clearpath.target_angle.toFixed(2)}</td>
                   </tr>
