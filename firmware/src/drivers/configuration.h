@@ -65,6 +65,11 @@ configuration_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t me
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
+config_set_reset_cause( const char * reset_description );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
 config_report_error( char * error_string );
 
 /* -------------------------------------------------------------------------- */

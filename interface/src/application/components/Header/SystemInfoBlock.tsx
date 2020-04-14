@@ -69,6 +69,7 @@ const CPUTemperature = () => {
 
 export const CoreSystemsInfoCard = () => {
   const cpu_clock = useHardwareState(state => state.sys.cpu_clock)
+  const last_reset_reason = useHardwareState(state => state.reset_type)
 
   return (
     <Composition
@@ -96,6 +97,7 @@ export const CoreSystemsInfoCard = () => {
               </Box>
             </Composition>
           </Box>
+          <Box>Last reset due to: {last_reset_reason}</Box>
         </Composition>
       </Box>
       <Box>

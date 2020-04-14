@@ -182,6 +182,7 @@ Fade_t          light_fade_inbound;
 float z_rotation = 0;
 
 char device_nickname[16] = "Zaphod Beeblebot";
+char reset_cause[20] = "No Reset Cause";
 
 PRIVATE void start_mech_cb( void );
 PRIVATE void stop_mech_cb( void );
@@ -209,6 +210,8 @@ eui_message_t ui_variables[] =
     // Higher level system setup information
     EUI_CUSTOM("sys", sys_stats),
     EUI_CHAR_RO_ARRAY("name", device_nickname),
+    EUI_CHAR_RO_ARRAY("reset_type", reset_cause),
+
     EUI_CUSTOM("super", sys_states),
     EUI_CUSTOM("fwb", fw_info),
     EUI_CUSTOM_RO( "kinematics", mechanical_info),
@@ -427,6 +430,15 @@ configuration_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t me
             break;
     }
 
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+config_set_reset_cause( const char * reset_description )
+{
+    memset(&reset_cause, 0, sizeof(reset_cause));
+    strcpy(&reset_cause, reset_description );
 }
 
 /* -------------------------------------------------------------------------- */

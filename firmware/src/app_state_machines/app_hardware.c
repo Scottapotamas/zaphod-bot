@@ -11,6 +11,7 @@
 #include "hal_flashmem.h"
 #include "hal_watchdog.h"
 #include "hal_system_speed.h"
+#include "hal_reset.h"
 
 #include "status.h"
 #include "configuration.h"
@@ -24,16 +25,16 @@
 PUBLIC void
 app_hardware_init( void )
 {
-    /* Configure GPIO pins */
+    // Configure GPIO pins
     hal_gpio_configure_defaults();
 
-    /* Start the watchdog for 20s timeout */
-    hal_watchdog_init( 20000 );
+    // Start the watchdog
+    hal_watchdog_init( 5000 );
 
-    /* Initialise the CPU manager DWT */
+    // Initialise the CPU manager DWT
     hal_system_speed_init();
 
-    /* Continue basic I/O setup */
+    // Continue basic I/O setup
     status_green( 	true );
     status_yellow( 	true );
     status_red( 	true );
@@ -50,6 +51,10 @@ app_hardware_init( void )
     hal_hard_ic_init();
 
 	configuration_init();
+
+    // Check for the cause of the microcontroller booting (errors vs normal power up)
+    config_set_reset_cause( hal_reset_cause_description( hal_reset_cause() ) );
+
     buzzer_init();
     fan_init();
     sensors_init();
