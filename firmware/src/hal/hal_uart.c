@@ -48,7 +48,7 @@ typedef struct
     // User-space buffers are serviced outside IRQ
     fifo_t          tx_fifo;
     uint8_t         tx_buffer[HAL_UART_TX_FIFO_SIZE];
-    uint8_t         tx_sneak_bytes;
+    uint16_t         tx_sneak_bytes;
 
     fifo_t          rx_fifo;
     uint8_t         rx_buffer[HAL_UART_RX_FIFO_SIZE];
