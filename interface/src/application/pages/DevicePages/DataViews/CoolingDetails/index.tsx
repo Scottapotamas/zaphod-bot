@@ -59,6 +59,7 @@ const CoolingAreas = `
   FanArea
   `
 const temperatureDataSource = new MessageDataSource('temp')
+const fanDataSource = new MessageDataSource('fan')
 
 export const CoolingDetails = () => {
   const ambient_temp = useHardwareState(state => state.temp.ambient).toFixed(0)
@@ -73,38 +74,41 @@ export const CoolingDetails = () => {
     <div>
       <IntervalRequester variables={['temp']} interval={500} />
       <IntervalRequester variables={['fan']} interval={250} />
+
       <RollingStorageRequest
         dataSource={temperatureDataSource}
         maxItems={300}
         persist
       />
 
-      <ChartContainer>
-        <LineChart
-          dataSource={temperatureDataSource}
-          accessor={state => state.temp.ambient}
-          maxItems={1000}
-        />
-        <LineChart
-          dataSource={temperatureDataSource}
-          accessor={state => state.temp.regulator}
-          maxItems={1000}
-        />
-        <LineChart
-          dataSource={temperatureDataSource}
-          accessor={state => state.temp.supply}
-          maxItems={1000}
-        />
-        {/* Plot a 10-minute window */}
-        <RealTimeDomain window={[5000, 10_000, 20_000, 60_000]} delay={500} />
-        <TimeAxis />
-        <VerticalAxis />
-      </ChartContainer>
-
       <Composition areas={CoolingAreas} gap={20}>
         {({ TemperaturesArea, FanArea }) => (
           <React.Fragment>
             <TemperaturesArea>
+              <ChartContainer>
+                <LineChart
+                  dataSource={temperatureDataSource}
+                  accessor={state => state.temp.ambient}
+                  maxItems={1000}
+                />
+                <LineChart
+                  dataSource={temperatureDataSource}
+                  accessor={state => state.temp.regulator}
+                  maxItems={1000}
+                />
+                <LineChart
+                  dataSource={temperatureDataSource}
+                  accessor={state => state.temp.supply}
+                  maxItems={1000}
+                />
+                {/* Plot a 10-minute window */}
+                <RealTimeDomain
+                  window={[5000, 10_000, 20_000, 60_000]}
+                  delay={500}
+                />
+                <TimeAxis />
+                <VerticalAxis label="Temperature °C" />
+              </ChartContainer>
               <Statistics>
                 <Statistic value={ambient_temp} label={`Ambient`} suffix="º" />
                 <Statistic
@@ -116,6 +120,22 @@ export const CoolingDetails = () => {
               </Statistics>
             </TemperaturesArea>
             <FanArea>
+              <ChartContainer>
+                <LineChart
+                  dataSource={fanDataSource}
+                  accessor={state => state.fan.rpm}
+                  maxItems={1000}
+                />
+                {/* Plot a 10-minute window */}
+                <RealTimeDomain
+                  window={[5000, 10_000, 20_000, 60_000]}
+                  delay={500}
+                  yMin={0}
+                  yMax={1400}
+                />
+                <TimeAxis />
+                <VerticalAxis label="Fan RPM" />
+              </ChartContainer>
               <Statistics>
                 <Statistic value={<FanMode />} label="operation" />
                 <Statistic value={fanspeed} label={`RPM, at ${fansetting}%`} />

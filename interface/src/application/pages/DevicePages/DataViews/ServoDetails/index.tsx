@@ -230,9 +230,9 @@ export const ServoDetails = () => {
             color={servoColours[index]}
           />
         ))}
-        <RealTimeDomain window={10000} yMin={-45} yMax={20} delay={100} />
+        <RealTimeDomain window={10000} yMin={-45} yMax={20} delay={50} />
         <TimeAxis />
-        <VerticalAxis />
+        <VerticalAxis label="Arm Angle °" />
       </ChartContainer>
       <ChartContainer>
         {Array.from(new Array(numMotors)).map((_, index) => (
@@ -243,9 +243,9 @@ export const ServoDetails = () => {
             color={servoColours[index]}
           />
         ))}
-        <RealTimeDomain window={10000} yMin={-100} yMax={100} delay={100} />
+        <RealTimeDomain window={10000} yMin={-10} yMax={10} delay={50} />
         <TimeAxis />
-        <VerticalAxis />
+        <VerticalAxis label="Servo Torque %" />
       </ChartContainer>
       <ChartContainer>
         {Array.from(new Array(numMotors)).map((_, index) => (
@@ -256,9 +256,9 @@ export const ServoDetails = () => {
             color={servoColours[index]}
           />
         ))}
-        <RealTimeDomain window={10000} yMin={0} yMax={50} delay={100} />
+        <RealTimeDomain window={10000} yMin={0} yMax={50} delay={50} />
         <TimeAxis />
-        <VerticalAxis />
+        <VerticalAxis label="Servo Power W" />
       </ChartContainer>
       <ServoSummaryCard />
     </div>
