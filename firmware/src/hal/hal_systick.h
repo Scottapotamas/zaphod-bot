@@ -14,11 +14,11 @@ extern "C" {
 /* -------------------------------------------------------------------------- */
 
 /* Up to 5 hooks can be used. Ensure this is big enough for the number used */
-#define HAL_SYSTICK_MAX_HOOKS           5
+#define HAL_SYSTICK_MAX_HOOKS 5
 
 /* -------------------------------------------------------------------------- */
 
-typedef void (*voidTickHookFuncPtr)(void);
+typedef void ( *voidTickHookFuncPtr )( void );
 
 /* -------------------------------------------------------------------------- */
 

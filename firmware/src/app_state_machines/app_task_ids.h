@@ -2,14 +2,13 @@
 #define APP_TASK_IDS_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* ----- System Includes ---------------------------------------------------- */
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 #include "global.h"
@@ -30,15 +29,15 @@ extern "C"
 
 enum AppTaskID
 {
-    TASK_IDLE = 0,      // Default system IDLE
+    TASK_IDLE = 0,    // Default system IDLE
 
-    TASK_SUPERVISOR, 		//High priority task that oversees the system
-    TASK_MOTION, 			//Handle the motion command queue and pathing engine, higher level motor supervisor
-    TASK_LIGHTING,          //Handle the led command queue and animations engine
-    TASK_COMMUNICATION, 	//Handle the various communication stacks
-//	TASK_EXPANSION,			//Handle the internal and external IO
+    TASK_SUPERVISOR,       //High priority task that oversees the system
+    TASK_MOTION,           //Handle the motion command queue and pathing engine, higher level motor supervisor
+    TASK_LIGHTING,         //Handle the led command queue and animations engine
+    TASK_COMMUNICATION,    //Handle the various communication stacks
+                           //	TASK_EXPANSION,			//Handle the internal and external IO
 
-	TASK_MAX,   // Last entry used to define the size of task table
+    TASK_MAX,    // Last entry used to define the size of task table
 };
 
 /* ----- End ---------------------------------------------------------------- */
@@ -48,4 +47,3 @@ enum AppTaskID
 #endif
 
 #endif /* APP_TASK_IDS_H */
-

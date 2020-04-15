@@ -3,8 +3,8 @@
 
 /* ----- Local Includes ----------------------------------------------------- */
 
-#include <motion_types.h>
 #include "global.h"
+#include <motion_types.h>
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -23,7 +23,7 @@ path_interpolator_process( void );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_set_next(Movement_t	* movement_to_process );
+path_interpolator_set_next( Movement_t *movement_to_process );
 
 /* -------------------------------------------------------------------------- */
 
@@ -48,12 +48,12 @@ path_interpolator_get_global_position( void );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_start(void );
+path_interpolator_start( void );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_stop(void );
+path_interpolator_stop( void );
 
 /* -------------------------------------------------------------------------- */
 

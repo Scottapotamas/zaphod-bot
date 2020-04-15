@@ -1,8 +1,8 @@
 /* ----- System Includes ---------------------------------------------------- */
 
-#include <string.h>
-#include <stdlib.h>
 #include <math.h>
+#include <stdlib.h>
+#include <string.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 
@@ -23,14 +23,14 @@
  */
 
 PUBLIC void
-average_short_init( AverageShort_t * me, uint16_t span )
+average_short_init( AverageShort_t *me, uint16_t span )
 {
     /* span must sensible and fit in buffer */
     //REQUIRE( span > 0 );
     //REQUIRE( span <= AVERAGE_SHORT_MAX_SPAN );
 
     /* Clear the structure */
-    memset( me, 0 , sizeof(AverageShort_t) );
+    memset( me, 0, sizeof( AverageShort_t ) );
 
     /* Init the span */
     me->span = span;
@@ -45,7 +45,7 @@ average_short_init( AverageShort_t * me, uint16_t span )
  */
 
 PUBLIC uint16_t
-average_short_update( AverageShort_t * me, uint16_t new )
+average_short_update( AverageShort_t *me, uint16_t new )
 {
     /* If we don't have a full span only calculate the average of the
      * entries we have so far, if the span is full, it turns into a
@@ -75,7 +75,7 @@ average_short_update( AverageShort_t * me, uint16_t new )
     me->sum += me->buffer[me->index];
 
     /* Recalculate the average */
-    me->average = (uint16_t)(me->sum / me->counter);
+    me->average = ( uint16_t )( me->sum / me->counter );
 
     /* Prepare for next index */
     me->index++;
@@ -92,7 +92,7 @@ average_short_update( AverageShort_t * me, uint16_t new )
 /** Get the last added value from the samples buffer */
 
 PUBLIC uint16_t
-average_short_get_count( AverageShort_t * me )
+average_short_get_count( AverageShort_t *me )
 {
     return me->counter;
 }
@@ -102,7 +102,7 @@ average_short_get_count( AverageShort_t * me )
 /** Get the last added value from the samples buffer */
 
 PUBLIC uint16_t
-average_short_get_average( AverageShort_t * me )
+average_short_get_average( AverageShort_t *me )
 {
     return me->average;
 }
@@ -112,7 +112,7 @@ average_short_get_average( AverageShort_t * me )
 /** Get the last added value from the samples buffer */
 
 PUBLIC uint16_t
-average_short_get_last( AverageShort_t * me )
+average_short_get_last( AverageShort_t *me )
 {
     return me->last;
 }
@@ -120,14 +120,14 @@ average_short_get_last( AverageShort_t * me )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC uint16_t
-average_short_get_deviation( AverageShort_t * me )
+average_short_get_deviation( AverageShort_t *me )
 {
     /* Determine the spread of the values in the buffer */
     int32_t tmp = 0;
     for( uint16_t i = 0; i < me->span; i++ )
     {
         int32_t diff = me->buffer[i] - me->average;
-        tmp += (diff * diff);
+        tmp += ( diff * diff );
     }
     me->deviation = (uint16_t)sqrtf( (float)tmp );
 

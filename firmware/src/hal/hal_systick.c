@@ -5,10 +5,10 @@
 /* -------------------------------------------------------------------------- */
 
 #include "hal_systick.h"
-#include "stm32f4xx_ll_cortex.h"
-#include "stm32f4xx_ll_utils.h"
-#include "stm32f4xx_ll_rcc.h"
 #include "qassert.h"
+#include "stm32f4xx_ll_cortex.h"
+#include "stm32f4xx_ll_rcc.h"
+#include "stm32f4xx_ll_utils.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -23,9 +23,8 @@ typedef struct
     voidTickHookFuncPtr func;
 } TickHook_t;
 
-
 /* Ensure the hook pointers are all init before main starts */
-PRIVATE TickHook_t  tick_hooks[HAL_SYSTICK_MAX_HOOKS] = { { 0 } };
+PRIVATE TickHook_t tick_hooks[HAL_SYSTICK_MAX_HOOKS] = { { 0 } };
 
 uint32_t tick_timer = 0;
 
@@ -40,7 +39,7 @@ hal_systick_init( void )
      * (default clock after Reset is HSI) */
 
     // Called earlier by LL_Init1msTick() in the main system clock setup stage
-//    LL_InitTick( rcc_clks.HCLK_Frequency, 1000U );
+    //    LL_InitTick( rcc_clks.HCLK_Frequency, 1000U );
     tick_timer = 0;
 
     LL_SYSTICK_EnableIT();
@@ -107,7 +106,7 @@ hal_systick_unhook( voidTickHookFuncPtr hookfunc )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-hal_systick_callback(void)
+hal_systick_callback( void )
 {
     for( uint8_t handler = 0; handler < HAL_SYSTICK_MAX_HOOKS; handler++ )
     {
@@ -115,7 +114,7 @@ hal_systick_callback(void)
         {
             if( ++tick_hooks[handler].ticks >= tick_hooks[handler].count )
             {
-                (tick_hooks[handler].func)();
+                ( tick_hooks[handler].func )();
                 tick_hooks[handler].ticks = 0;
             }
         }
@@ -124,7 +123,7 @@ hal_systick_callback(void)
 
 /* -------------------------------------------------------------------------- */
 
-void SysTick_Handler(void)
+void SysTick_Handler( void )
 {
     tick_timer++;
     hal_systick_callback();

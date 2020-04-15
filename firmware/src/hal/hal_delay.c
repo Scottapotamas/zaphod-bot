@@ -21,17 +21,17 @@ hal_delay_ms( uint32_t delay_ms )
 /** Delay time in micro seconds. */
 /** Disable optimization for this function */
 PUBLIC void
-hal_delay_us( uint32_t delay_us ) __attribute__((optimize("-O0")));
+hal_delay_us( uint32_t delay_us ) __attribute__( ( optimize( "-O0" ) ) );
 
 PUBLIC void
 hal_delay_us( uint32_t delay_us )
 {
-    uint32_t loop = delay_us * (SystemCoreClock / 1000000) / 5;
+    uint32_t loop = delay_us * ( SystemCoreClock / 1000000 ) / 5;
 
     /* Protect against this loop running when loop == 0 */
     if( loop > 0 )
     {
-    	while( loop-- );
+        while( loop-- ) {};
     }
 }
 
@@ -41,15 +41,15 @@ hal_delay_us( uint32_t delay_us )
 
 /** Disable optimisation for this function */
 PUBLIC void
-hal_delay_ns( uint32_t delay_ns ) __attribute__((optimize("-O0")));
+hal_delay_ns( uint32_t delay_ns ) __attribute__( ( optimize( "-O0" ) ) );
 
 PUBLIC void
 hal_delay_ns( uint32_t delay_ns )
 {
     uint32_t i = delay_ns / 36;
-    while (i-- > 0)
+    while( i-- > 0 )
     {
-        asm("nop");
+        asm( "nop" );
     }
 }
 

@@ -3,8 +3,8 @@
 
 /* ----- Local Includes ----------------------------------------------------- */
 
-#include <motion_types.h>
 #include "global.h"
+#include <motion_types.h>
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -24,7 +24,6 @@ kinematics_point_to_angle( CartesianPoint_t input, JointAngles_t *output );
 
 PUBLIC KinematicsSolution_t
 kinematics_angle_to_point( JointAngles_t input, CartesianPoint_t *output );
-
 
 /* -------------------------------------------------------------------------- */
 

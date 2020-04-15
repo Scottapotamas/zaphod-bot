@@ -31,7 +31,7 @@ hal_reset_cause( void );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC const char *
-hal_reset_cause_description(HalPowerResetCause_t cause );
+hal_reset_cause_description( HalPowerResetCause_t cause );
 
 /* -------------------------------------------------------------------------- */
 

@@ -20,7 +20,8 @@ SpaceBeforeParens: Never
 SpaceBeforeAssignmentOperators: true
 SpaceAfterLogicalNot: false
 BreakBeforeTernaryOperators: true
-DerivePointerAlignment: true
+DerivePointerAlignment: false
+PointerAlignment: Right
 AlignOperands: true
 Language: Cpp
 SortIncludes: true

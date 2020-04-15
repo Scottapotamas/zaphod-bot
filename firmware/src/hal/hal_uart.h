@@ -71,7 +71,7 @@ hal_uart_put_blocking( HalUartPort_t port, uint8_t c );
  */
 
 PUBLIC uint32_t
-hal_uart_write( HalUartPort_t port, const uint8_t * data, uint32_t length );
+hal_uart_write( HalUartPort_t port, const uint8_t *data, uint32_t length );
 
 /* -------------------------------------------------------------------------- */
 
@@ -96,38 +96,29 @@ hal_uart_rx_get( HalUartPort_t port );
  */
 
 PUBLIC uint32_t
-hal_uart_read( HalUartPort_t port, uint8_t * buffer, uint32_t bufferlen );
+hal_uart_read( HalUartPort_t port, uint8_t *buffer, uint32_t bufferlen );
 
 /* -------------------------------------------------------------------------- */
 
-void
-UART5_IRQHandler( void );
+void UART5_IRQHandler( void );
 
-void
-USART1_IRQHandler( void );
+void USART1_IRQHandler( void );
 
-void
-USART2_IRQHandler( void );
+void USART2_IRQHandler( void );
 
 /* -------------------------------------------------------------------------- */
 
-void
-DMA1_Stream0_IRQHandler( void );
+void DMA1_Stream0_IRQHandler( void );
 
-void
-DMA1_Stream7_IRQHandler( void );
+void DMA1_Stream7_IRQHandler( void );
 
-void
-DMA2_Stream2_IRQHandler( void );
+void DMA2_Stream2_IRQHandler( void );
 
-void
-DMA2_Stream7_IRQHandler( void );
+void DMA2_Stream7_IRQHandler( void );
 
-void
-DMA1_Stream5_IRQHandler( void );
+void DMA1_Stream5_IRQHandler( void );
 
-void
-DMA1_Stream6_IRQHandler( void );
+void DMA1_Stream6_IRQHandler( void );
 
 /* ----- End ---------------------------------------------------------------- */
 

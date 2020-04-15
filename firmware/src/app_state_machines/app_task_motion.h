@@ -7,13 +7,13 @@ extern "C" {
 
 /* ----- System Includes ---------------------------------------------------- */
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
+#include "event_timer.h"
 #include "global.h"
 #include "state_task.h"
-#include "event_timer.h"
 
 /* ----- State Task Control Block ------------------------------------------- */
 
@@ -23,25 +23,25 @@ typedef struct AppTaskMotion AppTaskMotion;
 struct AppTaskMotion
 {
     // ~~~ Core task structure ~~~
-    StateTask		super;
+    StateTask super;
 
     // ~~~ Task Timers ~~~
-    EventTimer		timer1;
-    EventTimer		timer2;
+    EventTimer timer1;
+    EventTimer timer2;
 
     // ~~~ Task Variables ~~~
-    uint8_t 		counter;
-    uint8_t			retries;
+    uint8_t counter;
+    uint8_t retries;
 };
 
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC StateTask *
 appTaskMotionCreate( AppTaskMotion *me,
-					 StateEvent    *eventQueueData[ ],
-					 const uint8_t eventQueueSize,
-					 StateEvent    *movementQueue[ ],
-					 const uint8_t movementQueueSize );
+                     StateEvent *   eventQueueData[],
+                     const uint8_t  eventQueueSize,
+                     StateEvent *   movementQueue[],
+                     const uint8_t  movementQueueSize );
 
 /* ----- End ---------------------------------------------------------------- */
 

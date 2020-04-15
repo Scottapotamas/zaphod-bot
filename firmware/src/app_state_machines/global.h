@@ -7,8 +7,8 @@ extern "C" {
 
 /* ----- System Includes ---------------------------------------------------- */
 
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
 #include <stdint.h>
 #include <stdlib.h>
 
@@ -16,12 +16,12 @@ extern "C" {
 
 /* ----- Types -------------------------------------------------------------- */
 
-typedef unsigned char uchar_t;          ///< Specifically unsigned char.
+typedef unsigned char uchar_t;    ///< Specifically unsigned char.
 
-typedef float         float32_t;        ///< Clarify that float is 32bit.
+typedef float float32_t;    ///< Clarify that float is 32bit.
 
-typedef union                           ///< Allow mapping int16 to uint16
-{                                       ///< without conversions
+typedef union    ///< Allow mapping int16 to uint16
+{                ///< without conversions
     int16_t  i16;
     uint16_t u16;
 } Union16_t;
@@ -30,7 +30,7 @@ typedef union                           ///< Allow mapping int16 to uint16
 
 //! \def PRIVATE
 /// Makes it more clear that static functions/data are really private.
-#define PRIVATE   static
+#define PRIVATE static
 
 //! \def PUBLIC
 /// Makes it more clear that the indicated data/function can be accessed
@@ -46,7 +46,7 @@ typedef union                           ///< Allow mapping int16 to uint16
 /* -------------------------------------------------------------------------- */
 
 /** Return true when the target processor is big endian */
-#define IS_BIG_ENDIAN (*(uint16_t *)"\0\xff" < 0x100)
+#define IS_BIG_ENDIAN ( *(uint16_t *)"\0\xff" < 0x100 )
 
 /* -------------------------------------------------------------------------- */
 
@@ -89,22 +89,21 @@ typedef union                           ///< Allow mapping int16 to uint16
 #define CLAMP(X, LOW, HIGH)     (((X) > (HIGH)) ? (HIGH) : (((X) < (LOW)) ? (LOW) : (X)))
 
 /** Convert various units into microns */
-#define MM_TO_MICRONS(X)               ( X * 1000 )
-#define CM_TO_MICRONS(X)               ( X * 10000 )
+#define MM_TO_MICRONS( X ) ( X * 1000 )
+#define CM_TO_MICRONS( X ) ( X * 10000 )
 
 /** Convert microns into mm/cm */
-#define MICRONS_TO_MM(X)               ( X / 1000 )
-#define MICRONS_TO_CM(X)               ( X / 10000 )
+#define MICRONS_TO_MM( X ) ( X / 1000 )
+#define MICRONS_TO_CM( X ) ( X / 10000 )
 
-#define IS_IN_DEADBAND(a,b,deadband) ( abs(a-b) <= deadband )
-
+#define IS_IN_DEADBAND( a, b, deadband ) ( abs( a - b ) <= deadband )
 
 /* -------------------------------------------------------------------------- */
 
 //! \def FORBID()
 /// Disable interrupts
 #ifdef STM32F429xx
-#define FORBID()                    __disable_irq()
+#define FORBID() __disable_irq()
 #else
 #define FORBID()
 #endif
@@ -112,17 +111,16 @@ typedef union                           ///< Allow mapping int16 to uint16
 //! \def PERMIT()
 /// Enable interrupts
 #ifdef STM32F429xx
-#define PERMIT()                    __enable_irq()
+#define PERMIT() __enable_irq()
 #else
 #define PERMIT()
 #endif
-
 
 //! \def CRITICAL_SECTION_START()
 /// Save the current interrupt state and then disable interrupts to
 /// enter a critical region of code.
 #ifdef STM32F429xx
-#define CRITICAL_SECTION_VAR()    uint8_t cpuSR
+#define CRITICAL_SECTION_VAR() uint8_t cpuSR
 #else
 #define CRITICAL_SECTION_VAR()
 #endif

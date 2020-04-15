@@ -14,26 +14,26 @@ extern "C" {
 /* ----- Defines ------------------------------------------------------------ */
 
 /** Readability macros to remind us which is a HIGH level or LOW level */
-#define GPIO_HIGH       true
-#define GPIO_LOW        false
+#define GPIO_HIGH true
+#define GPIO_LOW  false
 
 /** Map the pin number into a bit mask */
-#define HAL_GPIO_PIN_MASK( pin_nr )   ((uint16_t)(1U << ( pin_nr )))
+#define HAL_GPIO_PIN_MASK( pin_nr ) ( ( uint16_t )( 1U << ( pin_nr ) ) )
 
 /** Port Number */
 typedef enum
 {
-    PORT_A = (0),
-    PORT_B = (1),
-    PORT_C = (2),
-    PORT_D = (3),
-    PORT_E = (4),
-    PORT_F = (5),
-    PORT_G = (6),
-    PORT_H = (7),
-    PORT_I = (8),
-    PORT_J = (9),
-    PORT_K = (10),
+    PORT_A = ( 0 ),
+    PORT_B = ( 1 ),
+    PORT_C = ( 2 ),
+    PORT_D = ( 3 ),
+    PORT_E = ( 4 ),
+    PORT_F = ( 5 ),
+    PORT_G = ( 6 ),
+    PORT_H = ( 7 ),
+    PORT_I = ( 8 ),
+    PORT_J = ( 9 ),
+    PORT_K = ( 10 ),
 } HalGpioPortNr_t;
 
 /** Pin Numbers */

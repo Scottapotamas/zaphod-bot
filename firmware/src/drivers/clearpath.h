@@ -11,9 +11,9 @@
 
 typedef enum
 {
-	_CLEARPATH_1 = 0,
-	_CLEARPATH_2,
-	_CLEARPATH_3,
+    _CLEARPATH_1 = 0,
+    _CLEARPATH_2,
+    _CLEARPATH_3,
 #ifdef EXPANSION_SERVO
     _CLEARPATH_4,
 #endif
@@ -21,8 +21,6 @@ typedef enum
 } ClearpathServoInstance_t;
 
 /* ----- Types ------------------------------------------------------------- */
-
-
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -45,13 +43,13 @@ PUBLIC void
 servo_set_target_angle( ClearpathServoInstance_t servo, float angle_degrees );
 
 PUBLIC float
-servo_get_current_angle( ClearpathServoInstance_t servo);
+servo_get_current_angle( ClearpathServoInstance_t servo );
 
 PUBLIC bool
-servo_get_move_done( ClearpathServoInstance_t servo);
+servo_get_move_done( ClearpathServoInstance_t servo );
 
 PUBLIC bool
-servo_get_servo_ok(ClearpathServoInstance_t servo);
+servo_get_servo_ok( ClearpathServoInstance_t servo );
 
 /* -------------------------------------------------------------------------- */
 

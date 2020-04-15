@@ -29,7 +29,6 @@ hal_temperature_pcb_degrees_C( uint32_t raw_adc );
 PUBLIC float
 hal_temperature_ext_degrees_C( uint32_t raw_adc );
 
-
 /* ----- End ---------------------------------------------------------------- */
 
 #ifdef __cplusplus

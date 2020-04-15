@@ -15,8 +15,8 @@ extern "C" {
 
 /** Readability macros to remind us which is a HIGH level or LOW level */
 
-#define GPIO_HIGH       true
-#define GPIO_LOW        false
+#define GPIO_HIGH true
+#define GPIO_LOW  false
 
 /* ----- Types ------------------------------------------------------------- */
 
@@ -24,13 +24,13 @@ extern "C" {
 
 typedef enum
 {
-    MODE_INPUT = 0, // Normal input
-    MODE_INPUT_PU,  // Input with pullup
-	MODE_ANALOG,	// Analog input mode
-    MODE_OUT_PP,    // Push-Pull Output
-    MODE_OUT_OD,    // Open drain Output
-	MODE_AF_PP,		// Push-Pull alternative function
-	MODE_AF_OD,     // Open-Drain alternative function
+    MODE_INPUT = 0,    // Normal input
+    MODE_INPUT_PU,     // Input with pullup
+    MODE_ANALOG,       // Analog input mode
+    MODE_OUT_PP,       // Push-Pull Output
+    MODE_OUT_OD,       // Open drain Output
+    MODE_AF_PP,        // Push-Pull alternative function
+    MODE_AF_OD,        // Open-Drain alternative function
 } HalGpioMode_t;
 
 /** Enum with all the GPIO pins defined. See schematic for more detail */
@@ -44,10 +44,10 @@ typedef enum
     _AUX_ANALOG_0,
     _AUX_ANALOG_1,
 
-	_AUX_SCL,
-	_AUX_SDA,
-	_AUX_UART_TX,
-	_AUX_UART_RX,
+    _AUX_SCL,
+    _AUX_SDA,
+    _AUX_UART_TX,
+    _AUX_UART_RX,
 
     /* --- EXTERNAL EXPANSION IO --- */
     _EXT_INPUT_0,
@@ -57,17 +57,17 @@ typedef enum
     _EXT_OUTPUT_1,
 
     /* --- EXPANSION CARD --- */
-	_CARD_POWER_EN,
-	_CARD_UART_RX,
-	_CARD_UART_TX,
-	_CARD_UART_CTS,
-	_CARD_UART_RTS,
+    _CARD_POWER_EN,
+    _CARD_UART_RX,
+    _CARD_UART_TX,
+    _CARD_UART_CTS,
+    _CARD_UART_RTS,
 
     /* --- ONBOARD MISC --- */
-	_BUZZER,
+    _BUZZER,
 
-	_FAN_PWM,
-	_FAN_TACHO,
+    _FAN_PWM,
+    _FAN_TACHO,
 
     _TEMP_PCB_AMBIENT,
     _TEMP_PCB_PSU,
@@ -81,7 +81,7 @@ typedef enum
     /* --- STATUS LEDS --- */
     _STATUS_0,
     _STATUS_1,
-	_STATUS_2,
+    _STATUS_2,
 
     /* --- USB --- */
     _USB_PWR_EN,
@@ -140,8 +140,8 @@ hal_gpio_init( HalGpioPortPin_t gpio_port_pin_nr, HalGpioMode_t mode, bool initi
 /** Allow more manual configuration of alternative functions, while wrapping the pin/port def */
 
 PUBLIC void
-hal_gpio_init_alternate(HalGpioPortPin_t gpio_port_pin_nr, uint32_t alternative_function, uint32_t speed,
-                        uint32_t pull);
+hal_gpio_init_alternate( HalGpioPortPin_t gpio_port_pin_nr, uint32_t alternative_function, uint32_t speed,
+                         uint32_t pull );
 
 /* -------------------------------------------------------------------------- */
 
@@ -170,7 +170,6 @@ hal_gpio_toggle_pin( HalGpioPortPin_t gpio_port_pin_nr );
 
 PUBLIC void
 hal_gpio_disable_pin( HalGpioPortPin_t gpio_port_pin_nr );
-
 
 /* ----- End ---------------------------------------------------------------- */
 

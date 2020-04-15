@@ -105,5 +105,4 @@ status_external_resume( void )
     hal_gpio_write_pin( _EXT_OUTPUT_0, external_state );
 }
 
-
 /* ----- End ---------------------------------------------------------------- */

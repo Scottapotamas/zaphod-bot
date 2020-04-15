@@ -7,13 +7,13 @@ extern "C" {
 
 /* ----- System Includes ---------------------------------------------------- */
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
+#include "event_timer.h"
 #include "global.h"
 #include "state_task.h"
-#include "event_timer.h"
 
 /* ----- State Task Control Block ------------------------------------------- */
 
@@ -23,24 +23,24 @@ typedef struct AppTaskLed AppTaskLed;
 struct AppTaskLed
 {
     // ~~~ Core task structure ~~~
-    StateTask		super;
+    StateTask super;
 
     // ~~~ Task Timers ~~~
-    EventTimer		timer1;
-    EventTimer		timer2;
+    EventTimer timer1;
+    EventTimer timer2;
 
     // ~~~ Task Variables ~~~
-    uint16_t        identifier_to_execute;
+    uint16_t identifier_to_execute;
 };
 
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC StateTask *
-appTaskLedCreate( AppTaskLed *me,
-					 StateEvent    *eventQueueData[ ],
-					 const uint8_t eventQueueSize,
-					 StateEvent    *lightingQueue[ ],
-					 const uint8_t lightingQueueSize );
+appTaskLedCreate( AppTaskLed *  me,
+                  StateEvent *  eventQueueData[],
+                  const uint8_t eventQueueSize,
+                  StateEvent *  lightingQueue[],
+                  const uint8_t lightingQueueSize );
 
 /* ----- End ---------------------------------------------------------------- */
 

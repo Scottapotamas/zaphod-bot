@@ -22,15 +22,15 @@ typedef enum
 /* Internal structure */
 typedef struct
 {
-    uint32_t        StartTime;       /*!< Time when button was pressed */
-    uint8_t         lastStatus;      /*!< Button status on last check */
-    ButtonState_t   previousState;   /*!< Previous button state */
-    ButtonState_t   currentState;    /*!< Current button state */
-    ButtonState_t   nextState;       /*!< Next button state */
-    ButtonHandler_t handler;         /*!< Button function handler */
+    uint32_t        StartTime;     /*!< Time when button was pressed */
+    uint8_t         lastStatus;    /*!< Button status on last check */
+    ButtonState_t   previousState; /*!< Previous button state */
+    ButtonState_t   currentState;  /*!< Current button state */
+    ButtonState_t   nextState;     /*!< Next button state */
+    ButtonHandler_t handler;       /*!< Button function handler */
 } Button_t;
 
-PRIVATE Button_t    button[BUTTON_MAX] = { 0 }; /* Ensure clear at startup */
+PRIVATE Button_t button[BUTTON_MAX] = { 0 }; /* Ensure clear at startup */
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -47,7 +47,7 @@ button_init( ButtonId_t id, ButtonHandler_t handler )
 
     me->handler = handler;
 
-    bool pressed = hal_button_is_pressed(id);
+    bool pressed = hal_button_is_pressed( id );
 
     if( pressed )
     {
@@ -97,55 +97,55 @@ button_process( void )
          */
         if( me->handler )
         {
-            bool is_pressed = hal_button_is_pressed(i);
+            bool is_pressed = hal_button_is_pressed( i );
 
             switch( me->currentState )
             {
                 case BUTTON_STATE_START:
                     STATE_ENTRY_ACTION
                     STATE_TRANSITION_TEST
-                        if( is_pressed )
-                        {
-                            STATE_NEXT( BUTTON_STATE_PRESSED );
-                        }
+                    if( is_pressed )
+                    {
+                        STATE_NEXT( BUTTON_STATE_PRESSED );
+                    }
                     STATE_EXIT_ACTION
                     STATE_END
                     break;
 
                 case BUTTON_STATE_PRESSED:
                     STATE_ENTRY_ACTION
-					    me->StartTime = hal_systick_get_ms();
-                        if( me->handler )
-                        {
-                        	me->handler( i, BUTTON_PRESS_TYPE_DOWN );
-                        }
+                    me->StartTime = hal_systick_get_ms();
+                    if( me->handler )
+                    {
+                        me->handler( i, BUTTON_PRESS_TYPE_DOWN );
+                    }
                     STATE_TRANSITION_TEST
-                        if( is_pressed )    /* Button still pressed */
+                    if( is_pressed ) /* Button still pressed */
+                    {
+                        if( ( hal_systick_get_ms() - me->StartTime ) > TIME_BUTTON_LONG_PRESS )
                         {
-                            if( (hal_systick_get_ms() - me->StartTime) > TIME_BUTTON_LONG_PRESS )
-                            {
-                            	me->handler( i, BUTTON_PRESS_TYPE_LONG );
-                                STATE_NEXT( BUTTON_STATE_WAITRELEASE );
-                            }
+                            me->handler( i, BUTTON_PRESS_TYPE_LONG );
+                            STATE_NEXT( BUTTON_STATE_WAITRELEASE );
                         }
-                        else if( ! is_pressed ) /* Button was released */
+                    }
+                    else if( !is_pressed ) /* Button was released */
+                    {
+                        if( ( hal_systick_get_ms() - me->StartTime ) > TIME_BUTTON_NORMAL_PRESS )
                         {
-                            if( (hal_systick_get_ms() - me->StartTime) > TIME_BUTTON_NORMAL_PRESS )
-                            {
-                                /* Pressed longer than the minimum time */
-                            	me->handler( i, BUTTON_PRESS_TYPE_NORMAL );
-                                STATE_NEXT( BUTTON_STATE_WAITRELEASE );
-                            }
-                            else
-                            {
-                                /* Ignore presses that are too short */
-                                STATE_NEXT( BUTTON_STATE_WAITRELEASE );
-                            }
+                            /* Pressed longer than the minimum time */
+                            me->handler( i, BUTTON_PRESS_TYPE_NORMAL );
+                            STATE_NEXT( BUTTON_STATE_WAITRELEASE );
                         }
                         else
                         {
+                            /* Ignore presses that are too short */
                             STATE_NEXT( BUTTON_STATE_WAITRELEASE );
                         }
+                    }
+                    else
+                    {
+                        STATE_NEXT( BUTTON_STATE_WAITRELEASE );
+                    }
                     STATE_EXIT_ACTION
                     STATE_END
                     break;
@@ -153,15 +153,15 @@ button_process( void )
                 case BUTTON_STATE_WAITRELEASE:
                     STATE_ENTRY_ACTION
                     STATE_TRANSITION_TEST
-                        if( ! is_pressed )
-                        {
-                            STATE_NEXT( BUTTON_STATE_START );
-                        }
+                    if( !is_pressed )
+                    {
+                        STATE_NEXT( BUTTON_STATE_START );
+                    }
                     STATE_EXIT_ACTION
-                        if( me->handler )
-                        {
-                        	me->handler( i, BUTTON_PRESS_TYPE_UP );
-                        }
+                    if( me->handler )
+                    {
+                        me->handler( i, BUTTON_PRESS_TYPE_UP );
+                    }
                     STATE_END
                     break;
             }

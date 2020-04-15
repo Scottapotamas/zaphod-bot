@@ -3,8 +3,8 @@
 
 /* ----- Local Includes ----------------------------------------------------- */
 
-#include <led_types.h>
 #include "global.h"
+#include <led_types.h>
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -23,7 +23,7 @@ led_interpolator_process( void );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-led_interpolator_set_objective( Fade_t * fade_to_process );
+led_interpolator_set_objective( Fade_t *fade_to_process );
 
 /* -------------------------------------------------------------------------- */
 
@@ -69,12 +69,12 @@ led_interpolator_get_progress( void );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC bool
-led_interpolator_get_fade_done(void );
+led_interpolator_get_fade_done( void );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-led_interpolator_set_dark(void );
+led_interpolator_set_dark( void );
 
 /* -------------------------------------------------------------------------- */
 

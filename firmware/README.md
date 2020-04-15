@@ -16,6 +16,8 @@ It might be required to remove or exclude the `electricui-embedded` sub-director
 
 CLion workspace files are in the repo, so building from the CMakeLists should be reasonably straightforward.
 
+`clang-format` config file is under git, used to maintain some semblance of style consistency.
+
 ## Flashing and Debugging
 
 I use CLion as my IDE alongside a JLink.

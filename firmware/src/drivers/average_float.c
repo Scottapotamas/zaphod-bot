@@ -1,8 +1,8 @@
 /* ----- System Includes ---------------------------------------------------- */
 
-#include <string.h>
-#include <stdlib.h>
 #include <math.h>
+#include <stdlib.h>
+#include <string.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 
@@ -23,14 +23,14 @@
  */
 
 PUBLIC void
-average_float_init( AverageFloat_t * me, uint16_t span )
+average_float_init( AverageFloat_t *me, uint16_t span )
 {
     /* span must sensible and fit in buffer */
     //REQUIRE( span > 0 );
     //REQUIRE( span <= AVERAGE_FLOAT_MAX_SPAN );
 
     /* Clear the structure */
-    memset( me, 0 , sizeof(AverageFloat_t) );
+    memset( me, 0, sizeof( AverageFloat_t ) );
 
     /* Init the span */
     me->span = span;
@@ -45,7 +45,7 @@ average_float_init( AverageFloat_t * me, uint16_t span )
  */
 
 PUBLIC float
-average_float_update( AverageFloat_t * me, float new )
+average_float_update( AverageFloat_t *me, float new )
 {
     /* If we don't have a full span only calculate the average of the
      * entries we have so far, if the span is full, it turns into a
@@ -92,7 +92,7 @@ average_float_update( AverageFloat_t * me, float new )
 /** Get the last added value from the samples buffer */
 
 PUBLIC uint16_t
-average_float_get_count( AverageFloat_t * me )
+average_float_get_count( AverageFloat_t *me )
 {
     return me->counter;
 }
@@ -102,7 +102,7 @@ average_float_get_count( AverageFloat_t * me )
 /** Get the last added value from the samples buffer */
 
 PUBLIC float
-average_float_get_average( AverageFloat_t * me )
+average_float_get_average( AverageFloat_t *me )
 {
     return me->average;
 }
@@ -112,7 +112,7 @@ average_float_get_average( AverageFloat_t * me )
 /** Get the last added value from the samples buffer */
 
 PUBLIC float
-average_float_get_last( AverageFloat_t * me )
+average_float_get_last( AverageFloat_t *me )
 {
     return me->last;
 }
@@ -120,14 +120,14 @@ average_float_get_last( AverageFloat_t * me )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC float
-average_float_get_deviation( AverageFloat_t * me )
+average_float_get_deviation( AverageFloat_t *me )
 {
     /* Determine the spread of the values in the buffer */
     int32_t tmp = 0;
     for( uint16_t i = 0; i < me->span; i++ )
     {
         int32_t diff = me->buffer[i] - me->average;
-        tmp += (diff * diff);
+        tmp += ( diff * diff );
     }
     me->deviation = (uint16_t)sqrtf( (float)tmp );
 

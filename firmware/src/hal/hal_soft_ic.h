@@ -13,8 +13,8 @@ extern "C" {
 
 typedef enum
 {
-	HAL_SOFT_IC_HALL = 0,
-	HAL_SOFT_IC_NUM
+    HAL_SOFT_IC_HALL = 0,
+    HAL_SOFT_IC_NUM
 } HalSoftICInput_t;
 
 /* ------------------------- Functions Prototypes --------------------------- */

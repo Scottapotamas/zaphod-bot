@@ -29,7 +29,7 @@ app_background( void );
 
 /* ----- End ------------------------------~--------------------------------- */
 
-#ifdef    __cplusplus
+#ifdef __cplusplus
 }
 #endif
 #endif /* APP_BACKGROUND_H */

@@ -9,25 +9,27 @@ extern "C" {
 
 /* ----- Local Includes ----------------------------------------------------- */
 
-#include <src/electricui.h>
 #include "global.h"
 #include "motion_types.h"
+#include <src/electricui.h>
 
 /* ----- Defines ------------------------------------------------------------ */
 
-typedef enum {
-	PIN_INACTIVE = 0,
-	PIN_INPUT,
-	PIN_ADC,
-	PIN_DAC,
-	PIN_OUTPUT,
-	PIN_PWM,
-	PIN_UART,
-	PIN_I2C,
-	PIN_CAN
+typedef enum
+{
+    PIN_INACTIVE = 0,
+    PIN_INPUT,
+    PIN_ADC,
+    PIN_DAC,
+    PIN_OUTPUT,
+    PIN_PWM,
+    PIN_UART,
+    PIN_I2C,
+    PIN_CAN
 } ConfigurableIOMode_t;
 
-typedef enum {
+typedef enum
+{
     CONTROL_NONE = 0,
     CONTROL_MANUAL,
     CONTROL_EVENT,
@@ -38,8 +40,8 @@ typedef enum {
 
 typedef struct
 {
-	uint8_t temperature;
-	uint8_t percentage;
+    uint8_t temperature;
+    uint8_t percentage;
 } FanCurve_t;
 
 /* ----- Public Functions --------------------------------------------------- */
@@ -65,12 +67,12 @@ configuration_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t me
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-config_set_reset_cause( const char * reset_description );
+config_set_reset_cause( const char *reset_description );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-config_report_error( char * error_string );
+config_report_error( char *error_string );
 
 /* -------------------------------------------------------------------------- */
 
@@ -78,10 +80,10 @@ PUBLIC void
 config_set_cpu_load( uint8_t percent );
 
 PUBLIC void
-config_set_cpu_clock(uint32_t clock);
+config_set_cpu_clock( uint32_t clock );
 
 PUBLIC void
-config_update_task_statistics(void );
+config_update_task_statistics( void );
 
 PUBLIC void
 config_set_cpu_temp( float temp );
@@ -89,10 +91,10 @@ config_set_cpu_temp( float temp );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-config_set_sensors_enabled(bool enable );
+config_set_sensors_enabled( bool enable );
 
 PUBLIC void
-config_set_module_enable(bool enable );
+config_set_module_enable( bool enable );
 
 PUBLIC void
 config_set_input_voltage( float voltage );
@@ -133,7 +135,7 @@ config_set_fan_rpm( uint16_t rpm );
 PUBLIC void
 config_set_fan_state( uint8_t state );
 
-PUBLIC FanCurve_t*
+PUBLIC FanCurve_t *
 config_get_fan_curve_ptr( void );
 
 /* -------------------------------------------------------------------------- */
@@ -177,7 +179,7 @@ PUBLIC int16_t
 config_get_voltage_trim_mV( void );
 
 PUBLIC int16_t
-config_get_servo_trim_mA( uint8_t servo);
+config_get_servo_trim_mA( uint8_t servo );
 
 /* -------------------------------------------------------------------------- */
 
@@ -202,10 +204,10 @@ PUBLIC void
 config_set_led_status( uint8_t status );
 
 PUBLIC void
-config_set_led_values(uint16_t red, uint16_t green, uint16_t blue);
+config_set_led_values( uint16_t red, uint16_t green, uint16_t blue );
 
 PUBLIC void
-config_get_led_manual( float *h, float *s, float *l, uint8_t *en);
+config_get_led_manual( float *h, float *s, float *l, uint8_t *en );
 
 PUBLIC void
 config_set_led_queue_depth( uint8_t utilisation );
@@ -215,7 +217,6 @@ config_get_led_whitebalance( int16_t *red_offset, int16_t *green_offset, int16_t
 
 PUBLIC void
 config_get_led_bias( int16_t *offset );
-
 
 /* ----- End ---------------------------------------------------------------- */
 

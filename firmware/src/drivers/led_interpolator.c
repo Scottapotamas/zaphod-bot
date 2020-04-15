@@ -1,23 +1,23 @@
 /* ----- System Includes ---------------------------------------------------- */
 
+#include <float.h>
 #include <math.h>
 #include <string.h>
-#include <float.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "led_interpolator.h"
 
-#include "simple_state_machine.h"
-#include "event_subscribe.h"
 #include "app_signals.h"
 #include "app_times.h"
+#include "event_subscribe.h"
 #include "hal_systick.h"
+#include "simple_state_machine.h"
 
-#include "global.h"
-#include "led_types.h"
-#include "led.h"
 #include "configuration.h"
+#include "global.h"
+#include "led.h"
+#include "led_types.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -31,21 +31,21 @@ typedef enum
 
 typedef struct
 {
-	RGBState_t  previousState;
-	RGBState_t  currentState;
-	RGBState_t  nextState;
+    RGBState_t previousState;
+    RGBState_t currentState;
+    RGBState_t nextState;
 
-    bool        manual_mode;        // user control
-    bool		animation_run;		// if the planner is enabled
-    uint16_t    execute_id;
+    bool     manual_mode;      // user control
+    bool     animation_run;    // if the planner is enabled
+    uint16_t execute_id;
 
-    Fade_t	 	fade_a;		        // pointer to a movement
-    Fade_t	 	fade_b;		        // pointer to b movement
-    uint32_t   	animation_started;	// timestamp the start
-    uint32_t    animation_est_complete;
-    float       progress_percent;	// calculated progress
+    Fade_t   fade_a;                    // pointer to a movement
+    Fade_t   fade_b;                    // pointer to b movement
+    uint32_t animation_started;         // timestamp the start
+    uint32_t animation_est_complete;    // timestamp when the animation will end
+    float    progress_percent;          // calculated progress
 
-    RGBColour_t	led_colour;	        // current channel outputs
+    RGBColour_t led_colour;    // current channel outputs
 
 } LEDPlanner_t;
 
@@ -57,16 +57,16 @@ PRIVATE void
 led_interpolator_calculate_percentage( uint16_t fade_duration );
 
 PRIVATE void
-led_interpolator_execute_fade(Fade_t *fade, float percentage );
+led_interpolator_execute_fade( Fade_t *fade, float percentage );
 
 PRIVATE FadeSolution_t
-hsi_lerp_linear( HSIColour_t p[], size_t points, float pos_weight, HSIColour_t* output );
+hsi_lerp_linear( HSIColour_t p[], size_t points, float pos_weight, HSIColour_t *output );
 
 PRIVATE void
-hsi_to_rgb( float h, float s, float i, float* r, float* g, float* b );
+hsi_to_rgb( float h, float s, float i, float *r, float *g, float *b );
 
 PRIVATE float
-hue_to_channel(float p, float q, float t);
+hue_to_channel( float p, float q, float t );
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -81,10 +81,10 @@ led_interpolator_init( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-led_interpolator_set_objective( Fade_t* fade_to_process )
+led_interpolator_set_objective( Fade_t *fade_to_process )
 {
-    LEDPlanner_t *me = &planner;
-    Fade_t *fade_insert_slot = { 0 };   // allows us to put the new fade into whichever slot is available
+    LEDPlanner_t *me               = &planner;
+    Fade_t *      fade_insert_slot = { 0 };    // allows us to put the new fade into whichever slot is available
 
     if( me->fade_a.duration == 0 )
     {
@@ -95,15 +95,15 @@ led_interpolator_set_objective( Fade_t* fade_to_process )
         fade_insert_slot = &me->fade_b;
     }
 
-    memcpy( fade_insert_slot, fade_to_process, sizeof(Fade_t) );
+    memcpy( fade_insert_slot, fade_to_process, sizeof( Fade_t ) );
     me->manual_mode = false;
 }
 
 PUBLIC bool
 led_interpolator_is_ready_for_next( void )
 {
-    bool slot_a_ready = (planner.fade_a.duration == 0 );
-    bool slot_b_ready = (planner.fade_b.duration == 0 );
+    bool slot_a_ready = ( planner.fade_a.duration == 0 );
+    bool slot_b_ready = ( planner.fade_b.duration == 0 );
 
     return ( slot_a_ready || slot_b_ready );
 }
@@ -111,8 +111,8 @@ led_interpolator_is_ready_for_next( void )
 PUBLIC bool
 led_interpolator_is_empty( void )
 {
-    bool slot_a_empty = (planner.fade_a.duration == 0 );
-    bool slot_b_empty = (planner.fade_b.duration == 0 );
+    bool slot_a_empty = ( planner.fade_a.duration == 0 );
+    bool slot_b_empty = ( planner.fade_b.duration == 0 );
 
     return ( slot_a_empty && slot_b_empty );
 }
@@ -134,8 +134,8 @@ PUBLIC void
 led_interpolator_stop( void )
 {
     planner.animation_run = false;
-    memset(&planner.fade_a, 0, sizeof(Fade_t));
-    memset( &planner.fade_b, 0, sizeof(Fade_t));
+    memset( &planner.fade_a, 0, sizeof( Fade_t ) );
+    memset( &planner.fade_b, 0, sizeof( Fade_t ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -143,7 +143,7 @@ led_interpolator_stop( void )
 PUBLIC float
 led_interpolator_get_progress( void )
 {
-	return planner.progress_percent;
+    return planner.progress_percent;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -151,7 +151,7 @@ led_interpolator_get_progress( void )
 PUBLIC bool
 led_interpolator_get_fade_done( void )
 {
-	return ( planner.progress_percent >= 1.0f - FLT_EPSILON );
+    return ( planner.progress_percent >= 1.0f - FLT_EPSILON );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -171,9 +171,9 @@ led_interpolator_manual_override_release( void )
 PUBLIC void
 led_interpolator_manual_control_set( float hue, float saturation, float intensity, bool enabled )
 {
-    led_enable(enabled);    // Turn off the LED if the user isn't wanting it on
+    led_enable( enabled );    // Turn off the LED if the user isn't wanting it on
 
-    GenericColour_t output_values 	= { 0.0f, 0.0f, 0.0f };
+    GenericColour_t output_values = { 0.0f, 0.0f, 0.0f };
 
     if( enabled )
     {
@@ -189,13 +189,13 @@ led_interpolator_manual_control_set( float hue, float saturation, float intensit
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-led_interpolator_set_dark(void )
+led_interpolator_set_dark( void )
 {
-	planner.led_colour.red 		= 0;
-	planner.led_colour.green 	= 0;
-	planner.led_colour.blue 	= 0;
+    planner.led_colour.red   = 0;
+    planner.led_colour.green = 0;
+    planner.led_colour.blue  = 0;
 
-    led_set( planner.led_colour.red, planner.led_colour.red, planner.led_colour.red);
+    led_set( planner.led_colour.red, planner.led_colour.red, planner.led_colour.red );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -203,134 +203,133 @@ led_interpolator_set_dark(void )
 PUBLIC void
 led_interpolator_process( void )
 {
-	LEDPlanner_t *me = &planner;
+    LEDPlanner_t *me = &planner;
 
     switch( me->currentState )
     {
         case ANIMATION_OFF:
             STATE_ENTRY_ACTION
-        		config_set_led_status( me->currentState );
-                led_interpolator_set_dark();
+            config_set_led_status( me->currentState );
+            led_interpolator_set_dark();
 
-                // Track how long we've been off for
-                me->animation_started = hal_systick_get_ms();
+            // Track how long we've been off for
+            me->animation_started = hal_systick_get_ms();
             STATE_TRANSITION_TEST
-                if( me->animation_run )
+            if( me->animation_run )
+            {
+                if( me->fade_a.duration && me->fade_a.identifier == me->execute_id )
                 {
-                    if( me->fade_a.duration && me->fade_a.identifier == me->execute_id )
-                    {
-                        STATE_NEXT( ANIMATION_EXECUTE_A );
-                    }
-                    else if( me->fade_b.duration && me->fade_b.identifier == me->execute_id )
-                    {
-                        STATE_NEXT( ANIMATION_EXECUTE_B );
-                    }
+                    STATE_NEXT( ANIMATION_EXECUTE_A );
                 }
+                else if( me->fade_b.duration && me->fade_b.identifier == me->execute_id )
+                {
+                    STATE_NEXT( ANIMATION_EXECUTE_B );
+                }
+            }
 
-                if( me->manual_mode )
-                {
-                    STATE_NEXT( ANIMATION_MANUAL );
-                }
+            if( me->manual_mode )
+            {
+                STATE_NEXT( ANIMATION_MANUAL );
+            }
 
-                // If off for extended period of time, turn the LED driver off
-                if( hal_systick_get_ms() - me->animation_started >= LED_SLEEP_TIMER )
-                {
-                    led_enable( false );
-                }
+            // If off for extended period of time, turn the LED driver off
+            if( hal_systick_get_ms() - me->animation_started >= LED_SLEEP_TIMER )
+            {
+                led_enable( false );
+            }
 
             STATE_EXIT_ACTION
-                led_enable( true );
+            led_enable( true );
             STATE_END
             break;
 
         case ANIMATION_EXECUTE_A:
             STATE_ENTRY_ACTION
-                config_set_led_status( me->currentState );
-                me->animation_started = hal_systick_get_ms();
-                me->animation_est_complete = me->animation_started + me->fade_a.duration;
-                me->progress_percent = 0;
+            config_set_led_status( me->currentState );
+            me->animation_started      = hal_systick_get_ms();
+            me->animation_est_complete = me->animation_started + me->fade_a.duration;
+            me->progress_percent       = 0;
             STATE_TRANSITION_TEST
-                led_interpolator_calculate_percentage( me->fade_a.duration );
+            led_interpolator_calculate_percentage( me->fade_a.duration );
 
-                if( !me->animation_run || !me->fade_a.duration )
+            if( !me->animation_run || !me->fade_a.duration )
+            {
+                STATE_NEXT( ANIMATION_OFF );
+            }
+            else if( led_interpolator_get_fade_done() )
+            {
+                if( me->fade_b.duration && me->fade_b.identifier == me->execute_id )
                 {
-                    STATE_NEXT( ANIMATION_OFF );
-                }
-                else if( led_interpolator_get_fade_done() )
-                {
-                    if( me->fade_b.duration && me->fade_b.identifier == me->execute_id )
-                    {
-                        STATE_NEXT( ANIMATION_EXECUTE_B );
-                    }
-                    else
-                    {
-                        STATE_NEXT( ANIMATION_OFF );
-                    }
-
-                    eventPublish( EVENT_NEW( StateEvent, ANIMATION_COMPLETE ) );
+                    STATE_NEXT( ANIMATION_EXECUTE_B );
                 }
                 else
                 {
-                    led_interpolator_execute_fade( &me->fade_a, me->progress_percent );
+                    STATE_NEXT( ANIMATION_OFF );
                 }
 
+                eventPublish( EVENT_NEW( StateEvent, ANIMATION_COMPLETE ) );
+            }
+            else
+            {
+                led_interpolator_execute_fade( &me->fade_a, me->progress_percent );
+            }
+
             STATE_EXIT_ACTION
-                memset(&me->fade_a, 0, sizeof(Fade_t));
+            memset( &me->fade_a, 0, sizeof( Fade_t ) );
             STATE_END
             break;
 
         case ANIMATION_EXECUTE_B:
             STATE_ENTRY_ACTION
-                config_set_led_status( me->currentState );
-                me->animation_started = hal_systick_get_ms();
-                me->animation_est_complete = me->animation_started + me->fade_b.duration;
-                me->progress_percent = 0;
-        STATE_TRANSITION_TEST
-                led_interpolator_calculate_percentage( me->fade_b.duration );
+            config_set_led_status( me->currentState );
+            me->animation_started      = hal_systick_get_ms();
+            me->animation_est_complete = me->animation_started + me->fade_b.duration;
+            me->progress_percent       = 0;
+            STATE_TRANSITION_TEST
+            led_interpolator_calculate_percentage( me->fade_b.duration );
 
-                if( !me->animation_run || !me->fade_b.duration )
+            if( !me->animation_run || !me->fade_b.duration )
+            {
+                STATE_NEXT( ANIMATION_OFF );
+            }
+            else if( led_interpolator_get_fade_done() )
+            {
+                if( me->fade_a.duration && me->fade_a.identifier == me->execute_id )
                 {
-                    STATE_NEXT( ANIMATION_OFF );
-                }
-                else if( led_interpolator_get_fade_done() )
-                {
-                    if( me->fade_a.duration && me->fade_a.identifier == me->execute_id )
-                    {
-                        STATE_NEXT( ANIMATION_EXECUTE_A );
-                    }
-                    else
-                    {
-                        STATE_NEXT( ANIMATION_OFF );
-                    }
-
-                    eventPublish( EVENT_NEW(StateEvent, ANIMATION_COMPLETE) );
+                    STATE_NEXT( ANIMATION_EXECUTE_A );
                 }
                 else
                 {
-                    led_interpolator_execute_fade( &me->fade_b, me->progress_percent );
+                    STATE_NEXT( ANIMATION_OFF );
                 }
 
+                eventPublish( EVENT_NEW( StateEvent, ANIMATION_COMPLETE ) );
+            }
+            else
+            {
+                led_interpolator_execute_fade( &me->fade_b, me->progress_percent );
+            }
+
             STATE_EXIT_ACTION
-                memset(&me->fade_b, 0, sizeof(Fade_t));
+            memset( &me->fade_b, 0, sizeof( Fade_t ) );
             STATE_END
             break;
 
         case ANIMATION_MANUAL:
             STATE_ENTRY_ACTION
-                config_set_led_status(me->currentState);
+            config_set_led_status( me->currentState );
 
-        STATE_TRANSITION_TEST
-                // All the fun for this state is done one-shot when the setting event comes in
-                // See led_interpolator_manual_control_set() earlier in this file
-                if( !planner.manual_mode )
-                {
-                    STATE_NEXT( ANIMATION_OFF );
-                }
+            STATE_TRANSITION_TEST
+            // All the fun for this state is done one-shot when the setting event comes in
+            // See led_interpolator_manual_control_set() earlier in this file
+            if( !planner.manual_mode )
+            {
+                STATE_NEXT( ANIMATION_OFF );
+            }
             STATE_EXIT_ACTION
 
             STATE_END
             break;
-
     }
 }
 
@@ -355,33 +354,32 @@ led_interpolator_calculate_percentage( uint16_t fade_duration )
     }
 }
 
-
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void
-led_interpolator_execute_fade(Fade_t *fade, float percentage )
+led_interpolator_execute_fade( Fade_t *fade, float percentage )
 {
-    HSIColour_t 	fade_target 	= { 0.0f, 0.0f, 0.0f };
-    GenericColour_t output_values 	= { 0.0f, 0.0f, 0.0f };
+    HSIColour_t     fade_target   = { 0.0f, 0.0f, 0.0f };
+    GenericColour_t output_values = { 0.0f, 0.0f, 0.0f };
 
     switch( fade->type )
     {
         case _INSTANT_CHANGE:
-            fade_target.hue 		= fade->input_colours[0].hue;
-            fade_target.saturation 	= fade->input_colours[0].saturation;
-            fade_target.intensity 	= fade->input_colours[0].intensity;
+            fade_target.hue        = fade->input_colours[0].hue;
+            fade_target.saturation = fade->input_colours[0].saturation;
+            fade_target.intensity  = fade->input_colours[0].intensity;
             break;
 
         case _LINEAR_RAMP:
-            hsi_lerp_linear(fade->input_colours, fade->num_pts, percentage, &fade_target);
+            hsi_lerp_linear( fade->input_colours, fade->num_pts, percentage, &fade_target );
             break;
     }
 
     // Perform colour compensation adjustments
-    hsi_to_rgb(fade_target.hue, fade_target.saturation, fade_target.intensity, &output_values.x, &output_values.y, &output_values.z);
+    hsi_to_rgb( fade_target.hue, fade_target.saturation, fade_target.intensity, &output_values.x, &output_values.y, &output_values.z );
 
     // Set the LED channel values in RGB percentages [0.0f -> 1.0f]
-    led_set( output_values.x, output_values.y, output_values.z);
+    led_set( output_values.x, output_values.y, output_values.z );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -389,45 +387,45 @@ led_interpolator_execute_fade(Fade_t *fade, float percentage )
 FadeSolution_t
 hsi_lerp_linear( HSIColour_t p[], size_t points, float pos_weight, HSIColour_t *output )
 {
-	if(points < 2)
-	{
-		// need 2 points for a line
-		return FADE_ERROR;
-	}
+    if( points < 2 )
+    {
+        // need 2 points for a line
+        return FADE_ERROR;
+    }
 
-	if(pos_weight <= 0.0f + FLT_EPSILON)
-	{
-        memcpy( output, &p[0], sizeof(HSIColour_t) );
-		return FADE_VALID;
-	}
-
-	if(pos_weight >= 1.0f - FLT_EPSILON)
-	{
-        memcpy( output, &p[1], sizeof(HSIColour_t) );
+    if( pos_weight <= 0.0f + FLT_EPSILON )
+    {
+        memcpy( output, &p[0], sizeof( HSIColour_t ) );
         return FADE_VALID;
-	}
+    }
+
+    if( pos_weight >= 1.0f - FLT_EPSILON )
+    {
+        memcpy( output, &p[1], sizeof( HSIColour_t ) );
+        return FADE_VALID;
+    }
 
     // Linear interpolation between two points (lerp)
 
-	//for hue, remember that its a circular range so we need to take the shortest path across the wrapping
-	float distance_ccw = (p[0].hue >= p[1].hue) ?     p[0].hue - p[1].hue  : 1 + p[0].hue - p[1].hue;
-	float distance_cw  = (p[0].hue >= p[1].hue) ? 1 + p[1].hue - p[0].hue  :     p[1].hue - p[0].hue;
+    //for hue, remember that its a circular range so we need to take the shortest path across the wrapping
+    float distance_ccw = ( p[0].hue >= p[1].hue ) ? p[0].hue - p[1].hue : 1 + p[0].hue - p[1].hue;
+    float distance_cw  = ( p[0].hue >= p[1].hue ) ? 1 + p[1].hue - p[0].hue : p[1].hue - p[0].hue;
 
-	output->hue = (distance_cw <= distance_ccw) ? p[1].hue + (distance_cw * pos_weight) : p[1].hue - (distance_ccw * pos_weight);
+    output->hue = ( distance_cw <= distance_ccw ) ? p[1].hue + ( distance_cw * pos_weight ) : p[1].hue - ( distance_ccw * pos_weight );
 
-	//handle wrapping around
-    if (output->hue < 0)
+    //handle wrapping around
+    if( output->hue < 0 )
     {
-    	output->hue += 1;
+        output->hue += 1;
     }
 
-    if (output->hue > 1)
+    if( output->hue > 1 )
     {
-    	output->hue -= 1;
+        output->hue -= 1;
     }
 
-	output->saturation 	= p[0].saturation + pos_weight*( p[1].saturation - p[0].saturation );
-	output->intensity	= p[0].intensity  + pos_weight*( p[1].intensity  - p[0].intensity  );
+    output->saturation = p[0].saturation + pos_weight * ( p[1].saturation - p[0].saturation );
+    output->intensity  = p[0].intensity + pos_weight * ( p[1].intensity - p[0].intensity );
 
     return FADE_VALID;
 }
@@ -438,8 +436,7 @@ hsi_lerp_linear( HSIColour_t p[], size_t points, float pos_weight, HSIColour_t *
  * Input HSI are [0, 1]
  * Output RGB are [0, 1]
  */
-void
-hsi_to_rgb( float h, float s, float i, float* r, float* g, float* b )
+void hsi_to_rgb( float h, float s, float i, float *r, float *g, float *b )
 {
     float q;
     float p;
@@ -455,7 +452,7 @@ hsi_to_rgb( float h, float s, float i, float* r, float* g, float* b )
     {
         if( i < 0.5 )
         {
-            q = i * (1 + s);
+            q = i * ( 1 + s );
         }
         else
         {
@@ -464,15 +461,14 @@ hsi_to_rgb( float h, float s, float i, float* r, float* g, float* b )
 
         p = 2 * i - q;
 
-        *r = hue_to_channel( p, q, h + 1/3.0 );
+        *r = hue_to_channel( p, q, h + 1 / 3.0 );
         *g = hue_to_channel( p, q, h );
-        *b = hue_to_channel( p, q, h - 1/3.0 );
+        *b = hue_to_channel( p, q, h - 1 / 3.0 );
     }
-
 }
 
 // Helper for HSI/RGB conversions
-float hue_to_channel(float p, float q, float t)
+float hue_to_channel( float p, float q, float t )
 {
     if( t < 0 )
     {
@@ -484,19 +480,19 @@ float hue_to_channel(float p, float q, float t)
         t -= 1;
     }
 
-    if( t < 1/6.0 )
+    if( t < 1 / 6.0 )
     {
-        return p + (q - p) * 6 * t;
+        return p + ( q - p ) * 6 * t;
     }
 
-    if( t < 1/2.0 )
+    if( t < 1 / 2.0 )
     {
         return q;
     }
 
-    if( t < 2/3.0 )
+    if( t < 2 / 3.0 )
     {
-        return p + (q - p) * (2 / 3.0 - t) * 6;
+        return p + ( q - p ) * ( 2 / 3.0 - t ) * 6;
     }
 
     return p;

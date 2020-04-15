@@ -3,20 +3,20 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "app_background.h"
+#include "app_task_communication.h"
 #include "app_times.h"
 #include "global.h"
 #include "timer_ms.h"
-#include "app_task_communication.h"
 
-#include "sensors.h"
-#include "hal_system_speed.h"
-#include "hal_adc.h"
 #include "button.h"
 #include "buzzer.h"
-#include "fan.h"
-#include "path_interpolator.h"
-#include "led_interpolator.h"
 #include "clearpath.h"
+#include "fan.h"
+#include "hal_adc.h"
+#include "hal_system_speed.h"
+#include "led_interpolator.h"
+#include "path_interpolator.h"
+#include "sensors.h"
 #include "shutter_release.h"
 #include "status.h"
 
@@ -24,20 +24,20 @@
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE timer_ms_t 	button_timer 	= 0;
-PRIVATE timer_ms_t 	buzzer_timer 	= 0;
-PRIVATE timer_ms_t 	fan_timer 		= 0;
-PRIVATE timer_ms_t 	adc_timer 		= 0;
+PRIVATE timer_ms_t button_timer = 0;
+PRIVATE timer_ms_t buzzer_timer = 0;
+PRIVATE timer_ms_t fan_timer    = 0;
+PRIVATE timer_ms_t adc_timer    = 0;
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
 app_background_init( void )
 {
-	timer_ms_start( &button_timer, 	BACKGROUND_RATE_BUTTON_MS );
-	timer_ms_start( &buzzer_timer, 	BACKGROUND_RATE_BUZZER_MS );
-	timer_ms_start( &fan_timer, 	FAN_EVALUATE_TIME );
-    timer_ms_start(&adc_timer, BACKGROUND_ADC_AVG_POLL_MS );	//refresh ADC readings
+    timer_ms_start( &button_timer, BACKGROUND_RATE_BUTTON_MS );
+    timer_ms_start( &buzzer_timer, BACKGROUND_RATE_BUZZER_MS );
+    timer_ms_start( &fan_timer, FAN_EVALUATE_TIME );
+    timer_ms_start( &adc_timer, BACKGROUND_ADC_AVG_POLL_MS );    //refresh ADC readings
 }
 
 /* -------------------------------------------------------------------------- */
@@ -45,14 +45,14 @@ app_background_init( void )
 PUBLIC void
 app_background( void )
 {
-	//rate limit less important background processes
+    //rate limit less important background processes
     AppTaskCommunication_rx_tick();
     hal_adc_tick();
 
     if( timer_ms_is_expired( &button_timer ) )
     {
         // Need to turn the E-Stop light on to power the pullup for the E-STOP button
-        status_external_override(true);
+        status_external_override( true );
         button_process();
         status_external_resume();
 
@@ -68,7 +68,7 @@ app_background( void )
     if( timer_ms_is_expired( &fan_timer ) )
     {
         fan_process();
-    	timer_ms_start( &fan_timer, FAN_EVALUATE_TIME );
+        timer_ms_start( &fan_timer, FAN_EVALUATE_TIME );
     }
 
     if( timer_ms_is_expired( &adc_timer ) )
@@ -80,10 +80,10 @@ app_background( void )
         sensors_input_V();
 
         config_set_cpu_load( hal_system_speed_get_load() );
-        config_set_cpu_clock( hal_system_speed_get_speed() );   // todo only update this value if it changes
+        config_set_cpu_clock( hal_system_speed_get_speed() );    // todo only update this value if it changes
         config_update_task_statistics();
 
-        timer_ms_start(&adc_timer, BACKGROUND_ADC_AVG_POLL_MS );
+        timer_ms_start( &adc_timer, BACKGROUND_ADC_AVG_POLL_MS );
     }
 
     shutter_process();
@@ -96,8 +96,6 @@ app_background( void )
     {
         servo_process( servo );
     }
-
 }
 
 /* ----- End ---------------------------------------------------------------- */
-

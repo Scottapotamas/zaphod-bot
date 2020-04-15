@@ -15,10 +15,10 @@ extern "C" {
 
 typedef enum
 {
-	BUTTON_0,
-	BUTTON_1,
-	BUTTON_EXTERNAL,
-	BUTTON_MAX
+    BUTTON_0,
+    BUTTON_1,
+    BUTTON_EXTERNAL,
+    BUTTON_MAX
 } ButtonId_t;
 
 /* ----- Public Prototypes -------------------------------------------------- */

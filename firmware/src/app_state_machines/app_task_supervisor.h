@@ -7,15 +7,16 @@ extern "C" {
 
 /* ----- System Includes ---------------------------------------------------- */
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
+#include "event_timer.h"
 #include "global.h"
 #include "state_task.h"
-#include "event_timer.h"
 
-typedef enum {
+typedef enum
+{
     SUPERVISOR_NONE = 0,
     SUPERVISOR_MAIN,
     SUPERVISOR_IDLE,
@@ -34,15 +35,14 @@ typedef struct AppTaskSupervisor AppTaskSupervisor;
 struct AppTaskSupervisor
 {
     // ~~~ Core task structure ~~~
-    StateTask             super;                 ///< Core task structure
+    StateTask super;    ///< Core task structure
 
     // ~~~ Task Timers ~~~
-    EventTimer       timer1;                ///< Local state timer 1
-    EventTimer       timer2;                ///< Local state timer 2
+    EventTimer timer1;    ///< Local state timer 1
+    EventTimer timer2;    ///< Local state timer 2
 
     // ~~~ Task Variables ~~~
-    uint8_t	selected_control_mode;	// mode of end effector control
-
+    uint8_t selected_control_mode;    // mode of end effector control
 };
 
 /* ----- Public Functions --------------------------------------------------- */
@@ -58,8 +58,8 @@ struct AppTaskSupervisor
 
 PUBLIC StateTask *
 appTaskSupervisorCreate( AppTaskSupervisor *me,
-                         StateEvent        *eventQueueData[],
-                         const uint8_t     eventQueueSize );
+                         StateEvent *       eventQueueData[],
+                         const uint8_t      eventQueueSize );
 
 /* ----- End ---------------------------------------------------------------- */
 

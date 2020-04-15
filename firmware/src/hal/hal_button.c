@@ -7,12 +7,9 @@
 
 /* -------------------------------------------------------------------------- */
 
-
 /* ----- Defines ------------------------------------------------------------ */
 
-
 /* ------------------------ Variables --------------------------------------- */
-
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -23,13 +20,13 @@ hal_button_is_pressed( ButtonId_t id )
     switch( id )
     {
         case BUTTON_0:
-            pressed = hal_gpio_read_pin(_BTN_0);
+            pressed = hal_gpio_read_pin( _BTN_0 );
             break;
         case BUTTON_1:
-            pressed = hal_gpio_read_pin(_BTN_1);
+            pressed = hal_gpio_read_pin( _BTN_1 );
             break;
         case BUTTON_EXTERNAL:
-            pressed = hal_gpio_read_pin(_EXT_INPUT_0);
+            pressed = hal_gpio_read_pin( _EXT_INPUT_0 );
             break;
         default:
             break;
@@ -38,4 +35,3 @@ hal_button_is_pressed( ButtonId_t id )
 }
 
 /* ----- End ---------------------------------------------------------------- */
-

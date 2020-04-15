@@ -1,25 +1,24 @@
 /* ----- System Includes ---------------------------------------------------- */
 
-
 /* ----- Local Includes ----------------------------------------------------- */
 
-#include "hal_systick.h"
 #include "hal_adc.h"
-#include "hal_gpio.h"
-#include "hal_uart.h"
-#include "hal_hard_ic.h"
 #include "hal_flashmem.h"
-#include "hal_watchdog.h"
-#include "hal_system_speed.h"
+#include "hal_gpio.h"
+#include "hal_hard_ic.h"
 #include "hal_reset.h"
+#include "hal_system_speed.h"
+#include "hal_systick.h"
+#include "hal_uart.h"
+#include "hal_watchdog.h"
 
-#include "status.h"
-#include "configuration.h"
 #include "buzzer.h"
+#include "clearpath.h"
+#include "configuration.h"
 #include "fan.h"
 #include "sensors.h"
-#include "clearpath.h"
 #include "shutter_release.h"
+#include "status.h"
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -35,9 +34,9 @@ app_hardware_init( void )
     hal_system_speed_init();
 
     // Continue basic I/O setup
-    status_green( 	true );
-    status_yellow( 	true );
-    status_red( 	true );
+    status_green( true );
+    status_yellow( true );
+    status_red( true );
 
     hal_systick_init();
 
@@ -50,7 +49,7 @@ app_hardware_init( void )
     hal_adc_init();
     hal_hard_ic_init();
 
-	configuration_init();
+    configuration_init();
 
     // Check for the cause of the microcontroller booting (errors vs normal power up)
     config_set_reset_cause( hal_reset_cause_description( hal_reset_cause() ) );
@@ -68,7 +67,6 @@ app_hardware_init( void )
 #ifdef EXPANSION_SERVO
     servo_init( _CLEARPATH_4 );
 #endif
-
 }
 
 /* ----- End ---------------------------------------------------------------- */

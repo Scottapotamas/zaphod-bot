@@ -1,15 +1,15 @@
 /* ----- System Includes ---------------------------------------------------- */
 
-#include <string.h>
 #include <math.h>
+#include <string.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 
-#include "led.h"
 #include "app_times.h"
+#include "configuration.h"
 #include "hal_gpio.h"
 #include "hal_pwm.h"
-#include "configuration.h"
+#include "led.h"
 
 /* ----- Private Types ------------------------------------------------------ */
 
@@ -22,8 +22,7 @@ PRIVATE void
 led_whitebalance_correct( float *red, float *green, float *blue );
 
 PRIVATE float
-led_power_limit( );
-
+led_power_limit();
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -41,11 +40,11 @@ PUBLIC void
 led_enable( bool enable )
 {
     hal_gpio_write_pin( _AUX_ANALOG_0, enable );
-    config_set_led_status(enable);
+    config_set_led_status( enable );
 
     if( !enable )
     {
-        config_set_led_values(0, 0, 0);
+        config_set_led_values( 0, 0, 0 );
     }
 }
 
@@ -71,11 +70,11 @@ led_set( float r, float g, float b )
 
     // Set the output duty cycles for the led PWM channels
     // PWM peripheral expects 0-100 percentage input, and we need to invert the polarity of the duty cycle
-    hal_pwm_set_percentage_f( _PWM_TIM_AUX_0, (setpoint_r * -1.0 + 1.0) * 100.0f);
-    hal_pwm_set_percentage_f( _PWM_TIM_AUX_2, (setpoint_g * -1.0 + 1.0) * 100.0f);
-    hal_pwm_set_percentage_f( _PWM_TIM_AUX_1, (setpoint_b * -1.0 + 1.0) * 100.0f);
+    hal_pwm_set_percentage_f( _PWM_TIM_AUX_0, ( setpoint_r * -1.0 + 1.0 ) * 100.0f );
+    hal_pwm_set_percentage_f( _PWM_TIM_AUX_2, ( setpoint_g * -1.0 + 1.0 ) * 100.0f );
+    hal_pwm_set_percentage_f( _PWM_TIM_AUX_1, ( setpoint_b * -1.0 + 1.0 ) * 100.0f );
 
-    config_set_led_values(setpoint_r*0xFFFF, setpoint_g*0xFFFF, setpoint_b*0xFFFF);
+    config_set_led_values( setpoint_r * 0xFFFF, setpoint_g * 0xFFFF, setpoint_b * 0xFFFF );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -83,7 +82,7 @@ led_set( float r, float g, float b )
 PRIVATE float
 led_luminance_correct( float input )
 {
-    float lightness = input*100;
+    float lightness = input * 100;
 
     /* CIE 1931 Luminance Formula
      * https://en.wikipedia.org/wiki/CIE_1931_color_space
@@ -93,13 +92,13 @@ led_luminance_correct( float input )
 
     float luminance = 0.0f;
 
-    if ( lightness <= 8 )
+    if( lightness <= 8 )
     {
         luminance = ( lightness / 903.296f );
     }
     else
     {
-        luminance = pow( ( (lightness + 16)/116 ), 3);
+        luminance = pow( ( ( lightness + 16 ) / 116 ), 3 );
     }
 
     return luminance;
@@ -114,9 +113,9 @@ led_whitebalance_correct( float *red, float *green, float *blue )
     config_get_led_whitebalance( &wb_r, &wb_g, &wb_b );
 
     // Apply offsets
-    *red   = *red * (1.0 - ( (float)wb_r / 32767.0f ));
-    *green = *green * (1.0 - ( (float)wb_g / 32767.0f ));
-    *blue  = *blue * (1.0 - ( (float)wb_b / 32767.0f ));
+    *red   = *red * ( 1.0 - ( (float)wb_r / 32767.0f ) );
+    *green = *green * ( 1.0 - ( (float)wb_g / 32767.0f ) );
+    *blue  = *blue * ( 1.0 - ( (float)wb_b / 32767.0f ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -129,7 +128,7 @@ led_power_limit()
 
     // Apply offset based on that value
 
-    return 1.0 -((float)limit / 32767);
+    return 1.0 - ( (float)limit / 32767 );
 }
 
 /* ----- End ---------------------------------------------------------------- */

@@ -10,15 +10,15 @@
 
 /* ----- Defines ------------------------------------------------------------ */
 
-#define BTN_LEFT        _BV(0)
-#define BTN_RIGHT       _BV(1)
+#define BTN_LEFT  _BV( 0 )
+#define BTN_RIGHT _BV( 1 )
 
 /* -------------------------------------------------------------------------- */
 
 typedef enum
 {
     BUTTON_PATTERN_EMERGENCY_SHUTDOWN = ( BTN_LEFT | BTN_RIGHT ),
-    BUTTON_PATTERN_HIBERNATE          = ( BTN_LEFT | 0         ),
+    BUTTON_PATTERN_HIBERNATE          = ( BTN_LEFT | 0 ),
 } ButtonPattern_t;
 
 /* ----- Types ------------------------------------------------------------- */
@@ -31,7 +31,7 @@ typedef enum
     BUTTON_PRESS_TYPE_UP           /*!< Button released */
 } ButtonPressType_t;
 
-typedef void (*ButtonHandler_t)( ButtonId_t id, ButtonPressType_t press_type );
+typedef void ( *ButtonHandler_t )( ButtonId_t id, ButtonPressType_t press_type );
 
 /* ----- Public Functions --------------------------------------------------- */
 

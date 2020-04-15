@@ -13,7 +13,7 @@ extern "C" {
 
 /* ----- Defines ------------------------------------------------------------ */
 
-#define AVERAGE_FLOAT_MAX_SPAN             (60)  /* Seconds */
+#define AVERAGE_FLOAT_MAX_SPAN ( 60 ) /* Seconds */
 
 /* ----- Types -------------------------------------------------------------- */
 
@@ -26,14 +26,14 @@ extern "C" {
   */
 typedef struct
 {
-    uint16_t    span;           /* Number of values to average */
-    uint16_t    counter;        /* Current number of samples available */
-    uint16_t    index;          /* Index in sample buffer */
-    float       average;        /* Current average */
-    float       last;           /* Last added value */
-    float       deviation;      /* Spread between the minimum and maximum values */
-    float       sum;            /* Sum of samples */
-    float       buffer[AVERAGE_FLOAT_MAX_SPAN];
+    uint16_t span;      /* Number of values to average */
+    uint16_t counter;   /* Current number of samples available */
+    uint16_t index;     /* Index in sample buffer */
+    float    average;   /* Current average */
+    float    last;      /* Last added value */
+    float    deviation; /* Spread between the minimum and maximum values */
+    float    sum;       /* Sum of samples */
+    float    buffer[AVERAGE_FLOAT_MAX_SPAN];
 } AverageFloat_t;
 
 /* -------------------------------------------------------------------------- */
@@ -45,7 +45,7 @@ typedef struct
  */
 
 PUBLIC void
-average_float_init( AverageFloat_t * me, uint16_t span );
+average_float_init( AverageFloat_t *me, uint16_t span );
 
 /* -------------------------------------------------------------------------- */
 
@@ -55,33 +55,33 @@ average_float_init( AverageFloat_t * me, uint16_t span );
  */
 
 PUBLIC float
-average_float_update( AverageFloat_t * me, float new );
+average_float_update( AverageFloat_t *me, float new );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC uint16_t
-average_float_get_count( AverageFloat_t * me );
+average_float_get_count( AverageFloat_t *me );
 
 /* -------------------------------------------------------------------------- */
 
 /** Get the current average from the samples buffer */
 
 PUBLIC float
-average_float_get_average( AverageFloat_t * me );
+average_float_get_average( AverageFloat_t *me );
 
 /* -------------------------------------------------------------------------- */
 
 /** Get the last added value from the samples buffer */
 
 PUBLIC float
-average_float_get_last( AverageFloat_t * me );
+average_float_get_last( AverageFloat_t *me );
 
 /* -------------------------------------------------------------------------- */
 
 /** Get the deviation from average on the current samples buffer */
 
 PUBLIC float
-average_float_get_deviation( AverageFloat_t * me );
+average_float_get_deviation( AverageFloat_t *me );
 
 /* ----- End ---------------------------------------------------------------- */
 

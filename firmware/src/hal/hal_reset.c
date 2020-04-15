@@ -1,6 +1,5 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
-
 #include "hal_reset.h"
 #include "stm32f4xx_ll_rcc.h"
 
@@ -32,7 +31,7 @@ hal_reset_cause( void )
     }
     else if( LL_RCC_IsActiveFlag_LPWRRST() )
     {
-        cause =  RESET_CAUSE_LPWR;
+        cause = RESET_CAUSE_LPWR;
     }
     else if( LL_RCC_IsActiveFlag_IWDGRST() )
     {
@@ -40,7 +39,7 @@ hal_reset_cause( void )
     }
     else if( LL_RCC_IsActiveFlag_WWDGRST() )
     {
-        cause =  RESET_CAUSE_WWDG;
+        cause = RESET_CAUSE_WWDG;
     }
 
     LL_RCC_ClearResetFlags();
@@ -55,14 +54,22 @@ hal_reset_cause_description( HalPowerResetCause_t cause )
 {
     switch( cause )
     {
-        case RESET_CAUSE_BOR:  return "Brown Out";
-        case RESET_CAUSE_PIN:  return "Reset Pin";
-        case RESET_CAUSE_POR:  return "Power On";
-        case RESET_CAUSE_SW:   return "Software Reset";
-        case RESET_CAUSE_IWDG: return "Independent Watchdog";
-        case RESET_CAUSE_WWDG: return "Window Watchdog";
-        case RESET_CAUSE_LPWR: return "Low Power";
-        default:               return "Unknown Reset Cause";
+        case RESET_CAUSE_BOR:
+            return "Brown Out";
+        case RESET_CAUSE_PIN:
+            return "Reset Pin";
+        case RESET_CAUSE_POR:
+            return "Power On";
+        case RESET_CAUSE_SW:
+            return "Software Reset";
+        case RESET_CAUSE_IWDG:
+            return "Independent Watchdog";
+        case RESET_CAUSE_WWDG:
+            return "Window Watchdog";
+        case RESET_CAUSE_LPWR:
+            return "Low Power";
+        default:
+            return "Unknown Reset Cause";
     }
 }
 
@@ -72,7 +79,7 @@ hal_reset_cause_description( HalPowerResetCause_t cause )
 PUBLIC void
 hal_reset_software( void )
 {
-    hal_delay_ms(10);   // allow some time for serial buffers to flush etc
+    hal_delay_ms( 10 );    // allow some time for serial buffers to flush etc
     hal_watchdog_refresh();
     NVIC_SystemReset();
 }
