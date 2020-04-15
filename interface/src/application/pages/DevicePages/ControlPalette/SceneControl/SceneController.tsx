@@ -10,7 +10,6 @@ import {
   NonIdealState,
   NumericInput,
 } from '@blueprintjs/core'
-import { Cell, Grid } from 'styled-css-grid'
 import {
   IntervalRequester,
   StateTree,
@@ -20,7 +19,6 @@ import {
 import React, { ReactElement, useCallback, useEffect, useState } from 'react'
 
 import { Button } from '@electricui/components-desktop-blueprint'
-import { CALL_CALLBACK } from '@electricui/core'
 import { CONTROL_MODES } from '../../../../../transport-manager/config/codecs'
 import { Composition } from 'atomic-layout'
 import { Printer } from '@electricui/components-desktop'

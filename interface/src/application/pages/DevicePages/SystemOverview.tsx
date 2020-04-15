@@ -16,7 +16,6 @@ import {
   useHardwareState,
 } from '@electricui/components-core'
 
-import { CALL_CALLBACK } from '@electricui/core'
 import { Composition } from 'atomic-layout'
 import { Printer } from '@electricui/components-desktop'
 import React from 'react'
@@ -50,28 +49,13 @@ const ArmControlButton = () => {
   if (!isArmed) {
     if (modeNotSelected) {
       return (
-        <Button
-          fill
-          large
-          disabled
-          intent="none"
-          writer={state => {
-            state.disarm = CALL_CALLBACK
-          }}
-        >
+        <Button fill large disabled intent="none" callback="disarm">
           Select a mode before arming
         </Button>
       )
     } else {
       return (
-        <Button
-          fill
-          large
-          intent="warning"
-          writer={state => {
-            state.arm = CALL_CALLBACK
-          }}
-        >
+        <Button fill large intent="warning" callback="arm">
           Arm ({control_mode})
         </Button>
       )
@@ -79,14 +63,7 @@ const ArmControlButton = () => {
   }
 
   return (
-    <Button
-      fill
-      large
-      intent="primary"
-      writer={state => {
-        state.disarm = CALL_CALLBACK
-      }}
-    >
+    <Button fill large intent="primary" callback="disarm">
       Disarm
     </Button>
   )
@@ -137,14 +114,7 @@ const SystemOverview = () => {
               </HTMLTable>
             </Areas.PositionOutput>
             <Areas.HomeButton>
-              <Button
-                fill
-                large
-                intent="success"
-                writer={state => {
-                  state.home = CALL_CALLBACK
-                }}
-              >
+              <Button fill large intent="success" callback="home">
                 Home
               </Button>
             </Areas.HomeButton>

@@ -25,7 +25,6 @@ import {
   Slider,
 } from '@electricui/components-desktop-blueprint'
 import { Printer } from '@electricui/components-desktop'
-import { CALL_CALLBACK } from '@electricui/core'
 
 import KinematicsDiagram from '../KinematicsDiagram'
 
@@ -494,14 +493,7 @@ export const SystemSettingsCard = () => {
           <PowerCalibrationCard />
         </Box>
         <Box>
-          <Button
-            large
-            fill
-            intent="success"
-            writer={{
-              save: CALL_CALLBACK,
-            }}
-          >
+          <Button large fill intent="success" callback="save">
             Store Calibration Values
           </Button>
         </Box>

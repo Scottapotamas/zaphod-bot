@@ -2,7 +2,6 @@ import React, { useState } from 'react'
 
 import { Button, Slider } from '@electricui/components-desktop-blueprint'
 import { Icon, MultiSlider, NumericInput } from '@blueprintjs/core'
-import { CALL_CALLBACK } from '@electricui/core'
 
 import { Composition } from 'atomic-layout'
 
