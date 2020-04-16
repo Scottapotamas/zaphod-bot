@@ -3,6 +3,7 @@ import {
   BinaryTypeCachePipeline,
   DeliverabilityManagerBinaryProtocol,
   QueryManagerBinaryProtocol,
+  UndefinedMessageIDGuardPipeline,
 } from '@electricui/protocol-binary'
 import {
   CodecDuplexPipeline,
@@ -63,6 +64,13 @@ const serialTransportFactory = new TransportFactory(options => {
   const binaryPipeline = new BinaryPipeline()
   const typeCachePipeline = new BinaryTypeCachePipeline(typeCache)
 
+  // If you have runtime generated messageIDs, add them as an array as a second argument
+  // `name` is added because it is requested by the metadata requester before handshake.
+  const undefinedMessageIDGuard = new UndefinedMessageIDGuardPipeline(
+    typeCache,
+    ['name'],
+  )
+
   const codecPipeline = new CodecDuplexPipeline()
 
   // Pass the array of custom codecs to the pipeline
@@ -95,6 +103,7 @@ const serialTransportFactory = new TransportFactory(options => {
     largePacketPipeline,
     codecPipeline,
     typeCachePipeline,
+    undefinedMessageIDGuard,
   ])
   connectionInterface.addMetadataReporters([
     connectionStaticMetadata,
