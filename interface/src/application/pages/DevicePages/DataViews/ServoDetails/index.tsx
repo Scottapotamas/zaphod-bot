@@ -20,12 +20,16 @@ import {
   Card,
   Divider,
   HTMLTable,
-  Icon,
   Label,
   Text,
   Tab,
   Colors,
+  Callout,
+  Tooltip,
+  Position,
+  Intent,
 } from '@blueprintjs/core'
+import { IconNames } from '@blueprintjs/icons'
 import {
   IntervalRequester,
   StateTree,
@@ -38,74 +42,6 @@ import {
 } from '@electricui/core-timeseries'
 import { Printer, useDarkMode } from '@electricui/components-desktop'
 import { ServoTelemetry } from '../../../../../transport-manager/config/codecs'
-
-type EnabledDataProps = {
-  en: boolean
-}
-
-type FeedbackDataProps = {
-  fb: number
-}
-
-type ServoModeDataProps = {
-  state: number
-  // SERVO_STATE_INACTIVE,
-  // SERVO_STATE_ERROR_RECOVERY,
-
-  // SERVO_STATE_HOMING_CALIBRATE_TORQUE,
-  // SERVO_STATE_HOMING_FIND_ENDSTOP,
-  // SERVO_STATE_HOMING_FOUND_ENDSTOP,
-  // SERVO_STATE_HOMING_CHECK_FOLDBACK,
-  // SERVO_STATE_HOMING_SUCCESS,
-
-  // SERVO_STATE_IDLE,
-  // SERVO_STATE_IDLE_HIGH_LOAD,
-  // SERVO_STATE_ACTIVE,
-}
-
-const EnabledIndicator = (props: EnabledDataProps) => {
-  return (
-    <Icon
-      icon={props.en ? 'symbol-circle' : 'symbol-square'}
-      intent={props.en ? 'success' : 'none'}
-    />
-  )
-}
-
-const FeedbackIndicator = (props: FeedbackDataProps) => {
-  return (
-    <Icon
-      icon={props.fb == 1 ? 'thumbs-up' : 'thumbs-down'}
-      intent={props.fb == 1 ? 'success' : 'warning'}
-    />
-  )
-}
-
-const ServoMode = (props: ServoModeDataProps) => {
-  if (props.state == 0) {
-    return <div>Inactive</div>
-  } else if (props.state == 1) {
-    return <div>Recovery</div>
-  } else if (props.state == 2) {
-    return <div>Calibration</div>
-  } else if (props.state == 3) {
-    return <div>Find endstop</div>
-  } else if (props.state == 4) {
-    return <div>Found endstop</div>
-  } else if (props.state == 5) {
-    return <div>Foldback</div>
-  } else if (props.state == 6) {
-    return <div>Home successful</div>
-  } else if (props.state == 7) {
-    return <div>Static</div>
-  } else if (props.state == 8) {
-    return <div>High Load</div>
-  } else if (props.state == 9) {
-    return <div>Motion</div>
-  }
-
-  return <div>null</div>
-}
 
 const MotorSafetyMode = () => {
   const motor_state = useHardwareState(state => state.super.motors)
@@ -129,6 +65,118 @@ const MotorSafetyMode = () => {
   return <div>{motors_are_active}</div>
 }
 
+type MotorData = {
+  servo: ServoTelemetry
+  index: number
+}
+
+const ServoStats = (props: MotorData) => {
+  let operation_mode: string
+  let status_icon: any
+  let servo_colour: Intent
+
+  switch (props.servo.state) {
+    case 0:
+      operation_mode = 'Inactive'
+      status_icon = IconNames.DELETE
+      break
+    case 1:
+      operation_mode = 'Disabling'
+      status_icon = IconNames.DISABLE
+      break
+    case 2:
+      operation_mode = 'Calibrating Torque Feedback'
+      status_icon = IconNames.HISTORY
+      break
+    case 3:
+      operation_mode = 'Finding Endstop'
+      status_icon = IconNames.RESET
+      break
+    case 4:
+      operation_mode = 'Found Endstop'
+      status_icon = IconNames.UPDATED
+      break
+    case 5:
+      operation_mode = 'Checking Foldback'
+      status_icon = IconNames.SELECTION
+      break
+    case 6:
+      operation_mode = 'Homing Success'
+      status_icon = IconNames.CONFIRM
+      break
+    case 7:
+      operation_mode = 'Idle'
+      status_icon = IconNames.LAYOUT_CIRCLE
+      break
+    case 8:
+      operation_mode = 'Idle, High Load'
+      status_icon = IconNames.ISSUE
+      break
+    case 9:
+      operation_mode = 'Move'
+      status_icon = IconNames.SOCIAL_MEDIA
+      break
+    default:
+      operation_mode = 'Invalid Mode'
+      status_icon = IconNames.HELP
+      break
+  }
+
+  switch (props.index) {
+    case 0:
+      servo_colour = Intent.SUCCESS
+      break
+    case 1:
+      servo_colour = Intent.DANGER
+      break
+
+    case 2:
+      servo_colour = Intent.PRIMARY
+      break
+    case 3:
+      servo_colour = Intent.WARNING
+      break
+    default:
+      servo_colour = Intent.NONE
+      break
+  }
+
+  return (
+    <React.Fragment>
+      <Tooltip
+        content={operation_mode}
+        intent={servo_colour}
+        position={Position.LEFT}
+      >
+        <Callout intent={servo_colour} icon={status_icon}>
+          <Composition
+            templateCols="1fr 1fr 1fr"
+            paddingHorizontal={20}
+            gap={30}
+            placeItems="center end"
+            justifyContent="space-around"
+            minWidth="280px"
+          >
+            <Box>
+              <h4 className="bp3-heading">
+                {props.servo.feedback.toFixed(1)}%
+              </h4>
+            </Box>
+            <Box>
+              <h4 className="bp3-heading">
+                {props.servo.target_angle.toFixed(1)}°
+              </h4>
+            </Box>
+            <Box>
+              <h4 className="bp3-heading">{props.servo.power.toFixed(1)}W</h4>
+            </Box>
+          </Composition>
+        </Callout>
+      </Tooltip>
+    </React.Fragment>
+  )
+}
+
 const ServoSummaryAreas = `
   a TableArea
   TextArea TableArea
@@ -146,7 +194,9 @@ const ServoSummaryCard = () => {
       areas={ServoSummaryAreas}
       padding={10}
       gap={20}
-      templateCols="auto auto"
+      templateCols="1fr 2fr"
+      placeItems="center end"
+      justifyContent="space-around"
     >
       {({ TextArea, TableArea }) => (
         <React.Fragment>
@@ -161,7 +211,15 @@ const ServoSummaryCard = () => {
             </Statistics>
           </TextArea>
           <TableArea>
-            <HTMLTable striped>
+            <Composition gap={10}>
+              {motors.map((clearpath, index) => (
+                <Box>
+                  <ServoStats servo={clearpath} index={index} />
+                </Box>
+              ))}
+            </Composition>
+
+            {/* <HTMLTable striped>
               <thead>
                 <tr>
                   <th>Enabled</th>
@@ -186,7 +244,7 @@ const ServoSummaryCard = () => {
                   </tr>
                 ))}
               </tbody>
-            </HTMLTable>
+            </HTMLTable> */}
           </TableArea>
         </React.Fragment>
       )}
@@ -195,12 +253,12 @@ const ServoSummaryCard = () => {
 }
 
 const lightModeColours = [
-  Colors.RED1,
   Colors.GREEN1,
+  Colors.RED1,
   Colors.BLUE1,
   Colors.GOLD1,
 ]
-const darkModeColours = [Colors.RED5, Colors.GREEN5, Colors.BLUE5, Colors.GOLD5]
+const darkModeColours = [Colors.GREEN5, Colors.RED5, Colors.BLUE5, Colors.GOLD5]
 
 const servoTelemetryDataSource = new MessageDataSource('servo')
 
@@ -228,6 +286,7 @@ export const ServoDetails = () => {
             accessor={state => state.servo[index].target_angle}
             maxItems={10000}
             color={servoColours[index]}
+            key={`angle_${index}`}
           />
         ))}
         <RealTimeDomain window={10000} yMin={-45} yMax={20} delay={50} />
@@ -241,6 +300,7 @@ export const ServoDetails = () => {
             accessor={state => state.servo[index].feedback}
             maxItems={10000}
             color={servoColours[index]}
+            key={`torque_${index}`}
           />
         ))}
         <RealTimeDomain window={10000} yMin={-10} yMax={10} delay={50} />
@@ -254,6 +314,7 @@ export const ServoDetails = () => {
             accessor={state => state.servo[index].power}
             maxItems={10000}
             color={servoColours[index]}
+            key={`power_${index}`}
           />
         ))}
         <RealTimeDomain window={10000} yMin={0} yMax={50} delay={50} />
