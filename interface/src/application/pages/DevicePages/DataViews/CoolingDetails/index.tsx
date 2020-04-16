@@ -1,6 +1,6 @@
 import React from 'react'
 import { RouteComponentProps } from '@reach/router'
-import { Composition, Box } from 'atomic-layout'
+import { Composition, Box, Only } from 'atomic-layout'
 
 import {
   Button,
@@ -54,10 +54,6 @@ const FanMode = () => {
   return <div>null</div>
 }
 
-const CoolingAreas = `
-  TemperaturesArea
-  FanArea
-  `
 const temperatureDataSource = new MessageDataSource('temp')
 const fanDataSource = new MessageDataSource('fan')
 
@@ -81,68 +77,53 @@ export const CoolingDetails = () => {
         persist
       />
 
-      <Composition areas={CoolingAreas} gap={20}>
-        {({ TemperaturesArea, FanArea }) => (
-          <React.Fragment>
-            <TemperaturesArea>
-              <ChartContainer>
-                <LineChart
-                  dataSource={temperatureDataSource}
-                  accessor={state => state.temp.ambient}
-                  maxItems={1000}
-                />
-                <LineChart
-                  dataSource={temperatureDataSource}
-                  accessor={state => state.temp.regulator}
-                  maxItems={1000}
-                />
-                <LineChart
-                  dataSource={temperatureDataSource}
-                  accessor={state => state.temp.supply}
-                  maxItems={1000}
-                />
-                {/* Plot a 10-minute window */}
-                <RealTimeDomain
-                  window={[5000, 10_000, 20_000, 60_000]}
-                  delay={500}
-                />
-                <TimeAxis />
-                <VerticalAxis label="Temperature °C" />
-              </ChartContainer>
-              <Statistics>
-                <Statistic value={ambient_temp} label={`Ambient`} suffix="º" />
-                <Statistic
-                  value={regulator_temp}
-                  label={`DC-DC Reg`}
-                  suffix="º"
-                />
-                <Statistic value={supply_temp} label={`AC-DC PSU`} suffix="º" />
-              </Statistics>
-            </TemperaturesArea>
-            <FanArea>
-              <ChartContainer>
-                <LineChart
-                  dataSource={fanDataSource}
-                  accessor={state => state.fan.rpm}
-                  maxItems={1000}
-                />
-                {/* Plot a 10-minute window */}
-                <RealTimeDomain
-                  window={[5000, 10_000, 20_000, 60_000]}
-                  delay={500}
-                  yMin={0}
-                  yMax={1400}
-                />
-                <TimeAxis />
-                <VerticalAxis label="Fan RPM" />
-              </ChartContainer>
-              <Statistics>
-                <Statistic value={<FanMode />} label="operation" />
-                <Statistic value={fanspeed} label={`RPM, at ${fansetting}%`} />
-              </Statistics>
-            </FanArea>
-          </React.Fragment>
-        )}
+      <Composition gap={20}>
+        <ChartContainer height={300}>
+          <LineChart
+            dataSource={temperatureDataSource}
+            accessor={state => state.temp.ambient}
+            maxItems={1000}
+          />
+          <LineChart
+            dataSource={temperatureDataSource}
+            accessor={state => state.temp.regulator}
+            maxItems={1000}
+          />
+          <LineChart
+            dataSource={temperatureDataSource}
+            accessor={state => state.temp.supply}
+            maxItems={1000}
+          />
+          {/* Plot a 10-minute window */}
+          <RealTimeDomain window={[5000, 10_000, 20_000, 60_000]} delay={500} />
+          <TimeAxis />
+          <VerticalAxis label="Temperature °C" />
+        </ChartContainer>
+        <Statistics>
+          <Statistic value={ambient_temp} label={`Ambient`} suffix="º" />
+          <Statistic value={regulator_temp} label={`DC-DC Reg`} suffix="º" />
+          <Statistic value={supply_temp} label={`AC-DC PSU`} suffix="º" />
+        </Statistics>
+        <ChartContainer height={300}>
+          <LineChart
+            dataSource={fanDataSource}
+            accessor={state => state.fan.rpm}
+            maxItems={1000}
+          />
+          {/* Plot a 10-minute window */}
+          <RealTimeDomain
+            window={[5000, 10_000, 20_000, 60_000]}
+            delay={500}
+            yMin={0}
+            yMax={1400}
+          />
+          <TimeAxis />
+          <VerticalAxis label="Fan RPM" />
+        </ChartContainer>
+        <Statistics>
+          <Statistic value={<FanMode />} label="operation" />
+          <Statistic value={fanspeed} label={`RPM, at ${fansetting}%`} />
+        </Statistics>
       </Composition>
     </div>
   )

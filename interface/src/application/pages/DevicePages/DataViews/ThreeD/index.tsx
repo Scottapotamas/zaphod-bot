@@ -33,7 +33,11 @@ export const ThreeD = () => {
   ]
 
   if (!summaryFilePath) {
-    return null
+    return (
+      <p style={{ textAlign: 'center' }}>
+        3D Viewer will display with loaded file
+      </p>
+    )
   }
 
   // Parse the file and find the collections to render out

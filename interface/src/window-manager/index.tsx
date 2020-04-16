@@ -37,9 +37,9 @@ function createMainWindow() {
       nodeIntegration: true,
       devTools: isDevelopment, // Only allow devTools in development mode
     },
-    minHeight: 680,
-    minWidth: 1200,
-    height: 680,
+    minHeight: 690,
+    minWidth: 650,
+    height: 690,
     width: 1200,
     title: 'Electric UI',
     backgroundColor: '#191b1d', // This needs to be set to something so the background on resize can be changed to match the dark / light mode theme

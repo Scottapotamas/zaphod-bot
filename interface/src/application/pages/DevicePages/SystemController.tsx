@@ -1,6 +1,5 @@
 import {
   Button,
-  ProgressBar,
   Statistic,
   Statistics,
 } from '@electricui/components-desktop-blueprint'
@@ -8,16 +7,13 @@ import {
   CONTROL_MODES,
   SUPERVISOR_STATES,
 } from '../../../transport-manager/config/codecs'
-import { Divider, HTMLTable } from '@blueprintjs/core'
 
 import {
   IntervalRequester,
-  StateTree,
   useHardwareState,
 } from '@electricui/components-core'
 
-import { Composition } from 'atomic-layout'
-import { Printer } from '@electricui/components-desktop'
+import { Composition, Box } from 'atomic-layout'
 import React from 'react'
 
 const SupervisorState = () => {
@@ -74,7 +70,7 @@ RobotMode PositionOutput
 ArmButton HomeButton
 `
 
-const SystemOverview = () => {
+const SystemController = () => {
   const control_mode = useHardwareState(state => state.super.mode)
 
   const x_position = useHardwareState(state => state.cpos[0]) / 1000
@@ -84,7 +80,7 @@ const SystemOverview = () => {
   return (
     <div>
       <IntervalRequester variables={['cpos']} interval={50} />
-      <Composition areas={systemOverviewAreas} gutter={20}>
+      <Composition areas={systemOverviewAreas} gap={20} templateCols="4fr 3fr">
         {Areas => (
           <>
             <Areas.RobotMode>
@@ -96,22 +92,26 @@ const SystemOverview = () => {
               </Statistics>
             </Areas.RobotMode>
             <Areas.PositionOutput>
-              <HTMLTable condensed style={{ minWidth: '100%' }}>
-                <tbody>
-                  <tr>
-                    <td>X</td>
-                    <td>{x_position.toFixed(2)} mm</td>
-                  </tr>
-                  <tr>
-                    <td>Y</td>
-                    <td>{y_position.toFixed(2)} mm</td>
-                  </tr>
-                  <tr>
-                    <td>Z</td>
-                    <td>{z_position.toFixed(2)} mm</td>
-                  </tr>
-                </tbody>
-              </HTMLTable>
+              <Composition
+                templateCols="1fr 3fr"
+                placeItems="center end"
+                placeContent="space-around"
+                gap={10}
+                paddingHorizontal={40}
+              >
+                <Box>
+                  <b>X</b>
+                </Box>
+                <Box>{x_position.toFixed(2)} mm</Box>
+                <Box>
+                  <b>Y</b>
+                </Box>
+                <Box>{y_position.toFixed(2)} mm</Box>
+                <Box>
+                  <b>Z</b>
+                </Box>
+                <Box>{z_position.toFixed(2)} mm</Box>
+              </Composition>
             </Areas.PositionOutput>
             <Areas.HomeButton>
               <Button fill large intent="success" callback="home">
@@ -128,4 +128,4 @@ const SystemOverview = () => {
   )
 }
 
-export default SystemOverview
+export default SystemController

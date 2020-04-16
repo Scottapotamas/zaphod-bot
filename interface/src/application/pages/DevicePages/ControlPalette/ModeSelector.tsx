@@ -1,4 +1,4 @@
-import { ButtonGroup, NonIdealState, Navbar } from '@blueprintjs/core'
+import { ButtonGroup, NonIdealState } from '@blueprintjs/core'
 import { useHardwareState } from '@electricui/components-core'
 
 import React from 'react'
@@ -87,18 +87,18 @@ const ControlSurfaceFromMode = () => {
   } else if (control_mode == CONTROL_MODES[CONTROL_MODES.DEMO]) {
     return (
       <NonIdealState
-        title="Demonstration Mode Unavailable"
-        description="The delta-robot controller does not yet support demo mode"
+        title="Demonstration Mode"
+        description="Begins automatically once armed"
       />
     )
   } else if (control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]) {
     return <TrackPalette />
   }
 
-  return <div>Select a mode to unlock control</div>
+  return <NonIdealState title="Changing Mode" description="Please wait" />
 }
 
-const SystemController = () => {
+const ModeSelector = () => {
   return (
     <div style={{ minHeight: '300px' }}>
       <ModeSelectButtons />
@@ -108,4 +108,4 @@ const SystemController = () => {
   )
 }
 
-export default SystemController
+export default ModeSelector

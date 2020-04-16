@@ -1,6 +1,6 @@
 import React from 'react'
 import { RouteComponentProps } from '@reach/router'
-import { Composition, Box } from 'atomic-layout'
+import { Composition, Box, Only } from 'atomic-layout'
 
 import {
   ChartContainer,
@@ -10,29 +10,11 @@ import {
   VerticalAxis,
 } from '@electricui/components-desktop-charts'
 
-import {
-  Button,
-  Statistic,
-  Statistics,
-  Slider,
-} from '@electricui/components-desktop-blueprint'
-import {
-  Card,
-  Divider,
-  HTMLTable,
-  Label,
-  Text,
-  Tab,
-  Colors,
-  Callout,
-  Tooltip,
-  Position,
-  Intent,
-} from '@blueprintjs/core'
+import { Statistic, Statistics } from '@electricui/components-desktop-blueprint'
+import { Colors, Callout, Tooltip, Position, Intent } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
 import {
   IntervalRequester,
-  StateTree,
   useHardwareState,
 } from '@electricui/components-core'
 
@@ -40,7 +22,7 @@ import {
   MessageDataSource,
   RollingStorageRequest,
 } from '@electricui/core-timeseries'
-import { Printer, useDarkMode } from '@electricui/components-desktop'
+import { useDarkMode } from '@electricui/components-desktop'
 import { ServoTelemetry } from '../../../../../transport-manager/config/codecs'
 
 const MotorSafetyMode = () => {
@@ -177,12 +159,6 @@ const ServoStats = (props: MotorData) => {
   )
 }
 
-const ServoSummaryAreas = `
-  a TableArea
-  TextArea TableArea
-  b TableArea
-  `
-
 const ServoSummaryCard = () => {
   const motors: ServoTelemetry[] | null = useHardwareState(state => state.servo)
   if (motors === null) {
@@ -191,63 +167,28 @@ const ServoSummaryCard = () => {
 
   return (
     <Composition
-      areas={ServoSummaryAreas}
       padding={10}
       gap={20}
       templateCols="1fr 2fr"
       placeItems="center end"
       justifyContent="space-around"
     >
-      {({ TextArea, TableArea }) => (
-        <React.Fragment>
-          <TextArea>
-            <Statistics>
-              <Statistic>
-                <Statistic.Label>Motors are</Statistic.Label>
-                <Statistic.Value>
-                  <MotorSafetyMode />
-                </Statistic.Value>
-              </Statistic>
-            </Statistics>
-          </TextArea>
-          <TableArea>
-            <Composition gap={10}>
-              {motors.map((clearpath, index) => (
-                <Box>
-                  <ServoStats servo={clearpath} index={index} />
-                </Box>
-              ))}
-            </Composition>
+      <Statistics>
+        <Statistic>
+          <Statistic.Label>Motors are</Statistic.Label>
+          <Statistic.Value>
+            <MotorSafetyMode />
+          </Statistic.Value>
+        </Statistic>
+      </Statistics>
 
-            {/* <HTMLTable striped>
-              <thead>
-                <tr>
-                  <th>Enabled</th>
-                  <th>State</th>
-                  <th>Feedback</th>
-                  <th>Power (W)</th>
-                  <th>Target º</th>
-                </tr>
-              </thead>
-              <tbody>
-                {motors.map((clearpath, index) => (
-                  <tr>
-                    <td>
-                      <EnabledIndicator en={clearpath.enabled} />
-                    </td>
-                    <td>
-                      <ServoMode state={clearpath.state} />
-                    </td>
-                    <td>{clearpath.feedback.toFixed(1)}%</td>
-                    <td>{clearpath.power.toFixed(1)}</td>
-                    <td>{clearpath.target_angle.toFixed(2)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </HTMLTable> */}
-          </TableArea>
-        </React.Fragment>
-      )}
+      <Composition gap={10}>
+        {motors.map((clearpath, index) => (
+          <Box>
+            <ServoStats servo={clearpath} index={index} />
+          </Box>
+        ))}
+      </Composition>
     </Composition>
   )
 }
@@ -278,50 +219,55 @@ export const ServoDetails = () => {
         maxItems={250}
         persist
       />
-
-      <ChartContainer>
-        {Array.from(new Array(numMotors)).map((_, index) => (
-          <LineChart
-            dataSource={servoTelemetryDataSource}
-            accessor={state => state.servo[index].target_angle}
-            maxItems={10000}
-            color={servoColours[index]}
-            key={`angle_${index}`}
-          />
-        ))}
-        <RealTimeDomain window={10000} yMin={-45} yMax={20} delay={50} />
-        <TimeAxis />
-        <VerticalAxis label="Arm Angle °" />
-      </ChartContainer>
-      <ChartContainer>
-        {Array.from(new Array(numMotors)).map((_, index) => (
-          <LineChart
-            dataSource={servoTelemetryDataSource}
-            accessor={state => state.servo[index].feedback}
-            maxItems={10000}
-            color={servoColours[index]}
-            key={`torque_${index}`}
-          />
-        ))}
-        <RealTimeDomain window={10000} yMin={-10} yMax={10} delay={50} />
-        <TimeAxis />
-        <VerticalAxis label="Servo Torque %" />
-      </ChartContainer>
-      <ChartContainer>
-        {Array.from(new Array(numMotors)).map((_, index) => (
-          <LineChart
-            dataSource={servoTelemetryDataSource}
-            accessor={state => state.servo[index].power}
-            maxItems={10000}
-            color={servoColours[index]}
-            key={`power_${index}`}
-          />
-        ))}
-        <RealTimeDomain window={10000} yMin={0} yMax={50} delay={50} />
-        <TimeAxis />
-        <VerticalAxis label="Servo Power W" />
-      </ChartContainer>
-      <ServoSummaryCard />
+      <Composition>
+        <ChartContainer height={300}>
+          {Array.from(new Array(numMotors)).map((_, index) => (
+            <LineChart
+              dataSource={servoTelemetryDataSource}
+              accessor={state => state.servo[index].target_angle}
+              maxItems={10000}
+              color={servoColours[index]}
+              key={`angle_${index}`}
+            />
+          ))}
+          <RealTimeDomain window={10000} yMin={-45} yMax={20} delay={50} />
+          <TimeAxis />
+          <VerticalAxis label="Arm Angle °" />
+        </ChartContainer>
+        <Only from={{ minHeight: 940 }}>
+          <ChartContainer height={300}>
+            {Array.from(new Array(numMotors)).map((_, index) => (
+              <LineChart
+                dataSource={servoTelemetryDataSource}
+                accessor={state => state.servo[index].feedback}
+                maxItems={10000}
+                color={servoColours[index]}
+                key={`torque_${index}`}
+              />
+            ))}
+            <RealTimeDomain window={10000} yMin={-10} yMax={10} delay={50} />
+            <TimeAxis />
+            <VerticalAxis label="Servo Torque %" />
+          </ChartContainer>
+        </Only>
+        <Only from={{ minHeight: 1240 }}>
+          <ChartContainer height={300}>
+            {Array.from(new Array(numMotors)).map((_, index) => (
+              <LineChart
+                dataSource={servoTelemetryDataSource}
+                accessor={state => state.servo[index].power}
+                maxItems={10000}
+                color={servoColours[index]}
+                key={`power_${index}`}
+              />
+            ))}
+            <RealTimeDomain window={10000} yMin={0} yMax={50} delay={50} />
+            <TimeAxis />
+            <VerticalAxis label="Servo Power W" />
+          </ChartContainer>
+        </Only>
+        <ServoSummaryCard />
+      </Composition>
     </div>
   )
 }
