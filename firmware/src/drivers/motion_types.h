@@ -17,12 +17,15 @@ typedef struct
     int32_t z;
 } CartesianPoint_t;
 
+// Servo motor angle structure, measured in degrees
 typedef struct
 {
     float a1;
     float a2;
     float a3;
 } JointAngles_t;
+
+/* -------------------------------------------------------------------------- */
 
 typedef enum
 {
@@ -44,6 +47,40 @@ typedef enum
     _POS_ABSOLUTE = 0,
     _POS_RELATIVE,
 } MotionReference_t;
+
+/* -------------------------------------------------------------------------- */
+
+// Enums to help make array indices for motion types easier to read
+typedef enum
+{
+    _LINE_START = 0,
+    _LINE_END,
+} LinePointNames_t;
+
+typedef enum
+{
+    _CATMULL_CONTROL_A = 0,
+    _CATMULL_START,
+    _CATMULL_END,
+    _CATMULL_CONTROL_B,
+} CatmullPointNames_t;
+
+typedef enum
+{
+    _QUADRATIC_START = 0,
+    _QUADRATIC_CONTROL,
+    _QUADRATIC_END,
+} QuadraticPointNames_t;
+
+typedef enum
+{
+    _CUBIC_START = 0,
+    _CUBIC_CONTROL_A,
+    _CUBIC_CONTROL_B,
+    _CUBIC_END,
+} CubicPointNames_t;
+
+/* -------------------------------------------------------------------------- */
 
 #define MOVEMENT_POINTS_COUNT 4
 
@@ -70,6 +107,9 @@ cartesian_move_distance( Movement_t *movement );
 
 PUBLIC void
 cartesian_point_rotate_around_z( CartesianPoint_t *a, float degrees );
+
+PUBLIC void
+cartesian_find_point_on_line( CartesianPoint_t *a, CartesianPoint_t *b, CartesianPoint_t *p, float weight );
 
 PUBLIC int32_t
 cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b );

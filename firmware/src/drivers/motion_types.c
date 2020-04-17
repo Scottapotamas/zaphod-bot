@@ -36,6 +36,16 @@ cartesian_duration_for_speed( CartesianPoint_t *a, CartesianPoint_t *b, mm_per_s
     return distance / target_speed;
 }
 
+// Input two points in 3D space (*a and *b), and 0.0f to 1.0f 'percentage' on the line to find
+// Writes the resultant point into *p
+PUBLIC void
+cartesian_find_point_on_line( CartesianPoint_t *a, CartesianPoint_t *b, CartesianPoint_t *p, float weight )
+{
+    p->x = a->x + ( ( b->x - a->x ) * weight );
+    p->y = a->y + ( ( b->y - a->y ) * weight );
+    p->z = a->z + ( ( b->z - a->z ) * weight );
+}
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -155,20 +165,20 @@ cartesian_point_on_line( CartesianPoint_t *p, size_t points, float pos_weight, C
     // start and end of splines don't need calculation
     if( pos_weight <= 0.0f + FLT_EPSILON )
     {
-        memcpy( output, &p[0], sizeof( CartesianPoint_t ) );
+        memcpy( output, &p[_LINE_START], sizeof( CartesianPoint_t ) );
         return SOLUTION_VALID;
     }
 
     if( pos_weight >= 1.0f - FLT_EPSILON )
     {
-        memcpy( output, &p[0], sizeof( CartesianPoint_t ) );
+        memcpy( output, &p[_LINE_END], sizeof( CartesianPoint_t ) );
         return SOLUTION_VALID;
     }
 
     // Linear interpolation between two points (lerp)
-    output->x = p[0].x + pos_weight * ( p[1].x - p[0].x );
-    output->y = p[0].y + pos_weight * ( p[1].y - p[0].y );
-    output->z = p[0].z + pos_weight * ( p[1].z - p[0].z );
+    output->x = p[_LINE_START].x + pos_weight * ( p[_LINE_END].x - p[_LINE_START].x );
+    output->y = p[_LINE_START].y + pos_weight * ( p[_LINE_END].y - p[_LINE_START].y );
+    output->z = p[_LINE_START].z + pos_weight * ( p[_LINE_END].z - p[_LINE_START].z );
 
     return SOLUTION_VALID;
 }
@@ -191,13 +201,13 @@ cartesian_point_on_catmull_spline( CartesianPoint_t *p, size_t points, float pos
     // start and end of splines don't need calculation as catmull curves _will_ pass through all points
     if( pos_weight <= 0.0f + FLT_EPSILON )
     {
-        memcpy( output, &p[1], sizeof( CartesianPoint_t ) );
+        memcpy( output, &p[_CATMULL_START], sizeof( CartesianPoint_t ) );
         return SOLUTION_VALID;    // todo add a 'end of range' flag?
     }
 
     if( pos_weight >= 1.0f - FLT_EPSILON )
     {
-        memcpy( output, &p[2], sizeof( CartesianPoint_t ) );
+        memcpy( output, &p[_CATMULL_END], sizeof( CartesianPoint_t ) );
         return SOLUTION_VALID;
     }
 
@@ -214,11 +224,11 @@ cartesian_point_on_catmull_spline( CartesianPoint_t *p, size_t points, float pos
     float t2 = t * t;
     float t3 = t2 * t;
 
-    output->x = 0.5f * ( ( 2 * p[1].x ) + ( -p[0].x + p[2].x ) * t + ( 2 * p[0].x - 5 * p[1].x + 4 * p[2].x - p[3].x ) * t2 + ( -p[0].x + 3 * p[1].x - 3 * p[2].x + p[3].x ) * t3 );
+    output->x = 0.5f * ( ( 2 * p[_CATMULL_START].x ) + ( -p[_CATMULL_CONTROL_A].x + p[_CATMULL_END].x ) * t + ( 2 * p[_CATMULL_CONTROL_A].x - 5 * p[_CATMULL_START].x + 4 * p[_CATMULL_END].x - p[_CATMULL_CONTROL_B].x ) * t2 + ( -p[_CATMULL_CONTROL_A].x + 3 * p[_CATMULL_START].x - 3 * p[_CATMULL_END].x + p[_CATMULL_CONTROL_B].x ) * t3 );
 
-    output->y = 0.5f * ( ( 2 * p[1].y ) + ( -p[0].y + p[2].y ) * t + ( 2 * p[0].y - 5 * p[1].y + 4 * p[2].y - p[3].y ) * t2 + ( -p[0].y + 3 * p[1].y - 3 * p[2].y + p[3].y ) * t3 );
+    output->y = 0.5f * ( ( 2 * p[_CATMULL_START].y ) + ( -p[_CATMULL_CONTROL_A].y + p[_CATMULL_END].y ) * t + ( 2 * p[_CATMULL_CONTROL_A].y - 5 * p[_CATMULL_START].y + 4 * p[_CATMULL_END].y - p[_CATMULL_CONTROL_B].y ) * t2 + ( -p[_CATMULL_CONTROL_A].y + 3 * p[_CATMULL_START].y - 3 * p[_CATMULL_END].y + p[_CATMULL_CONTROL_B].y ) * t3 );
 
-    output->z = 0.5f * ( ( 2 * p[1].z ) + ( -p[0].z + p[2].z ) * t + ( 2 * p[0].z - 5 * p[1].z + 4 * p[2].z - p[3].z ) * t2 + ( -p[0].z + 3 * p[1].z - 3 * p[2].z + p[3].z ) * t3 );
+    output->z = 0.5f * ( ( 2 * p[_CATMULL_START].z ) + ( -p[_CATMULL_CONTROL_A].z + p[_CATMULL_END].z ) * t + ( 2 * p[_CATMULL_CONTROL_A].z - 5 * p[_CATMULL_START].z + 4 * p[_CATMULL_END].z - p[_CATMULL_CONTROL_B].z ) * t2 + ( -p[_CATMULL_CONTROL_A].z + 3 * p[_CATMULL_START].z - 3 * p[_CATMULL_END].z + p[_CATMULL_CONTROL_B].z ) * t3 );
 
     return SOLUTION_VALID;
 }
@@ -241,13 +251,13 @@ cartesian_point_on_quadratic_bezier( CartesianPoint_t *p, size_t points, float p
     // start and end of bezier
     if( pos_weight <= 0.0f + FLT_EPSILON )
     {
-        memcpy( output, &p[0], sizeof( CartesianPoint_t ) );
+        memcpy( output, &p[_QUADRATIC_START], sizeof( CartesianPoint_t ) );
         return SOLUTION_VALID;
     }
 
     if( pos_weight >= 1.0f - FLT_EPSILON )
     {
-        memcpy( output, &p[2], sizeof( CartesianPoint_t ) );
+        memcpy( output, &p[_QUADRATIC_END], sizeof( CartesianPoint_t ) );
         return SOLUTION_VALID;
     }
 
@@ -262,9 +272,9 @@ cartesian_point_on_quadratic_bezier( CartesianPoint_t *p, size_t points, float p
     float omt  = 1 - t;
     float omt2 = omt * omt;
 
-    output->x = ( omt2 * p[0].x ) + ( 2 * omt * t * p[1].x ) + ( tsq * p[2].x );
-    output->y = ( omt2 * p[0].y ) + ( 2 * omt * t * p[1].y ) + ( tsq * p[2].y );
-    output->z = ( omt2 * p[0].z ) + ( 2 * omt * t * p[1].z ) + ( tsq * p[2].z );
+    output->x = ( omt2 * p[_QUADRATIC_START].x ) + ( 2 * omt * t * p[_QUADRATIC_CONTROL].x ) + ( tsq * p[_QUADRATIC_END].x );
+    output->y = ( omt2 * p[_QUADRATIC_START].y ) + ( 2 * omt * t * p[_QUADRATIC_CONTROL].y ) + ( tsq * p[_QUADRATIC_END].y );
+    output->z = ( omt2 * p[_QUADRATIC_START].z ) + ( 2 * omt * t * p[_QUADRATIC_CONTROL].z ) + ( tsq * p[_QUADRATIC_END].z );
 
     return SOLUTION_VALID;
 }
@@ -287,13 +297,13 @@ cartesian_point_on_cubic_bezier( CartesianPoint_t *p, size_t points, float pos_w
     // start and end of bezier
     if( pos_weight <= 0.0f + FLT_EPSILON )
     {
-        memcpy( output, &p[0], sizeof( CartesianPoint_t ) );
+        memcpy( output, &p[_CUBIC_START], sizeof( CartesianPoint_t ) );
         return SOLUTION_VALID;
     }
 
     if( pos_weight >= 1.0f - FLT_EPSILON )
     {
-        memcpy( output, &p[3], sizeof( CartesianPoint_t ) );
+        memcpy( output, &p[_CUBIC_END], sizeof( CartesianPoint_t ) );
         return SOLUTION_VALID;
     }
 
@@ -310,9 +320,9 @@ cartesian_point_on_cubic_bezier( CartesianPoint_t *p, size_t points, float pos_w
     float omt2 = omt * omt;
     float omt3 = omt2 * omt;
 
-    output->x = ( omt3 * p[0].x ) + ( 3 * omt2 * t * p[1].x ) + ( 3 * omt * tsq * p[2].x ) + ( tcu * p[3].x );
-    output->y = ( omt3 * p[0].y ) + ( 3 * omt2 * t * p[1].y ) + ( 3 * omt * tsq * p[2].y ) + ( tcu * p[3].y );
-    output->z = ( omt3 * p[0].z ) + ( 3 * omt2 * t * p[1].z ) + ( 3 * omt * tsq * p[2].z ) + ( tcu * p[3].z );
+    output->x = ( omt3 * p[_CUBIC_START].x ) + ( 3 * omt2 * t * p[_CUBIC_CONTROL_A].x ) + ( 3 * omt * tsq * p[_CUBIC_CONTROL_B].x ) + ( tcu * p[_CUBIC_END].x );
+    output->y = ( omt3 * p[_CUBIC_START].y ) + ( 3 * omt2 * t * p[_CUBIC_CONTROL_A].y ) + ( 3 * omt * tsq * p[_CUBIC_CONTROL_B].y ) + ( tcu * p[_CUBIC_END].y );
+    output->z = ( omt3 * p[_CUBIC_START].z ) + ( 3 * omt2 * t * p[_CUBIC_CONTROL_A].z ) + ( 3 * omt * tsq * p[_CUBIC_CONTROL_B].z ) + ( tcu * p[_CUBIC_END].z );
 
     return SOLUTION_VALID;
 }
