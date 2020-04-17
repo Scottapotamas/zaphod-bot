@@ -149,6 +149,37 @@ int32_t cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b )
 
 /* -------------------------------------------------------------------------- */
 
+// Calculate the control points for a cubic bezier curve which allows for acceleration shaping of a linear move
+// Accepts a line based movement, and mutates it into a cubic bezier
+// Should be called BEFORE sending the movement to the queue
+PUBLIC KinematicsSolution_t
+cartesian_plan_smoothed_line( Movement_t *movement, float weight )
+{
+    // Error checks - only accept lines with 2 points
+    if( movement->type != _LINE || movement->points != 2 )
+    {
+        // Error
+        return SOLUTION_ERROR;
+    }
+
+    // Move the move destination to the last point
+    memcpy( &movement->points[_CUBIC_END], &movement->points[_LINE_END], sizeof( CartesianPoint_t ) );
+
+    // Create control points on the line between the start and end points of the line,
+    // the weight defines how close the controls are to the start/end points -> how aggressive the acceleration shaping will be
+    // smaller weight value -> smaller distance between the (start and control1) and (control2 and end), therefore slower acceleration
+    cartesian_find_point_on_line( &movement->points[_CUBIC_START], &movement->points[_CUBIC_END], &movement->points[_CUBIC_CONTROL_A], weight );
+    cartesian_find_point_on_line( &movement->points[_CUBIC_END], &movement->points[_CUBIC_START], &movement->points[_CUBIC_CONTROL_B], weight );
+
+    // "Fix" the other fields in the movement to match our new movement
+    movement->type    = _BEZIER_CUBIC;
+    movement->num_pts = 4;
+
+    return SOLUTION_VALID;
+}
+
+/* -------------------------------------------------------------------------- */
+
 // p[0], p[1] are the two points in 3D space
 // rel_weight is the 0.0-1.0 percentage position on the line
 // the output pointer is the interpolated position on the line

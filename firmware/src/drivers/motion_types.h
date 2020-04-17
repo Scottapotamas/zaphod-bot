@@ -118,6 +118,9 @@ PUBLIC int16_t
 cartesian_duration_for_speed( CartesianPoint_t *a, CartesianPoint_t *b, mm_per_second_t target_speed );
 
 PUBLIC KinematicsSolution_t
+cartesian_plan_smoothed_line( Movement_t *movement, float weight );
+
+PUBLIC KinematicsSolution_t
 cartesian_point_on_line( CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output );
 
 PUBLIC KinematicsSolution_t
