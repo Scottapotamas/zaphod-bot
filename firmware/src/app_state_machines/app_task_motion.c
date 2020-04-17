@@ -294,8 +294,6 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 
         case STATE_STEP1_SIGNAL:
             AppTaskMotion_commit_queued_move( me );
-            AppTaskMotion_commit_queued_move( me );
-
             return 0;
 
         // todo add motion handler watching on PATHING_STARTED?
