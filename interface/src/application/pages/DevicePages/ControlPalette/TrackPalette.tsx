@@ -21,17 +21,41 @@ const TrackPalette = () => {
       {({ HorizontalXArea, HorizontalYArea, VerticalZArea }) => (
         <React.Fragment>
           <HorizontalXArea>
+            <Button
+              writer={state => {
+                state.tpos = {
+                  x: 0,
+                  y: 0,
+                  z: 40,
+                }
+              }}
+            >
+              Pos 1
+            </Button>
+            <Button
+              writer={state => {
+                state.tpos = {
+                  x: 10,
+                  y: 10,
+                  z: 40,
+                }
+              }}
+            >
+              Pos 2
+            </Button>
             <h4>X</h4>
             <Slider
               min={-100}
               max={100}
               stepSize={0.1}
               labelStepSize={25}
-              writer={values => ({
-                tpos: {
+              writer={(state, values) => {
+                state.tpos = {
                   x: values.target_x,
-                },
-              })}
+                  y: state.tpos.y,
+                  z: state.tpos.z,
+                }
+              }}
             >
               <Slider.Handle accessor={state => state.tpos.x} name="target_x" />
             </Slider>
@@ -43,11 +67,13 @@ const TrackPalette = () => {
               max={100}
               stepSize={0.1}
               labelStepSize={25}
-              writer={values => ({
-                tpos: {
+              writer={(state, values) => {
+                state.tpos = {
+                  x: state.tpos.x,
                   y: values.target_y,
-                },
-              })}
+                  z: state.tpos.z,
+                }
+              }}
             >
               <Slider.Handle accessor={state => state.tpos.y} name="target_y" />
             </Slider>
@@ -61,11 +87,13 @@ const TrackPalette = () => {
               max={100}
               stepSize={0.1}
               labelStepSize={25}
-              writer={values => ({
-                tpos: {
+              writer={(state, values) => {
+                state.tpos = {
+                  x: state.tpos.x,
+                  y: state.tpos.y,
                   z: values.target_z,
-                },
-              })}
+                }
+              }}
             >
               <Slider.Handle accessor={state => state.tpos.z} name="target_z" />
             </Slider>
