@@ -603,9 +603,10 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
                     if( !path_interpolator_get_move_done() )
                     {
                         path_interpolator_stop();
+                        eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
                     }
 
-                    // Create a move which will get us to the target
+                    // Create the line which will get us to the target
                     MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
                     motev->move.type          = _LINE;
                     motev->move.ref           = _POS_ABSOLUTE;
@@ -621,9 +622,13 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
                     motev->move.points[1].y = target.y;
                     motev->move.points[1].z = target.z;
 
-                    eventPublish( (StateEvent *)motev );
+                    // Convert the line to a acceleration-damped line, and send it to the planner
+                    if( cartesian_plan_smoothed_line( &motev->move, 0.001f) == SOLUTION_VALID )
+                    {
+                        eventPublish( (StateEvent *)motev );
+                        eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
+                    }
 
-                    eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
                 }
                 else
                 {

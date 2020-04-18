@@ -27,7 +27,7 @@ cartesian_move_speed( Movement_t *movement )
 // Input speed is in centimeters/second
 // Distance in microns
 // Return the duration in milliseconds (round down)
-PUBLIC int16_t
+PUBLIC uint32_t
 cartesian_duration_for_speed( CartesianPoint_t *a, CartesianPoint_t *b, mm_per_second_t target_speed )
 {
     int32_t distance = cartesian_distance_between( a, b );    // in microns
@@ -156,7 +156,7 @@ PUBLIC KinematicsSolution_t
 cartesian_plan_smoothed_line( Movement_t *movement, float weight )
 {
     // Error checks - only accept lines with 2 points
-    if( movement->type != _LINE || movement->points != 2 )
+    if( movement->type != _LINE || movement->num_pts != 2 )
     {
         // Error
         return SOLUTION_ERROR;
