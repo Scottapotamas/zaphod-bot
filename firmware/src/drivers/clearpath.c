@@ -190,6 +190,14 @@ servo_get_servo_ok( ClearpathServoInstance_t servo )
              && ( me->currentState == SERVO_STATE_IDLE || me->currentState == SERVO_STATE_IDLE_HIGH_LOAD || me->currentState == SERVO_STATE_ACTIVE ) );
 }
 
+PUBLIC bool
+servo_get_servo_did_error( ClearpathServoInstance_t servo )
+{
+    Servo_t *me = &clearpath[servo];
+
+    return ( me->currentState == SERVO_STATE_ERROR_RECOVERY || me->previousState == SERVO_STATE_ERROR_RECOVERY || me->nextState == SERVO_STATE_ERROR_RECOVERY );
+}
+
 /* -------------------------------------------------------------------------- */
 
 // Returns uncorrected servo feedback torque as a percentage from -100% to 100% of rated capability

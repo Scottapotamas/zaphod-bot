@@ -51,6 +51,9 @@ servo_get_move_done( ClearpathServoInstance_t servo );
 PUBLIC bool
 servo_get_servo_ok( ClearpathServoInstance_t servo );
 
+PUBLIC bool
+servo_get_servo_did_error( ClearpathServoInstance_t servo );
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void

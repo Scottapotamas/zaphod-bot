@@ -149,11 +149,20 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
         case STATE_TIMEOUT1_SIGNAL:
 
-            //check all the servos have homed successfully
+            //check all the servos have homed successfully by polling their manager for a 'all good' condition
             me->counter = 0;
             for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
             {
                 me->counter += servo_get_servo_ok( servo );
+
+                // the servo is/recently entered an error recovery state
+                if( servo_get_servo_did_error( servo ) )
+                {
+                    // Bail out of the mechanism homing process entirely
+                    // while catching the error and re-requesting the servo to home would be nice, we let the user do that
+                    eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
+                    STATE_TRAN( AppTaskMotion_recovery );
+                }
             }
 
             if( me->counter == SERVO_COUNT )

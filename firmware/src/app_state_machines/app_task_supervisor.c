@@ -598,12 +598,15 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
 
                 if( !x_deadband || !y_deadband || !z_deadband )
                 {
+                    bool was_moving = false;
+                    
                     // We don't want to move while the effector is currently moving
                     // Tell the pathing engine to stop/reset before pushing a new move
                     if( !path_interpolator_get_move_done() )
                     {
                         path_interpolator_stop();
                         eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
+                        was_moving = true;
                     }
 
                     // Create the line which will get us to the target
@@ -622,8 +625,20 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
                     motev->move.points[1].y = target.y;
                     motev->move.points[1].z = target.z;
 
+                    KinematicsSolution_t shaping = SOLUTION_ERROR;
+
+                    // Don't ease-in if we were already in motion
+                    if( was_moving )
+                    {
+                        shaping = cartesian_plan_smoothed_line( &motev->move, 0.0f, 0.001f );
+                    }
+                    else
+                    {
+                        shaping = cartesian_plan_smoothed_line( &motev->move, 0.001f, 0.001f );
+                    }
+
                     // Convert the line to a acceleration-damped line, and send it to the planner
-                    if( cartesian_plan_smoothed_line( &motev->move, 0.001f) == SOLUTION_VALID )
+                    if( shaping == SOLUTION_VALID )
                     {
                         eventPublish( (StateEvent *)motev );
                         eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );

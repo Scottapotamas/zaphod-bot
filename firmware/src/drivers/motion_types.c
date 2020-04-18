@@ -153,7 +153,7 @@ int32_t cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b )
 // Accepts a line based movement, and mutates it into a cubic bezier
 // Should be called BEFORE sending the movement to the queue
 PUBLIC KinematicsSolution_t
-cartesian_plan_smoothed_line( Movement_t *movement, float weight )
+cartesian_plan_smoothed_line( Movement_t *movement, float start_weight, float end_weight )
 {
     // Error checks - only accept lines with 2 points
     if( movement->type != _LINE || movement->num_pts != 2 )
@@ -168,8 +168,8 @@ cartesian_plan_smoothed_line( Movement_t *movement, float weight )
     // Create control points on the line between the start and end points of the line,
     // the weight defines how close the controls are to the start/end points -> how aggressive the acceleration shaping will be
     // smaller weight value -> smaller distance between the (start and control1) and (control2 and end), therefore slower acceleration
-    cartesian_find_point_on_line( &movement->points[_CUBIC_START], &movement->points[_CUBIC_END], &movement->points[_CUBIC_CONTROL_A], weight );
-    cartesian_find_point_on_line( &movement->points[_CUBIC_END], &movement->points[_CUBIC_START], &movement->points[_CUBIC_CONTROL_B], weight );
+    cartesian_find_point_on_line( &movement->points[_CUBIC_START], &movement->points[_CUBIC_END], &movement->points[_CUBIC_CONTROL_A], start_weight );
+    cartesian_find_point_on_line( &movement->points[_CUBIC_END], &movement->points[_CUBIC_START], &movement->points[_CUBIC_CONTROL_B], end_weight );
 
     // "Fix" the other fields in the movement to match our new movement
     movement->type    = _BEZIER_CUBIC;
