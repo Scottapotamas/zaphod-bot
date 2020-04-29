@@ -12,7 +12,7 @@ import {
 
 import { Statistic, Statistics } from '@electricui/components-desktop-blueprint'
 import { Colors, Callout, Tooltip, Position, Intent } from '@blueprintjs/core'
-import { IconNames } from '@blueprintjs/icons'
+import { IconNames, IconName } from '@blueprintjs/icons'
 import {
   IntervalRequester,
   useHardwareState,
@@ -54,7 +54,7 @@ type MotorData = {
 
 const ServoStats = (props: MotorData) => {
   let operation_mode: string
-  let status_icon: any
+  let status_icon: IconName
   let servo_colour: Intent
 
   switch (props.servo.state) {
@@ -125,36 +125,34 @@ const ServoStats = (props: MotorData) => {
 
   return (
     <React.Fragment>
-      <Tooltip
+      {/* <Tooltip
         content={operation_mode}
         intent={servo_colour}
         position={Position.LEFT}
-      >
-        <Callout intent={servo_colour} icon={status_icon}>
-          <Composition
-            templateCols="1fr 1fr 1fr"
-            paddingHorizontal={20}
-            gap={30}
-            placeItems="center end"
-            justifyContent="space-around"
-            minWidth="280px"
-          >
-            <Box>
-              <h4 className="bp3-heading">
-                {props.servo.feedback.toFixed(1)}%
-              </h4>
-            </Box>
-            <Box>
-              <h4 className="bp3-heading">
-                {props.servo.target_angle.toFixed(1)}°
-              </h4>
-            </Box>
-            <Box>
-              <h4 className="bp3-heading">{props.servo.power.toFixed(1)}W</h4>
-            </Box>
-          </Composition>
-        </Callout>
-      </Tooltip>
+      > */}
+      <Callout intent={servo_colour} icon={status_icon}>
+        <Composition
+          templateCols="1fr 1fr 1fr"
+          paddingHorizontal={20}
+          gap={30}
+          placeItems="center end"
+          justifyContent="space-around"
+          minWidth="280px"
+        >
+          <Box>
+            <h4 className="bp3-heading">{props.servo.feedback.toFixed(1)}%</h4>
+          </Box>
+          <Box>
+            <h4 className="bp3-heading">
+              {props.servo.target_angle.toFixed(1)}°
+            </h4>
+          </Box>
+          <Box>
+            <h4 className="bp3-heading">{props.servo.power.toFixed(1)}W</h4>
+          </Box>
+        </Composition>
+      </Callout>
+      {/* </Tooltip> */}
     </React.Fragment>
   )
 }
@@ -184,7 +182,7 @@ const ServoSummaryCard = () => {
 
       <Composition gap={10}>
         {motors.map((clearpath, index) => (
-          <Box>
+          <Box key={index}>
             <ServoStats servo={clearpath} index={index} />
           </Box>
         ))}
