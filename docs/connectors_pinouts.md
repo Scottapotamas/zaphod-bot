@@ -239,12 +239,27 @@ N/A
 
 ### Pinout
 
-Not completed yet.
+```
+  1     6   
+ 2   7   5  
+  3     4   
+```
+
+- Pin 1 		75V 	RED
+- Pin 2 		12V		BROWN
+- Pin 3 		ENABLE	BLACK
+- Pin 4 		A		BLUE
+- Pin 5 		B		GREEN
+- Pin 6 		HLFB 	ORA
+- Pin 7 		GND 	YELLOW
+
 
 ### Notes
 
 - The 7-pin connector was selected for unique pin count, higher supported wire gauge (and higher per-pin current).
 - Not intended for continuous high power delivery to motors, mostly for use with rotation or belt surfaces, or possibly rail drive.
+- Connector pins are rated at 2.5A continuous.
+- Isolation rating of connectors is >700V, therefore 75VDC is fine.
 
 
 # Expansion Temperature Probe
