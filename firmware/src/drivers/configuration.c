@@ -175,9 +175,10 @@ SystemStates_t sys_states;
 QueueDepths_t  queue_data;
 
 MotionData_t motion_global;
-MotorData_t  motion_servo[3];
 #ifdef EXPANSION_SERVO
 MotorData_t motion_servo[4];
+#else
+MotorData_t  motion_servo[3];
 #endif
 
 PowerCalibration_t power_trims;
@@ -185,6 +186,8 @@ PowerCalibration_t power_trims;
 Movement_t       motion_inbound;
 CartesianPoint_t current_position;    //global position of end effector in cartesian space
 CartesianPoint_t target_position;
+
+float external_servo_angle_target;
 
 LedState_t    rgb_led_drive;
 LedControl_t  rgb_manual_control;
@@ -206,6 +209,7 @@ PRIVATE void clear_all_queue( void );
 PRIVATE void rgb_manual_led_event( void );
 
 PRIVATE void tracked_position_event( void );
+PRIVATE void tracked_external_servo_request( void );
 PRIVATE void movement_generate_event( void );
 PRIVATE void lighting_generate_event( void );
 PRIVATE void sync_begin_queues( void );
@@ -257,6 +261,8 @@ eui_message_t ui_variables[] = {
 
     EUI_INT32_ARRAY( "tpos", target_position ),
     EUI_INT32_RO_ARRAY( "cpos", current_position ),
+
+    EUI_FLOAT( "exp_ang", external_servo_angle_target),
 
     // Event trigger callbacks
     EUI_FUNC( "estop", emergency_stop_cb ),
@@ -404,6 +410,11 @@ configuration_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t me
             if( strcmp( (char *)name_rx, "tpos" ) == 0 && header.data_len )
             {
                 tracked_position_event();
+            }
+
+            if( strcmp( (char *)name_rx, "exp_ang" ) == 0 && header.data_len )
+            {
+                tracked_external_servo_request();
             }
 
             if( ( strcmp( (char *)name_rx, "hsv" ) == 0 || strcmp( (char *)name_rx, "ledset" ) == 0 )
@@ -867,6 +878,18 @@ PRIVATE void tracked_position_event( void )
         memcpy( &position_request->target, &target_position, sizeof( target_position ) );
         eventPublish( (StateEvent *)position_request );
         memset( &target_position, 0, sizeof( target_position ) );
+    }
+}
+
+PRIVATE void tracked_external_servo_request( void )
+{
+    ExpansionServoRequestEvent *angle_request = EVENT_NEW( ExpansionServoRequestEvent, TRACKED_EXTERNAL_SERVO_REQUEST );
+
+    if( angle_request )
+    {
+        memcpy( &angle_request->target, &external_servo_angle_target, sizeof( external_servo_angle_target ) );
+        eventPublish( (StateEvent *)angle_request );
+        memset( &external_servo_angle_target, 0, sizeof( external_servo_angle_target ) );
     }
 }
 

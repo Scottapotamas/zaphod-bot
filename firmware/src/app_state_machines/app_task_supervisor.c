@@ -22,6 +22,7 @@
 #include "sensors.h"
 #include "shutter_release.h"
 #include "status.h"
+#include "clearpath.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -78,6 +79,7 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
 
     eventSubscribe( (StateTask *)me, MOVEMENT_REQUEST );
     eventSubscribe( (StateTask *)me, TRACKED_TARGET_REQUEST );
+    eventSubscribe( (StateTask *)me, TRACKED_EXTERNAL_SERVO_REQUEST );
 
     // motion handler events
     eventSubscribe( (StateTask *)me, MOTION_ERROR );
@@ -649,6 +651,24 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
                 {
                     config_report_error( "deadband" );
                 }
+            }
+        }
+            return 0;
+
+        case TRACKED_EXTERNAL_SERVO_REQUEST:
+        {
+            // Catch the inbound target angle
+            ExpansionServoRequestEvent *esre = (ExpansionServoRequestEvent *)e;
+
+            if( &esre->target )
+            {
+                float target_deg;
+                memcpy( &target_deg, &esre->target, sizeof( float ) );
+
+                // TODO check if the expansion servo is running/moving etc
+
+                // Set the target angle of the expansion clearpath servo
+                servo_set_target_angle_raw( _CLEARPATH_4, target_deg );
             }
         }
             return 0;

@@ -82,6 +82,15 @@ typedef struct TrackedPositionRequestEvent__
 
 /* -------------------------------------------------------------------------- */
 
+/** Tracked position request command */
+typedef struct ExpansionServoRequestEvent__
+{
+    StateEvent  super;     // Encapsulated event reference
+    float       target;    // Target shaft angle in degrees
+} ExpansionServoRequestEvent;
+
+/* -------------------------------------------------------------------------- */
+
 /** Motion and Lighting Barrier Message Data **/
 typedef struct BarrierSyncEvent__
 {

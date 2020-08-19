@@ -40,7 +40,10 @@ servo_stop( ClearpathServoInstance_t servo );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-servo_set_target_angle( ClearpathServoInstance_t servo, float angle_degrees );
+servo_set_target_angle_limited( ClearpathServoInstance_t servo, float angle_degrees );
+
+PUBLIC void
+servo_set_target_angle_raw( ClearpathServoInstance_t servo, float angle_degrees );
 
 PUBLIC float
 servo_get_current_angle( ClearpathServoInstance_t servo );

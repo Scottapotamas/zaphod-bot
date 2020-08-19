@@ -354,9 +354,9 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
     kinematics_point_to_angle( target, &angle_target );
 
     // Ask the motors to please move there
-    servo_set_target_angle( _CLEARPATH_1, angle_target.a1 );
-    servo_set_target_angle( _CLEARPATH_2, angle_target.a2 );
-    servo_set_target_angle( _CLEARPATH_3, angle_target.a3 );
+    servo_set_target_angle_limited( _CLEARPATH_1, angle_target.a1 );
+    servo_set_target_angle_limited( _CLEARPATH_2, angle_target.a2 );
+    servo_set_target_angle_limited( _CLEARPATH_3, angle_target.a3 );
 
     // Update the config/UI data based on these actions
     config_set_position( target.x, target.y, target.z );

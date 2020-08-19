@@ -68,6 +68,8 @@ typedef struct
     HalAdcInput_t    adc_current;
     HalGpioPortPin_t pin_oc_fault;
 
+    bool             requires_homing;
+
 } ServoHardware_t;
 
 /* ----- Private Variables -------------------------------------------------- */
@@ -81,7 +83,8 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] = {
                        .pin_feedback  = _SERVO_1_HLFB,
                        .ic_feedback   = HAL_HARD_IC_HLFB_SERVO_1,
                        .adc_current   = HAL_ADC_INPUT_M1_CURRENT,
-                       .pin_oc_fault  = _SERVO_1_CURRENT_FAULT },
+                       .pin_oc_fault  = _SERVO_1_CURRENT_FAULT,
+                       .requires_homing = true },
 
     [_CLEARPATH_2] = { .pin_enable    = _SERVO_2_ENABLE,
                        .pin_direction = _SERVO_2_A,
@@ -89,7 +92,9 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] = {
                        .pin_feedback  = _SERVO_2_HLFB,
                        .ic_feedback   = HAL_HARD_IC_HLFB_SERVO_2,
                        .adc_current   = HAL_ADC_INPUT_M2_CURRENT,
-                       .pin_oc_fault  = _SERVO_2_CURRENT_FAULT },
+                       .pin_oc_fault  = _SERVO_2_CURRENT_FAULT,
+                       .requires_homing = true },
+
 
     [_CLEARPATH_3] = { .pin_enable    = _SERVO_3_ENABLE,
                        .pin_direction = _SERVO_3_A,
@@ -97,7 +102,9 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] = {
                        .pin_feedback  = _SERVO_3_HLFB,
                        .ic_feedback   = HAL_HARD_IC_HLFB_SERVO_3,
                        .adc_current   = HAL_ADC_INPUT_M3_CURRENT,
-                       .pin_oc_fault  = _SERVO_3_CURRENT_FAULT },
+                       .pin_oc_fault  = _SERVO_3_CURRENT_FAULT,
+                       .requires_homing = true },
+
 
 #ifdef EXPANSION_SERVO
     [_CLEARPATH_4] = { .pin_enable    = _SERVO_4_ENABLE,
@@ -106,7 +113,8 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] = {
                        .pin_feedback  = _SERVO_4_HLFB,
                        .ic_feedback   = HAL_HARD_IC_HLFB_SERVO_4,
                        .adc_current   = HAL_ADC_INPUT_M4_CURRENT,
-                       .pin_oc_fault  = _SERVO_4_CURRENT_FAULT },
+                       .pin_oc_fault  = _SERVO_4_CURRENT_FAULT,
+                       .requires_homing = false },
 #endif
 };
 
@@ -146,8 +154,9 @@ servo_stop( ClearpathServoInstance_t servo )
 
 /* -------------------------------------------------------------------------- */
 
+// Calculates and sets target position, constrains input to legal angles only
 PUBLIC void
-servo_set_target_angle( ClearpathServoInstance_t servo, float angle_degrees )
+servo_set_target_angle_limited( ClearpathServoInstance_t servo, float angle_degrees )
 {
     Servo_t *me = &clearpath[servo];
 
@@ -157,6 +166,19 @@ servo_set_target_angle( ClearpathServoInstance_t servo, float angle_degrees )
     {
         me->angle_target_steps = convert_angle_steps( angle_degrees );
     }
+}
+
+/* -------------------------------------------------------------------------- */
+
+// Calculates and sets the target position in steps without checking legality of request
+PUBLIC void
+servo_set_target_angle_raw( ClearpathServoInstance_t servo, float angle_degrees )
+{
+    Servo_t *me = &clearpath[servo];
+    config_motor_target_angle( servo, angle_degrees );
+
+    const uint32_t steps_per_degree = ( 400 / SERVO_ANGLE_PER_REV );
+   me->angle_target_steps = steps_per_degree * angle_degrees;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -295,7 +317,17 @@ servo_process( ClearpathServoInstance_t servo )
                 // Check that the corrected feedback value with our trim is pretty close to zero
                 if( -0.5f < servo_feedback && servo_feedback < 0.5f )
                 {
-                    STATE_NEXT( SERVO_STATE_HOMING_FIND_ENDSTOP );
+                    if( ServoHardwareMap[servo].requires_homing )
+                    {
+                        STATE_NEXT( SERVO_STATE_HOMING_FIND_ENDSTOP );
+                    }
+                    else
+                    {
+                        // Just enable the servo then 'torque settle' validation
+                        hal_gpio_write_pin( ServoHardwareMap[servo].pin_enable, SERVO_ENABLE );
+                        STATE_NEXT( SERVO_STATE_HOMING_SUCCESS );
+                    }
+
                     uncorrected_feedback = 0.0f;
                 }
                 else
