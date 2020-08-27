@@ -177,8 +177,10 @@ QueueDepths_t  queue_data;
 MotionData_t motion_global;
 #ifdef EXPANSION_SERVO
 MotorData_t motion_servo[4];
+float external_servo_angle_target;
 #else
 MotorData_t  motion_servo[3];
+
 #endif
 
 PowerCalibration_t power_trims;
@@ -186,8 +188,6 @@ PowerCalibration_t power_trims;
 Movement_t       motion_inbound;
 CartesianPoint_t current_position;    //global position of end effector in cartesian space
 CartesianPoint_t target_position;
-
-float external_servo_angle_target;
 
 LedState_t    rgb_led_drive;
 LedControl_t  rgb_manual_control;
@@ -205,11 +205,12 @@ PRIVATE void emergency_stop_cb( void );
 PRIVATE void home_mech_cb( void );
 PRIVATE void execute_motion_queue( void );
 PRIVATE void clear_all_queue( void );
+PRIVATE void tracked_position_event( void );
+#ifdef EXPANSION_SERVO
+PRIVATE void tracked_external_servo_request( void );
+#endif
 
 PRIVATE void rgb_manual_led_event( void );
-
-PRIVATE void tracked_position_event( void );
-PRIVATE void tracked_external_servo_request( void );
 PRIVATE void movement_generate_event( void );
 PRIVATE void lighting_generate_event( void );
 PRIVATE void sync_begin_queues( void );
@@ -223,8 +224,8 @@ uint32_t camera_shutter_duration_ms = 0;
 
 eui_message_t ui_variables[] = {
     // Higher level system setup information
-    EUI_CHAR_RO_ARRAY( "name", device_nickname ),
-    EUI_CHAR_RO_ARRAY( "reset_type", reset_cause ),
+    EUI_CHAR_ARRAY_RO( "name", device_nickname ),
+    EUI_CHAR_ARRAY_RO( "reset_type", reset_cause ),
     EUI_CUSTOM( "sys", sys_stats ),
     EUI_CUSTOM( "super", sys_states ),
     EUI_CUSTOM( "fwb", fw_info ),
@@ -260,9 +261,11 @@ eui_message_t ui_variables[] = {
     EUI_UINT16( "syncid", sync_id_val ),
 
     EUI_INT32_ARRAY( "tpos", target_position ),
-    EUI_INT32_RO_ARRAY( "cpos", current_position ),
+    EUI_INT32_ARRAY_RO( "cpos", current_position ),
 
+#ifdef EXPANSION_SERVO
     EUI_FLOAT( "exp_ang", external_servo_angle_target),
+#endif
 
     // Event trigger callbacks
     EUI_FUNC( "estop", emergency_stop_cb ),
@@ -412,11 +415,13 @@ configuration_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t me
                 tracked_position_event();
             }
 
+#ifdef EXPANSION_SERVO
             if( strcmp( (char *)name_rx, "exp_ang" ) == 0 && header.data_len )
             {
                 tracked_external_servo_request();
             }
-
+#endif
+            
             if( ( strcmp( (char *)name_rx, "hsv" ) == 0 || strcmp( (char *)name_rx, "ledset" ) == 0 )
                 && header.data_len )
             {
@@ -881,6 +886,7 @@ PRIVATE void tracked_position_event( void )
     }
 }
 
+#ifdef EXPANSION_SERVO
 PRIVATE void tracked_external_servo_request( void )
 {
     ExpansionServoRequestEvent *angle_request = EVENT_NEW( ExpansionServoRequestEvent, TRACKED_EXTERNAL_SERVO_REQUEST );
@@ -892,6 +898,7 @@ PRIVATE void tracked_external_servo_request( void )
         memset( &external_servo_angle_target, 0, sizeof( external_servo_angle_target ) );
     }
 }
+#endif
 
 /* -------------------------------------------------------------------------- */
 

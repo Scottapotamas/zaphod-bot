@@ -83,11 +83,13 @@ typedef struct TrackedPositionRequestEvent__
 /* -------------------------------------------------------------------------- */
 
 /** Tracked position request command */
+#ifdef EXPANSION_SERVO
 typedef struct ExpansionServoRequestEvent__
 {
     StateEvent  super;     // Encapsulated event reference
     float       target;    // Target shaft angle in degrees
 } ExpansionServoRequestEvent;
+#endif
 
 /* -------------------------------------------------------------------------- */
 

@@ -79,7 +79,9 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
 
     eventSubscribe( (StateTask *)me, MOVEMENT_REQUEST );
     eventSubscribe( (StateTask *)me, TRACKED_TARGET_REQUEST );
+#ifdef EXPANSION_SERVO
     eventSubscribe( (StateTask *)me, TRACKED_EXTERNAL_SERVO_REQUEST );
+#endif
 
     // motion handler events
     eventSubscribe( (StateTask *)me, MOTION_ERROR );
@@ -655,6 +657,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
         }
             return 0;
 
+#ifdef EXPANSION_SERVO
         case TRACKED_EXTERNAL_SERVO_REQUEST:
         {
             // Catch the inbound target angle
@@ -672,6 +675,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
             }
         }
             return 0;
+#endif
 
         case MECHANISM_STOP:
             STATE_TRAN( AppTaskSupervisor_disarm_graceful );

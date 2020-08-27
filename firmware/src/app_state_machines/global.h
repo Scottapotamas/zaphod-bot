@@ -28,7 +28,7 @@ typedef union    ///< Allow mapping int16 to uint16
 
 /* ----- Defines ------------------------------------------------------------ */
 
-#define EXPANSION_SERVO
+//#define EXPANSION_SERVO
 
 
 //! \def PRIVATE
