@@ -1,30 +1,32 @@
 import 'source-map-support/register'
 
-import { BrowserWindow, Menu, app } from 'electron'
+import { BrowserWindow, Menu, app, nativeTheme } from 'electron'
 import {
-  ExternallyResolvedPromise,
+  Deferred,
   createdNewUIWindow,
-  fetchSystemDarkModeFromWinManager,
   getElectricWindow,
-  getSettingFromWinManager,
+  getUserDarkMode,
   installDevTools,
-  setSettingFromWinManager,
+  setUserDarkMode,
+  setupDarkModeListenersWindowManager,
   setupElectricUIHandlers,
-  setupSettingsListenersWindowManager,
-  setupSettingsPathing,
+  setupSaveDialogInvoker,
 } from '@electricui/utility-electron'
 
 import { format as formatUrl } from 'url'
 import { join as pathJoin } from 'path'
 
 const isDevelopment = process.env.NODE_ENV === 'development'
+const allowDevTools = process.env.ALLOW_DEV_TOOLS === 'true' || isDevelopment
 
 // Disallow process reuse
 app.allowRendererProcessReuse = false
 
-// Setup persistent settings helpers
-setupSettingsPathing()
-setupSettingsListenersWindowManager()
+// Setup dark mode listeners
+setupDarkModeListenersWindowManager()
+
+// Setup file saving dialog handlers
+setupSaveDialogInvoker()
 
 // global reference to mainWindows (necessary to prevent window from being garbage collected)
 let mainWindows: Array<BrowserWindow> = []
@@ -35,13 +37,14 @@ function createMainWindow() {
   const window = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
-      devTools: isDevelopment, // Only allow devTools in development mode
+      devTools: allowDevTools, // Only allow devTools in development mode
+      v8CacheOptions: 'bypassHeatCheckAndEagerCompile', // https://www.youtube.com/watch?v=YqHOUy2rYZ8
     },
     minHeight: 690,
     minWidth: 650,
     height: 690,
     width: 1200,
-    title: 'Electric UI',
+    title: 'DeltaBot Control',
     backgroundColor: '#191b1d', // This needs to be set to something so the background on resize can be changed to match the dark / light mode theme
     show: false, // The window is shown once the transport manager is ready
   })
@@ -65,7 +68,7 @@ function createMainWindow() {
   })
 
   // since right now we only support one window, if it gets closed, kill the app.
-  window.on('close', event => {
+  window.on('close', () => {
     // Exit the app, don't 'quit', quit asks each window to close.
     app.exit()
   })
@@ -116,13 +119,15 @@ app.on('ready', () => {
   const firstWindow = createMainWindow()
   mainWindows.push(firstWindow) // add a new window
 
-  const firstWindowReady = new ExternallyResolvedPromise()
+  const firstWindowReady = new Deferred()
   firstWindow.once('ready-to-show', firstWindowReady.resolve)
 
   // Wait until the transport and the window is ready before showing the first window
-  Promise.all([firstWindowReady.getPromise(), transportReady]).then(() => {
-    firstWindow.show()
-  })
+  Promise.all([firstWindowReady.promise, transportReady])
+    .then(() => {
+      firstWindow.show()
+    })
+    .catch(console.error)
 
   // A secure policy to prevent running scripts external to this browser.
 
@@ -203,23 +208,23 @@ const template = [
       {
         label: 'Toggle Dark Mode',
         click: () => {
-          const userDark = getSettingFromWinManager('darkMode', null)
+          const userDark = getUserDarkMode()
 
           if (userDark === null) {
             // if the user mode is not set, set the dark mode to the opposite of the current system dark mode
-            const sys = fetchSystemDarkModeFromWinManager()
+            const sys = nativeTheme.shouldUseDarkColors
 
-            setSettingFromWinManager('darkMode', !sys)
+            setUserDarkMode(!sys)
             return
           }
 
-          setSettingFromWinManager('darkMode', !userDark)
+          setUserDarkMode(!userDark)
         },
       },
       {
         label: 'Use system dark mode',
         click: () => {
-          setSettingFromWinManager('darkMode', null)
+          setUserDarkMode(null)
         },
       },
 

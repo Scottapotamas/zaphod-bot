@@ -1,6 +1,5 @@
 import React, { useState } from 'react'
 
-import { ThreeD } from './ThreeD'
 import { ServoDetails } from './ServoDetails'
 import { CoolingDetails } from './CoolingDetails'
 import { Button, Tooltip, Position, Card } from '@blueprintjs/core'
@@ -24,17 +23,7 @@ const DataViews = () => {
               {page === 2 ? 'Temperatures & Fan' : null}
             </h3>
           </Box>
-          {/* <Box>
-            <Tooltip content="3D View" position={Position.BOTTOM}>
-              <Button
-                minimal
-                large
-                icon="cube"
-                onClick={() => setPage(0)}
-                active={page === 0}
-              />
-            </Tooltip>
-          </Box> */}
+
           <Box>
             <Tooltip content="Servo Health" position={Position.BOTTOM}>
               <Button

@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { Icon, MultiSlider, NumericInput } from '@blueprintjs/core'
 import { Composition } from 'atomic-layout'
 
-import { Button } from '@electricui/components-desktop-blueprint'
+import { Button, NumberInput } from '@electricui/components-desktop-blueprint'
 
 const JogButtonAreas = `
 XP YP ZP

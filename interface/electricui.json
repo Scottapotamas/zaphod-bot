@@ -1,5 +1,5 @@
 {
-  "title": "Electric UI",
+  "title": "Deltabot Interface",
 
   "renderer": {
     "dll": [
@@ -8,6 +8,7 @@
       "@electricui/components-desktop-blueprint/lib/bundle.css",
       "@blueprintjs/core",
       "@blueprintjs/icons",
+      "@blueprintjs/select",
       "immer",
       "immutable",
       "redux",

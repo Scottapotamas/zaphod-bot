@@ -3,10 +3,7 @@ import {
   Statistic,
   Statistics,
 } from '@electricui/components-desktop-blueprint'
-import {
-  CONTROL_MODES,
-  SUPERVISOR_STATES,
-} from '../../../transport-manager/config/codecs'
+import { CONTROL_MODES, SUPERVISOR_STATES } from '../../typedState'
 
 import {
   IntervalRequester,

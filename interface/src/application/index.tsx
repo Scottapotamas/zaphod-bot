@@ -4,9 +4,9 @@ import React from 'react'
 import ReactDOM from 'react-dom'
 import { Root } from './Root'
 import { configureStore } from './state'
-import { setupSettingsListenersApplication } from '@electricui/utility-electron'
+import { setupDarkModeListenersRenderer } from '@electricui/utility-electron'
 
-setupSettingsListenersApplication()
+setupDarkModeListenersRenderer()
 
 let root = document.createElement('div')
 root.className = 'root'

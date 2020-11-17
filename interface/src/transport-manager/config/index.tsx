@@ -1,4 +1,5 @@
 import {
+  CancellationToken,
   Connection,
   ConnectionMetadataRatio,
   ConnectionMetadataRule,
@@ -18,12 +19,7 @@ import {
 import { BinaryConnectionHandshake } from '@electricui/protocol-binary-connection-handshake'
 import { HintValidatorBinaryHandshake } from '@electricui/protocol-binary'
 import { MessageQueueBinaryFIFO } from '@electricui/protocol-binary-fifo-queue'
-
-// import { ActionsPlugin } from '@electricui/core-actions'
-import { AutoConnectPlugin } from './autoconnect'
-import { movementQueueSequencer, lightQueueSequencer } from './sequence-senders'
-
-// import actions from './actions'
+import { SERIAL_TRANSPORT_KEY } from '@electricui/transport-node-serial'
 
 /**
  * Create our device manager!
@@ -31,7 +27,33 @@ import { movementQueueSequencer, lightQueueSequencer } from './sequence-senders'
 export const deviceManager = new DeviceManager()
 
 function createRouter(device: Device) {
-  return new MessageRouterLogRatioMetadata({ device, reportRankings: true })
+  const router = new MessageRouterLogRatioMetadata({
+    device,
+    ratios: [
+      new ConnectionMetadataRatio('latency', false, 1, (sum: number, latency: number) => sum + latency), // prettier-ignore
+      new ConnectionMetadataRatio('jitter', false, 0.1, (sum: number, jitter: number) => sum + jitter), // prettier-ignore
+      new ConnectionMetadataRatio('packetLoss', false, 2, (factor: number, packetLoss: number) => factor * packetLoss), // prettier-ignore
+      new ConnectionMetadataRatio('consecutiveHeartbeats', true, 0.1, (minimum: number, consecutiveHeartbeats: number) => Math.min(minimum, consecutiveHeartbeats)), // prettier-ignore
+    ],
+    rules: [
+      new ConnectionMetadataRule(['latency'], ({ latency }) => latency < 400),
+      new ConnectionMetadataRule(
+        ['packetLoss', 'consecutiveHeartbeats'],
+        ({ packetLoss, consecutiveHeartbeats }) => {
+          // If there are more than three consecutive heartbeats, the connection
+          // is considered acceptable despite potential previous packet loss.
+          if (consecutiveHeartbeats > 3) {
+            return true
+          }
+
+          // Otherwise we require less than 20% packet loss
+          return packetLoss <= 0.2
+        },
+      ),
+    ],
+  })
+
+  return router
 }
 
 function createQueue(device: Device) {
@@ -42,14 +64,21 @@ function createQueue(device: Device) {
   })
 }
 
-function hintValidators(hint: Hint, connection: Connection) {
-  const identification = hint.getIdentification()
-
+function hintValidators(
+  hint: Hint,
+  connection: Connection,
+  cancellationToken: CancellationToken,
+) {
   // Serial
-  if (hint.getTransportKey() === 'serial') {
-    const validator = new HintValidatorBinaryHandshake(hint, connection, {
-      timeout: 2000, // 2 second timeout
-    })
+  if (hint.getTransportKey() === SERIAL_TRANSPORT_KEY) {
+    const validator = new HintValidatorBinaryHandshake(
+      hint,
+      connection,
+      cancellationToken,
+      {
+        attemptTiming: [0, 10, 100, 1000, 2000, 5000],
+      },
+    ) // 2 second timeout
 
     return [validator]
   }
@@ -57,13 +86,15 @@ function hintValidators(hint: Hint, connection: Connection) {
   return []
 }
 
-function createHandshakes(device: Device) {
-  const metadata = device.getMetadata()
-
+function createHandshakes(
+  device: Device,
+  cancellationToken: CancellationToken,
+) {
   // Assume it's an eUI device, do the binary handshakes
   const connectionHandshakeReadWrite = new BinaryConnectionHandshake({
     device: device,
     preset: 'default',
+    cancellationToken,
   })
 
   return [connectionHandshakeReadWrite]
@@ -82,46 +113,13 @@ deviceManager.setCreateRouterCallback(createRouter)
 deviceManager.setCreateQueueCallback(createQueue)
 deviceManager.setCreateHandshakesCallback(createHandshakes)
 
-deviceManager.addConnectionMetadataRatios([
-  new ConnectionMetadataRatio('latency', false, 1),
-  new ConnectionMetadataRatio('jitter', false, 0.1),
-  new ConnectionMetadataRatio('packetLoss', false, 2),
-])
-
-deviceManager.addConnectionMetadataRules([
-  new ConnectionMetadataRule(['latency'], ({ latency }) => latency < 400),
-  new ConnectionMetadataRule(
-    ['packetLoss', 'consecutiveHeartbeats'],
-    ({ packetLoss, consecutiveHeartbeats }) => {
-      // If there are more than three consecutive heartbeats, the connection
-      // is considered acceptable despite potential previous packet loss.
-      if (consecutiveHeartbeats > 3) {
-        return true
-      }
-
-      // Otherwise we require less than 20% packet loss
-      return packetLoss <= 0.2
-    },
-  ),
-])
-
-// const actionsPlugin = new ActionsPlugin()
-// actionsPlugin.addActions(actions)
-
-const autoConnectPlugin = new AutoConnectPlugin([
-  // { type: 'Camera' },
-  { name: 'Zaphod Beeblebot' },
-])
-
-deviceManager.addPlugins([
-  // actionsPlugin,
-  //autoConnectPlugin,
-  movementQueueSequencer,
-  lightQueueSequencer,
-])
-
-// start polling immediately.
-deviceManager.poll()
+// start polling immediately, poll for 10 seconds
+const cancellationToken = new CancellationToken('inital poll').deadline(10_000)
+deviceManager.poll(cancellationToken).catch(err => {
+  if (cancellationToken.caused(err)) {
+    console.log("Didn't find any devices on initial poll")
+  }
+})
 
 if (module.hot) {
   /**

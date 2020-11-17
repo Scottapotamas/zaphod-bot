@@ -27,16 +27,14 @@ if (module.hot) {
     console.log('Hot reloading device manager configuration...')
     console.log('Tearing down old proxy server')
 
-    // tear down IPC
-    server.teardown()
-
-    // Remove all listeners from the old device manager
-    deviceManager.removeAllListeners()
+    // Prepare the device manager proxy server for a hot reload
+    const dataBundle = server.prepareForHotReload()
 
     console.log('Setting up new proxy server')
 
     // Setup the new proxy server
     server = setupProxyServer(deviceManager)
+    server.setDataForHotReload(dataBundle)
   })
 }
 

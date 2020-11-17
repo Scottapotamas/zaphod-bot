@@ -1,4 +1,5 @@
 import {
+  CancellationToken,
   Device,
   DiscoveryMetadataProcessor,
   DiscoveryMetadataRequester,
@@ -10,7 +11,7 @@ import {
 // Request and Process a 'name' for every device
 
 class RequestName extends DiscoveryMetadataRequester {
-  name: 'request-name'
+  name = 'request-name'
 
   canRequestMetadata(device: Device) {
     return true
@@ -21,13 +22,17 @@ class RequestName extends DiscoveryMetadataRequester {
     nameRequest.metadata.query = true
     nameRequest.metadata.internal = false
 
+    const cancellationToken = new CancellationToken(
+      'request name metadata',
+    ).deadline(1_000)
+
     return device
-      .write(nameRequest)
+      .write(nameRequest, cancellationToken)
       .then(res => {
-        console.log('requested name, response:', res)
+        console.log('Requested name, response:', res)
       })
       .catch(err => {
-        console.log('Couldnt request name err:', err)
+        console.log("Couldn't request name err:", err)
       })
   }
 }

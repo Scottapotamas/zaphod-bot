@@ -45,9 +45,9 @@ const MainWindow = (props: RouteComponentProps) => {
           <Card>
             <ModeSelector />
           </Card>
-          {/* <Card>
+          <Card>
             <LightingPalette />
-          </Card> */}
+          </Card>
           <Card>
             <SystemController />
           </Card>

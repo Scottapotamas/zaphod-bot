@@ -60,3 +60,6 @@ release
 !.yarn/releases
 !.yarn/plugins
 .pnp.*
+
+# VSCode settings
+.vscode/*

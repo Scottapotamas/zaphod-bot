@@ -19,10 +19,9 @@ import {
 import React, { ReactElement, useCallback, useEffect, useState } from 'react'
 
 import { Button } from '@electricui/components-desktop-blueprint'
-import { CONTROL_MODES } from '../../../../../transport-manager/config/codecs'
+import { CONTROL_MODES, SUPERVISOR_STATES } from '../../../../typedState'
 import { Composition } from 'atomic-layout'
 import { Printer } from '@electricui/components-desktop'
-import { SUPERVISOR_STATES } from '../../../../../transport-manager/config/codecs'
 import { useExtractSceneName } from './../../../../hooks/useExtractSceneName'
 import { useOpenDialogCallFunction } from './../../../../hooks/useOpenDialog'
 import { useTriggerAction } from '@electricui/core-actions'

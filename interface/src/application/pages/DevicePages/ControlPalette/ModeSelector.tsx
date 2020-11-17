@@ -4,7 +4,7 @@ import { useHardwareState } from '@electricui/components-core'
 import React from 'react'
 
 import { Button } from '@electricui/components-desktop-blueprint'
-import { CONTROL_MODES } from '../../../../transport-manager/config/codecs'
+import { CONTROL_MODES } from '../../../typedState'
 // import EventPalette from './EventPalette'
 import ManualJogPalette from './ManualJogPalette'
 import TrackPalette from './TrackPalette'

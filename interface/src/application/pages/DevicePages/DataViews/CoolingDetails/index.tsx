@@ -83,19 +83,27 @@ export const CoolingDetails = () => {
             dataSource={temperatureDataSource}
             accessor={state => state.temp.ambient}
             maxItems={1000}
+            lineWidth={3}
           />
           <LineChart
             dataSource={temperatureDataSource}
             accessor={state => state.temp.regulator}
             maxItems={1000}
+            lineWidth={3}
           />
           <LineChart
             dataSource={temperatureDataSource}
             accessor={state => state.temp.supply}
             maxItems={1000}
+            lineWidth={3}
           />
           {/* Plot a 10-minute window */}
-          <RealTimeDomain window={[5000, 10_000, 20_000, 60_000]} delay={500} />
+          <RealTimeDomain
+            window={[5000, 10_000, 20_000, 60_000]}
+            delay={500}
+            yMin={20}
+            yMax={50}
+          />
           <TimeAxis />
           <VerticalAxis label="Temperature °C" />
         </ChartContainer>
@@ -109,6 +117,7 @@ export const CoolingDetails = () => {
             dataSource={fanDataSource}
             accessor={state => state.fan.rpm}
             maxItems={1000}
+            lineWidth={3}
           />
           {/* Plot a 10-minute window */}
           <RealTimeDomain

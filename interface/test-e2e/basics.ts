@@ -32,7 +32,7 @@ async function cycleToVisibleWindow() {
   }
 }
 
-describe('Basic Integration Test', function() {
+describe('Basic Integration Test', function () {
   this.timeout(30000)
 
   beforeEach(() => {
@@ -56,7 +56,7 @@ describe('Basic Integration Test', function() {
     }
   })
 
-  it('Can take a screenshot', function() {
+  it('Can take a screenshot', function () {
     return app.client.waitUntilWindowLoaded().then(async () => {
       const visibleWindow = await cycleToVisibleWindow()
 
@@ -80,7 +80,7 @@ describe('Basic Integration Test', function() {
     })
   })
 
-  it('Found a device', function() {
+  it('Found a device', function () {
     return app.client.waitUntilWindowLoaded().then(async () => {
       await cycleToVisibleWindow()
 

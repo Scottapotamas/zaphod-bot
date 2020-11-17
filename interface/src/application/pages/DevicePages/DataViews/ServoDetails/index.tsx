@@ -23,7 +23,7 @@ import {
   RollingStorageRequest,
 } from '@electricui/core-timeseries'
 import { useDarkMode } from '@electricui/components-desktop'
-import { ServoTelemetry } from '../../../../../transport-manager/config/codecs'
+import { ServoInfo } from '../../../../typedState'
 
 const MotorSafetyMode = () => {
   const motor_state = useHardwareState(state => state.super.motors)
@@ -48,7 +48,7 @@ const MotorSafetyMode = () => {
 }
 
 type MotorData = {
-  servo: ServoTelemetry
+  servo: ServoInfo
   index: number
 }
 
@@ -158,7 +158,7 @@ const ServoStats = (props: MotorData) => {
 }
 
 const ServoSummaryCard = () => {
-  const motors: ServoTelemetry[] | null = useHardwareState(state => state.servo)
+  const motors: ServoInfo[] | null = useHardwareState(state => state.servo)
   if (motors === null) {
     return <span>No motor telemetry available...</span>
   }
@@ -228,7 +228,12 @@ export const ServoDetails = () => {
               key={`angle_${index}`}
             />
           ))}
-          <RealTimeDomain window={10000} yMin={-45} yMax={20} delay={50} />
+          <RealTimeDomain
+            window={[1000, 10_000, 30_000]}
+            yMin={-45}
+            yMax={20}
+            delay={50}
+          />
           <TimeAxis />
           <VerticalAxis label="Arm Angle °" />
         </ChartContainer>
@@ -243,7 +248,12 @@ export const ServoDetails = () => {
                 key={`torque_${index}`}
               />
             ))}
-            <RealTimeDomain window={10000} yMin={-10} yMax={10} delay={50} />
+            <RealTimeDomain
+              window={[1000, 10_000, 30_000]}
+              yMin={-10}
+              yMax={10}
+              delay={50}
+            />
             <TimeAxis />
             <VerticalAxis label="Servo Torque %" />
           </ChartContainer>
@@ -259,7 +269,12 @@ export const ServoDetails = () => {
                 key={`power_${index}`}
               />
             ))}
-            <RealTimeDomain window={10000} yMin={0} yMax={50} delay={50} />
+            <RealTimeDomain
+              window={[1000, 10_000, 30_000]}
+              yMin={0}
+              yMax={50}
+              delay={50}
+            />
             <TimeAxis />
             <VerticalAxis label="Servo Power W" />
           </ChartContainer>

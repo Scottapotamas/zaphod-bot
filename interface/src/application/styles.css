@@ -5,7 +5,8 @@ img:not([draggable='true']) {
 }
 a[href^="http://"],
 a[href^="https://"],
-a[href^="ftp://"] {
+a[href^="ftp://"]
+{
   -webkit-user-drag: auto;
 }
 
