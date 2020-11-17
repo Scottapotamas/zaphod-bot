@@ -73,11 +73,11 @@ export const CoolingDetails = () => {
       <IntervalRequester variables={['temp']} interval={500} />
       <IntervalRequester variables={['fan']} interval={250} />
 
-      <RollingStorageRequest
+      {/* <RollingStorageRequest
         dataSource={temperatureDataSource}
         maxItems={300}
         persist
-      />
+      /> */}
 
       <Composition gap={20}>
         <ChartContainer height={300}>

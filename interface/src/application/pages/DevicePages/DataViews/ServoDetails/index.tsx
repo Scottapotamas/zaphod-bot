@@ -192,10 +192,10 @@ const ServoSummaryCard = () => {
 }
 
 const lightModeColours = [
-  Colors.GREEN1,
-  Colors.RED1,
-  Colors.BLUE1,
-  Colors.GOLD1,
+  Colors.GREEN2,
+  Colors.RED2,
+  Colors.BLUE2,
+  Colors.GOLD2,
 ]
 const darkModeColours = [Colors.GREEN5, Colors.RED5, Colors.BLUE5, Colors.GOLD5]
 
@@ -207,16 +207,16 @@ export const ServoDetails = () => {
   )
 
   const isDark = useDarkMode()
-  const servoColours = darkModeColours //isDark ? darkModeColours : lightModeColours
+  const servoColours = lightModeColours //isDark ? darkModeColours : lightModeColours
 
   return (
     <div>
       <IntervalRequester variables={['servo']} interval={50} />
-      <RollingStorageRequest
+      {/* <RollingStorageRequest
         dataSource={servoTelemetryDataSource}
         maxItems={250}
         persist
-      />
+      /> */}
       <Composition>
         <ChartContainer height={300}>
           {Array.from(new Array(numMotors)).map((_, index) => (
@@ -226,10 +226,11 @@ export const ServoDetails = () => {
               maxItems={10000}
               color={servoColours[index]}
               key={`angle_${index}`}
+              lineWidth={3}
             />
           ))}
           <RealTimeDomain
-            window={[1000, 10_000, 30_000]}
+            window={[10_000, 30_000]}
             yMin={-45}
             yMax={20}
             delay={50}
@@ -246,10 +247,11 @@ export const ServoDetails = () => {
                 maxItems={10000}
                 color={servoColours[index]}
                 key={`torque_${index}`}
+                lineWidth={3}
               />
             ))}
             <RealTimeDomain
-              window={[1000, 10_000, 30_000]}
+              window={[10_000, 30_000]}
               yMin={-10}
               yMax={10}
               delay={50}
@@ -267,10 +269,11 @@ export const ServoDetails = () => {
                 maxItems={10000}
                 color={servoColours[index]}
                 key={`power_${index}`}
+                lineWidth={3}
               />
             ))}
             <RealTimeDomain
-              window={[1000, 10_000, 30_000]}
+              window={[10_000, 30_000]}
               yMin={0}
               yMax={50}
               delay={50}
