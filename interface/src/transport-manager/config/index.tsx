@@ -7,6 +7,7 @@ import {
   DeviceManager,
   Hint,
   MessageRouterLogRatioMetadata,
+  AutoConnectPlugin,
 } from '@electricui/core'
 import { ProcessName, RequestName } from './metadata'
 import {
@@ -20,6 +21,8 @@ import { BinaryConnectionHandshake } from '@electricui/protocol-binary-connectio
 import { HintValidatorBinaryHandshake } from '@electricui/protocol-binary'
 import { MessageQueueBinaryFIFO } from '@electricui/protocol-binary-fifo-queue'
 import { SERIAL_TRANSPORT_KEY } from '@electricui/transport-node-serial'
+
+import { movementQueueSequencer, lightQueueSequencer } from './sequence-senders'
 
 /**
  * Create our device manager!
@@ -112,6 +115,11 @@ deviceManager.addDiscoveryMetadataProcessors([processName])
 deviceManager.setCreateRouterCallback(createRouter)
 deviceManager.setCreateQueueCallback(createQueue)
 deviceManager.setCreateHandshakesCallback(createHandshakes)
+
+// Setup plugins
+const autoConnectPlugin = new AutoConnectPlugin(deviceManager)
+// TODO: movementQueueSequencer, lightQueueSequencer
+deviceManager.addPlugins([autoConnectPlugin])
 
 // start polling immediately, poll for 10 seconds
 const cancellationToken = new CancellationToken('inital poll').deadline(10_000)
