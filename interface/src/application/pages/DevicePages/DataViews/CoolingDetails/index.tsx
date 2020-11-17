@@ -63,6 +63,8 @@ export const CoolingDetails = () => {
     state => state.temp.regulator,
   ).toFixed(0)
   const supply_temp = useHardwareState(state => state.temp.supply).toFixed(0)
+  const cpu_temp = useHardwareState(state => state.temp.cpu).toFixed(0)
+
   const fanspeed = useHardwareState(state => state.fan.rpm).toFixed(0)
   const fansetting = useHardwareState(state => state.fan.setpoint).toFixed(0)
 
@@ -97,6 +99,12 @@ export const CoolingDetails = () => {
             maxItems={1000}
             lineWidth={3}
           />
+          <LineChart
+            dataSource={temperatureDataSource}
+            accessor={state => state.temp.cpu}
+            maxItems={1000}
+            lineWidth={3}
+          />
           {/* Plot a 10-minute window */}
           <RealTimeDomain
             window={[5000, 10_000, 20_000, 60_000]}
@@ -111,6 +119,7 @@ export const CoolingDetails = () => {
           <Statistic value={ambient_temp} label={`Ambient`} suffix="º" />
           <Statistic value={regulator_temp} label={`DC-DC Reg`} suffix="º" />
           <Statistic value={supply_temp} label={`AC-DC PSU`} suffix="º" />
+          <Statistic value={cpu_temp} label={`CPU Core`} suffix="º" />
         </Statistics>
         <ChartContainer height={300}>
           <LineChart

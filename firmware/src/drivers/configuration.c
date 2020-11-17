@@ -25,7 +25,6 @@ typedef struct
     //microcontroller info
     uint8_t cpu_load;     //percentage
     uint8_t cpu_clock;    //speed in Mhz
-    float   cpu_temp;     //temp in degrees
 
     float input_voltage;    //voltage
 } SystemData_t;
@@ -93,6 +92,7 @@ typedef struct
     float pcb_ambient;
     float pcb_regulator;
     float external_probe;
+    float cpu_temp;
 } TempData_t;
 
 typedef struct
@@ -513,11 +513,6 @@ config_update_task_statistics( void )
     //app_task_clear_statistics();
 }
 
-PUBLIC void
-config_set_cpu_temp( float temp )
-{
-    sys_stats.cpu_temp = temp;
-}
 
 /* -------------------------------------------------------------------------- */
 
@@ -643,6 +638,12 @@ PUBLIC void
 config_set_temp_external( float temp )
 {
     temp_sensors.external_probe = temp;
+}
+
+PUBLIC void
+config_set_temp_cpu( float temp )
+{
+    temp_sensors.cpu_temp = temp;
 }
 
 /* -------------------------------------------------------------------------- */

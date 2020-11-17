@@ -91,7 +91,7 @@ PUBLIC float
 sensors_microcontroller_C( void )
 {
     float die_temp = hal_temperature_micro_degrees_C( hal_adc_read_avg( HAL_ADC_INPUT_TEMP_INTERNAL ) );
-    config_set_cpu_temp( die_temp );
+    config_set_temp_cpu( die_temp );
     return die_temp;
 }
 

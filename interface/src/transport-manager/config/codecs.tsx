@@ -45,7 +45,6 @@ export class SystemDataCodec extends Codec {
       module_enable: reader.readUInt8(),
       cpu_load: reader.readUInt8(),
       cpu_clock: reader.readUInt8(),
-      cpu_temp: reader.readFloatLE(),
       input_voltage: reader.readFloatLE(),
     }
   }
@@ -173,6 +172,7 @@ export class TempSensorCodec extends Codec {
       ambient: reader.readFloatLE(),
       regulator: reader.readFloatLE(),
       supply: reader.readFloatLE(),
+      cpu: reader.readFloatLE(),
     }
   }
 }

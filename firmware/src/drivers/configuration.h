@@ -85,9 +85,6 @@ config_set_cpu_clock( uint32_t clock );
 PUBLIC void
 config_update_task_statistics( void );
 
-PUBLIC void
-config_set_cpu_temp( float temp );
-
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -148,6 +145,9 @@ config_set_temp_regulator( float temp );
 
 PUBLIC void
 config_set_temp_external( float temp );
+
+PUBLIC void
+config_set_temp_cpu( float temp );
 
 /* -------------------------------------------------------------------------- */
 

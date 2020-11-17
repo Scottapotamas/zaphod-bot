@@ -21,7 +21,6 @@ export type SystemStatus = {
   module_enable: number
   cpu_load: number
   cpu_clock: number
-  cpu_temp: number
   input_voltage: number
 }
 
@@ -67,6 +66,7 @@ export type TemperatureSensors = {
   ambient: number
   regulator: number
   supply: number
+  cpu: number
 }
 
 export type FanStatus = {

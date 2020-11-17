@@ -345,12 +345,10 @@ const LEDCalibrationCard = () => {
   )
 }
 
-import { ServoTelemetry } from '../../../transport-manager/config/codecs'
+import { ServoInfo } from '../../typedState'
 
 const PowerCalibrationCard = () => {
-  const servo4: ServoTelemetry | null = useHardwareState(
-    state => state.servo[3],
-  )
+  const servo4: ServoInfo | null = useHardwareState(state => state.servo[3])
 
   let expansion_servo = servo4 !== null
 
