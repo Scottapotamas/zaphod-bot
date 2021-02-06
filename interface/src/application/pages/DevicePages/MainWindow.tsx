@@ -108,9 +108,10 @@ const layoutDescription = `
 const MainWindow = (props: RouteComponentProps) => {
   return (
     <React.Fragment>
-      <IntervalRequester interval={16} variables={[MSGID.POSITION_CURRENT]} /> 
-       <IntervalRequester interval={100} variables={[MSGID.SERVO]} />
+      <IntervalRequester interval={16} variables={[MSGID.POSITION_CURRENT]} />
+      <IntervalRequester interval={100} variables={[MSGID.SERVO]} />
 
+      {/* 3D Model view and toolpath planning */}
       <div
         style={{
           position: 'absolute',
@@ -118,43 +119,35 @@ const MainWindow = (props: RouteComponentProps) => {
           left: '0',
           width: '100vw',
           height: '100vh',
-          zIndex: '-1',
         }}
       >
         <GeometryToolpathViewer />
       </div>
 
-      <Composition
-        areas={layoutDescription}
-        templateCols="minmax(300px, 30vw) auto minmax(300px, max-content)"
-        gap={10}
-        padding={10}
-        justifyContent="space-between"
-        alignContent="space-between"
-        style={{ height: '100%' }}
+      {/* Right sidebar for high level config/controls */}
+      <div style={{ minWidth: 450, maxWidth: 450, left: '1em', position: 'absolute' }}>
+        <SideBar />
+      </div>
+
+      <div
+        style={{ minWidth: 450, maxWidth: 600,left: '1em', bottom: '1em', position: 'absolute' }}
       >
-        {Areas => (
-          <React.Fragment>
-            <Areas.Sidebar>
-              <SideBar />
-            </Areas.Sidebar>
+        <ControlBlock />
+      </div>
 
-            <Areas.Controls>
-              <ControlBlock />
-            </Areas.Controls>
+      {/* Left Sidebar for telemetry */}
+      <Only from={{ minWidth: 1200 }}>
+      <div style={{ width: '30vw', right: '1em', position: 'absolute' }}>
+        <Composition gap={10}>
+          <SystemSummary />
+          <ServoSummary />
+          <AngleChart />
+          <LoadChart />
+          <PowerChart />
+        </Composition>
+      </div>
+      </Only>
 
-            <Areas.Charts>
-              <Composition gap={10}>
-                <SystemSummary />
-                <ServoSummary />
-                <AngleChart />
-                <LoadChart />
-                <PowerChart />
-              </Composition>
-            </Areas.Charts>
-          </React.Fragment>
-        )}
-      </Composition>
     </React.Fragment>
   )
 }
