@@ -59,7 +59,6 @@ export const SystemSummary = () => {
           </Areas.LEDQueue>
           <Areas.Chart>
             <ChartContainer height="8em">
-              {/* 
               <LineChart
                 dataSource={queueDataSource}
                 accessor={state => state.movements}
@@ -70,7 +69,6 @@ export const SystemSummary = () => {
                 accessor={state => state.lighting}
                 color={Colors.TURQUOISE4}
               /> 
-              */}
               <RealTimeDomain window={20_000} />
             </ChartContainer>
           </Areas.Chart>
