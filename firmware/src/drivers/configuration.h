@@ -11,7 +11,7 @@ extern "C" {
 
 #include "global.h"
 #include "motion_types.h"
-#include <src/electricui.h>
+#include <electricui.h>
 
 /* ----- Defines ------------------------------------------------------------ */
 

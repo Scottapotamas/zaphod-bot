@@ -2,3 +2,4 @@
 /cmake-build-debug*
 /cmake-build-default*
 /vendor/electricui
+/vendor/electricui-interval-sender

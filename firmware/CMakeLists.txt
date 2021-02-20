@@ -54,13 +54,27 @@ add_definitions(-DPREFETCH_ENABLE=1 -DINSTRUCTION_CACHE_ENABLE=1 -DDATA_CACHE_EN
 
 add_definitions(-DSTM32F429xx)
 
-file(GLOB_RECURSE SOURCES "vendor/*.*" "src/*.*" "startup/*.*")
+file(GLOB_RECURSE SOURCES "vendor/CMSIS/*.*"
+                          "vendor/STM32F4xx_HAL_Driver/*.*"
+                          "src/*.*"
+                          "startup/*.*"
+                          )
 
-include_directories(src src/app_state_machines src/hal src/drivers src/utility vendor/electricui vendor/STM32F4xx_HAL_Driver/Inc vendor/CMSIS/Device/ST/STM32F4xx/Include vendor/CMSIS/Include)
-include_directories(vendor/electricui/src)
+include_directories(src
+                    src/app_state_machines
+                    src/hal
+                    src/drivers
+                    src/utility
+                    vendor/STM32F4xx_HAL_Driver/Inc
+                    vendor/CMSIS/Device/ST/STM32F4xx/Include
+                    vendor/CMSIS/Include
+                    )
+
+add_subdirectory(vendor/electricui-embedded)
+add_subdirectory(vendor/electricui-interval-sender)
 
 add_executable(${PROJECT_NAME}.elf ${SOURCES} ${LINKER_SCRIPT})
-target_link_libraries(${PROJECT_NAME}.elf m)
+target_link_libraries(${PROJECT_NAME}.elf m electricui electricui-interval-sender)
 
 set(CMAKE_EXE_LINKER_FLAGS
         "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map=${PROJECT_BINARY_DIR}/${PROJECT_NAME}.map")
