@@ -1,7 +1,7 @@
 import { React, useCallback } from 'react'
 import { Toaster, Position } from '@blueprintjs/core'
 import { Message } from '@electricui/core'
-import { useMessageSubscription } from '@electricui/components-core'
+// import { useMessageSubscription } from '@electricui/components-core'
 
 const ToastEmitter = Toaster.create({
   className: 'error-toaster',
@@ -17,6 +17,6 @@ export function ToastConnector() {
       )
     }
   }, [])
-  useMessageSubscription(toastFunction)
+  // useMessageSubscription(toastFunction)
   return null
 }

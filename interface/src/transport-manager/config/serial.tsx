@@ -99,7 +99,7 @@ const serialTransportFactory = new TransportFactory(
       largePacketPipeline,
       codecPipeline,
       typeCachePipeline,
-      undefinedMessageIDGuard,
+      // undefinedMessageIDGuard,
     ])
     connectionInterface.addMetadataReporters([
       connectionStaticMetadata,
