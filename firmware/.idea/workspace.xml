@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
       <config projectName="delta-control" targetName="delta-control.elf" />
@@ -8,7 +11,7 @@
   </component>
   <component name="CMakeSettings" AUTO_RELOAD="true">
     <configurations>
-      <configuration PROFILE_NAME="Default-ARM" TOOLCHAIN_NAME="ARM">
+      <configuration PROFILE_NAME="Default-ARM" TOOLCHAIN_NAME="ARM" ENABLED="true">
         <ADDITIONAL_GENERATION_ENVIRONMENT>
           <envs>
             <env name="PATH" value="/sbin:/bin:/usr/sbin:/usr/bin:/usr/share/avr/bin:/snap/bin:/opt/gcc-arm-none-eabi/gcc-arm-none-eabi-7-2018-q2-update/bin" />
@@ -19,62 +22,29 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5807f310-86a7-4c2a-9b30-ff232d3bffd0" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/Build.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/runConfigurations/Build.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/runConfigurations/Build_and_JLink.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/runConfigurations/Build_and_JLink.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/basics/hello-blink/hello-blink.ino" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/basics/multiple-interfaces/multiple-interfaces.ino" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/basics/persistence-eeprom/persistence-eeprom.ino" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/basics/status-error-callbacks/status-error-callbacks.ino" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/basics/types-arrays-structures/types-arrays-structures.ino" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/demonstrations/battery-status/battery-status.ino" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/demonstrations/bluefruit-bleuart/bluefruit-bleuart.ino" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/demonstrations/esp32-ble/esp32-ble.ino" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/demonstrations/esp32-websockets/esp32-websockets.ino" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/demonstrations/fan-controller/fan-controller.ino" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/demonstrations/garage-door/garage-door.ino" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/demonstrations/water-heater/water-heater.ino" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/projects/imu-LSM9DS1/imu-LSM9DS1.ino" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/projects/led-rgb-strip/led-rgb-strip.ino" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/examples/projects/led-rgb/led-rgb.ino" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/arduino-example-test.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/build/.gitkeep" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/ceedling" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/fuzz/afl-eui.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/fuzz/afl-prepare-linux.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/fuzz/fuzz-inputs/test1" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/fuzz/fuzz-inputs/test2" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/fuzz/fuzz-inputs/test3" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/fuzz/fuzz-inputs/test4" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/fuzz/makefile" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/lint_checks.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/project.yml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/setup_tests.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/support/.gitkeep" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/test_electricui_auto_interface.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/test_electricui_findobject.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/test_electricui_internalcallbacks.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/test_electricui_multiple_interface.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/test_electricui_parse_packet.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/test_electricui_send_packet.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/test_electricui_send_tracked.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/test_electricui_send_untracked.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/transports/test_eui_serial_transport_cobs.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/transports/test_eui_serial_transport_decoder.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/transports/test_eui_serial_transport_encoder.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/transports/test_eui_serial_transport_header_bytes.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/transports/test_eui_serial_transport_loopback.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/utilities/test_eui_crc16.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/utilities/test_eui_macro.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/test/utilities/test_eui_offset_validation.c" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Drivers/electricui/test/valgrind_on_tests.sh" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app_state_machines/build_info.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/app_state_machines/build_info.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/drivers/configuration.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/drivers/configuration.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/hal/hal_uart.c" beforeDir="false" afterPath="$PROJECT_DIR$/src/hal/hal_uart.c" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/vendor/electricui-embedded/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/vendor/electricui-embedded/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../interface/.yarn/plugins/@yarnpkg/plugin-prebuilds.js" beforeDir="false" afterPath="$PROJECT_DIR$/../interface/.yarn/plugins/@yarnpkg/plugin-prebuilds.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../interface/.yarn/plugins/@yarnpkg/plugin-redirect-app-builder.js" beforeDir="false" afterPath="$PROJECT_DIR$/../interface/.yarn/plugins/@yarnpkg/plugin-redirect-app-builder.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../interface/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/../interface/package.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../interface/src/application/Toaster.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../interface/src/application/Toaster.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../interface/src/application/pages/DeviceLoadingPage.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../interface/src/application/pages/DeviceLoadingPage.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../interface/src/transport-manager/config/serial.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/../interface/src/transport-manager/config/serial.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../interface/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/../interface/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
-  </component>
-  <component name="ClangdSettings">
-    <option name="formatViaClangd" value="false" />
   </component>
   <component name="DatabaseView">
     <option name="SHOW_INTERMEDIATE" value="true" />
@@ -124,14 +94,16 @@
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showExcludedFiles" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="SearchEverywhereHistoryKey" value="sqrt()&#9;null&#9;null" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="cf.advertisement.text.has.clang-format" value="true" />
+    <property name="cf.advertisement.text.overridden" value="true" />
+    <property name="cf.first.check.clang-format" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/vendor/electricui-interval-sender" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.tslint" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -141,11 +113,13 @@
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="org.rust.cargo.project.model.PROJECT_DISCOVERY" value="true" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
+    <property name="settings.editor.selected.configurable" value="preferences.pathVariables" />
     <property name="ts.external.directory.path" value="$APPLICATION_HOME_DIR$/plugins/JavaScriptLanguage/jsLanguageServicesImpl/external" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/vendor/electricui-interval-sender" />
       <recent name="$PROJECT_DIR$/Src/drivers" />
       <recent name="$PROJECT_DIR$/Src/app_state_machines" />
     </key>
@@ -155,19 +129,29 @@
       <command value="ls" />
     </option>
   </component>
-  <component name="RunManager" selected="OpenOCD Download &amp; Run.delta-control.elf">
-    <configuration name="Build" type="CMakeRunConfiguration" factoryName="Application" singleton="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="delta-control" TARGET_NAME="delta-control.elf" CONFIG_NAME="Default-ARM" RUN_TARGET_PROJECT_NAME="delta-control" RUN_TARGET_NAME="delta-control.elf">
+  <component name="RunManager" selected="Embedded GDB Server.Build and JLink">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Build" type="CMakeRunConfiguration" factoryName="Application" singleton="true" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="delta-control" TARGET_NAME="delta-control.elf" CONFIG_NAME="Default-ARM" RUN_TARGET_PROJECT_NAME="delta-control" RUN_TARGET_NAME="delta-control.elf">
       <method v="2">
         <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_GenerateBuildInfo" />
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
         <option name="ToolBeforeRunTask" enabled="true" actionId="Tool_External Tools_CodeSizeReport" />
       </method>
     </configuration>
-    <configuration name="delta-control.elf" type="com.jetbrains.cidr.embedded.openocd.conf.type" factoryName="com.jetbrains.cidr.embedded.openocd.conf.factory" nameIsGenerated="true" PASS_PARENT_ENVS_2="true" PROJECT_NAME="delta-control" TARGET_NAME="delta-control.elf" CONFIG_NAME="Default-ARM" RUN_TARGET_PROJECT_NAME="delta-control" RUN_TARGET_NAME="delta-control.elf">
-      <openocd gdb-port="3333" telnet-port="4444" board-config="board/st_nucleo_f4.cfg" reset-type="INIT" download-type="ALWAYS" />
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
+    </configuration>
+    <configuration name="delta-control.elf" type="com.jetbrains.cidr.embedded.openocd.conf.type" factoryName="com.jetbrains.cidr.embedded.openocd.conf.factory" nameIsGenerated="true" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="delta-control" TARGET_NAME="delta-control.elf" CONFIG_NAME="Default-ARM" version="1" RUN_TARGET_PROJECT_NAME="delta-control" RUN_TARGET_NAME="delta-control.elf">
+      <openocd version="1" gdb-port="3333" telnet-port="4444" board-config="board/st_nucleo_f4.cfg" reset-type="INIT" download-type="ALWAYS">
+        <debugger kind="GDB" isBundled="true" />
+      </openocd>
+      <method v="2" />
     </configuration>
     <list>
       <item itemvalue="CMake Application.Build" />
@@ -179,18 +163,7 @@
     <option name="toolchainHomeDirectory" value="$USER_HOME$/.cargo/bin" />
     <option name="version" value="2" />
   </component>
-  <component name="ServiceViewManager">
-    <option name="viewStates">
-      <list>
-        <serviceView>
-          <treeState>
-            <expand />
-            <select />
-          </treeState>
-        </serviceView>
-      </list>
-    </option>
-  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="project-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
       <changelist id="5807f310-86a7-4c2a-9b30-ff232d3bffd0" name="Default Changelist" comment="" />
@@ -264,126 +237,46 @@
       <workItem from="1586052410225" duration="26335000" />
       <workItem from="1586097653411" duration="1208000" />
       <workItem from="1586098873611" duration="46000" />
+      <workItem from="1586784681030" duration="1974000" />
+      <workItem from="1586833483768" duration="21075000" />
+      <workItem from="1586908083443" duration="11961000" />
+      <workItem from="1587195222085" duration="13768000" />
+      <workItem from="1587344757062" duration="659000" />
+      <workItem from="1587348395768" duration="9000" />
+      <workItem from="1587361538794" duration="7000" />
+      <workItem from="1587876401043" duration="19000" />
+      <workItem from="1592314422325" duration="607000" />
+      <workItem from="1596716209942" duration="3106000" />
+      <workItem from="1596763030124" duration="2276000" />
+      <workItem from="1597236733455" duration="14000" />
+      <workItem from="1597805577697" duration="10925000" />
+      <workItem from="1602765248536" duration="2876000" />
+      <workItem from="1603596796294" duration="21000" />
+      <workItem from="1605526590442" duration="1550000" />
+      <workItem from="1605573236430" duration="3353000" />
+      <workItem from="1605662140641" duration="1229000" />
+      <workItem from="1606303952475" duration="1297000" />
+      <workItem from="1612267485213" duration="1510000" />
+      <workItem from="1612322625237" duration="2857000" />
+      <workItem from="1612846065012" duration="612000" />
+      <workItem from="1613828515884" duration="1176000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="1" />
+    <option name="version" value="3" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
       <map>
         <entry key="MAIN">
           <value>
-            <State>
-              <option name="COLUMN_ORDER" />
-            </State>
+            <State />
           </value>
         </entry>
       </map>
     </option>
-  </component>
-  <component name="WindowStateProjectService">
-    <state x="308" y="378" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1586004096076">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state x="308" y="378" key="#com.intellij.execution.impl.EditConfigurationsDialog/40.0.2520.1440@40.0.2520.1440" timestamp="1586004096076" />
-    <state x="614" y="550" width="451" height="479" key="#com.intellij.tools.ToolEditorDialog" timestamp="1585308604534">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state x="614" y="550" width="451" height="479" key="#com.intellij.tools.ToolEditorDialog/40.0.2520.1440@40.0.2520.1440" timestamp="1585308604534" />
-    <state width="746" height="466" key="DebuggerActiveHint" timestamp="1586002501927">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state width="746" height="466" key="DebuggerActiveHint/40.0.2520.1440@40.0.2520.1440" timestamp="1586002501927" />
-    <state x="140" y="100" width="1410" height="1240" key="DiffContextDialog" timestamp="1586009679614">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state x="140" y="100" width="1410" height="1240" key="DiffContextDialog/40.0.2520.1440@40.0.2520.1440" timestamp="1586009679614" />
-    <state x="628" y="462" width="424" height="508" key="FileChooserDialogImpl" timestamp="1586003643478">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state x="628" y="462" width="424" height="508" key="FileChooserDialogImpl/40.0.2520.1440@40.0.2520.1440" timestamp="1586003643478" />
-    <state width="1595" height="478" key="GridCell.Tab.0.bottom" timestamp="1586097446927">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state width="1595" height="478" key="GridCell.Tab.0.bottom/40.0.2520.1440@40.0.2520.1440" timestamp="1586097446927" />
-    <state width="1595" height="478" key="GridCell.Tab.0.center" timestamp="1586097446927">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state width="1595" height="478" key="GridCell.Tab.0.center/40.0.2520.1440@40.0.2520.1440" timestamp="1586097446927" />
-    <state width="1595" height="478" key="GridCell.Tab.0.left" timestamp="1586097446926">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state width="1595" height="478" key="GridCell.Tab.0.left/40.0.2520.1440@40.0.2520.1440" timestamp="1586097446926" />
-    <state width="1595" height="478" key="GridCell.Tab.0.right" timestamp="1586097446927">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state width="1595" height="478" key="GridCell.Tab.0.right/40.0.2520.1440@40.0.2520.1440" timestamp="1586097446927" />
-    <state width="1595" height="478" key="GridCell.Tab.1.bottom" timestamp="1586097461940">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state width="1595" height="478" key="GridCell.Tab.1.bottom/40.0.2520.1440@40.0.2520.1440" timestamp="1586097461940" />
-    <state width="1595" height="478" key="GridCell.Tab.1.center" timestamp="1586097461939">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state width="1595" height="478" key="GridCell.Tab.1.center/40.0.2520.1440@40.0.2520.1440" timestamp="1586097461939" />
-    <state width="1595" height="478" key="GridCell.Tab.1.left" timestamp="1586097461939">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state width="1595" height="478" key="GridCell.Tab.1.left/40.0.2520.1440@40.0.2520.1440" timestamp="1586097461939" />
-    <state width="1595" height="478" key="GridCell.Tab.1.right" timestamp="1586097461940">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state width="1595" height="478" key="GridCell.Tab.1.right/40.0.2520.1440@40.0.2520.1440" timestamp="1586097461940" />
-    <state width="1595" height="478" key="GridCell.Tab.2.bottom" timestamp="1586097446834">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state width="1595" height="478" key="GridCell.Tab.2.bottom/40.0.2520.1440@40.0.2520.1440" timestamp="1586097446834" />
-    <state width="1595" height="478" key="GridCell.Tab.2.center" timestamp="1586097446833">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state width="1595" height="478" key="GridCell.Tab.2.center/40.0.2520.1440@40.0.2520.1440" timestamp="1586097446833" />
-    <state width="1595" height="478" key="GridCell.Tab.2.left" timestamp="1586097446833">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state width="1595" height="478" key="GridCell.Tab.2.left/40.0.2520.1440@40.0.2520.1440" timestamp="1586097446833" />
-    <state width="1595" height="478" key="GridCell.Tab.2.right" timestamp="1586097446834">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state width="1595" height="478" key="GridCell.Tab.2.right/40.0.2520.1440@40.0.2520.1440" timestamp="1586097446834" />
-    <state x="94" y="563" key="SettingsEditor" timestamp="1586098859357">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state x="94" y="563" key="SettingsEditor/40.0.2520.1440@40.0.2520.1440" timestamp="1586098859357" />
-    <state x="1261" y="549" key="com.intellij.ide.util.TipDialog" timestamp="1585701110889">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state x="1261" y="549" key="com.intellij.ide.util.TipDialog/40.0.2520.1440@40.0.2520.1440" timestamp="1585701110889" />
-    <state x="722" y="458" width="245" height="519" key="com.intellij.tools.ToolSelectDialog.dimensionServiceKey" timestamp="1585308605519">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state x="722" y="458" width="245" height="519" key="com.intellij.tools.ToolSelectDialog.dimensionServiceKey/40.0.2520.1440@40.0.2520.1440" timestamp="1585308605519" />
-    <state x="1127" y="460" width="871" height="518" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2" timestamp="1586085715027">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state x="1127" y="460" width="871" height="518" key="com.intellij.xdebugger.impl.breakpoints.ui.BreakpointsDialogFactory$2/40.0.2520.1440@40.0.2520.1440" timestamp="1586085715027" />
-    <state x="1513" y="178" width="1047" height="892" key="dock-window-1" timestamp="1585651048070">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state x="1513" y="178" width="1047" height="892" key="dock-window-1/40.0.2520.1440@40.0.2520.1440" timestamp="1585651048070" />
-    <state x="595" y="365" width="501" height="706" key="refactoring.ChangeSignatureDialog" timestamp="1586053896562">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state x="595" y="365" width="501" height="706" key="refactoring.ChangeSignatureDialog/40.0.2520.1440@40.0.2520.1440" timestamp="1586053896562" />
-    <state x="514" y="338" width="672" height="677" key="run.anything.popup" timestamp="1585541760862">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state x="514" y="338" width="672" height="677" key="run.anything.popup/40.0.2520.1440@40.0.2520.1440" timestamp="1585541760862" />
-    <state x="439" y="368" width="672" height="364" key="search.everywhere.popup" timestamp="1586058370547">
-      <screen x="40" y="0" width="2520" height="1440" />
-    </state>
-    <state x="439" y="368" width="672" height="364" key="search.everywhere.popup/40.0.2520.1440@40.0.2520.1440" timestamp="1586058370547" />
+    <option name="oldMeFiltersMigrated" value="true" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

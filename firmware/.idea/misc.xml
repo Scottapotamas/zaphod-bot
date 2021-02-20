@@ -8,6 +8,8 @@
     <excludeRoots>
       <file path="$PROJECT_DIR$/Drivers/electricui/examples" />
       <file path="$PROJECT_DIR$/Drivers/electricui/tests" />
+      <file path="$PROJECT_DIR$/vendor/electricui/examples" />
+      <file path="$PROJECT_DIR$/vendor/electricui/test" />
     </excludeRoots>
   </component>
   <component name="JavaScriptSettings">
