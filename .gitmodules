@@ -1,0 +1,6 @@
+[submodule "firmware/vendor/electricui-embedded"]
+	path = firmware/vendor/electricui-embedded
+	url = https://github.com/electricui/electricui-embedded
+[submodule "firmware/vendor/electricui-interval-sender"]
+	path = firmware/vendor/electricui-interval-sender
+	url = https://github.com/electricui/electricui-interval-sender

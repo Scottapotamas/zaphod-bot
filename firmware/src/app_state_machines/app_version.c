@@ -17,7 +17,7 @@ extern "C" {
 
 PUBLIC const char *ProgramName = "DeltaBot V1";
 
-#ifdef __DEBUG
+#ifndef NDEBUG
 PUBLIC const char *ProgramBuildType = "DEBUG";
 #else
 PUBLIC const char *ProgramBuildType = "RELEASE";
@@ -36,7 +36,7 @@ PUBLIC const char *ProgramBuildBranch = "develop";
 
 #define VERSION "1.0"
 
-#ifdef __DEBUG
+#ifndef NDEBUG
 PUBLIC const char *ProgramBuildInfo   = VERSION " "
                                               "D";
 #else

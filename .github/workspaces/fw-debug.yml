@@ -1,0 +1,56 @@
+name: Debug Build
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+      - uses: fiam/arm-none-eabi-gcc@v1
+        with:
+          release: '9-2019-q4'
+
+      - name: Generate version metadata
+        run: |
+          cd firmware
+          ./CreateBuildInfo.sh
+
+      - name: Configure
+        run: |
+          cd firmware
+          mkdir build
+          cd build
+          cmake -DCMAKE_BUILD_TYPE=Debug  ..
+
+      - name: Build
+        run: |
+          cd firmware/build
+          make
+
+      # Upload the binaries as artifacts
+      - uses: actions/upload-artifact@v2
+        with:
+          name: built-binaries
+          path: |
+            firmware/build/*.bin
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Github Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest"
+          prerelease: true
+          title: "Development Build"
+          files: |
+            firmware/build/*.bin
