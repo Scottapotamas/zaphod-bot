@@ -3,9 +3,11 @@
 #include <math.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
-#include "configuration.h"
-#include "global.h"
 #include "kinematics.h"
+#include "global.h"
+
+#include "configuration.h"
+#include "user_interface.h"
 #include "motion_types.h"
 
 /* ----- Defines ------------------------------------------------------------ */
@@ -72,9 +74,9 @@ kinematics_init( void )
     deg_to_rad = M_PI / 180.0f;
     t          = ( f - e ) * tan30 / 2;
 
-    config_set_kinematics_mechanism_info( f, rf, re, e );
-    config_set_kinematics_limits( radius, z_min, z_max );
-    config_set_kinematics_flips( flip_x, flip_y, flip_z );
+    user_interface_set_kinematics_mechanism_info( f, rf, re, e );
+    user_interface_set_kinematics_limits( radius, z_min, z_max );
+    user_interface_set_kinematics_flips( flip_x, flip_y, flip_z );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -136,7 +138,7 @@ PUBLIC KinematicsSolution_t
 kinematics_point_to_angle( CartesianPoint_t input, JointAngles_t *output )
 {
     // Apply an optional rotation around the Z axis
-    cartesian_point_rotate_around_z( &input, config_get_rotation_z() );
+    cartesian_point_rotate_around_z( &input, configuration_get_rotation_z() );
 
     // Limit attempts at out-of-bounds positions
     kinematics_clamp_volume( &input );

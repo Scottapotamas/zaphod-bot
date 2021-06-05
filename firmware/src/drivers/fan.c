@@ -5,7 +5,7 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "app_times.h"
-#include "configuration.h"
+#include "user_interface.h"
 #include "fan.h"
 #include "hal_hard_ic.h"
 #include "hal_pwm.h"
@@ -51,7 +51,7 @@ fan_init( void )
     memset( &fan, 0, sizeof( fan ) );
 
     // Get a pointer to the fan curve configuration table
-    fan_curve = config_get_fan_curve_ptr();
+    fan_curve = user_interface_get_fan_curve_ptr();
     hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ );
 }
 
@@ -75,7 +75,7 @@ fan_process( void )
 
     // Get the current fan speed
     uint16_t fan_hall_rpm = sensors_fan_speed_RPM();
-    me->manual_control    = config_get_fan_manual_control();
+    me->manual_control    = user_interface_get_fan_manual_control();
 
     switch( me->currentState )
     {
@@ -148,7 +148,7 @@ fan_process( void )
             if( me->manual_control )
             {
                 // Userspace 0-100% speed control over fan
-                me->set_speed = CLAMP( config_get_fan_target(), 0, 100 );
+                me->set_speed = CLAMP( user_interface_get_fan_target(), 0, 100 );
             }
             else
             {
@@ -182,8 +182,8 @@ fan_process( void )
     }
 
     hal_pwm_set_percentage_f( _PWM_TIM_FAN, me->speed );
-    config_set_fan_percentage( me->speed );
-    config_set_fan_state( me->currentState );
+    user_interface_set_fan_percentage( me->speed );
+    user_interface_set_fan_state( me->currentState );
 }
 
 /* -------------------------------------------------------------------------- */

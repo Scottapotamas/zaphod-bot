@@ -16,7 +16,7 @@
 #include "hal_systick.h"
 
 #include "clearpath.h"
-#include "configuration.h"
+#include "user_interface.h"
 #include "kinematics.h"
 #include "motion_types.h"
 #include "status.h"
@@ -174,7 +174,7 @@ path_interpolator_set_home( void )
     planner.effector_position.x = 0;
     planner.effector_position.y = 0;
     planner.effector_position.z = 0;
-    config_set_position( planner.effector_position.x, planner.effector_position.y, planner.effector_position.z );
+    user_interface_set_position( planner.effector_position.x, planner.effector_position.y, planner.effector_position.z );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -188,7 +188,7 @@ path_interpolator_process( void )
     {
         case PLANNER_OFF:
             STATE_ENTRY_ACTION
-            config_set_pathing_status( me->currentState );
+            user_interface_set_pathing_status( me->currentState );
             STATE_TRANSITION_TEST
             if( planner.enable )
             {
@@ -207,7 +207,7 @@ path_interpolator_process( void )
 
         case PLANNER_EXECUTE_A:
             STATE_ENTRY_ACTION
-            config_set_pathing_status( me->currentState );
+            user_interface_set_pathing_status( me->currentState );
             path_interpolator_notify_pathing_started( me->move_a.identifier );
 
             path_interpolator_premove_transforms( &me->move_a );
@@ -246,7 +246,7 @@ path_interpolator_process( void )
 
         case PLANNER_EXECUTE_B:
             STATE_ENTRY_ACTION
-            config_set_pathing_status( me->currentState );
+            user_interface_set_pathing_status( me->currentState );
             path_interpolator_notify_pathing_started( me->move_b.identifier );
 
             path_interpolator_premove_transforms( &me->move_b );
@@ -359,9 +359,9 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
     servo_set_target_angle_limited( _CLEARPATH_3, angle_target.a3 );
 
     // Update the config/UI data based on these actions
-    config_set_position( target.x, target.y, target.z );
+    user_interface_set_position( target.x, target.y, target.z );
     memcpy( &planner.effector_position, &target, sizeof( CartesianPoint_t ) );
-    config_set_movement_data( move->identifier, move->type, ( uint8_t )( percentage * 100 ) );
+    user_interface_set_movement_data( move->identifier, move->type, ( uint8_t )( percentage * 100 ) );
 }
 
 PRIVATE void

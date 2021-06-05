@@ -1,0 +1,219 @@
+#ifndef USER_INTERFACE_H
+#define USER_INTERFACE_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* ----- System Includes ---------------------------------------------------- */
+
+/* ----- Local Includes ----------------------------------------------------- */
+
+#include "global.h"
+#include "motion_types.h"
+#include <electricui.h>
+
+/* ----- Defines ------------------------------------------------------------ */
+
+typedef enum
+{
+    PIN_INACTIVE = 0,
+    PIN_INPUT,
+    PIN_ADC,
+    PIN_DAC,
+    PIN_OUTPUT,
+    PIN_PWM,
+    PIN_UART,
+    PIN_I2C,
+    PIN_CAN
+} ConfigurableIOMode_t;
+
+typedef enum
+{
+    CONTROL_NONE = 0,
+    CONTROL_MANUAL,
+    CONTROL_EVENT,
+    CONTROL_TRACK,
+    CONTROL_DEMO,
+    CONTROL_CHANGING,
+} ControlModes_t;
+
+typedef struct
+{
+    uint8_t temperature;
+    uint8_t percentage;
+} FanCurve_t;
+
+/* ----- Public Functions --------------------------------------------------- */
+
+PUBLIC void
+user_interface_init( void );
+
+PUBLIC void
+user_interface_set_defaults( void );
+
+PUBLIC void
+user_interface_load( void );
+
+PUBLIC void
+user_interface_save( void );
+
+PUBLIC void
+user_interface_electric_setup( void );
+
+PUBLIC void
+user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t message );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+user_interface_set_reset_cause( const char *reset_description );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+user_interface_report_error( char *error_string );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+user_interface_set_cpu_load( uint8_t percent );
+
+PUBLIC void
+user_interface_set_cpu_clock( uint32_t clock );
+
+PUBLIC void
+user_interface_update_task_statistics( void );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+user_interface_set_sensors_enabled( bool enable );
+
+PUBLIC void
+user_interface_set_module_enable( bool enable );
+
+PUBLIC void
+user_interface_set_input_voltage( float voltage );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+user_interface_set_main_state( uint8_t state );
+
+PUBLIC void
+user_interface_set_control_mode( uint8_t mode );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+user_interface_set_kinematics_mechanism_info( float shoulder_radius, float bicep_len, float forearm_len, float effector_radius );
+
+PUBLIC void
+user_interface_set_kinematics_limits( int32_t radius, int32_t zmin, int32_t zmax );
+
+PUBLIC void
+user_interface_set_kinematics_flips( int8_t x, int8_t y, int8_t z );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC bool
+user_interface_get_fan_manual_control( void );
+
+PUBLIC uint8_t
+user_interface_get_fan_target( void );
+
+PUBLIC void
+user_interface_set_fan_percentage( uint8_t percent );
+
+PUBLIC void
+user_interface_set_fan_rpm( uint16_t rpm );
+
+PUBLIC void
+user_interface_set_fan_state( uint8_t state );
+
+PUBLIC FanCurve_t *
+user_interface_get_fan_curve_ptr( void );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+user_interface_set_temp_ambient( float temp );
+
+PUBLIC void
+user_interface_set_temp_regulator( float temp );
+
+PUBLIC void
+user_interface_set_temp_external( float temp );
+
+PUBLIC void
+user_interface_set_temp_cpu( float temp );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+user_interface_set_position( int32_t x, int32_t y, int32_t z );
+
+PUBLIC CartesianPoint_t
+user_interface_get_tracking_target();
+
+PUBLIC void
+user_interface_reset_tracking_target();
+
+PUBLIC void
+user_interface_set_movement_data( uint8_t move_id, uint8_t move_type, uint8_t progress );
+
+PUBLIC void
+user_interface_set_pathing_status( uint8_t status );
+
+PUBLIC void
+user_interface_set_motion_state( uint8_t status );
+
+PUBLIC void
+user_interface_set_motion_queue_depth( uint8_t utilisation );
+
+
+
+
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+user_interface_motor_enable( uint8_t servo, bool enable );
+
+PUBLIC void
+user_interface_motor_state( uint8_t servo, uint8_t state );
+
+PUBLIC void
+user_interface_motor_feedback( uint8_t servo, float percentage );
+
+PUBLIC void
+user_interface_motor_power( uint8_t servo, float watts );
+
+PUBLIC void
+user_interface_motor_target_angle( uint8_t servo, float angle );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+user_interface_set_led_status( uint8_t status );
+
+PUBLIC void
+user_interface_set_led_values( uint16_t red, uint16_t green, uint16_t blue );
+
+PUBLIC void
+user_interface_get_led_manual( float *h, float *s, float *l, uint8_t *en );
+
+PUBLIC void
+user_interface_set_led_queue_depth( uint8_t utilisation );
+
+/* -------------------------------------------------------------------------- */
+
+
+/* -------------------------------------------------------------------------- */
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif //USER_INTERFACE_H

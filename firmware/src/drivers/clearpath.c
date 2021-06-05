@@ -14,7 +14,7 @@
 
 #include "app_signals.h"
 #include "app_times.h"
-#include "configuration.h"
+#include "user_interface.h"
 #include "event_subscribe.h"
 #include "global.h"
 #include "qassert.h"
@@ -160,7 +160,7 @@ servo_set_target_angle_limited( ClearpathServoInstance_t servo, float angle_degr
 {
     Servo_t *me = &clearpath[servo];
 
-    config_motor_target_angle( servo, angle_degrees );
+    user_interface_motor_target_angle( servo, angle_degrees );
 
     if( angle_degrees > ( SERVO_MIN_ANGLE * -1 ) && angle_degrees < SERVO_MAX_ANGLE )
     {
@@ -175,7 +175,7 @@ PUBLIC void
 servo_set_target_angle_raw( ClearpathServoInstance_t servo, float angle_degrees )
 {
     Servo_t *me = &clearpath[servo];
-    config_motor_target_angle( servo, angle_degrees );
+    user_interface_motor_target_angle( servo, angle_degrees );
 
     const uint32_t steps_per_degree = ( 400 / SERVO_ANGLE_PER_REV );
    me->angle_target_steps = steps_per_degree * angle_degrees;
@@ -446,7 +446,7 @@ servo_process( ClearpathServoInstance_t servo )
                 if( ( hal_systick_get_ms() - me->timer ) > SERVO_HOMING_SIMILARITY_MS )
                 {
                     me->angle_current_steps = convert_angle_steps( -42.0f );
-                    config_motor_target_angle( servo, -42.0f );    // update UI with angles before a target is sent in
+                    user_interface_motor_target_angle( servo, -42.0f );    // update UI with angles before a target is sent in
 
                     me->angle_target_steps = me->angle_current_steps;
                     STATE_NEXT( SERVO_STATE_IDLE );
@@ -516,7 +516,7 @@ servo_process( ClearpathServoInstance_t servo )
                 if( ( hal_systick_get_ms() - me->timer ) > SERVO_IDLE_LOAD_TRIP_MS )
                 {
                     //shutdown for safety
-                    config_report_error( "Servo Overload" );
+                    user_interface_report_error( "Servo Overload" );
                     eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
                     STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
                 }
@@ -598,10 +598,10 @@ servo_process( ClearpathServoInstance_t servo )
             break;
     }
 
-    config_motor_state( servo, me->currentState );
-    config_motor_enable( servo, me->enabled );
-    config_motor_feedback( servo, servo_feedback );
-    config_motor_power( servo, servo_power );
+    user_interface_motor_state( servo, me->currentState );
+    user_interface_motor_enable( servo, me->enabled );
+    user_interface_motor_feedback( servo, servo_feedback );
+    user_interface_motor_power( servo, servo_power );
 }
 
 /* -------------------------------------------------------------------------- */

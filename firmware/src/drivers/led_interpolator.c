@@ -14,7 +14,7 @@
 #include "hal_systick.h"
 #include "simple_state_machine.h"
 
-#include "configuration.h"
+#include "user_interface.h"
 #include "global.h"
 #include "led.h"
 #include "led_types.h"
@@ -209,7 +209,7 @@ led_interpolator_process( void )
     {
         case ANIMATION_OFF:
             STATE_ENTRY_ACTION
-            config_set_led_status( me->currentState );
+            user_interface_set_led_status( me->currentState );
             led_interpolator_set_dark();
 
             // Track how long we've been off for
@@ -245,7 +245,7 @@ led_interpolator_process( void )
 
         case ANIMATION_EXECUTE_A:
             STATE_ENTRY_ACTION
-            config_set_led_status( me->currentState );
+            user_interface_set_led_status( me->currentState );
             me->animation_started      = hal_systick_get_ms();
             me->animation_est_complete = me->animation_started + me->fade_a.duration;
             me->progress_percent       = 0;
@@ -281,7 +281,7 @@ led_interpolator_process( void )
 
         case ANIMATION_EXECUTE_B:
             STATE_ENTRY_ACTION
-            config_set_led_status( me->currentState );
+            user_interface_set_led_status( me->currentState );
             me->animation_started      = hal_systick_get_ms();
             me->animation_est_complete = me->animation_started + me->fade_b.duration;
             me->progress_percent       = 0;
@@ -317,7 +317,7 @@ led_interpolator_process( void )
 
         case ANIMATION_MANUAL:
             STATE_ENTRY_ACTION
-            config_set_led_status( me->currentState );
+            user_interface_set_led_status( me->currentState );
 
             STATE_TRANSITION_TEST
             // All the fun for this state is done one-shot when the setting event comes in

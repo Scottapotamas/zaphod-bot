@@ -13,7 +13,7 @@
 #include "app_task_led.h"
 #include "led_interpolator.h"
 
-#include "configuration.h"
+#include "user_interface.h"
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
@@ -145,7 +145,7 @@ PRIVATE STATE AppTaskLed_inactive( AppTaskLed *me, const StateEvent *e )
                 while( id_requested > pending_fade->identifier
                        && eventQueueUsed( &me->super.requestQueue ) )
                 {
-                    config_report_error( "Culling Fade" );
+                    user_interface_report_error( "Culling Fade" );
 
                     // Delete the current peeked fade
                     next = eventQueueGet( &me->super.requestQueue );
@@ -163,7 +163,7 @@ PRIVATE STATE AppTaskLed_inactive( AppTaskLed *me, const StateEvent *e )
             }
             else    // no events in the queue
             {
-                config_report_error( "LED Sync Fail - no events" );
+                user_interface_report_error( "LED Sync Fail - no events" );
             }
 
             return 0;
@@ -305,7 +305,7 @@ AppTaskLed_clear_queue( AppTaskLed *me )
     }
 
     //update UI with queue content count
-    config_set_led_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+    user_interface_set_led_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -326,10 +326,10 @@ PRIVATE void AppTaskLed_add_event_to_queue( AppTaskLed *me, const StateEvent *e 
     else
     {
         //queue full, clearly the input processor isn't abiding by the spec.
-        config_report_error( "LED Queue Full" );
+        user_interface_report_error( "LED Queue Full" );
     }
 
-    config_set_led_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+    user_interface_set_led_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 }
 
 PRIVATE void AppTaskLed_commit_queued_fade( AppTaskLed *me )
@@ -351,7 +351,7 @@ PRIVATE void AppTaskLed_commit_queued_fade( AppTaskLed *me )
         }
     }
 
-    config_set_led_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+    user_interface_set_led_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 }
 
 /* ----- End ---------------------------------------------------------------- */

@@ -7,6 +7,7 @@
 
 #include "app_times.h"
 #include "configuration.h"
+#include "user_interface.h"
 #include "hal_gpio.h"
 #include "hal_pwm.h"
 #include "led.h"
@@ -40,11 +41,11 @@ PUBLIC void
 led_enable( bool enable )
 {
     hal_gpio_write_pin( _AUX_ANALOG_0, enable );
-    config_set_led_status( enable );
+    user_interface_set_led_status( enable );
 
     if( !enable )
     {
-        config_set_led_values( 0, 0, 0 );
+        user_interface_set_led_values( 0, 0, 0 );
     }
 }
 
@@ -74,7 +75,7 @@ led_set( float r, float g, float b )
     hal_pwm_set_percentage_f( _PWM_TIM_AUX_2, ( setpoint_g * -1.0 + 1.0 ) * 100.0f );
     hal_pwm_set_percentage_f( _PWM_TIM_AUX_1, ( setpoint_b * -1.0 + 1.0 ) * 100.0f );
 
-    config_set_led_values( setpoint_r * 0xFFFF, setpoint_g * 0xFFFF, setpoint_b * 0xFFFF );
+    user_interface_set_led_values( setpoint_r * 0xFFFF, setpoint_g * 0xFFFF, setpoint_b * 0xFFFF );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -110,7 +111,7 @@ PRIVATE void
 led_whitebalance_correct( float *red, float *green, float *blue )
 {
     int16_t wb_r, wb_g, wb_b = 0;
-    config_get_led_whitebalance( &wb_r, &wb_g, &wb_b );
+    configuration_get_led_whitebalance( &wb_r, &wb_g, &wb_b );
 
     // Apply offsets
     *red   = *red * ( 1.0 - ( (float)wb_r / 32767.0f ) );
@@ -124,7 +125,7 @@ PRIVATE float
 led_power_limit()
 {
     int16_t limit = 0;
-    config_get_led_bias( &limit );
+    configuration_get_led_bias( &limit );
 
     // Apply offset based on that value
 

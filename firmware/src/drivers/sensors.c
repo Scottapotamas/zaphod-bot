@@ -3,6 +3,7 @@
 #include "sensors.h"
 #include "app_times.h"
 #include "configuration.h"
+#include "user_interface.h"
 #include "hal_adc.h"
 #include "hal_hard_ic.h"
 #include "hal_power.h"
@@ -35,7 +36,7 @@ sensors_enable( void )
     hal_adc_start( HAL_ADC_INPUT_TEMP_INTERNAL, ADC_SAMPLE_RATE_MS );
     hal_adc_start( HAL_ADC_INPUT_VREFINT, ADC_SAMPLE_RATE_MS );
 
-    config_set_sensors_enabled( true );
+    user_interface_set_sensors_enabled( true );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -56,7 +57,7 @@ sensors_disable( void )
     hal_adc_stop( HAL_ADC_INPUT_TEMP_INTERNAL );
     hal_adc_stop( HAL_ADC_INPUT_VREFINT );
 
-    config_set_sensors_enabled( false );
+    user_interface_set_sensors_enabled( false );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -67,7 +68,7 @@ PUBLIC float
 sensors_ambient_C( void )
 {
     float pcb_ambient_temp = hal_temperature_pcb_degrees_C( hal_adc_read_avg( HAL_ADC_INPUT_TEMP_PCB ) );
-    config_set_temp_ambient( pcb_ambient_temp );
+    user_interface_set_temp_ambient( pcb_ambient_temp );
     return pcb_ambient_temp;
 }
 
@@ -75,7 +76,7 @@ PUBLIC float
 sensors_12v_regulator_C( void )
 {
     float pcb_regulator_temp = hal_temperature_pcb_degrees_C( hal_adc_read_avg( HAL_ADC_INPUT_TEMP_REG ) );
-    config_set_temp_regulator( pcb_regulator_temp );
+    user_interface_set_temp_regulator( pcb_regulator_temp );
     return pcb_regulator_temp;
 }
 
@@ -83,7 +84,7 @@ PUBLIC float
 sensors_expansion_C( void )
 {
     float expansion_temp = hal_temperature_ext_degrees_C( hal_adc_read_avg( HAL_ADC_INPUT_TEMP_EXT ) );
-    config_set_temp_external( expansion_temp );
+    user_interface_set_temp_external( expansion_temp );
     return expansion_temp;
 }
 
@@ -91,7 +92,7 @@ PUBLIC float
 sensors_microcontroller_C( void )
 {
     float die_temp = hal_temperature_micro_degrees_C( hal_adc_read_avg( HAL_ADC_INPUT_TEMP_INTERNAL ) );
-    config_set_temp_cpu( die_temp );
+    user_interface_set_temp_cpu( die_temp );
     return die_temp;
 }
 
@@ -103,9 +104,9 @@ PUBLIC float
 sensors_input_V( void )
 {
     float input_voltage = hal_voltage_V( hal_adc_read_avg( HAL_ADC_INPUT_VOLT_SENSE ) );
-    input_voltage += (float)config_get_voltage_trim_mV() / 1000;
+    input_voltage += (float)configuration_get_voltage_trim_mV() / 1000;
 
-    config_set_input_voltage( input_voltage );
+    user_interface_set_input_voltage( input_voltage );
     return input_voltage;
 }
 
@@ -118,7 +119,7 @@ sensors_servo_A( HalAdcInput_t servo_to_sample )
     }
 
     float measured_current   = hal_current_A( hal_adc_read_avg( servo_to_sample ) );
-    float calibration_offset = (float)config_get_servo_trim_mA( servo_to_sample ) / 1000;
+    float calibration_offset = (float)configuration_get_servo_trim_mA( servo_to_sample ) / 1000;
 
     return measured_current + calibration_offset;
 }
@@ -142,7 +143,7 @@ sensors_fan_speed_RPM( void )
     float    hall_frequency = hal_hard_ic_read_f( HAL_HARD_IC_FAN_HALL );
     uint16_t rpm            = 60 * ( hall_frequency / 2 );
 
-    config_set_fan_rpm( rpm );
+    user_interface_set_fan_rpm( rpm );
     return rpm;
 }
 

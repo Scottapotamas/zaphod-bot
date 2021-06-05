@@ -17,7 +17,7 @@
 #include "motion_types.h"
 #include "path_interpolator.h"
 
-#include "configuration.h"
+#include "user_interface.h"
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
@@ -94,7 +94,7 @@ PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __att
 
     kinematics_init();
     path_interpolator_init();
-    config_set_motion_state( TASKSTATE_MOTION_INITIAL );
+    user_interface_set_motion_state( TASKSTATE_MOTION_INITIAL );
 
     STATE_INIT( &AppTaskMotion_main );
 }
@@ -106,7 +106,7 @@ PRIVATE STATE AppTaskMotion_main( AppTaskMotion *me, const StateEvent *e )
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            config_set_motion_state( TASKSTATE_MOTION_MAIN );
+            user_interface_set_motion_state( TASKSTATE_MOTION_MAIN );
 
             return 0;
 
@@ -137,7 +137,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
                 servo_start( servo );
             }
 
-            config_set_motion_state( TASKSTATE_MOTION_HOME );
+            user_interface_set_motion_state( TASKSTATE_MOTION_HOME );
 
             //check the motors every 500ms to see if they are homed
             eventTimerStartEvery( &me->timer1,
@@ -206,7 +206,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            config_set_motion_state( TASKSTATE_MOTION_INACTIVE );
+            user_interface_set_motion_state( TASKSTATE_MOTION_INACTIVE );
 
             // Continuously check that the servo's are still happy while holding position
             eventTimerStartEvery( &me->timer1,
@@ -227,7 +227,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
             //a servo has dropped offline (fault or otherwise)
             if( me->counter != SERVO_COUNT )
             {
-                config_report_error( "Servo loss" );
+                user_interface_report_error( "Servo loss" );
                 eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
                 STATE_TRAN( AppTaskMotion_recovery );
             }
@@ -263,12 +263,12 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
                 }
                 else
                 {
-                    config_report_error( "Sync fail - queued ID mismatch" );
+                    user_interface_report_error( "Sync fail - queued ID mismatch" );
                 }
             }
             else
             {
-                config_report_error( "Sync fail - nothing queued" );
+                user_interface_report_error( "Sync fail - nothing queued" );
             }
 
             return 0;
@@ -292,7 +292,7 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            config_set_motion_state( TASKSTATE_MOTION_ACTIVE );
+            user_interface_set_motion_state( TASKSTATE_MOTION_ACTIVE );
             AppTaskMotion_commit_queued_move( me );
 
             if( path_interpolator_is_ready_for_next() )
@@ -374,7 +374,7 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
             path_interpolator_stop();
 
             //update state for UI
-            config_set_motion_state( TASKSTATE_MOTION_RECOVERY );
+            user_interface_set_motion_state( TASKSTATE_MOTION_RECOVERY );
 
             // Come back next loop and clear out queue etc
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
@@ -452,7 +452,7 @@ PRIVATE void AppTaskMotion_commit_queued_move( AppTaskMotion *me )
     }
 
     // Tell the UI the new queue depth after pulling a move from it
-    config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+    user_interface_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -468,7 +468,7 @@ PRIVATE void AppTaskMotion_clear_queue( AppTaskMotion *me )
     }
 
     //update UI with queue content count
-    config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+    user_interface_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -492,20 +492,20 @@ PRIVATE void AppTaskMotion_add_event_to_queue( AppTaskMotion *me, const StateEve
         }
         else
         {
-            config_report_error( "Requested illegal speed" );
+            user_interface_report_error( "Requested illegal speed" );
         }
     }
     else
     {
         //queue full, clearly the input motion processor isn't abiding by the spec.
-        config_report_error( "Motion Queue Full" );
+        user_interface_report_error( "Motion Queue Full" );
 
         //shutdown
         eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
         STATE_TRAN( AppTaskMotion_recovery );
     }
 
-    config_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+    user_interface_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 }
 
 /* ----- End ---------------------------------------------------------------- */

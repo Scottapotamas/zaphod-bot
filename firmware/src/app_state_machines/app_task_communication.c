@@ -10,7 +10,7 @@
 #include "app_times.h"
 
 #include "app_task_communication.h"
-#include "configuration.h"
+#include "user_interface.h"
 #include "hal_uart.h"
 
 #include "electricui.h"
@@ -153,7 +153,7 @@ PRIVATE STATE AppTaskCommunication_electric_ui( AppTaskCommunication *me,
 
             //eUI setup
             EUI_LINK( communication_interface );
-            configuration_electric_setup();    //get the configuration driver to setup access to variables
+            user_interface_init();    //get the user_interface driver to setup access to variables
 
             return 0;
 
@@ -233,25 +233,25 @@ AppTaskCommunication_rx_tick( void )
 PRIVATE void
 AppTaskCommunication_eui_callback_external( uint8_t message )
 {
-    configuration_eui_callback( LINK_EXTERNAL, &communication_interface[LINK_EXTERNAL], message );
+    user_interface_eui_callback( LINK_EXTERNAL, &communication_interface[LINK_EXTERNAL], message );
 }
 
 PRIVATE void
 AppTaskCommunication_eui_callback_internal( uint8_t message )
 {
-    configuration_eui_callback( LINK_INTERNAL, &communication_interface[LINK_INTERNAL], message );
+    user_interface_eui_callback( LINK_INTERNAL, &communication_interface[LINK_INTERNAL], message );
 }
 
 PRIVATE void
 AppTaskCommunication_eui_callback_module( uint8_t message )
 {
-    configuration_eui_callback( LINK_MODULE, &communication_interface[LINK_MODULE], message );
+    user_interface_eui_callback( LINK_MODULE, &communication_interface[LINK_MODULE], message );
 }
 
 PRIVATE void
 AppTaskCommunication_eui_callback_usb( uint8_t message )
 {
-    configuration_eui_callback( LINK_USB, &communication_interface[LINK_USB], message );
+    user_interface_eui_callback( LINK_USB, &communication_interface[LINK_USB], message );
 }
 
 /* ----- End ---------------------------------------------------------------- */

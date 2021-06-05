@@ -12,13 +12,15 @@
 #include "hal_uart.h"
 #include "hal_watchdog.h"
 
+#include "configuration.h"
+#include "user_interface.h"
+#include "sensors.h"
 #include "buzzer.h"
 #include "clearpath.h"
-#include "configuration.h"
 #include "fan.h"
-#include "sensors.h"
 #include "shutter_release.h"
 #include "status.h"
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -50,9 +52,10 @@ app_hardware_init( void )
     hal_hard_ic_init();
 
     configuration_init();
+    user_interface_init();
 
     // Check for the cause of the microcontroller booting (errors vs normal power up)
-    config_set_reset_cause( hal_reset_cause_description( hal_reset_cause() ) );
+    user_interface_set_reset_cause( hal_reset_cause_description( hal_reset_cause() ) );
 
     buzzer_init();
     fan_init();
