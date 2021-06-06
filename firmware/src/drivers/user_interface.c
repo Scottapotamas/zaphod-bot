@@ -3,9 +3,8 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "user_interface.h"
-#include "user_interface_types.h"
 
-#include "electricui.h"
+#include "configuration.h"
 
 #include "app_task_ids.h"
 #include "app_tasks.h"
@@ -16,20 +15,52 @@
 #include "app_version.h"
 #include "event_subscribe.h"
 #include "hal_uuid.h"
+#include "hal_uart.h"
 
+/* ----- Private Function Declaration --------------------------------------- */
+
+PRIVATE void user_interface_tx_put_external(uint8_t *c, uint16_t length );
+PRIVATE void user_interface_eui_callback_external(uint8_t message );
+
+PRIVATE void user_interface_tx_put_internal( uint8_t *c, uint16_t length );
+PRIVATE void user_interface_eui_callback_internal( uint8_t message );
+
+PRIVATE void user_interface_tx_put_module( uint8_t *c, uint16_t length );
+PRIVATE void user_interface_eui_callback_module( uint8_t message );
+
+PRIVATE void user_interface_tx_put_usb( uint8_t *c, uint16_t length );
+PRIVATE void user_interface_eui_callback_usb( uint8_t message );
+
+/* ----- Private Function Declaration --------------------------------------- */
+
+PRIVATE void start_mech_cb( void );
+PRIVATE void stop_mech_cb( void );
+PRIVATE void emergency_stop_cb( void );
+PRIVATE void home_mech_cb( void );
+PRIVATE void execute_motion_queue( void );
+PRIVATE void clear_all_queue( void );
+PRIVATE void tracked_position_event( void );
+#ifdef EXPANSION_SERVO
+PRIVATE void tracked_external_servo_request( void );
+#endif
+
+PRIVATE void rgb_manual_led_event( void );
+PRIVATE void movement_generate_event( void );
+PRIVATE void lighting_generate_event( void );
+PRIVATE void sync_begin_queues( void );
+PRIVATE void trigger_camera_capture( void );
+
+/* ----- Defines ----------------------------------------------------------- */
 
 SystemData_t     sys_stats;
 Task_Info_t      task_info[TASK_MAX] = { 0 };
 KinematicsInfo_t mechanical_info;
 
 FanData_t  fan_stats;
-FanCurve_t fan_curve[] = {
-        { .temperature = 0, .percentage = 20 },
-        { .temperature = 20, .percentage = 20 },
-        { .temperature = 35, .percentage = 45 },
-        { .temperature = 45, .percentage = 90 },
-        { .temperature = 60, .percentage = 100 },
-};
+
+uint8_t fan_manual_setpoint = 0;
+uint8_t fan_manual_enable   = 0;
+
 
 TempData_t temp_sensors;
 
@@ -57,24 +88,8 @@ Fade_t        light_fade_inbound;
 char device_nickname[16] = "Zaphod Beeblebot";
 char reset_cause[20]     = "No Reset Cause";
 
-PRIVATE void start_mech_cb( void );
-PRIVATE void stop_mech_cb( void );
-PRIVATE void emergency_stop_cb( void );
-PRIVATE void home_mech_cb( void );
-PRIVATE void execute_motion_queue( void );
-PRIVATE void clear_all_queue( void );
-PRIVATE void tracked_position_event( void );
-#ifdef EXPANSION_SERVO
-PRIVATE void tracked_external_servo_request( void );
-#endif
 
-PRIVATE void rgb_manual_led_event( void );
-PRIVATE void movement_generate_event( void );
-PRIVATE void lighting_generate_event( void );
-PRIVATE void sync_begin_queues( void );
-PRIVATE void trigger_camera_capture( void );
 
-PRIVATE void user_interface_wipe( void );
 uint16_t     sync_id_val  = 0;
 uint8_t      mode_request = 0;
 
@@ -92,7 +107,7 @@ eui_message_t ui_variables[] = {
 
         // Temperature and cooling system
         EUI_CUSTOM( "fan", fan_stats ),
-        EUI_CUSTOM( "curve", fan_curve ),
+//        EUI_CUSTOM( "curve", fan_curve ),
         EUI_CUSTOM( "temp", temp_sensors ),
 
         EUI_UINT8( "fan_man_speed", fan_manual_setpoint ),
@@ -139,14 +154,45 @@ eui_message_t ui_variables[] = {
 
 };
 
+enum
+{
+    LINK_MODULE = 0,
+    LINK_INTERNAL,
+    LINK_EXTERNAL,
+    LINK_USB
+} EUI_LINK_NAMES;
+
+eui_interface_t communication_interface[] = {
+        EUI_INTERFACE_CB( &user_interface_tx_put_module, &user_interface_eui_callback_module ),
+        EUI_INTERFACE_CB( &user_interface_tx_put_internal, &user_interface_eui_callback_internal ),
+        EUI_INTERFACE_CB(&user_interface_tx_put_external, &user_interface_eui_callback_external ),
+        EUI_INTERFACE_CB( &user_interface_tx_put_usb, &user_interface_eui_callback_usb ),
+};
+
+
+
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
 user_interface_init( void )
 {
+    hal_uart_init( HAL_UART_PORT_MODULE );
+
+    EUI_LINK( communication_interface );
     EUI_TRACK( ui_variables );
     eui_setup_identifier( (char *)HAL_UUID, 12 );    //header byte is 96-bit, therefore 12-bytes
 
+}
+
+PUBLIC void
+user_interface_handle_data( void )
+{
+    while( hal_uart_rx_data_available( HAL_UART_PORT_MODULE ) )
+    {
+        eui_parse( hal_uart_rx_get( HAL_UART_PORT_MODULE ), &communication_interface[LINK_MODULE] );
+    }
+
+    // TODO handle other communication link serial FIFO
 }
 
 /* -------------------------------------------------------------------------- */
@@ -405,10 +451,11 @@ user_interface_set_fan_state( uint8_t state )
 PUBLIC FanCurve_t *
 user_interface_get_fan_curve_ptr( void )
 {
-    if( DIM( fan_curve ) == NUM_FAN_CURVE_POINTS )
-    {
-        return &fan_curve[0];
-    }
+    // TODO fix fan curve UI control/viewing
+    //    if( DIM( fan_curve ) == NUM_FAN_CURVE_POINTS )
+//    {
+//        return &fan_curve[0];
+//    }
 
     return 0;
 }
@@ -696,6 +743,57 @@ trigger_camera_capture( void )
         eventPublish( (StateEvent *)trigger );
         memset( &camera_shutter_duration_ms, 0, sizeof( camera_shutter_duration_ms ) );
     }
+}
+
+/* -------------------------------------------------------------------------- */
+
+
+
+PRIVATE void
+user_interface_tx_put_external(uint8_t *c, uint16_t length )
+{
+    hal_uart_write( HAL_UART_PORT_EXTERNAL, c, length );
+}
+
+PRIVATE void
+user_interface_tx_put_internal( uint8_t *c, uint16_t length )
+{
+    hal_uart_write( HAL_UART_PORT_INTERNAL, c, length );
+}
+
+PRIVATE void
+user_interface_tx_put_module( uint8_t *c, uint16_t length )
+{
+    hal_uart_write( HAL_UART_PORT_MODULE, c, length );
+}
+
+PRIVATE void
+user_interface_tx_put_usb( uint8_t *c, uint16_t length )
+{
+}
+
+PRIVATE void
+user_interface_eui_callback_external(uint8_t message )
+{
+    user_interface_eui_callback( LINK_EXTERNAL, &communication_interface[LINK_EXTERNAL], message );
+}
+
+PRIVATE void
+user_interface_eui_callback_internal( uint8_t message )
+{
+    user_interface_eui_callback( LINK_INTERNAL, &communication_interface[LINK_INTERNAL], message );
+}
+
+PRIVATE void
+user_interface_eui_callback_module( uint8_t message )
+{
+    user_interface_eui_callback( LINK_MODULE, &communication_interface[LINK_MODULE], message );
+}
+
+PRIVATE void
+user_interface_eui_callback_usb( uint8_t message )
+{
+    user_interface_eui_callback( LINK_USB, &communication_interface[LINK_USB], message );
 }
 
 /* ----- End ---------------------------------------------------------------- */

@@ -17,6 +17,14 @@ LedSettings_t rgb_led_settings;
 
 float z_rotation = 0;
 
+FanCurve_t fan_curve[] = {
+        { .temperature = 0, .percentage = 20 },
+        { .temperature = 20, .percentage = 20 },
+        { .temperature = 35, .percentage = 45 },
+        { .temperature = 45, .percentage = 90 },
+        { .temperature = 60, .percentage = 100 },
+};
+
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void

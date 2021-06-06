@@ -7,42 +7,17 @@ extern "C" {
 
 /* ----- System Includes ---------------------------------------------------- */
 
+#include <electricui.h>
+
 /* ----- Local Includes ----------------------------------------------------- */
 
+#include "user_interface_types.h"
 #include "global.h"
 #include "motion_types.h"
-#include <electricui.h>
+#include "configuration_types.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
-typedef enum
-{
-    PIN_INACTIVE = 0,
-    PIN_INPUT,
-    PIN_ADC,
-    PIN_DAC,
-    PIN_OUTPUT,
-    PIN_PWM,
-    PIN_UART,
-    PIN_I2C,
-    PIN_CAN
-} ConfigurableIOMode_t;
-
-typedef enum
-{
-    CONTROL_NONE = 0,
-    CONTROL_MANUAL,
-    CONTROL_EVENT,
-    CONTROL_TRACK,
-    CONTROL_DEMO,
-    CONTROL_CHANGING,
-} ControlModes_t;
-
-typedef struct
-{
-    uint8_t temperature;
-    uint8_t percentage;
-} FanCurve_t;
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -50,19 +25,8 @@ PUBLIC void
 user_interface_init( void );
 
 PUBLIC void
-user_interface_set_defaults( void );
+user_interface_handle_data( void );
 
-PUBLIC void
-user_interface_load( void );
-
-PUBLIC void
-user_interface_save( void );
-
-PUBLIC void
-user_interface_electric_setup( void );
-
-PUBLIC void
-user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t message );
 
 /* -------------------------------------------------------------------------- */
 

@@ -3,7 +3,6 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "app_background.h"
-#include "app_task_communication.h"
 #include "app_times.h"
 #include "global.h"
 #include "timer_ms.h"
@@ -46,9 +45,6 @@ PUBLIC void
 app_background( void )
 {
     //rate limit less important background processes
-    AppTaskCommunication_rx_tick();
-    hal_adc_tick();
-
     if( timer_ms_is_expired( &button_timer ) )
     {
         // Need to turn the E-Stop light on to power the pullup for the E-STOP button

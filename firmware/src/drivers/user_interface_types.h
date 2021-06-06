@@ -1,6 +1,25 @@
 #ifndef USER_INTERFACE_TYPES_H
 #define USER_INTERFACE_TYPES_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+/* ----- Local Includes ----------------------------------------------------- */
+
+#include "global.h"
+
+/* ----- Defines ------------------------------------------------------------ */
+
+typedef enum
+{
+    CONTROL_NONE = 0,
+    CONTROL_MANUAL,
+    CONTROL_EVENT,
+    CONTROL_TRACK,
+    CONTROL_DEMO,
+    CONTROL_CHANGING,
+} ControlModes_t;
 
 typedef struct
 {
@@ -21,7 +40,7 @@ typedef struct
     uint8_t control_mode;
 } SystemStates_t;
 
-
+/* -------------------------------------------------------------------------- */
 
 typedef struct
 {
@@ -61,8 +80,6 @@ typedef struct
     uint8_t  state;
 } FanData_t;
 
-uint8_t fan_manual_setpoint = 0;
-uint8_t fan_manual_enable   = 0;
 
 typedef struct
 {
@@ -99,7 +116,7 @@ typedef struct
     float   power;
 } MotorData_t;
 
-
+/* -------------------------------------------------------------------------- */
 
 typedef struct
 {
@@ -117,6 +134,10 @@ typedef struct
     uint8_t enable;
 } LedControl_t;
 
+/* -------------------------------------------------------------------------- */
 
+#ifdef __cplusplus
+}
+#endif
 
 #endif //USER_INTERFACE_TYPES_H

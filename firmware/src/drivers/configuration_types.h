@@ -29,6 +29,15 @@ typedef struct
     int16_t balance_blue;
     int16_t balance_total;
 } LedSettings_t;
+
+/* -------------------------------------------------------------------------- */
+
+typedef struct
+{
+    uint8_t temperature;
+    uint8_t percentage;
+} FanCurve_t;
+
 /* -------------------------------------------------------------------------- */
 
 #endif //CONFIGURATION_TYPES_H

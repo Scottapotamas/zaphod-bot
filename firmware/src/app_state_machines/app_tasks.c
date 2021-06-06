@@ -17,14 +17,15 @@
 #include "state_tasker.h"
 
 /* Application Tasks */
-#include "app_task_communication.h"
 #include "app_task_led.h"
 #include "app_task_motion.h"
 #include "app_task_supervisor.h"
 
+#include "user_interface.h"
 #include "button.h"
 #include "hal_button.h"
 #include "hal_systick.h"
+#include "hal_adc.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -55,9 +56,6 @@ EventsLargeType __attribute__( ( section( ".ccmram" ) ) ) eventsLarge[400];
 EventSubscribers eventSubscriberList[STATE_MAX_SIGNAL];
 
 // ~~~ Task Control Blocks & Event Queues ~~~
-
-AppTaskCommunication appTaskCommunication;
-StateEvent *         appTaskCommunicationEventQueue[10];
 
 AppTaskMotion appTaskMotion;
 StateEvent *  appTaskMotionEventQueue[MOVEMENT_QUEUE_DEPTH_MAX];
@@ -114,15 +112,6 @@ void app_tasks_init( void )
     /* ~~~ State Machines Initialisation ~~~ */
     StateTask *t;
 
-    //Handle communications (comms to computers/phones etc)
-    t = appTaskCommunicationCreate( &appTaskCommunication,
-                                    appTaskCommunicationEventQueue,
-                                    DIM( appTaskCommunicationEventQueue ),
-                                    INTERFACE_UART_MODULE );
-
-    stateTaskerAddTask( &mainTasker, t, TASK_COMMUNICATION, "Comms" );
-    stateTaskerStartTask( &mainTasker, t );
-
     //Handle motion controls
     t = appTaskMotionCreate( &appTaskMotion,
                              appTaskMotionEventQueue,
@@ -152,6 +141,8 @@ void app_tasks_init( void )
     stateTaskerStartTask( &mainTasker, t );
 
     hal_systick_hook( 1, eventTimerTick );
+    hal_systick_hook( 1, user_interface_handle_data );
+    hal_systick_hook( 1, hal_adc_tick );
 }
 
 /* -------------------------------------------------------------------------- */
