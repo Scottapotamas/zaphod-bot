@@ -19,6 +19,9 @@
 
 /* ----- Private Function Declaration --------------------------------------- */
 
+PRIVATE void
+user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t message );
+
 PRIVATE void user_interface_tx_put_external(uint8_t *c, uint16_t length );
 PRIVATE void user_interface_eui_callback_external(uint8_t message );
 
@@ -27,9 +30,6 @@ PRIVATE void user_interface_eui_callback_internal( uint8_t message );
 
 PRIVATE void user_interface_tx_put_module( uint8_t *c, uint16_t length );
 PRIVATE void user_interface_eui_callback_module( uint8_t message );
-
-PRIVATE void user_interface_tx_put_usb( uint8_t *c, uint16_t length );
-PRIVATE void user_interface_eui_callback_usb( uint8_t message );
 
 /* ----- Private Function Declaration --------------------------------------- */
 
@@ -159,17 +159,13 @@ enum
     LINK_MODULE = 0,
     LINK_INTERNAL,
     LINK_EXTERNAL,
-    LINK_USB
 } EUI_LINK_NAMES;
 
 eui_interface_t communication_interface[] = {
         EUI_INTERFACE_CB( &user_interface_tx_put_module, &user_interface_eui_callback_module ),
         EUI_INTERFACE_CB( &user_interface_tx_put_internal, &user_interface_eui_callback_internal ),
         EUI_INTERFACE_CB(&user_interface_tx_put_external, &user_interface_eui_callback_external ),
-        EUI_INTERFACE_CB( &user_interface_tx_put_usb, &user_interface_eui_callback_usb ),
 };
-
-
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -177,11 +173,11 @@ PUBLIC void
 user_interface_init( void )
 {
     hal_uart_init( HAL_UART_PORT_MODULE );
+    // TODO init other serial ports for UI use?
 
     EUI_LINK( communication_interface );
     EUI_TRACK( ui_variables );
     eui_setup_identifier( (char *)HAL_UUID, 12 );    //header byte is 96-bit, therefore 12-bytes
-
 }
 
 PUBLIC void
@@ -197,7 +193,49 @@ user_interface_handle_data( void )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
+PRIVATE void
+user_interface_tx_put_external(uint8_t *c, uint16_t length )
+{
+    hal_uart_write( HAL_UART_PORT_EXTERNAL, c, length );
+}
+
+PRIVATE void
+user_interface_eui_callback_external(uint8_t message )
+{
+    user_interface_eui_callback( LINK_EXTERNAL, &communication_interface[LINK_EXTERNAL], message );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void
+user_interface_tx_put_internal( uint8_t *c, uint16_t length )
+{
+    hal_uart_write( HAL_UART_PORT_INTERNAL, c, length );
+}
+
+PRIVATE void
+user_interface_eui_callback_internal( uint8_t message )
+{
+    user_interface_eui_callback( LINK_INTERNAL, &communication_interface[LINK_INTERNAL], message );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void
+user_interface_tx_put_module( uint8_t *c, uint16_t length )
+{
+    hal_uart_write( HAL_UART_PORT_MODULE, c, length );
+}
+
+PRIVATE void
+user_interface_eui_callback_module( uint8_t message )
+{
+    user_interface_eui_callback( LINK_MODULE, &communication_interface[LINK_MODULE], message );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void
 user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t message )
 {
     // Provided the callbacks - use this to fire callbacks when a variable changes etc
@@ -351,7 +389,6 @@ user_interface_update_task_statistics( void )
     }
     //app_task_clear_statistics();
 }
-
 
 /* -------------------------------------------------------------------------- */
 
@@ -539,9 +576,6 @@ user_interface_set_motion_queue_depth( uint8_t utilisation )
     //    eui_send_tracked("queue");
 }
 
-
-
-
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -596,8 +630,6 @@ user_interface_set_led_queue_depth( uint8_t utilisation )
     queue_data.lighting = utilisation;
     //    eui_send_tracked("queue");
 }
-
-
 
 PUBLIC void
 user_interface_get_led_manual( float *h, float *s, float *l, uint8_t *en )
@@ -745,55 +777,5 @@ trigger_camera_capture( void )
     }
 }
 
-/* -------------------------------------------------------------------------- */
-
-
-
-PRIVATE void
-user_interface_tx_put_external(uint8_t *c, uint16_t length )
-{
-    hal_uart_write( HAL_UART_PORT_EXTERNAL, c, length );
-}
-
-PRIVATE void
-user_interface_tx_put_internal( uint8_t *c, uint16_t length )
-{
-    hal_uart_write( HAL_UART_PORT_INTERNAL, c, length );
-}
-
-PRIVATE void
-user_interface_tx_put_module( uint8_t *c, uint16_t length )
-{
-    hal_uart_write( HAL_UART_PORT_MODULE, c, length );
-}
-
-PRIVATE void
-user_interface_tx_put_usb( uint8_t *c, uint16_t length )
-{
-}
-
-PRIVATE void
-user_interface_eui_callback_external(uint8_t message )
-{
-    user_interface_eui_callback( LINK_EXTERNAL, &communication_interface[LINK_EXTERNAL], message );
-}
-
-PRIVATE void
-user_interface_eui_callback_internal( uint8_t message )
-{
-    user_interface_eui_callback( LINK_INTERNAL, &communication_interface[LINK_INTERNAL], message );
-}
-
-PRIVATE void
-user_interface_eui_callback_module( uint8_t message )
-{
-    user_interface_eui_callback( LINK_MODULE, &communication_interface[LINK_MODULE], message );
-}
-
-PRIVATE void
-user_interface_eui_callback_usb( uint8_t message )
-{
-    user_interface_eui_callback( LINK_USB, &communication_interface[LINK_USB], message );
-}
 
 /* ----- End ---------------------------------------------------------------- */
