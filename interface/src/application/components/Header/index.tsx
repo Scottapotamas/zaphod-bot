@@ -29,13 +29,15 @@ import {
 
 import {
   MessageDataSource,
-  RollingStorageRequest,
 } from '@electricui/core-timeseries'
 
 interface InjectDeviceIDFromLocation {
   deviceID?: string
   '*'?: string // we get passed the path as the wildcard
 }
+
+const cpuLoadDataSource = new MessageDataSource('sys')
+
 
 const CPULoadSparkline = () => {
   const cpu_percentage = useHardwareState(state => state.sys.cpu_load)
@@ -57,7 +59,7 @@ const CPULoadSparkline = () => {
         <ChartContainer height={40}>
           <LineChart
             dataSource={cpuLoadDataSource}
-            accessor={state => state.sys.cpu_load}
+            accessor={state => state.cpu_load}
             maxItems={1000}
             color={Colors.GRAY1}
           />
@@ -76,7 +78,6 @@ const CPULoadSparkline = () => {
 const BarAreas = `
 Left Center Right
 `
-const cpuLoadDataSource = new MessageDataSource('sys')
 
 export const Header = (
   props: RouteComponentProps & InjectDeviceIDFromLocation,

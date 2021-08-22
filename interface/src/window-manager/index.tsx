@@ -37,16 +37,23 @@ function createMainWindow() {
   const window = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
+      contextIsolation: false,
       devTools: allowDevTools, // Only allow devTools in development mode
-      v8CacheOptions: 'bypassHeatCheckAndEagerCompile', // https://www.youtube.com/watch?v=YqHOUy2rYZ8
+      v8CacheOptions: 'bypassHeatCheck', // https://www.youtube.com/watch?v=YqHOUy2rYZ8
+      enableBlinkFeatures: 'CSSColorSchemeUARendering', // Enable dark scrollbars in dark mode
     },
-    minHeight: 690,
-    minWidth: 650,
-    height: 690,
+    minHeight: 680,
+    minWidth: 1200,
+    height: 680,
     width: 1200,
-    title: 'DeltaBot Control',
+    title: 'Electric UI',
     backgroundColor: '#191b1d', // This needs to be set to something so the background on resize can be changed to match the dark / light mode theme
     show: false, // The window is shown once the transport manager is ready
+    // Point at the application icon to use, on Windows use the .ico, other platforms use the png
+    icon: pathJoin(
+      __dirname,
+      process.platform === 'win32' ? '/build/icon.ico' : '/build/icon.png',
+    ),
   })
 
   if (isDevelopment) {
@@ -251,10 +258,6 @@ const template = [
         {
           label: 'DevTools',
           submenu: [
-            { role: 'reload' },
-            { role: 'forcereload' },
-            { type: 'separator' },
-
             { role: 'toggledevtools' },
             {
               label: 'Show Transport Window',

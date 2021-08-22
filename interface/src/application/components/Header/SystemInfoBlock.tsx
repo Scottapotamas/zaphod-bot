@@ -51,7 +51,6 @@ const CPUClockText = () => {
 
 const SystemInfoLayout = `
 Stats Build
-Tasks Tasks
 `
 
 export const CoreSystemsInfoCard = () => {
@@ -133,60 +132,7 @@ export const CoreSystemsInfoCard = () => {
               </tbody>
             </HTMLTable>
           </Areas.Build>
-          <Areas.Tasks>
-            <HTMLTable striped style={{ minWidth: '100%' }}>
-              <thead>
-                <tr>
-                  <th>Task</th>
-                  <th>ID</th>
-                  <th>Ready</th>
-                  <th>Queue Usage</th>
-                  <th>Waiting Max</th>
-                  <th>Burst Max</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Array.from(new Array(num_tasks)).map((_, index) => (
-                  <>
-                    <tr>
-                      <td>
-                        <b>
-                          <Printer
-                            accessor={state => state.tasks[index].name}
-                          />
-                        </b>
-                      </td>
-                      <td>
-                        <Printer accessor={state => state.tasks[index].id} />
-                      </td>
-                      <td>
-                        <Printer accessor={state => state.tasks[index].ready} />
-                      </td>
-                      <td>
-                        <Printer
-                          accessor={state => state.tasks[index].queue_used}
-                        />{' '}
-                        /{' '}
-                        <Printer
-                          accessor={state => state.tasks[index].queue_max}
-                        />
-                      </td>
-                      <td>
-                        <Printer
-                          accessor={state => state.tasks[index].waiting_max}
-                        />
-                      </td>
-                      <td>
-                        <Printer
-                          accessor={state => state.tasks[index].burst_max}
-                        />
-                      </td>
-                    </tr>
-                  </>
-                ))}
-              </tbody>
-            </HTMLTable>
-          </Areas.Tasks>
+         
         </React.Fragment>
       )}
     </Composition>

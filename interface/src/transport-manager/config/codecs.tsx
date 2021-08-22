@@ -2,7 +2,6 @@ import { Codec, Message } from '@electricui/core'
 
 import {
   SystemStatus,
-  TaskStatistics,
   KinematicsInfo,
   FirmwareBuildInfo,
   TemperatureSensors,
@@ -47,37 +46,6 @@ export class SystemDataCodec extends Codec {
       cpu_clock: reader.readUInt8(),
       input_voltage: reader.readFloatLE(),
     }
-  }
-}
-
-export class TaskStatisticsCodec extends Codec {
-  filter(message: Message): boolean {
-    return message.messageID === 'tasks'
-  }
-
-  encode(payload: TaskStatistics): Buffer {
-    throw new Error('Battery is read-only')
-  }
-
-  decode(payload: Buffer): TaskStatistics[] {
-    const reader = SmartBuffer.fromBuffer(payload)
-
-    const taskStats: TaskStatistics[] = []
-
-    while (reader.remaining() > 0) {
-      const task: TaskStatistics = {
-        id: reader.readUInt8(),
-        ready: reader.readUInt8() === 0x01 ? true : false,
-        queue_used: reader.readUInt8(),
-        queue_max: reader.readUInt8(),
-        waiting_max: reader.readUInt32LE(),
-        burst_max: reader.readUInt32LE(),
-        name: reader.readString(12, 'utf8'),
-      }
-      taskStats.push(task)
-    }
-
-    return taskStats
   }
 }
 
@@ -557,7 +525,6 @@ export class PowerCalibrationCodec extends Codec {
 // Create the instances of the codecs
 export const customCodecs = [
   new SystemDataCodec(),
-  new TaskStatisticsCodec(),
   new FirmwareInfoCodec(),
   new KinematicsInfoCodec(),
   new TempSensorCodec(),

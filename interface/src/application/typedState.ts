@@ -24,16 +24,6 @@ export type SystemStatus = {
   input_voltage: number
 }
 
-export type TaskStatistics = {
-  id: number
-  ready: boolean
-  queue_used: number
-  queue_max: number
-  waiting_max: number
-  burst_max: number
-  name: string
-}
-
 export type FirmwareBuildInfo = {
   branch: string
   info: string
@@ -44,22 +34,22 @@ export type FirmwareBuildInfo = {
 }
 
 export type KinematicsInfo = {
-    // Dimensions used in the IK/FK calculations
-    shoulder_radius: number
-    bicep_length: number,
-    forearm_length: number,
-    effector_radius: number,
+  // Dimensions used in the IK/FK calculations
+  shoulder_radius: number
+  bicep_length: number,
+  forearm_length: number,
+  effector_radius: number,
 
-    // Limits in cartesian space
-    limit_radius: number,
-    limit_z_min: number,
-    limit_z_max: number,
+  // Limits in cartesian space
+  limit_radius: number,
+  limit_z_min: number,
+  limit_z_max: number,
 
-    // Flags if an axis is inverted
-    flip_x: number,
-    flip_y: number,
-    flip_z: number,
-  
+  // Flags if an axis is inverted
+  flip_x: number,
+  flip_y: number,
+  flip_z: number,
+
 }
 
 export type TemperatureSensors = {
@@ -204,4 +194,4 @@ export type PowerCalibration = {
 }
 
 // This exports these types into the dependency tree.
-export {}
+export { }
