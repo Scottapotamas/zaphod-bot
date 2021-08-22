@@ -12,10 +12,7 @@ export const configureStore: () => Store = () => {
     // Thunk Middleware
     middleware.push(thunk)
 
-    const composeEnhancers = composeWithDevTools({
-      trace: true,
-      traceLimit: 25,
-    })
+    const composeEnhancers = composeWithDevTools({})
 
     const store = createStore(
       rootReducer,

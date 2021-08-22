@@ -11,6 +11,16 @@ extern "C" {
 
 /* ----- Defines ------------------------------------------------------------ */
 
+typedef struct
+{
+    char build_branch[12];
+    char build_info[12];
+    char build_date[12];
+    char build_time[12];
+    char build_type[12];
+    char build_name[12];
+} BuildInfo_t;
+
 typedef enum
 {
     CONTROL_NONE = 0,
@@ -41,17 +51,6 @@ typedef struct
 } SystemStates_t;
 
 /* -------------------------------------------------------------------------- */
-
-typedef struct
-{
-    uint8_t  id;    // index of the task (pseudo priority)
-    uint8_t  ready;
-    uint8_t  queue_used;
-    uint8_t  queue_max;
-    uint32_t waiting_max;
-    uint32_t burst_max;
-    char     name[12];    // human readable taskname set during app_tasks setup
-} Task_Info_t;
 
 typedef struct
 {

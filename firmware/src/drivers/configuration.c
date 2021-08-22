@@ -11,7 +11,6 @@
 
 /* ----- Defines ------------------------------------------------------------ */
 
-BuildInfo_t      fw_info;
 PowerCalibration_t power_trims;
 LedSettings_t rgb_led_settings;
 
@@ -42,20 +41,7 @@ configuration_init( void )
 PUBLIC void
 configuration_set_defaults( void )
 {
-    //set build info to hardcoded values
-    memset( &fw_info.build_branch, 0, sizeof( fw_info.build_branch ) );
-    memset( &fw_info.build_info, 0, sizeof( fw_info.build_info ) );
-    memset( &fw_info.build_date, 0, sizeof( fw_info.build_date ) );
-    memset( &fw_info.build_time, 0, sizeof( fw_info.build_time ) );
-    memset( &fw_info.build_type, 0, sizeof( fw_info.build_type ) );
-    memset( &fw_info.build_name, 0, sizeof( fw_info.build_name ) );
 
-    strcpy( (char *)&fw_info.build_branch, ProgramBuildBranch );
-    strcpy( (char *)&fw_info.build_info, ProgramBuildInfo );
-    strcpy( (char *)&fw_info.build_date, ProgramBuildDate );
-    strcpy( (char *)&fw_info.build_time, ProgramBuildTime );
-    strcpy( (char *)&fw_info.build_type, ProgramBuildType );
-    strcpy( (char *)&fw_info.build_name, ProgramName );
 }
 
 /* -------------------------------------------------------------------------- */

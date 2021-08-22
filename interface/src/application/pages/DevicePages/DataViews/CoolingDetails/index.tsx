@@ -33,7 +33,6 @@ import {
 } from '@electricui/components-desktop-charts'
 import {
   MessageDataSource,
-  RollingStorageRequest,
 } from '@electricui/core-timeseries'
 
 import { Printer } from '@electricui/components-desktop'
@@ -73,35 +72,29 @@ export const CoolingDetails = () => {
       <IntervalRequester variables={['temp']} interval={500} />
       <IntervalRequester variables={['fan']} interval={250} />
 
-      {/* <RollingStorageRequest
-        dataSource={temperatureDataSource}
-        maxItems={300}
-        persist
-      /> */}
-
       <Composition gap={20}>
         <ChartContainer height={300}>
           <LineChart
             dataSource={temperatureDataSource}
-            accessor={state => state.temp.ambient}
+            accessor={event => event.ambient}
             maxItems={1000}
             lineWidth={3}
           />
           <LineChart
             dataSource={temperatureDataSource}
-            accessor={state => state.temp.regulator}
+            accessor={event => event.regulator}
             maxItems={1000}
             lineWidth={3}
           />
           <LineChart
             dataSource={temperatureDataSource}
-            accessor={state => state.temp.supply}
+            accessor={event => event.supply}
             maxItems={1000}
             lineWidth={3}
           />
           <LineChart
             dataSource={temperatureDataSource}
-            accessor={state => state.temp.cpu}
+            accessor={event => event.cpu}
             maxItems={1000}
             lineWidth={3}
           />
@@ -124,7 +117,7 @@ export const CoolingDetails = () => {
         <ChartContainer height={300}>
           <LineChart
             dataSource={fanDataSource}
-            accessor={state => state.fan.rpm}
+            accessor={event => event.rpm}
             maxItems={1000}
             lineWidth={3}
           />

@@ -3,15 +3,7 @@
 
 /* ----- Defines ------------------------------------------------------------ */
 
-typedef struct
-{
-    char build_branch[12];
-    char build_info[12];
-    char build_date[12];
-    char build_time[12];
-    char build_type[12];
-    char build_name[12];
-} BuildInfo_t;
+
 
 typedef struct
 {

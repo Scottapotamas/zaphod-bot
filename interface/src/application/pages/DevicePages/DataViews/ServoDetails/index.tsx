@@ -20,7 +20,6 @@ import {
 
 import {
   MessageDataSource,
-  RollingStorageRequest,
 } from '@electricui/core-timeseries'
 import { useDarkMode } from '@electricui/components-desktop'
 import { ServoInfo } from '../../../../typedState'
@@ -212,17 +211,13 @@ export const ServoDetails = () => {
   return (
     <div>
       <IntervalRequester variables={['servo']} interval={50} />
-      {/* <RollingStorageRequest
-        dataSource={servoTelemetryDataSource}
-        maxItems={250}
-        persist
-      /> */}
+
       <Composition>
         <ChartContainer height={300}>
           {Array.from(new Array(numMotors)).map((_, index) => (
             <LineChart
               dataSource={servoTelemetryDataSource}
-              accessor={state => state.servo[index].target_angle}
+              accessor={state => state[index].target_angle}
               maxItems={10000}
               color={servoColours[index]}
               key={`angle_${index}`}
@@ -243,7 +238,7 @@ export const ServoDetails = () => {
             {Array.from(new Array(numMotors)).map((_, index) => (
               <LineChart
                 dataSource={servoTelemetryDataSource}
-                accessor={state => state.servo[index].feedback}
+                accessor={state => state[index].feedback}
                 maxItems={10000}
                 color={servoColours[index]}
                 key={`torque_${index}`}
@@ -265,7 +260,7 @@ export const ServoDetails = () => {
             {Array.from(new Array(numMotors)).map((_, index) => (
               <LineChart
                 dataSource={servoTelemetryDataSource}
-                accessor={state => state.servo[index].power}
+                accessor={state => state[index].power}
                 maxItems={10000}
                 color={servoColours[index]}
                 key={`power_${index}`}

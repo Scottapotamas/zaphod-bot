@@ -53,8 +53,8 @@ PRIVATE void trigger_camera_capture( void );
 /* ----- Defines ----------------------------------------------------------- */
 
 SystemData_t     sys_stats;
-Task_Info_t      task_info[TASK_MAX] = { 0 };
 KinematicsInfo_t mechanical_info;
+BuildInfo_t      fw_info;
 
 FanData_t  fan_stats;
 
@@ -88,8 +88,6 @@ Fade_t        light_fade_inbound;
 char device_nickname[16] = "Zaphod Beeblebot";
 char reset_cause[20]     = "No Reset Cause";
 
-
-
 uint16_t     sync_id_val  = 0;
 uint8_t      mode_request = 0;
 
@@ -101,9 +99,8 @@ eui_message_t ui_variables[] = {
         EUI_CHAR_ARRAY_RO( "reset_type", reset_cause ),
         EUI_CUSTOM( "sys", sys_stats ),
         EUI_CUSTOM( "super", sys_states ),
-//        EUI_CUSTOM( "fwb", fw_info ),
-        EUI_CUSTOM( "tasks", task_info ),
-        EUI_CUSTOM_RO( "kinematics", mechanical_info ),
+        EUI_CUSTOM( "fwb", fw_info ),
+//        EUI_CUSTOM_RO( "kinematics", mechanical_info ),
 
         // Temperature and cooling system
         EUI_CUSTOM( "fan", fan_stats ),
@@ -178,6 +175,22 @@ user_interface_init( void )
     EUI_LINK( communication_interface );
     EUI_TRACK( ui_variables );
     eui_setup_identifier( (char *)HAL_UUID, 12 );    //header byte is 96-bit, therefore 12-bytes
+
+
+    //set build info to hardcoded values
+    memset( &fw_info.build_branch, 0, sizeof( fw_info.build_branch ) );
+    memset( &fw_info.build_info, 0, sizeof( fw_info.build_info ) );
+    memset( &fw_info.build_date, 0, sizeof( fw_info.build_date ) );
+    memset( &fw_info.build_time, 0, sizeof( fw_info.build_time ) );
+    memset( &fw_info.build_type, 0, sizeof( fw_info.build_type ) );
+    memset( &fw_info.build_name, 0, sizeof( fw_info.build_name ) );
+
+    strcpy( (char *)&fw_info.build_branch, ProgramBuildBranch );
+    strcpy( (char *)&fw_info.build_info, ProgramBuildInfo );
+    strcpy( (char *)&fw_info.build_date, ProgramBuildDate );
+    strcpy( (char *)&fw_info.build_time, ProgramBuildTime );
+    strcpy( (char *)&fw_info.build_type, ProgramBuildType );
+    strcpy( (char *)&fw_info.build_name, ProgramName );
 }
 
 PUBLIC void
@@ -366,28 +379,6 @@ PUBLIC void
 user_interface_set_cpu_clock( uint32_t clock )
 {
     sys_stats.cpu_clock = clock / 1000000;    //convert to Mhz
-}
-
-PUBLIC void
-user_interface_update_task_statistics( void )
-{
-    for( uint8_t id = ( TASK_MAX - 1 ); id > 0; id-- )
-    {
-        StateTask *t = app_task_by_id( id );
-        if( t )
-        {
-            task_info[id].id          = t->id;
-            task_info[id].ready       = t->ready;
-            task_info[id].queue_used  = t->eventQueue.used;
-            task_info[id].queue_max   = t->eventQueue.max;
-            task_info[id].waiting_max = t->waiting_max;
-            task_info[id].burst_max   = t->burst_max;
-
-            memset( &task_info[id].name, 0, sizeof( task_info[0].name ) );
-            strcpy( (char *)&task_info[id].name, t->name );
-        }
-    }
-    //app_task_clear_statistics();
 }
 
 /* -------------------------------------------------------------------------- */

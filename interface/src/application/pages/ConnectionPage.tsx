@@ -1,5 +1,5 @@
-import { Button, Classes } from '@blueprintjs/core'
-import { Link, RouteComponentProps } from '@reach/router'
+import { Classes } from '@blueprintjs/core'
+import { RouteComponentProps } from '@reach/router'
 
 import { Connections } from '@electricui/components-desktop-blueprint'
 import { Landing } from '../components/Landing'
@@ -26,11 +26,7 @@ export const ConnectionPage = (props: RouteComponentProps) => {
 
         <Connections
           preConnect={deviceID => navigate(`/device_loading/${deviceID}`)}
-          postHandshake={deviceID =>
-            deviceID.includes('xbox')
-              ? navigate(`/xbox/${deviceID}`)
-              : navigate(`/devices/${deviceID}`)
-          }
+          postHandshake={deviceID => navigate(`/devices/${deviceID}`)}
           onFailure={(deviceID, err) => {
             console.log('Connections component got error', err, deviceID)
             navigate(`/`)
