@@ -26,89 +26,7 @@ import {
 } from '@electricui/components-desktop-blueprint'
 import { Printer } from '@electricui/components-desktop'
 
-import KinematicsDiagram from '../KinematicsDiagram'
-
-const KinematicsAreas = `
-KinematicsLimitsArea KinematicsValuesArea
-`
-
-const KinematicsInfoCard = () => {
-  const shoulder = useHardwareState(state => state.kinematics.shoulder_radius)
-  const bicep = useHardwareState(state => state.kinematics.bicep_length)
-  const forearm = useHardwareState(state => state.kinematics.forearm_length)
-  const eff = useHardwareState(state => state.kinematics.effector_radius)
-
-  return (
-    <Composition
-      areas={KinematicsAreas}
-      gap={30}
-      padding={20}
-      templateCols="1fr auto"
-    >
-      {({ KinematicsLimitsArea, KinematicsValuesArea }) => (
-        <React.Fragment>
-          <KinematicsLimitsArea>
-            <h2>Kinematics Overview</h2>
-            <HTMLTable striped style={{ minWidth: '100%' }}>
-              <thead>
-                <td></td>
-                <td>Min</td>
-                <td>Max</td>
-                <td>Inverted</td>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Radius</td>
-                  <td></td>
-                  <td>
-                    <Printer
-                      accessor={state => state.kinematics.limit_radius}
-                    />
-                  </td>
-                  <td></td>
-                </tr>
-                <tr>
-                  <td>Z</td>
-                  <td>
-                    <Printer accessor={state => state.kinematics.limit_z_min} />
-                  </td>
-                  <td>
-                    <Printer accessor={state => state.kinematics.limit_z_max} />
-                  </td>
-                  <td>
-                    <Printer accessor={state => state.kinematics.flip_z} />
-                  </td>
-                </tr>
-              </tbody>
-            </HTMLTable>
-            <br />
-            <h3>Adjust Z axis alignment</h3>
-            <Slider
-              min={0}
-              max={360}
-              labelStepSize={45}
-              stepSize={15}
-              sendOnlyOnRelease
-              labelRenderer={val => `${val}º`}
-            >
-              <Slider.Handle accessor="rotZ" />
-            </Slider>
-          </KinematicsLimitsArea>
-          <KinematicsValuesArea>
-            <KinematicsDiagram
-              shoulderDistance={shoulder}
-              bicepLength={bicep}
-              forearmLength={forearm}
-              effectorDistance={eff}
-            />
-          </KinematicsValuesArea>
-        </React.Fragment>
-      )}
-    </Composition>
-  )
-}
-
-const LEDCalibrationCard = () => {
+export const LEDCalibrationBlock = () => {
   return (
     <Composition templateCols="1fr" justifyItems="center">
       <Box>
@@ -345,7 +263,7 @@ const LEDCalibrationCard = () => {
   )
 }
 
-import { ServoInfo } from '../../typedState'
+import { ServoInfo } from '../../../typedState'
 
 const PowerCalibrationCard = () => {
   const servo4: ServoInfo | null = useHardwareState(state => state.servo[3])
@@ -383,7 +301,7 @@ const PowerCalibrationCard = () => {
                       voltage: value,
                     },
                   })}
-                  style={{ maxWidth: '150px' }}
+                  // style={{ maxWidth: '150px' }}
                 />
               </td>
             </tr>
@@ -402,7 +320,7 @@ const PowerCalibrationCard = () => {
                       current_servo_1: value,
                     },
                   })}
-                  style={{ maxWidth: '150px' }}
+                  // style={{ maxWidth: '150px' }}
                 />
               </td>
             </tr>
@@ -421,7 +339,7 @@ const PowerCalibrationCard = () => {
                       current_servo_2: value,
                     },
                   })}
-                  style={{ maxWidth: '150px' }}
+                  // style={{ maxWidth: '150px' }}
                 />
               </td>
             </tr>
@@ -440,7 +358,7 @@ const PowerCalibrationCard = () => {
                       current_servo_3: value,
                     },
                   })}
-                  style={{ maxWidth: '150px' }}
+                  // style={{ maxWidth: '150px' }}
                 />
               </td>
             </tr>
@@ -463,7 +381,7 @@ const PowerCalibrationCard = () => {
                         voltage: value,
                       },
                     })}
-                    style={{ maxWidth: '150px' }}
+                    // style={{ maxWidth: '150px' }}
                   />
                 </td>
               </tr>
@@ -472,30 +390,5 @@ const PowerCalibrationCard = () => {
         </HTMLTable>
       </Box>
     </Composition>
-  )
-}
-
-export const SystemSettingsCard = () => {
-  return (
-    <>
-      <Composition
-        templateCols="1fr"
-        padding="30px"
-        justifyItems="center"
-        gap={30}
-      >
-        <Box>
-          <LEDCalibrationCard />
-        </Box>
-        <Box>
-          <PowerCalibrationCard />
-        </Box>
-        <Box>
-          <Button large fill intent="success" callback="save">
-            Store Calibration Values
-          </Button>
-        </Box>
-      </Composition>
-    </>
   )
 }

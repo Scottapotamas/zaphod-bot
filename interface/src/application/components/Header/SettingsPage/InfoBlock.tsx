@@ -53,22 +53,17 @@ const SystemInfoLayout = `
 Stats Build
 `
 
-export const CoreSystemsInfoCard = () => {
+export const InfoBlock = () => {
   const num_tasks: number | null = useHardwareState(
     state => (state.tasks || []).length,
   )
 
   return (
-    <Composition
-      areas={SystemInfoLayout}
-      padding={30}
-      justifyItems="center"
-      gap={10}
-    >
+    <Composition areas={SystemInfoLayout} gap={10}>
       {Areas => (
         <React.Fragment>
           <Areas.Stats>
-            <IntervalRequester interval={200} variables={['sys', 'tasks']} />
+            <IntervalRequester interval={200} variables={['sys']} />
             <h3>System Configuration</h3>
             <SensorsActive />
             <br />
@@ -78,8 +73,9 @@ export const CoreSystemsInfoCard = () => {
             <br />
             <CPUClockText />
           </Areas.Stats>
+
           <Areas.Build>
-            <HTMLTable striped style={{ minWidth: '100%' }}>
+            <HTMLTable striped style={{ minWidth: '100%', width: '300px' }}>
               <tbody>
                 <tr>
                   <td>
@@ -132,7 +128,6 @@ export const CoreSystemsInfoCard = () => {
               </tbody>
             </HTMLTable>
           </Areas.Build>
-         
         </React.Fragment>
       )}
     </Composition>

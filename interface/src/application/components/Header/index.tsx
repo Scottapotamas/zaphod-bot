@@ -4,6 +4,10 @@ import {
   Position,
   Tooltip,
   Colors,
+  Dialog,
+  Tag,
+  Intent,
+  PopoverInteractionKind,
 } from '@blueprintjs/core'
 import {
   IntervalRequester,
@@ -13,23 +17,26 @@ import {
 import { Button } from '@electricui/components-desktop-blueprint'
 
 import { ToastConnector } from '../../Toaster'
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import { RouteComponentProps } from '@reach/router'
 import { navigate } from '@electricui/utility-electron'
 import { Composition, Box } from 'atomic-layout'
-
-import { CoreSystemsInfoCard } from './SystemInfoBlock'
-import { SystemSettingsCard } from './SystemConfigBlock'
+import { Printer } from '@electricui/components-desktop'
 
 import {
   ChartContainer,
   LineChart,
   RealTimeDomain,
+  VerticalAxis,
 } from '@electricui/components-desktop-charts'
 
-import {
-  MessageDataSource,
-} from '@electricui/core-timeseries'
+import { MessageDataSource } from '@electricui/core-timeseries'
+import { IconNames } from '@blueprintjs/icons'
+
+import { SettingsPage } from './SettingsPage'
+import { TemperatureTag } from './SummaryTags/TemperatureTag'
+import { CPUTag } from './SummaryTags/CPUTag'
+import { FanTag } from './SummaryTags/FanTag'
 
 interface InjectDeviceIDFromLocation {
   deviceID?: string
@@ -37,43 +44,6 @@ interface InjectDeviceIDFromLocation {
 }
 
 const cpuLoadDataSource = new MessageDataSource('sys')
-
-
-const CPULoadSparkline = () => {
-  const cpu_percentage = useHardwareState(state => state.sys.cpu_load)
-
-  return (
-    <div>
-      <IntervalRequester interval={200} variables={['sys']} />
-      <Composition templateCols="1fr 2fr" alignItems="center">
-        <div
-          style={{
-            opacity: '50%',
-            textAlign: 'right',
-            position: 'relative',
-            zIndex: 2,
-          }}
-        >
-          {cpu_percentage}%
-        </div>
-        <ChartContainer height={40}>
-          <LineChart
-            dataSource={cpuLoadDataSource}
-            accessor={state => state.cpu_load}
-            maxItems={1000}
-            color={Colors.GRAY1}
-          />
-          <RealTimeDomain
-            window={[10_000, 60_000]}
-            yMin={0}
-            yMax={100}
-            delay={100}
-          />
-        </ChartContainer>
-      </Composition>
-    </div>
-  )
-}
 
 const BarAreas = `
 Left Center Right
@@ -83,6 +53,15 @@ export const Header = (
   props: RouteComponentProps & InjectDeviceIDFromLocation,
 ) => {
   const page = props['*'] // we get passed the path as the wildcard, so we read it here
+
+  const [configOpen, setConfigOpen] = useState(false)
+  const toggleConfig = useCallback(() => setConfigOpen(value => !value), [
+    setConfigOpen,
+  ])
+  const openConfig = useCallback(() => setConfigOpen(true), [setConfigOpen])
+  const closeConfig = useCallback(() => setConfigOpen(false), [setConfigOpen])
+
+  // const cpu_percentage = useHardwareState(state => state.sys.cpu_load)
 
   return (
     <div>
@@ -105,57 +84,47 @@ export const Header = (
                   }}
                 />
               </Tooltip>
+
+              <Tooltip content="Settings" position={Position.BOTTOM}>
+                <BlueprintButton
+                  minimal
+                  large
+                  icon={IconNames.WRENCH}
+                  onClick={toggleConfig}
+                />
+              </Tooltip>
             </Areas.Left>
+
             <Areas.Center>
               <div style={{ minWidth: '300px', maxWidth: '500px' }}>
-                <Button callback="estop" intent="danger" fill large>
+                <Button callback="estop" intent={Intent.DANGER} fill large>
                   E-STOP
                 </Button>
               </div>
             </Areas.Center>
+
             <Areas.Right>
-              <Composition templateCols="3fr 1fr 1fr" gap={10}>
-                <CPULoadSparkline />
-
-                <Popover
-                  content={
-                    <div style={{ width: 'auto', height: 'auto' }}>
-                      <SystemSettingsCard />
-                    </div>
-                  }
-                  position={Position.BOTTOM}
-                >
-                  <Tooltip content="Settings" position={Position.BOTTOM}>
-                    <BlueprintButton minimal large icon="settings" />
-                  </Tooltip>
-                </Popover>
-
-                <Popover
-                  content={
-                    <div style={{ width: 'auto', height: 'auto' }}>
-                      <CoreSystemsInfoCard />
-                    </div>
-                  }
-                  position={Position.BOTTOM}
-                >
-                  <Tooltip content="System Info" position={Position.BOTTOM}>
-                    <BlueprintButton minimal large icon="info-sign" />
-                  </Tooltip>
-                </Popover>
+              <Composition templateCols="auto auto auto auto" gap={10}>
+                <CPUTag />
+                <TemperatureTag />
+                <FanTag />
               </Composition>
             </Areas.Right>
           </React.Fragment>
         )}
       </Composition>
 
-      {/* <Navbar style={{ background: 'transparent', boxShadow: 'none' }}>
-        <div style={{ margin: '0 auto', width: '100%' }}>
-          <Navbar.Group align={Alignment.LEFT}></Navbar.Group>
+      <Dialog
+        isOpen={configOpen}
+        onClose={closeConfig}
+        autoFocus
+        title="System Configuration"
+        icon={IconNames.WRENCH}
+        style={{ minWidth: '800px', minHeight: '400px' }}
+      >
+        <SettingsPage />
+      </Dialog>
 
-          <Navbar.Group></Navbar.Group>
-          <Navbar.Group align={Alignment.RIGHT}></Navbar.Group>
-        </div>
-      </Navbar> */}
       <ToastConnector />
     </div>
   )
