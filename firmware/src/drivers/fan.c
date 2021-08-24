@@ -31,7 +31,6 @@ typedef struct
     uint8_t    speed;            // as a percentage 0-100, what the fan should be at 'now'
     uint8_t    set_speed;        // as a percentage 0-100, requested speed target
     uint32_t   startup_timer;    // amount of time to 'blip' the fan for reliable starts
-    bool       manual_control;
 } Fan_t;
 
 /* ----- Private Variables -------------------------------------------------- */
@@ -75,7 +74,6 @@ fan_process( void )
 
     // Get the current fan speed
     uint16_t fan_hall_rpm = sensors_fan_speed_RPM();
-    me->manual_control    = user_interface_get_fan_manual_control();
 
     switch( me->currentState )
     {
@@ -145,16 +143,8 @@ fan_process( void )
             me->speed = me->set_speed;
 
             STATE_TRANSITION_TEST
-            if( me->manual_control )
-            {
-                // Userspace 0-100% speed control over fan
-                me->set_speed = CLAMP( user_interface_get_fan_target(), 0, 100 );
-            }
-            else
-            {
-                // Calculate target speed based on temperature reading
-                me->set_speed = fan_speed_at_temp( sensors_expansion_C() );
-            }
+            // Calculate target speed based on temperature reading
+            me->set_speed = fan_speed_at_temp( sensors_expansion_C() );
 
             // Speed change req while running
             if( me->set_speed != me->speed )

@@ -171,13 +171,6 @@ export type LedStatus = {
   enable: boolean
 }
 
-export type ManualHSVControl = {
-  hue: number
-  saturation: number
-  intensity: number
-  enable: boolean
-}
-
 export type LedSettings = {
   offset_red: number
   offset_green: number

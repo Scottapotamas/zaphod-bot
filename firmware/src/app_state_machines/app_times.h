@@ -24,7 +24,7 @@ enum AppTimeoutsMs
 
 enum SystemDefines
 {
-    ADC_SAMPLE_RATE_MS         = 20U,    // 50Hz
+    ADC_SAMPLE_RATE_MS         = 10U,    // 50Hz
     BACKGROUND_RATE_HARD_IC_MS = 5U,     //  100Hz
 
     BACKGROUND_RATE_BUTTON_MS  = 20U,     //  50Hz

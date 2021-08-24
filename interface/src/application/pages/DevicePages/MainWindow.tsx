@@ -26,12 +26,6 @@ const VisualisationPanel = () => (
 )
 
 const MainWindow = (props: RouteComponentProps) => {
-  // const [currentBreakpoint, setCurrentBreakpoint] = useState()
-
-  // useBreakpointChange(breakpointName => {
-  //   setCurrentBreakpoint(breakpointName)
-  // })
-
   return (
     <React.Fragment>
       <Composition
@@ -41,17 +35,23 @@ const MainWindow = (props: RouteComponentProps) => {
         style={{ height: '100%' }}
         gutter={15}
       >
-        <Composition alignContent="space-between" width="600px">
+        <Composition
+          width="600px"
+          alignContent="start"
+          gap="1em"
+          templateCols="auto"
+        >
+          <Card>
+            <SystemController />
+          </Card>
           <Card>
             <ModeSelector />
           </Card>
           <Card>
             <LightingPalette />
           </Card>
-          <Card>
-            <SystemController />
-          </Card>
         </Composition>
+
         <Only from={{ minWidth: 1180 }}>
           <VisualisationPanel />
         </Only>

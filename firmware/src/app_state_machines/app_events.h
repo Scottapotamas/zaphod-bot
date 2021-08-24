@@ -67,7 +67,7 @@ typedef struct LedPlannerEvent__
 typedef struct LedManualEvent__
 {
     StateEvent  super;     // Encapsulated event reference
-    HSIColour_t colour;    // LED colour target
+    RGBColour_t colour;    // LED colour target
     bool        enabled;
 } LightingManualEvent;
 

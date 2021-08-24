@@ -125,14 +125,6 @@ typedef struct
     uint8_t  enable;
 } LedState_t;
 
-typedef struct
-{
-    float   hue;
-    float   saturation;
-    float   lightness;
-    uint8_t enable;
-} LedControl_t;
-
 /* -------------------------------------------------------------------------- */
 
 #ifdef __cplusplus

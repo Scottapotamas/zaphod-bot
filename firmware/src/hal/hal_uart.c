@@ -25,10 +25,10 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 /* ----- Defines ------------------------------------------------------------ */
 
-#define HAL_UART_RX_FIFO_SIZE 250
-#define HAL_UART_TX_FIFO_SIZE 250
+#define HAL_UART_RX_FIFO_SIZE 1024
+#define HAL_UART_TX_FIFO_SIZE 1024
 
-#define HAL_UART_RX_DMA_BUFFER_SIZE 64
+#define HAL_UART_RX_DMA_BUFFER_SIZE 512
 
 /* ----- Types -------------------------------------------------------------- */
 

@@ -20,7 +20,6 @@ import {
   LightMoveType,
   LightMove,
   LightPoint,
-  ManualHSVControl,
   LedStatus,
   LedSettings,
   PowerCalibration,
@@ -236,9 +235,9 @@ export class MotionDataCodec extends Codec {
   }
 }
 
-export class TargetPositionCodec extends Codec {
+export class PositionCodec extends Codec {
   filter(message: Message): boolean {
-    return message.messageID === 'tpos'
+    return message.messageID === 'tpos' || message.messageID === 'cpos'
   }
 
   encode(payload: CartesianPoint): Buffer {
@@ -407,7 +406,7 @@ export class InboundFadeCodec extends Codec {
 
 export class LEDCodec extends Codec<LedStatus> {
   filter(message: Message): boolean {
-    return message.messageID === 'rgb'
+    return message.messageID === 'rgb' || message.messageID === 'manual_led'
   }
 
   encode(payload: LedStatus) {
@@ -432,34 +431,6 @@ export class LEDCodec extends Codec<LedStatus> {
     }
 
     return settings
-  }
-}
-
-export class HSVManualControl extends Codec {
-  filter(message: Message): boolean {
-    return message.messageID === 'hsv'
-  }
-
-  encode(payload: ManualHSVControl) {
-    const packet = new SmartBuffer()
-
-    packet.writeFloatLE(payload.hue)
-    packet.writeFloatLE(payload.saturation)
-    packet.writeFloatLE(payload.intensity)
-    packet.writeUInt8(payload.enable ? 1 : 0)
-
-    return packet.toBuffer()
-  }
-
-  decode(payload: Buffer): ManualHSVControl {
-    const reader = SmartBuffer.fromBuffer(payload)
-
-    return {
-      hue: reader.readFloatLE(),
-      saturation: reader.readFloatLE(),
-      intensity: reader.readFloatLE(),
-      enable: reader.readUInt8() === 1 ? true : false,
-    }
   }
 }
 
@@ -532,12 +503,11 @@ export const customCodecs = [
   new QueueDepthCodec(),
   new MotorDataCodec(),
   new MotionDataCodec(),
-  new TargetPositionCodec(),
+  new PositionCodec(),
   new SupervisorInfoCodec(),
   new InboundMotionCodec(),
   new InboundFadeCodec(),
   new LEDCodec(),
-  new HSVManualControl(),
   new RGBSettingsCodec(),
   new PowerCalibrationCodec(),
 ]
