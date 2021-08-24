@@ -11,8 +11,8 @@
 
 /* ----- Defines ------------------------------------------------------------ */
 
-PowerCalibration_t power_trims;
-LedSettings_t rgb_led_settings;
+PowerCalibration_t power_trims = { 0 };
+LedSettings_t rgb_led_settings = { 0 };
 
 float z_rotation = 0;
 

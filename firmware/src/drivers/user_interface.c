@@ -58,10 +58,6 @@ BuildInfo_t      fw_info;
 
 FanData_t  fan_stats;
 
-uint8_t fan_manual_setpoint = 0;
-uint8_t fan_manual_enable   = 0;
-
-
 TempData_t temp_sensors;
 
 SystemStates_t sys_states;
@@ -73,17 +69,15 @@ MotorData_t motion_servo[4];
 float external_servo_angle_target;
 #else
 MotorData_t  motion_servo[3];
-
 #endif
 
 Movement_t       motion_inbound;
 CartesianPoint_t current_position;    //global position of end effector in cartesian space
 CartesianPoint_t target_position;
 
-LedState_t    rgb_led_drive;
-LedControl_t  rgb_manual_control;
-Fade_t        light_fade_inbound;
-
+LedState_t rgb_led_drive;
+LedState_t rgb_manual_control;
+Fade_t     light_fade_inbound;
 
 char device_nickname[16] = "Zaphod Beeblebot";
 char reset_cause[20]     = "No Reset Cause";
@@ -107,35 +101,30 @@ eui_message_t ui_variables[] = {
 //        EUI_CUSTOM( "curve", fan_curve ),
         EUI_CUSTOM( "temp", temp_sensors ),
 
-        EUI_UINT8( "fan_man_speed", fan_manual_setpoint ),
-        EUI_UINT8( "fan_manual_en", fan_manual_enable ),
+        // UI requests a change of operating mode
+        EUI_UINT8( "req_mode", mode_request ),
 
         // motion related information
-        EUI_CUSTOM_RO( "queue", queue_data ),
-
         EUI_CUSTOM_RO( "moStat", motion_global ),
         EUI_CUSTOM_RO( "servo", motion_servo ),
+        EUI_CUSTOM( "tpos", target_position ),
+        EUI_CUSTOM_RO( "cpos", current_position ),
 
-//        EUI_CUSTOM( "pwr_cal", power_trims ),
+#ifdef EXPANSION_SERVO
+    EUI_FLOAT( "exp_ang", external_servo_angle_target),
+#endif
+
         EUI_CUSTOM_RO( "rgb", rgb_led_drive ),
-        EUI_CUSTOM( "hsv", rgb_manual_control ),
-//        EUI_CUSTOM( "ledset", rgb_led_settings ),
+        EUI_CUSTOM( "manual_led", rgb_manual_control ),
 
         //inbound movement buffer and 'add to queue' callback
         EUI_CUSTOM( "inlt", light_fade_inbound ),
         EUI_CUSTOM( "inmv", motion_inbound ),
-
         EUI_FUNC( "stmv", execute_motion_queue ),
         EUI_FUNC( "clmv", clear_all_queue ),
         EUI_FUNC( "sync", sync_begin_queues ),
         EUI_UINT16( "syncid", sync_id_val ),
-
-        EUI_INT32_ARRAY( "tpos", target_position ),
-        EUI_INT32_ARRAY_RO( "cpos", current_position ),
-
-#ifdef EXPANSION_SERVO
-        EUI_FLOAT( "exp_ang", external_servo_angle_target),
-#endif
+        EUI_CUSTOM_RO( "queue", queue_data ),
 
         // Event trigger callbacks
         EUI_FUNC( "estop", emergency_stop_cb ),
@@ -143,11 +132,11 @@ eui_message_t ui_variables[] = {
         EUI_FUNC( "disarm", stop_mech_cb ),
         EUI_FUNC( "home", home_mech_cb ),
 
-        // UI requests a change of operating mode
-        EUI_UINT8( "req_mode", mode_request ),
-
-//        EUI_FLOAT( "rotZ", z_rotation ),
         EUI_UINT32( "capture", camera_shutter_duration_ms ),
+
+    //        EUI_FLOAT( "rotZ", z_rotation ),
+//        EUI_CUSTOM( "ledset", rgb_led_settings ),
+//        EUI_CUSTOM( "pwr_cal", power_trims ),
 
 };
 
@@ -312,8 +301,7 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
             }
 #endif
 
-            if( ( strcmp( (char *)name_rx, "hsv" ) == 0 || strcmp( (char *)name_rx, "ledset" ) == 0 )
-                && header.data_len )
+            if( strcmp( (char *)name_rx, "manual_led" ) == 0 && header.data_len )
             {
                 rgb_manual_led_event();
             }
@@ -445,18 +433,6 @@ user_interface_set_kinematics_flips( int8_t x, int8_t y, int8_t z )
 }
 
 /* -------------------------------------------------------------------------- */
-
-PUBLIC bool
-user_interface_get_fan_manual_control()
-{
-    return ( fan_manual_enable > 0 );
-}
-
-PUBLIC uint8_t
-user_interface_get_fan_target( void )
-{
-    return fan_manual_setpoint;
-}
 
 PUBLIC void
 user_interface_set_fan_percentage( uint8_t percent )
@@ -623,11 +599,11 @@ user_interface_set_led_queue_depth( uint8_t utilisation )
 }
 
 PUBLIC void
-user_interface_get_led_manual( float *h, float *s, float *l, uint8_t *en )
+user_interface_get_led_manual( float *r, float *g, float *b, uint8_t *en )
 {
-    *h  = rgb_manual_control.hue;
-    *s  = rgb_manual_control.saturation;
-    *l  = rgb_manual_control.lightness;
+    *r  = rgb_manual_control.red;
+    *g  = rgb_manual_control.green;
+    *b  = rgb_manual_control.blue;
     *en = rgb_manual_control.enable;
 }
 
@@ -638,10 +614,10 @@ rgb_manual_led_event()
 
     if( colour_request )
     {
-        colour_request->colour.hue        = rgb_manual_control.hue;
-        colour_request->colour.saturation = rgb_manual_control.saturation;
-        colour_request->colour.intensity  = rgb_manual_control.lightness;
-        colour_request->enabled           = rgb_manual_control.enable;
+        colour_request->colour.red   = rgb_manual_control.red;
+        colour_request->colour.green = rgb_manual_control.green;
+        colour_request->colour.blue  = rgb_manual_control.blue;
+        colour_request->enabled      = rgb_manual_control.enable;
 
         eventPublish( (StateEvent *)colour_request );
     }
@@ -755,6 +731,7 @@ PRIVATE void sync_begin_queues( void )
 }
 
 /* -------------------------------------------------------------------------- */
+
 PRIVATE void
 trigger_camera_capture( void )
 {

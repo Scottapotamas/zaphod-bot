@@ -81,9 +81,6 @@ user_interface_set_kinematics_flips( int8_t x, int8_t y, int8_t z );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC bool
-user_interface_get_fan_manual_control( void );
-
 PUBLIC uint8_t
 user_interface_get_fan_target( void );
 
@@ -166,7 +163,7 @@ PUBLIC void
 user_interface_set_led_values( uint16_t red, uint16_t green, uint16_t blue );
 
 PUBLIC void
-user_interface_get_led_manual( float *h, float *s, float *l, uint8_t *en );
+user_interface_get_led_manual( float *r, float *g, float *b, uint8_t *en );
 
 PUBLIC void
 user_interface_set_led_queue_depth( uint8_t utilisation );

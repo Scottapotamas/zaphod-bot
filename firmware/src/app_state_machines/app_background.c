@@ -77,7 +77,6 @@ app_background( void )
 
         user_interface_set_cpu_load( hal_system_speed_get_load() );
         user_interface_set_cpu_clock( hal_system_speed_get_speed() );    // todo only update this value if it changes
-        user_interface_update_task_statistics();
 
         timer_ms_start( &adc_timer, BACKGROUND_ADC_AVG_POLL_MS );
     }

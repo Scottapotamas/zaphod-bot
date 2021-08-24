@@ -275,10 +275,10 @@ PRIVATE STATE AppTaskLed_active_manual( AppTaskLed *me, const StateEvent *e )
 
             if( lme )
             {
-                led_interpolator_manual_control_set( lme->colour.hue,
-                                                     lme->colour.saturation,
-                                                     lme->colour.intensity,
-                                                     lme->enabled );
+                led_interpolator_manual_control_set_rgb( lme->colour.red,
+                                                         lme->colour.green,
+                                                         lme->colour.blue,
+                                                         lme->enabled );
             }
         }
             return 0;

@@ -68,12 +68,6 @@ ArmButton HomeButton
 `
 
 const SystemController = () => {
-  const control_mode = useHardwareState(state => state.super.mode)
-
-  const x_position = useHardwareState(state => state.cpos[0]) / 1000
-  const y_position = useHardwareState(state => state.cpos[1]) / 1000
-  const z_position = useHardwareState(state => state.cpos[2]) / 1000
-
   return (
     <div>
       <IntervalRequester variables={['cpos']} interval={50} />
@@ -84,7 +78,11 @@ const SystemController = () => {
               <Statistics>
                 <Statistic
                   value={<SupervisorState />}
-                  label={<div>{control_mode} MODE</div>}
+                  label={
+                    <div>
+                      <Printer accessor={state => state.super.mode} /> MODE
+                    </div>
+                  }
                 />
               </Statistics>
             </Areas.RobotMode>
@@ -99,15 +97,21 @@ const SystemController = () => {
                 <Box>
                   <b>X</b>
                 </Box>
-                <Box>{x_position.toFixed(2)} mm</Box>
+                <Box>
+                  <Printer accessor={state => state.cpos.x} precision={2} /> mm
+                </Box>
                 <Box>
                   <b>Y</b>
                 </Box>
-                <Box>{y_position.toFixed(2)} mm</Box>
+                <Box>
+                  <Printer accessor={state => state.cpos.y} precision={2} /> mm
+                </Box>
                 <Box>
                   <b>Z</b>
                 </Box>
-                <Box>{z_position.toFixed(2)} mm</Box>
+                <Box>
+                  <Printer accessor={state => state.cpos.z} precision={2} /> mm
+                </Box>
               </Composition>
             </Areas.PositionOutput>
             <Areas.HomeButton>

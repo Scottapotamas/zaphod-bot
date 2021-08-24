@@ -169,21 +169,22 @@ led_interpolator_manual_override_release( void )
 }
 
 PUBLIC void
-led_interpolator_manual_control_set( float hue, float saturation, float intensity, bool enabled )
+led_interpolator_manual_control_set_rgb( float red, float green, float blue, bool enabled )
 {
     led_enable( enabled );    // Turn off the LED if the user isn't wanting it on
 
     GenericColour_t output_values = { 0.0f, 0.0f, 0.0f };
 
+    output_values.x = red / 255;
+    output_values.y = green / 255;
+    output_values.z = blue / 255;
+
     if( enabled )
     {
-        // Perform colour translation
-        hsi_to_rgb( hue, saturation, intensity,
-                    &output_values.x, &output_values.y, &output_values.z );
-
         // Set the LED channel values in RGB percentages [0.0f -> 1.0f]
         led_set( output_values.x, output_values.y, output_values.z );
     }
+
 }
 
 /* -------------------------------------------------------------------------- */
@@ -321,7 +322,7 @@ led_interpolator_process( void )
 
             STATE_TRANSITION_TEST
             // All the fun for this state is done one-shot when the setting event comes in
-            // See led_interpolator_manual_control_set() earlier in this file
+            // See led_interpolator_manual_control_set_rgb() earlier in this file
             if( !planner.manual_mode )
             {
                 STATE_NEXT( ANIMATION_OFF );
