@@ -10,8 +10,62 @@ import {
   useHardwareState,
 } from '@electricui/components-core'
 
+import {
+  ChartContainer,
+  LineChart,
+  RealTimeDomain,
+  TimeAxis,
+  TimeSlicedLineChart,
+  RealTimeSlicingDomain,
+  HorizontalAxis,
+  VerticalAxis,
+  Fog,
+} from '@electricui/components-desktop-charts'
+
+import { MessageDataSource } from '@electricui/core-timeseries'
+
 import { Composition, Box } from 'atomic-layout'
 import React from 'react'
+import { Printer } from '@electricui/components-desktop'
+
+import { RobotSummary } from './Views/RobotSummary'
+
+const effectorPositionDataSource = new MessageDataSource('cpos')
+
+const PositionVisualiser = () => {
+  return (
+    <div>
+      <ChartContainer>
+        <TimeSlicedLineChart
+          dataSource={effectorPositionDataSource}
+          xAccessor={event => event.x}
+          yAccessor={event => event.y}
+        />
+
+        <RealTimeSlicingDomain
+          window={500}
+          xMin={-200}
+          xMax={200}
+          yMin={-200}
+          yMax={200}
+        />
+        <HorizontalAxis label="X" />
+        <VerticalAxis label="Y" />
+        <Fog color="#fff" />
+      </ChartContainer>
+      <ChartContainer height={300}>
+        <LineChart
+          dataSource={effectorPositionDataSource}
+          accessor={state => state.z}
+          maxItems={10000}
+        />
+        <RealTimeDomain window={1000} yMin={0} yMax={300} />
+        <TimeAxis />
+        <VerticalAxis label="Z" />
+      </ChartContainer>
+    </div>
+  )
+}
 
 const SupervisorState = () => {
   const supervisor_state = useHardwareState(state => state.super.supervisor)
@@ -63,7 +117,7 @@ const ArmControlButton = () => {
 }
 
 const systemOverviewAreas = `
-RobotMode PositionOutput
+RobotMode RobotMode
 ArmButton HomeButton
 `
 
@@ -75,45 +129,10 @@ const SystemController = () => {
         {Areas => (
           <>
             <Areas.RobotMode>
-              <Statistics>
-                <Statistic
-                  value={<SupervisorState />}
-                  label={
-                    <div>
-                      <Printer accessor={state => state.super.mode} /> MODE
-                    </div>
-                  }
-                />
-              </Statistics>
+              <RobotSummary />
+              
             </Areas.RobotMode>
-            <Areas.PositionOutput>
-              <Composition
-                templateCols="1fr 3fr"
-                placeItems="center end"
-                placeContent="space-around"
-                gap={10}
-                paddingHorizontal={40}
-              >
-                <Box>
-                  <b>X</b>
-                </Box>
-                <Box>
-                  <Printer accessor={state => state.cpos.x} precision={2} /> mm
-                </Box>
-                <Box>
-                  <b>Y</b>
-                </Box>
-                <Box>
-                  <Printer accessor={state => state.cpos.y} precision={2} /> mm
-                </Box>
-                <Box>
-                  <b>Z</b>
-                </Box>
-                <Box>
-                  <Printer accessor={state => state.cpos.z} precision={2} /> mm
-                </Box>
-              </Composition>
-            </Areas.PositionOutput>
+           
             <Areas.HomeButton>
               <Button fill large intent="success" callback="home">
                 Home

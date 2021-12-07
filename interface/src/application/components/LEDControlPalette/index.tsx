@@ -1,7 +1,11 @@
 import React from 'react'
 
-import { Slider, Switch } from '@electricui/components-desktop-blueprint'
-import { ColorPalette } from '@electricui/components-desktop'
+import { Switch } from '@electricui/components-desktop-blueprint'
+import {
+  ColorPalette,
+  HueSlider,
+  AlphaSlider,
+} from '@electricui/components-desktop'
 
 const LEDControlPalette = () => {
   return (
@@ -21,6 +25,17 @@ const LEDControlPalette = () => {
       </div>
 
       <ColorPalette
+        red={state => state.manual_led.red}
+        green={state => state.manual_led.green}
+        blue={state => state.manual_led.blue}
+        writer={(state, color) => {
+          state.manual_led.red = color.r
+          state.manual_led.green = color.g
+          state.manual_led.blue = color.b
+        }}
+      />
+      <HueSlider
+        // vertical
         red={state => state.manual_led.red}
         green={state => state.manual_led.green}
         blue={state => state.manual_led.blue}

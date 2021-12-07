@@ -183,7 +183,7 @@ const ManualJogPalette = () => {
             <MultiSlider
               onChange={values => setJogDistance(values[0])}
               min={0}
-              max={10}
+              max={25}
               stepSize={1}
               vertical
               labelRenderer={val => `${val}mm`}
@@ -198,7 +198,7 @@ const ManualJogPalette = () => {
               fill
               intent="success"
               min={0}
-              max={10}
+              max={25}
               stepSize={1}
             />
           </DistanceArea>

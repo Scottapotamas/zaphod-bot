@@ -6,7 +6,7 @@ import {
   useHardwareState,
 } from '@electricui/components-core'
 
-import { SceneController } from './SceneControl/SceneController'
+// import { SceneController } from './SceneControl/SceneController'
 
 import { Icon, Intent } from '@blueprintjs/core'
 
@@ -79,7 +79,8 @@ const EventPalette = () => {
     <>
       <IntervalRequester interval={100} variables={['rgb']} />
       <h3>Load Event Sequence from File</h3>
-      <SceneController key={sceneFilePath} />
+      {/* <SceneController key={sceneFilePath} /> */}
+      <p>This has been removed during template upgrade!!!</p>
       <CurrentRGB />
       <QueueText />
       <LEDQueueText />

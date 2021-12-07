@@ -7,7 +7,11 @@ import {
   LineChart,
   RealTimeDomain,
   TimeAxis,
+  TimeSlicedLineChart,
+  RealTimeSlicingDomain,
+  HorizontalAxis,
   VerticalAxis,
+  Fog,
 } from '@electricui/components-desktop-charts'
 
 import { Statistic, Statistics } from '@electricui/components-desktop-blueprint'
@@ -18,9 +22,7 @@ import {
   useHardwareState,
 } from '@electricui/components-core'
 
-import {
-  MessageDataSource,
-} from '@electricui/core-timeseries'
+import { MessageDataSource } from '@electricui/core-timeseries'
 import { useDarkMode } from '@electricui/components-desktop'
 import { ServoInfo } from '../../../../typedState'
 
@@ -124,20 +126,18 @@ const ServoStats = (props: MotorData) => {
 
   return (
     <React.Fragment>
-      {/* <Tooltip
-        content={operation_mode}
-        intent={servo_colour}
-        position={Position.LEFT}
-      > */}
       <Callout intent={servo_colour} icon={status_icon}>
         <Composition
-          templateCols="1fr 1fr 1fr"
+          templateCols="1fr 1fr 1fr 1fr"
           paddingHorizontal={20}
           gap={30}
           placeItems="center end"
           justifyContent="space-around"
           minWidth="280px"
         >
+          <Box>
+            <h4 className="bp3-heading">{operation_mode}</h4>
+          </Box>
           <Box>
             <h4 className="bp3-heading">{props.servo.feedback.toFixed(1)}%</h4>
           </Box>
@@ -151,7 +151,6 @@ const ServoStats = (props: MotorData) => {
           </Box>
         </Composition>
       </Callout>
-      {/* </Tooltip> */}
     </React.Fragment>
   )
 }
@@ -221,7 +220,7 @@ export const ServoDetails = () => {
               maxItems={10000}
               color={servoColours[index]}
               key={`angle_${index}`}
-              lineWidth={3}
+              // lineWidth={3}
             />
           ))}
           <RealTimeDomain
@@ -242,7 +241,7 @@ export const ServoDetails = () => {
                 maxItems={10000}
                 color={servoColours[index]}
                 key={`torque_${index}`}
-                lineWidth={3}
+                // lineWidth={3}
               />
             ))}
             <RealTimeDomain
@@ -264,7 +263,7 @@ export const ServoDetails = () => {
                 maxItems={10000}
                 color={servoColours[index]}
                 key={`power_${index}`}
-                lineWidth={3}
+                // lineWidth={3}
               />
             ))}
             <RealTimeDomain
