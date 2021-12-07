@@ -49,6 +49,62 @@ const CPUClockText = () => {
   return <div>Error getting CPU clockspeed</div>
 }
 
+const BuildInfoTable = () => {
+  return <HTMLTable striped style={{ minWidth: '100%', width: '300px' }}>
+  <tbody>
+    <tr>
+      <td>
+        <b>Name</b>
+      </td>
+      <td>
+        <Printer accessor={state => state.fwb.name} />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Branch</b>
+      </td>
+      <td>
+        <Printer accessor={state => state.fwb.branch} />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Info</b>
+      </td>
+      <td>
+        <Printer accessor={state => state.fwb.info} />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Type</b>
+      </td>
+      <td>
+        <Printer accessor={state => state.fwb.type} />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Date</b>
+      </td>
+      <td>
+        <Printer accessor={state => state.fwb.date} />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <b>Time</b>
+      </td>
+      <td>
+        <Printer accessor={state => state.fwb.time} />
+      </td>
+    </tr>
+  </tbody>
+</HTMLTable>
+}
+
+
 const SystemInfoLayout = `
 Stats Build
 `
@@ -59,7 +115,7 @@ export const InfoBlock = () => {
   )
 
   return (
-    <Composition areas={SystemInfoLayout} gap={10}>
+    <Composition areas={SystemInfoLayout} gap={10} justifyItems="center center" style={{backgroundColor: 'blue', width: '100%'}}>
       {Areas => (
         <React.Fragment>
           <Areas.Stats>
@@ -75,58 +131,7 @@ export const InfoBlock = () => {
           </Areas.Stats>
 
           <Areas.Build>
-            <HTMLTable striped style={{ minWidth: '100%', width: '300px' }}>
-              <tbody>
-                <tr>
-                  <td>
-                    <b>Name</b>
-                  </td>
-                  <td>
-                    <Printer accessor={state => state.fwb.name} />
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <b>Branch</b>
-                  </td>
-                  <td>
-                    <Printer accessor={state => state.fwb.branch} />
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <b>Info</b>
-                  </td>
-                  <td>
-                    <Printer accessor={state => state.fwb.info} />
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <b>Type</b>
-                  </td>
-                  <td>
-                    <Printer accessor={state => state.fwb.type} />
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <b>Date</b>
-                  </td>
-                  <td>
-                    <Printer accessor={state => state.fwb.date} />
-                  </td>
-                </tr>
-                <tr>
-                  <td>
-                    <b>Time</b>
-                  </td>
-                  <td>
-                    <Printer accessor={state => state.fwb.time} />
-                  </td>
-                </tr>
-              </tbody>
-            </HTMLTable>
+            <BuildInfoTable/>
           </Areas.Build>
         </React.Fragment>
       )}

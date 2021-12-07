@@ -49,6 +49,7 @@ const TrackPalette = () => {
               max={100}
               stepSize={0.1}
               labelStepSize={25}
+              throttleDuration={10}
               writer={(state, values) => {
                 state.tpos = {
                   x: values.target_x,
@@ -67,6 +68,7 @@ const TrackPalette = () => {
               max={100}
               stepSize={0.1}
               labelStepSize={25}
+              throttleDuration={10}
               writer={(state, values) => {
                 state.tpos = {
                   x: state.tpos.x,
@@ -87,6 +89,7 @@ const TrackPalette = () => {
               max={100}
               stepSize={0.1}
               labelStepSize={25}
+              throttleDuration={10}
               writer={(state, values) => {
                 state.tpos = {
                   x: state.tpos.x,

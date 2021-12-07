@@ -5,64 +5,10 @@ import React from 'react'
 
 import { Button } from '@electricui/components-desktop-blueprint'
 import { CONTROL_MODES } from '../../../typedState'
-// import EventPalette from './EventPalette'
-import ManualJogPalette from './ManualJogPalette'
-import TrackPalette from './TrackPalette'
+import ManualJogPalette from '../ControlPalette/ManualJogPalette'
+import TrackPalette from '../ControlPalette/TrackPalette'
+import ModeSelection from '../ControlPalette/ModeSelection'
 
-const ModeSelectButtons = () => {
-  const control_mode = useHardwareState(state => state.super.mode)
-
-  return (
-    <React.Fragment>
-      <ButtonGroup fill>
-        <Button
-          minimal
-          large
-          icon="move"
-          writer={state => {
-            state.req_mode = 1
-          }}
-          active={control_mode == CONTROL_MODES[CONTROL_MODES.MANUAL]}
-        >
-          Manual Jog
-        </Button>
-        <Button
-          minimal
-          large
-          icon="flow-end"
-          writer={state => {
-            state.req_mode = 3
-          }}
-          active={control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]}
-        >
-          Track
-        </Button>
-        <Button
-          minimal
-          large
-          icon="projects"
-          writer={state => {
-            state.req_mode = 4
-          }}
-          active={control_mode == CONTROL_MODES[CONTROL_MODES.DEMO]}
-        >
-          Demo
-        </Button>
-        <Button
-          minimal
-          large
-          icon="document-open"
-          writer={state => {
-            state.req_mode = 2
-          }}
-          active={control_mode == CONTROL_MODES[CONTROL_MODES.EVENT]}
-        >
-          Run Program
-        </Button>
-      </ButtonGroup>
-    </React.Fragment>
-  )
-}
 
 const ControlSurfaceFromMode = () => {
   const control_mode = useHardwareState(state => state.super.mode)
@@ -101,7 +47,7 @@ const ControlSurfaceFromMode = () => {
 const ModeSelector = () => {
   return (
     <div style={{ minHeight: '300px' }}>
-      <ModeSelectButtons />
+      <ModeSelection />
       <br />
       <ControlSurfaceFromMode />
     </div>

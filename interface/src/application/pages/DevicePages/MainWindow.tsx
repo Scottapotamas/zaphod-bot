@@ -4,10 +4,10 @@ import { RouteComponentProps } from '@reach/router'
 import { Card } from '@blueprintjs/core'
 import { Composition, Box, Only, useBreakpointChange } from 'atomic-layout'
 
-import ModeSelector from './ControlPalette/ModeSelector'
+import ModeSelector from './Controls/ModeSelector'
 import SystemController from './SystemController'
 import DataViews from './DataViews'
-import { ThreeD } from './DataViews/ThreeD'
+// import { ThreeD } from './DataViews/ThreeD'
 
 import LightingPalette from '../../components/LEDControlPalette'
 
@@ -15,7 +15,7 @@ const VisualisationPanel = () => (
   <>
     <Only from={{ minWidth: 1800 }}>
       <Composition templateCols="1fr 600px">
-        <ThreeD />
+        {/* <ThreeD /> */}
         <DataViews />
       </Composition>
     </Only>
