@@ -8,6 +8,8 @@ import {
   QueryableMessageIDProvider,
 } from '@electricui/core-timeseries'
 
+import './styles.css'
+
 const root = document.createElement('div')
 document.body.appendChild(root)
 

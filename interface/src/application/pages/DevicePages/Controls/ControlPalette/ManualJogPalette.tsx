@@ -137,9 +137,8 @@ const ManualJogPalette = () => {
   return (
     <Composition
       areas={controllerAreas}
-      gap={30}
-      padding={15}
-      templateCols="1fr 1fr 2fr"
+      gap={40}
+      templateCols="1fr 1fr auto"
       alignItems="center"
     >
       {({ SpeedArea, DistanceArea, KeypadArea }) => (
@@ -152,7 +151,7 @@ const ManualJogPalette = () => {
               min={-0.75}
               max={1}
               stepSize={0.25}
-              vertical
+              
               labelRenderer={val => `${Math.round((val + 1) * 100)}%`}
               labelStepSize={0.5}
               showTrackFill={jog_speed !== 0}
@@ -185,7 +184,7 @@ const ManualJogPalette = () => {
               min={0}
               max={25}
               stepSize={1}
-              vertical
+              
               labelRenderer={val => `${val}mm`}
               labelStepSize={5}
             >

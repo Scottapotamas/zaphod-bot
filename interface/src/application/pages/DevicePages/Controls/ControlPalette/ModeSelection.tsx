@@ -1,7 +1,7 @@
 import React from 'react'
 
 import { Dropdown } from '@electricui/components-desktop-blueprint'
-import { CONTROL_MODES } from '../../../typedState'
+import { CONTROL_MODES } from '../../../../typedState'
 import { Icon, Colors, NonIdealState } from '@blueprintjs/core'
 import { useHardwareState } from '@electricui/components-core'
 
