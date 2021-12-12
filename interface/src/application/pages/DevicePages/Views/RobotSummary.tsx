@@ -55,7 +55,7 @@ export const RobotSummary = (props: RobotSummaryProps) => {
           <React.Fragment>
             <Areas.State>
               <Tag
-                minimal
+                
                 round
                 fill
                 intent={Intent.NONE}
@@ -77,10 +77,9 @@ export const RobotSummary = (props: RobotSummaryProps) => {
                 icon={IconNames.ZOOM_TO_FIT}
                 style={{ height: '100%' }}
               >
-                                <div style={{ textAlign: 'center' }}>
-                                <Printer accessor={state => state.super.mode} /> MODE
+                <div style={{ textAlign: 'center' }}>
+                  <Printer accessor={state => state.super.mode} /> MODE
                 </div>
-
               </Tag>
             </Areas.Mode>
 
