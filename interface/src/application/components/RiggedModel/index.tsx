@@ -9,6 +9,13 @@ import {
 } from '@electricui/components-desktop-three'
 import { useHardwareState } from '@electricui/components-core'
 
+import {
+  Backdrop,
+  ContactShadows,
+  Stage,
+  PresentationControls,
+  Environment as DreiEnvironment
+} from '@react-three/drei'
 
 import { useFrame, useThree } from '@react-three/fiber'
 import { Mesh, Group } from 'three'
@@ -54,6 +61,12 @@ function CameraViewTarget() {
   //   state.camera.lookAt(0, 50, 0)
   // })
 
+  // const camera = useThree(state => state.camera)
+
+  // useEffect(() => {
+  //   camera.lookAt(0, 50, 0)
+  // }, [])
+
   return (
     <></>
     //   <mesh>
@@ -64,7 +77,7 @@ function CameraViewTarget() {
 }
 
 interface ForearmHelperProps {
-  elbowPosition: number[],
+  elbowPosition: number[]
   wristPosition: number[]
 }
 
@@ -72,36 +85,43 @@ function ForearmHelper(props: ForearmHelperProps) {
   const ref = useRef<Group>(null!)
   //   console.log('Forearm at:', props.elbowPosition, 'looking at:', props.wristPosition)
 
-  // useFrame(state => {
-  //   if (ref && ref.current) {
-  //     ref.current.lookAt(
-  //       props.wristPosition[0],
-  //       props.wristPosition[1],
-  //       props.wristPosition[2],
-  //     )
-  //   }
-  // })
+  useEffect(() => {
+    if (ref && ref.current) {
+      ref.current.lookAt(
+        props.wristPosition[0],
+        props.wristPosition[1],
+        props.wristPosition[2],
+      )
+    }
+  }, [])
 
   return (
-    <group ref={ref} position={[props.elbowPosition[0], props.elbowPosition[1], props.elbowPosition[2]]}>
+    <group
+      ref={ref}
+      position={[
+        props.elbowPosition[0],
+        props.elbowPosition[1],
+        props.elbowPosition[2],
+      ]}
+    >
       {/* Highlight the shoulder joint with red */}
-      <mesh>
+      {/* <mesh>
         <sphereBufferGeometry attach="geometry" args={[7, 20, 20]} />
         <meshStandardMaterial attach="material" color="red" roughness={0.6} />
-      </mesh>
+      </mesh> */}
 
-      {/* <GLTF
+      <GLTF
         asset={DeltaForearmModel}
         position={[0, 0, -43]}
         rotation={[0, Math.PI / 1, 0]}
-      /> */}
+      />
     </group>
   )
 }
 
 interface ArmAssemblyProps {
-  shoulderAngle: number,
-  wristCentroid: number[],
+  shoulderAngle: number
+  wristCentroid: number[]
 }
 
 function ArmAssembly(props: ArmAssemblyProps) {
@@ -115,12 +135,6 @@ function ArmAssembly(props: ArmAssemblyProps) {
         position={[0, 0, -0.5]}
         rotation={[Math.PI / 2, (-27.75 * Math.PI) / 180.0, Math.PI]}
       />
-
-<mesh>
-        <sphereBufferGeometry attach="geometry" args={[10, 20, 20]} />
-        <meshStandardMaterial attach="material" color="magenta" roughness={0.6} />
-      </mesh>
-
 
       {/* TODO: Find actual 'effector' mounting location offset */}
       <ForearmHelper
@@ -144,7 +158,6 @@ function ArmAssembly(props: ArmAssemblyProps) {
 }
 
 const RiggedModel = () => {
-
   const xPos = useHardwareState(state => state.cpos.x)
   const yPos = useHardwareState(state => state.cpos.y)
   const zPos = useHardwareState(state => state.cpos.z)
@@ -160,28 +173,53 @@ const RiggedModel = () => {
   // console.log('Arm kinematics:', arm_angles)
 
   return (
-    <div >
-      {/* style={{ height: 600, width: 900 }} */}
+    <div style={{ height: '100%', width: '100%' }}>
       <Environment
         camera={{
-          fov: 60,
+          fov: 80,
           position: [0, 150, 500],
-          
-          // debug pos
-          //   position: [0, 600, 0],
-          //   position: [-300, 300, 4],  // aligned with an arm
-          //   position: [100, 100, 150], // aligned with an arm
+          far: 4000,
         }}
         
+        // shadows={true}
       >
         <OrbitControls />
         <CameraViewTarget />
         <AxisLines />
 
-        <ambientLight intensity={0.2} />
-        <directionalLight intensity={0.4} position={[0, 100, 0]} color="#FFF" />
+          <ambientLight intensity={0.2} />
+          <directionalLight
+            position={[-100, 0, -50]}
+            intensity={1}
+            color="red"
+          />
+          <directionalLight
+            position={[-10, -20, -50]}
+            intensity={0.3}
+            color="#0c8cbf"
+          />
 
-        <group position={[0, -50, 0]}>
+          <spotLight
+            position={[400, 20, 400]}
+            intensity={2.5}
+            penumbra={1}
+            angle={0.3}
+            castShadow
+            color="#0c8cbf"
+          />
+
+          {/* <fog attach="fog" args={['#101010', 600, 3000]} /> */}
+
+          <Backdrop
+            receiveShadow
+            floor={2}
+            position={[0, 0, -500]}
+            scale={[6000, 2000, 800]}
+          >
+            <meshStandardMaterial color="#353540" envMapIntensity={0.3} />
+          </Backdrop>
+
+        <group position={[0, 140, 0]}>
           {/* Base positioned such that threeJS '[0,0,0' is aligned line with the servo shaft center */}
           <GLTF asset={DeltaBaseModel} position={[2.5, -135, -5.5]} />
 
@@ -208,37 +246,19 @@ const RiggedModel = () => {
             </mesh>
           </group>
 
-           <group rotation={[0, 0 * ((2 * Math.PI) / 3), 0]}>
-              <ArmAssembly
-                shoulderAngle={arm_angles[0]}
-                wristCentroid={[effector_position.x, effector_position.z + 190, effector_position.y]}
-              />
-            </group> 
-
-            <group rotation={[0, 1 * ((2 * Math.PI) / 3), 0]}>
-              <ArmAssembly
-                shoulderAngle={arm_angles[1]}
-                wristCentroid={[effector_position.x, effector_position.z + 190, effector_position.y]}
-              />
-            </group>
-
-            <group rotation={[0, 2 * ((2 * Math.PI) / 3), 0]}>
-              <ArmAssembly
-                shoulderAngle={arm_angles[2]}
-                wristCentroid={[effector_position.x, effector_position.z + 190, effector_position.y]}
-              />
-            </group>
-
-
           {/* Arms */}
-          {/* {Array.from(new Array(arm_count)).map((_, arm_index) => (
+          {Array.from(new Array(arm_count)).map((_, arm_index) => (
             <group rotation={[0, arm_index * ((2 * Math.PI) / 3), 0]}>
               <ArmAssembly
                 shoulderAngle={arm_angles[arm_index]}
-                wristCentroid={[effector_position.x, effector_position.z + 190, effector_position.y]}
+                wristCentroid={[
+                  effector_position.x,
+                  effector_position.z + 190 + 140,
+                  effector_position.y,
+                ]}
               />
-            </group> 
-          ))}*/}
+            </group>
+          ))}
         </group>
       </Environment>
     </div>
