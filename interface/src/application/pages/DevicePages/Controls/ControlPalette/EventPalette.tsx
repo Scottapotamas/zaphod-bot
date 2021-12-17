@@ -10,6 +10,8 @@ import {
 
 import { Icon, Intent } from '@blueprintjs/core'
 
+import { SendToolpath } from './SendHardcodedToolpath'
+
 const QueueText = () => {
   const queue_depth = useHardwareState(state => state.queue.movements)
   const is_moving = useHardwareState(state => state.moStat.pathing_state) == 1
@@ -84,6 +86,7 @@ const EventPalette = () => {
       <CurrentRGB />
       <QueueText />
       <LEDQueueText />
+      <SendToolpath />
     </>
   )
 }
