@@ -1,0 +1,15 @@
+.landing {
+  height: 100vh;
+  background-size: cover;
+  background-position: left center;
+}
+
+.landing-background {
+  background-image: url(./delta-light.png);
+}
+
+@media (prefers-color-scheme: dark) {
+  .landing-background {
+    background-image: url(./delta-dark.png);
+  }
+}

@@ -5,38 +5,12 @@ import deltaDark from './delta-dark.png'
 
 import { useDarkMode } from '@electricui/components-desktop'
 
-export const Landing = () => {
-  const isDark = useDarkMode()
+import './background.css'
 
-  if (isDark) {
-    return (
-      <img
-        src={deltaDark}
-        style={{
-          maxHeight: '100%',
-          maxWidth: '100%',
-          top: '0',
-          bottom: '0',
-          position: 'absolute',
-          margin: 'auto',
-          overflow: 'hidden',
-        }}
-      />
-    )
-  }
+interface LandingProps {
+  children: React.ReactNode
+}
 
-  return (
-    <img
-      src={deltaLight}
-      style={{
-        maxHeight: '100%',
-        maxWidth: '100%',
-        top: '0',
-        bottom: '0',
-        position: 'absolute',
-        margin: 'auto',
-        overflow: 'hidden',
-      }}
-    />
-  )
+export const Landing = (props: LandingProps) => {
+  return <div className="landing landing-background">{props.children}</div>
 }

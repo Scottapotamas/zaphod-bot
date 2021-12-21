@@ -20,25 +20,21 @@ const CardInternals = () => {
 
 export const ConnectionPage = (props: RouteComponentProps) => {
   return (
-    <React.Fragment>
-      <div style={{ height: '100vh' }}>
-        <Landing />
-
-        <Connections
-          preConnect={deviceID => navigate(`/device_loading/${deviceID}`)}
-          postHandshake={deviceID => navigate(`/devices/${deviceID}`)}
-          onFailure={(deviceID, err) => {
-            console.log('Connections component got error', err, deviceID)
-            navigate(`/`)
-          }}
-          style={{
-            minHeight: '40vh',
-            paddingTop: '15vh',
-            marginRight: '15vw',
-          }}
-          internalCardComponent={<CardInternals />}
-        />
-      </div>
-    </React.Fragment>
+    <Landing>
+      <Connections
+        preConnect={deviceID => navigate(`/device_loading/${deviceID}`)}
+        postHandshake={deviceID => navigate(`/devices/${deviceID}`)}
+        onFailure={(deviceID, err) => {
+          console.log('Connections component got error', err, deviceID)
+          navigate(`/`)
+        }}
+        style={{
+          minHeight: '40vh',
+          paddingTop: '15vh',
+          marginRight: '15vw',
+        }}
+        internalCardComponent={<CardInternals />}
+      />
+    </Landing>
   )
 }
