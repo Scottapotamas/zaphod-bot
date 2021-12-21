@@ -203,6 +203,8 @@ export class ToolpathGenerator {
       needed--
     }
 
+    console.log(`work queue`,workQueue)
+
     return workQueue
   }
 
@@ -321,7 +323,6 @@ export class ToolpathGenerator {
         });
 
       };
-
 
       // Reset the worker before we start
       await worker.reset();

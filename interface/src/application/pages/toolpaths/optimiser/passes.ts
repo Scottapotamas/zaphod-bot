@@ -245,6 +245,8 @@ export async function optimise(
 
   let method = 'blender order'
 
+  console.log(248)
+
   // If an orderingCache is provided, start with that, otherwise do a nearest neighbour run first.
   if (orderingCache) {
     // Copy the array, might not be necessary since this is on the other end of an IPC bridge and it's just been deserialised.
@@ -323,6 +325,7 @@ export async function optimise(
 
     const nnCost = sparseToCost(ordering, settings)
 
+    console.log(328)
     // console.log(
     //   `randomCost ${costRef.cost} -> nnCost ${nnCost} (${
     //     nnCost > costRef.cost ? "ditching NN" : "using NN"
