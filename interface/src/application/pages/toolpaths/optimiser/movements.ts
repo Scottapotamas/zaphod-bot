@@ -306,6 +306,8 @@ export function isPoint(movement: Movement): movement is Point {
   return movement.type === 'point'
 }
 
+const zeroVector = new Vector3(0, 0, 0)
+
 /**
  * A `Point` is a fixed duration stay at a certain point.
  */
@@ -358,6 +360,10 @@ export class Point extends Movement {
   }
 
   public getStart = () => {
+    if (this.duration > 0) {
+      return this.pos
+    }
+
     // Start half of one millisecond away from our desired point, at max speed this is 0.15mm away
     return this.pos.clone().sub(
       this.getDesiredEntryVelocity()
@@ -367,6 +373,10 @@ export class Point extends Movement {
   }
 
   public getEnd = () => {
+    if (this.duration > 0) {
+      return this.pos
+    }
+
     // End half of one millisecond away from our desired point, at max speed this is 0.15mm away
     return this.pos.clone().add(
       this.getDesiredEntryVelocity()
@@ -376,11 +386,19 @@ export class Point extends Movement {
   }
 
   public getDesiredEntryVelocity = () => {
-    return this.velocity.normalize().multiplyScalar(this.maxSpeed)
+    if (this.duration > 0) {
+      return zeroVector
+    }
+
+    return this.velocity.normalize().multiplyScalar(this.maxSpeed * 0.01)
   }
 
   public getExpectedExitVelocity = () => {
-    return this.velocity.normalize().multiplyScalar(this.maxSpeed)
+    if (this.duration > 0) {
+      return zeroVector
+    }
+
+    return this.velocity.normalize().multiplyScalar(this.maxSpeed * 0.01)
   }
 
   public generateToolpath = (id: number) => {

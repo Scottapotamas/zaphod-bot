@@ -57,14 +57,20 @@ function SceneLengthSlider() {
 function Timeline() {
   const selectedMinFrame = useStore(state => state.selectedMinFrame) ?? 1
   const selectedMaxFrame = useStore(state => state.selectedMaxFrame) ?? 1
-
-  const [localViewportFrame, setLocalViewportFrame] = useState(
-    getSetting(state => state.viewportFrame),
-  )
+  const viewportFrame = useStore(state => state.viewportFrame) ?? 1
 
   const updateViewportFrame = useCallback(frameNumber => {
     setSetting(state => {
       state.viewportFrame = Math.min(
+        selectedMaxFrame,
+        Math.max(selectedMinFrame, frameNumber),
+      )
+    })
+  }, [])
+
+  const updatePriorityFrame = useCallback(frameNumber => {
+    setSetting(state => {
+      state.priorityFrame = Math.min(
         selectedMaxFrame,
         Math.max(selectedMinFrame, frameNumber),
       )
@@ -77,12 +83,9 @@ function Timeline() {
         labelStepSize={20}
         min={selectedMinFrame}
         max={selectedMaxFrame}
-        value={Math.min(
-          selectedMaxFrame,
-          Math.max(selectedMinFrame, localViewportFrame),
-        )}
-        onChange={setLocalViewportFrame}
-        onRelease={updateViewportFrame}
+        value={viewportFrame}
+        onChange={updateViewportFrame}
+        onRelease={updatePriorityFrame}
         stepSize={1}
       />
     </div>

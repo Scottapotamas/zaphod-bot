@@ -39,8 +39,6 @@ export function Optimiser() {
   const currentlyRenderingFrame = useStore(
     state => state.currentlyRenderingFrame,
   )
-  const viewportFrame = useStore(state => state.viewportFrame)
-
   const persistentOptimiser = useRef<ToolpathGenerator | null>(null)
 
   /**
@@ -86,7 +84,7 @@ export function Optimiser() {
   }, [])
   useEffect(() => {
     return useStore.subscribe(
-      state => state.viewportFrame,
+      state => state.priorityFrame,
       frameNumber => {
         getPersistentOptimiser().setViewedFrame(frameNumber)
       },
