@@ -121,6 +121,12 @@ export class ToolpathGenerator {
   ) {
     this.reset();
 
+    // Update the settings
+    this.settings = settings;
+
+    // And the onProgress event notifier
+    this.onUpdate = updateProgress;
+
     for (const frameNumber of Object.keys(movementJSONByFrame)) {
       const num = Number(frameNumber);
       // Set all frames to unoptimised
@@ -131,13 +137,8 @@ export class ToolpathGenerator {
 
       // Add the frame to the unfinished frames list
       this.unfinishedFrames.push(num);
+
     }
-
-    // Update the settings
-    this.settings = settings;
-
-    // And the onProgress event notifier
-    this.onUpdate = updateProgress;
 
     // Immediately schedule work
     this.scheduleWork();
@@ -239,10 +240,19 @@ export class ToolpathGenerator {
       this.setFrameState(frameNumber, FRAME_STATE.OPTIMISING_FULLY);
     }
 
+    const captureSettingsReference = this.settings
+
     this.pool.queue(async (worker) => {
       let updates = 0;
 
       const receiveUpdate = async (progress: Progress) => {
+        // If the settings have changed, dump the current work queue
+        if (captureSettingsReference !== this.settings) {
+          await worker.finishEarly();
+          return
+        }
+
+
         updates++;
 
         // Update the frame cache
