@@ -12,6 +12,8 @@ import { DeviceIDBridgeContext } from '@electricui/components-desktop-charts'
 import { DeviceLoadingPage } from './pages/DeviceLoadingPage'
 import { DeviceManagerProxy } from '@electricui/core-device-manager-proxy'
 import { DevicePages } from './pages/DevicePages'
+import { ToolpathViewer } from './pages/toolpaths/interface/ToolpathViewer'
+
 import { Provider } from 'react-redux'
 import React from 'react'
 import { ReactReduxContext } from '@electricui/core-redux-state'
@@ -38,6 +40,8 @@ export class Root extends React.Component<RootProps> {
                   <LocationProvider history={history}>
                     <Router>
                       <ConnectionPage path="/" />
+                      <ToolpathViewer path="/toolpaths/" />
+
                       <WrapDeviceContextWithLocation path="device_loading/:deviceID/">
                         <DeviceLoadingPage path="/" />
                       </WrapDeviceContextWithLocation>

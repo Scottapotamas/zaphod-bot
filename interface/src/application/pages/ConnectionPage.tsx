@@ -1,4 +1,4 @@
-import { Classes } from '@blueprintjs/core'
+import { Button, Classes } from '@blueprintjs/core'
 import { RouteComponentProps } from '@reach/router'
 
 import { Connections } from '@electricui/components-desktop-blueprint'
@@ -21,6 +21,10 @@ const CardInternals = () => {
 export const ConnectionPage = (props: RouteComponentProps) => {
   return (
     <Landing>
+      <Button onClick={() => navigate(`/toolpaths/`)} style={{ margin: 20 }}>
+        Toolpath viewer
+      </Button>
+
       <Connections
         preConnect={deviceID => navigate(`/device_loading/${deviceID}`)}
         postHandshake={deviceID => navigate(`/devices/${deviceID}`)}
