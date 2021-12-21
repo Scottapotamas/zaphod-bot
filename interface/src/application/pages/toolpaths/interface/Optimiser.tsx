@@ -14,7 +14,12 @@ import { FrameProgressUpdate, ToolpathGenerator } from '../optimiser/main'
 import { importFolder } from '../optimiser/files'
 import { blankMaterial } from '../optimiser/material'
 import { Vector3 } from 'three'
-import { DataSource, Event, EventBatch } from '@electricui/timeseries'
+import {
+  DataSource,
+  Event,
+  EventBatch,
+  PersistenceEnginePassthrough,
+} from '@electricui/timeseries'
 import { timing } from '@electricui/timing'
 import { Settings } from '../optimiser/settings'
 
@@ -73,13 +78,15 @@ export function Optimiser(props: OptimiserProps) {
     }
   }, [])
 
-  const frameTimeDataSource = useMemo(
-    () =>
-      new DataSource<{
-        [frameNumber: string]: FrameProgressUpdate
-      }>(),
-    [],
-  )
+  const frameTimeDataSource = useMemo(() => {
+    const dataSource = new DataSource<{
+      [frameNumber: string]: FrameProgressUpdate
+    }>()
+    dataSource.setPersistenceEngineFactory(
+      () => new PersistenceEnginePassthrough(),
+    )
+    return dataSource
+  }, [])
 
   const frameData = useRef<{
     [frameNumber: string]: FrameProgressUpdate
