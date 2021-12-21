@@ -10,7 +10,7 @@ import { Vector3 } from 'three'
 import { blankMaterial } from '../optimiser/material'
 import { useCallback } from 'react'
 
-const defaultSettings = {
+const defaultSettings: Settings = {
   objectSettings: {
     gpencil: {
       breakUpStrokes: true,
@@ -43,6 +43,27 @@ const defaultSettings = {
 interface Store {
   folder: string | null
   settings: Settings
+  sceneMinFrame: number
+  sceneMaxFrame: number
+  sceneTotalFrames: number
+  selectedMinFrame: number
+  selectedMaxFrame: number
+  currentlyRenderingFrame: number
+  viewportFrame: number
+  currentlyOptimising: boolean
+}
+
+const initialState: Store = {
+  folder: null,
+  settings: defaultSettings,
+  sceneMinFrame: 1,
+  sceneMaxFrame: 1,
+  sceneTotalFrames: 0,
+  selectedMinFrame: 1,
+  selectedMaxFrame: 1,
+  currentlyRenderingFrame: 1,
+  viewportFrame: 1,
+  currentlyOptimising: false,
 }
 
 export const useStore = create<
@@ -50,12 +71,9 @@ export const useStore = create<
   SetState<Store>,
   GetState<Store>,
   StoreApiWithSubscribeWithSelector<Store>
->(
-  subscribeWithSelector(() => ({
-    folder: null,
-    settings: defaultSettings,
-  })),
-)
+>(subscribeWithSelector(() => initialState))
+
+export const resetStore = () => useStore.setState(initialState)
 
 export const setFolder = (folder: string | null) =>
   useStore.setState(state => {

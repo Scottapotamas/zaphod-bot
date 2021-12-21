@@ -23,17 +23,23 @@ import {
 import { timing } from '@electricui/timing'
 import { Settings } from '../optimiser/settings'
 
-import { getCurrentSettings, setSetting, useSetting, useStore } from './state'
+import {
+  getCurrentSettings,
+  resetStore,
+  setSetting,
+  useSetting,
+  useStore,
+} from './state'
 
 export function Optimiser() {
   // Establish a mutable reference to the setTotalFrames state setter so we can do it asyncronously
-  const [totalFrames, setTotalFrames] = useState(0)
-  const currentSetTotalFrames = useRef<
-    React.Dispatch<React.SetStateAction<number>>
-  >(setTotalFrames)
-  useEffect(() => {
-    currentSetTotalFrames.current = setTotalFrames
-  }, [setTotalFrames])
+  const totalFrames = useStore(state => state.sceneTotalFrames)
+  const selectedMinFrame = useStore(state => state.selectedMinFrame)
+  const selectedMaxFrame = useStore(state => state.selectedMaxFrame)
+  const currentlyRenderingFrame = useStore(
+    state => state.currentlyRenderingFrame,
+  )
+  const viewportFrame = useStore(state => state.viewportFrame)
 
   const persistentOptimiser = useRef<ToolpathGenerator | null>(null)
 
@@ -61,9 +67,32 @@ export function Optimiser() {
     )
   }, [])
 
+  // Setup a subscriber to grab frame limits
+  useEffect(() => {
+    return useStore.subscribe(
+      state => state.selectedMinFrame,
+      frameNumber => {
+        getPersistentOptimiser().setFrameMinimum(frameNumber)
+      },
+    )
+  }, [])
+  useEffect(() => {
+    return useStore.subscribe(
+      state => state.selectedMaxFrame,
+      frameNumber => {
+        getPersistentOptimiser().setFrameMaximum(frameNumber)
+      },
+    )
+  }, [])
+
   // On unmount, clean up the optimiser
   useEffect(() => {
     return () => {
+      // Reset our state
+      resetStore()
+
+      console.log('resetting state')
+
       if (persistentOptimiser.current === null) {
         return
       }
@@ -122,17 +151,33 @@ export function Optimiser() {
         }
 
         importFolder(folder).then(imported => {
-          currentSetTotalFrames.current(
-            total => Object.keys(imported.movementJSONByFrame).length,
-          )
+          setSetting(state => {
+            state.sceneMinFrame = imported.minFrame
+            state.sceneMaxFrame = imported.maxFrame
+            state.selectedMinFrame = imported.minFrame
+            state.selectedMaxFrame = imported.maxFrame
+            state.sceneTotalFrames = Object.keys(
+              imported.movementJSONByFrame,
+            ).length
+            state.currentlyOptimising = true
+
+            console.log(`injested ${state.sceneTotalFrames} frames`)
+          })
 
           const optimiser = getPersistentOptimiser()
 
+          // Start optimising the frames
           optimiser.ingest(
             imported.movementJSONByFrame,
             getCurrentSettings(),
             onProgress,
           )
+          // When it's done, mark it as complete
+          optimiser.onComplete().then(() => {
+            setSetting(state => {
+              state.currentlyOptimising = false
+            })
+          })
         })
       },
     )
@@ -146,7 +191,6 @@ export function Optimiser() {
 
   return (
     <>
-      {folder}
       <ChartContainer>
         <BarChart
           dataSource={frameTimeDataSource}
@@ -196,7 +240,7 @@ export function Optimiser() {
             return arr
           }}
         />
-        <BarChartDomain />
+        <BarChartDomain xMin={selectedMinFrame} xMax={selectedMaxFrame} />
 
         <VerticalAxis
           label="Render time"
@@ -205,35 +249,6 @@ export function Optimiser() {
         />
         <HorizontalAxis label="Frame number" />
       </ChartContainer>
-      {/* <div
-          style={{
-            display: 'grid',
-            gridGap: 10,
-            gridTemplateColumns: 'repeat(10, 1fr)',
-          }}
-        >
-          {Object.keys(frameTimings).map(frameNumber => (
-            <Tag
-              key={frameNumber}
-              intent={stateLookup.get(frameStates[frameNumber])}
-            >
-              <div style={{ display: 'inline-flex', width: '100%' }}>
-                <span style={{ width: '100%', alignSelf: 'start' }}>
-                  #{frameNumber}
-                </span>
-                <span style={{ width: '100%', alignSelf: 'end' }}>
-                  {Math.round(frameTimings[frameNumber])}ms
-                </span>
-              </div>
-            </Tag>
-          ))}
-        </div> */}
-      <br />
-      {/* Total duration:{' '}
-        {Math.round(
-          Object.values(frameTimings).reduce((acc, cur) => acc + cur, 0),
-        ) / 1000}{' '}
-        seconds */}
     </>
   )
 }
