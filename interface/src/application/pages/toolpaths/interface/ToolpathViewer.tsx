@@ -35,6 +35,7 @@ import { Optimiser } from './Optimiser'
 import { Settings } from '../optimiser/settings'
 
 import { SettingsInterface } from './SettingsInterface'
+import { RenderInterface } from './RenderInterface'
 
 export const ToolpathViewer = (props: RouteComponentProps) => {
   return (
@@ -49,6 +50,8 @@ export const ToolpathViewer = (props: RouteComponentProps) => {
         <SettingsInterface />
 
         <Optimiser />
+
+        <RenderInterface />
       </div>
     </React.Fragment>
   )

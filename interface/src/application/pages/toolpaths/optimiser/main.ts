@@ -59,6 +59,9 @@ export class ToolpathGenerator {
   private viewportFrame: number = 0;
   private requestedFrame: number = 0;
 
+  private minFrameNumber: number = -Infinity
+  private maxFrameNumber: number = Infinity
+
   /**
    * The list of frames that aren't finished
    */
@@ -89,6 +92,8 @@ export class ToolpathGenerator {
     this.onComplete = this.onComplete.bind(this);
     this.updateSettings = this.updateSettings.bind(this);
     this.teardown = this.teardown.bind(this);
+    this.setFrameMinimum = this.setFrameMinimum.bind(this);
+    this.setFrameMaximum = this.setFrameMaximum.bind(this);
 
     this.pool = Pool(
 
@@ -144,6 +149,16 @@ export class ToolpathGenerator {
     this.scheduleWork();
   }
 
+  setFrameMinimum(min: number) {
+    this.minFrameNumber = min
+    this.scheduleWork();
+  }
+  
+  setFrameMaximum(max: number) {
+    this.maxFrameNumber = max
+    this.scheduleWork();
+  }
+
   /**
    * Sort the unfinished frames so a partial
    */
@@ -173,7 +188,22 @@ export class ToolpathGenerator {
   private currentWorkQueue() {
     this.sortWorkPriority();
 
-    return this.unfinishedFrames.slice(0, this.numThreads);
+    const workQueue: number[] = []
+    let needed = this.numThreads
+
+    for (let index = 0; index < this.unfinishedFrames.length; index++) {
+      if (needed === 0) break
+
+      const frameNumber = this.unfinishedFrames[index];
+      
+      if (frameNumber < this.minFrameNumber) continue
+      if (frameNumber > this.maxFrameNumber) continue
+
+      workQueue.push(frameNumber)
+      needed--
+    }
+
+    return workQueue
   }
 
   /**

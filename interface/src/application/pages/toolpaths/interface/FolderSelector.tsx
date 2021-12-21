@@ -14,7 +14,7 @@ interface OpenResult {
   filePaths: string[]
 }
 
-import { setFolder } from './state'
+import { getSetting, setFolder } from './state'
 
 export function FolderPathSelector() {
   const options: OpenDialogOptions = {
@@ -22,7 +22,9 @@ export function FolderPathSelector() {
     message: 'Open animation folder',
   }
 
-  const [selectedFolder, setSelectedFolder] = useState('')
+  const [selectedFolder, setSelectedFolder] = useState(
+    getSetting(state => state.folder) ?? '',
+  )
   const [labelText, setLabelText] = useState('Choose folder...')
   const [error, setError] = useState('')
 
