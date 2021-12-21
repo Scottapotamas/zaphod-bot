@@ -17,7 +17,7 @@ const defaultSettings: Settings = {
       breakUpStrokes: true,
     },
     particles: {
-      drawInVelocityOrientation: true,
+      drawInVelocityOrientation: false,
       stopDelay: 1,
     },
   },
@@ -51,6 +51,7 @@ interface Store {
   selectedMaxFrame: number
   currentlyRenderingFrame: number
   viewportFrame: number
+  priorityFrame: number
   currentlyOptimising: boolean
 
   toolpaths: {
@@ -68,6 +69,7 @@ const initialState: Store = {
   selectedMaxFrame: 1,
   currentlyRenderingFrame: 1,
   viewportFrame: 1,
+  priorityFrame: 1,
   currentlyOptimising: false,
   toolpaths: {},
 }
