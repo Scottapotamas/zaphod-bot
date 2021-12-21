@@ -10,6 +10,7 @@ import {
 import { LightMove, MovementMove, MovementMoveReference } from './hardware'
 
 import { getTransitionMaterial, Settings } from './settings'
+import { Vector3 } from 'three'
 
 /**
  * Add transition movements between each move if the start and the end are at different places
@@ -24,7 +25,11 @@ export function sparseToDense(
 
   // Start
   let previousMovement: Movement = new Point(
-    settings.optimisation.startingPoint,
+    new Vector3(
+      settings.optimisation.startingPoint[0],
+      settings.optimisation.startingPoint[1],
+      settings.optimisation.startingPoint[2],
+    ),
     settings.optimisation.waitAtStartDuration,
     transitionMaterial,
   )
@@ -58,7 +63,11 @@ export function sparseToDense(
 
   // End
   let lastMovement: Movement = new Point(
-    settings.optimisation.endingPoint,
+    new Vector3(
+      settings.optimisation.endingPoint[0],
+      settings.optimisation.endingPoint[1],
+      settings.optimisation.endingPoint[2],
+    ),
     1, // wait for 1ms at the end
     transitionMaterial,
   )
@@ -112,6 +121,7 @@ export function getTotalCost(denseMoves: DenseMovements) {
 
   for (let index = 0; index < denseMoves.length; index++) {
     const movement = denseMoves[index]
+    const newCost = movement.getCost()
     cost += movement.getCost()
   }
 
@@ -245,8 +255,6 @@ export async function optimise(
 
   let method = 'blender order'
 
-  console.log(248)
-
   // If an orderingCache is provided, start with that, otherwise do a nearest neighbour run first.
   if (orderingCache) {
     // Copy the array, might not be necessary since this is on the other end of an IPC bridge and it's just been deserialised.
@@ -325,7 +333,6 @@ export async function optimise(
 
     const nnCost = sparseToCost(ordering, settings)
 
-    console.log(328)
     // console.log(
     //   `randomCost ${costRef.cost} -> nnCost ${nnCost} (${
     //     nnCost > costRef.cost ? "ditching NN" : "using NN"

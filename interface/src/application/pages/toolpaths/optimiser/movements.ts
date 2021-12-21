@@ -473,7 +473,7 @@ export class Transition extends Movement {
   }
 
   public getCost = () => {
-    return this.getLength() / this.maxSpeed
+    return this.getLength()
   }
 
   public getLength = () => {
@@ -491,6 +491,7 @@ export class Transition extends Movement {
 
     // Otherwise generate the curve, get the length
     const curve = this.lazyGenerateCurve()
+
     const length = curve.getLength()
 
     // transitionCurveCache.set(key, length);

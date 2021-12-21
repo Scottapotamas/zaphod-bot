@@ -43,8 +43,8 @@ export interface MaterialOverrides {
 export interface OptimisationSettings {
   waitAtStartDuration: number
 
-  startingPoint: Vector3
-  endingPoint: Vector3
+  startingPoint: [x: number, y: number, z: number]
+  endingPoint: [x: number, y: number, z: number]
 
   maxSpeed: number // mm/s
 }

@@ -36,15 +36,25 @@ import { Settings } from '../optimiser/settings'
 
 import { SettingsInterface } from './SettingsInterface'
 import { RenderInterface } from './RenderInterface'
+import { ToolpathVisualisation } from './ToolpathVisualisation'
 
 export const ToolpathViewer = (props: RouteComponentProps) => {
   return (
     <React.Fragment>
-      <Button onClick={() => navigate(`/`)} style={{ margin: 20 }}>
-        Back to connections screen
-      </Button>
-      <hr />
-      <div style={{ maxWidth: 600 }}>
+      <div
+        style={{
+          width: '100vw',
+          height: '100vh',
+          position: 'absolute',
+        }}
+      >
+        <ToolpathVisualisation />
+      </div>
+      <div style={{ width: 600, position: 'absolute' }}>
+        <Button onClick={() => navigate(`/`)} style={{ margin: 10 }}>
+          Back to connections screen
+        </Button>
+
         <FolderPathSelector />
 
         <SettingsInterface />
