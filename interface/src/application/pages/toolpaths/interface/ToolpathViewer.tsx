@@ -13,7 +13,6 @@ import { RouteComponentProps } from '@reach/router'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { navigate, OPEN_DIALOG_IPC_EVENT } from '@electricui/utility-electron'
 import { ipcRenderer, OpenDialogOptions } from 'electron'
-import { useImmer } from 'use-immer'
 
 import {
   ChartContainer,
@@ -37,40 +36,7 @@ import { Settings } from '../optimiser/settings'
 
 import { SettingsInterface } from './SettingsInterface'
 
-const defaultSettings = {
-  objectSettings: {
-    gpencil: {
-      breakUpStrokes: true,
-    },
-    particles: {
-      drawInVelocityOrientation: true,
-      stopDelay: 1,
-    },
-  },
-
-  // Do object level overrides here. Particle subsystems can be `object -> subsystem name`
-  objectOverrides: {},
-
-  objectToggles: {},
-
-  transitionMaterial: blankMaterial,
-  materialOverrides: {
-    globalOveride: null,
-    objectMaterialOverrides: {},
-  },
-
-  optimisation: {
-    startingPoint: new Vector3(0, 0, 0),
-    endingPoint: new Vector3(0, 0, 0),
-    maxSpeed: 100,
-    waitAtStartDuration: 1000,
-  },
-}
-
 export const ToolpathViewer = (props: RouteComponentProps) => {
-  const [folder, setFolder] = useState<string | null>(null)
-  const [settings, setSettings] = useImmer<Settings>(defaultSettings)
-
   return (
     <React.Fragment>
       <Button onClick={() => navigate(`/`)} style={{ margin: 20 }}>
@@ -78,11 +44,11 @@ export const ToolpathViewer = (props: RouteComponentProps) => {
       </Button>
       <hr />
       <div style={{ maxWidth: 600 }}>
-        <FolderPathSelector onFoundFolder={setFolder} />
+        <FolderPathSelector />
 
-        <SettingsInterface settings={settings} setSettings={setSettings} />
+        <SettingsInterface />
 
-        <Optimiser folder={folder} settings={settings} />
+        <Optimiser />
       </div>
     </React.Fragment>
   )

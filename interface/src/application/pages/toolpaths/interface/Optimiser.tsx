@@ -23,12 +23,9 @@ import {
 import { timing } from '@electricui/timing'
 import { Settings } from '../optimiser/settings'
 
-interface OptimiserProps {
-  folder: string | null
-  settings: Settings
-}
+import { getCurrentSettings, setSetting, useSetting, useStore } from './state'
 
-export function Optimiser(props: OptimiserProps) {
+export function Optimiser() {
   // Establish a mutable reference to the setTotalFrames state setter so we can do it asyncronously
   const [totalFrames, setTotalFrames] = useState(0)
   const currentSetTotalFrames = useRef<
@@ -39,7 +36,6 @@ export function Optimiser(props: OptimiserProps) {
   }, [setTotalFrames])
 
   const persistentOptimiser = useRef<ToolpathGenerator | null>(null)
-  const currentSettings = useRef<Settings>(props.settings)
 
   /**
    * Lazily create and hold a persistent optimiser
@@ -47,7 +43,7 @@ export function Optimiser(props: OptimiserProps) {
   function getPersistentOptimiser() {
     if (persistentOptimiser.current === null) {
       persistentOptimiser.current = new ToolpathGenerator(
-        currentSettings.current,
+        getCurrentSettings(),
         4,
       )
     }
@@ -55,11 +51,15 @@ export function Optimiser(props: OptimiserProps) {
     return persistentOptimiser.current
   }
 
-  // When settings are updated, don't regenerate the toolpath generator, just update it
+  // Setup a subscriber to grab new settings
   useEffect(() => {
-    getPersistentOptimiser().updateSettings(props.settings)
-    currentSettings.current = props.settings
-  }, [props.settings])
+    return useStore.subscribe(
+      state => state.settings,
+      settings => {
+        getPersistentOptimiser().updateSettings(settings)
+      },
+    )
+  }, [])
 
   // On unmount, clean up the optimiser
   useEffect(() => {
@@ -114,32 +114,39 @@ export function Optimiser(props: OptimiserProps) {
 
   // The main injestion
   useEffect(() => {
-    if (props.folder === null) {
-      return
-    }
+    return useStore.subscribe(
+      state => state.folder,
+      folder => {
+        if (folder === null) {
+          return
+        }
 
-    importFolder(props.folder).then(imported => {
-      currentSetTotalFrames.current(
-        total => Object.keys(imported.movementJSONByFrame).length,
-      )
+        importFolder(folder).then(imported => {
+          currentSetTotalFrames.current(
+            total => Object.keys(imported.movementJSONByFrame).length,
+          )
 
-      const optimiser = getPersistentOptimiser()
+          const optimiser = getPersistentOptimiser()
 
-      optimiser.ingest(
-        imported.movementJSONByFrame,
-        currentSettings.current,
-        onProgress,
-      )
-    })
-  }, [props.folder, onProgress])
+          optimiser.ingest(
+            imported.movementJSONByFrame,
+            getCurrentSettings(),
+            onProgress,
+          )
+        })
+      },
+    )
+  }, [onProgress])
 
-  if (props.folder === null) {
+  const folder = useSetting(state => state.folder)
+
+  if (folder === null) {
     return <>Please select a folder </>
   }
 
   return (
     <>
-      {props.folder}
+      {folder}
       <ChartContainer>
         <BarChart
           dataSource={frameTimeDataSource}

@@ -23,68 +23,28 @@ import {
   HorizontalAxis,
 } from '@electricui/components-desktop-charts'
 
-import { Updater } from 'use-immer'
-
 import classnames from 'classnames'
 
 import { FrameProgressUpdate, ToolpathGenerator } from '../optimiser/main'
 import { importFolder } from '../optimiser/files'
-import { blankMaterial } from '../optimiser/material'
 import { Vector3 } from 'three'
 import { FolderPathSelector } from './FolderSelector'
 import { DataSource, Event, EventBatch } from '@electricui/timeseries'
 import { timing } from '@electricui/timing'
 import { Optimiser } from './Optimiser'
 import { Settings } from '../optimiser/settings'
+import { getSetting, setSetting } from './state'
 
-const defaultSettings = {
-  objectSettings: {
-    gpencil: {
-      breakUpStrokes: true,
-    },
-    particles: {
-      drawInVelocityOrientation: true,
-      stopDelay: 1,
-    },
-  },
-
-  // Do object level overrides here. Particle subsystems can be `object -> subsystem name`
-  objectOverrides: {},
-
-  objectToggles: {},
-
-  transitionMaterial: blankMaterial,
-  materialOverrides: {
-    globalOveride: null,
-    objectMaterialOverrides: {},
-  },
-
-  optimisation: {
-    startingPoint: new Vector3(0, 0, 0),
-    endingPoint: new Vector3(0, 0, 0),
-    maxSpeed: 100,
-    waitAtStartDuration: 1000,
-  },
-}
-
-interface SettingsInterfaceProps {
-  settings: Settings
-  setSettings: Updater<Settings>
-}
-
-function ParticleWaitDurationSlider(props: SettingsInterfaceProps) {
+function ParticleWaitDurationSlider() {
   const [localStopDelay, setLocalStopDelay] = useState(
-    props.settings.objectSettings.particles.stopDelay ?? 0,
+    getSetting(state => state.settings.objectSettings.particles.stopDelay) ?? 0,
   )
 
-  const updateStopDelay = useCallback(
-    delay => {
-      props.setSettings(settings => {
-        settings.objectSettings.particles.stopDelay = delay
-      })
-    },
-    [props.setSettings],
-  )
+  const updateStopDelay = useCallback(delay => {
+    setSetting(state => {
+      state.settings.objectSettings.particles.stopDelay = delay
+    })
+  }, [])
 
   return (
     <div style={{ marginLeft: 10, marginRight: 10 }}>
@@ -102,19 +62,16 @@ function ParticleWaitDurationSlider(props: SettingsInterfaceProps) {
   )
 }
 
-function MaxSpeedSlider(props: SettingsInterfaceProps) {
+function MaxSpeedSlider() {
   const [localSpeed, setLocalSpeed] = useState(
-    props.settings.optimisation.maxSpeed,
+    getSetting(state => state.settings.optimisation.maxSpeed),
   )
 
-  const updateMaxSpeed = useCallback(
-    newMaxSpeed => {
-      props.setSettings(settings => {
-        settings.optimisation.maxSpeed = Math.max(newMaxSpeed, 1)
-      })
-    },
-    [props.setSettings],
-  )
+  const updateMaxSpeed = useCallback(newMaxSpeed => {
+    setSetting(state => {
+      state.settings.optimisation.maxSpeed = Math.max(newMaxSpeed, 1)
+    })
+  }, [])
 
   return (
     <div style={{ marginLeft: 10, marginRight: 10 }}>
@@ -132,19 +89,16 @@ function MaxSpeedSlider(props: SettingsInterfaceProps) {
   )
 }
 
-function WaitAtStartDurationSlider(props: SettingsInterfaceProps) {
+function WaitAtStartDurationSlider() {
   const [waitDuration, setWaitDuration] = useState(
-    props.settings.optimisation.waitAtStartDuration,
+    getSetting(state => state.settings.optimisation.waitAtStartDuration),
   )
 
-  const updateWaitDuration = useCallback(
-    waitDuration => {
-      props.setSettings(settings => {
-        settings.optimisation.waitAtStartDuration = waitDuration
-      })
-    },
-    [props.setSettings],
-  )
+  const updateWaitDuration = useCallback(waitDuration => {
+    setSetting(state => {
+      state.settings.optimisation.waitAtStartDuration = waitDuration
+    })
+  }, [])
 
   return (
     <div style={{ marginLeft: 10, marginRight: 10 }}>
@@ -162,26 +116,17 @@ function WaitAtStartDurationSlider(props: SettingsInterfaceProps) {
   )
 }
 
-export const SettingsInterface = (props: SettingsInterfaceProps) => {
+export const SettingsInterface = () => {
   return (
     <Card>
       <FormGroup label="Particle wait duration">
-        <ParticleWaitDurationSlider
-          settings={props.settings}
-          setSettings={props.setSettings}
-        />
+        <ParticleWaitDurationSlider />
       </FormGroup>
       <FormGroup label="Maximum speed">
-        <MaxSpeedSlider
-          settings={props.settings}
-          setSettings={props.setSettings}
-        />
+        <MaxSpeedSlider />
       </FormGroup>
       <FormGroup label="Wait at start duration">
-        <WaitAtStartDurationSlider
-          settings={props.settings}
-          setSettings={props.setSettings}
-        />
+        <WaitAtStartDurationSlider />
       </FormGroup>
     </Card>
   )
