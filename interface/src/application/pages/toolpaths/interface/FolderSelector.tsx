@@ -14,11 +14,9 @@ interface OpenResult {
   filePaths: string[]
 }
 
-export interface FolderPathSelectorProps {
-  onFoundFolder: (folder: string | null) => void
-}
+import { setFolder } from './state'
 
-export function FolderPathSelector(props: FolderPathSelectorProps) {
+export function FolderPathSelector() {
   const options: OpenDialogOptions = {
     properties: ['openDirectory'],
     message: 'Open animation folder',
@@ -62,13 +60,13 @@ export function FolderPathSelector(props: FolderPathSelectorProps) {
       setLabelText(`${frameDirectories.length} frames selected`)
       setError('')
 
-      props.onFoundFolder(folder)
+      setFolder(folder)
     } catch (e) {
       console.error(e)
       setLabelText('Error with this directory...')
       setSelectedFolder('')
       setError(e.message)
-      props.onFoundFolder(null)
+      setFolder(null)
     }
   }, [setSelectedFolder])
 
