@@ -37,6 +37,7 @@ function createMainWindow() {
   const window = new BrowserWindow({
     webPreferences: {
       nodeIntegration: true,
+      nodeIntegrationInWorker: true,
       contextIsolation: false,
       devTools: allowDevTools, // Only allow devTools in development mode
       v8CacheOptions: 'bypassHeatCheck', // https://www.youtube.com/watch?v=YqHOUy2rYZ8
