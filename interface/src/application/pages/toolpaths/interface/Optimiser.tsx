@@ -84,14 +84,20 @@ export function Optimiser() {
       },
     )
   }, [])
+  useEffect(() => {
+    return useStore.subscribe(
+      state => state.viewportFrame,
+      frameNumber => {
+        getPersistentOptimiser().setViewedFrame(frameNumber)
+      },
+    )
+  }, [])
 
   // On unmount, clean up the optimiser
   useEffect(() => {
     return () => {
       // Reset our state
       resetStore()
-
-      console.log('resetting state')
 
       if (persistentOptimiser.current === null) {
         return
@@ -123,16 +129,14 @@ export function Optimiser() {
 
   const onProgress = useCallback(
     (progress: FrameProgressUpdate) => {
-      // setFrameStates(prev => ({
-      //   ...prev,
-      //   [progress.frameNumber]: progress.frameState,
-      // }))
+      setSetting(state => {
+        state.toolpaths[progress.frameNumber] = progress.toolpath
+      })
 
       frameData.current[progress.frameNumber] = progress
 
       // Publish a new frameData event
       const batch = new EventBatch()
-
       batch.push(new Event(timing.now(), frameData.current))
       frameTimeDataSource.write(batch)
 
@@ -153,6 +157,7 @@ export function Optimiser() {
         importFolder(folder).then(imported => {
           setSetting(state => {
             state.sceneMinFrame = imported.minFrame
+            state.viewportFrame = imported.minFrame
             state.sceneMaxFrame = imported.maxFrame
             state.selectedMinFrame = imported.minFrame
             state.selectedMaxFrame = imported.maxFrame

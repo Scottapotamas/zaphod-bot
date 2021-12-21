@@ -9,6 +9,7 @@ import { Vector3 } from 'three'
 
 import { blankMaterial } from '../optimiser/material'
 import { useCallback } from 'react'
+import { Toolpath } from '../optimiser/passes'
 
 const defaultSettings: Settings = {
   objectSettings: {
@@ -33,8 +34,8 @@ const defaultSettings: Settings = {
   },
 
   optimisation: {
-    startingPoint: new Vector3(0, 0, 0),
-    endingPoint: new Vector3(0, 0, 0),
+    startingPoint: [0, 0, 0],
+    endingPoint: [0, 0, 0],
     maxSpeed: 100,
     waitAtStartDuration: 1000,
   },
@@ -51,6 +52,10 @@ interface Store {
   currentlyRenderingFrame: number
   viewportFrame: number
   currentlyOptimising: boolean
+
+  toolpaths: {
+    [frameNumber: number]: Toolpath
+  }
 }
 
 const initialState: Store = {
@@ -64,6 +69,7 @@ const initialState: Store = {
   currentlyRenderingFrame: 1,
   viewportFrame: 1,
   currentlyOptimising: false,
+  toolpaths: {},
 }
 
 export const useStore = create<
@@ -102,3 +108,9 @@ export const setSetting = (recipe: (draft: Draft<Store>) => void) => {
 }
 
 export const getCurrentSettings = () => useStore.getState().settings
+
+export const useViewportFrameToolpath = () => {
+  const setting = useStore(state => state.toolpaths[state.viewportFrame])
+
+  return setting ?? null
+}

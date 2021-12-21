@@ -142,7 +142,6 @@ export class ToolpathGenerator {
 
       // Add the frame to the unfinished frames list
       this.unfinishedFrames.push(num);
-
     }
 
     // Immediately schedule work
@@ -203,7 +202,6 @@ export class ToolpathGenerator {
       needed--
     }
 
-    console.log(`work queue`,workQueue)
 
     return workQueue
   }
@@ -272,9 +270,11 @@ export class ToolpathGenerator {
       this.setFrameState(frameNumber, FRAME_STATE.OPTIMISING_FULLY);
     }
 
+
     const captureSettingsReference = this.settings
 
     this.pool.queue(async (worker) => {
+
       let updates = 0;
 
       const receiveUpdate = async (progress: Progress) => {
