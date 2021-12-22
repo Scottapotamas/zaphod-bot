@@ -1,6 +1,7 @@
 import { Codec, Message } from '@electricui/core'
 
 import {
+  MSGID,
   SystemStatus,
   KinematicsInfo,
   FirmwareBuildInfo,
@@ -28,7 +29,7 @@ import { SmartBuffer } from 'smart-buffer'
 
 export class SystemDataCodec extends Codec {
   filter(message: Message): boolean {
-    return message.messageID === 'sys'
+    return message.messageID === MSGID.SYSTEM
   }
 
   encode(payload: SystemStatus): Buffer {
@@ -67,7 +68,7 @@ export function splitBufferByLength(toSplit: Buffer, splitLength: number) {
 
 export class FirmwareInfoCodec extends Codec {
   filter(message: Message): boolean {
-    return message.messageID === 'fwb'
+    return message.messageID === MSGID.FIRMWARE_INFO
   }
 
   encode(payload: FirmwareBuildInfo): Buffer {
@@ -146,11 +147,11 @@ export class TempSensorCodec extends Codec {
 
 export class FanCodec extends Codec {
   filter(message: Message): boolean {
-    return message.messageID === 'fan'
+    return message.messageID === MSGID.FAN
   }
 
   encode(payload: FanStatus): Buffer {
-    throw new Error('fan is read-only')
+    throw new Error('Fan info is read-only')
   }
 
   decode(payload: Buffer): FanStatus {
@@ -164,28 +165,9 @@ export class FanCodec extends Codec {
   }
 }
 
-export class QueueDepthCodec extends Codec {
-  filter(message: Message): boolean {
-    return message.messageID === 'queue'
-  }
-
-  encode(payload: QueueDepthInfo): Buffer {
-    throw new Error('queue depth info is read-only')
-  }
-
-  decode(payload: Buffer): QueueDepthInfo {
-    const reader = SmartBuffer.fromBuffer(payload)
-
-    return {
-      movements: reader.readUInt8(),
-      lighting: reader.readUInt8(),
-    }
-  }
-}
-
 export class MotorDataCodec extends Codec {
   filter(message: Message): boolean {
-    return message.messageID === 'servo'
+    return message.messageID === MSGID.SERVO
   }
 
   encode(payload: ServoInfo): Buffer {
@@ -214,7 +196,7 @@ export class MotorDataCodec extends Codec {
 
 export class MotionDataCodec extends Codec {
   filter(message: Message): boolean {
-    return message.messageID === 'moStat'
+    return message.messageID === MSGID.MOTION
   }
 
   encode(payload: MotionState): Buffer {
@@ -237,7 +219,7 @@ export class MotionDataCodec extends Codec {
 
 export class PositionCodec extends Codec {
   filter(message: Message): boolean {
-    return message.messageID === 'tpos' || message.messageID === 'cpos'
+    return message.messageID === MSGID.POSITION_TARGET || message.messageID === MSGID.POSITION_CURRENT
   }
 
   encode(payload: CartesianPoint): Buffer {
@@ -263,7 +245,7 @@ export class PositionCodec extends Codec {
 
 export class SupervisorInfoCodec extends Codec {
   filter(message: Message): boolean {
-    return message.messageID === 'super'
+    return message.messageID === MSGID.SUPERVISOR
   }
 
   encode(payload: SupervisorState): Buffer {
@@ -281,9 +263,29 @@ export class SupervisorInfoCodec extends Codec {
   }
 }
 
+
+export class QueueDepthCodec extends Codec {
+  filter(message: Message): boolean {
+    return message.messageID === MSGID.QUEUE_INFO
+  }
+
+  encode(payload: QueueDepthInfo): Buffer {
+    throw new Error('queue depth info is read-only')
+  }
+
+  decode(payload: Buffer): QueueDepthInfo {
+    const reader = SmartBuffer.fromBuffer(payload)
+
+    return {
+      movements: reader.readUInt8(),
+      lighting: reader.readUInt8(),
+    }
+  }
+}
+
 export class InboundMotionCodec extends Codec {
   filter(message: Message): boolean {
-    return message.messageID === 'inmv'
+    return message.messageID === MSGID.QUEUE_ADD_MOVE
   }
 
   encode(payload: MovementMove): Buffer {
@@ -343,7 +345,7 @@ export class InboundMotionCodec extends Codec {
 
 export class InboundFadeCodec extends Codec {
   filter(message: Message): boolean {
-    return message.messageID === 'inlt'
+    return message.messageID === MSGID.QUEUE_ADD_FADE
   }
 
   encode(payload: LightMove): Buffer {
@@ -406,7 +408,7 @@ export class InboundFadeCodec extends Codec {
 
 export class LEDCodec extends Codec<LedStatus> {
   filter(message: Message): boolean {
-    return message.messageID === 'rgb' || message.messageID === 'manual_led'
+    return message.messageID === MSGID.LED || message.messageID === MSGID.LED_MANUAL_REQUEST
   }
 
   encode(payload: LedStatus) {
