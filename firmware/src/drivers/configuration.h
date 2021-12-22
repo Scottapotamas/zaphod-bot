@@ -10,6 +10,7 @@ extern "C" {
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
+#include "configuration_types.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -27,6 +28,11 @@ configuration_load( void );
 
 PUBLIC void
 configuration_save( void );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC FanCurve_t *
+configuration_get_fan_curve_ptr( void );
 
 /* -------------------------------------------------------------------------- */
 

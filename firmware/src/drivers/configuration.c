@@ -7,6 +7,7 @@
 
 #include "hal_flashmem.h"
 #include "app_version.h"
+#include "app_times.h"
 #include "buzzer.h"
 
 /* ----- Defines ------------------------------------------------------------ */
@@ -16,7 +17,7 @@ LedSettings_t rgb_led_settings = { 0 };
 
 float z_rotation = 0;
 
-FanCurve_t fan_curve[] = {
+FanCurve_t fan_curve[NUM_FAN_CURVE_POINTS] = {
         { .temperature = 0, .percentage = 20 },
         { .temperature = 20, .percentage = 20 },
         { .temperature = 35, .percentage = 45 },
@@ -79,6 +80,15 @@ PRIVATE void configuration_wipe( void )
 }
 
 /* -------------------------------------------------------------------------- */
+
+PUBLIC FanCurve_t *
+configuration_get_fan_curve_ptr( void )
+{
+    if( DIM( fan_curve ) == NUM_FAN_CURVE_POINTS )
+    {
+        return &fan_curve[0];
+    }
+}
 
 PUBLIC int16_t configuration_get_voltage_trim_mV( void )
 {

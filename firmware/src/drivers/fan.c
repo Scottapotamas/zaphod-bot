@@ -5,7 +5,7 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "app_times.h"
-#include "user_interface.h"
+#include "configuration.h"
 #include "fan.h"
 #include "hal_hard_ic.h"
 #include "hal_pwm.h"
@@ -14,14 +14,6 @@
 #include "simple_state_machine.h"
 
 /* ----- Private Types ------------------------------------------------------ */
-
-typedef enum
-{
-    FAN_STATE_OFF,
-    FAN_STATE_STALL,
-    FAN_STATE_START,
-    FAN_STATE_ON,
-} FanState_t;
 
 typedef struct
 {
@@ -50,7 +42,7 @@ fan_init( void )
     memset( &fan, 0, sizeof( fan ) );
 
     // Get a pointer to the fan curve configuration table
-    fan_curve = user_interface_get_fan_curve_ptr();
+    fan_curve = configuration_get_fan_curve_ptr();
     hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ );
 }
 
@@ -63,6 +55,35 @@ fan_set( uint8_t speed_percentage )
 
     // 0-100% speed control over fan
     me->set_speed = CLAMP( speed_percentage, 0, 100 );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC uint8_t
+fan_get_speed( void )
+{
+    Fan_t *me = &fan;
+
+    return me->speed;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC uint16_t
+fan_get_rpm( void )
+{
+    // TODO consider moving fan speed calculation into this file?
+    return sensors_fan_speed_RPM();
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC FanState_t
+fan_get_state( void )
+{
+    Fan_t *me = &fan;
+
+    return me->currentState;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -172,8 +193,6 @@ fan_process( void )
     }
 
     hal_pwm_set_percentage_f( _PWM_TIM_FAN, me->speed );
-    user_interface_set_fan_percentage( me->speed );
-    user_interface_set_fan_state( me->currentState );
 }
 
 /* -------------------------------------------------------------------------- */
