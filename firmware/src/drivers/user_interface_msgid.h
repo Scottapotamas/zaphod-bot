@@ -39,9 +39,6 @@
 
 //        EUI_CUSTOM_RO( "kinematics", mechanical_info ),
 
-    // Temperature and cooling system
-//    EUI_CUSTOM( "temp", temp_sensors ),
-
 
 //        EUI_FLOAT( "rotZ", z_rotation ),
 //        EUI_CUSTOM( "ledset", rgb_led_settings ),

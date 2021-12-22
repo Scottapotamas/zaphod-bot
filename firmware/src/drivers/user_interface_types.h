@@ -40,7 +40,12 @@ typedef struct
     uint8_t cpu_load;     //percentage
     uint8_t cpu_clock;    //speed in Mhz
 
-    float input_voltage;    //voltage
+    int16_t input_voltage;    //voltage
+    int16_t temp_pcb_ambient;
+    int16_t temp_pcb_regulator;
+    int16_t temp_external_probe;
+    int16_t temp_cpu;
+
 } SystemData_t;
 
 typedef struct
@@ -78,15 +83,6 @@ typedef struct
     uint8_t  setpoint_percentage;
     uint8_t  state;
 } FanData_t;
-
-
-typedef struct
-{
-    float pcb_ambient;
-    float pcb_regulator;
-    float external_probe;
-    float cpu_temp;
-} TempData_t;
 
 typedef struct
 {
