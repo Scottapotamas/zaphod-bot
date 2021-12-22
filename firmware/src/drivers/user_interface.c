@@ -52,36 +52,35 @@ PRIVATE void trigger_camera_capture( void );
 
 /* ----- Defines ----------------------------------------------------------- */
 
-SystemData_t     sys_stats;
+char             device_nickname[16] = "Zaphod Beeblebot";
+char             reset_cause[20]     = "No Reset Cause";
 KinematicsInfo_t mechanical_info;
 BuildInfo_t      fw_info;
 
-FanData_t  fan_stats;
+SystemData_t   system_stats;
+SystemStates_t supervisor_states;
+MotionData_t   motion_global;
+FanData_t      fan_stats;
 
-SystemStates_t sys_states;
-QueueDepths_t  queue_data;
+uint8_t mode_request = 0;
 
-MotionData_t motion_global;
 #ifdef EXPANSION_SERVO
 MotorData_t motion_servo[4];
-float external_servo_angle_target;
+float       external_servo_angle_target;
 #else
-MotorData_t  motion_servo[3];
+MotorData_t motion_servo[3];
 #endif
 
-Movement_t       motion_inbound;
-CartesianPoint_t current_position;    //global position of end effector in cartesian space
+CartesianPoint_t current_position;    // global position of end effector in cartesian space
 CartesianPoint_t target_position;
 
 LedState_t rgb_led_drive;
 LedState_t rgb_manual_control;
-Fade_t     light_fade_inbound;
 
-char device_nickname[16] = "Zaphod Beeblebot";
-char reset_cause[20]     = "No Reset Cause";
-
-uint16_t     sync_id_val  = 0;
-uint8_t      mode_request = 0;
+QueueDepths_t queue_data;
+uint16_t      sync_id_val = 0;
+Movement_t    motion_inbound;
+Fade_t        light_fade_inbound;
 
 uint32_t camera_shutter_duration_ms = 0;
 
@@ -89,21 +88,20 @@ eui_message_t ui_variables[] = {
         // Higher level system setup information
         EUI_CHAR_ARRAY_RO( MSGID_NICKNAME, device_nickname ),
         EUI_CHAR_ARRAY_RO( MSGID_RESET_CAUSE, reset_cause ),
-        EUI_CUSTOM( MSGID_SYSTEM, sys_stats ),
-        EUI_CUSTOM( MSGID_SUPERVISOR, sys_states ),
         EUI_CUSTOM( MSGID_FIRMWARE_INFO, fw_info ),
-//        EUI_CUSTOM_RO( "kinematics", mechanical_info ),
+//        EUI_CUSTOM_RO( MSGID_KINEMATICS, mechanical_info ),
 
-        // Temperature and cooling system
+        EUI_CUSTOM( MSGID_SYSTEM, system_stats ),
+        EUI_CUSTOM( MSGID_SUPERVISOR, supervisor_states ),
         EUI_CUSTOM( MSGID_FAN, fan_stats ),
-//        EUI_CUSTOM( MSGID_FAN_CURVE, fan_curve ),
+        EUI_CUSTOM_RO( MSGID_MOTION, motion_global ),
+        EUI_CUSTOM_RO( MSGID_SERVO, motion_servo ),
 
         // UI requests a change of operating mode
         EUI_UINT8( MSGID_MODE_REQUEST, mode_request ),
+//        EUI_CUSTOM( MSGID_FAN_CURVE, fan_curve ),
 
-        // motion related information
-        EUI_CUSTOM_RO( MSGID_MOTION, motion_global ),
-        EUI_CUSTOM_RO( MSGID_SERVO, motion_servo ),
+        // Current and target positions in cartesian space
         EUI_CUSTOM( MSGID_POSITION_TARGET, target_position ),
         EUI_CUSTOM_RO( MSGID_POSITION_CURRENT, current_position ),
 
@@ -124,19 +122,16 @@ eui_message_t ui_variables[] = {
         EUI_CUSTOM( MSGID_QUEUE_ADD_FADE, light_fade_inbound ),
         EUI_CUSTOM( MSGID_QUEUE_ADD_MOVE, motion_inbound ),
 
-
         // Event trigger callbacks
         EUI_FUNC( MSGID_EMERGENCY_STOP, emergency_stop_cb ),
         EUI_FUNC( MSGID_ARM, start_mech_cb ),
         EUI_FUNC( MSGID_DISARM, stop_mech_cb ),
         EUI_FUNC( MSGID_HOME, home_mech_cb ),
-
         EUI_UINT32( MSGID_CAPTURE, camera_shutter_duration_ms ),
 
-    //        EUI_FLOAT( "rotZ", z_rotation ),
+//        EUI_FLOAT( "rotZ", z_rotation ),
 //        EUI_CUSTOM( "ledset", rgb_led_settings ),
 //        EUI_CUSTOM( "pwr_cal", power_trims ),
-
 };
 
 enum
@@ -251,7 +246,6 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
             // See if the inbound packet name matches our intended variable
             if( strcmp( (char *)name_rx, MSGID_MODE_REQUEST ) == 0 )
             {
-
                 // Fire an event to the supervisor to change mode
                 switch( mode_request )
                 {
@@ -344,7 +338,7 @@ PUBLIC void
 user_interface_report_error( char *error_string )
 {
     // Send the text to the UI for display to user
-    eui_message_t err_message = { .id   = "err",
+    eui_message_t err_message = { .id   = MSGID_ERROR,
             .type = TYPE_CHAR,
             .size = strlen( error_string ),
             { .data = error_string } };
@@ -359,13 +353,13 @@ user_interface_report_error( char *error_string )
 PUBLIC void
 user_interface_set_cpu_load( uint8_t percent )
 {
-    sys_stats.cpu_load = percent;
+    system_stats.cpu_load = percent;
 }
 
 PUBLIC void
 user_interface_set_cpu_clock( uint32_t clock )
 {
-    sys_stats.cpu_clock = clock / 1000000;    //convert to Mhz
+    system_stats.cpu_clock = clock / 1000000;    //convert to Mhz
 }
 
 /* -------------------------------------------------------------------------- */
@@ -373,18 +367,18 @@ user_interface_set_cpu_clock( uint32_t clock )
 PUBLIC void
 user_interface_set_sensors_enabled( bool enable )
 {
-    sys_stats.sensors_enable = enable;
+    system_stats.sensors_enable = enable;
 }
 
 void user_interface_set_module_enable( bool enabled )
 {
-    sys_stats.module_enable = enabled;
+    system_stats.module_enable = enabled;
 }
 
 PUBLIC void
 user_interface_set_input_voltage( float voltage )
 {
-    sys_stats.input_voltage = voltage * 100;
+    system_stats.input_voltage = voltage * 100;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -392,16 +386,16 @@ user_interface_set_input_voltage( float voltage )
 PUBLIC void
 user_interface_set_main_state( uint8_t state )
 {
-    sys_states.supervisor = state;
-    sys_states.motors     = motion_servo[0].enabled || motion_servo[1].enabled || motion_servo[2].enabled;
-    eui_send_tracked( "super" );
+    supervisor_states.supervisor = state;
+    supervisor_states.motors     = motion_servo[0].enabled || motion_servo[1].enabled || motion_servo[2].enabled;
+    eui_send_tracked( MSGID_SUPERVISOR );
 }
 
 PUBLIC void
 user_interface_set_control_mode( uint8_t mode )
 {
-    sys_states.control_mode = mode;
-    eui_send_tracked( "super" );
+    supervisor_states.control_mode = mode;
+    eui_send_tracked( MSGID_SUPERVISOR );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -468,25 +462,25 @@ user_interface_get_fan_curve_ptr( void )
 PUBLIC void
 user_interface_set_temp_ambient( float temp )
 {
-    sys_stats.temp_pcb_ambient = temp * 100;
+    system_stats.temp_pcb_ambient = temp * 100;
 }
 
 PUBLIC void
 user_interface_set_temp_regulator( float temp )
 {
-    sys_stats.temp_pcb_regulator = temp * 100;
+    system_stats.temp_pcb_regulator = temp * 100;
 }
 
 PUBLIC void
 user_interface_set_temp_external( float temp )
 {
-    sys_stats.temp_external_probe = temp * 100;
+    system_stats.temp_external_probe = temp * 100;
 }
 
 PUBLIC void
 user_interface_set_temp_cpu( float temp )
 {
-    sys_stats.temp_cpu = temp * 100;
+    system_stats.temp_cpu = temp * 100;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -512,7 +506,7 @@ user_interface_reset_tracking_target()
     target_position.y = 0;
     target_position.z = 0;
 
-    eui_send_tracked( "tpos" );    // tell the UI that the value has changed
+    eui_send_tracked( MSGID_POSITION_TARGET );    // tell the UI that the value has changed
 }
 
 PUBLIC void

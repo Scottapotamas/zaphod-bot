@@ -202,7 +202,10 @@ export class MotionDataCodec extends Codec {
 
 export class PositionCodec extends Codec {
   filter(message: Message): boolean {
-    return message.messageID === MSGID.POSITION_TARGET || message.messageID === MSGID.POSITION_CURRENT
+    return (
+      message.messageID === MSGID.POSITION_TARGET ||
+      message.messageID === MSGID.POSITION_CURRENT
+    )
   }
 
   encode(payload: CartesianPoint): Buffer {
@@ -390,7 +393,10 @@ export class InboundFadeCodec extends Codec {
 
 export class LEDCodec extends Codec<LedStatus> {
   filter(message: Message): boolean {
-    return message.messageID === MSGID.LED || message.messageID === MSGID.LED_MANUAL_REQUEST
+    return (
+      message.messageID === MSGID.LED ||
+      message.messageID === MSGID.LED_MANUAL_REQUEST
+    )
   }
 
   encode(payload: LedStatus) {
