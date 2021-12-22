@@ -445,18 +445,6 @@ user_interface_set_fan_state( uint8_t state )
     fan_stats.state = state;
 }
 
-PUBLIC FanCurve_t *
-user_interface_get_fan_curve_ptr( void )
-{
-    // TODO fix fan curve UI control/viewing
-    //    if( DIM( fan_curve ) == NUM_FAN_CURVE_POINTS )
-//    {
-//        return &fan_curve[0];
-//    }
-
-    return 0;
-}
-
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
