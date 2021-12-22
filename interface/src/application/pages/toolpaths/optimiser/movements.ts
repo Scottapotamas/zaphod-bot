@@ -1,4 +1,4 @@
-import { CubicBezierCurve3, Vector3 } from 'three'
+import { CatmullRomCurve3, CubicBezierCurve3, MathUtils, Vector3 } from 'three'
 import { Material } from './material'
 import {
   LightMove,
@@ -534,11 +534,17 @@ export class Transition extends Movement {
   }
 
   public getDesiredEntryVelocity = () => {
-    return this.from.getExpectedExitVelocity()
+    return this.from
+      .getExpectedExitVelocity()
+      .clone()
+      .multiplyScalar(0.5)
   }
 
   public getExpectedExitVelocity = () => {
-    return this.to.getDesiredEntryVelocity()
+    return this.to
+      .getDesiredEntryVelocity()
+      .clone()
+      .multiplyScalar(0.5)
   }
 
   public generateToolpath = (id: number) => {
@@ -558,6 +564,168 @@ export class Transition extends Movement {
           .sub(this.getExpectedExitVelocity())
           .toArray(),
         this.getEnd().toArray(),
+      ],
+      num_points: 4,
+    }
+
+    return [move]
+  }
+
+  public generateLightpath = (id: number) => {
+    return this.material.generateLightpath(id, this)
+  }
+}
+
+/**
+ * A transition is a move from one Point to another.
+ *
+ * Uses a catmull spline to visit points
+ */
+export class PointTransition extends Movement {
+  readonly type = 'point-transition'
+  maxSpeed: number = defaultSpeed
+
+  constructor(
+    public prePointMovement: Movement,
+    public pointFrom: Point,
+    public pointTo: Point,
+    public postPointMovement: Movement,
+    public material: Material,
+  ) {
+    super()
+  }
+
+  private curve: CatmullRomCurve3 | null = null
+  private curvelength: number | null = null
+
+  private lazyGenerateCurveLength = () => {
+    if (this.curvelength) return this.curvelength
+
+    this.curve = new CatmullRomCurve3(
+      [
+        this.prePointMovement
+          .getEnd()
+          .clone()
+          .add(this.prePointMovement.getExpectedExitVelocity()),
+        this.pointFrom.getEnd(),
+        this.pointTo.getStart(),
+        this.postPointMovement
+          .getStart()
+          .clone()
+          .sub(this.postPointMovement.getDesiredEntryVelocity()),
+      ],
+      false,
+      'catmullrom',
+    )
+
+    const segments = 20
+
+    // By default CatmullRomCurve3.getPoints(segments) gives us points along the entire length of vectors,
+    // including the control points, we need to only build points between the start and end.
+
+    // The control points are 1/3 and 2/3 of the way along the curve.
+
+    const segmentPoints: Vector3[] = []
+
+    for (let index = 0; index < segments; index++) {
+      // remap 0 -> num segments to a float between 1/3 and 2/3
+      const t = MathUtils.mapLinear(index, 0, segments, 1 / 3, 2 / 3)
+
+      segmentPoints.push(this.curve.getPoint(t))
+    }
+
+    let distance = 0
+
+    let lastPoint = segmentPoints[0]
+
+    for (let index = 1; index < segmentPoints.length; index++) {
+      const point = segmentPoints[index]
+
+      distance += lastPoint.distanceTo(point)
+      lastPoint = point
+    }
+
+    this.curvelength = distance
+
+    return distance
+  }
+
+  // Swap the ordering of this transition movement
+  public flip = () => {
+    const temp = this.prePointMovement
+    this.prePointMovement = this.postPointMovement
+    this.postPointMovement = temp
+
+    const temp2 = this.pointTo
+    this.pointTo = this.pointFrom
+    this.pointFrom = temp2
+
+    // TODO: Flip the material
+  }
+
+  public flatten = () => {
+    return [this]
+  }
+
+  public getCost = () => {
+    return this.getLength()
+  }
+
+  public getLength = () => {
+    const length = this.lazyGenerateCurveLength()
+
+    return length
+  }
+
+  public setMaxSpeed = (maxSpeed: number) => {
+    this.maxSpeed = maxSpeed
+  }
+
+  public getDuration = () => {
+    return Math.ceil(this.getLength() / this.maxSpeed)
+  }
+
+  public getStart = () => {
+    return this.pointFrom.getEnd()
+  }
+
+  public getEnd = () => {
+    return this.pointTo.getStart()
+  }
+
+  public getDesiredEntryVelocity = () => {
+    return this.pointFrom.getExpectedExitVelocity()
+  }
+
+  public getExpectedExitVelocity = () => {
+    return this.pointTo.getDesiredEntryVelocity()
+  }
+
+  public generateToolpath = (id: number) => {
+    const move: MovementMove = {
+      id,
+      duration: this.getDuration(),
+      type: MovementMoveType.CATMULL_SPLINE, // Despite being a point, draw a line
+      reference: MovementMoveReference.ABSOLUTE,
+      points: [
+        // this.prePointMovement.getEnd().toArray(),
+        // this.pointFrom.getEnd().toArray(),
+        // this.pointTo.getStart().toArray(),
+        // this.postPointMovement.getStart().toArray(),
+
+        this.prePointMovement
+          .getEnd()
+          .clone()
+          .add(this.prePointMovement.getExpectedExitVelocity())
+          .toArray(),
+
+        this.pointFrom.getEnd().toArray(),
+        this.pointTo.getStart().toArray(),
+        this.postPointMovement
+          .getStart()
+          .clone()
+          .sub(this.postPointMovement.getDesiredEntryVelocity())
+          .toArray(),
       ],
       num_points: 4,
     }
