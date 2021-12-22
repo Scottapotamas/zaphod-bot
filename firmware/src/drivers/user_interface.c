@@ -58,8 +58,6 @@ BuildInfo_t      fw_info;
 
 FanData_t  fan_stats;
 
-TempData_t temp_sensors;
-
 SystemStates_t sys_states;
 QueueDepths_t  queue_data;
 
@@ -99,7 +97,6 @@ eui_message_t ui_variables[] = {
         // Temperature and cooling system
         EUI_CUSTOM( MSGID_FAN, fan_stats ),
 //        EUI_CUSTOM( MSGID_FAN_CURVE, fan_curve ),
-        EUI_CUSTOM( "temp", temp_sensors ),
 
         // UI requests a change of operating mode
         EUI_UINT8( MSGID_MODE_REQUEST, mode_request ),
@@ -387,7 +384,7 @@ void user_interface_set_module_enable( bool enabled )
 PUBLIC void
 user_interface_set_input_voltage( float voltage )
 {
-    sys_stats.input_voltage = voltage;
+    sys_stats.input_voltage = voltage * 100;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -471,25 +468,25 @@ user_interface_get_fan_curve_ptr( void )
 PUBLIC void
 user_interface_set_temp_ambient( float temp )
 {
-    temp_sensors.pcb_ambient = temp;
+    sys_stats.temp_pcb_ambient = temp * 100;
 }
 
 PUBLIC void
 user_interface_set_temp_regulator( float temp )
 {
-    temp_sensors.pcb_regulator = temp;
+    sys_stats.temp_pcb_regulator = temp * 100;
 }
 
 PUBLIC void
 user_interface_set_temp_external( float temp )
 {
-    temp_sensors.external_probe = temp;
+    sys_stats.temp_external_probe = temp * 100;
 }
 
 PUBLIC void
 user_interface_set_temp_cpu( float temp )
 {
-    temp_sensors.cpu_temp = temp;
+    sys_stats.temp_cpu = temp * 100;
 }
 
 /* -------------------------------------------------------------------------- */

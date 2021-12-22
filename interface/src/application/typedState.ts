@@ -62,6 +62,10 @@ export type SystemStatus = {
   cpu_load: number
   cpu_clock: number
   input_voltage: number
+  temp_ambient: number
+  temp_regulator: number
+  temp_supply: number
+  temp_cpu: number
 }
 
 export type FirmwareBuildInfo = {
@@ -90,13 +94,6 @@ export type KinematicsInfo = {
   flip_y: number,
   flip_z: number,
 
-}
-
-export type TemperatureSensors = {
-  ambient: number
-  regulator: number
-  supply: number
-  cpu: number
 }
 
 export type FanStatus = {

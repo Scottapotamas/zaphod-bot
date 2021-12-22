@@ -5,7 +5,6 @@ import {
   SystemStatus,
   KinematicsInfo,
   FirmwareBuildInfo,
-  TemperatureSensors,
   FanStatus,
   QueueDepthInfo,
   ServoInfo,
@@ -33,7 +32,7 @@ export class SystemDataCodec extends Codec {
   }
 
   encode(payload: SystemStatus): Buffer {
-    throw new Error('Sys is read-only')
+    throw new Error('System info is a read-only packet')
   }
 
   decode(payload: Buffer): SystemStatus {
@@ -44,7 +43,12 @@ export class SystemDataCodec extends Codec {
       module_enable: reader.readUInt8(),
       cpu_load: reader.readUInt8(),
       cpu_clock: reader.readUInt8(),
-      input_voltage: reader.readFloatLE(),
+
+      input_voltage: reader.readInt16LE() / 100,
+      temp_ambient: reader.readInt16LE() / 100,
+      temp_regulator: reader.readInt16LE() / 100,
+      temp_supply: reader.readInt16LE() / 100,
+      temp_cpu: reader.readInt16LE() / 100,
     }
   }
 }
@@ -120,27 +124,6 @@ export class KinematicsInfoCodec extends Codec {
       flip_x: reader.readInt8(),
       flip_y: reader.readInt8(),
       flip_z: reader.readInt8(),
-    }
-  }
-}
-
-export class TempSensorCodec extends Codec {
-  filter(message: Message): boolean {
-    return message.messageID === 'temp'
-  }
-
-  encode(payload: TemperatureSensors): Buffer {
-    throw new Error('temp is read-only')
-  }
-
-  decode(payload: Buffer): TemperatureSensors {
-    const reader = SmartBuffer.fromBuffer(payload)
-
-    return {
-      ambient: reader.readFloatLE(),
-      regulator: reader.readFloatLE(),
-      supply: reader.readFloatLE(),
-      cpu: reader.readFloatLE(),
     }
   }
 }
@@ -262,7 +245,6 @@ export class SupervisorInfoCodec extends Codec {
     }
   }
 }
-
 
 export class QueueDepthCodec extends Codec {
   filter(message: Message): boolean {
@@ -500,7 +482,6 @@ export const customCodecs = [
   new SystemDataCodec(),
   new FirmwareInfoCodec(),
   new KinematicsInfoCodec(),
-  new TempSensorCodec(),
   new FanCodec(),
   new QueueDepthCodec(),
   new MotorDataCodec(),

@@ -36,20 +36,21 @@ import {
   VerticalAxis,
 } from '@electricui/components-desktop-charts'
 import { Printer } from '@electricui/components-desktop'
+import { MSGID } from 'src/application/typedState'
 
-const temperatureDataSource = new MessageDataSource('temp')
+const temperatureDataSource = new MessageDataSource(MSGID.SYSTEM)
 
 export const TemperatureTag = () => {
-  const ambient_temp = useHardwareState(state => state.temp.ambient).toFixed(0)
+  const ambient_temp = useHardwareState(state => state.sys.temp_ambient).toFixed(0)
   const regulator_temp = useHardwareState(
-    state => state.temp.regulator,
+    state => state.sys.temp_regulator,
   ).toFixed(0)
-  const supply_temp = useHardwareState(state => state.temp.supply).toFixed(0)
-  const cpu_temp = useHardwareState(state => state.temp.cpu).toFixed(0)
+  const supply_temp = useHardwareState(state => state.sys.temp_supply).toFixed(0)
+  const cpu_temp = useHardwareState(state => state.sys.temp_cpu).toFixed(0)
 
   return (
     <div>
-      <IntervalRequester variables={['temp']} interval={500} />
+      <IntervalRequester variables={[MSGID.SYSTEM]} interval={500} />
 
       <Popover interactionKind={PopoverInteractionKind.HOVER}>
         <Tag fill large minimal icon={IconNames.SNOWFLAKE} intent={Intent.NONE}>
@@ -70,25 +71,25 @@ export const TemperatureTag = () => {
           <ChartContainer height={300}>
             <LineChart
               dataSource={temperatureDataSource}
-              accessor={event => event.ambient}
+              accessor={event => event.temp_ambient}
               maxItems={1000}
               lineWidth={3}
             />
             <LineChart
               dataSource={temperatureDataSource}
-              accessor={event => event.regulator}
+              accessor={event => event.temp_regulator}
               maxItems={1000}
               lineWidth={3}
             />
             <LineChart
               dataSource={temperatureDataSource}
-              accessor={event => event.supply}
+              accessor={event => event.temp_supply}
               maxItems={1000}
               lineWidth={3}
             />
             <LineChart
               dataSource={temperatureDataSource}
-              accessor={event => event.cpu}
+              accessor={event => event.temp_cpu}
               maxItems={1000}
               lineWidth={3}
             />
