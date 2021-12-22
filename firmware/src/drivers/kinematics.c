@@ -14,9 +14,9 @@
 
 //position offset between kinematics space and cartesian user-space
 CartesianPoint_t offset_position = {
-    x : 0,
-    y : 0,
-    z : MM_TO_MICRONS( 190 )
+    .x =  0,
+    .y =  0,
+    .z =  MM_TO_MICRONS( 190 )
 };
 
 // Constrain motion to the practical parts of the movement volume
@@ -38,6 +38,7 @@ float e  = MM_TO_MICRONS( 34.0f );     // end effector joint radius
 
 // cache common trig constants
 float sqrt3;
+float sqrt1div3;
 float sin120;
 float sin30;
 float cos120;
@@ -63,7 +64,8 @@ PUBLIC void
 kinematics_init( void )
 {
     // calculate/cache common trig constants
-    sqrt3  = sqrt( 3.0f );
+    sqrt3  = M_SQRT3;
+    sqrt1div3 = sqrtf( 1.0f/3.0f );
     sin120 = sqrt3 / 2.0f;
     sin30  = 0.5f;
     cos120 = -0.5f;
@@ -189,16 +191,16 @@ kinematics_angle_to_point( JointAngles_t input, CartesianPoint_t *output )
     input.a2 *= deg_to_rad;
     input.a3 *= deg_to_rad;
 
-    float y1 = -( t + rf * cos( input.a1 ) );
-    float z1 = -rf * sin( input.a1 );
+    float y1 = -( t + rf * cosf( input.a1 ) );
+    float z1 = -rf * sinf( input.a1 );
 
-    float y2 = ( t + rf * cos( input.a2 ) ) * sin30;
+    float y2 = ( t + rf * cosf( input.a2 ) ) * sin30;
     float x2 = y2 * tan60;
-    float z2 = -rf * sin( input.a2 );
+    float z2 = -rf * sinf( input.a2 );
 
-    float y3 = ( t + rf * cos( input.a3 ) ) * sin30;
+    float y3 = ( t + rf * cosf( input.a3 ) ) * sin30;
     float x3 = -y3 * tan60;
-    float z3 = -rf * sin( input.a3 );
+    float z3 = -rf * sinf( input.a3 );
 
     float dnm = ( y2 - y1 ) * x3 - ( y3 - y1 ) * x2;
 
@@ -227,7 +229,7 @@ kinematics_angle_to_point( JointAngles_t input, CartesianPoint_t *output )
         return SOLUTION_ERROR;
     }
 
-    output->z = -(float)0.5f * ( b + sqrt( d ) ) / a;
+    output->z = -(float)0.5f * ( b + sqrtf( d ) ) / a;
     output->x = ( a1 * output->z + b1 ) / dnm;
     output->y = ( a2 * output->z + b2 ) / dnm;
 
@@ -242,8 +244,8 @@ kinematics_angle_to_point( JointAngles_t input, CartesianPoint_t *output )
 PRIVATE KinematicsSolution_t
 delta_angle_plane_calc( float x0, float y0, float z0, float *theta )
 {
-    float y1 = -0.5f * 0.57735f * f;    // f/2 * tg 30
-    y0 -= 0.5f * 0.57735f * e;          // Shift center to edge
+    float y1 = -0.5f * sqrt1div3 * f;    // f/2 * tg 30
+    y0 -= 0.5f * sqrt1div3 * e;          // Shift center to edge
 
     // z = a + b*y
     float a = ( x0 * x0 + y0 * y0 + z0 * z0 + rf * rf - re * re - y1 * y1 ) / ( 2.0f * z0 );
@@ -257,10 +259,10 @@ delta_angle_plane_calc( float x0, float y0, float z0, float *theta )
         return SOLUTION_ERROR;
     }
 
-    float yj = ( y1 - a * b - sqrt( d ) ) / ( b * b + 1 );    // choose the outer point
+    float yj = ( y1 - a * b - sqrtf( d ) ) / ( b * b + 1 );    // choose the outer point
     float zj = a + b * yj;
 
-    *theta = 180.0f * atan( -zj / ( y1 - yj ) ) / M_PI + ( ( yj > y1 ) ? 180.0f : 0.0f );
+    *theta = 180.0f * atanf( -zj / ( y1 - yj ) ) / M_PI + ( ( yj > y1 ) ? 180.0f : 0.0f );
 
     return SOLUTION_VALID;
 }
