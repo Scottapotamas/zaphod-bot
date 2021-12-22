@@ -5,6 +5,7 @@ import {
   isPoint,
   Movement,
   Point,
+  PointTransition,
   Transition,
 } from './movements'
 import { LightMove, MovementMove, MovementMoveReference } from './hardware'
@@ -33,6 +34,7 @@ export function sparseToDense(
     settings.optimisation.waitAtStartDuration,
     transitionMaterial,
   )
+  previousMovement.setMaxSpeed(settings.optimisation.maxSpeed)
 
   // Middle
   for (let index = 0; index < sparseBag.length; index++) {
@@ -41,7 +43,40 @@ export function sparseToDense(
     // Set the max speed of the movement so velocities are scaled
     movement.setMaxSpeed(settings.optimisation.maxSpeed)
 
-    // TODO: If we're in the middle of a run of Points, build a Catmull spline that goes between them
+    // Points are visited by catmulls if their duration is 0, and if we have available control points
+    if (
+      isPoint(previousMovement) &&
+      isPoint(movement) &&
+      movement.duration === 0 &&
+      index >= 2 &&
+      index < sparseBag.length - 1
+    ) {
+      const movementPrevPrev = sparseBag[index - 2]
+      const movementPrev = previousMovement
+      const movementCurrent = movement
+      const movementNext = sparseBag[index + 1]
+
+      // Build our transition movement from the old movement to the new
+      const transition = new PointTransition(
+        movementPrevPrev,
+        movementPrev,
+        movementCurrent,
+        movementNext,
+        transitionMaterial,
+      )
+
+      transition.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
+
+      // Add the transition to the dense bag
+      denseMovements.push(transition)
+
+      // Add the movement to the dense bag
+      denseMovements.push(movement)
+
+      // Update the last movement
+      previousMovement = movement
+      continue
+    }
 
     // Build our transition movement from the old movement to the new
     const transition = new Transition(
@@ -49,6 +84,7 @@ export function sparseToDense(
       movement,
       transitionMaterial,
     )
+    transition.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
 
     // Add the transition to the dense bag
     denseMovements.push(transition)
@@ -71,6 +107,7 @@ export function sparseToDense(
     1, // wait for 1ms at the end
     transitionMaterial,
   )
+  lastMovement.setMaxSpeed(settings.optimisation.maxSpeed)
 
   // Transition to the end
   const transitionToEnd = new Transition(
@@ -78,6 +115,7 @@ export function sparseToDense(
     lastMovement,
     transitionMaterial,
   )
+  transitionToEnd.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
 
   // Add the transition to the dense bag
   denseMovements.push(transitionToEnd)

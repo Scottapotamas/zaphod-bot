@@ -47,6 +47,7 @@ export interface OptimisationSettings {
   endingPoint: [x: number, y: number, z: number]
 
   maxSpeed: number // mm/s
+  transitionMaxSpeed: number // mm/s
 }
 
 export function getToMovementSettings(

@@ -89,6 +89,36 @@ function MaxSpeedSlider() {
   )
 }
 
+function TransitionMaxSpeedSlider() {
+  const [localSpeed, setLocalSpeed] = useState(
+    getSetting(state => state.settings.optimisation.transitionMaxSpeed),
+  )
+
+  const updateTransitionMaxSpeed = useCallback(newTransitionMaxSpeed => {
+    setSetting(state => {
+      state.settings.optimisation.transitionMaxSpeed = Math.max(
+        newTransitionMaxSpeed,
+        1,
+      )
+    })
+  }, [])
+
+  return (
+    <div style={{ marginLeft: 10, marginRight: 10 }}>
+      <Slider
+        min={0}
+        max={300}
+        stepSize={1}
+        labelStepSize={50}
+        value={Math.max(localSpeed, 1)}
+        labelRenderer={value => `${value}mm/s`}
+        onRelease={updateTransitionMaxSpeed}
+        onChange={setLocalSpeed}
+      />
+    </div>
+  )
+}
+
 function WaitAtStartDurationSlider() {
   const [waitDuration, setWaitDuration] = useState(
     getSetting(state => state.settings.optimisation.waitAtStartDuration),
@@ -122,8 +152,12 @@ export const SettingsInterface = () => {
       <FormGroup label="Particle wait duration">
         <ParticleWaitDurationSlider />
       </FormGroup>
+
       <FormGroup label="Maximum speed">
         <MaxSpeedSlider />
+      </FormGroup>
+      <FormGroup label="Maximum transition speed">
+        <TransitionMaxSpeedSlider />
       </FormGroup>
       <FormGroup label="Wait at start duration">
         <WaitAtStartDurationSlider />
