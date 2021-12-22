@@ -12,6 +12,7 @@ import { Mesh, Group } from 'three'
 import { useViewportFrameToolpath } from './state'
 import { MovementMoveType } from '../optimiser/hardware'
 import { Toolpath } from '../optimiser/passes'
+import { CatmullRomLine } from './CatmullLine'
 
 function AxisLines() {
   return (
@@ -45,9 +46,9 @@ export const ToolpathVisualisation = () => {
           <Line
             key={movement.id}
             points={movement.points} // Array of points
-            color="white" // Default
-            lineWidth={2} // In pixels (default)
-            dashed={false} // Default
+            color="white"
+            lineWidth={2}
+            dashed={false}
           />
         )
       case MovementMoveType.BEZIER_CUBIC:
@@ -58,9 +59,20 @@ export const ToolpathVisualisation = () => {
             midA={movement.points[1]} // First control point
             midB={movement.points[2]} // Second control point
             end={movement.points[3]} // Ending point
-            color="blue" // Default
-            lineWidth={1} // In pixels (default)
-            dashed={true} // Default
+            color="blue"
+            lineWidth={1}
+            dashed={true}
+          />
+        )
+      case MovementMoveType.CATMULL_SPLINE:
+        return (
+          <CatmullRomLine
+            key={movement.id}
+            points={movement.points}
+            curveType="catmullrom"
+            color="blue"
+            lineWidth={1}
+            dashed={true}
           />
         )
 

@@ -37,6 +37,7 @@ const defaultSettings: Settings = {
     startingPoint: [0, 0, 0],
     endingPoint: [0, 0, 0],
     maxSpeed: 100,
+    transitionMaxSpeed: 100,
     waitAtStartDuration: 1000,
   },
 }
