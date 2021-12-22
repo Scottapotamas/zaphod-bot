@@ -1,11 +1,19 @@
 import * as React from 'react'
+import { useRef } from 'react'
+
+// import // Environment,
+// // OrbitControls,
+// '@electricui/components-desktop-three'
+
+import { Canvas } from '@react-three/fiber'
 
 import {
-  Environment,
+  Line,
+  CubicBezierLine,
+  Segments,
+  Segment,
   OrbitControls,
-} from '@electricui/components-desktop-three'
-
-import { Line, CubicBezierLine } from '@react-three/drei'
+} from '@react-three/drei'
 
 import { useFrame, useThree } from '@react-three/fiber'
 import { Mesh, Group } from 'three'
@@ -13,6 +21,8 @@ import { useViewportFrameToolpath } from './state'
 import { MovementMoveType } from '../optimiser/hardware'
 import { Toolpath } from '../optimiser/passes'
 import { CatmullRomLine } from './CatmullLine'
+import { MovementPoint } from 'src/application/typedState'
+import { Line2 } from 'three-stdlib'
 
 function AxisLines() {
   return (
@@ -33,56 +43,78 @@ function AxisLines() {
   )
 }
 
-export const ToolpathVisualisation = () => {
+function convertToThreeCoordinateSystem(
+  vector: [number, number, number],
+): [number, number, number] {
+  return [vector[0], vector[2], -vector[1]]
+}
+
+function ToolpathObjects() {
   const toolpath: Toolpath = useViewportFrameToolpath() ?? {
     movementMoves: [],
     lightMoves: [],
   }
 
-  const toolpathThree = toolpath.movementMoves.map(movement => {
-    switch (movement.type) {
-      case MovementMoveType.LINE:
-        return (
-          <Line
-            key={movement.id}
-            points={movement.points} // Array of points
-            color="white"
-            lineWidth={2}
-            dashed={false}
-          />
-        )
-      case MovementMoveType.BEZIER_CUBIC:
-        return (
-          <CubicBezierLine
-            key={movement.id}
-            start={movement.points[0]} // Starting point
-            midA={movement.points[1]} // First control point
-            midB={movement.points[2]} // Second control point
-            end={movement.points[3]} // Ending point
-            color="blue"
-            lineWidth={1}
-            dashed={true}
-          />
-        )
-      case MovementMoveType.CATMULL_SPLINE:
-        return (
-          <CatmullRomLine
-            key={movement.id}
-            points={movement.points}
-            curveType="catmullrom"
-            color="blue"
-            lineWidth={1}
-            dashed={true}
-          />
-        )
+  const segments = toolpath.movementMoves
+    .filter(movement => movement.type === MovementMoveType.LINE)
+    .map(movement => (
+      <Segment
+        start={convertToThreeCoordinateSystem(movement.points[0]) as any}
+        end={convertToThreeCoordinateSystem(movement.points[1]) as any}
+        color={'white' as any}
+      />
+    ))
 
-      default:
-        return null
-    }
-  })
+  const transitions = toolpath.movementMoves
+    .filter(movement => movement.type !== MovementMoveType.LINE)
+    .map(movement => {
+      switch (movement.type) {
+        case MovementMoveType.BEZIER_CUBIC:
+          return (
+            <CubicBezierLine
+              key={movement.id}
+              start={convertToThreeCoordinateSystem(movement.points[0])} // Starting point
+              midA={convertToThreeCoordinateSystem(movement.points[1])} // First control point
+              midB={convertToThreeCoordinateSystem(movement.points[2])} // Second control point
+              end={convertToThreeCoordinateSystem(movement.points[3])} // Ending point
+              color="blue"
+              lineWidth={1}
+              dashed={true}
+            />
+          )
+        case MovementMoveType.CATMULL_SPLINE:
+          return (
+            <CatmullRomLine
+              key={movement.id}
+              points={movement.points.map(point =>
+                convertToThreeCoordinateSystem(point),
+              )}
+              curveType="catmullrom"
+              color="blue"
+              lineWidth={1}
+              dashed={true}
+            />
+          )
+
+        default:
+          return null
+      }
+    })
 
   return (
-    <Environment
+    <>
+      <Segments limit={2000} lineWidth={2.0}>
+        {segments}
+      </Segments>
+
+      {transitions}
+    </>
+  )
+}
+
+export const ToolpathVisualisation = () => {
+  return (
+    <Canvas
       camera={{
         fov: 80,
         position: [0, 150, 500],
@@ -111,9 +143,9 @@ export const ToolpathVisualisation = () => {
         color="#0c8cbf"
       />
 
-      {toolpathThree}
+      <ToolpathObjects />
 
       {/* <fog attach="fog" args={['#101010', 600, 3000]} /> */}
-    </Environment>
+    </Canvas>
   )
 }
