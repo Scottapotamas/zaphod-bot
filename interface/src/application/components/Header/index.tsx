@@ -1,18 +1,11 @@
 import {
   Button as BlueprintButton,
-  Popover,
   Position,
   Tooltip,
-  Colors,
   Dialog,
-  Tag,
   Intent,
   PopoverInteractionKind,
 } from '@blueprintjs/core'
-import {
-  IntervalRequester,
-  useHardwareState,
-} from '@electricui/components-core'
 
 import { Button } from '@electricui/components-desktop-blueprint'
 
@@ -21,14 +14,6 @@ import React, { useCallback, useState } from 'react'
 import { RouteComponentProps } from '@reach/router'
 import { navigate } from '@electricui/utility-electron'
 import { Composition, Box } from 'atomic-layout'
-import { Printer } from '@electricui/components-desktop'
-
-import {
-  ChartContainer,
-  LineChart,
-  RealTimeDomain,
-  VerticalAxis,
-} from '@electricui/components-desktop-charts'
 
 import { MessageDataSource } from '@electricui/core-timeseries'
 import { IconNames } from '@blueprintjs/icons'
@@ -37,6 +22,7 @@ import { SettingsPage } from './SettingsPage'
 import { TemperatureTag } from './SummaryTags/TemperatureTag'
 import { CPUTag } from './SummaryTags/CPUTag'
 import { FanTag } from './SummaryTags/FanTag'
+import { MSGID } from 'src/application/typedState'
 
 interface InjectDeviceIDFromLocation {
   deviceID?: string
@@ -97,7 +83,12 @@ export const Header = (
 
             <Areas.Center>
               <div style={{ minWidth: '300px', maxWidth: '500px' }}>
-                <Button callback="estop" intent={Intent.DANGER} fill large>
+                <Button
+                  callback={MSGID.EMERGENCY_STOP}
+                  intent={Intent.DANGER}
+                  fill
+                  large
+                >
                   E-STOP
                 </Button>
               </div>

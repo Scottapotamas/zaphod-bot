@@ -16,7 +16,7 @@ import { IconNames } from '@blueprintjs/icons'
 import { useHardwareState } from '@electricui/components-core'
 import { Printer } from '@electricui/components-desktop'
 
-import { CONTROL_MODES, SUPERVISOR_STATES } from '../../../typedState'
+import { MSGID, CONTROL_MODES, SUPERVISOR_STATES } from '../../../typedState'
 
 const layoutDescription = `
             State XAxis
@@ -55,7 +55,6 @@ export const RobotSummary = (props: RobotSummaryProps) => {
           <React.Fragment>
             <Areas.State>
               <Tag
-                
                 round
                 fill
                 intent={Intent.NONE}

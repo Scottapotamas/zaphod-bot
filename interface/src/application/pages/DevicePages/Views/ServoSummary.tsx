@@ -3,23 +3,16 @@ import React from 'react'
 import { Composition, Box } from 'atomic-layout'
 
 import {
-  Card,
-  Icon,
   Colors,
-  Tag,
   Callout,
   Intent,
   IconName,
-  Tooltip,
-  Position,
 } from '@blueprintjs/core'
-import { Statistic, Statistics } from '@electricui/components-desktop-blueprint'
 import { IconNames } from '@blueprintjs/icons'
 
 import { useHardwareState } from '@electricui/components-core'
-import { Printer } from '@electricui/components-desktop'
 
-import { SUPERVISOR_STATES, ServoInfo } from '../../../typedState'
+import { MSGID, SUPERVISOR_STATES, ServoInfo } from '../../../typedState'
 
 const MotorSafetyMode = () => {
   const motor_state = useHardwareState(state => state.super.motors)

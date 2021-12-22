@@ -9,6 +9,8 @@ import ManualJogPalette from './ControlPalette/ManualJogPalette'
 import { TrackPalette } from './ControlPalette/TrackPalette'
 import { LEDControlPalette } from './LEDControlPalette'
 
+import { MSGID } from '../../../typedState'
+
 export const ControlBlock = () => {
   const control_mode = useHardwareState(state => state.super.mode)
 

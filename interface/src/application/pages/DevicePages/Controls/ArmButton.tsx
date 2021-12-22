@@ -1,15 +1,16 @@
+import React from 'react'
+
+import { IconNames } from '@blueprintjs/icons'
+import { Intent } from '@blueprintjs/core'
+
 import { Button } from '@electricui/components-desktop-blueprint'
-import { CONTROL_MODES, SUPERVISOR_STATES } from '../../../typedState'
 
 import {
   IntervalRequester,
   useHardwareState,
 } from '@electricui/components-core'
 
-import { Composition, Box } from 'atomic-layout'
-import React from 'react'
-import { Printer } from '@electricui/components-desktop'
-import { IconNames } from '@blueprintjs/icons'
+import { MSGID, CONTROL_MODES, SUPERVISOR_STATES } from '../../../typedState'
 
 export const ArmControlButton = () => {
   const supervisor = useHardwareState<string>(state => state.super.supervisor)
@@ -25,9 +26,9 @@ export const ArmControlButton = () => {
           fill
           large
           disabled
-          intent="none"
+          intent={Intent.NONE}
           icon={IconNames.WARNING_SIGN}
-          callback="disarm"
+          callback={MSGID.DISARM}
         >
           Select a mode before arming
         </Button>
@@ -37,9 +38,9 @@ export const ArmControlButton = () => {
         <Button
           fill
           large
-          intent="warning"
+          intent={Intent.WARNING}
           icon={IconNames.PLAY}
-          callback="arm"
+          callback={MSGID.ARM}
         >
           Arm ({control_mode})
         </Button>
@@ -48,7 +49,13 @@ export const ArmControlButton = () => {
   }
 
   return (
-    <Button fill large intent="primary" icon={IconNames.STOP} callback="disarm">
+    <Button
+      fill
+      large
+      intent={Intent.PRIMARY}
+      icon={IconNames.STOP}
+      callback={MSGID.DISARM}
+    >
       Disarm
     </Button>
   )

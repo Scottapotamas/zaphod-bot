@@ -8,6 +8,8 @@ import {
   Message,
 } from '@electricui/core'
 
+import { MSGID } from '../../application/typedState'
+
 // Request and Process a 'name' for every device
 
 class RequestName extends DiscoveryMetadataRequester {
@@ -18,7 +20,7 @@ class RequestName extends DiscoveryMetadataRequester {
   }
 
   requestMetadata(device: Device) {
-    const nameRequest = new Message('name', null)
+    const nameRequest = new Message(MSGID.NICKNAME, null)
     nameRequest.metadata.query = true
     nameRequest.metadata.internal = false
 
@@ -45,7 +47,7 @@ class ProcessName extends DiscoveryMetadataProcessor {
     }
 
     // if it's a name packet, process it
-    if (message.messageID === 'name') {
+    if (message.messageID === MSGID.NICKNAME) {
       return true
     }
 
@@ -53,7 +55,7 @@ class ProcessName extends DiscoveryMetadataProcessor {
   }
 
   processMetadata(message: Message, device: Device, foundHint: FoundHint) {
-    if (message.messageID === 'name') {
+    if (message.messageID === MSGID.NICKNAME) {
       device.addMetadata({
         name: message.payload,
       })

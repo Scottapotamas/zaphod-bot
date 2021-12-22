@@ -1,4 +1,44 @@
 /**
+ * Centralised defines for message identifiers to improve readability
+ * and allow for easier refactor/sync with embedded hardware
+ */
+ export enum MSGID {
+  NICKNAME = "name",
+  RESET_CAUSE = "reset_type",
+  SYSTEM = "sys",
+  SUPERVISOR = "super",
+  FIRMWARE_INFO = "fwb",
+  
+  FAN = "fan",
+  FAN_CURVE = "curve",
+  
+  MODE_REQUEST = "req_mode",
+  MOTION = "moStat",
+  SERVO = "servo",
+  
+  POSITION_TARGET = "tpos",
+  POSITION_CURRENT = "cpos",
+  POSITION_EXPANSION = "exp_ang",
+  
+  LED = "rgb",
+  LED_MANUAL_REQUEST = "manual_led",
+  
+  QUEUE_INFO = "queue",
+  QUEUE_SYNC = "sync",
+  QUEUE_SYNC_ID = "syncid",
+  QUEUE_CLEAR = "clmv",
+  QUEUE_START = "stmv",
+  QUEUE_ADD_MOVE = "inmv",
+  QUEUE_ADD_FADE = "inlt",
+  
+  EMERGENCY_STOP = "estop",
+  ARM = "arm",
+  DISARM = "disarm",
+  HOME = "home",
+  CAPTURE = "capture",
+}
+
+/**
  * To strictly type all accessors and writers, remove
  *
  * [messageID: string]: any

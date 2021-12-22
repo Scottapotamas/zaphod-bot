@@ -3,7 +3,7 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "user_interface.h"
-
+#include "user_interface_msgid.h"
 #include "configuration.h"
 
 #include "app_task_ids.h"
@@ -89,50 +89,52 @@ uint32_t camera_shutter_duration_ms = 0;
 
 eui_message_t ui_variables[] = {
         // Higher level system setup information
-        EUI_CHAR_ARRAY_RO( "name", device_nickname ),
-        EUI_CHAR_ARRAY_RO( "reset_type", reset_cause ),
-        EUI_CUSTOM( "sys", sys_stats ),
-        EUI_CUSTOM( "super", sys_states ),
-        EUI_CUSTOM( "fwb", fw_info ),
+        EUI_CHAR_ARRAY_RO( MSGID_NICKNAME, device_nickname ),
+        EUI_CHAR_ARRAY_RO( MSGID_RESET_CAUSE, reset_cause ),
+        EUI_CUSTOM( MSGID_SYSTEM, sys_stats ),
+        EUI_CUSTOM( MSGID_SUPERVISOR, sys_states ),
+        EUI_CUSTOM( MSGID_FIRMWARE_INFO, fw_info ),
 //        EUI_CUSTOM_RO( "kinematics", mechanical_info ),
 
         // Temperature and cooling system
-        EUI_CUSTOM( "fan", fan_stats ),
-//        EUI_CUSTOM( "curve", fan_curve ),
+        EUI_CUSTOM( MSGID_FAN, fan_stats ),
+//        EUI_CUSTOM( MSGID_FAN_CURVE, fan_curve ),
         EUI_CUSTOM( "temp", temp_sensors ),
 
         // UI requests a change of operating mode
-        EUI_UINT8( "req_mode", mode_request ),
+        EUI_UINT8( MSGID_MODE_REQUEST, mode_request ),
 
         // motion related information
-        EUI_CUSTOM_RO( "moStat", motion_global ),
-        EUI_CUSTOM_RO( "servo", motion_servo ),
-        EUI_CUSTOM( "tpos", target_position ),
-        EUI_CUSTOM_RO( "cpos", current_position ),
+        EUI_CUSTOM_RO( MSGID_MOTION, motion_global ),
+        EUI_CUSTOM_RO( MSGID_SERVO, motion_servo ),
+        EUI_CUSTOM( MSGID_POSITION_TARGET, target_position ),
+        EUI_CUSTOM_RO( MSGID_POSITION_CURRENT, current_position ),
 
 #ifdef EXPANSION_SERVO
-    EUI_FLOAT( "exp_ang", external_servo_angle_target),
+    EUI_FLOAT( MSGID_POSITION_EXPANSION, external_servo_angle_target),
 #endif
 
-        EUI_CUSTOM_RO( "rgb", rgb_led_drive ),
-        EUI_CUSTOM( "manual_led", rgb_manual_control ),
+        EUI_CUSTOM_RO( MSGID_LED, rgb_led_drive ),
+        EUI_CUSTOM( MSGID_LED_MANUAL_REQUEST, rgb_manual_control ),
 
-        //inbound movement buffer and 'add to queue' callback
-        EUI_CUSTOM( "inlt", light_fade_inbound ),
-        EUI_CUSTOM( "inmv", motion_inbound ),
-        EUI_FUNC( "stmv", execute_motion_queue ),
-        EUI_FUNC( "clmv", clear_all_queue ),
-        EUI_FUNC( "sync", sync_begin_queues ),
-        EUI_UINT16( "syncid", sync_id_val ),
-        EUI_CUSTOM_RO( "queue", queue_data ),
+        // Movement/Lighting Queue Handling
+        EUI_CUSTOM_RO( MSGID_QUEUE_INFO, queue_data ),
+        EUI_FUNC( MSGID_QUEUE_CLEAR, clear_all_queue ),
+        EUI_FUNC( MSGID_QUEUE_SYNC, sync_begin_queues ),
+        EUI_UINT16( MSGID_QUEUE_SYNC_ID, sync_id_val ),
+        EUI_FUNC( MSGID_QUEUE_START, execute_motion_queue ),
+
+        EUI_CUSTOM( MSGID_QUEUE_ADD_FADE, light_fade_inbound ),
+        EUI_CUSTOM( MSGID_QUEUE_ADD_MOVE, motion_inbound ),
+
 
         // Event trigger callbacks
-        EUI_FUNC( "estop", emergency_stop_cb ),
-        EUI_FUNC( "arm", start_mech_cb ),
-        EUI_FUNC( "disarm", stop_mech_cb ),
-        EUI_FUNC( "home", home_mech_cb ),
+        EUI_FUNC( MSGID_EMERGENCY_STOP, emergency_stop_cb ),
+        EUI_FUNC( MSGID_ARM, start_mech_cb ),
+        EUI_FUNC( MSGID_DISARM, stop_mech_cb ),
+        EUI_FUNC( MSGID_HOME, home_mech_cb ),
 
-        EUI_UINT32( "capture", camera_shutter_duration_ms ),
+        EUI_UINT32( MSGID_CAPTURE, camera_shutter_duration_ms ),
 
     //        EUI_FLOAT( "rotZ", z_rotation ),
 //        EUI_CUSTOM( "ledset", rgb_led_settings ),
@@ -250,7 +252,7 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
             uint8_t *    name_rx = interface->packet.id_in;
 
             // See if the inbound packet name matches our intended variable
-            if( strcmp( (char *)name_rx, "req_mode" ) == 0 )
+            if( strcmp( (char *)name_rx, MSGID_MODE_REQUEST ) == 0 )
             {
 
                 // Fire an event to the supervisor to change mode
@@ -279,34 +281,34 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
                 }
             }
 
-            if( strcmp( (char *)name_rx, "inmv" ) == 0 && header.data_len )
+            if( strcmp( (char *)name_rx, MSGID_QUEUE_ADD_MOVE ) == 0 && header.data_len )
             {
                 movement_generate_event();
             }
 
-            if( strcmp( (char *)name_rx, "inlt" ) == 0 && header.data_len )
+            if( strcmp( (char *)name_rx, MSGID_QUEUE_ADD_FADE ) == 0 && header.data_len )
             {
                 lighting_generate_event();
             }
 
-            if( strcmp( (char *)name_rx, "tpos" ) == 0 && header.data_len )
+            if( strcmp( (char *)name_rx, MSGID_POSITION_TARGET ) == 0 && header.data_len )
             {
                 tracked_position_event();
             }
 
 #ifdef EXPANSION_SERVO
-            if( strcmp( (char *)name_rx, "exp_ang" ) == 0 && header.data_len )
+            if( strcmp( (char *)name_rx, MSGID_POSITION_EXPANSION ) == 0 && header.data_len )
             {
                 tracked_external_servo_request();
             }
 #endif
 
-            if( strcmp( (char *)name_rx, "manual_led" ) == 0 && header.data_len )
+            if( strcmp( (char *)name_rx, MSGID_LED_MANUAL_REQUEST ) == 0 && header.data_len )
             {
                 rgb_manual_led_event();
             }
 
-            if( strcmp( (char *)name_rx, "capture" ) == 0 && header.data_len )
+            if( strcmp( (char *)name_rx, MSGID_CAPTURE ) == 0 && header.data_len )
             {
                 trigger_camera_capture();
             }

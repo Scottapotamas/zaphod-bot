@@ -1,19 +1,27 @@
+import React from 'react'
+
+import { Composition, Box } from 'atomic-layout'
+
+import { IconNames } from '@blueprintjs/icons'
+import { Intent } from '@blueprintjs/core'
 import { Button } from '@electricui/components-desktop-blueprint'
-import { CONTROL_MODES, SUPERVISOR_STATES } from '../../../typedState'
 
 import {
   IntervalRequester,
   useHardwareState,
 } from '@electricui/components-core'
 
-import { IconNames } from '@blueprintjs/icons'
-
-import { Composition, Box } from 'atomic-layout'
-import React from 'react'
+import { MSGID } from '../../../typedState'
 
 export const HomeButton = () => {
   return (
-    <Button fill large intent="success" icon={IconNames.HOME} callback="home">
+    <Button
+      fill
+      large
+      intent={Intent.SUCCESS}
+      icon={IconNames.HOME}
+      callback={MSGID.HOME}
+    >
       Home
     </Button>
   )
