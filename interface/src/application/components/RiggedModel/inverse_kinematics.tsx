@@ -28,6 +28,7 @@ const offset_position: CartesianPoint = {
 
 // Calculation Constants
 const sqrt3 = Math.sqrt(3.0)
+const sqrt1div3 = Math.sqrt(1.0/3.0)
 const sin120 = sqrt3 / 2.0
 const sin30 = 0.5
 const cos120 = -0.5
@@ -45,25 +46,20 @@ const tan30 = 1 / sqrt3
  * Returns status
  */
 
-export function kinematics_point_to_angle(effectorPosition: CartesianPoint): number[] {
-    
-    // Shallow clone of effector position to prevent mutation
-    // TODO: what's the _correct_ TS-ish way to shallow clone/make the arg immutable?
-    let position: CartesianPoint = { ...effectorPosition }
+export function kinematics_point_to_angle(effectorPosition: CartesianPoint, armIndex: number): number {
+  // Shallow clone of effector position to prevent mutation
+  let position: CartesianPoint = { ...effectorPosition }
 
   let result: AngleCalcResult = { ok: false, angle: 0 }
-  let joints: number[] = [0,0,0]   //{ a1: 0, a2: 0, a3: 0 }
 
-  
   // Offset the work-area position frame into the kinematics domain position
   position.x = (position.x + offset_position.x) * flip_x
   position.y = (position.y + offset_position.y) * flip_y
   position.z = (position.z + offset_position.z) * flip_z
 
-
   // Perform kinematics calculations
   result = delta_angle_plane_calc(position.x, position.y, position.z)
-  joints[0] = result.angle
+  if (armIndex === 0) return result.angle
 
   if (result.ok) {
     // Rotate +120 degrees
@@ -72,7 +68,7 @@ export function kinematics_point_to_angle(effectorPosition: CartesianPoint): num
       position.y * cos120 - position.x * sin120,
       position.z,
     )
-    joints[1] = result.angle
+    if (armIndex === 1) return result.angle
   }
 
   if (result.ok) {
@@ -82,12 +78,12 @@ export function kinematics_point_to_angle(effectorPosition: CartesianPoint): num
       position.y * cos120 + position.x * sin120,
       position.z,
     )
-    joints[2] = result.angle
+    if (armIndex === 2) return result.angle
   }
 
   // TODO: return an error if any of the 3 arm calculations don't resolve?
 
-  return joints
+  return 0
 }
 
 /* -------------------------------------------------------------------------- */
@@ -96,8 +92,8 @@ export function kinematics_point_to_angle(effectorPosition: CartesianPoint): num
 function delta_angle_plane_calc(x0: number, y0: number, z0: number): AngleCalcResult {
   let theta: number = 0
 
-  let y1: number = -0.5 * 0.57735 * f // f/2 * tg 30
-  y0 -= 0.5 * 0.57735 * e // Shift center to edge
+  let y1: number = -0.5 * sqrt1div3 * f // f/2 * tg 30
+  y0 -= 0.5 * sqrt1div3 * e // Shift center to edge
 
   // z = a + b*y
   let a: number = (x0 * x0 + y0 * y0 + z0 * z0 + rf * rf - re * re - y1 * y1) / (2.0 * z0)
@@ -107,7 +103,7 @@ function delta_angle_plane_calc(x0: number, y0: number, z0: number): AngleCalcRe
   let d: number = -(a + b * y1) * (a + b * y1) + rf * (b * b * rf + rf)
 
   if (d < 0) {
-    return { ok:false, angle: theta}
+    return { ok: false, angle: theta }
   }
 
   let yj: number = (y1 - a * b - Math.sqrt(d)) / (b * b + 1) // choose the outer point
@@ -115,6 +111,5 @@ function delta_angle_plane_calc(x0: number, y0: number, z0: number): AngleCalcRe
 
   theta = (180.0 * Math.atan(-zj / (y1 - yj))) / Math.PI + (yj > y1 ? 180.0 : 0.0)
 
-
-  return { ok:true, angle: theta}
+  return { ok: true, angle: theta }
 }

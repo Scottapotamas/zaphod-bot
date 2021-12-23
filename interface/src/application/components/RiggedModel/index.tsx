@@ -7,18 +7,20 @@ import {
   GLTF,
   OrbitControls,
 } from '@electricui/components-desktop-three'
-import { useHardwareState } from '@electricui/components-core'
+import { useHardwareState, useHardwareStateSubscription } from '@electricui/components-core'
 
 import {
   Backdrop,
   ContactShadows,
+  Shadow,
+  softShadows,
   Stage,
   PresentationControls,
-  Environment as DreiEnvironment
+  Environment as DreiEnvironment,
 } from '@react-three/drei'
 
 import { useFrame, useThree } from '@react-three/fiber'
-import { Mesh, Group } from 'three'
+import { Euler, Group, Vector3 } from 'three'
 
 import { kinematics_point_to_angle, CartesianPoint } from './inverse_kinematics'
 
@@ -30,7 +32,15 @@ import DeltaForearmModel from './models/forearm.glb'
 GLTF.preload(DeltaBaseModel)
 GLTF.preload(DeltaBicepModel)
 GLTF.preload(DeltaEffectorModel)
-GLTF.preload(DeltaForearmModel)
+// GLTF.preload(DeltaForearmModel)
+
+softShadows({
+  frustum: 3.75, // Frustum width (default: 3.75) must be a float
+  size: 0.005, // World size (default: 0.005) must be a float
+  near: 9.5, // Near plane (default: 9.5) must be a float
+  samples: 17, // Samples (default: 17) must be a int
+  rings: 11, // Rings (default: 11) must be a int
+})
 
 const arm_count: number = 3
 const bicep_length_mm: number = 180
@@ -76,59 +86,88 @@ function CameraViewTarget() {
   )
 }
 
+
+function ForearmGeometry() {
+  return (
+    <group>
+      {/* 
+        GLTF isn't used as _each instance_ is high poly (19k) compared to most other parts 
+        Instead, we generate sphere and cylinder geometry with native THREE meshes
+      */}
+
+      {/* <GLTF receiveShadow asset={DeltaForearmModel} position={[0, 0, -43]} rotation={[0, Math.PI, 0]} /> */}
+      <mesh>
+        <sphereBufferGeometry attach="geometry" args={[8, 16, 16]} />
+        <meshStandardMaterial attach="material" roughness={0.6} />
+      </mesh>
+      <mesh position={[0, 0, 340]}>
+        <sphereBufferGeometry attach="geometry" args={[8, 16, 16]} />
+        <meshStandardMaterial attach="material" roughness={0.6} />
+      </mesh>
+      <mesh position={[0, 0, 340 / 2]} rotation={[Math.PI / 2, 0, 0]}>
+        <cylinderBufferGeometry attach="geometry" args={[4, 4, 340, 32]} />
+        <meshStandardMaterial attach="material" roughness={0.6} />
+      </mesh>
+    </group>
+  )
+}
+
 interface ForearmHelperProps {
-  elbowPosition: number[]
-  wristPosition: number[]
+  left: boolean
+  armIndex: number
+}
+
+const mutableEffector = new Vector3(0, 0, 0)
+const mutableOffset = new Vector3(0, 0, 0)
+const mutableEuler = new Euler(0, 0, 0)
+
+function calculateLookAt(cpos: { x: number; y: number; z: number }, left: boolean, armIndex: number) {
+  mutableEffector.set(cpos.x, cpos.z + 190 + 140, cpos.y)
+
+  mutableEuler.set(0, (armIndex * (-2 * Math.PI)) / 3, 0)
+
+  mutableOffset.set(left ? 22.5 : -22.5, 0, -32).applyEuler(mutableEuler)
+
+  return mutableEffector.add(mutableOffset)
 }
 
 function ForearmHelper(props: ForearmHelperProps) {
-  const ref = useRef<Group>(null!)
-  //   console.log('Forearm at:', props.elbowPosition, 'looking at:', props.wristPosition)
+  const ref = useRef<Group>(null)
+
+  const initialCpos = useHardwareStateSubscription(
+    state => state.cpos,
+    cpos => {
+      if (ref && ref.current) {
+        ref.current.lookAt(calculateLookAt(cpos, props.left, props.armIndex))
+      }
+    },
+  )
 
   useEffect(() => {
     if (ref && ref.current) {
-      ref.current.lookAt(
-        props.wristPosition[0],
-        props.wristPosition[1],
-        props.wristPosition[2],
-      )
+      ref.current.lookAt(calculateLookAt(initialCpos, props.left, props.armIndex))
     }
   }, [])
 
   return (
-    <group
-      ref={ref}
-      position={[
-        props.elbowPosition[0],
-        props.elbowPosition[1],
-        props.elbowPosition[2],
-      ]}
-    >
-      {/* Highlight the shoulder joint with red */}
-      {/* <mesh>
-        <sphereBufferGeometry attach="geometry" args={[7, 20, 20]} />
-        <meshStandardMaterial attach="material" color="red" roughness={0.6} />
-      </mesh> */}
-
-      <GLTF
-        asset={DeltaForearmModel}
-        position={[0, 0, -43]}
-        rotation={[0, Math.PI / 1, 0]}
-      />
+    <group ref={ref} position={props.left ? [-bicep_length_mm, 0, -25.5] : [-bicep_length_mm, 0, +22.5]}>
+      <ForearmGeometry />
     </group>
   )
 }
 
 interface ArmAssemblyProps {
-  shoulderAngle: number
-  wristCentroid: number[]
+  armIndex: number
 }
 
 function ArmAssembly(props: ArmAssemblyProps) {
   return (
-    <group
+    <ControlledGroup
       position={[-50, 0, 3]}
-      rotation={[0, 0, (props.shoulderAngle * Math.PI) / 180.0]}
+      rotationAccessor={state => {
+        let arm_angle = kinematics_point_to_angle(state.cpos, props.armIndex)
+        return [0, 0, (arm_angle * Math.PI) / 180]
+      }}
     >
       <GLTF
         asset={DeltaBicepModel}
@@ -137,41 +176,14 @@ function ArmAssembly(props: ArmAssemblyProps) {
       />
 
       {/* TODO: Find actual 'effector' mounting location offset */}
-      <ForearmHelper
-        elbowPosition={[-bicep_length_mm, 0, -25.5]}
-        wristPosition={[
-          props.wristCentroid[0],
-          props.wristCentroid[1],
-          props.wristCentroid[2],
-        ]}
-      />
-      <ForearmHelper
-        elbowPosition={[-bicep_length_mm, 0, +22.5]}
-        wristPosition={[
-          props.wristCentroid[0],
-          props.wristCentroid[1],
-          props.wristCentroid[2],
-        ]}
-      />
-    </group>
+      <ForearmHelper armIndex={props.armIndex} left={true} />
+      <ForearmHelper armIndex={props.armIndex} left={false} />
+    </ControlledGroup>
   )
 }
 
-const RiggedModel = () => {
-  const xPos = useHardwareState(state => state.cpos.x)
-  const yPos = useHardwareState(state => state.cpos.y)
-  const zPos = useHardwareState(state => state.cpos.z)
 
-  let effector_position: CartesianPoint = { x: xPos, y: yPos, z: zPos }
-
-  let arm_angles = kinematics_point_to_angle(effector_position)
-
-  //   arm_angles.forEach( (angle) => {
-  //     angle = -1*angle - minimum_angle
-  //     });
-
-  // console.log('Arm kinematics:', arm_angles)
-
+export const RiggedModel = () => {
   return (
     <div style={{ height: '100%', width: '100%' }}>
       <Environment
@@ -180,85 +192,72 @@ const RiggedModel = () => {
           position: [0, 150, 500],
           far: 4000,
         }}
-        
+        shadows
+
         // shadows={true}
       >
         <OrbitControls />
         <CameraViewTarget />
-        <AxisLines />
+        {/* <AxisLines /> */}
 
-          <ambientLight intensity={0.2} />
-          <directionalLight
-            position={[-100, 0, -50]}
-            intensity={1}
-            color="red"
-          />
-          <directionalLight
-            position={[-10, -20, -50]}
-            intensity={0.3}
-            color="#0c8cbf"
-          />
+        <ambientLight intensity={0.2} />
+        <directionalLight position={[-100, 0, -50]} intensity={1} color="red" castShadow />
+        <directionalLight position={[-10, -20, -50]} intensity={0.3} color="#0c8cbf" castShadow />
 
-          <spotLight
-            position={[400, 20, 400]}
-            intensity={2.5}
-            penumbra={1}
-            angle={0.3}
-            castShadow
-            color="#0c8cbf"
-          />
+        <spotLight
+          position={[400, 20, 400]}
+          intensity={2.5}
+          penumbra={1}
+          angle={0.3}
+          color="#0c8cbf"
+          castShadow
+          shadow-camera-far={8000}
+          shadow-camera-near={0}
+        />
 
-          {/* <fog attach="fog" args={['#101010', 600, 3000]} /> */}
+        {/* <fog attach="fog" args={['#101010', 600, 3000]} /> */}
 
-          <Backdrop
-            receiveShadow
-            floor={2}
-            position={[0, 0, -500]}
-            scale={[6000, 2000, 800]}
-          >
-            <meshStandardMaterial color="#353540" envMapIntensity={0.3} />
-          </Backdrop>
+        <Backdrop floor={2} position={[0, 0, -500]} scale={[6000, 2000, 800]} receiveShadow>
+          <meshStandardMaterial color="#353540" envMapIntensity={0.3} />
+        </Backdrop>
 
-        <group position={[0, 140, 0]}>
+        <Shadow
+          color="black"
+          colorStop={0}
+          opacity={0.5}
+          fog={false} // Reacts to fog (default=false)
+        />
+
+        <group position={[0, 140, 0]} castShadow receiveShadow>
           {/* Base positioned such that threeJS '[0,0,0' is aligned line with the servo shaft center */}
-          <GLTF asset={DeltaBaseModel} position={[2.5, -135, -5.5]} />
-
+          <group rotation={[0, (-90 * Math.PI) / 180, 0]}>
+            <GLTF receiveShadow asset={DeltaBaseModel} position={[2.5, -135, -5.5]} />
+          </group>
           {/* End Effector */}
-          <group
-            position={[
-              effector_position.x,
-              effector_position.z + 190,
-              effector_position.y,
-            ]}
+          <ControlledGroup
+            positionAccessor={state => [state.cpos.x, state.cpos.z + 190, state.cpos.y]}
+            rotation={[0, Math.PI / -2, 0]}
           >
             <GLTF
+              receiveShadow
               asset={DeltaEffectorModel}
               position={[-43.25, -3, -0.25]}
               rotation={[0, Math.PI / -2, 0]}
             />
             <mesh>
               <sphereBufferGeometry attach="geometry" args={[3, 20, 20]} />
-              <meshStandardMaterial
-                attach="material"
-                color="orange"
-                roughness={0.6}
-              />
+              <meshStandardMaterial attach="material" color="orange" roughness={0.6} />
             </mesh>
-          </group>
+          </ControlledGroup>
 
-          {/* Arms */}
-          {Array.from(new Array(arm_count)).map((_, arm_index) => (
-            <group rotation={[0, arm_index * ((2 * Math.PI) / 3), 0]}>
-              <ArmAssembly
-                shoulderAngle={arm_angles[arm_index]}
-                wristCentroid={[
-                  effector_position.x,
-                  effector_position.z + 190 + 140,
-                  effector_position.y,
-                ]}
-              />
-            </group>
-          ))}
+          <group rotation={[0, Math.PI / -2, 0]}>
+            {/* Arms */}
+            {[0, 1, 2].map(armIndex => (
+              <group rotation={[0, armIndex * ((-2 * Math.PI) / 3), 0]} key={armIndex}>
+                <ArmAssembly armIndex={armIndex} />
+              </group>
+            ))}
+          </group>
         </group>
       </Environment>
     </div>
