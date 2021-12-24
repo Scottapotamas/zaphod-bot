@@ -1,8 +1,8 @@
 import React from 'react'
 
 import { Dropdown } from '@electricui/components-desktop-blueprint'
-import { CONTROL_MODES } from '../../../typedState'
-import { Icon, Colors, NonIdealState, Position } from '@blueprintjs/core'
+import { CONTROL_MODES } from '../../../../typedState'
+import { Icon, Colors, NonIdealState } from '@blueprintjs/core'
 import { useHardwareState } from '@electricui/components-core'
 
 export const ModeSelection = () => {
@@ -15,12 +15,9 @@ export const ModeSelection = () => {
         writer={(state, value) => {
             state.req_mode = value
           }}
-        placeholder={selectedOption =>
+          placeholder={selectedOption =>
             selectedOption ? `Mode: ${selectedOption.text}` : 'Select Mode'
-          }
-          popoverProps={{ position: 'bottom-right', minimal: false }}
-          
-      >
+          }      >
         <Dropdown.Option
           value={1}
           text="Manual"
@@ -37,7 +34,7 @@ export const ModeSelection = () => {
           text="Track"
           labelElement={
             <>
-              <Icon icon="flow-end" color={Colors.ROSE3} />
+              <Icon icon="flow-end" color={Colors.RED4} />
             </>
           }
         />
@@ -59,7 +56,7 @@ export const ModeSelection = () => {
           text="Run Program"
           labelElement={
             <>
-              <Icon icon="document-open" color={Colors.CERULEAN4} />
+              <Icon icon="document-open" color={Colors.BLUE4} />
             </>
           }
         />

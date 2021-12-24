@@ -1,4 +1,4 @@
-import { NonIdealState, Card } from '@blueprintjs/core'
+import { NonIdealState, Callout, Card, Intent } from '@blueprintjs/core'
 import { useHardwareState } from '@electricui/components-core'
 import { Composition, Box } from 'atomic-layout'
 
@@ -7,19 +7,24 @@ import React from 'react'
 import { CONTROL_MODES } from '../../../typedState'
 import ManualJogPalette from './ControlPalette/ManualJogPalette'
 import { TrackPalette } from './ControlPalette/TrackPalette'
-import { LEDControlPalette } from './LEDControlPalette'
+import { EventPalette } from './ControlPalette/EventPalette'
 
 import { MSGID } from '../../../typedState'
+import { NINJA } from '@blueprintjs/icons/lib/esm/generated/iconContents'
 
 export const ControlBlock = () => {
   const control_mode = useHardwareState(state => state.super.mode)
 
   if (control_mode == CONTROL_MODES[CONTROL_MODES.NONE]) {
     return (
-      <NonIdealState
-        title="Select desired mode"
-        description="Select a control mode before arming"
-      />
+      <Callout icon={null} intent={Intent.WARNING}>
+        <NonIdealState
+          title="Select desired mode"
+          description="Select a control mode before arming"
+          action={<p>blah this is a thing</p>}
+        >
+          </NonIdealState>
+      </Callout>
     )
   } else if (control_mode == CONTROL_MODES[CONTROL_MODES.MANUAL]) {
     return (
@@ -28,15 +33,7 @@ export const ControlBlock = () => {
       </Card>
     )
   } else if (control_mode == CONTROL_MODES[CONTROL_MODES.EVENT]) {
-    // return <EventPalette />
-    return (
-      <Card>
-        <NonIdealState
-          title="Event Pannel Broken"
-          description="Scott broke this when updating the ui to latest versions"
-        />
-      </Card>
-    )
+    return <EventPalette />
   } else if (control_mode == CONTROL_MODES[CONTROL_MODES.DEMO]) {
     return (
       <Card>

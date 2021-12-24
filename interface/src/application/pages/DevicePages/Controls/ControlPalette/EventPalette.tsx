@@ -74,7 +74,7 @@ const CurrentRGB = () => {
   )
 }
 
-const EventPalette = () => {
+export const EventPalette = () => {
   const sceneFilePath = useDeviceMetadataKey('summary_file_path')
 
   return (
@@ -82,13 +82,9 @@ const EventPalette = () => {
       <IntervalRequester interval={100} variables={['rgb']} />
       <h3>Load Event Sequence from File</h3>
       {/* <SceneController key={sceneFilePath} /> */}
-      <p>This has been removed during template upgrade!!!</p>
-      <CurrentRGB />
       <QueueText />
       <LEDQueueText />
       <SendToolpath />
     </>
   )
 }
-
-export default EventPalette

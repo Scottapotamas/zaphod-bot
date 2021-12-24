@@ -83,21 +83,21 @@ export const RobotSummary = (props: RobotSummaryProps) => {
             </Areas.Mode>
 
             <Areas.XAxis>
-              <Tag minimal fill large={props.isLarge} icon={IconNames.CROSS}>
+              <Tag minimal fill large={props.isLarge} icon={IconNames.DOUBLE_CARET_HORIZONTAL}>
                 <div style={{ textAlign: 'right' }}>
                   <Printer accessor={state => state.cpos.x} precision={2} /> mm
                 </div>
               </Tag>
             </Areas.XAxis>
             <Areas.YAxis>
-              <Tag minimal fill large={props.isLarge} icon={IconNames.CROSS}>
+              <Tag minimal fill large={props.isLarge} icon={IconNames.DOUBLE_CARET_VERTICAL}>
                 <div style={{ textAlign: 'right' }}>
                   <Printer accessor={state => state.cpos.y} precision={2} /> mm
                 </div>
               </Tag>
             </Areas.YAxis>
             <Areas.ZAxis>
-              <Tag minimal fill large={props.isLarge} icon={IconNames.CROSS}>
+              <Tag minimal fill large={props.isLarge} icon={IconNames.CARET_UP}>
                 <div style={{ textAlign: 'right' }}>
                   <Printer accessor={state => state.cpos.z} precision={2} /> mm
                 </div>
