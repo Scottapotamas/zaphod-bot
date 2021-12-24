@@ -55,7 +55,7 @@ export const TemperatureTag = () => {
       <Popover interactionKind={PopoverInteractionKind.HOVER}>
         <Tag fill large minimal icon={IconNames.SNOWFLAKE} intent={Intent.NONE}>
           <Printer
-            accessor={state => state.temp.regulator}
+            accessor={state => state.sys.temp_regulator}
             precision={0}
             style={{
               width: '2em',
