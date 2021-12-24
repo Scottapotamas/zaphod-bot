@@ -29,7 +29,7 @@ export const AngleChart = () => {
   const numMotors: number | null = useHardwareState(
     state => (state.servo || []).length,
   )
-
+  
   const isDark = useDarkMode()
   const servoColours = isDark ? darkModeColours : lightModeColours
 
