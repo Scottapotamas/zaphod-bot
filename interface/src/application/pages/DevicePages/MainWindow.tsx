@@ -3,6 +3,7 @@ import { RouteComponentProps } from '@reach/router'
 
 import { Card } from '@blueprintjs/core'
 import { Composition, Box, Only, useBreakpointChange } from 'atomic-layout'
+import { IntervalRequester } from '@electricui/components-core'
 
 import RiggedModel from '../../components/RiggedModel'
 
@@ -21,18 +22,21 @@ import { ModeSelection } from './Controls/ModeSelection'
 const layoutDescription = `
             Sidebar . Charts
             Sidebar . Charts
-            Controls Controls Controls
+            Controls . Charts
           `
 
 const MainWindow = (props: RouteComponentProps) => {
   return (
     <React.Fragment>
+      <IntervalRequester interval={50} variables={['cpos']} />
+      <IntervalRequester interval={80} variables={['servo']} />
+
       <div
         style={{
           position: 'absolute',
           top: '0',
           left: '0',
-          width: '100%',
+          width: '100vw',
           height: '100vh',
           zIndex: '-1',
         }}
@@ -42,42 +46,35 @@ const MainWindow = (props: RouteComponentProps) => {
 
       <Composition
         areas={layoutDescription}
-        templateCols="minmax(200px, max-content) auto minmax(200px, max-content)"
+        templateCols="minmax(300px, max-content) auto minmax(300px, max-content)"
         gap={10}
-        // placeItems="center end"
-
         justifyContent="space-between"
-        justifyItems="center"
         alignContent="space-between"
         style={{ height: '100%' }}
       >
         {Areas => (
           <React.Fragment>
             <Areas.Sidebar>
-              <Composition gap={30} templateCols="auto">
+              <Composition gapRow={30} templateCols="auto">
                 <RobotSummary />
-
                 <Composition gap={10} templateCols="1fr 1fr">
                   <ArmControlButton />
                   <HomeButton />
                 </Composition>
-
-                <ServoSummary />
+                <ModeSelection />
               </Composition>
             </Areas.Sidebar>
 
             <Areas.Controls>
-              <Composition gap={10} templateCols="1fr auto 1fr">
-                <ModeSelection />
                 <ControlBlock />
-              </Composition>
             </Areas.Controls>
 
             <Areas.Charts>
-              <Composition gap={10} templateCols="minmax(300px, max-content)">
-                <AngleChart />
+              <Composition gap={10}>
+                <ServoSummary />
+                {/* <AngleChart />
                 <LoadChart />
-                <PowerChart />
+                <PowerChart /> */}
               </Composition>
             </Areas.Charts>
           </React.Fragment>
