@@ -64,6 +64,8 @@ app_background( void )
     if( timer_ms_is_expired( &fan_timer ) )
     {
         fan_process();
+        user_interface_set_fan_percentage( fan_get_speed() );
+        user_interface_set_fan_state( fan_get_state() );
         timer_ms_start( &fan_timer, FAN_EVALUATE_TIME );
     }
 
