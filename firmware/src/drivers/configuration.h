@@ -44,6 +44,9 @@ configuration_get_user_config_ptr( void );
 PUBLIC void
 configuration_notify_config( void );
 
+PUBLIC float
+configuration_get_z_rotation( void );
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC PowerCalibration_t *

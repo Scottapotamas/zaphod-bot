@@ -16,6 +16,7 @@
 #include "effector.h"
 #include "motion_types.h"
 #include "user_interface.h"
+#include "configuration.h"
 #include "app_times.h"
 #include "timer_ms.h"
 
@@ -51,6 +52,7 @@ typedef struct
 PRIVATE MotionPlanner_t planner;
 
 PRIVATE void path_interpolator_premove_transforms( Movement_t *move );
+PRIVATE void path_interpolator_apply_rotation_offset( Movement_t *move );
 PRIVATE void path_interpolator_execute_move( Movement_t *move, float percentage );
 PRIVATE void path_interpolator_calculate_percentage( uint16_t move_duration );
 
@@ -227,6 +229,7 @@ path_interpolator_process( void )
                 me->progress_percent = 0;
 
                 path_interpolator_notify_pathing_started( me->current_move->sync_offset );
+                path_interpolator_apply_rotation_offset( me->current_move );
                 path_interpolator_premove_transforms( me->current_move );
 
                 mm_per_second_t speed = cartesian_move_speed( me->current_move );
@@ -321,6 +324,18 @@ path_interpolator_premove_transforms( Movement_t *move )
         move->points[0].z = effector_position.z;
     }
 }
+
+PRIVATE void
+path_interpolator_apply_rotation_offset( Movement_t *move )
+{
+    float offset_deg = configuration_get_z_rotation();
+
+    for( uint8_t i = 0; i < move->num_pts; i++ )
+    {
+        cartesian_point_rotate_around_z( &move->points[i], offset_deg );
+    }
+}
+
 
 PRIVATE void
 path_interpolator_execute_move( Movement_t *move, float percentage )

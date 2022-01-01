@@ -39,6 +39,8 @@ configuration_set_defaults( void )
     led_calibration.balance_red   = 0xFFFFU * 0.3f;
     led_calibration.balance_green = 0;
     led_calibration.balance_blue  = 0xFFFF * 0.79f;
+
+    user_configuration.values.z_rotation = 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -113,6 +115,13 @@ configuration_notify_config( void )
     // TODO: consider doing damage tracking to only set relevant members?
 
 
+}
+
+
+PUBLIC float
+configuration_get_z_rotation( void )
+{
+    return (float)user_configuration.values.z_rotation * 2.0f;
 }
 
 /* -------------------------------------------------------------------------- */

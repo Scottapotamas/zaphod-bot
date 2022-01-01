@@ -297,7 +297,7 @@ export type UserConfigFlags = {
 }
 
 // Only 8-bit rotation correction value is transmitted
-export const Z_ROTATION_SCALE_FACTOR: number = 1.44
+export const Z_ROTATION_SCALE_FACTOR: number = 2
 
 export type UserConfigFields = {
   z_rotation: number;

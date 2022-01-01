@@ -50,7 +50,13 @@ cartesian_find_point_on_line( CartesianPoint_t *a, CartesianPoint_t *b, Cartesia
 PUBLIC void
 cartesian_point_rotate_around_z( CartesianPoint_t *a, float degrees )
 {
-    float radians = degrees * M_PI / 180.0f;
+    // Early exit if no rotation is required
+    if( ( degrees <= 0.0f + FLT_EPSILON ) || ( degrees >= 0.0f - FLT_EPSILON ) )
+    {
+        return;
+    }
+
+    float radians = degrees * (float)M_PI / 180.0f;
     float cos_w   = cosf( radians );
     float sin_w   = sinf( radians );
 
