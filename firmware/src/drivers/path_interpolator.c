@@ -234,7 +234,7 @@ path_interpolator_process( void )
 
                 mm_per_second_t speed = cartesian_move_speed( me->current_move );
 
-                if( speed > EFFECTOR_SPEED_LIMIT )
+                if( speed > configuration_get_effector_speed_limit() )
                 {
                     // TODO do something other than just 'accept' the overspeed move
                     //      consider firing event upstream to trigger queue clearing and graceful stop

@@ -44,6 +44,9 @@ configuration_get_user_config_ptr( void );
 PUBLIC void
 configuration_notify_config( void );
 
+PUBLIC uint16_t
+configuration_get_effector_speed_limit( void );
+
 PUBLIC float
 configuration_get_z_rotation( void );
 

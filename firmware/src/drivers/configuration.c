@@ -41,6 +41,8 @@ configuration_set_defaults( void )
     led_calibration.balance_blue  = 0xFFFF * 0.79f;
 
     user_configuration.values.z_rotation = 0;
+    user_configuration.values.speed_limit = EFFECTOR_SPEED_LIMIT / 10;
+
 }
 
 /* -------------------------------------------------------------------------- */
@@ -117,6 +119,11 @@ configuration_notify_config( void )
 
 }
 
+PUBLIC uint16_t
+configuration_get_effector_speed_limit( void )
+{
+    return user_configuration.values.speed_limit * 10;
+}
 
 PUBLIC float
 configuration_get_z_rotation( void )
