@@ -1,5 +1,11 @@
-import { CatmullRomCurve3, CubicBezierCurve3, MathUtils, Vector3 } from 'three'
-import { Material } from './material'
+import {
+  CatmullRomCurve3,
+  Color,
+  CubicBezierCurve3,
+  MathUtils,
+  Vector3,
+} from 'three'
+import { isSimpleColorMaterial, Material } from './material'
 import {
   LightMove,
   MovementMove,
@@ -7,6 +13,11 @@ import {
   MovementMoveType,
 } from './hardware'
 import { LRUCache } from 'typescript-lru-cache'
+
+import { v4 as uuidv4 } from 'uuid'
+import React from 'react'
+
+import { Segments, Segment } from '@react-three/drei'
 
 const defaultSpeed = 30 // mm/s
 
@@ -22,7 +33,7 @@ export abstract class Movement {
   /**
    * The 'persistent' ID across frames to effectively cache optimisation
    */
-  id: string = ''
+  public interFrameID: string = ''
 
   /**
    * Take this movement in the opposite direction
@@ -83,7 +94,29 @@ export abstract class Movement {
    * Given a movement ID, generate the light moves for this movement, (defer to materials).
    */
   abstract generateLightpath: (id: number) => LightMove[]
+
+  abstract generateThreeLineSegments: (
+    addColouredLine: AddLineCallback,
+    addTransitionLine: AddLineCallback,
+    addReactComponent: AddComponentCallback,
+  ) => void
 }
+
+export type XYZ = [x: number, y: number, z: number]
+export type RGBA = [r: number, g: number, b: number, a: number]
+
+type AddLineCallback = (
+  start: Vector3, 
+  end: Vector3, 
+  colorStart: RGBA,
+  colorEnd: RGBA,
+  ) => void
+
+
+type AddComponentCallback = (
+  component: React.ReactNode
+  ) => void
+
 
 export type DenseMovements = Movement[] & { __dense: true }
 
@@ -209,6 +242,16 @@ export class MovementGroup extends Movement {
       'generateLightpath called on MovementGroup, the movement bag should have been flattened',
     )
   }
+
+  public generateThreeLineSegments = (
+    addColouredLine: AddLineCallback,
+    addTransitionLine: AddLineCallback,
+    addReactComponent: AddComponentCallback,
+  ) => {
+    throw new Error(
+      'generateThreeLineSegments called on MovementGroup, the movement bag should have been flattened',
+    )
+  }
 }
 
 export function isLine(movement: Movement): movement is Line {
@@ -299,6 +342,40 @@ export class Line extends Movement {
 
   public generateLightpath = (id: number) => {
     return this.material.generateLightpath(id, this)
+  }
+
+  public generateThreeLineSegments = (
+    addColouredLine: AddLineCallback,
+    addTransitionLine: AddLineCallback,
+    addReactComponent: AddComponentCallback,
+  ) => {
+    // if (isSimpleColorMaterial(this.material)) {
+    //   addColouredLine(
+    //     this.getStart(),
+    //     this.getEnd(),
+    //     this.material.color,
+    //     this.material.color,
+    //   )
+    //   return
+    // }
+
+    if (isSimpleColorMaterial(this.material)) {
+      addReactComponent(
+      <Segments limit={1} lineWidth={1.0}>
+        <Segment 
+          start={this.getStart()} 
+          end={this.getEnd()} 
+          color={new Color(this.material.color[0], this.material.color[1], this.material.color[2])} 
+        />
+      </Segments>
+      )
+
+      return
+    }
+
+    console.warn(
+      'Created a line with a non-simple material, make a react component for it',
+    )
   }
 }
 
@@ -416,6 +493,40 @@ export class Point extends Movement {
 
   public generateLightpath = (id: number) => {
     return this.material.generateLightpath(id, this)
+  }
+
+  public generateThreeLineSegments = (
+    addColouredLine: AddLineCallback,
+    addTransitionLine: AddLineCallback,
+    addReactComponent: AddComponentCallback,
+  ) => {
+    // if (isSimpleColorMaterial(this.material)) {
+    //   addColouredLine(
+    //     this.getStart(),
+    //     this.getEnd(),
+    //     this.material.color,
+    //     this.material.color,
+    //   )
+    //   return
+    // }
+
+    if (isSimpleColorMaterial(this.material)) {
+      addReactComponent(
+      <Segments limit={1} lineWidth={1.0}>
+        <Segment 
+          start={this.getStart()} 
+          end={this.getEnd()} 
+          color={new Color(this.material.color[0], this.material.color[1], this.material.color[2])} 
+        />
+      </Segments>
+      )
+
+      return
+    }
+
+    console.warn(
+      'Created a point with a non-simple material, make a react component for it',
+    )
   }
 }
 
@@ -574,6 +685,58 @@ export class Transition extends Movement {
   public generateLightpath = (id: number) => {
     return this.material.generateLightpath(id, this)
   }
+
+  public generateThreeLineSegments = (
+    addColouredLine: AddLineCallback,
+    addTransitionLine: AddLineCallback,
+    addReactComponent: AddComponentCallback,
+  ) => {
+    if (!isSimpleColorMaterial(this.material)) {
+      console.warn(
+        'Created a transition with a non-simple material, make a react component for it',
+      )
+
+      return
+    }
+
+    // const curve = this.lazyGenerateCurve()
+
+    // const points = curve.getPoints(20)
+
+    // for (let index = 1; index < points.length; index++) {
+    //   const start = points[index - 1]
+    //   const end = points[index]
+
+    //   addTransitionLine(start, end, this.material.color,
+    //     this.material.color,)
+    // }
+    
+    const curve = this.lazyGenerateCurve()
+
+    const points = curve.getPoints(20)
+
+    const segments: {start: Vector3, end: Vector3}[] = []
+
+    for (let index = 1; index < points.length; index++) {
+      const start = points[index - 1]
+      const end = points[index]
+
+      segments.push({start, end})
+    }
+
+    const col = this.material.color
+
+    addReactComponent(
+      <Segments limit={20} lineWidth={1.0} dashed>
+        {segments.map((segment, index) =>   <Segment 
+         key={index}
+          start={segment.start} 
+          end={segment.end} 
+          color={new Color(col[0], col[1], col[2])} 
+        />)}
+      </Segments>
+    )
+  }
 }
 
 /**
@@ -595,24 +758,18 @@ export class PointTransition extends Movement {
     super()
   }
 
-  private curve: CatmullRomCurve3 | null = null
+  private curvePoints: Vector3[] = []
   private curvelength: number | null = null
 
   private lazyGenerateCurveLength = () => {
     if (this.curvelength) return this.curvelength
 
-    this.curve = new CatmullRomCurve3(
+    const curve = new CatmullRomCurve3(
       [
-        this.prePointMovement
-          .getEnd()
-          .clone()
-          .add(this.prePointMovement.getExpectedExitVelocity()),
+        this.prePointMovement.getEnd(),
         this.pointFrom.getEnd(),
         this.pointTo.getStart(),
-        this.postPointMovement
-          .getStart()
-          .clone()
-          .sub(this.postPointMovement.getDesiredEntryVelocity()),
+        this.postPointMovement.getStart(),
       ],
       false,
       'catmullrom',
@@ -625,21 +782,21 @@ export class PointTransition extends Movement {
 
     // The control points are 1/3 and 2/3 of the way along the curve.
 
-    const segmentPoints: Vector3[] = []
+    this.curvePoints = []
 
     for (let index = 0; index < segments; index++) {
       // remap 0 -> num segments to a float between 1/3 and 2/3
       const t = MathUtils.mapLinear(index, 0, segments, 1 / 3, 2 / 3)
 
-      segmentPoints.push(this.curve.getPoint(t))
+      this.curvePoints.push(curve.getPoint(t))
     }
 
     let distance = 0
 
-    let lastPoint = segmentPoints[0]
+    let lastPoint = this.curvePoints[0]
 
-    for (let index = 1; index < segmentPoints.length; index++) {
-      const point = segmentPoints[index]
+    for (let index = 1; index < this.curvePoints.length; index++) {
+      const point = this.curvePoints[index]
 
       distance += lastPoint.distanceTo(point)
       lastPoint = point
@@ -713,19 +870,11 @@ export class PointTransition extends Movement {
         // this.pointTo.getStart().toArray(),
         // this.postPointMovement.getStart().toArray(),
 
-        this.prePointMovement
-          .getEnd()
-          .clone()
-          .add(this.prePointMovement.getExpectedExitVelocity())
-          .toArray(),
+        this.prePointMovement.getEnd().toArray(),
 
         this.pointFrom.getEnd().toArray(),
         this.pointTo.getStart().toArray(),
-        this.postPointMovement
-          .getStart()
-          .clone()
-          .sub(this.postPointMovement.getDesiredEntryVelocity())
-          .toArray(),
+        this.postPointMovement.getStart().toArray(),
       ],
       num_points: 4,
     }
@@ -735,5 +884,59 @@ export class PointTransition extends Movement {
 
   public generateLightpath = (id: number) => {
     return this.material.generateLightpath(id, this)
+  }
+
+  public generateThreeLineSegments = (
+    addColouredLine: AddLineCallback,
+    addTransitionLine: AddLineCallback,
+    addReactComponent: AddComponentCallback,
+  ) => {
+    if (!isSimpleColorMaterial(this.material)) {
+      console.warn(
+        'Created a transition with a non-simple material, make a react component for it',
+      )
+
+      return
+    }
+    
+    // // Generate the curve
+    // this.lazyGenerateCurveLength()
+
+    // const points = this.curvePoints
+
+    // for (let index = 1; index < points.length; index++) {
+    //   const start = points[index - 1]
+    //   const end = points[index]
+
+    //   addTransitionLine(start, end, this.material.color,
+    //     this.material.color,)
+    // }
+
+
+    this.lazyGenerateCurveLength()
+
+    const points = this.curvePoints
+
+    const segments: {start: Vector3, end: Vector3}[] = []
+
+    for (let index = 1; index < points.length; index++) {
+      const start = points[index - 1]
+      const end = points[index]
+
+      segments.push({start, end})
+    }
+
+    const col = this.material.color
+
+    addReactComponent(
+      <Segments limit={20} lineWidth={1.0} dashed>
+        {segments.map((segment,index) =>   <Segment 
+          key={index}
+          start={segment.start} 
+          end={segment.end} 
+          color={new Color(col[0], col[1], col[2])} 
+        />)}
+      </Segments>
+    )
   }
 }

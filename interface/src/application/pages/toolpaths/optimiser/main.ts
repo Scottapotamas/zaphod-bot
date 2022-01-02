@@ -36,6 +36,7 @@ export interface FrameProgressUpdate {
   startingCost: number;
   currentCost: number;
   toolpath: Toolpath;
+  orderingCache: OrderingCache
 
   frameState: FRAME_STATE
 }
@@ -270,7 +271,6 @@ export class ToolpathGenerator {
       this.setFrameState(frameNumber, FRAME_STATE.OPTIMISING_FULLY);
     }
 
-
     const captureSettingsReference = this.settings
 
     this.pool.queue(async (worker) => {
@@ -319,7 +319,8 @@ export class ToolpathGenerator {
           startingCost: progress.startingCost,
           currentCost: progress.currentCost,
           toolpath: progress.toolpath,
-          frameState: this.frameState.get(frameNumber) ?? FRAME_STATE.UNOPTIMISED
+          frameState: this.frameState.get(frameNumber) ?? FRAME_STATE.UNOPTIMISED, 
+          orderingCache: progress.orderingCache
         });
 
       };
