@@ -123,6 +123,8 @@ function Movements() {
       lines.colors[lineCounter * 6 + 4] = colorEnd[1]
       lines.colors[lineCounter * 6 + 5] = colorEnd[2]
 
+      // console.log(`${lineCounter} [${start.x},${start.y}${start.z}]->[${end.x},${end.y}${end.z}]`)
+
       lineCounter += 1
     }
 
@@ -154,7 +156,7 @@ function Movements() {
 
     // This is expensive, if we can avoid doing this, do so.
     const addReactComponent = (component: React.ReactNode) => {
-      setComponents(state => [...state, component])
+      // setComponents(state => [...state, component])
     }
 
     const unsubscribe = useStore.subscribe(
@@ -170,13 +172,15 @@ function Movements() {
         // Refresh the react components
         setComponents(state => [])
 
-        lines.positions.length = 0
-        transitions.positions.length = 0
+        lines.positions = []
+        transitions.positions = []
+        lines.colors = []
+        transitions.colors = []
 
         const orderedMovements = reorderMovementsForFrame(
-          useStore.getState().viewportFrame,
+          getSetting(state => state.viewportFrame),
         )
-        const settings = useStore.getState().settings
+        const settings = getSetting(state => state.settings)
         const denseMovements = sparseToDense(orderedMovements, settings)
 
         for (let index = 0; index < denseMovements.length; index++) {
@@ -185,24 +189,19 @@ function Movements() {
           movement.generateThreeLineSegments(
             addColouredLine,
             addTransitionLine,
-            addReactComponent,
+            addReactComponent
           )
         }
 
-        lines.refreshGeometry()
-        transitions.refreshGeometry()
+        lines.refreshGeometry(lineCounter)
+        transitions.refreshGeometry(transitionCounter)
+
+        // console.log(`built ${lineCounter} lines`, lines.line.visible)
       },
     )
 
     return () => {
       unsubscribe()
-
-      console.log(
-        lines.positions,
-        transitions.positions,
-        lineCounter,
-        transitionCounter,
-      )
 
       lines?.dispose()
       transitions?.dispose()

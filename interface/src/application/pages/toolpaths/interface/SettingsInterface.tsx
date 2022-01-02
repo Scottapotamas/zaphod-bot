@@ -1,4 +1,4 @@
-import { Card, FormGroup, Slider } from '@blueprintjs/core'
+import { Card, Checkbox, FormGroup, Slider } from '@blueprintjs/core'
 
 import React, { useCallback, useState } from 'react'
 
@@ -115,6 +115,29 @@ function WaitAtStartDurationSlider() {
   )
 }
 
+
+function EfficientGenerationCheckbox() {
+  const [efficient, setEfficient] = useState(
+    getSetting(state => state.efficientVisualisation),
+  )
+
+  const updateChecked = useCallback(checked => {
+    setEfficient(checked)
+    setSetting(state => {
+      state.efficientVisualisation = checked
+    })
+  }, [])
+
+  return (
+    <div style={{ marginLeft: 10, marginRight: 10 }}>
+      <Checkbox
+        checked={efficient}
+        onChange={updateChecked}
+      />
+    </div>
+  )
+}
+
 export const SettingsInterface = () => {
   return (
     <Card>
@@ -129,6 +152,9 @@ export const SettingsInterface = () => {
       </FormGroup>
       <FormGroup label="Wait at start duration">
         <WaitAtStartDurationSlider />
+      </FormGroup>
+      <FormGroup label="Efficient generation of visualisation">
+        <EfficientGenerationCheckbox />
       </FormGroup>
     </Card>
   )

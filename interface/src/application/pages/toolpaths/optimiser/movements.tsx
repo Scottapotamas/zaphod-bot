@@ -99,6 +99,7 @@ export abstract class Movement {
     addColouredLine: AddLineCallback,
     addTransitionLine: AddLineCallback,
     addReactComponent: AddComponentCallback,
+   
   ) => void
 }
 
@@ -106,17 +107,13 @@ export type XYZ = [x: number, y: number, z: number]
 export type RGBA = [r: number, g: number, b: number, a: number]
 
 type AddLineCallback = (
-  start: Vector3, 
-  end: Vector3, 
+  start: Vector3,
+  end: Vector3,
   colorStart: RGBA,
   colorEnd: RGBA,
-  ) => void
+) => void
 
-
-type AddComponentCallback = (
-  component: React.ReactNode
-  ) => void
-
+type AddComponentCallback = (component: React.ReactNode) => void
 
 export type DenseMovements = Movement[] & { __dense: true }
 
@@ -349,26 +346,34 @@ export class Line extends Movement {
     addTransitionLine: AddLineCallback,
     addReactComponent: AddComponentCallback,
   ) => {
-    // if (isSimpleColorMaterial(this.material)) {
-    //   addColouredLine(
-    //     this.getStart(),
-    //     this.getEnd(),
-    //     this.material.color,
-    //     this.material.color,
-    //   )
-    //   return
-    // }
-
     if (isSimpleColorMaterial(this.material)) {
-      addReactComponent(
-      <Segments limit={1} lineWidth={1.0}>
-        <Segment 
-          start={this.getStart()} 
-          end={this.getEnd()} 
-          color={new Color(this.material.color[0], this.material.color[1], this.material.color[2])} 
-        />
-      </Segments>
-      )
+
+      const batched = true
+
+      if (batched) {
+        addColouredLine(
+          this.getStart(),
+          this.getEnd(),
+          this.material.color,
+          this.material.color,
+        )
+      } else {
+        addReactComponent(
+          <Segments limit={1} lineWidth={1.0}>
+            <Segment
+              start={this.getStart()}
+              end={this.getEnd()}
+              color={
+                new Color(
+                  this.material.color[0],
+                  this.material.color[1],
+                  this.material.color[2],
+                )
+              }
+            />
+          </Segments>,
+        )
+      }
 
       return
     }
@@ -500,26 +505,34 @@ export class Point extends Movement {
     addTransitionLine: AddLineCallback,
     addReactComponent: AddComponentCallback,
   ) => {
-    // if (isSimpleColorMaterial(this.material)) {
-    //   addColouredLine(
-    //     this.getStart(),
-    //     this.getEnd(),
-    //     this.material.color,
-    //     this.material.color,
-    //   )
-    //   return
-    // }
-
     if (isSimpleColorMaterial(this.material)) {
-      addReactComponent(
-      <Segments limit={1} lineWidth={1.0}>
-        <Segment 
-          start={this.getStart()} 
-          end={this.getEnd()} 
-          color={new Color(this.material.color[0], this.material.color[1], this.material.color[2])} 
-        />
-      </Segments>
-      )
+
+      const batched = true
+
+      if (batched) {
+        addColouredLine(
+          this.getStart(),
+          this.getEnd(),
+          this.material.color,
+          this.material.color,
+        )
+      } else {
+        addReactComponent(
+          <Segments limit={1} lineWidth={1.0}>
+            <Segment
+              start={this.getStart()}
+              end={this.getEnd()}
+              color={
+                new Color(
+                  this.material.color[0],
+                  this.material.color[1],
+                  this.material.color[2],
+                )
+              }
+            />
+          </Segments>,
+        )
+      }
 
       return
     }
@@ -699,43 +712,44 @@ export class Transition extends Movement {
       return
     }
 
-    // const curve = this.lazyGenerateCurve()
+    const batched = true
 
-    // const points = curve.getPoints(20)
-
-    // for (let index = 1; index < points.length; index++) {
-    //   const start = points[index - 1]
-    //   const end = points[index]
-
-    //   addTransitionLine(start, end, this.material.color,
-    //     this.material.color,)
-    // }
-    
     const curve = this.lazyGenerateCurve()
 
     const points = curve.getPoints(20)
 
-    const segments: {start: Vector3, end: Vector3}[] = []
+    if (batched) {
+      for (let index = 1; index < points.length; index++) {
+        const start = points[index - 1]
+        const end = points[index]
 
-    for (let index = 1; index < points.length; index++) {
-      const start = points[index - 1]
-      const end = points[index]
+        addTransitionLine(start, end, this.material.color, this.material.color)
+      }
+    } else {
+      const segments: { start: Vector3; end: Vector3 }[] = []
 
-      segments.push({start, end})
+      for (let index = 1; index < points.length; index++) {
+        const start = points[index - 1]
+        const end = points[index]
+
+        segments.push({ start, end })
+      }
+
+      const col = this.material.color
+
+      addReactComponent(
+        <Segments limit={20} lineWidth={1.0} {...{ dashed: true }}>
+          {segments.map((segment, index) => (
+            <Segment
+              key={index}
+              start={segment.start}
+              end={segment.end}
+              color={new Color(col[0], col[1], col[2])}
+            />
+          ))}
+        </Segments>,
+      )
     }
-
-    const col = this.material.color
-
-    addReactComponent(
-      <Segments limit={20} lineWidth={1.0} dashed>
-        {segments.map((segment, index) =>   <Segment 
-         key={index}
-          start={segment.start} 
-          end={segment.end} 
-          color={new Color(col[0], col[1], col[2])} 
-        />)}
-      </Segments>
-    )
   }
 }
 
@@ -898,45 +912,43 @@ export class PointTransition extends Movement {
 
       return
     }
-    
-    // // Generate the curve
-    // this.lazyGenerateCurveLength()
 
-    // const points = this.curvePoints
-
-    // for (let index = 1; index < points.length; index++) {
-    //   const start = points[index - 1]
-    //   const end = points[index]
-
-    //   addTransitionLine(start, end, this.material.color,
-    //     this.material.color,)
-    // }
-
+    const batched = true
 
     this.lazyGenerateCurveLength()
 
     const points = this.curvePoints
 
-    const segments: {start: Vector3, end: Vector3}[] = []
+    if (batched) {
+      for (let index = 1; index < points.length; index++) {
+        const start = points[index - 1]
+        const end = points[index]
+        addTransitionLine(start, end, this.material.color, this.material.color)
+      }
+    } else {
+      const segments: { start: Vector3; end: Vector3 }[] = []
 
-    for (let index = 1; index < points.length; index++) {
-      const start = points[index - 1]
-      const end = points[index]
+      for (let index = 1; index < points.length; index++) {
+        const start = points[index - 1]
+        const end = points[index]
 
-      segments.push({start, end})
+        segments.push({ start, end })
+      }
+
+      const col = this.material.color
+
+      addReactComponent(
+        <Segments limit={20} lineWidth={1.0} {...{ dashed: true }}>
+          {segments.map((segment, index) => (
+            <Segment
+              key={index}
+              start={segment.start}
+              end={segment.end}
+              color={new Color(col[0], col[1], col[2])}
+            />
+          ))}
+        </Segments>,
+      )
     }
-
-    const col = this.material.color
-
-    addReactComponent(
-      <Segments limit={20} lineWidth={1.0} dashed>
-        {segments.map((segment,index) =>   <Segment 
-          key={index}
-          start={segment.start} 
-          end={segment.end} 
-          color={new Color(col[0], col[1], col[2])} 
-        />)}
-      </Segments>
-    )
   }
 }

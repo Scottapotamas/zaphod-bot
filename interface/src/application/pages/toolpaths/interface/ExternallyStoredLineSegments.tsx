@@ -121,10 +121,15 @@ export class MutableLineSegmentGeometry {
     this.getReactComponent = this.getReactComponent.bind(this)
   }
 
-  refreshGeometry() {
+  refreshGeometry(numLines: number) {
+    // This re-allocation sucks, but Three doesn't clean up after itself properly if we reuse it,
+    // One of the computed length buffers is the wrong length I think?
+    this.geometry = new LineSegmentsGeometry()
     this.geometry.setColors(this.colors)
     this.geometry.setPositions(this.positions)
+    this.geometry.setDrawRange(0, numLines * 6)
 
+    this.line = new Line2(this.geometry as any, this.material)
     this.line.computeLineDistances()
   }
 
