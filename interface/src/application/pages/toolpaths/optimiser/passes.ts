@@ -301,8 +301,8 @@ export async function optimise(
 
     // Sort the movements according to the movement cache
     ordering.sort((a, b) => {
-      const aOrder = orderingCache[a.id] ?? 0
-      const bOrder = orderingCache[b.id] ?? 0
+      const aOrder = orderingCache[a.interFrameID] ?? 0
+      const bOrder = orderingCache[b.interFrameID] ?? 0
 
       // Sort in ascending order
       return aOrder - bOrder
@@ -394,7 +394,7 @@ export async function optimise(
     // Store the final order for passing to the next frame
     for (let index = 0; index < ordering.length; index++) {
       const movement = ordering[index]
-      nextOrderingCache[movement.id] = index
+      nextOrderingCache[movement.interFrameID] = index
     }
 
     return nextOrderingCache

@@ -65,6 +65,10 @@ function Timeline() {
         selectedMaxFrame,
         Math.max(selectedMinFrame, frameNumber),
       )
+
+      // Trigger an update, wrap around
+      state.viewportFrameVersion += 1
+      if (state.viewportFrameVersion === 255) state.viewportFrameVersion = 0
     })
   }, [])
 

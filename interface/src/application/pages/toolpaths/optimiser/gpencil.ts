@@ -111,7 +111,7 @@ export class GPencil {
           )
 
           // This ID isn't guaranteed to be stable, but it'll probably be close at least some of the time
-          line.id = point.id
+          line.interFrameID = point.id
 
           orderedMovements.addMovement(line)
 
