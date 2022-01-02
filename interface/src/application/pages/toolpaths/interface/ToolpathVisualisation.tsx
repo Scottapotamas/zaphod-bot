@@ -20,13 +20,16 @@ import {
   Segments,
   Segment,
   OrbitControls,
-  LineProps,
+  LineProps,PerspectiveCamera
 } from '@react-three/drei'
 
+import { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+
 import { useFrame, useThree } from '@react-three/fiber'
-import { Mesh, Group, Color, Vector2 } from 'three'
+import { Mesh, Group, Color, Vector2, PerspectiveCamera as PerspectiveCameraImpl } from 'three'
 import {
   getSetting,
+  setSetting,
   useSetting,
   useStore,
   useViewportFrameToolpath,
@@ -218,16 +221,25 @@ function Movements() {
 }
 
 export const ToolpathVisualisation = () => {
+
+  const setCameraRef = useCallback((camera) => {
+    setSetting(state => {
+      state.camera = camera
+    })
+  }, [])
+  
+  const setOrbitControlsRef = useCallback((orbitControls) => {
+    setSetting(state => {
+      state.orbitControls = orbitControls
+    })
+  }, [])
+
   return (
     <Canvas
-      camera={{
-        fov: 80,
-        position: [0, 150, 500],
-        far: 4000,
-      }}
       // shadows={true}
     >
-      <OrbitControls />
+      <PerspectiveCamera ref={setCameraRef}/>
+      <OrbitControls ref={setOrbitControlsRef}/>
       <AxisLines />
 
       <ambientLight intensity={0.2} />

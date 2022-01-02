@@ -116,22 +116,25 @@ function WaitAtStartDurationSlider() {
 }
 
 
-function EfficientGenerationCheckbox() {
-  const [efficient, setEfficient] = useState(
-    getSetting(state => state.efficientVisualisation),
+function OrbitCameraCheckbox() {
+  const [orbitCameraEnabled, setEfficient] = useState(
+    true,
   )
 
-  const updateChecked = useCallback(checked => {
+  const updateChecked: React.FormEventHandler<HTMLInputElement> = useCallback((event) => {
+    const checked = event.currentTarget.checked
     setEfficient(checked)
-    setSetting(state => {
-      state.efficientVisualisation = checked
-    })
+    const orbitControls = getSetting(state => state.orbitControls)
+
+    if (orbitControls) {
+      orbitControls.enabled = checked
+    }
   }, [])
 
   return (
     <div style={{ marginLeft: 10, marginRight: 10 }}>
       <Checkbox
-        checked={efficient}
+        checked={orbitCameraEnabled}
         onChange={updateChecked}
       />
     </div>
@@ -153,8 +156,8 @@ export const SettingsInterface = () => {
       <FormGroup label="Wait at start duration">
         <WaitAtStartDurationSlider />
       </FormGroup>
-      <FormGroup label="Efficient generation of visualisation">
-        <EfficientGenerationCheckbox />
+      <FormGroup label="Orbit Camera">
+        <OrbitCameraCheckbox />
       </FormGroup>
     </Card>
   )

@@ -5,7 +5,7 @@ import {
 } from 'zustand/middleware'
 import produce, { Draft } from 'immer'
 import { Settings } from '../optimiser/settings'
-import { Vector3 } from 'three'
+import { Quaternion, Vector3 } from 'three'
 
 import { blankMaterial } from '../optimiser/material'
 import { useCallback } from 'react'
@@ -13,6 +13,8 @@ import { OrderingCache, Toolpath } from '../optimiser/passes'
 import { Renderable } from '../optimiser/import'
 import { Movement } from '../optimiser/movements'
 import shallow from 'zustand/shallow'
+import { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+import {PerspectiveCamera as PerspectiveCameraImpl } from 'three'
 
 const defaultSettings: Settings = {
   objectSettings: {
@@ -85,6 +87,10 @@ interface Store {
   orderedMovementsByFrame: {
     [frameNumber: number]: Movement[]
   }
+
+  // Camera references
+  camera: PerspectiveCameraImpl | null
+  orbitControls: OrbitControlsImpl | null
 }
 
 const initialState: Store = {
@@ -106,6 +112,8 @@ const initialState: Store = {
   renderablesByFrame: {},
   orderedMovementsByFrame: {},
 
+  camera: null,
+  orbitControls: null
 }
 
 export const useStore = create<
