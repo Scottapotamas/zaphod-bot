@@ -105,6 +105,7 @@ const initialState: Store = {
   allRenderables: [],
   renderablesByFrame: {},
   orderedMovementsByFrame: {},
+
 }
 
 export const useStore = create<
