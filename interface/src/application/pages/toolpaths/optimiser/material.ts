@@ -66,6 +66,11 @@ export abstract class Material {
   abstract generateLightpath: (id: number, movement: Movement) => LightMove[];
 }
 
+
+export function isSimpleColorMaterial(material: Material): material is SimpleColorMaterial {
+  return material.type === 'color'
+}
+
 /**
  * A group of movements that must be executed in order.
  */
@@ -91,7 +96,7 @@ export class SimpleColorMaterial extends Material {
 
 export const blankMaterial: ColorMaterialJSON = {
   type: "color",
-  color: [0, 0, 0, 0],
+  color: [24/255, 74/255, 144/255, 0],
 };
 
 export function importColorMaterial(json: ColorMaterialJSON) {

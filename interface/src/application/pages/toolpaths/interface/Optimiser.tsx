@@ -27,9 +27,42 @@ import {
   getCurrentSettings,
   resetStore,
   setSetting,
+  getSetting,
   useSetting,
   useStore,
 } from './state'
+import { Movement } from '../optimiser/movements'
+import { Renderable } from '../optimiser/import'
+
+function renderablesToMovements(renderables: Renderable[], settings: Settings) {
+  const movements: Movement[] = []
+
+  for (const renderable of renderables) {
+    for (const movement of renderable.toMovements(settings)) {
+      movements.push(movement)
+    }
+  }
+
+  return movements
+}
+
+function recalculateMovementsPerFrame() {
+  const renderablesByFrame = getSetting(state => state.renderablesByFrame)
+
+  setSetting(state => {
+    state.orderedMovementsByFrame = {}
+
+    for (const fN of Object.keys(renderablesByFrame)) {
+      const frameNumber = Number(fN)
+
+      const renderables = renderablesByFrame[frameNumber]
+
+      const movements = renderablesToMovements(renderables, state.settings)
+
+      state.orderedMovementsByFrame[frameNumber] = movements
+    }
+  })
+}
 
 export function Optimiser() {
   // Establish a mutable reference to the setTotalFrames state setter so we can do it asyncronously
@@ -61,6 +94,9 @@ export function Optimiser() {
       state => state.settings,
       settings => {
         getPersistentOptimiser().updateSettings(settings)
+
+        // Movements must be recalculated on settings update
+        recalculateMovementsPerFrame()
       },
     )
   }, [])
@@ -129,6 +165,14 @@ export function Optimiser() {
     (progress: FrameProgressUpdate) => {
       setSetting(state => {
         state.toolpaths[progress.frameNumber] = progress.toolpath
+        state.movementOrdering[progress.frameNumber] = progress.orderingCache
+
+        // Trigger an update if this frame update is for the viewport frame
+
+        if (state.viewportFrame === progress.frameNumber) {
+          state.viewportFrameVersion += 1
+          if (state.viewportFrameVersion === 255) state.viewportFrameVersion = 0
+        }
       })
 
       frameData.current[progress.frameNumber] = progress
@@ -153,6 +197,8 @@ export function Optimiser() {
         }
 
         importFolder(folder).then(imported => {
+          // Reset the store when we import a new folder
+
           setSetting(state => {
             state.sceneMinFrame = imported.minFrame
             state.viewportFrame = imported.minFrame
@@ -163,9 +209,14 @@ export function Optimiser() {
               imported.movementJSONByFrame,
             ).length
             state.currentlyOptimising = true
+            state.allRenderables = imported.allRenderables
+            state.renderablesByFrame = imported.renderablesByFrame
 
             console.log(`injested ${state.sceneTotalFrames} frames`)
           })
+
+          // Recalculate the movements for each frame
+          recalculateMovementsPerFrame()
 
           const optimiser = getPersistentOptimiser()
 

@@ -87,7 +87,7 @@ export class Particles {
         )
 
         // This ID is guaranteed to be stable
-        point.id = particle.id
+        point.interFrameID = particle.id
 
         if (settingsWithOverride.drawInVelocityOrientation) {
           point.velocity.set(

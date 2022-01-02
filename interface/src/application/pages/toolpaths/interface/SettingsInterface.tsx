@@ -1,38 +1,7 @@
-import {
-  Button,
-  Card,
-  Classes,
-  Colors,
-  FormGroup,
-  Intent,
-  Label,
-  Slider,
-  Tag,
-} from '@blueprintjs/core'
-import { RouteComponentProps } from '@reach/router'
+import { Card, FormGroup, Slider } from '@blueprintjs/core'
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
-import { navigate, OPEN_DIALOG_IPC_EVENT } from '@electricui/utility-electron'
-import { ipcRenderer, OpenDialogOptions } from 'electron'
+import React, { useCallback, useState } from 'react'
 
-import {
-  ChartContainer,
-  BarChart,
-  BarChartDomain,
-  VerticalAxis,
-  HorizontalAxis,
-} from '@electricui/components-desktop-charts'
-
-import classnames from 'classnames'
-
-import { FrameProgressUpdate, ToolpathGenerator } from '../optimiser/main'
-import { importFolder } from '../optimiser/files'
-import { Vector3 } from 'three'
-import { FolderPathSelector } from './FolderSelector'
-import { DataSource, Event, EventBatch } from '@electricui/timeseries'
-import { timing } from '@electricui/timing'
-import { Optimiser } from './Optimiser'
-import { Settings } from '../optimiser/settings'
 import { getSetting, setSetting } from './state'
 
 function ParticleWaitDurationSlider() {
@@ -152,7 +121,6 @@ export const SettingsInterface = () => {
       <FormGroup label="Particle wait duration">
         <ParticleWaitDurationSlider />
       </FormGroup>
-
       <FormGroup label="Maximum speed">
         <MaxSpeedSlider />
       </FormGroup>

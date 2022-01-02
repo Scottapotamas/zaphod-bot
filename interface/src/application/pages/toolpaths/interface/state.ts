@@ -9,7 +9,10 @@ import { Vector3 } from 'three'
 
 import { blankMaterial } from '../optimiser/material'
 import { useCallback } from 'react'
-import { Toolpath } from '../optimiser/passes'
+import { OrderingCache, Toolpath } from '../optimiser/passes'
+import { Renderable } from '../optimiser/import'
+import { Movement } from '../optimiser/movements'
+import shallow from 'zustand/shallow'
 
 const defaultSettings: Settings = {
   objectSettings: {
@@ -51,12 +54,36 @@ interface Store {
   selectedMinFrame: number
   selectedMaxFrame: number
   currentlyRenderingFrame: number
-  viewportFrame: number
   priorityFrame: number
   currentlyOptimising: boolean
 
+  // The currently viewed frame
+  viewportFrame: number
+
+  /**
+   * The version number of the currently viewed frame's toolpath.
+   *
+   * Reset on new frame, and on update
+   */
+  viewportFrameVersion: number
+
+  // The OrderingCache per frame, used to reconstruct movements on the UI side
+  movementOrdering: {
+    [frameNumber: number]: OrderingCache
+  }
+  // An array of all renderables through the entire scene stored here, for a list of object names, etc.
+  allRenderables: Renderable[]
+  // Renderables by frame are stored here, no use case yet.
+  renderablesByFrame: {
+    [frame: number]: Renderable[]
+  }
+  // Latest toolpaths for sending to hardware
   toolpaths: {
     [frameNumber: number]: Toolpath
+  }
+  // As the optimiser orders movements, the UI copy of the movements will be stored here
+  orderedMovementsByFrame: {
+    [frameNumber: number]: Movement[]
   }
 }
 
@@ -70,9 +97,14 @@ const initialState: Store = {
   selectedMaxFrame: 1,
   currentlyRenderingFrame: 1,
   viewportFrame: 1,
+  viewportFrameVersion: 0,
   priorityFrame: 1,
   currentlyOptimising: false,
   toolpaths: {},
+  movementOrdering: {},
+  allRenderables: [],
+  renderablesByFrame: {},
+  orderedMovementsByFrame: {},
 }
 
 export const useStore = create<
