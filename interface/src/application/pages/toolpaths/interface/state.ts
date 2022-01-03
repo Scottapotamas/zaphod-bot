@@ -13,8 +13,8 @@ import { OrderingCache, Toolpath } from '../optimiser/passes'
 import { Renderable } from '../optimiser/import'
 import { Movement } from '../optimiser/movements'
 import shallow from 'zustand/shallow'
-import { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
-import {PerspectiveCamera as PerspectiveCameraImpl } from 'three'
+import { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
+import { PerspectiveCamera as PerspectiveCameraImpl } from 'three'
 
 const defaultSettings: Settings = {
   objectSettings: {
@@ -75,7 +75,7 @@ interface Store {
   }
   // An array of all renderables through the entire scene stored here, for a list of object names, etc.
   allRenderables: Renderable[]
-  // Renderables by frame are stored here, no use case yet.
+  // Renderables by frame are stored here
   renderablesByFrame: {
     [frame: number]: Renderable[]
   }
@@ -113,7 +113,7 @@ const initialState: Store = {
   orderedMovementsByFrame: {},
 
   camera: null,
-  orbitControls: null
+  orbitControls: null,
 }
 
 export const useStore = create<

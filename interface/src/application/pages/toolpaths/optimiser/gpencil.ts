@@ -52,6 +52,8 @@ export interface GPencilToMovementsSettings {
 }
 
 export class GPencil {
+  readonly type = 'gpencil'
+
   constructor(public name: string) {}
 
   private layers: GPencilLayer[] = []
