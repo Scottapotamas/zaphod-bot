@@ -3,6 +3,7 @@ import path from 'path'
 import { importJson, Renderable } from './import'
 import { MovementJSON } from './import'
 import { Toolpath } from './passes'
+import { Camera } from './camera'
 
 async function* walkJSON(dir: string): AsyncGenerator<string> {
   for await (const d of await fs.promises.opendir(dir)) {
