@@ -20,13 +20,20 @@ import {
   Segments,
   Segment,
   OrbitControls,
-  LineProps,PerspectiveCamera
+  LineProps,
+  PerspectiveCamera,
 } from '@react-three/drei'
 
-import { OrbitControls as OrbitControlsImpl } from 'three-stdlib';
+import { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 
 import { useFrame, useThree } from '@react-three/fiber'
-import { Mesh, Group, Color, Vector2, PerspectiveCamera as PerspectiveCameraImpl } from 'three'
+import {
+  Mesh,
+  Group,
+  Color,
+  Vector2,
+  PerspectiveCamera as PerspectiveCameraImpl,
+} from 'three'
 import {
   getSetting,
   setSetting,
@@ -50,11 +57,11 @@ function AxisLines() {
     <group position={[0, 0, 0]} scale={[1, 1, 1]}>
       <mesh>
         <boxBufferGeometry attach="geometry" args={[1, 100, 1]} />
-        <meshStandardMaterial attach="material" color="red" roughness={0.6} />
+        <meshStandardMaterial attach="material" color="blue" roughness={0.6} />
       </mesh>
       <mesh>
         <boxBufferGeometry attach="geometry" args={[100, 1, 1]} />
-        <meshStandardMaterial attach="material" color="blue" roughness={0.6} />
+        <meshStandardMaterial attach="material" color="red" roughness={0.6} />
       </mesh>
       <mesh>
         <boxBufferGeometry attach="geometry" args={[1, 1, 100]} />
@@ -192,7 +199,7 @@ function Movements() {
           movement.generateThreeLineSegments(
             addColouredLine,
             addTransitionLine,
-            addReactComponent
+            addReactComponent,
           )
         }
 
@@ -221,25 +228,41 @@ function Movements() {
 }
 
 export const ToolpathVisualisation = () => {
+  const setCameraRef = useCallback((camera: PerspectiveCameraImpl) => {
+    if (camera) {
+      setSetting(state => {
+        state.camera = camera
+      })
+    }
+  }, [])
 
-  const setCameraRef = useCallback((camera) => {
-    setSetting(state => {
-      state.camera = camera
-    })
-  }, [])
-  
-  const setOrbitControlsRef = useCallback((orbitControls) => {
-    setSetting(state => {
-      state.orbitControls = orbitControls
-    })
-  }, [])
+  const setOrbitControlsRef = useCallback(
+    (orbitControls: OrbitControlsImpl) => {
+      if (orbitControls) {
+        setSetting(state => {
+          state.orbitControls = orbitControls as any
+        })
+
+        const cam = getSetting(state => state.camera)
+        // Set the camera
+        if (cam) {
+          orbitControls.object = cam
+        }
+      }
+    },
+    [],
+  )
 
   return (
     <Canvas
-      // shadows={true}
+    // shadows={true}
     >
-      <PerspectiveCamera ref={setCameraRef}/>
-      <OrbitControls ref={setOrbitControlsRef}/>
+      <PerspectiveCamera
+        ref={setCameraRef}
+        makeDefault
+        position={[0, 150, 400]}
+      />
+      <OrbitControls ref={setOrbitControlsRef} />
       <AxisLines />
 
       <ambientLight intensity={0.2} />

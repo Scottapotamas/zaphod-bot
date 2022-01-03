@@ -18,7 +18,7 @@ export interface ParticlesStrokePoint {
 export interface Particle {
   id: string
   location: [number, number, number]
-  rotation: [number, number, number]
+  quaternion: [number, number, number, number]
   velocity: [number, number, number]
 }
 
@@ -41,6 +41,8 @@ export interface ParticlesToMovementsSettings {
 }
 
 export class Particles {
+  readonly type = 'particles'
+
   constructor(public name: string) {}
 
   private systems: ParticleSystem[] = []
@@ -115,7 +117,7 @@ export interface ParticlesJSON {
     particles: {
       id: string
       location: [number, number, number]
-      rotation: [number, number, number]
+      quaternion: [number, number, number, number]
       velocity: [number, number, number]
     }[]
   }[]

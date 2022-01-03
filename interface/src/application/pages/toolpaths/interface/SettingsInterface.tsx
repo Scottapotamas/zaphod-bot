@@ -1,6 +1,7 @@
 import { Card, Checkbox, FormGroup, Slider } from '@blueprintjs/core'
 
 import React, { useCallback, useState } from 'react'
+import { isCamera } from '../optimiser/camera'
 
 import { getSetting, setSetting } from './state'
 
@@ -115,28 +116,41 @@ function WaitAtStartDurationSlider() {
   )
 }
 
-
 function OrbitCameraCheckbox() {
-  const [orbitCameraEnabled, setEfficient] = useState(
-    true,
+  const [orbitCameraEnabled, setEfficient] = useState(true)
+
+  const updateChecked: React.FormEventHandler<HTMLInputElement> = useCallback(
+    event => {
+      const checked = event.currentTarget.checked
+      setEfficient(checked)
+      const orbitControls = getSetting(state => state.orbitControls)
+
+      if (orbitControls) {
+        orbitControls.enabled = checked
+      }
+
+      // Search for the camera for this frame if we've disabled orbitControls
+      if (!checked) {
+        console.log(`aligning camera`)
+
+        const sceneCamera = getSetting(state => state.camera)
+        const renderablesForFrame =
+          getSetting(state => state.renderablesByFrame[state.viewportFrame]) ??
+          []
+
+        const blenderCamera = renderablesForFrame.find(isCamera)
+
+        if (sceneCamera && blenderCamera) {
+          blenderCamera.alignCamera(sceneCamera)
+        }
+      }
+    },
+    [],
   )
-
-  const updateChecked: React.FormEventHandler<HTMLInputElement> = useCallback((event) => {
-    const checked = event.currentTarget.checked
-    setEfficient(checked)
-    const orbitControls = getSetting(state => state.orbitControls)
-
-    if (orbitControls) {
-      orbitControls.enabled = checked
-    }
-  }, [])
 
   return (
     <div style={{ marginLeft: 10, marginRight: 10 }}>
-      <Checkbox
-        checked={orbitCameraEnabled}
-        onChange={updateChecked}
-      />
+      <Checkbox checked={orbitCameraEnabled} onChange={updateChecked} />
     </div>
   )
 }
