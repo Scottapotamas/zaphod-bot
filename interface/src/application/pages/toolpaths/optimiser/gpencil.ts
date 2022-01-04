@@ -1,4 +1,8 @@
+import { TreeNodeInfo } from '@blueprintjs/core'
+import { IconNames } from '@blueprintjs/icons'
 import { Vector3 } from 'three'
+import { NodeInfo, NodeTypes } from '../interface/RenderableTree'
+import { ObjectNameTree } from './files'
 import { importMaterial, MaterialJSON } from './material'
 import { Point, Movement, Line, MovementGroup } from './movements'
 import {
@@ -62,10 +66,27 @@ export class GPencil {
     this.layers.push(layer)
   }
 
-  public getObjectNameTree = () => {
-    return {
-      [this.name]: this.layers.map(layer => `${this.name}-${layer.info}`),
+  public getObjectTree: () => TreeNodeInfo<NodeInfo> = () => {
+    const node: TreeNodeInfo<NodeInfo> = {
+      id: this.name,
+      label: this.name,
+      icon: IconNames.DRAW,
+      nodeData: {
+        type: NodeTypes.GPENCIL,
+        hidden: false,
+      },
+      childNodes: this.layers.map(layer => ({
+        id: `${this.name}-${layer.info}`,
+        icon: IconNames.LAYERS,
+        label: layer.info,
+        nodeData: {
+          type: NodeTypes.GPENCIL_LAYER,
+          hidden: false,
+        },
+      })),
     }
+
+    return node
   }
 
   public toMovements = (settings: Settings) => {
