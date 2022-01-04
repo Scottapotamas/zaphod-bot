@@ -267,7 +267,7 @@ export function RenderableTree() {
 
   const handleNodeClick = useCallback(
     (
-      node: TreeNodeInfo<NodeInfo>,
+      _node: TreeNodeInfo<NodeInfo>,
       nodePath: NodeID[],
       e: React.MouseEvent<HTMLElement>,
     ) => {
@@ -280,6 +280,9 @@ export function RenderableTree() {
         // Select our node
         forNodeAtPath(state.tree, nodePath, node => {
           node.isSelected = true
+
+          // Update the selected item
+          state.selectedItemID = node.id
         })
       })
     },
@@ -288,13 +291,28 @@ export function RenderableTree() {
 
   const handleNodeCollapse = useCallback(
     (
-      node: TreeNodeInfo<NodeInfo>,
+      _node: TreeNodeInfo<NodeInfo>,
       nodePath: NodeID[],
       e: React.MouseEvent<HTMLElement>,
     ) => {
       mutateTree(state => {
-        forNodeAtPath(state.tree, nodePath, node => {
+        const node = findNodeWithID(state.tree, _node.id)
+
+        if (node) {
           node.isExpanded = false
+        }
+
+        // If any of the children were selected, unselect them
+        forNodeWithIDAndChildren(state.tree, _node.id, node => {
+          if (node.id === _node.id) {
+            // Don't unselect the collapsing node if it were selected
+            return
+          }
+
+          if (state.selectedItemID === node.id) {
+            node.isSelected = false
+            state.selectedItemID = null
+          }
         })
       })
     },
@@ -303,7 +321,7 @@ export function RenderableTree() {
 
   const handleNodeExpand = useCallback(
     (
-      node: TreeNodeInfo<NodeInfo>,
+      _node: TreeNodeInfo<NodeInfo>,
       nodePath: NodeID[],
       e: React.MouseEvent<HTMLElement>,
     ) => {
@@ -318,13 +336,13 @@ export function RenderableTree() {
 
   const handleNodeMouseEnter = useCallback(
     (
-      node: TreeNodeInfo<NodeInfo>,
+      _node: TreeNodeInfo<NodeInfo>,
       nodePath: NodeID[],
       e: React.MouseEvent<HTMLElement>,
     ) => {
       mutateTree(state => {
         const hoveredIDs: NodeID[] = []
-        forNodeWithIDAndChildren(state.tree, node.id, node => {
+        forNodeWithIDAndChildren(state.tree, _node.id, node => {
           hoveredIDs.push(node.id)
         })
 
