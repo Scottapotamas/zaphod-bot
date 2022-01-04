@@ -19,7 +19,8 @@ export enum NodeTypes {
   PARTICLE_SYSTEM = 'particle-system',
 }
 
-type NodePath = (string | number)[]
+export type NodeID = string | number
+export type NodePath = NodeID[]
 
 export interface NodeInfo {
   type: NodeTypes
@@ -29,12 +30,14 @@ export interface NodeInfo {
 
 export interface TreeStore {
   tree: TreeNodeInfo<NodeInfo>[]
-  selectedItemID: string | null // Store the ID of the item that's currently selected
+  selectedItemID: NodeID | null // Store the ID of the item that's currently selected
+  hoveredObjectIDs: NodeID[] // Store the IDs of all currently hovered objects
 }
 
 const initialState: TreeStore = {
   tree: [],
   selectedItemID: null,
+  hoveredObjectIDs: [],
 }
 
 export const useTreeStore = create<
@@ -265,7 +268,7 @@ export function RenderableTree() {
   const handleNodeClick = useCallback(
     (
       node: TreeNodeInfo<NodeInfo>,
-      nodePath: (string | number)[],
+      nodePath: NodeID[],
       e: React.MouseEvent<HTMLElement>,
     ) => {
       mutateTree(state => {
@@ -286,7 +289,7 @@ export function RenderableTree() {
   const handleNodeCollapse = useCallback(
     (
       node: TreeNodeInfo<NodeInfo>,
-      nodePath: (string | number)[],
+      nodePath: NodeID[],
       e: React.MouseEvent<HTMLElement>,
     ) => {
       mutateTree(state => {
@@ -301,13 +304,44 @@ export function RenderableTree() {
   const handleNodeExpand = useCallback(
     (
       node: TreeNodeInfo<NodeInfo>,
-      nodePath: (string | number)[],
+      nodePath: NodeID[],
       e: React.MouseEvent<HTMLElement>,
     ) => {
       mutateTree(state => {
         forNodeAtPath(state.tree, nodePath, node => {
           node.isExpanded = true
         })
+      })
+    },
+    [],
+  )
+
+  const handleNodeMouseEnter = useCallback(
+    (
+      node: TreeNodeInfo<NodeInfo>,
+      nodePath: NodeID[],
+      e: React.MouseEvent<HTMLElement>,
+    ) => {
+      mutateTree(state => {
+        const hoveredIDs: NodeID[] = []
+        forNodeWithIDAndChildren(state.tree, node.id, node => {
+          hoveredIDs.push(node.id)
+        })
+
+        state.hoveredObjectIDs = hoveredIDs
+      })
+    },
+    [],
+  )
+
+  const onNodeMouseLeave = useCallback(
+    (
+      node: TreeNodeInfo<NodeInfo>,
+      nodePath: NodeID[],
+      e: React.MouseEvent<HTMLElement>,
+    ) => {
+      mutateTree(state => {
+        state.hoveredObjectIDs = []
       })
     },
     [],
@@ -320,6 +354,8 @@ export function RenderableTree() {
         onNodeClick={handleNodeClick}
         onNodeCollapse={handleNodeCollapse}
         onNodeExpand={handleNodeExpand}
+        onNodeMouseEnter={handleNodeMouseEnter}
+        onNodeMouseLeave={onNodeMouseLeave}
       />
     </Card>
   )
