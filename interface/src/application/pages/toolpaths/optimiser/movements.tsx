@@ -120,6 +120,7 @@ type AddLineCallback = (
   end: Vector3,
   colorStart: RGBA,
   colorEnd: RGBA,
+  objectID?: string,
 ) => void
 
 type AddComponentCallback = (component: React.ReactNode) => void
@@ -383,6 +384,7 @@ export class Line extends Movement {
           this.getEnd(),
           this.material.color,
           this.material.color,
+          this.objectID,
         )
       } else {
         addReactComponent(
@@ -556,6 +558,7 @@ export class Point extends Movement {
           this.getEnd(),
           this.material.color,
           this.material.color,
+          this.objectID,
         )
       } else {
         addReactComponent(
