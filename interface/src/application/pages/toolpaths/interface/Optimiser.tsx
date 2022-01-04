@@ -33,6 +33,7 @@ import {
 } from './state'
 import { Movement } from '../optimiser/movements'
 import { Renderable } from '../optimiser/import'
+import { mutateTree, renderablesToSceneTree } from './RenderableTree'
 
 function renderablesToMovements(renderables: Renderable[], settings: Settings) {
   const movements: Movement[] = []
@@ -213,6 +214,11 @@ export function Optimiser() {
             state.renderablesByFrame = imported.renderablesByFrame
 
             console.log(`injested ${state.sceneTotalFrames} frames`)
+          })
+
+          mutateTree(state => {
+            state.selectedItemID = null
+            state.tree = renderablesToSceneTree(imported.allRenderables)
           })
 
           // Recalculate the movements for each frame

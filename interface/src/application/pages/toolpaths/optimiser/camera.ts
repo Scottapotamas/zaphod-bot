@@ -1,4 +1,7 @@
-import { Color, PerspectiveCamera, Vector3, Quaternion } from 'three'
+import { Color, PerspectiveCamera, Vector3, Quaternion, Euler } from 'three'
+import { NodeInfo, NodeTypes } from '../interface/RenderableTree'
+import { TreeNodeInfo } from '@blueprintjs/core'
+import { ObjectNameTree } from './files'
 import { Renderable } from './import'
 import { importMaterial, MaterialJSON } from './material'
 import { Point, Line, Movement, MovementGroup } from './movements'
@@ -8,14 +11,14 @@ import {
   getToMovementSettings,
   Settings,
 } from './settings'
+import { IconNames } from '@blueprintjs/icons'
 
 export interface CameraToMovementsSettings {
   // Whether to draw alignment helpers in real space
   drawAlignmentHelpers?: boolean
 }
 
-const quaternionTransform = new Quaternion()
-quaternionTransform.setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI / 2)
+const euler = new Euler(0, 0, 0, 'XYZ')
 
 export class Camera {
   readonly type = 'camera'
@@ -26,21 +29,40 @@ export class Camera {
     public sensorHeight: number,
     public sensorWidth: number,
     public position: [number, number, number],
-    public quaternion: [number, number, number, number],
+    public rotation: [number, number, number],
     public near: number,
     public far: number,
   ) {}
 
-  public getObjectNameTree = () => {
-    return {
-      [this.name]: {
-        frustum: `${this.name}-alignment`,
+  public getObjectTree: () => TreeNodeInfo<NodeInfo> = () => {
+    const node: TreeNodeInfo<NodeInfo> = {
+      id: this.name,
+      label: this.name,
+      icon: IconNames.CAMERA,
+      nodeData: {
+        type: NodeTypes.CAMERA,
+        hidden: true,
       },
+      childNodes: [
+        {
+          id: `${this.name}-alignment`,
+          label: 'Alignment Helper',
+          icon: IconNames.SEND_TO_GRAPH,
+          nodeData: {
+            type: NodeTypes.CAMERA_ALIGNMENT,
+            hidden: true,
+          },
+        },
+      ],
     }
+
+    return node
   }
 
   public toMovements = (settings: Settings) => {
     const movements: Movement[] = []
+
+    // TODO: Create the alignment helper, if it's skipped, skip it
 
     return movements
   }
@@ -49,18 +71,20 @@ export class Camera {
     camera.filmGauge = this.sensorWidth
     camera.setFocalLength(this.focalLength)
 
-    console.log(this.position, this.quaternion)
-
     // Do the blender -> threejs transform
     camera.position.set(this.position[0], this.position[2], -this.position[1])
-    // camera.quaternion.set(
-    //   this.quaternion[0],
-    //   this.quaternion[1],
-    //   this.quaternion[2],
-    //   this.quaternion[3],
-    // )
-    // camera.quaternion.multiply(quaternionTransform)
-    camera.lookAt(0, 0, 0)
+    euler.set(this.rotation[0], this.rotation[2], this.rotation[1], 'XYZ')
+
+    camera.quaternion.setFromEuler(euler)
+
+    const quaternionTransform = new Quaternion()
+
+    // No idea what this transform should be...
+    quaternionTransform.setFromEuler(new Euler(0, (Math.PI * 8.4) / 4, 0))
+
+    camera.quaternion.multiply(quaternionTransform)
+
+    // camera.lookAt(0, 0, 0)
 
     camera.updateProjectionMatrix()
   }
@@ -78,7 +102,7 @@ export interface CameraJSON {
   sensor_height: number
   sensor_width: number
   position: [number, number, number]
-  quaternion: [number, number, number, number]
+  rotation: [number, number, number]
   near: number
   far: number
 }
@@ -90,7 +114,7 @@ export function importCamera(json: CameraJSON) {
     json.sensor_height,
     json.sensor_width,
     json.position,
-    json.quaternion,
+    json.rotation,
     json.near,
     json.far,
   )

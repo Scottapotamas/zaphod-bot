@@ -15,6 +15,7 @@ import { Movement } from '../optimiser/movements'
 import shallow from 'zustand/shallow'
 import { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { PerspectiveCamera as PerspectiveCameraImpl } from 'three'
+import { ObjectNameTree } from '../optimiser/files'
 
 const defaultSettings: Settings = {
   objectSettings: {
@@ -30,7 +31,7 @@ const defaultSettings: Settings = {
   // Do object level overrides here. Particle subsystems can be `object -> subsystem name`
   objectOverrides: {},
 
-  objectToggles: {},
+  hiddenObjects: {},
 
   transitionMaterial: blankMaterial,
   materialOverrides: {
@@ -87,7 +88,6 @@ interface Store {
   orderedMovementsByFrame: {
     [frameNumber: number]: Movement[]
   }
-
   // Camera references
   camera: PerspectiveCameraImpl | null
   orbitControls: OrbitControlsImpl | null

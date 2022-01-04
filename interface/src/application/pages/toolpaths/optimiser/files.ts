@@ -72,15 +72,8 @@ export async function importFolder(folderPath: string) {
   }
 }
 
-export function calculateObjectTree(renderables: Renderable[]) {
-  let tree = {}
-
-  // Merges every object across every frame
-  for (const renderable of renderables) {
-    tree = Object.assign(tree, renderable.getObjectNameTree())
-  }
-
-  return tree
+export interface ObjectNameTree {
+  [key: string]: ObjectNameTree | string[]
 }
 
 export function writeToolpathToFile(filepath: string, toolpath: Toolpath) {
