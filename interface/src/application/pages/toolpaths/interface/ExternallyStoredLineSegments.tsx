@@ -46,11 +46,14 @@ export class MutableLineSegmentGeometry {
 
   constructor(dashed: boolean, public lineWidth: number) {
     this.line = new Line2(this.geometry as any)
-    this.material = new LineMaterial({ dashed })
+    this.material = new LineMaterial({
+      dashed,
+    })
 
     this.refreshGeometry = this.refreshGeometry.bind(this)
     this.dispose = this.dispose.bind(this)
     this.getReactComponent = this.getReactComponent.bind(this)
+    this.setHoveredIndices = this.setHoveredIndices.bind(this)
   }
 
   refreshGeometry(numLines: number) {
@@ -63,6 +66,37 @@ export class MutableLineSegmentGeometry {
 
     this.line = new Line2(this.geometry as any, this.material)
     this.line.computeLineDistances()
+  }
+
+  /**
+   * Set the list of line indices that are hovered over.
+   *
+   * If none are hovered over, all lines are displayed at full colour
+   */
+  setHoveredIndices(lineIndices: number[], hideAll?: boolean) {
+    if (lineIndices.length === 0 && !hideAll) {
+      // Wipe it
+      this.geometry.setColors(this.colors)
+      return
+    }
+    const colors = this.colors.slice()
+
+    const darkeningFactor = 0.2
+
+    for (let lineIndex = 0; lineIndex < colors.length / 6; lineIndex++) {
+      // If it's in the list, or we're doing them all
+      if (!lineIndices.includes(lineIndex) || hideAll) {
+        colors[lineIndex * 6 + 0] = colors[lineIndex * 6 + 0] * darkeningFactor
+        colors[lineIndex * 6 + 1] = colors[lineIndex * 6 + 1] * darkeningFactor
+        colors[lineIndex * 6 + 2] = colors[lineIndex * 6 + 2] * darkeningFactor
+        colors[lineIndex * 6 + 3] = colors[lineIndex * 6 + 3] * darkeningFactor
+        colors[lineIndex * 6 + 4] = colors[lineIndex * 6 + 4] * darkeningFactor
+        colors[lineIndex * 6 + 5] = colors[lineIndex * 6 + 5] * darkeningFactor
+      }
+    }
+
+    // Set to our dimmed version
+    this.geometry.setColors(colors)
   }
 
   dispose() {

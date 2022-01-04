@@ -51,6 +51,7 @@ import { Line2 } from 'three/examples/jsm/lines/Line2'
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial'
 import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry'
 import { MutableLineSegmentGeometry } from './ExternallyStoredLineSegments'
+import { useTreeStore } from './RenderableTree'
 
 function AxisLines() {
   return (
@@ -109,36 +110,49 @@ function Movements() {
 
   const [customComponents, setComponents] = useState<React.ReactNode[]>([])
 
+  const colouredLineToObjectID: React.MutableRefObject<{
+    [objectID: string]: number[]
+  }> = useRef({})
+
   useEffect(() => {
-    let lineCounter = 0
+    let lineIndex = 0
 
     const addColouredLine = (
       start: Vector3,
       end: Vector3,
       colorStart: RGBA,
       colorEnd: RGBA,
+      objectID?: string,
     ) => {
       // Do the Blender -> ThreeJS coordinate system transform inline
-      lines.positions[lineCounter * 6 + 0] = start.x
-      lines.positions[lineCounter * 6 + 1] = start.z
-      lines.positions[lineCounter * 6 + 2] = -start.y
-      lines.positions[lineCounter * 6 + 3] = end.x
-      lines.positions[lineCounter * 6 + 4] = end.z
-      lines.positions[lineCounter * 6 + 5] = -end.y
+      lines.positions[lineIndex * 6 + 0] = start.x
+      lines.positions[lineIndex * 6 + 1] = start.z
+      lines.positions[lineIndex * 6 + 2] = -start.y
+      lines.positions[lineIndex * 6 + 3] = end.x
+      lines.positions[lineIndex * 6 + 4] = end.z
+      lines.positions[lineIndex * 6 + 5] = -end.y
 
-      lines.colors[lineCounter * 6 + 0] = colorStart[0]
-      lines.colors[lineCounter * 6 + 1] = colorStart[1]
-      lines.colors[lineCounter * 6 + 2] = colorStart[2]
-      lines.colors[lineCounter * 6 + 3] = colorEnd[0]
-      lines.colors[lineCounter * 6 + 4] = colorEnd[1]
-      lines.colors[lineCounter * 6 + 5] = colorEnd[2]
+      lines.colors[lineIndex * 6 + 0] = colorStart[0]
+      lines.colors[lineIndex * 6 + 1] = colorStart[1]
+      lines.colors[lineIndex * 6 + 2] = colorStart[2]
+      lines.colors[lineIndex * 6 + 3] = colorEnd[0]
+      lines.colors[lineIndex * 6 + 4] = colorEnd[1]
+      lines.colors[lineIndex * 6 + 5] = colorEnd[2]
+
+      // Create the mapping for objectID -> coloured line index
+      if (objectID) {
+        if (!colouredLineToObjectID.current[objectID]) {
+          colouredLineToObjectID.current[objectID] = []
+        }
+        colouredLineToObjectID.current[objectID].push(lineIndex)
+      }
 
       // console.log(`${lineCounter} [${start.x},${start.y}${start.z}]->[${end.x},${end.y}${end.z}]`)
 
-      lineCounter += 1
+      lineIndex += 1
     }
 
-    let transitionCounter = 0
+    let transitionIndex = 0
 
     const addTransitionLine = (
       start: Vector3,
@@ -147,21 +161,21 @@ function Movements() {
       colorEnd: RGBA,
     ) => {
       // Do the Blender -> ThreeJS coordinate system transform inline
-      transitions.positions[transitionCounter * 6 + 0] = start.x
-      transitions.positions[transitionCounter * 6 + 1] = start.z
-      transitions.positions[transitionCounter * 6 + 2] = -start.y
-      transitions.positions[transitionCounter * 6 + 3] = end.x
-      transitions.positions[transitionCounter * 6 + 4] = end.z
-      transitions.positions[transitionCounter * 6 + 5] = -end.y
+      transitions.positions[transitionIndex * 6 + 0] = start.x
+      transitions.positions[transitionIndex * 6 + 1] = start.z
+      transitions.positions[transitionIndex * 6 + 2] = -start.y
+      transitions.positions[transitionIndex * 6 + 3] = end.x
+      transitions.positions[transitionIndex * 6 + 4] = end.z
+      transitions.positions[transitionIndex * 6 + 5] = -end.y
 
-      transitions.colors[transitionCounter * 6 + 0] = colorStart[0]
-      transitions.colors[transitionCounter * 6 + 1] = colorStart[1]
-      transitions.colors[transitionCounter * 6 + 2] = colorStart[2]
-      transitions.colors[transitionCounter * 6 + 3] = colorEnd[0]
-      transitions.colors[transitionCounter * 6 + 4] = colorEnd[1]
-      transitions.colors[transitionCounter * 6 + 5] = colorEnd[2]
+      transitions.colors[transitionIndex * 6 + 0] = colorStart[0]
+      transitions.colors[transitionIndex * 6 + 1] = colorStart[1]
+      transitions.colors[transitionIndex * 6 + 2] = colorStart[2]
+      transitions.colors[transitionIndex * 6 + 3] = colorEnd[0]
+      transitions.colors[transitionIndex * 6 + 4] = colorEnd[1]
+      transitions.colors[transitionIndex * 6 + 5] = colorEnd[2]
 
-      transitionCounter += 1
+      transitionIndex += 1
     }
 
     // This is expensive, if we can avoid doing this, do so.
@@ -176,8 +190,11 @@ function Movements() {
         // and update the lines
 
         // Refresh the line geometries
-        lineCounter = 0
-        transitionCounter = 0
+        lineIndex = 0
+        transitionIndex = 0
+
+        // Refresh the line mapping
+        colouredLineToObjectID.current = {}
 
         // Refresh the react components
         setComponents(state => [])
@@ -205,8 +222,8 @@ function Movements() {
           )
         }
 
-        lines.refreshGeometry(lineCounter)
-        transitions.refreshGeometry(transitionCounter)
+        lines.refreshGeometry(lineIndex)
+        transitions.refreshGeometry(transitionIndex)
 
         // console.log(`built ${lineCounter} lines`, lines.line.visible)
       },
@@ -220,12 +237,55 @@ function Movements() {
     }
   }, [lines, transitions])
 
+  // Transition lines should subtly move over time to indicate their direction
   useFrame((_, delta) => {
     // Negative offset moves the line in the direction of movements.
     transitions.material.uniforms.dashOffset.value -= delta * 2
     transitions.material.uniformsNeedUpdate = true
     // transitions.material.needsUpdate = true
   })
+
+  // On hovering change, update the lines
+  useEffect(() => {
+    return useTreeStore.subscribe(
+      state => state.hoveredObjectIDs,
+      hoveredObjectIDs => {
+        if (hoveredObjectIDs.length === 0) {
+          // If nothing is hovered, reset both
+          lines.setHoveredIndices([])
+          transitions.setHoveredIndices([])
+          return
+        }
+
+        // If we're hovering over transition
+        if (hoveredObjectIDs.includes('transition')) {
+          // Display all transitions
+          transitions.setHoveredIndices([])
+        } else {
+          // Hide all transitions
+          console.log(`should be hiding all transitions`)
+          transitions.setHoveredIndices([], true)
+        }
+
+        // Use the mapping to calculate the line indices
+        const lineIndices: number[] = []
+
+        for (const objectID of hoveredObjectIDs) {
+          const indices = colouredLineToObjectID.current[objectID]
+
+          if (indices) {
+            for (let i = 0; i < indices.length; i++) {
+              const lineIndex = indices[i]
+              lineIndices.push(lineIndex)
+            }
+          }
+        }
+
+        // If there are hovered objects, but no indices can be found, hide everything.
+        lines.setHoveredIndices(lineIndices, lineIndices.length === 0)
+      },
+    )
+  }, [lines, transitions])
 
   return (
     <>
