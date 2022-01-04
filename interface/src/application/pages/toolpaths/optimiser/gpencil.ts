@@ -94,7 +94,8 @@ export class GPencil {
 
     for (const layer of this.layers) {
       for (const stroke of layer.strokes) {
-        const overrideKeys = [this.name, `${this.name}-${layer.info}`]
+        const objectID = `${this.name}-${layer.info}`
+        const overrideKeys = [this.name, objectID]
 
         if (getShouldSkip(settings, overrideKeys)) {
           continue
@@ -103,7 +104,7 @@ export class GPencil {
         const settingsWithOverride = getToMovementSettings(
           settings,
           'gpencil',
-          [this.name, `${this.name}-${layer.info}`],
+          [this.name, objectID],
         )
 
         let lastPoint = new Vector3(
@@ -131,6 +132,7 @@ export class GPencil {
             lastPoint,
             currentPoint,
             materialWithOverride,
+            objectID,
           )
 
           // This ID isn't guaranteed to be stable, but it'll probably be close at least some of the time

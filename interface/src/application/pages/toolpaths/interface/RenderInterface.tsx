@@ -2,7 +2,12 @@ import { Card, FormGroup, Intent, MultiSlider, Slider } from '@blueprintjs/core'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 
-import { getSetting, setSetting, useStore } from './state'
+import {
+  getSetting,
+  incrementViewportFrameVersion,
+  setSetting,
+  useStore,
+} from './state'
 
 function SceneLengthSlider() {
   const sceneMinFrame = useStore(state => state.sceneMinFrame) ?? null
@@ -67,8 +72,7 @@ function Timeline() {
       )
 
       // Trigger an update, wrap around
-      state.viewportFrameVersion += 1
-      if (state.viewportFrameVersion === 255) state.viewportFrameVersion = 0
+      incrementViewportFrameVersion(state)
     })
   }, [])
 

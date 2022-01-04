@@ -83,7 +83,8 @@ export class Particles {
 
     for (const system of this.systems) {
       for (const particle of system.particles) {
-        const overrideKeys = [this.name, `${this.name}-${system.name}`]
+        const objectID = `${this.name}-${system.name}`
+        const overrideKeys = [this.name, objectID]
 
         if (getShouldSkip(settings, overrideKeys)) {
           continue
@@ -92,7 +93,7 @@ export class Particles {
         const settingsWithOverride = getToMovementSettings(
           settings,
           'particles',
-          [this.name, `${this.name}-${system.name}`],
+          [this.name, objectID],
         )
 
         // Convert the location to a Vector3
@@ -105,8 +106,8 @@ export class Particles {
         const point = new Point(
           location,
           settingsWithOverride.stopDelay ?? 0,
-
           getMaterialOverride(settings, system.material, overrideKeys),
+          objectID,
         )
 
         // This ID is guaranteed to be stable

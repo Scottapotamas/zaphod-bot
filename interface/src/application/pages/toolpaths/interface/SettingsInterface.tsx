@@ -3,7 +3,7 @@ import { Card, Checkbox, FormGroup, Slider } from '@blueprintjs/core'
 import React, { useCallback, useState } from 'react'
 import { isCamera } from '../optimiser/camera'
 
-import { getSetting, setSetting } from './state'
+import { getSetting, incrementViewportFrameVersion, setSetting } from './state'
 
 function ParticleWaitDurationSlider() {
   const [localStopDelay, setLocalStopDelay] = useState(
@@ -117,12 +117,12 @@ function WaitAtStartDurationSlider() {
 }
 
 function OrbitCameraCheckbox() {
-  const [orbitCameraEnabled, setEfficient] = useState(true)
+  const [enabled, setEnabled] = useState(true)
 
   const updateChecked: React.FormEventHandler<HTMLInputElement> = useCallback(
     event => {
       const checked = event.currentTarget.checked
-      setEfficient(checked)
+      setEnabled(checked)
       const orbitControls = getSetting(state => state.orbitControls)
 
       if (orbitControls) {
@@ -149,8 +149,33 @@ function OrbitCameraCheckbox() {
   )
 
   return (
-    <div style={{ marginLeft: 10, marginRight: 10 }}>
-      <Checkbox checked={orbitCameraEnabled} onChange={updateChecked} />
+    <div>
+      <Checkbox checked={enabled} onChange={updateChecked} />
+    </div>
+  )
+}
+
+function AnnotateOrderingCheckbox() {
+  const [enabled, setEnabled] = useState(
+    getSetting(state => state.visualisationSettings.annotateDrawOrder),
+  )
+
+  const updateChecked: React.FormEventHandler<HTMLInputElement> = useCallback(
+    event => {
+      const checked = event.currentTarget.checked
+      setEnabled(checked)
+
+      setSetting(state => {
+        state.visualisationSettings.annotateDrawOrder = checked
+        incrementViewportFrameVersion(state)
+      })
+    },
+    [],
+  )
+
+  return (
+    <div>
+      <Checkbox checked={enabled} onChange={updateChecked} />
     </div>
   )
 }
@@ -172,6 +197,9 @@ export const SettingsInterface = () => {
       </FormGroup>
       <FormGroup label="Orbit Camera">
         <OrbitCameraCheckbox />
+      </FormGroup>
+      <FormGroup label="Annotate Ordering">
+        <AnnotateOrderingCheckbox />
       </FormGroup>
     </Card>
   )
