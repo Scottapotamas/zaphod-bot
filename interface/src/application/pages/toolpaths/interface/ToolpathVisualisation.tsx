@@ -42,7 +42,7 @@ import {
   useViewportFrameToolpath,
 } from './state'
 import { MovementMoveType } from '../optimiser/hardware'
-import { sparseToDense, Toolpath } from '../optimiser/passes'
+import { sparseToDense } from '../optimiser/passes'
 import { CatmullRomLine } from './CatmullLine'
 import { MovementPoint } from 'src/application/typedState'
 import { Vector3 } from 'three'
@@ -263,7 +263,6 @@ function Movements() {
           transitions.setHoveredIndices([])
         } else {
           // Hide all transitions
-          console.log(`should be hiding all transitions`)
           transitions.setHoveredIndices([], true)
         }
 

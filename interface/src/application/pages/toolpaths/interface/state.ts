@@ -118,7 +118,7 @@ const initialState: Store = {
 
   viewportFrameVersion: 0,
   visualisationSettings: {
-    annotateDrawOrder: true, // TODO: set this to false by default
+    annotateDrawOrder: false,
   },
 
   priorityFrame: 1,
