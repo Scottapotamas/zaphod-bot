@@ -373,7 +373,7 @@ export class Line extends Movement {
             this.objectID,
             [this.getStart(), this.getEnd()],
             'none',
-            `L #${movementIndex + 1}`,
+            `L #${movementIndex}`,
           ),
         )
       }
@@ -547,7 +547,7 @@ export class Point extends Movement {
             this.objectID,
             [this.getStart(), this.getEnd()],
             'none',
-            `P #${movementIndex + 1}`,
+            `P #${movementIndex}`,
           ),
         )
       }
@@ -757,7 +757,7 @@ export class Transition extends Movement {
           this.objectID,
           points,
           'primary',
-          `T #${movementIndex + 1}`,
+          `T #${movementIndex}`,
         ),
       )
     }
@@ -816,7 +816,7 @@ function TagThatHidesWhenNotInList(props: {
     <Tag
       intent={props.intent}
       minimal={isHidden}
-      style={{ opacity: isHidden ? 0.5 : 1 }}
+      style={{ opacity: isHidden ? 0.5 : 1, cursor: 'pointer' }}
     >
       {props.text}
     </Tag>
@@ -839,7 +839,7 @@ function generateHtmlTagFromAveragePosition(
   const threeCentroid = new Vector3(centroid.x, centroid.z, -centroid.y)
 
   const component = (
-    <Html position={threeCentroid}>
+    <Html position={threeCentroid} key={text}>
       <TagThatHidesWhenNotInList
         objectID={objectID}
         intent={intent}
@@ -1027,7 +1027,7 @@ export class PointTransition extends Movement {
           this.objectID,
           points,
           'primary',
-          `C #${movementIndex + 1}`,
+          `C #${movementIndex}`,
         ),
       )
     }

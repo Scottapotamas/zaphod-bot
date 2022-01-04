@@ -11,6 +11,7 @@ import { SettingsInterface } from './SettingsInterface'
 import { RenderInterface } from './RenderInterface'
 import { ToolpathVisualisation } from './ToolpathVisualisation'
 import { RenderableTree } from './RenderableTree'
+import { MaterialEditor } from './MaterialEditor'
 
 export const ToolpathViewer = (props: RouteComponentProps) => {
   return (
@@ -34,6 +35,8 @@ export const ToolpathViewer = (props: RouteComponentProps) => {
         <SettingsInterface />
 
         <RenderableTree />
+
+        <MaterialEditor />
 
         <Optimiser />
 
