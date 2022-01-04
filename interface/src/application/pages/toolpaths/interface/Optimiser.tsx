@@ -246,7 +246,7 @@ export function Optimiser() {
   const folder = useSetting(state => state.folder)
 
   if (folder === null) {
-    return <>Please select a folder </>
+    return null
   }
 
   return (
