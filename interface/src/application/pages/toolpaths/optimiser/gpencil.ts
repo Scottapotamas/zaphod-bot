@@ -101,6 +101,11 @@ export class GPencil {
           continue
         }
 
+        // A stroke needs at least two points to form a line
+        if (stroke.points.length < 2) {
+          continue
+        }
+
         const settingsWithOverride = getToMovementSettings(
           settings,
           'gpencil',
@@ -121,7 +126,8 @@ export class GPencil {
           overrideKeys,
         )
 
-        for (let index = 0; index < stroke.points.length; index++) {
+        // Start at the second point, the first is located above
+        for (let index = 1; index < stroke.points.length; index++) {
           const point = stroke.points[index]
           const co = point.co
 
