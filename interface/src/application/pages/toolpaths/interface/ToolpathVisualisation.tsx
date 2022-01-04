@@ -166,7 +166,7 @@ function Movements() {
 
     // This is expensive, if we can avoid doing this, do so.
     const addReactComponent = (component: React.ReactNode) => {
-      // setComponents(state => [...state, component])
+      setComponents(state => [...state, component])
     }
 
     const unsubscribe = useStore.subscribe(
@@ -197,6 +197,8 @@ function Movements() {
           const movement = denseMovements[index]
 
           movement.generateThreeLineSegments(
+            index,
+            getSetting(state => state.visualisationSettings),
             addColouredLine,
             addTransitionLine,
             addReactComponent,
@@ -217,6 +219,13 @@ function Movements() {
       transitions?.dispose()
     }
   }, [lines, transitions])
+
+  useFrame((_, delta) => {
+    // Negative offset moves the line in the direction of movements.
+    transitions.material.uniforms.dashOffset.value -= delta * 2
+    transitions.material.uniformsNeedUpdate = true
+    // transitions.material.needsUpdate = true
+  })
 
   return (
     <>

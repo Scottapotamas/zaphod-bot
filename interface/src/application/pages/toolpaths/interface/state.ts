@@ -16,6 +16,7 @@ import shallow from 'zustand/shallow'
 import { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { PerspectiveCamera as PerspectiveCameraImpl } from 'three'
 import { ObjectNameTree } from '../optimiser/files'
+import { WritableDraft } from 'immer/dist/internal'
 
 const defaultSettings: Settings = {
   objectSettings: {
@@ -48,6 +49,15 @@ const defaultSettings: Settings = {
   },
 }
 
+/**
+ * Settings that affect the visualisation but don't require a toolpath regeneration
+ *
+ * Increment the viewportFrameVersion when modifying these
+ */
+export interface VisualisationSettings {
+  annotateDrawOrder: boolean
+}
+
 interface Store {
   folder: string | null
   settings: Settings
@@ -66,9 +76,11 @@ interface Store {
   /**
    * The version number of the currently viewed frame's toolpath.
    *
-   * Reset on new frame, and on update
+   * Reset on new frame, and on update, triggers a regeneration of the toolpath visualisation
    */
   viewportFrameVersion: number
+
+  visualisationSettings: VisualisationSettings
 
   // The OrderingCache per frame, used to reconstruct movements on the UI side
   movementOrdering: {
@@ -103,7 +115,12 @@ const initialState: Store = {
   selectedMaxFrame: 1,
   currentlyRenderingFrame: 1,
   viewportFrame: 1,
+
   viewportFrameVersion: 0,
+  visualisationSettings: {
+    annotateDrawOrder: true, // TODO: set this to false by default
+  },
+
   priorityFrame: 1,
   currentlyOptimising: false,
   toolpaths: {},
@@ -157,4 +174,11 @@ export const useViewportFrameToolpath = () => {
   const setting = useStore(state => state.toolpaths[state.viewportFrame])
 
   return setting ?? null
+}
+
+export function incrementViewportFrameVersion(state: WritableDraft<Store>) {
+  state.viewportFrameVersion += 1
+  if (state.viewportFrameVersion === 255) {
+    state.viewportFrameVersion = 0
+  }
 }

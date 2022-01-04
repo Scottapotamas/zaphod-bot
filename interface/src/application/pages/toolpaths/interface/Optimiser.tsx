@@ -30,6 +30,7 @@ import {
   getSetting,
   useSetting,
   useStore,
+  incrementViewportFrameVersion,
 } from './state'
 import { Movement } from '../optimiser/movements'
 import { Renderable } from '../optimiser/import'
@@ -171,8 +172,7 @@ export function Optimiser() {
         // Trigger an update if this frame update is for the viewport frame
 
         if (state.viewportFrame === progress.frameNumber) {
-          state.viewportFrameVersion += 1
-          if (state.viewportFrameVersion === 255) state.viewportFrameVersion = 0
+          incrementViewportFrameVersion(state)
         }
       })
 
