@@ -13,14 +13,14 @@ export interface Settings {
 
   // Per-object overrides
   objectOverrides: {
-    [objectName: string]:
+    [id: string]:
       | Partial<GPencilToMovementsSettings>
       | Partial<ParticlesToMovementsSettings>
   }
 
   // For disabling the rendering of objects
-  objectToggles: {
-    [objectName: string]: boolean
+  hiddenObjects: {
+    [id: string]: boolean
   }
 
   // Materials
@@ -63,7 +63,7 @@ export function getToMovementSettings(
 ): ParticlesToMovementsSettings
 
 export function getToMovementSettings<
-  ReturnType = GPencilToMovementsSettings | ParticlesToMovementsSettings
+  ReturnType = GPencilToMovementsSettings | ParticlesToMovementsSettings,
 >(
   settings: Settings,
   objType: 'gpencil' | 'particles',
@@ -137,7 +137,7 @@ export function getMaterialOverride(
 export function getShouldSkip(settings: Settings, keys: string[]) {
   // Iterate over every key, if any are marked as toggle off, skip
   for (const objName of keys) {
-    if (settings.objectToggles[objName] === false) {
+    if (settings.hiddenObjects[objName]) {
       return true
     }
   }

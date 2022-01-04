@@ -10,6 +10,7 @@ import { Optimiser } from './Optimiser'
 import { SettingsInterface } from './SettingsInterface'
 import { RenderInterface } from './RenderInterface'
 import { ToolpathVisualisation } from './ToolpathVisualisation'
+import { RenderableTree } from './RenderableTree'
 
 export const ToolpathViewer = (props: RouteComponentProps) => {
   return (
@@ -31,6 +32,8 @@ export const ToolpathViewer = (props: RouteComponentProps) => {
         <FolderPathSelector />
 
         <SettingsInterface />
+
+        <RenderableTree />
 
         <Optimiser />
 

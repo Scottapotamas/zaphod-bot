@@ -1,4 +1,8 @@
+import { TreeNodeInfo } from '@blueprintjs/core'
+import { IconNames } from '@blueprintjs/icons'
 import { Color, Vector3 } from 'three'
+import { NodeInfo, NodeTypes } from '../interface/RenderableTree'
+import { ObjectNameTree } from './files'
 import { importMaterial, MaterialJSON } from './material'
 import { Point, Line, Movement, MovementGroup } from './movements'
 import {
@@ -51,10 +55,27 @@ export class Particles {
     this.systems.push(layer)
   }
 
-  public getObjectNameTree = () => {
-    return {
-      [this.name]: this.systems.map(system => `${this.name}-${system.name}`),
+  public getObjectTree: () => TreeNodeInfo<NodeInfo> = () => {
+    const node: TreeNodeInfo<NodeInfo> = {
+      id: this.name,
+      label: this.name,
+      icon: IconNames.LAYOUT_SKEW_GRID,
+      nodeData: {
+        type: NodeTypes.PARTICLES,
+        hidden: false,
+      },
+      childNodes: this.systems.map(system => ({
+        id: `${this.name}-${system.name}`,
+        label: system.name,
+        icon: IconNames.LAYOUT_GROUP_BY,
+        nodeData: {
+          type: NodeTypes.PARTICLE_SYSTEM,
+          hidden: false,
+        },
+      })),
     }
+
+    return node
   }
 
   public toMovements = (settings: Settings) => {
