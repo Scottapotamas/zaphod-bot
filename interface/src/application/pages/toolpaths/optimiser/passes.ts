@@ -258,8 +258,6 @@ export interface OrderingCache {
 export interface Progress {
   duration: number
   text: string
-  // method: string;
-  toolpath: Toolpath
   orderingCache: OrderingCache
   // Whether this is the final update of this run
   completed: boolean
@@ -416,9 +414,9 @@ export async function optimise(
 
     const shouldContinue = await updateProgress({
       duration: curentDuration,
-      text: `Optimised to ${Math.round(curentDuration * 100) /
-        100}ms via ${method}`,
-      toolpath: toolpath(currentDense),
+      text: `Optimised to ${
+        Math.round(curentDuration * 100) / 100
+      }ms via ${method}`,
       orderingCache: populateOrderingCache(),
       completed: false,
       minimaFound: false,
@@ -472,7 +470,6 @@ export async function optimise(
   await updateProgress({
     duration: getTotalDuration(currentDense),
     text: `Optimised to ${Math.round(curentDuration * 100) / 100}ms`,
-    toolpath: toolpath(flattenDense(sparseToDense(ordering, settings))),
     orderingCache: populateOrderingCache(),
     completed: true,
     minimaFound: !stoppedEarly,
@@ -487,33 +484,5 @@ export async function optimise(
     iterations: iteration,
     orderingCache: populateOrderingCache(),
     stoppedEarly,
-  }
-}
-
-export interface Toolpath {
-  movementMoves: MovementMove[]
-  lightMoves: LightMove[]
-}
-
-export function toolpath(denseMovements: DenseMovements): Toolpath {
-  const movementMoves: MovementMove[] = []
-  const lightMoves: LightMove[] = []
-
-  let id = 0
-  // each movement should have a generateToolpath method
-  for (const movement of denseMovements) {
-    // Increment the ID
-    id++
-
-    // Build the hardware moves
-    movementMoves.push(...movement.generateToolpath(id))
-
-    // Build the light moves
-    lightMoves.push(...movement.generateLightpath(id))
-  }
-
-  return {
-    movementMoves,
-    lightMoves,
   }
 }
