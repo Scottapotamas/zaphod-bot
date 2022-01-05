@@ -5,12 +5,7 @@ import { NodeInfo, NodeTypes } from '../interface/RenderableTree'
 import { ObjectNameTree } from './files'
 import { importMaterial, MaterialJSON } from './material'
 import { Point, Line, Movement, MovementGroup } from './movements'
-import {
-  getMaterialOverride,
-  getShouldSkip,
-  getToMovementSettings,
-  Settings,
-} from './settings'
+import { getShouldSkip, getToMovementSettings, Settings } from './settings'
 
 export interface ParticlesStrokePoint {
   co: [number, number, number] // position
@@ -106,7 +101,7 @@ export class Particles {
         const point = new Point(
           location,
           settingsWithOverride.stopDelay ?? 0,
-          getMaterialOverride(settings, system.material, overrideKeys),
+          importMaterial(system.material),
           objectID,
         )
 

@@ -7,9 +7,9 @@ import produce, { Draft } from 'immer'
 import { Settings } from '../optimiser/settings'
 import { Quaternion, Vector3 } from 'three'
 
-import { blankMaterial } from '../optimiser/material'
+import { importMaterial, MaterialJSON } from '../optimiser/material'
 import { useCallback } from 'react'
-import { OrderingCache, Toolpath } from '../optimiser/passes'
+import { OrderingCache } from '../optimiser/passes'
 import { Renderable } from '../optimiser/import'
 import { Movement } from '../optimiser/movements'
 import shallow from 'zustand/shallow'
@@ -34,12 +34,6 @@ const defaultSettings: Settings = {
 
   hiddenObjects: {},
 
-  transitionMaterial: blankMaterial,
-  materialOverrides: {
-    globalOveride: null,
-    objectMaterialOverrides: {},
-  },
-
   optimisation: {
     startingPoint: [0, 0, 0],
     endingPoint: [0, 0, 0],
@@ -55,7 +49,39 @@ const defaultSettings: Settings = {
  * Increment the viewportFrameVersion when modifying these
  */
 export interface VisualisationSettings {
+  // Whether to draw tags with the movement's ordering nearby
   annotateDrawOrder: boolean
+
+  // The curve detail level for splines.
+  curveSegments: number
+
+  // Global material override
+  globalMaterialOverride?: MaterialJSON | null
+
+  // Do object level material overrides here.
+  // Transition materials are overriden with the 'transition' key
+  objectMaterialOverrides: {
+    [objectID: string]: MaterialJSON
+  }
+}
+
+export function getMaterialOverride(
+  visualisationSettings: VisualisationSettings,
+  providedMaterial: MaterialJSON,
+  objectID: string,
+) {
+  let mat = providedMaterial
+
+  if (visualisationSettings.globalMaterialOverride) {
+    mat = visualisationSettings.globalMaterialOverride
+  }
+
+  // If there's an override key for this object ID, replace the material
+  if (visualisationSettings.objectMaterialOverrides[objectID]) {
+    mat = visualisationSettings.objectMaterialOverrides[objectID]
+  }
+
+  return importMaterial(mat)
 }
 
 interface Store {
@@ -92,10 +118,6 @@ interface Store {
   renderablesByFrame: {
     [frame: number]: Renderable[]
   }
-  // Latest toolpaths for sending to hardware
-  toolpaths: {
-    [frameNumber: number]: Toolpath
-  }
   // As the optimiser orders movements, the UI copy of the movements will be stored here
   orderedMovementsByFrame: {
     [frameNumber: number]: Movement[]
@@ -119,11 +141,13 @@ const initialState: Store = {
   viewportFrameVersion: 0,
   visualisationSettings: {
     annotateDrawOrder: false,
+    objectMaterialOverrides: {},
+    globalMaterialOverride: null,
+    curveSegments: 20, // 20 segments per curve by default
   },
 
   priorityFrame: 1,
   currentlyOptimising: false,
-  toolpaths: {},
   movementOrdering: {},
   allRenderables: [],
   renderablesByFrame: {},
@@ -169,12 +193,6 @@ export const setSetting = (recipe: (draft: Draft<Store>) => void) => {
 }
 
 export const getCurrentSettings = () => useStore.getState().settings
-
-export const useViewportFrameToolpath = () => {
-  const setting = useStore(state => state.toolpaths[state.viewportFrame])
-
-  return setting ?? null
-}
 
 export function incrementViewportFrameVersion(state: WritableDraft<Store>) {
   state.viewportFrameVersion += 1

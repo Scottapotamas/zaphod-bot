@@ -191,7 +191,7 @@ function forEachNodeWithParentInformation(
 }
 
 // For referencing a node by the ID
-function findNodeWithID(
+export function findNodeWithID(
   nodes: TreeNodeInfo<NodeInfo>[] | undefined,
   id: string | number,
 ): TreeNodeInfo<NodeInfo> | null {

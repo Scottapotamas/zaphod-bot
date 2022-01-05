@@ -12,8 +12,6 @@ import {
 
 import { FrameProgressUpdate, ToolpathGenerator } from '../optimiser/main'
 import { importFolder } from '../optimiser/files'
-import { blankMaterial } from '../optimiser/material'
-import { Vector3 } from 'three'
 import {
   DataSource,
   Event,
@@ -36,7 +34,10 @@ import { Movement } from '../optimiser/movements'
 import { Renderable } from '../optimiser/import'
 import { mutateTree, renderablesToSceneTree } from './RenderableTree'
 
-function renderablesToMovements(renderables: Renderable[], settings: Settings) {
+export function renderablesToMovements(
+  renderables: Renderable[],
+  settings: Settings,
+) {
   const movements: Movement[] = []
 
   for (const renderable of renderables) {
@@ -166,7 +167,6 @@ export function Optimiser() {
   const onProgress = useCallback(
     (progress: FrameProgressUpdate) => {
       setSetting(state => {
-        state.toolpaths[progress.frameNumber] = progress.toolpath
         state.movementOrdering[progress.frameNumber] = progress.orderingCache
 
         // Trigger an update if this frame update is for the viewport frame

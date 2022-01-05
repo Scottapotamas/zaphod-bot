@@ -7,11 +7,12 @@ import {
   Point,
   PointTransition,
   Transition,
+  TRANSITION_OBJECT_ID,
 } from './movements'
-import { LightMove, MovementMove, MovementMoveReference } from './hardware'
 
-import { getTransitionMaterial, Settings } from './settings'
+import { Settings } from './settings'
 import { Vector3 } from 'three'
+import { defaultTransitionMaterial } from './material'
 
 /**
  * Add transition movements between each move if the start and the end are at different places
@@ -20,10 +21,6 @@ export function sparseToDense(
   sparseBag: Movement[],
   settings: Settings,
 ): DenseMovements {
-  const denseMovements: DenseMovements = declareDense([])
-
-  const transitionMaterial = getTransitionMaterial(settings)
-
   // Start
   let previousMovement: Movement = new Point(
     new Vector3(
@@ -32,9 +29,13 @@ export function sparseToDense(
       settings.optimisation.startingPoint[2],
     ),
     settings.optimisation.waitAtStartDuration,
-    transitionMaterial,
+    defaultTransitionMaterial,
+    TRANSITION_OBJECT_ID,
   )
   previousMovement.setMaxSpeed(settings.optimisation.maxSpeed)
+
+  // Add the initial wait at start to the movements
+  const denseMovements: DenseMovements = declareDense([previousMovement])
 
   // Middle
   for (let index = 0; index < sparseBag.length; index++) {
@@ -62,7 +63,7 @@ export function sparseToDense(
         movementPrev,
         movementCurrent,
         movementNext,
-        transitionMaterial,
+        defaultTransitionMaterial,
       )
 
       transition.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
@@ -82,7 +83,7 @@ export function sparseToDense(
     const transition = new Transition(
       previousMovement,
       movement,
-      transitionMaterial,
+      defaultTransitionMaterial,
     )
     transition.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
 
@@ -105,7 +106,8 @@ export function sparseToDense(
       settings.optimisation.endingPoint[2],
     ),
     1, // wait for 1ms at the end
-    transitionMaterial,
+    defaultTransitionMaterial,
+    TRANSITION_OBJECT_ID,
   )
   lastMovement.setMaxSpeed(settings.optimisation.maxSpeed)
 
@@ -113,7 +115,7 @@ export function sparseToDense(
   const transitionToEnd = new Transition(
     previousMovement,
     lastMovement,
-    transitionMaterial,
+    defaultTransitionMaterial,
   )
   transitionToEnd.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
 
