@@ -11,8 +11,6 @@ import {
   OrderingCache,
   Progress,
   sparseToDense,
-  Toolpath,
-  toolpath,
 } from '../passes'
 import { Settings } from '../settings'
 
@@ -45,10 +43,7 @@ export async function optimiseFrameBag(
   const flattened = flattenDense(dense)
   const duration = getTotalDuration(flattened)
 
-  const tp = toolpath(flattened)
-
   return {
-    toolpath: tp,
     duration,
     orderingCache: nextOrderingCache,
   }
