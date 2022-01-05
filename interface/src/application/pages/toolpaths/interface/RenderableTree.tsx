@@ -8,9 +8,11 @@ import {
 } from 'zustand/middleware'
 import produce, { Draft } from 'immer'
 import { IconNames } from '@blueprintjs/icons'
-import { setSetting } from './state'
+import { setSetting, useStore } from './state'
+import { TRANSITION_OBJECT_ID } from '../optimiser/movements'
 
 export enum NodeTypes {
+  TRANSITION = 'transition',
   CAMERA = 'camera',
   CAMERA_ALIGNMENT = 'camera-alignment',
   GPENCIL = 'gpencil',
@@ -28,43 +30,36 @@ export interface NodeInfo {
   parentID?: string | number
 }
 
-export interface TreeStore {
-  tree: TreeNodeInfo<NodeInfo>[]
-  selectedItemID: NodeID | null // Store the ID of the item that's currently selected
-  hoveredObjectIDs: NodeID[] // Store the IDs of all currently hovered objects
-}
-
-const initialState: TreeStore = {
-  tree: [],
-  selectedItemID: null,
-  hoveredObjectIDs: [],
-}
-
-export const useTreeStore = create<
-  TreeStore,
-  SetState<TreeStore>,
-  GetState<TreeStore>,
-  StoreApiWithSubscribeWithSelector<TreeStore>
->(subscribeWithSelector(() => initialState))
-
-export const resetTreeStore = () => useTreeStore.setState(initialState)
-
-export const mutateTree = (recipe: (draft: Draft<TreeStore>) => void) => {
-  useTreeStore.setState(state => {
-    return produce(state, recipe)
-  })
-}
-
 interface SecondaryLabelProps {
   id: string | number
 }
 
+const marginRight = { marginRight: 3 }
+
 function SecondaryLabelFactory(props: SecondaryLabelProps) {
-  const thisIcon = useTreeStore(state => {
-    const ourNode = findNodeWithID(state.tree, props.id)
+  const thisIcon = useStore(state => {
+    const ourNode = findNodeWithID(state.treeStore.tree, props.id)
     const hidden = ourNode?.nodeData!.hidden
 
     return hidden ? IconNames.EYE_OFF : IconNames.EYE_OPEN
+  })
+
+  const materialOverrideIcon = useStore(state => {
+    // If this node has a material override, use the tint icon
+    if (state.visualisationSettings.objectMaterialOverrides[props.id]) {
+      return IconNames.TINT
+    }
+
+    let hasOverride = false
+
+    // If this node or any of its children have an override, display the icon
+    forNodeWithIDAndChildren(state.treeStore.tree, props.id, node => {
+      if (state.visualisationSettings.objectMaterialOverrides[node.id]) {
+        hasOverride = true
+      }
+    })
+    // If a child has an override, use the dot
+    return hasOverride ? IconNames.DOT : null
   })
 
   const onClickHandler = useCallback(() => {
@@ -74,22 +69,22 @@ function SecondaryLabelFactory(props: SecondaryLabelProps) {
     } = {}
 
     // Update the Tree UI
-    mutateTree(state => {
+    setSetting(state => {
       // Find this node's state, otherwise we have a toggle with depth
-      const ourNode = findNodeWithID(state.tree, props.id)
+      const ourNode = findNodeWithID(state.treeStore.tree, props.id)
       const hidden = ourNode?.nodeData!.hidden
 
       if (hidden) {
         // if this node is currently hidden, then we're about to reveal it,
         // in which case all parents must also be revealed
-        forNodeAndParentsRecursive(state.tree, props.id, node => {
+        forNodeAndParentsRecursive(state.treeStore.tree, props.id, node => {
           node.nodeData!.hidden = false
           overrideKeysToMerge[node.id] = false
         })
       }
 
       // Hide or show everything including this node and below
-      forNodeWithIDAndChildren(state.tree, props.id, node => {
+      forNodeWithIDAndChildren(state.treeStore.tree, props.id, node => {
         node.nodeData!.hidden = !hidden
         // Update our list of override keys
         overrideKeysToMerge[node.id] = !hidden
@@ -106,8 +101,34 @@ function SecondaryLabelFactory(props: SecondaryLabelProps) {
     })
   }, [props.id])
 
+  // const selectDeepestMaterialOverride: React.MouseEventHandler<HTMLElement> =
+  //   useCallback(
+  //     event => {
+  //       setSetting(state => {
+  //         // Select the deepest node with a material override
+  //         forNodeWithIDAndChildren(state.treeStore.tree, props.id, node => {
+  //           if (state.visualisationSettings.objectMaterialOverrides[node.id]) {
+  //             state.treeStore.selectedItemID = node.id
+  //             console.log(`attempting to select ${node.id}`)
+  //           }
+  //         })
+  //       })
+
+  //       // Stop the event from reaching the actual row since we're handling the selection logic
+  //       event.stopPropagation()
+  //     },
+  //     [props.id],
+  //   )
+
   return (
     <>
+      {materialOverrideIcon ? (
+        <Icon
+          icon={materialOverrideIcon}
+          style={marginRight}
+          // onClick={selectDeepestMaterialOverride}
+        />
+      ) : null}
       <Icon icon={thisIcon} onClick={onClickHandler} />
     </>
   )
@@ -119,7 +140,17 @@ function SecondaryLabelFactory(props: SecondaryLabelProps) {
  */
 export function renderablesToSceneTree(renderables: Renderable[]) {
   const nameSet: Set<string> = new Set()
-  const nodes: TreeNodeInfo<NodeInfo>[] = []
+  const nodes: TreeNodeInfo<NodeInfo>[] = [
+    {
+      id: TRANSITION_OBJECT_ID,
+      label: 'Transitions',
+      icon: IconNames.RANDOM,
+      nodeData: {
+        type: NodeTypes.TRANSITION,
+        hidden: false,
+      },
+    },
+  ]
 
   for (const renderable of renderables) {
     const node = renderable.getObjectTree()
@@ -263,7 +294,7 @@ function forNodeAndParentsRecursive(
 }
 
 export function RenderableTree() {
-  const tree = useTreeStore(state => state.tree)
+  const tree = useStore(state => state.treeStore.tree)
 
   const handleNodeClick = useCallback(
     (
@@ -271,18 +302,18 @@ export function RenderableTree() {
       nodePath: NodeID[],
       e: React.MouseEvent<HTMLElement>,
     ) => {
-      mutateTree(state => {
+      setSetting(state => {
         // Deselect everything first
-        forEachNode(state.tree, node => {
+        forEachNode(state.treeStore.tree, node => {
           node.isSelected = false
         })
 
         // Select our node
-        forNodeAtPath(state.tree, nodePath, node => {
+        forNodeAtPath(state.treeStore.tree, nodePath, node => {
           node.isSelected = true
 
           // Update the selected item
-          state.selectedItemID = node.id
+          state.treeStore.selectedItemID = node.id
         })
       })
     },
@@ -295,23 +326,23 @@ export function RenderableTree() {
       nodePath: NodeID[],
       e: React.MouseEvent<HTMLElement>,
     ) => {
-      mutateTree(state => {
-        const node = findNodeWithID(state.tree, _node.id)
+      setSetting(state => {
+        const node = findNodeWithID(state.treeStore.tree, _node.id)
 
         if (node) {
           node.isExpanded = false
         }
 
         // If any of the children were selected, unselect them
-        forNodeWithIDAndChildren(state.tree, _node.id, node => {
+        forNodeWithIDAndChildren(state.treeStore.tree, _node.id, node => {
           if (node.id === _node.id) {
             // Don't unselect the collapsing node if it were selected
             return
           }
 
-          if (state.selectedItemID === node.id) {
+          if (state.treeStore.selectedItemID === node.id) {
             node.isSelected = false
-            state.selectedItemID = null
+            state.treeStore.selectedItemID = null
           }
         })
       })
@@ -325,8 +356,8 @@ export function RenderableTree() {
       nodePath: NodeID[],
       e: React.MouseEvent<HTMLElement>,
     ) => {
-      mutateTree(state => {
-        forNodeAtPath(state.tree, nodePath, node => {
+      setSetting(state => {
+        forNodeAtPath(state.treeStore.tree, nodePath, node => {
           node.isExpanded = true
         })
       })
@@ -340,13 +371,13 @@ export function RenderableTree() {
       nodePath: NodeID[],
       e: React.MouseEvent<HTMLElement>,
     ) => {
-      mutateTree(state => {
+      setSetting(state => {
         const hoveredIDs: NodeID[] = []
-        forNodeWithIDAndChildren(state.tree, _node.id, node => {
+        forNodeWithIDAndChildren(state.treeStore.tree, _node.id, node => {
           hoveredIDs.push(node.id)
         })
 
-        state.hoveredObjectIDs = hoveredIDs
+        state.treeStore.hoveredObjectIDs = hoveredIDs
       })
     },
     [],
@@ -358,8 +389,8 @@ export function RenderableTree() {
       nodePath: NodeID[],
       e: React.MouseEvent<HTMLElement>,
     ) => {
-      mutateTree(state => {
-        state.hoveredObjectIDs = []
+      setSetting(state => {
+        state.treeStore.hoveredObjectIDs = []
       })
     },
     [],

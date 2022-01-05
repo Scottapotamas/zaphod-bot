@@ -45,7 +45,8 @@ import { Line2 } from 'three/examples/jsm/lines/Line2'
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial'
 import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry'
 import { MutableLineSegmentGeometry } from './ExternallyStoredLineSegments'
-import { useTreeStore } from './RenderableTree'
+import { importMaterial } from '../optimiser/material'
+import { Material } from '../optimiser/materials/Base'
 
 function AxisLines() {
   return (
@@ -207,10 +208,32 @@ function Movements() {
         )
         const denseMovements = sparseToDense(orderedMovements, settings)
 
+        // Import the global material override if it exists
+        const globalMaterialOverride =
+          visualisationSettings.globalMaterialOverride
+            ? importMaterial(visualisationSettings.globalMaterialOverride)
+            : null
+
         for (let index = 0; index < denseMovements.length; index++) {
           const movement = denseMovements[index]
 
-          movement.material.generateThreeJSRepresentation(
+          let material: Material = movement.material
+
+          const movementMaterialOverride =
+            visualisationSettings.objectMaterialOverrides[movement.objectID]
+
+          // Global overrides take least precidence
+          if (globalMaterialOverride) {
+            material = globalMaterialOverride
+          }
+
+          // Specific movement overrides take highest precidence
+          if (movementMaterialOverride) {
+            material = importMaterial(movementMaterialOverride)
+          }
+
+          // Generate using the
+          material.generateThreeJSRepresentation(
             index,
             movement,
             settings,
@@ -246,8 +269,8 @@ function Movements() {
 
   // On hovering change, update the lines
   useEffect(() => {
-    return useTreeStore.subscribe(
-      state => state.hoveredObjectIDs,
+    return useStore.subscribe(
+      state => state.treeStore.hoveredObjectIDs,
       hoveredObjectIDs => {
         if (hoveredObjectIDs.length === 0) {
           // If nothing is hovered, reset both
@@ -322,6 +345,7 @@ export const ToolpathVisualisation = () => {
 
   return (
     <Canvas
+    // linear // TODO: Fix the 'darkening' so we can use colours that aren't black
     // shadows={true}
     >
       <PerspectiveCamera
