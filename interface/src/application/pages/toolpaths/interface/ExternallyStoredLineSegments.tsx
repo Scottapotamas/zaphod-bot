@@ -28,11 +28,11 @@ import {
 } from 'three'
 
 import { MovementMoveType } from '../optimiser/hardware'
-import { sparseToDense, Toolpath } from '../optimiser/passes'
+import { sparseToDense } from '../optimiser/passes'
 import { CatmullRomLine } from './CatmullLine'
 import { MovementPoint } from 'src/application/typedState'
 import { Vector3 } from 'three'
-import { RGBA, XYZ } from '../optimiser/movements'
+import { RGB, XYZ } from '../optimiser/movements'
 import { LineMaterial, LineSegmentsGeometry, Line2 } from 'three-stdlib'
 
 export class MutableLineSegmentGeometry {

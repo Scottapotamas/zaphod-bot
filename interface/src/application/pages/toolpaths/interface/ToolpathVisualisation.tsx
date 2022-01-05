@@ -34,19 +34,13 @@ import {
   Vector2,
   PerspectiveCamera as PerspectiveCameraImpl,
 } from 'three'
-import {
-  getSetting,
-  setSetting,
-  useSetting,
-  useStore,
-  useViewportFrameToolpath,
-} from './state'
+import { getSetting, setSetting, useSetting, useStore } from './state'
 import { MovementMoveType } from '../optimiser/hardware'
 import { sparseToDense } from '../optimiser/passes'
 import { CatmullRomLine } from './CatmullLine'
 import { MovementPoint } from 'src/application/typedState'
 import { Vector3 } from 'three'
-import { Movement, RGBA, XYZ } from '../optimiser/movements'
+import { Movement, RGB, XYZ } from '../optimiser/movements'
 import { Line2 } from 'three/examples/jsm/lines/Line2'
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial'
 import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry'
@@ -120,8 +114,8 @@ function Movements() {
     const addColouredLine = (
       start: Vector3,
       end: Vector3,
-      colorStart: RGBA,
-      colorEnd: RGBA,
+      colorStart: RGB,
+      colorEnd: RGB,
       objectID?: string,
     ) => {
       // Do the Blender -> ThreeJS coordinate system transform inline
@@ -157,8 +151,8 @@ function Movements() {
     const addTransitionLine = (
       start: Vector3,
       end: Vector3,
-      colorStart: RGBA,
-      colorEnd: RGBA,
+      colorStart: RGB,
+      colorEnd: RGB,
     ) => {
       // Do the Blender -> ThreeJS coordinate system transform inline
       transitions.positions[transitionIndex * 6 + 0] = start.x
@@ -208,14 +202,19 @@ function Movements() {
           getSetting(state => state.viewportFrame),
         )
         const settings = getSetting(state => state.settings)
+        const visualisationSettings = getSetting(
+          state => state.visualisationSettings,
+        )
         const denseMovements = sparseToDense(orderedMovements, settings)
 
         for (let index = 0; index < denseMovements.length; index++) {
           const movement = denseMovements[index]
 
-          movement.generateThreeLineSegments(
+          movement.material.generateThreeJSRepresentation(
             index,
-            getSetting(state => state.visualisationSettings),
+            movement,
+            settings,
+            visualisationSettings,
             addColouredLine,
             addTransitionLine,
             addReactComponent,
