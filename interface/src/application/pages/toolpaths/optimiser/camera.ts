@@ -5,12 +5,7 @@ import { ObjectNameTree } from './files'
 import { Renderable } from './import'
 import { importMaterial, MaterialJSON } from './material'
 import { Point, Line, Movement, MovementGroup } from './movements'
-import {
-  getMaterialOverride,
-  getShouldSkip,
-  getToMovementSettings,
-  Settings,
-} from './settings'
+import { getShouldSkip, getToMovementSettings, Settings } from './settings'
 import { IconNames } from '@blueprintjs/icons'
 
 export interface CameraToMovementsSettings {

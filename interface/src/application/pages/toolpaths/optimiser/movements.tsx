@@ -5,7 +5,12 @@ import {
   MathUtils,
   Vector3,
 } from 'three'
-import { isSimpleColorMaterial, Material } from './material'
+import {
+  defaultTransitionMaterial,
+  importMaterial,
+  isSimpleColorMaterial,
+  Material,
+} from './material'
 import {
   LightMove,
   MovementMove,
@@ -21,6 +26,16 @@ import { Segments, Segment, Html } from '@react-three/drei'
 import { VisualisationSettings } from '../interface/state'
 import { Intent, Tag } from '@blueprintjs/core'
 import { NodeID, useTreeStore } from '../interface/RenderableTree'
+
+export const TRANSITION_OBJECT_ID = '__transition'
+
+export enum MOVEMENT_TYPE {
+  GROUP = 'movementgroup',
+  LINE = 'line',
+  POINT = 'point',
+  TRANSITION = 'transition',
+  POINT_TRANSITION = 'transition',
+}
 
 const defaultSpeed = 30 // mm/s
 
@@ -99,31 +114,33 @@ export abstract class Movement {
   abstract generateToolpath: (id: number) => MovementMove[]
 
   /**
-   * Given a movement ID, generate the light moves for this movement, (defer to materials).
+   * Sample a point along this movement at time fraction t (0-1)
    */
-  abstract generateLightpath: (id: number) => LightMove[]
+  abstract samplePoint: (t: number) => Vector3
 
-  abstract generateThreeLineSegments: (
-    movementIndex: number,
-    visualisationSettings: VisualisationSettings,
-    addColouredLine: AddLineCallback,
-    addTransitionLine: AddLineCallback,
-    addReactComponent: AddComponentCallback,
-  ) => void
+  /**
+   * Get the approximate centroid of the movement
+   */
+  abstract getApproximateCentroid: () => Vector3
+
+  /**
+   * Every movement needs a material to generate the light moves, and generate the ThreeJS representation
+   */
+  abstract material: Material
 }
 
 export type XYZ = [x: number, y: number, z: number]
-export type RGBA = [r: number, g: number, b: number, a: number]
+export type RGB = [r: number, g: number, b: number]
 
-type AddLineCallback = (
+export type AddLineCallback = (
   start: Vector3,
   end: Vector3,
-  colorStart: RGBA,
-  colorEnd: RGBA,
+  colorStart: RGB,
+  colorEnd: RGB,
   objectID?: string,
 ) => void
 
-type AddComponentCallback = (component: React.ReactNode) => void
+export type AddComponentCallback = (component: React.ReactNode) => void
 
 export type DenseMovements = Movement[] & { __dense: true }
 
@@ -132,14 +149,15 @@ export function declareDense(movements: Movement[]) {
 }
 
 export function isMovementGroup(movement: Movement): movement is MovementGroup {
-  return movement.type === 'movementgroup'
+  return movement.type === MOVEMENT_TYPE.GROUP
 }
 
 /**
  * A group of movements that must be executed in order.
  */
 export class MovementGroup extends Movement {
-  readonly type = 'movementgroup'
+  readonly type = MOVEMENT_TYPE.GROUP
+  public material = defaultTransitionMaterial
 
   public objectID = '___movement_group' // This should never match
 
@@ -246,34 +264,38 @@ export class MovementGroup extends Movement {
     )
   }
 
-  public generateLightpath = (id: number) => {
-    throw new Error(
-      'generateLightpath called on MovementGroup, the movement bag should have been flattened',
-    )
+  public getApproximateCentroid = () => {
+    if (this.movements.length === 0) {
+      throw new Error(
+        'MovementGroup is empty, but getApproximateCentroid was called',
+      )
+    }
+
+    const centers: Vector3[] = []
+
+    for (const movement of this.movements) {
+      centers.push(movement.getApproximateCentroid())
+    }
+
+    return getCentroid(centers)
   }
 
-  public generateThreeLineSegments = (
-    movementIndex: number,
-    visualisationSettings: VisualisationSettings,
-    addColouredLine: AddLineCallback,
-    addTransitionLine: AddLineCallback,
-    addReactComponent: AddComponentCallback,
-  ) => {
+  public samplePoint = (t: number) => {
     throw new Error(
-      'generateThreeLineSegments called on MovementGroup, the movement bag should have been flattened',
+      'samplePoint called on MovementGroup, the movement bag should have been flattened',
     )
   }
 }
 
 export function isLine(movement: Movement): movement is Line {
-  return movement.type === 'line'
+  return movement.type === MOVEMENT_TYPE.LINE
 }
 
 /**
  * A line is a linear move from one location to another, with the light on.
  */
 export class Line extends Movement {
-  readonly type = 'line'
+  readonly type = MOVEMENT_TYPE.LINE
   maxSpeed: number = defaultSpeed
 
   constructor(
@@ -352,69 +374,21 @@ export class Line extends Movement {
     return [move]
   }
 
-  public generateLightpath = (id: number) => {
-    return this.material.generateLightpath(id, this)
+  public getApproximateCentroid = () => {
+    return getCentroid([this.getStart(), this.getEnd()])
   }
 
-  public generateThreeLineSegments = (
-    movementIndex: number,
-    visualisationSettings: VisualisationSettings,
-    addColouredLine: AddLineCallback,
-    addTransitionLine: AddLineCallback,
-    addReactComponent: AddComponentCallback,
-  ) => {
-    if (isSimpleColorMaterial(this.material)) {
-      const batched = true
+  public samplePoint = (t: number) => {
+    const start = this.getStart()
+    const length = this.getLength()
+    const direction = this.getEnd().clone().sub(this.getStart()).normalize()
 
-      // If we're annotating draw order, create the react component
-      if (visualisationSettings.annotateDrawOrder) {
-        addReactComponent(
-          generateHtmlTagFromAveragePosition(
-            this.objectID,
-            [this.getStart(), this.getEnd()],
-            'none',
-            `L #${movementIndex}`,
-          ),
-        )
-      }
-
-      if (batched) {
-        addColouredLine(
-          this.getStart(),
-          this.getEnd(),
-          this.material.color,
-          this.material.color,
-          this.objectID,
-        )
-      } else {
-        addReactComponent(
-          <Segments limit={1} lineWidth={1.0}>
-            <Segment
-              start={this.getStart()}
-              end={this.getEnd()}
-              color={
-                new Color(
-                  this.material.color[0],
-                  this.material.color[1],
-                  this.material.color[2],
-                )
-              }
-            />
-          </Segments>,
-        )
-      }
-
-      return
-    }
-
-    console.warn(
-      'Created a line with a non-simple material, make a react component for it',
-    )
+    return direction.multiplyScalar(length * t).add(start)
   }
 }
 
 export function isPoint(movement: Movement): movement is Point {
-  return movement.type === 'point'
+  return movement.type === MOVEMENT_TYPE.POINT
 }
 
 const zeroVector = new Vector3(0, 0, 0)
@@ -423,7 +397,7 @@ const zeroVector = new Vector3(0, 0, 0)
  * A `Point` is a fixed duration stay at a certain point.
  */
 export class Point extends Movement {
-  readonly type = 'point'
+  readonly type = MOVEMENT_TYPE.POINT
   maxSpeed: number = defaultSpeed
 
   // For a particle, approach in the velocity of its velocity
@@ -526,69 +500,18 @@ export class Point extends Movement {
     return [move]
   }
 
-  public generateLightpath = (id: number) => {
-    return this.material.generateLightpath(id, this)
+  public getApproximateCentroid = () => {
+    return getCentroid([this.getStart(), this.getEnd()])
   }
 
-  public generateThreeLineSegments = (
-    movementIndex: number,
-    visualisationSettings: VisualisationSettings,
-    addColouredLine: AddLineCallback,
-    addTransitionLine: AddLineCallback,
-    addReactComponent: AddComponentCallback,
-  ) => {
-    if (isSimpleColorMaterial(this.material)) {
-      const batched = true
-
-      // If we're annotating draw order, create the react component
-      if (visualisationSettings.annotateDrawOrder) {
-        addReactComponent(
-          generateHtmlTagFromAveragePosition(
-            this.objectID,
-            [this.getStart(), this.getEnd()],
-            'none',
-            `P #${movementIndex}`,
-          ),
-        )
-      }
-
-      if (batched) {
-        addColouredLine(
-          this.getStart(),
-          this.getEnd(),
-          this.material.color,
-          this.material.color,
-          this.objectID,
-        )
-      } else {
-        addReactComponent(
-          <Segments limit={1} lineWidth={1.0}>
-            <Segment
-              start={this.getStart()}
-              end={this.getEnd()}
-              color={
-                new Color(
-                  this.material.color[0],
-                  this.material.color[1],
-                  this.material.color[2],
-                )
-              }
-            />
-          </Segments>,
-        )
-      }
-
-      return
-    }
-
-    console.warn(
-      'Created a point with a non-simple material, make a react component for it',
-    )
+  public samplePoint = (t: number) => {
+    // Points are always just points, even if we fudge it a bit in the movement
+    return this.pos
   }
 }
 
 export function isTransition(movement: Movement): movement is Transition {
-  return movement.type === 'transition'
+  return movement.type === MOVEMENT_TYPE.TRANSITION
 }
 
 // const transitionCurveCache = new LRUCache<string, number>({
@@ -607,10 +530,10 @@ export function isTransition(movement: Movement): movement is Transition {
  * It's probably going to be a Cubic Bezier, with the velocity components used as control points.
  */
 export class Transition extends Movement {
-  readonly type = 'transition'
+  readonly type = MOVEMENT_TYPE.TRANSITION
   maxSpeed: number = defaultSpeed
 
-  public objectID = 'transition'
+  public objectID = TRANSITION_OBJECT_ID
 
   constructor(
     public from: Movement,
@@ -725,141 +648,46 @@ export class Transition extends Movement {
     return [move]
   }
 
-  public generateLightpath = (id: number) => {
-    return this.material.generateLightpath(id, this)
+  public getApproximateCentroid = () => {
+    return getCentroid([
+      this.getStart(),
+      this.getStart().clone().add(this.getDesiredEntryVelocity()),
+      this.getEnd().clone().sub(this.getExpectedExitVelocity()),
+      this.getEnd(),
+    ])
   }
 
-  public generateThreeLineSegments = (
-    movementIndex: number,
-    visualisationSettings: VisualisationSettings,
-    addColouredLine: AddLineCallback,
-    addTransitionLine: AddLineCallback,
-    addReactComponent: AddComponentCallback,
-  ) => {
-    if (!isSimpleColorMaterial(this.material)) {
-      console.warn(
-        'Created a transition with a non-simple material, make a react component for it',
-      )
-
-      return
-    }
-
-    const batched = true
-
+  public samplePoint = (t: number) => {
     const curve = this.lazyGenerateCurve()
 
-    const points = curve.getPoints(20)
-
-    // If we're annotating draw order, create the react component
-    if (visualisationSettings.annotateDrawOrder) {
-      addReactComponent(
-        generateHtmlTagFromAveragePosition(
-          this.objectID,
-          points,
-          'primary',
-          `T #${movementIndex}`,
-        ),
-      )
-    }
-
-    if (batched) {
-      for (let index = 1; index < points.length; index++) {
-        const start = points[index - 1]
-        const end = points[index]
-
-        addTransitionLine(start, end, this.material.color, this.material.color)
-      }
-    } else {
-      const segments: { start: Vector3; end: Vector3 }[] = []
-
-      for (let index = 1; index < points.length; index++) {
-        const start = points[index - 1]
-        const end = points[index]
-
-        segments.push({ start, end })
-      }
-
-      const col = this.material.color
-
-      addReactComponent(
-        <Segments limit={20} lineWidth={1.0} {...{ dashed: true }}>
-          {segments.map((segment, index) => (
-            <Segment
-              key={index}
-              start={segment.start}
-              end={segment.end}
-              color={new Color(col[0], col[1], col[2])}
-            />
-          ))}
-        </Segments>,
-      )
-    }
+    return curve.getPoint(t)
   }
 }
 
-function TagThatHidesWhenNotInList(props: {
-  objectID: NodeID
-  intent: Intent
-  text: string
-}) {
-  const isHidden = useTreeStore(state => {
-    // If nothing is hovered, display everything
-    if (state.hoveredObjectIDs.length === 0) {
-      return false
-    }
-
-    // If something is hovered, only display if it matches
-    return !state.hoveredObjectIDs.includes(props.objectID)
-  })
-
-  return (
-    <Tag
-      intent={props.intent}
-      minimal={isHidden}
-      style={{ opacity: isHidden ? 0.5 : 1, cursor: 'pointer' }}
-    >
-      {props.text}
-    </Tag>
-  )
-}
-
-function generateHtmlTagFromAveragePosition(
-  objectID: NodeID,
-  points: Vector3[],
-  intent: Intent,
-  text: string,
-) {
+function getCentroid(points: Vector3[]) {
   const centroid = new Vector3()
   for (const point of points) {
     centroid.add(point)
   }
   centroid.divideScalar(points.length)
 
-  // Convert the centroid from Blender units to ThreeJS units
-  const threeCentroid = new Vector3(centroid.x, centroid.z, -centroid.y)
-
-  const component = (
-    <Html position={threeCentroid} key={text}>
-      <TagThatHidesWhenNotInList
-        objectID={objectID}
-        intent={intent}
-        text={text}
-      />
-    </Html>
-  )
-
-  return component
+  return centroid
 }
 
+export function isPointTransition(
+  movement: Movement,
+): movement is PointTransition {
+  return movement.type === MOVEMENT_TYPE.POINT_TRANSITION
+}
 /**
  * A transition is a move from one Point to another.
  *
  * Uses a catmull spline to visit points
  */
 export class PointTransition extends Movement {
-  readonly type = 'point-transition'
+  readonly type = MOVEMENT_TYPE.POINT_TRANSITION
   maxSpeed: number = defaultSpeed
-  public objectID = 'transition'
+  public objectID = TRANSITION_OBJECT_ID
 
   constructor(
     public prePointMovement: Movement,
@@ -874,10 +702,18 @@ export class PointTransition extends Movement {
   private curvePoints: Vector3[] = []
   private curvelength: number | null = null
 
-  private lazyGenerateCurveLength = () => {
-    if (this.curvelength) return this.curvelength
+  private curve: CatmullRomCurve3 | null = null
 
-    const curve = new CatmullRomCurve3(
+  private lazyGenerateCurve = () => {
+    if (this.curve) return this.curve
+
+    /**
+     * v0 – The starting point.
+     * v1 – The first control point.
+     * v2 – The second control point.
+     * v3 – The ending point.
+     */
+    this.curve = new CatmullRomCurve3(
       [
         this.prePointMovement.getEnd(),
         this.pointFrom.getEnd(),
@@ -888,6 +724,15 @@ export class PointTransition extends Movement {
       'catmullrom',
     )
 
+    this.curve.arcLengthDivisions = 20 // divide into 20 segments for length calculations
+
+    return this.curve
+  }
+
+  private lazyGenerateCurveLength = () => {
+    if (this.curvelength) return this.curvelength
+
+    const curve = this.lazyGenerateCurve()
     const segments = 20
 
     // By default CatmullRomCurve3.getPoints(segments) gives us points along the entire length of vectors,
@@ -918,6 +763,16 @@ export class PointTransition extends Movement {
     this.curvelength = distance
 
     return distance
+  }
+
+  public samplePoint = (t: number) => {
+    const curve = this.lazyGenerateCurve()
+
+    // The control points are 1/3 and 2/3 of the way along the curve, we only want to sample points within that region,
+    // so remap the request, from 0-1 to 1/3-2/3
+    const tR = MathUtils.mapLinear(t, 0, 1, 1 / 3, 2 / 3)
+
+    return curve.getPoint(tR)
   }
 
   // Swap the ordering of this transition movement
@@ -995,73 +850,12 @@ export class PointTransition extends Movement {
     return [move]
   }
 
-  public generateLightpath = (id: number) => {
-    return this.material.generateLightpath(id, this)
-  }
-
-  public generateThreeLineSegments = (
-    movementIndex: number,
-    visualisationSettings: VisualisationSettings,
-    addColouredLine: AddLineCallback,
-    addTransitionLine: AddLineCallback,
-    addReactComponent: AddComponentCallback,
-  ) => {
-    if (!isSimpleColorMaterial(this.material)) {
-      console.warn(
-        'Created a transition with a non-simple material, make a react component for it',
-      )
-
-      return
-    }
-
-    const batched = true
-
-    this.lazyGenerateCurveLength()
-
-    const points = this.curvePoints
-
-    // If we're annotating draw order, create the react component
-    if (visualisationSettings.annotateDrawOrder) {
-      addReactComponent(
-        generateHtmlTagFromAveragePosition(
-          this.objectID,
-          points,
-          'primary',
-          `C #${movementIndex}`,
-        ),
-      )
-    }
-
-    if (batched) {
-      for (let index = 1; index < points.length; index++) {
-        const start = points[index - 1]
-        const end = points[index]
-        addTransitionLine(start, end, this.material.color, this.material.color)
-      }
-    } else {
-      const segments: { start: Vector3; end: Vector3 }[] = []
-
-      for (let index = 1; index < points.length; index++) {
-        const start = points[index - 1]
-        const end = points[index]
-
-        segments.push({ start, end })
-      }
-
-      const col = this.material.color
-
-      addReactComponent(
-        <Segments limit={20} lineWidth={1.0} {...{ dashed: true }}>
-          {segments.map((segment, index) => (
-            <Segment
-              key={index}
-              start={segment.start}
-              end={segment.end}
-              color={new Color(col[0], col[1], col[2])}
-            />
-          ))}
-        </Segments>,
-      )
-    }
+  public getApproximateCentroid = () => {
+    return getCentroid([
+      this.prePointMovement.getEnd(),
+      this.pointFrom.getEnd(),
+      this.pointTo.getStart(),
+      this.postPointMovement.getStart(),
+    ])
   }
 }

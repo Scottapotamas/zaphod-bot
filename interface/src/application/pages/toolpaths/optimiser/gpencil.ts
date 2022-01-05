@@ -5,12 +5,7 @@ import { NodeInfo, NodeTypes } from '../interface/RenderableTree'
 import { ObjectNameTree } from './files'
 import { importMaterial, MaterialJSON } from './material'
 import { Point, Movement, Line, MovementGroup } from './movements'
-import {
-  getMaterialOverride,
-  getShouldSkip,
-  getToMovementSettings,
-  Settings,
-} from './settings'
+import { getShouldSkip, getToMovementSettings, Settings } from './settings'
 
 export class GPencilLayer {
   public strokes: GPencilStroke[] = []
@@ -120,11 +115,7 @@ export class GPencil {
 
         const orderedMovements = new MovementGroup()
 
-        const materialWithOverride = getMaterialOverride(
-          settings,
-          layer.material,
-          overrideKeys,
-        )
+        const material = importMaterial(layer.material)
 
         // Start at the second point, the first is located above
         for (let index = 1; index < stroke.points.length; index++) {
@@ -137,7 +128,7 @@ export class GPencil {
           const line: Movement = new Line(
             lastPoint,
             currentPoint,
-            materialWithOverride,
+            material,
             objectID,
           )
 
