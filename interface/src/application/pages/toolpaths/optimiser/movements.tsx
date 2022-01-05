@@ -25,7 +25,7 @@ import React from 'react'
 import { Segments, Segment, Html } from '@react-three/drei'
 import { VisualisationSettings } from '../interface/state'
 import { Intent, Tag } from '@blueprintjs/core'
-import { NodeID, useTreeStore } from '../interface/RenderableTree'
+import { NodeID } from '../interface/RenderableTree'
 
 export const TRANSITION_OBJECT_ID = '__transition'
 

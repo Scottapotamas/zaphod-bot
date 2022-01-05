@@ -17,6 +17,8 @@ import { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { PerspectiveCamera as PerspectiveCameraImpl } from 'three'
 import { ObjectNameTree } from '../optimiser/files'
 import { WritableDraft } from 'immer/dist/internal'
+import { TreeNodeInfo } from '@blueprintjs/core'
+import { NodeID, NodeInfo } from './RenderableTree'
 
 const defaultSettings: Settings = {
   objectSettings: {
@@ -81,6 +83,16 @@ export function getMaterialOverride(
     mat = visualisationSettings.objectMaterialOverrides[objectID]
   }
 
+  // See if we've imported it before
+  // const key = JSON.stringify(mat)
+
+  // if (materialCache.has(key)) {
+  //   return materialCache.get(key)!
+  // }
+
+  // const material = importMaterial(mat)
+  // materialCache.set(key, material)
+
   return importMaterial(mat)
 }
 
@@ -107,6 +119,13 @@ interface Store {
   viewportFrameVersion: number
 
   visualisationSettings: VisualisationSettings
+
+  // Tree view store
+  treeStore: {
+    tree: TreeNodeInfo<NodeInfo>[]
+    selectedItemID: NodeID | null // Store the ID of the item that's currently selected
+    hoveredObjectIDs: NodeID[] // Store the IDs of all currently hovered objects
+  }
 
   // The OrderingCache per frame, used to reconstruct movements on the UI side
   movementOrdering: {
@@ -144,6 +163,12 @@ const initialState: Store = {
     objectMaterialOverrides: {},
     globalMaterialOverride: null,
     curveSegments: 20, // 20 segments per curve by default
+  },
+
+  treeStore: {
+    tree: [],
+    selectedItemID: null,
+    hoveredObjectIDs: [],
   },
 
   priorityFrame: 1,
