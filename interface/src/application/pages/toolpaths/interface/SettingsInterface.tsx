@@ -183,6 +183,7 @@ function AnnotateOrderingCheckbox() {
 export const SettingsInterface = () => {
   return (
     <Card>
+      Optimisation | Materials | View
       <FormGroup label="Particle wait duration">
         <ParticleWaitDurationSlider />
       </FormGroup>

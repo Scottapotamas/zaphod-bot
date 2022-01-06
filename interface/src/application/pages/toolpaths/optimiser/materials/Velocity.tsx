@@ -17,6 +17,7 @@ import { Intent, Tag } from '@blueprintjs/core'
 import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
 import { annotateDrawOrder, lerpRGB, MATERIALS, rgbToHsi } from './utilities'
+import { IconNames } from '@blueprintjs/icons'
 
 export interface VelocityMaterialJSON {
   type: MATERIALS.VELOCITY
@@ -68,7 +69,7 @@ export class VelocityMaterial extends Material {
     settings: Settings,
     visualisationSettings: VisualisationSettings,
     addColouredLine: AddLineCallback,
-    addTransitionLine: AddLineCallback,
+    addDottedLine: AddLineCallback,
     addReactComponent: AddComponentCallback,
   ) => {
     // Annotate draw order
@@ -171,6 +172,41 @@ export interface VelocityMaterialEditorProps {
   json: VelocityMaterialJSON
 }
 
+const velocityGradient = {
+  height: 30,
+  width: '100%',
+  background:
+    'linear-gradient(90deg, rgba(0,0,0,1) 3.5%, rgba(15,153,96,1) 37%, rgba(217,130,43,1) 66%, rgba(219,55,55,1) 96%)',
+  display: 'block',
+}
+
+const velocityInfo = {
+  marginTop: 10,
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr 1fr',
+}
+
 export function VelocityMaterialEditor(props: VelocityMaterialEditorProps) {
-  return <>VelocityMaterialEditorProps for {props.objectID}</>
+  return (
+    <div>
+      <div style={velocityGradient}></div>
+      <div style={velocityInfo}>
+        <div>
+          <Tag intent="none" icon={IconNames.ARROW_UP} minimal>
+            Stationary
+          </Tag>
+        </div>
+        <div>
+          <Tag intent="success" icon={IconNames.ARROW_UP}>
+            Intended Speed
+          </Tag>
+        </div>
+        <div style={{ textAlign: 'right' }}>
+          <Tag intent="danger" rightIcon={IconNames.ARROW_UP}>
+            Hardware Limit
+          </Tag>
+        </div>
+      </div>
+    </div>
+  )
 }

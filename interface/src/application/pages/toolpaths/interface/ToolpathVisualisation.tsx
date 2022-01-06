@@ -40,7 +40,12 @@ import { sparseToDense } from '../optimiser/passes'
 import { CatmullRomLine } from './CatmullLine'
 import { MovementPoint } from 'src/application/typedState'
 import { Vector3 } from 'three'
-import { Movement, RGB, XYZ } from '../optimiser/movements'
+import {
+  GLOBAL_OVERRIDE_OBJECT_ID,
+  Movement,
+  RGB,
+  XYZ,
+} from '../optimiser/movements'
 import { Line2 } from 'three/examples/jsm/lines/Line2'
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial'
 import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry'
@@ -108,6 +113,9 @@ function Movements() {
   const colouredLineToObjectID: React.MutableRefObject<{
     [objectID: string]: number[]
   }> = useRef({})
+  const invisibleLineToObjectID: React.MutableRefObject<{
+    [objectID: string]: number[]
+  }> = useRef({})
 
   useEffect(() => {
     let lineIndex = 0
@@ -117,7 +125,7 @@ function Movements() {
       end: Vector3,
       colorStart: RGB,
       colorEnd: RGB,
-      objectID?: string,
+      objectID: string,
     ) => {
       // Do the Blender -> ThreeJS coordinate system transform inline
       lines.positions[lineIndex * 6 + 0] = start.x
@@ -149,11 +157,12 @@ function Movements() {
 
     let transitionIndex = 0
 
-    const addTransitionLine = (
+    const addDottedLine = (
       start: Vector3,
       end: Vector3,
       colorStart: RGB,
       colorEnd: RGB,
+      objectID: string,
     ) => {
       // Do the Blender -> ThreeJS coordinate system transform inline
       transitions.positions[transitionIndex * 6 + 0] = start.x
@@ -169,6 +178,14 @@ function Movements() {
       transitions.colors[transitionIndex * 6 + 3] = colorEnd[0]
       transitions.colors[transitionIndex * 6 + 4] = colorEnd[1]
       transitions.colors[transitionIndex * 6 + 5] = colorEnd[2]
+
+      // Create the mapping for objectID -> coloured line index
+      if (objectID) {
+        if (!invisibleLineToObjectID.current[objectID]) {
+          invisibleLineToObjectID.current[objectID] = []
+        }
+        invisibleLineToObjectID.current[objectID].push(lineIndex)
+      }
 
       transitionIndex += 1
     }
@@ -190,6 +207,7 @@ function Movements() {
 
         // Refresh the line mapping
         colouredLineToObjectID.current = {}
+        invisibleLineToObjectID.current = {}
 
         // Refresh the react components
         setComponents(state => [])
@@ -209,10 +227,14 @@ function Movements() {
         const denseMovements = sparseToDense(orderedMovements, settings)
 
         // Import the global material override if it exists
-        const globalMaterialOverride =
-          visualisationSettings.globalMaterialOverride
-            ? importMaterial(visualisationSettings.globalMaterialOverride)
-            : null
+        const globalMaterialOverride = visualisationSettings
+          .objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
+          ? importMaterial(
+              visualisationSettings.objectMaterialOverrides[
+                GLOBAL_OVERRIDE_OBJECT_ID
+              ],
+            )
+          : null
 
         for (let index = 0; index < denseMovements.length; index++) {
           const movement = denseMovements[index]
@@ -239,7 +261,7 @@ function Movements() {
             settings,
             visualisationSettings,
             addColouredLine,
-            addTransitionLine,
+            addDottedLine,
             addReactComponent,
           )
         }
@@ -279,31 +301,48 @@ function Movements() {
           return
         }
 
-        // If we're hovering over transition
-        if (hoveredObjectIDs.includes('transition')) {
-          // Display all transitions
-          transitions.setHoveredIndices([])
-        } else {
-          // Hide all transitions
-          transitions.setHoveredIndices([], true)
-        }
+        // // If we're hovering over transition
+        // if (hoveredObjectIDs.includes('transition')) {
+        //   // Display all transitions
+        //   transitions.setHoveredIndices([])
+        // } else {
+        //   // Hide all transitions
+        //   transitions.setHoveredIndices([], true)
+        // }
 
         // Use the mapping to calculate the line indices
-        const lineIndices: number[] = []
+        const colouredLineIndices: number[] = []
+        const invisibleLineIndices: number[] = []
 
         for (const objectID of hoveredObjectIDs) {
-          const indices = colouredLineToObjectID.current[objectID]
+          const colouredIndices = colouredLineToObjectID.current[objectID]
 
-          if (indices) {
-            for (let i = 0; i < indices.length; i++) {
-              const lineIndex = indices[i]
-              lineIndices.push(lineIndex)
+          if (colouredIndices) {
+            for (let i = 0; i < colouredIndices.length; i++) {
+              const lineIndex = colouredIndices[i]
+              colouredLineIndices.push(lineIndex)
+            }
+          }
+
+          const invisibleIndices = invisibleLineToObjectID.current[objectID]
+
+          if (invisibleIndices) {
+            for (let i = 0; i < invisibleIndices.length; i++) {
+              const lineIndex = invisibleIndices[i]
+              invisibleLineIndices.push(lineIndex)
             }
           }
         }
 
         // If there are hovered objects, but no indices can be found, hide everything.
-        lines.setHoveredIndices(lineIndices, lineIndices.length === 0)
+        lines.setHoveredIndices(
+          colouredLineIndices,
+          colouredLineIndices.length === 0,
+        )
+        transitions.setHoveredIndices(
+          invisibleLineIndices,
+          invisibleLineIndices.length === 0,
+        )
       },
     )
   }, [lines, transitions])
@@ -345,8 +384,8 @@ export const ToolpathVisualisation = () => {
 
   return (
     <Canvas
-    // linear // TODO: Fix the 'darkening' so we can use colours that aren't black
-    // shadows={true}
+      linear
+      // shadows={true}
     >
       <PerspectiveCamera
         ref={setCameraRef}

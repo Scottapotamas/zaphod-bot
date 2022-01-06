@@ -70,7 +70,7 @@ export class InvisibleMaterial extends Material {
     settings: Settings,
     visualisationSettings: VisualisationSettings,
     addColouredLine: AddLineCallback,
-    addTransitionLine: AddLineCallback,
+    addDottedLine: AddLineCallback,
     addReactComponent: AddComponentCallback,
   ) => {
     // Annotate draw order
@@ -98,7 +98,7 @@ export class InvisibleMaterial extends Material {
       const end = movement.samplePoint(endT)
 
       // Add the line
-      addTransitionLine(start, end, this.color, this.color, movement.objectID)
+      addDottedLine(start, end, this.color, this.color, movement.objectID)
     }
   }
 }

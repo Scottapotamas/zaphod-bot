@@ -34,6 +34,9 @@ import { MovementPoint } from 'src/application/typedState'
 import { Vector3 } from 'three'
 import { RGB, XYZ } from '../optimiser/movements'
 import { LineMaterial, LineSegmentsGeometry, Line2 } from 'three-stdlib'
+import { lerpRGB } from '../optimiser/materials/utilities'
+
+const BACKGROUND_COLOR: RGB = [25 / 255, 27 / 255, 28 / 255]
 
 export class MutableLineSegmentGeometry {
   public line
@@ -81,17 +84,38 @@ export class MutableLineSegmentGeometry {
     }
     const colors = this.colors.slice()
 
-    const darkeningFactor = 0.2
+    const darkeningFactor = 0.8
 
     for (let lineIndex = 0; lineIndex < colors.length / 6; lineIndex++) {
       // If it's in the list, or we're doing them all
       if (!lineIndices.includes(lineIndex) || hideAll) {
-        colors[lineIndex * 6 + 0] = colors[lineIndex * 6 + 0] * darkeningFactor
-        colors[lineIndex * 6 + 1] = colors[lineIndex * 6 + 1] * darkeningFactor
-        colors[lineIndex * 6 + 2] = colors[lineIndex * 6 + 2] * darkeningFactor
-        colors[lineIndex * 6 + 3] = colors[lineIndex * 6 + 3] * darkeningFactor
-        colors[lineIndex * 6 + 4] = colors[lineIndex * 6 + 4] * darkeningFactor
-        colors[lineIndex * 6 + 5] = colors[lineIndex * 6 + 5] * darkeningFactor
+        // Lerp the colours towards the background colour so we don't need to do transparency.
+        const colA = lerpRGB(
+          [
+            colors[lineIndex * 6 + 0],
+            colors[lineIndex * 6 + 1],
+            colors[lineIndex * 6 + 2],
+          ],
+          BACKGROUND_COLOR,
+          darkeningFactor,
+        )
+
+        const colB = lerpRGB(
+          [
+            colors[lineIndex * 6 + 3],
+            colors[lineIndex * 6 + 4],
+            colors[lineIndex * 6 + 5],
+          ],
+          BACKGROUND_COLOR,
+          darkeningFactor,
+        )
+
+        colors[lineIndex * 6 + 0] = colA[0]
+        colors[lineIndex * 6 + 1] = colA[1]
+        colors[lineIndex * 6 + 2] = colA[2]
+        colors[lineIndex * 6 + 3] = colB[0]
+        colors[lineIndex * 6 + 4] = colB[1]
+        colors[lineIndex * 6 + 5] = colB[2]
       }
     }
 
