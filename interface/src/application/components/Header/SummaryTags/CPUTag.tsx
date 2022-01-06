@@ -31,18 +31,17 @@ export const CPUTag = () => {
 
       <Popover interactionKind={PopoverInteractionKind.HOVER}>
         <Tag fill large minimal icon={IconNames.STOPWATCH} intent={Intent.NONE}>
-          <Printer
-            accessor={state => state.sys.cpu_load}
-            precision={0}
+          <div
             style={{
               width: '2em',
-              height: '1.1em',
+              height: '1em',
               contain: 'strict',
               textAlign: 'right',
               display: 'inline-block',
             }}
-          />
-          %
+          >
+            <Printer accessor={state => state.sys.cpu_load} precision={0} />%
+          </div>
         </Tag>
         <Composition padding={30} minWidth="500px">
           <ChartContainer height={300}>

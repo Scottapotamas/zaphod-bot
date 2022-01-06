@@ -41,11 +41,15 @@ import { MSGID } from 'src/application/typedState'
 const temperatureDataSource = new MessageDataSource(MSGID.SYSTEM)
 
 export const TemperatureTag = () => {
-  const ambient_temp = useHardwareState(state => state.sys.temp_ambient).toFixed(0)
+  const ambient_temp = useHardwareState(
+    state => state.sys.temp_ambient,
+  ).toFixed(0)
   const regulator_temp = useHardwareState(
     state => state.sys.temp_regulator,
   ).toFixed(0)
-  const supply_temp = useHardwareState(state => state.sys.temp_supply).toFixed(0)
+  const supply_temp = useHardwareState(state => state.sys.temp_supply).toFixed(
+    0,
+  )
   const cpu_temp = useHardwareState(state => state.sys.temp_cpu).toFixed(0)
 
   return (
@@ -54,18 +58,21 @@ export const TemperatureTag = () => {
 
       <Popover interactionKind={PopoverInteractionKind.HOVER}>
         <Tag fill large minimal icon={IconNames.SNOWFLAKE} intent={Intent.NONE}>
-          <Printer
-            accessor={state => state.sys.temp_regulator}
-            precision={0}
+          <div
             style={{
-              width: '2em',
-              height: '1.1em',
+              width: '3em',
+              height: '1em',
               contain: 'strict',
               textAlign: 'right',
               display: 'inline-block',
             }}
-          />
-          °C
+          >
+            <Printer
+              accessor={state => state.sys.temp_regulator}
+              precision={0}
+            />{' '}
+            °C
+          </div>
         </Tag>
         <Composition padding={30} gap={20} minWidth="500px">
           <ChartContainer height={300}>
