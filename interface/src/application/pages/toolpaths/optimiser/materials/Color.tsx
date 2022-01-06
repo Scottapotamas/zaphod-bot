@@ -69,7 +69,7 @@ export class SimpleColorMaterial extends Material {
     settings: Settings,
     visualisationSettings: VisualisationSettings,
     addColouredLine: AddLineCallback,
-    addTransitionLine: AddLineCallback,
+    addDottedLine: AddLineCallback,
     addReactComponent: AddComponentCallback,
   ) => {
     // Annotate draw order

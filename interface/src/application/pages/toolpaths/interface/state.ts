@@ -11,7 +11,7 @@ import { importMaterial, MaterialJSON } from '../optimiser/material'
 import { useCallback } from 'react'
 import { OrderingCache } from '../optimiser/passes'
 import { Renderable } from '../optimiser/import'
-import { Movement } from '../optimiser/movements'
+import { GLOBAL_OVERRIDE_OBJECT_ID, Movement } from '../optimiser/movements'
 import shallow from 'zustand/shallow'
 import { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { PerspectiveCamera as PerspectiveCameraImpl } from 'three'
@@ -57,9 +57,6 @@ export interface VisualisationSettings {
   // The curve detail level for splines.
   curveSegments: number
 
-  // Global material override
-  globalMaterialOverride?: MaterialJSON | null
-
   // Do object level material overrides here.
   // Transition materials are overriden with the 'transition' key
   objectMaterialOverrides: {
@@ -74,8 +71,12 @@ export function getMaterialOverride(
 ) {
   let mat = providedMaterial
 
-  if (visualisationSettings.globalMaterialOverride) {
-    mat = visualisationSettings.globalMaterialOverride
+  // If there's an override key for this object ID, replace the material
+  if (
+    visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
+  ) {
+    mat =
+      visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
   }
 
   // If there's an override key for this object ID, replace the material
@@ -161,7 +162,6 @@ const initialState: Store = {
   visualisationSettings: {
     annotateDrawOrder: false,
     objectMaterialOverrides: {},
-    globalMaterialOverride: null,
     curveSegments: 20, // 20 segments per curve by default
   },
 

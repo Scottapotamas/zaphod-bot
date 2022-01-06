@@ -9,9 +9,13 @@ import {
 import produce, { Draft } from 'immer'
 import { IconNames } from '@blueprintjs/icons'
 import { setSetting, useStore } from './state'
-import { TRANSITION_OBJECT_ID } from '../optimiser/movements'
+import {
+  GLOBAL_OVERRIDE_OBJECT_ID,
+  TRANSITION_OBJECT_ID,
+} from '../optimiser/movements'
 
 export enum NodeTypes {
+  GLOBAL = 'global',
   TRANSITION = 'transition',
   CAMERA = 'camera',
   CAMERA_ALIGNMENT = 'camera-alignment',
@@ -48,6 +52,15 @@ function SecondaryLabelFactory(props: SecondaryLabelProps) {
     // If this node has a material override, use the tint icon
     if (state.visualisationSettings.objectMaterialOverrides[props.id]) {
       return IconNames.TINT
+    }
+
+    // If there's a global override in play, use the DOT
+    if (
+      state.visualisationSettings.objectMaterialOverrides[
+        GLOBAL_OVERRIDE_OBJECT_ID
+      ]
+    ) {
+      return IconNames.DOT
     }
 
     let hasOverride = false
@@ -141,6 +154,15 @@ function SecondaryLabelFactory(props: SecondaryLabelProps) {
 export function renderablesToSceneTree(renderables: Renderable[]) {
   const nameSet: Set<string> = new Set()
   const nodes: TreeNodeInfo<NodeInfo>[] = [
+    {
+      id: GLOBAL_OVERRIDE_OBJECT_ID,
+      label: 'Global Override',
+      icon: IconNames.GLOBE,
+      nodeData: {
+        type: NodeTypes.GLOBAL,
+        hidden: false,
+      },
+    },
     {
       id: TRANSITION_OBJECT_ID,
       label: 'Transitions',
