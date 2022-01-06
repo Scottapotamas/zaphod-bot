@@ -21,24 +21,35 @@ const CardInternals = () => {
 export const ConnectionPage = (props: RouteComponentProps) => {
   return (
     <Landing>
-      <Button onClick={() => navigate(`/toolpaths/`)} style={{ margin: 20 }}>
-        Toolpath viewer
-      </Button>
-
-      <Connections
-        preConnect={deviceID => navigate(`/device_loading/${deviceID}`)}
-        postHandshake={deviceID => navigate(`/devices/${deviceID}`)}
-        onFailure={(deviceID, err) => {
-          console.log('Connections component got error', err, deviceID)
-          navigate(`/`)
-        }}
+      <div
         style={{
+          minWidth: '450px',
           minHeight: '40vh',
-          paddingTop: '15vh',
-          marginRight: '15vw',
+          paddingTop: '20vh',
+          marginRight: '10vw',
+          float: 'right'
         }}
-        internalCardComponent={<CardInternals />}
-      />
+      >
+        <Connections
+          preConnect={deviceID => navigate(`/device_loading/${deviceID}`)}
+          postHandshake={deviceID => navigate(`/devices/${deviceID}`)}
+          onFailure={(deviceID, err) => {
+            console.log('Connections component got error', err, deviceID)
+            navigate(`/`)
+          }}
+          internalCardComponent={<CardInternals />}
+        />
+
+        <Button
+          fill
+          onClick={() => navigate(`/toolpaths/`)}
+          style={{
+            marginTop: '2em',
+          }}
+        >
+          Standalone Toolpath Viewer
+        </Button>
+      </div>
     </Landing>
   )
 }
