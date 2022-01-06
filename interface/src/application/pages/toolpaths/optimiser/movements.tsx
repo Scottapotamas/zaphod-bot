@@ -1,33 +1,16 @@
+import { CatmullRomCurve3, CubicBezierCurve3, MathUtils, Vector3 } from 'three'
+import { defaultTransitionMaterial } from './material'
+import { Material } from '../optimiser/materials/Base'
 import {
-  CatmullRomCurve3,
-  Color,
-  CubicBezierCurve3,
-  MathUtils,
-  Vector3,
-} from 'three'
-import {
-  defaultTransitionMaterial,
-  importMaterial,
-  isSimpleColorMaterial,
-  Material,
-} from './material'
-import {
-  LightMove,
   MovementMove,
   MovementMoveReference,
   MovementMoveType,
 } from './hardware'
-import { LRUCache } from 'typescript-lru-cache'
 
-import { v4 as uuidv4 } from 'uuid'
 import React from 'react'
 
-import { Segments, Segment, Html } from '@react-three/drei'
-import { VisualisationSettings } from '../interface/state'
-import { Intent, Tag } from '@blueprintjs/core'
-import { NodeID } from '../interface/RenderableTree'
-
 export const TRANSITION_OBJECT_ID = '__transition'
+export const GLOBAL_OVERRIDE_OBJECT_ID = '__all'
 
 export enum MOVEMENT_TYPE {
   GROUP = 'movementgroup',
@@ -137,7 +120,7 @@ export type AddLineCallback = (
   end: Vector3,
   colorStart: RGB,
   colorEnd: RGB,
-  objectID?: string,
+  objectID: string,
 ) => void
 
 export type AddComponentCallback = (component: React.ReactNode) => void
@@ -476,7 +459,7 @@ export class Point extends Movement {
       return zeroVector
     }
 
-    return this.velocity.normalize().multiplyScalar(this.maxSpeed * 0.01)
+    return this.velocity.normalize().multiplyScalar(this.maxSpeed)
   }
 
   public getExpectedExitVelocity = () => {
@@ -484,7 +467,7 @@ export class Point extends Movement {
       return zeroVector
     }
 
-    return this.velocity.normalize().multiplyScalar(this.maxSpeed * 0.01)
+    return this.velocity.normalize().multiplyScalar(this.maxSpeed)
   }
 
   public generateToolpath = (id: number) => {
@@ -532,6 +515,7 @@ export function isTransition(movement: Movement): movement is Transition {
 export class Transition extends Movement {
   readonly type = MOVEMENT_TYPE.TRANSITION
   maxSpeed: number = defaultSpeed
+  private numSegments = 20
 
   public objectID = TRANSITION_OBJECT_ID
 
@@ -611,7 +595,32 @@ export class Transition extends Movement {
   }
 
   public getDuration = () => {
-    return Math.ceil(this.getLength() / this.maxSpeed)
+    const defaultTotalDuration = this.getLength() / this.maxSpeed
+    const defaultSegmentTime = defaultTotalDuration / this.numSegments
+
+    let calculatedMaxSpeed = 0
+
+    // Calculate the maximum speed along each segment of the curve
+    for (let index = 0; index < this.numSegments; index++) {
+      const startT = index / this.numSegments
+      const endT = (index + 1) / this.numSegments
+
+      // Sample points along the movement
+      const start = this.samplePoint(startT)
+      const end = this.samplePoint(endT)
+
+      const distance = start.distanceTo(end)
+      const speed = distance / defaultSegmentTime
+
+      calculatedMaxSpeed = Math.max(calculatedMaxSpeed, speed)
+    }
+
+    const scaleFactor = calculatedMaxSpeed / this.maxSpeed
+
+    // Find the factor by which this differs from the maxSpeed intended
+
+    // Scale the duration by this factor so the fastest segment is taken at the max speed
+    return Math.ceil((this.getLength() / this.maxSpeed) * scaleFactor)
   }
 
   public getStart = () => {
@@ -623,11 +632,11 @@ export class Transition extends Movement {
   }
 
   public getDesiredEntryVelocity = () => {
-    return this.from.getExpectedExitVelocity().clone().multiplyScalar(0.5)
+    return this.from.getExpectedExitVelocity()
   }
 
   public getExpectedExitVelocity = () => {
-    return this.to.getDesiredEntryVelocity().clone().multiplyScalar(0.5)
+    return this.to.getDesiredEntryVelocity()
   }
 
   public generateToolpath = (id: number) => {
@@ -689,6 +698,8 @@ export class PointTransition extends Movement {
   maxSpeed: number = defaultSpeed
   public objectID = TRANSITION_OBJECT_ID
 
+  private numSegments = 20
+
   constructor(
     public prePointMovement: Movement,
     public pointFrom: Point,
@@ -733,7 +744,6 @@ export class PointTransition extends Movement {
     if (this.curvelength) return this.curvelength
 
     const curve = this.lazyGenerateCurve()
-    const segments = 20
 
     // By default CatmullRomCurve3.getPoints(segments) gives us points along the entire length of vectors,
     // including the control points, we need to only build points between the start and end.
@@ -742,9 +752,9 @@ export class PointTransition extends Movement {
 
     this.curvePoints = []
 
-    for (let index = 0; index < segments; index++) {
+    for (let index = 0; index < this.numSegments; index++) {
       // remap 0 -> num segments to a float between 1/3 and 2/3
-      const t = MathUtils.mapLinear(index, 0, segments, 1 / 3, 2 / 3)
+      const t = MathUtils.mapLinear(index, 0, this.numSegments, 1 / 3, 2 / 3)
 
       this.curvePoints.push(curve.getPoint(t))
     }
@@ -807,7 +817,32 @@ export class PointTransition extends Movement {
   }
 
   public getDuration = () => {
-    return Math.ceil(this.getLength() / this.maxSpeed)
+    const defaultTotalDuration = this.getLength() / this.maxSpeed
+    const defaultSegmentTime = defaultTotalDuration / this.numSegments
+
+    let calculatedMaxSpeed = 0
+
+    // Calculate the maximum speed along each segment of the curve
+    for (let index = 0; index < this.numSegments; index++) {
+      const startT = index / this.numSegments
+      const endT = (index + 1) / this.numSegments
+
+      // Sample points along the movement
+      const start = this.samplePoint(startT)
+      const end = this.samplePoint(endT)
+
+      const distance = start.distanceTo(end)
+      const speed = distance / defaultSegmentTime
+
+      calculatedMaxSpeed = Math.max(calculatedMaxSpeed, speed)
+    }
+
+    const scaleFactor = calculatedMaxSpeed / this.maxSpeed
+
+    // Find the factor by which this differs from the maxSpeed intended
+
+    // Scale the duration by this factor so the fastest segment is taken at the max speed
+    return Math.ceil((this.getLength() / this.maxSpeed) * scaleFactor)
   }
 
   public getStart = () => {
