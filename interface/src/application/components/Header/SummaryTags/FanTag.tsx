@@ -65,17 +65,17 @@ export const FanTag = () => {
 
       <Popover interactionKind={PopoverInteractionKind.HOVER}>
         <Tag fill large minimal icon={IconNames.FLAME} intent={Intent.NONE}>
-          <span
+          <div
             style={{
               width: '2em',
-              height: '1.1em',
+              height: '1em',
               contain: 'strict',
               textAlign: 'right',
               display: 'inline-block',
             }}
           >
             <FanMode />
-          </span>
+          </div>
         </Tag>
         <Composition padding={30} gap={20} minWidth="500px">
           <ChartContainer height={300}>
