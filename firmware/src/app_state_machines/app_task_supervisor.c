@@ -94,7 +94,7 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask *)me, MODE_EVENT );
     eventSubscribe( (StateTask *)me, MODE_MANUAL );
 
-    eventSubscribe( (StateTask *)me, START_QUEUE_SYNC );
+    eventSubscribe((StateTask *)me, QUEUE_SYNC_START );
 
     eventSubscribe( (StateTask *)me, QUEUE_SYNC_MOTION_NEXT );
     eventSubscribe( (StateTask *)me, QUEUE_SYNC_LED_NEXT );
@@ -411,7 +411,7 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
             AppTaskSupervisorPublishRehomeEvent();
             return 0;
 
-        case START_QUEUE_SYNC: {
+        case QUEUE_SYNC_START: {
             // Passed in the identifier which we are blocking against
             BarrierSyncEvent *inbound_sync = (BarrierSyncEvent *)e;
 
@@ -791,7 +791,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
 
             //empty out the queues
             eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
-            eventPublish( EVENT_NEW( StateEvent, LED_CLEAR_QUEUE ) );
+            eventPublish( EVENT_NEW(StateEvent, LED_QUEUE_CLEAR ) );
 
             buzzer_sound( BUZZER_MODE_CHANGE_NUM, BUZZER_MODE_CHANGE_TONE, BUZZER_MODE_CHANGE_DURATION );
 
@@ -961,7 +961,7 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
 
             //empty out the queues
             eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
-            eventPublish( EVENT_NEW( StateEvent, LED_CLEAR_QUEUE ) );
+            eventPublish( EVENT_NEW(StateEvent, LED_QUEUE_CLEAR ) );
 
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
 
