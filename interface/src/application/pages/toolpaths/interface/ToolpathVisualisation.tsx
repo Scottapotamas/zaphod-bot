@@ -102,7 +102,7 @@ function reorderMovementsForFrame(frameNumber: number): Movement[] {
 /**
  * This component mounts once, then does all other state management outside of React
  */
-function Movements() {
+export function ToolpathMovements() {
   const [lines] = useState(() => new MutableLineSegmentGeometry(false, 2.0))
   const [transitions] = useState(
     () => new MutableLineSegmentGeometry(true, 1.0),
@@ -412,7 +412,7 @@ export const ToolpathVisualisation = () => {
         color="#0c8cbf"
       />
 
-      <Movements />
+      <ToolpathMovements />
 
       {/* <fog attach="fog" args={['#101010', 600, 3000]} /> */}
     </Canvas>
