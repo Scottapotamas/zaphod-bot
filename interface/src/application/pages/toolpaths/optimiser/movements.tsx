@@ -21,6 +21,7 @@ export enum MOVEMENT_TYPE {
 }
 
 const defaultSpeed = 30 // mm/s
+const MILLISECONDS_IN_SECOND = 1000
 
 /**
  * The base level optimisable movement.
@@ -64,7 +65,7 @@ export abstract class Movement {
   abstract setMaxSpeed: (maxSpeed: number) => void
 
   /**
-   * Get the length of this movement in ms
+   * Get the length of this movement in milliseconds
    */
   abstract getDuration: () => number
 
@@ -279,6 +280,7 @@ export function isLine(movement: Movement): movement is Line {
  */
 export class Line extends Movement {
   readonly type = MOVEMENT_TYPE.LINE
+  // Maximum speed in millimeters per second
   maxSpeed: number = defaultSpeed
 
   constructor(
@@ -316,8 +318,9 @@ export class Line extends Movement {
   }
 
   public getDuration = () => {
-    // Lines are taken at maximum speed
-    return Math.ceil(this.getLength() / this.maxSpeed)
+    return Math.ceil(
+      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
+    )
   }
 
   public getStart = () => {
@@ -388,7 +391,7 @@ export class Point extends Movement {
 
   constructor(
     public pos: Vector3,
-    public duration: number, // Can be 0, for a 'passthrough'
+    public duration: number, // ms Can be 0, for a 'passthrough'
     public material: Material,
     public objectID: string,
   ) {
@@ -514,7 +517,7 @@ export function isTransition(movement: Movement): movement is Transition {
  */
 export class Transition extends Movement {
   readonly type = MOVEMENT_TYPE.TRANSITION
-  maxSpeed: number = defaultSpeed
+  maxSpeed: number = defaultSpeed // mm/s
   private numSegments = 20
 
   public objectID = TRANSITION_OBJECT_ID
@@ -540,8 +543,12 @@ export class Transition extends Movement {
      */
     this.curve = new CubicBezierCurve3(
       this.getStart(),
-      this.getStart().clone().add(this.getDesiredEntryVelocity()),
-      this.getEnd().clone().sub(this.getExpectedExitVelocity()),
+      this.getStart()
+        .clone()
+        .add(this.getDesiredEntryVelocity().clone().multiplyScalar(0.1)),
+      this.getEnd()
+        .clone()
+        .sub(this.getExpectedExitVelocity().clone().multiplyScalar(0.1)),
       this.getEnd(),
     )
 
@@ -620,7 +627,11 @@ export class Transition extends Movement {
     // Find the factor by which this differs from the maxSpeed intended
 
     // Scale the duration by this factor so the fastest segment is taken at the max speed
-    return Math.ceil((this.getLength() / this.maxSpeed) * scaleFactor)
+
+    //
+    return Math.ceil(
+      (this.getLength() / this.maxSpeed) * scaleFactor * MILLISECONDS_IN_SECOND,
+    )
   }
 
   public getStart = () => {
@@ -647,8 +658,14 @@ export class Transition extends Movement {
       reference: MovementMoveReference.ABSOLUTE,
       points: [
         this.getStart().toArray(),
-        this.getStart().clone().add(this.getDesiredEntryVelocity()).toArray(),
-        this.getEnd().clone().sub(this.getExpectedExitVelocity()).toArray(),
+        this.getStart()
+          .clone()
+          .add(this.getDesiredEntryVelocity().clone().multiplyScalar(0.1))
+          .toArray(),
+        this.getEnd()
+          .clone()
+          .sub(this.getExpectedExitVelocity().clone().multiplyScalar(0.1))
+          .toArray(),
         this.getEnd().toArray(),
       ],
       num_points: 4,
@@ -660,8 +677,12 @@ export class Transition extends Movement {
   public getApproximateCentroid = () => {
     return getCentroid([
       this.getStart(),
-      this.getStart().clone().add(this.getDesiredEntryVelocity()),
-      this.getEnd().clone().sub(this.getExpectedExitVelocity()),
+      this.getStart()
+        .clone()
+        .add(this.getDesiredEntryVelocity().clone().multiplyScalar(0.1)),
+      this.getEnd()
+        .clone()
+        .sub(this.getExpectedExitVelocity().clone().multiplyScalar(0.1)),
       this.getEnd(),
     ])
   }
@@ -842,7 +863,9 @@ export class PointTransition extends Movement {
     // Find the factor by which this differs from the maxSpeed intended
 
     // Scale the duration by this factor so the fastest segment is taken at the max speed
-    return Math.ceil((this.getLength() / this.maxSpeed) * scaleFactor)
+    return Math.ceil(
+      (this.getLength() / this.maxSpeed) * scaleFactor * MILLISECONDS_IN_SECOND,
+    )
   }
 
   public getStart = () => {
