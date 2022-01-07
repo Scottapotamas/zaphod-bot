@@ -28,7 +28,7 @@ const defaultSettings: Settings = {
     },
     particles: {
       drawInVelocityOrientation: false,
-      stopDelay: 1,
+      stopDelay: 10,
     },
   },
 

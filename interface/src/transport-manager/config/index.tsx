@@ -21,6 +21,7 @@ import { BinaryConnectionHandshake } from '@electricui/protocol-binary-connectio
 import { HintValidatorBinaryHandshake } from '@electricui/protocol-binary'
 import { MessageQueueBinaryFIFO } from '@electricui/protocol-binary-fifo-queue'
 import { SERIAL_TRANSPORT_KEY } from '@electricui/transport-node-serial'
+import { MSGID } from 'src/application/typedState'
 
 /**
  * Create our device manager!
@@ -62,6 +63,7 @@ function createQueue(device: Device) {
     device,
     interval: 10,
     concurrentMessages: 100,
+    nonIdempotentMessageIDs: [MSGID.QUEUE_ADD_FADE, MSGID.QUEUE_ADD_MOVE],
   })
 }
 
