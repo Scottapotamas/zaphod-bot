@@ -72,9 +72,7 @@ export function Optimiser() {
   const totalFrames = useStore(state => state.sceneTotalFrames)
   const selectedMinFrame = useStore(state => state.selectedMinFrame)
   const selectedMaxFrame = useStore(state => state.selectedMaxFrame)
-  const currentlyRenderingFrame = useStore(
-    state => state.currentlyRenderingFrame,
-  )
+
   const persistentOptimiser = useRef<ToolpathGenerator | null>(null)
 
   /**
@@ -132,6 +130,11 @@ export function Optimiser() {
 
   // On unmount, clean up the optimiser
   useEffect(() => {
+    // Update the reference to the currently used optimiser in the state
+    setSetting(state => {
+      state.persistentOptimiser = getPersistentOptimiser()
+    })
+
     return () => {
       // Reset our state
       resetStore()
