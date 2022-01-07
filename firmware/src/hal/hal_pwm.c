@@ -83,7 +83,7 @@ void hal_pwm_generation( PWMOutputTimerDef_t pwm_output, uint16_t frequency )
 
         case _PWM_TIM_AUX_2:
             LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_TIM12 );
-            hal_gpio_init_alternate( _AUX_PWM_1, LL_GPIO_AF_9, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_DOWN );
+            hal_gpio_init_alternate( _AUX_PWM_2, LL_GPIO_AF_9, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_DOWN );
 
             NVIC_SetPriority( TIM8_BRK_TIM12_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 7, 3 ) );
             NVIC_EnableIRQ( TIM8_BRK_TIM12_IRQn );
@@ -191,7 +191,7 @@ PRIVATE void hal_pwm_set( PWMOutputTimerDef_t pwm_output, uint16_t duty_cycle )
 
         case _PWM_TIM_AUX_2:
             signal_period = LL_TIM_GetAutoReload( TIM12 ) + 1;
-            LL_TIM_OC_SetCompareCH2( TIM12, ( MIN( duty_cycle, 0xFFFFU ) * signal_period ) / 0xFFFFU );
+            LL_TIM_OC_SetCompareCH1( TIM12, ( MIN( duty_cycle, 0xFFFFU ) * signal_period ) / 0xFFFFU );
             break;
 
         default:
