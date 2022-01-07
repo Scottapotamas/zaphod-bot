@@ -136,6 +136,8 @@ export class SequenceSender {
     this.hardwareMovementQueueDepth = motionDepth
     this.hardwareLightMoveQueueDepth = fadeDepth
 
-    this.hardwareLightMoveQueueDepth = depth
+    // console.log(
+    //   `hardware update received ${motionDepth} (${this.movementMoves.length}), ${fadeDepth} (${this.lightMoves.length})`,
+    // )
   }
 }
