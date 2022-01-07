@@ -184,7 +184,7 @@ function Movements() {
         if (!invisibleLineToObjectID.current[objectID]) {
           invisibleLineToObjectID.current[objectID] = []
         }
-        invisibleLineToObjectID.current[objectID].push(lineIndex)
+        invisibleLineToObjectID.current[objectID].push(transitionIndex)
       }
 
       transitionIndex += 1
