@@ -1,11 +1,29 @@
-import { Card, FormGroup, Intent, MultiSlider, Slider } from '@blueprintjs/core'
+import {
+  Card,
+  FormGroup,
+  Intent,
+  MultiSlider,
+  Slider,
+  Button,
+  ButtonProps,
+} from '@blueprintjs/core'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { sparseToDense } from '../optimiser/passes'
+import { toolpath } from '../optimiser/toolpath'
+
+import { SequenceSender } from './sequenceSender'
+
+import { LightMove, MovementMove } from './../optimiser/hardware'
+
+import { useQuery, useSendMessage } from '@electricui/components-core'
+import { CancellationToken, Message } from '@electricui/core'
 
 import {
   getSetting,
   incrementViewportFrameVersion,
   setSetting,
+  useSetting,
   useStore,
 } from './state'
 
@@ -100,6 +118,195 @@ function Timeline() {
   )
 }
 
+import { clipboard } from 'electron'
+import { Material } from '../optimiser/materials/Base'
+import { GLOBAL_OVERRIDE_OBJECT_ID } from '../optimiser/movements'
+import { importMaterial } from '../optimiser/material'
+import { useDeviceID } from '@electricui/components-core'
+import { MSGID } from 'src/application/typedState'
+
+async function getToolpathForCurrentFrame() {
+  const viewportFrame = getSetting(state => state.viewportFrame)
+  const persistentOptimiser = getSetting(state => state.persistentOptimiser)
+  if (!persistentOptimiser) return null
+
+  await persistentOptimiser.waitUntilFrameReady(viewportFrame)
+  const orderedMovements = getSetting(
+    state => state.orderedMovementsByFrame[viewportFrame],
+  )
+  const settings = getSetting(state => state.settings)
+  const visualisationSettings = getSetting(state => state.visualisationSettings)
+
+  if (!orderedMovements) return null
+
+  const dense = sparseToDense(orderedMovements, settings)
+  const globalMaterialOverride = visualisationSettings.objectMaterialOverrides[
+    GLOBAL_OVERRIDE_OBJECT_ID
+  ]
+    ? importMaterial(
+        visualisationSettings.objectMaterialOverrides[
+          GLOBAL_OVERRIDE_OBJECT_ID
+        ],
+      )
+    : null
+
+  dense.map(movement => {
+    // Find any material overrides
+    const movementMaterialOverride =
+      visualisationSettings.objectMaterialOverrides[movement.objectID]
+
+    // Global overrides take least precidence
+    if (globalMaterialOverride) {
+      movement.material = globalMaterialOverride
+    }
+
+    // Specific movement overrides take highest precidence
+    if (movementMaterialOverride) {
+      movement.material = importMaterial(movementMaterialOverride)
+    }
+  })
+
+  return toolpath(dense)
+}
+
+function CopyToolpathToClipboard() {
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleRender = useCallback(() => {
+    setIsLoading(true)
+
+    getToolpathForCurrentFrame().then(t => {
+      // Just copy it to the clipboard for now
+      clipboard.writeText(JSON.stringify(t))
+
+      setIsLoading(false)
+    })
+  }, [])
+
+  return (
+    <Button onClick={handleRender} loading={isLoading}>
+      Copy to clipboard
+    </Button>
+  )
+}
+
+export function SendToolpath() {
+  const sequenceSenderRef: React.MutableRefObject<SequenceSender | null> =
+    useRef(null)
+
+  const sendMessage = useSendMessage()
+  const query = useQuery()
+
+  const sendMovement = useCallback(
+    (move: MovementMove) => {
+      const cancellationToken = new CancellationToken()
+      const message = new Message(MSGID.QUEUE_ADD_MOVE, move)
+
+      return sendMessage(message, cancellationToken)
+    },
+    [sendMessage],
+  )
+
+  const sendLightMove = useCallback(
+    (fade: LightMove) => {
+      const cancellationToken = new CancellationToken()
+      const message = new Message(MSGID.QUEUE_ADD_FADE, fade)
+
+      return sendMessage(message, cancellationToken)
+    },
+    [sendMessage],
+  )
+
+  const sendSync = useCallback(async () => {
+    const cancellationToken = new CancellationToken()
+    const syncIDMessage = new Message(MSGID.QUEUE_SYNC_ID, 1)
+    await sendMessage(syncIDMessage, cancellationToken)
+
+    const syncMessage = new Message(MSGID.QUEUE_SYNC, null)
+    await sendMessage(syncMessage, cancellationToken)
+  }, [sendMessage])
+
+  const sendClear = useCallback(async () => {
+    const cancellationToken = new CancellationToken()
+    const syncMessage = new Message(MSGID.QUEUE_CLEAR, null)
+    await sendMessage(syncMessage, cancellationToken)
+  }, [sendMessage])
+
+  const queryQueueDepth = useCallback(async () => {
+    const cancellationToken = new CancellationToken()
+    await query(MSGID.QUEUE_INFO, cancellationToken)
+  }, [sendMessage])
+
+  const updateOptimisticQueueDepth = useCallback(
+    (movementDepth: number, lightQueueDepth: number) => {
+      setSetting(state => {
+        state.movementQueueUI = movementDepth
+        state.lightQueueUI = lightQueueDepth
+      })
+    },
+    [],
+  )
+
+  function getSequenceSender() {
+    if (!sequenceSenderRef.current) {
+      sequenceSenderRef.current = new SequenceSender(
+        sendMovement,
+        sendLightMove,
+        sendClear,
+        queryQueueDepth,
+        updateOptimisticQueueDepth,
+      )
+    }
+    return sequenceSenderRef.current
+  }
+
+  const [isLoading, setIsLoading] = useState(false)
+
+  const handleRender = useCallback(() => {
+    setIsLoading(true)
+
+    getSequenceSender().clear()
+
+    getToolpathForCurrentFrame().then(t => {
+      setIsLoading(false)
+      // The toolpath is generated, queue it
+
+      if (!t) {
+        console.log(`couldn't find toolpath for frame?`)
+        return
+      }
+
+      getSequenceSender().ingest(t)
+    })
+  }, [setIsLoading])
+
+  const handleStart = useCallback(() => {
+    sendSync()
+  }, [sendSync])
+
+  return (
+    <>
+      <Button onClick={handleRender} loading={isLoading}>
+        Send to hardware
+      </Button>
+
+      <Button onClick={handleStart}>Sync</Button>
+    </>
+  )
+}
+
+export function SendToolpathToDeviceIfExists() {
+  const deviceID = useDeviceID()
+
+  const toolpathComponent = deviceID ? (
+    <SendToolpath />
+  ) : (
+    <CopyToolpathToClipboard />
+  )
+
+  return toolpathComponent
+}
+
 export const RenderInterface = () => {
   const numFrames = useStore(state => state.sceneTotalFrames)
 
@@ -117,6 +324,8 @@ export const RenderInterface = () => {
         {/* Re-render on total number of frames change */}
         {numFrames < 1 ? null : <Timeline key={numFrames} />}
       </FormGroup>
+
+      <SendToolpathToDeviceIfExists />
     </Card>
   )
 }
