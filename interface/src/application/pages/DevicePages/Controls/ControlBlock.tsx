@@ -6,6 +6,7 @@ import React from 'react'
 
 import { CONTROL_MODES } from '../../../typedState'
 import ManualJogPalette from './ControlPalette/ManualJogPalette'
+import ManualLEDPalette from './ControlPalette/ManualLEDPalette'
 import { TrackPalette } from './ControlPalette/TrackPalette'
 import { EventPalette } from './ControlPalette/EventPalette'
 
@@ -22,15 +23,20 @@ export const ControlBlock = () => {
           title="Select desired mode"
           description="Select a control mode before arming"
           action={<p>blah this is a thing</p>}
-        >
-          </NonIdealState>
+        ></NonIdealState>
       </Callout>
     )
   } else if (control_mode == CONTROL_MODES[CONTROL_MODES.MANUAL]) {
     return (
-      <Card>
-        <ManualJogPalette />
-      </Card>
+      <div>
+        <Card>
+          <ManualLEDPalette />
+        </Card>
+        <br/>
+        <Card>
+          <ManualJogPalette />
+        </Card>
+      </div>
     )
   } else if (control_mode == CONTROL_MODES[CONTROL_MODES.EVENT]) {
     return <EventPalette />
