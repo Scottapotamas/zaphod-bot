@@ -53,7 +53,7 @@ void hal_pwm_generation( PWMOutputTimerDef_t pwm_output, uint16_t frequency )
 
         case _PWM_TIM_BUZZER:
             LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_TIM11 );
-            hal_gpio_init_alternate( _BUZZER, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_DOWN );
+            hal_gpio_init_alternate( _BUZZER, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_DOWN );
 
             NVIC_SetPriority( TIM1_TRG_COM_TIM11_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 7, 4 ) );
             NVIC_EnableIRQ( TIM1_TRG_COM_TIM11_IRQn );
@@ -63,7 +63,7 @@ void hal_pwm_generation( PWMOutputTimerDef_t pwm_output, uint16_t frequency )
 
         case _PWM_TIM_AUX_0:
             LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_TIM2 );
-            hal_gpio_init_alternate( _AUX_PWM_0, LL_GPIO_AF_1, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_DOWN );
+            hal_gpio_init_alternate( _AUX_PWM_0, LL_GPIO_AF_1, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_DOWN );
 
             NVIC_SetPriority( TIM2_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 7, 3 ) );
             NVIC_EnableIRQ( TIM2_IRQn );
@@ -73,7 +73,7 @@ void hal_pwm_generation( PWMOutputTimerDef_t pwm_output, uint16_t frequency )
 
         case _PWM_TIM_AUX_1:
             LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_TIM12 );
-            hal_gpio_init_alternate( _AUX_PWM_1, LL_GPIO_AF_9, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_DOWN );
+            hal_gpio_init_alternate( _AUX_PWM_1, LL_GPIO_AF_9, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_DOWN );
 
             NVIC_SetPriority( TIM8_BRK_TIM12_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 7, 3 ) );
             NVIC_EnableIRQ( TIM8_BRK_TIM12_IRQn );
@@ -83,7 +83,7 @@ void hal_pwm_generation( PWMOutputTimerDef_t pwm_output, uint16_t frequency )
 
         case _PWM_TIM_AUX_2:
             LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_TIM12 );
-            hal_gpio_init_alternate( _AUX_PWM_2, LL_GPIO_AF_9, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_DOWN );
+            hal_gpio_init_alternate( _AUX_PWM_2, LL_GPIO_AF_9, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_DOWN );
 
             NVIC_SetPriority( TIM8_BRK_TIM12_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 7, 3 ) );
             NVIC_EnableIRQ( TIM8_BRK_TIM12_IRQn );
@@ -121,10 +121,10 @@ hal_pwm_configure_peripheral( TIM_TypeDef *TIMx, uint32_t channel, uint32_t freq
             LL_TIM_OC_SetCompareCH2( TIMx, ( ( LL_TIM_GetAutoReload( TIMx ) + 1 ) / 2 ) );
             break;
         case LL_TIM_CHANNEL_CH3:
-            LL_TIM_OC_SetCompareCH2( TIMx, ( ( LL_TIM_GetAutoReload( TIMx ) + 1 ) / 2 ) );
+            LL_TIM_OC_SetCompareCH3( TIMx, ( ( LL_TIM_GetAutoReload( TIMx ) + 1 ) / 2 ) );
             break;
         case LL_TIM_CHANNEL_CH4:
-            LL_TIM_OC_SetCompareCH2( TIMx, ( ( LL_TIM_GetAutoReload( TIMx ) + 1 ) / 2 ) );
+            LL_TIM_OC_SetCompareCH4( TIMx, ( ( LL_TIM_GetAutoReload( TIMx ) + 1 ) / 2 ) );
             break;
     }
 
