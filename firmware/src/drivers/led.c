@@ -76,8 +76,8 @@ led_set( float r, float g, float b )
 //    hal_pwm_set_percentage_f( _PWM_TIM_AUX_1, ( setpoint_b * -1.0 + 1.0 ) * 100.0f );
 
     hal_pwm_set_percentage_f( _PWM_TIM_AUX_0, ( r * -1.0 + 1.0 ) * 100.0f );
-    hal_pwm_set_percentage_f( _PWM_TIM_AUX_2, ( g * -1.0 + 1.0 ) * 100.0f );
-    hal_pwm_set_percentage_f( _PWM_TIM_AUX_1, ( b * -1.0 + 1.0 ) * 100.0f );
+    hal_pwm_set_percentage_f( _PWM_TIM_AUX_1, ( g * -1.0 + 1.0 ) * 100.0f );
+    hal_pwm_set_percentage_f( _PWM_TIM_AUX_2, ( b * -1.0 + 1.0 ) * 100.0f );
 
     user_interface_set_led_values( setpoint_r * 0xFFFF, setpoint_g * 0xFFFF, setpoint_b * 0xFFFF );
 }

@@ -186,7 +186,7 @@ PRIVATE void hal_pwm_set( PWMOutputTimerDef_t pwm_output, uint16_t duty_cycle )
 
         case _PWM_TIM_AUX_1:
             signal_period = LL_TIM_GetAutoReload( TIM12 ) + 1;
-            LL_TIM_OC_SetCompareCH1( TIM12, ( MIN( duty_cycle, 0xFFFFU ) * signal_period ) / 0xFFFFU );
+            LL_TIM_OC_SetCompareCH2( TIM12, ( MIN( duty_cycle, 0xFFFFU ) * signal_period ) / 0xFFFFU );
             break;
 
         case _PWM_TIM_AUX_2:
