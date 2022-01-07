@@ -19,6 +19,7 @@ import { ObjectNameTree } from '../optimiser/files'
 import { WritableDraft } from 'immer/dist/internal'
 import { TreeNodeInfo } from '@blueprintjs/core'
 import { NodeID, NodeInfo } from './RenderableTree'
+import type { ToolpathGenerator } from './../optimiser/main'
 
 const defaultSettings: Settings = {
   objectSettings: {
@@ -37,8 +38,8 @@ const defaultSettings: Settings = {
   hiddenObjects: {},
 
   optimisation: {
-    startingPoint: [0, 0, 0],
-    endingPoint: [0, 0, 0],
+    startingPoint: [0, 0, 20],
+    endingPoint: [0, 0, 20],
     maxSpeed: 100,
     transitionMaxSpeed: 100,
     waitAtStartDuration: 1000,
@@ -105,12 +106,16 @@ interface Store {
   sceneTotalFrames: number
   selectedMinFrame: number
   selectedMaxFrame: number
-  currentlyRenderingFrame: number
   priorityFrame: number
   currentlyOptimising: boolean
 
   // The currently viewed frame
   viewportFrame: number
+
+  /**
+   * A reference to the current optimiser, for requesting a toolpath
+   */
+  persistentOptimiser: ToolpathGenerator | null
 
   /**
    * The version number of the currently viewed frame's toolpath.
@@ -145,6 +150,10 @@ interface Store {
   // Camera references
   camera: PerspectiveCameraImpl | null
   orbitControls: OrbitControlsImpl | null
+
+  // Queue depths for sending data to hardware
+  movementQueueUI: number
+  lightQueueUI: number
 }
 
 const initialState: Store = {
@@ -155,8 +164,8 @@ const initialState: Store = {
   sceneTotalFrames: 0,
   selectedMinFrame: 1,
   selectedMaxFrame: 1,
-  currentlyRenderingFrame: 1,
   viewportFrame: 1,
+  persistentOptimiser: null,
 
   viewportFrameVersion: 0,
   visualisationSettings: {
@@ -180,6 +189,9 @@ const initialState: Store = {
 
   camera: null,
   orbitControls: null,
+
+  movementQueueUI: 0,
+  lightQueueUI: 0,
 }
 
 export const useStore = create<

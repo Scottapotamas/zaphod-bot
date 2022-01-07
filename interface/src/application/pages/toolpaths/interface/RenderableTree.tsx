@@ -395,6 +395,19 @@ export function RenderableTree() {
     ) => {
       setSetting(state => {
         const hoveredIDs: NodeID[] = []
+
+        // If we're hovering over the global override, select everything that doesn't have a material override
+        if (_node.id === GLOBAL_OVERRIDE_OBJECT_ID) {
+          forEachNode(state.treeStore.tree, node => {
+            if (!state.visualisationSettings.objectMaterialOverrides[node.id]) {
+              hoveredIDs.push(node.id)
+            }
+          })
+
+          state.treeStore.hoveredObjectIDs = hoveredIDs
+          return
+        }
+
         forNodeWithIDAndChildren(state.treeStore.tree, _node.id, node => {
           hoveredIDs.push(node.id)
         })

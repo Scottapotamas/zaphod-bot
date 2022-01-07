@@ -27,7 +27,7 @@ export function toolpath(denseMovements: DenseMovements): Toolpath {
     }
 
     // Build the light moves
-    for (const lightMove of movement.generateLightpath(id)) {
+    for (const lightMove of movement.material.generateLightpath(id, movement)) {
       lightMoves.push(lightMove)
     }
   }
