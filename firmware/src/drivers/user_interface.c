@@ -654,7 +654,7 @@ PRIVATE void execute_motion_queue( void )
 PRIVATE void clear_all_queue( void )
 {
     eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
-    eventPublish( EVENT_NEW( StateEvent, LED_CLEAR_QUEUE ) );
+    eventPublish( EVENT_NEW(StateEvent, LED_QUEUE_CLEAR ) );
 }
 
 PRIVATE void tracked_position_event( void )
@@ -701,7 +701,7 @@ PRIVATE void lighting_generate_event( void )
 
 PRIVATE void sync_begin_queues( void )
 {
-    BarrierSyncEvent *barrier_ev = EVENT_NEW( BarrierSyncEvent, START_QUEUE_SYNC );
+    BarrierSyncEvent *barrier_ev = EVENT_NEW(BarrierSyncEvent, QUEUE_SYNC_START );
 
     if( barrier_ev )
     {

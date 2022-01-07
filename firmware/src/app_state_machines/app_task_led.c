@@ -69,7 +69,7 @@ PRIVATE void AppTaskLed_initial( AppTaskLed *me, const StateEvent *e __attribute
 {
     eventSubscribe( (StateTask *)me, LED_OFF );
     eventSubscribe( (StateTask *)me, LED_QUEUE_ADD );
-    eventSubscribe( (StateTask *)me, LED_CLEAR_QUEUE );
+    eventSubscribe( (StateTask *)me, LED_QUEUE_CLEAR );
     eventSubscribe( (StateTask *)me, LED_QUEUE_START );
     eventSubscribe( (StateTask *)me, LED_QUEUE_START_SYNC );
 
@@ -93,9 +93,7 @@ PRIVATE STATE AppTaskLed_main( AppTaskLed *me, const StateEvent *e )
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
-
             return 0;
 
         case STATE_STEP1_SIGNAL:
@@ -119,7 +117,7 @@ PRIVATE STATE AppTaskLed_inactive( AppTaskLed *me, const StateEvent *e )
             AppTaskLed_add_event_to_queue( me, e );
             return 0;
 
-        case LED_CLEAR_QUEUE:
+        case LED_QUEUE_CLEAR:
             AppTaskLed_clear_queue( me );
             return 0;
 
@@ -242,7 +240,7 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
             AppTaskLed_add_event_to_queue( me, e );
             return 0;
 
-        case LED_CLEAR_QUEUE:
+        case LED_QUEUE_CLEAR:
             AppTaskLed_clear_queue( me );
             STATE_TRAN( AppTaskLed_inactive );
             return 0;
