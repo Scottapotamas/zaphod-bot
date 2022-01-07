@@ -21,8 +21,6 @@ export class SequenceSender {
   private movementMoves: MovementMove[] = []
   private lightMoves: LightMove[] = []
 
-  public sending = false
-
   private interval: NodeJS.Timeout | null = null
 
   constructor(
@@ -35,34 +33,44 @@ export class SequenceSender {
     this.clear = this.clear.bind(this)
     this.tick = this.tick.bind(this)
     this.ingest = this.ingest.bind(this)
-    this.teardown = this.teardown.bind(this)
+    this.stopTimers = this.stopTimers.bind(this)
     this.notifyUIOfOptimisticQueues = this.notifyUIOfOptimisticQueues.bind(this)
-    this.updateMovementQueueDepth = this.updateMovementQueueDepth.bind(this)
-    this.updateLightQueueDepth = this.updateLightQueueDepth.bind(this)
-
-    this.interval = setInterval(this.tick, 50)
+    this.updateHardwareQueues = this.updateHardwareQueues.bind(this)
   }
 
-  teardown() {
+  stopTimers() {
     if (this.interval) {
       clearInterval(this.interval)
+      this.interval = null
     }
+  }
+
+  startTimers() {
+    if (this.interval) {
+      clearInterval(this.interval)
+      this.interval = null
+    }
+
+    this.interval = setInterval(this.tick, 200)
   }
 
   async clear() {
     // clear the queue, cancel anything we were sending out
     this.movementMoves = []
     this.lightMoves = []
+
+    this.notifyUIOfOptimisticQueues()
+    this.stopTimers()
     await this.sendClear()
   }
 
-  ingest(toolpath: Toolpath) {
+  async ingest(toolpath: Toolpath) {
+    await this.clear()
+
     this.movementMoves = toolpath.movementMoves
     this.lightMoves = toolpath.lightMoves
 
-    this.sending = true
-
-    this.tick()
+    this.startTimers()
   }
 
   notifyUIOfOptimisticQueues() {
@@ -85,38 +93,49 @@ export class SequenceSender {
     while (
       this.hardwareMovementQueueDepth < this.movementQueueWatermark &&
       this.hardwareLightMoveQueueDepth < this.lightMoveQueueWatermark &&
-      this.movementMoves.length > 0
+      (this.movementMoves.length > 0 || this.lightMoves.length > 0)
     ) {
       // Peek the next movement and potentially the next light move
-      const movement: MovementMove = this.movementMoves[0]!
+      const movement: MovementMove | undefined = this.movementMoves[0]
       const firstLightMove: LightMove | undefined = this.lightMoves[0]
 
-      // If the light move should be sent before the next movement, send it first
-      if (firstLightMove && firstLightMove.id < movement.id) {
-        this.hardwareLightMoveQueueDepth++
-        const shifted = this.lightMoves.shift()!
+      // If there are movements left, intersperse the light moves between them
+      if (movement) {
+        // If the light move should be sent before the next movement, send it first
+        if (firstLightMove && firstLightMove.id < movement.id) {
+          this.hardwareLightMoveQueueDepth++
+          const shifted = this.lightMoves.shift()!
+          this.notifyUIOfOptimisticQueues()
+
+          await this.sendLightMove(shifted)
+          continue
+        }
+
+        // Shift the movement off the queue and send it now
+        this.hardwareMovementQueueDepth++
+        const shifted = this.movementMoves.shift()!
         this.notifyUIOfOptimisticQueues()
 
-        await this.sendLightMove(shifted)
+        await this.sendMovement(shifted)
         continue
       }
 
-      // Shift the movement off the queue and send it now
-      this.hardwareMovementQueueDepth++
-      const shifted = this.movementMoves.shift()!
+      // Otherwise there are only light moves left, send the next one
+      this.hardwareLightMoveQueueDepth++
+      const shifted = this.lightMoves.shift()!
       this.notifyUIOfOptimisticQueues()
 
-      await this.sendMovement(shifted)
+      await this.sendLightMove(shifted)
     }
 
     // request a queue update when we're done
     await this.requestQueueUpdates()
   }
 
-  updateMovementQueueDepth(depth: number) {
-    this.hardwareMovementQueueDepth = depth
-  }
-  updateLightQueueDepth(depth: number) {
+  updateHardwareQueues(motionDepth: number, fadeDepth: number) {
+    this.hardwareMovementQueueDepth = motionDepth
+    this.hardwareLightMoveQueueDepth = fadeDepth
+
     this.hardwareLightMoveQueueDepth = depth
   }
 }

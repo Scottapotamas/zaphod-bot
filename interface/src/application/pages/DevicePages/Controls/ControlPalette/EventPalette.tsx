@@ -1,21 +1,21 @@
 import React from 'react'
 
 import {
-  useDeviceMetadataKey,
   IntervalRequester,
   useHardwareState,
 } from '@electricui/components-core'
 
+import { Printer } from '@electricui/components-desktop'
 // import { SceneController } from './SceneControl/SceneController'
 
 import { Icon, Intent } from '@blueprintjs/core'
 
-import { SendToolpath } from './SendHardcodedToolpath'
+import { useSetting } from '../../../toolpaths/interface/state'
 
 const QueueText = () => {
   const queue_depth = useHardwareState(state => state.queue.movements)
   const is_moving = useHardwareState(state => state.moStat.pathing_state) == 1
-  const queue_depth_ui = useDeviceMetadataKey('uiSideMovementQueueDepth')
+  const queue_depth_ui = useSetting(state => state.movementQueueUI)
 
   let iconColour: Intent
 
@@ -40,7 +40,7 @@ const QueueText = () => {
 
 const LEDQueueText = () => {
   const queue_depth = useHardwareState(state => state.queue.lighting)
-  const queue_depth_ui = useDeviceMetadataKey('uiSideLightQueueDepth')
+  const queue_depth_ui = useSetting(state => state.lightQueueUI)
 
   let iconColour: Intent
 
@@ -74,17 +74,37 @@ const CurrentRGB = () => {
   )
 }
 
-export const EventPalette = () => {
-  const sceneFilePath = useDeviceMetadataKey('summary_file_path')
+import { FolderPathSelector } from './../../../toolpaths/interface/FolderSelector'
+import { Optimiser } from './../../../toolpaths/interface/Optimiser'
 
+import { SettingsInterface } from './../../../toolpaths/interface/SettingsInterface'
+import { RenderInterface } from './../../../toolpaths/interface/RenderInterface'
+import { RenderableTree } from './../../../toolpaths/interface/RenderableTree'
+import { MaterialEditor } from './../../../toolpaths/interface/MaterialEditor'
+import { MSGID } from 'src/application/typedState'
+
+export const EventPalette = () => {
   return (
     <>
-      <IntervalRequester interval={100} variables={['rgb']} />
-      <h3>Load Event Sequence from File</h3>
-      {/* <SceneController key={sceneFilePath} /> */}
+      <FolderPathSelector />
+
+      <SettingsInterface />
+
+      <RenderableTree />
+
+      <MaterialEditor />
+
+      <Optimiser />
+
+      <RenderInterface />
+
       <QueueText />
       <LEDQueueText />
-      <SendToolpath />
+      <IntervalRequester
+        variables={[MSGID.MOTION, MSGID.QUEUE_INFO]}
+        interval={200}
+      />
+      <Printer accessor={state => JSON.stringify(state[MSGID.MOTION])} />
     </>
   )
 }

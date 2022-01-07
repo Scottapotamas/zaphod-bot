@@ -47,9 +47,9 @@ function MaxSpeedSlider() {
     <div style={{ marginLeft: 10, marginRight: 10 }}>
       <Slider
         min={0}
-        max={300}
-        stepSize={1}
-        labelStepSize={50}
+        max={500}
+        stepSize={10}
+        labelStepSize={100}
         value={Math.max(localSpeed, 1)}
         labelRenderer={value => `${value}mm/s`}
         onRelease={updateMaxSpeed}
@@ -77,9 +77,9 @@ function TransitionMaxSpeedSlider() {
     <div style={{ marginLeft: 10, marginRight: 10 }}>
       <Slider
         min={0}
-        max={300}
-        stepSize={1}
-        labelStepSize={50}
+        max={500}
+        stepSize={10}
+        labelStepSize={100}
         value={Math.max(localSpeed, 1)}
         labelRenderer={value => `${value}mm/s`}
         onRelease={updateTransitionMaxSpeed}

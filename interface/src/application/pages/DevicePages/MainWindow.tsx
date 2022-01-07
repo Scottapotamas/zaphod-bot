@@ -5,7 +5,7 @@ import { Card } from '@blueprintjs/core'
 import { Composition, Box, Only, useBreakpointChange } from 'atomic-layout'
 import { IntervalRequester } from '@electricui/components-core'
 
-import RiggedModel from '../../components/RiggedModel'
+import { RiggedModel } from '../../components/RiggedModel'
 
 import { RobotSummary } from './Views/RobotSummary'
 import { ServoSummary } from './Views/ServoSummary'
@@ -18,6 +18,9 @@ import { ControlBlock } from './Controls/ControlBlock'
 import { ArmControlButton } from './Controls/ArmButton'
 import { HomeButton } from './Controls/HomeButton'
 import { ModeSelection } from './Controls/ModeSelection'
+
+import { MessageDataSource } from '@electricui/core-timeseries'
+import { MSGID } from 'src/application/typedState'
 
 const layoutDescription = `
             Sidebar . Charts
@@ -66,7 +69,7 @@ const MainWindow = (props: RouteComponentProps) => {
             </Areas.Sidebar>
 
             <Areas.Controls>
-                <ControlBlock />
+              <ControlBlock />
             </Areas.Controls>
 
             <Areas.Charts>

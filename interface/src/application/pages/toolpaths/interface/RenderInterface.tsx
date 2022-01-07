@@ -16,7 +16,11 @@ import { SequenceSender } from './sequenceSender'
 
 import { LightMove, MovementMove } from './../optimiser/hardware'
 
-import { useQuery, useSendMessage } from '@electricui/components-core'
+import {
+  useHardwareStateSubscription,
+  useQuery,
+  useSendMessage,
+} from '@electricui/components-core'
 import { CancellationToken, Message } from '@electricui/core'
 
 import {
@@ -230,6 +234,8 @@ export function SendToolpath() {
     const cancellationToken = new CancellationToken()
     const syncMessage = new Message(MSGID.QUEUE_CLEAR, null)
     await sendMessage(syncMessage, cancellationToken)
+
+    await query(MSGID.QUEUE_INFO, cancellationToken)
   }, [sendMessage])
 
   const queryQueueDepth = useCallback(async () => {
@@ -260,6 +266,20 @@ export function SendToolpath() {
     return sequenceSenderRef.current
   }
 
+  useHardwareStateSubscription(
+    state => state.queue,
+    (queue: { movements: number; lighting: number }) => {
+      getSequenceSender().updateHardwareQueues(queue.movements, queue.lighting)
+    },
+  )
+
+  useHardwareStateSubscription(
+    state => state.err,
+    (err: string) => {
+      console.error(`Hardware reporting error: ${err}`)
+    },
+  )
+
   const [isLoading, setIsLoading] = useState(false)
 
   const handleRender = useCallback(() => {
@@ -284,6 +304,10 @@ export function SendToolpath() {
     sendSync()
   }, [sendSync])
 
+  const handleClear = useCallback(() => {
+    getSequenceSender().clear()
+  }, [])
+
   return (
     <>
       <Button onClick={handleRender} loading={isLoading}>
@@ -291,6 +315,7 @@ export function SendToolpath() {
       </Button>
 
       <Button onClick={handleStart}>Sync</Button>
+      <Button onClick={handleClear}>Clear</Button>
     </>
   )
 }
