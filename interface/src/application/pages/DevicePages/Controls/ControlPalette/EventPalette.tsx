@@ -77,7 +77,8 @@ const CurrentRGB = () => {
 import { FolderPathSelector } from './../../../toolpaths/interface/FolderSelector'
 import { Optimiser } from './../../../toolpaths/interface/Optimiser'
 
-import { SettingsInterface } from './../../../toolpaths/interface/SettingsInterface'
+import { PlannerSettingsInterface } from 'src/application/pages/toolpaths/interface/PlannerSettingsInterface'
+import { ThreeSettingsInterface } from 'src/application/pages/toolpaths/interface/ThreeSettingsInterface'
 import { RenderInterface } from './../../../toolpaths/interface/RenderInterface'
 import { RenderableTree } from './../../../toolpaths/interface/RenderableTree'
 import { MaterialEditor } from './../../../toolpaths/interface/MaterialEditor'
@@ -88,7 +89,8 @@ export const EventPalette = () => {
     <>
       <FolderPathSelector />
 
-      <SettingsInterface />
+      <PlannerSettingsInterface />
+      <ThreeSettingsInterface />
 
       <RenderableTree />
 

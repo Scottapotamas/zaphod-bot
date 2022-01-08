@@ -131,7 +131,7 @@ export function MaterialEditor() {
   if (selectedItemID === null) return null
 
   return (
-    <Card style={materialEditorStyle}>
+    <div style={materialEditorStyle}>
       <MaterialSelector
         items={materialOptions}
         itemRenderer={renderMaterialOption}
@@ -149,7 +149,7 @@ export function MaterialEditor() {
         />
       </MaterialSelector>
       {selectMaterialEditor(selectedItemID, materialTypeOverride)}
-    </Card>
+    </div>
   )
 }
 
