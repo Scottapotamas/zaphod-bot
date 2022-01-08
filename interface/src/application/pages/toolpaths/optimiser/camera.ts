@@ -36,7 +36,6 @@ export class Camera {
       icon: IconNames.CAMERA,
       nodeData: {
         type: NodeTypes.CAMERA,
-        hidden: true,
       },
       childNodes: [
         {
@@ -45,7 +44,6 @@ export class Camera {
           icon: IconNames.SEND_TO_GRAPH,
           nodeData: {
             type: NodeTypes.CAMERA_ALIGNMENT,
-            hidden: true,
           },
         },
       ],
