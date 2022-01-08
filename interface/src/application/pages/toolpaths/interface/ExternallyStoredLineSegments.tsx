@@ -1,37 +1,7 @@
 import * as React from 'react'
-import { useRef, useMemo, useState, forwardRef } from 'react'
 
-// import // Environment,
-// // OrbitControls,
-// '@electricui/components-desktop-three'
+import { Vector2 } from 'three'
 
-import { Canvas } from '@react-three/fiber'
-
-import {
-  Line,
-  CubicBezierLine,
-  Segments,
-  Segment,
-  OrbitControls,
-  LineProps,
-} from '@react-three/drei'
-
-import { useFrame, useThree } from '@react-three/fiber'
-import {
-  Mesh,
-  Group,
-  Color,
-  Vector2,
-  Material,
-  InstancedInterleavedBuffer,
-  InterleavedBufferAttribute,
-} from 'three'
-
-import { MovementMoveType } from '../optimiser/hardware'
-import { sparseToDense } from '../optimiser/passes'
-import { CatmullRomLine } from './CatmullLine'
-import { MovementPoint } from 'src/application/typedState'
-import { Vector3 } from 'three'
 import { RGB, XYZ } from '../optimiser/movements'
 import { LineMaterial, LineSegmentsGeometry, Line2 } from 'three-stdlib'
 import { lerpRGB } from '../optimiser/materials/utilities'
