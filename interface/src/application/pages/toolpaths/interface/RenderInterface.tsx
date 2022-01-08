@@ -6,6 +6,7 @@ import {
   Slider,
   Button,
   ButtonProps,
+  Colors,
 } from '@blueprintjs/core'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
@@ -29,6 +30,8 @@ import {
   setSetting,
   useSetting,
   useStore,
+  useViewportFrameDuration,
+  useViewportFrameState,
 } from './state'
 
 function SceneLengthSlider() {
@@ -129,6 +132,7 @@ import { importMaterial } from '../optimiser/material'
 import { useDeviceID } from '@electricui/components-core'
 import { MSGID } from 'src/application/typedState'
 import { getOrderedMovementsForFrame } from './ToolpathVisualisation'
+import { FRAME_STATE } from '../optimiser/main'
 
 async function getToolpathForCurrentFrame() {
   const viewportFrame = getSetting(state => state.viewportFrame)
@@ -329,6 +333,45 @@ export function SendToolpathToDeviceIfExists() {
   return toolpathComponent
 }
 
+export function CurrentFrameTime() {
+  const duration = useViewportFrameDuration()
+  const frameState = useViewportFrameState()
+
+  const niceDurationTime = Math.round((duration / 1000) * 10) / 10
+
+  let color = Colors.BLACK
+
+  switch (frameState) {
+    case FRAME_STATE.OPTIMISING_PARTIALLY:
+      color = Colors.BLUE3
+      break
+    case FRAME_STATE.OPTIMISING_FULLY:
+      color = Colors.GREEN3
+      break
+    case FRAME_STATE.UNOPTIMISED:
+      color = Colors.BLACK
+      break
+    case FRAME_STATE.OPTIMISED_PARTIALLY:
+      color = Colors.BLUE5
+      break
+    case FRAME_STATE.OPTIMISED_FULLY:
+      color = Colors.GREEN5
+      break
+    case FRAME_STATE.ERRORED:
+      color = Colors.RED3
+      break
+
+    default:
+      break
+  }
+
+  return (
+    <p>
+      <b>Estimated Time:</b> <span style={{ color }}>{niceDurationTime}s</span>
+    </p>
+  )
+}
+
 export const RenderInterface = () => {
   const numFrames = useStore(state => state.sceneTotalFrames)
 
@@ -346,6 +389,8 @@ export const RenderInterface = () => {
         {/* Re-render on total number of frames change */}
         {numFrames < 1 ? null : <Timeline key={numFrames} />}
       </FormGroup>
+
+      <CurrentFrameTime />
 
       <SendToolpathToDeviceIfExists />
     </Card>
