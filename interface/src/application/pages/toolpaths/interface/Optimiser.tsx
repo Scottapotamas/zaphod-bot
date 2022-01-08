@@ -171,6 +171,8 @@ export function Optimiser() {
     (progress: FrameProgressUpdate) => {
       setSetting(state => {
         state.movementOrdering[progress.frameNumber] = progress.orderingCache
+        state.estimatedDurationByFrame[progress.frameNumber] = progress.duration
+        state.frameOptimisationState[progress.frameNumber] = progress.frameState
 
         // Trigger an update if this frame update is for the viewport frame
 

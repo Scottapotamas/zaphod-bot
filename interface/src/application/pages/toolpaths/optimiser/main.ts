@@ -17,7 +17,7 @@ import type { OptimisationWorker } from './workers/worker'
 import { toolpath, Toolpath } from './toolpath'
 import { renderablesToMovements } from '../interface/Optimiser'
 
-enum FRAME_STATE {
+export enum FRAME_STATE {
   OPTIMISING_PARTIALLY = 0,
   OPTIMISING_FULLY = 1,
   UNOPTIMISED = 2,
