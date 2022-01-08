@@ -31,27 +31,61 @@ import { RenderableTree } from './../../../toolpaths/interface/RenderableTree'
 import { MaterialEditor } from './../../../toolpaths/interface/MaterialEditor'
 
 export const EventPalette = () => {
+  let [settingsExpanded, setSettingsExpanded] = useState(false)
+
+  const controlSettingsExpansion = useCallback(_ => {
+    setSettingsExpanded(enabled => !enabled)
+  }, [])
+
   return (
     <>
-      <FolderPathSelector />
-
-      <PlannerSettingsInterface />
-      <ThreeSettingsInterface />
-
-      <RenderableTree />
-
-      <MaterialEditor />
-
-      <Optimiser />
-
-      <RenderInterface />
-
-      {/* <Printer accessor={state => JSON.stringify(state[MSGID.MOTION])} /> */}
       <IntervalRequester
         variables={[MSGID.MOTION, MSGID.QUEUE_INFO]}
         interval={200}
       />
-      <Printer accessor={state => JSON.stringify(state[MSGID.MOTION])} />
+
+      <Composition gap={10}>
+        <Collapse isOpen={settingsExpanded}>
+          <Composition templateCols="1fr 2fr" gap={10}>
+            <Card>
+              <PlannerSettingsInterface />
+            </Card>
+
+            <Card>
+              <RenderableTree />
+              <MaterialEditor />
+            </Card>
+          </Composition>
+        </Collapse>
+
+        <Button
+          minimal
+          outlined
+          intent={Intent.PRIMARY}
+          small
+          onClick={controlSettingsExpansion}
+          icon={
+            settingsExpanded ? IconNames.CHEVRON_DOWN : IconNames.CHEVRON_UP
+          }
+        >
+          {/* Consider a label here to explain it's a settings expansion? */}
+        </Button>
+
+        <Card>
+          <FolderPathSelector />
+
+          <RenderInterface />
+        </Card>
+
+        <Optimiser />
+
+
+      </Composition>
+
+
+      {/* <ThreeSettingsInterface /> */}
+
+      {/* <Printer accessor={state => JSON.stringify(state[MSGID.MOTION])} /> */}
     </>
   )
 }
