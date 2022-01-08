@@ -103,7 +103,7 @@ function WaitAtStartDurationSlider() {
   return (
     <div style={{ marginLeft: 10, marginRight: 10 }}>
       <Slider
-        min={0}
+        min={500}
         max={5000}
         stepSize={100}
         labelStepSize={500}

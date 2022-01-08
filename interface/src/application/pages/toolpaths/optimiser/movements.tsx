@@ -18,6 +18,7 @@ export enum MOVEMENT_TYPE {
   POINT = 'point',
   TRANSITION = 'transition',
   POINT_TRANSITION = 'transition',
+  TRANSIT = 'transit',
 }
 
 const defaultSpeed = 30 // mm/s
@@ -863,5 +864,98 @@ export class PointTransition extends Movement {
       this.pointTo.getStart(),
       this.postPointMovement.getStart(),
     ])
+  }
+}
+
+export function isTransit(movement: Movement): movement is Transit {
+  return movement.type === MOVEMENT_TYPE.TRANSIT
+}
+
+/**
+ * A `Transit` is an invisible move to a point without care for the path taken
+ */
+export class Transit extends Movement {
+  readonly type = MOVEMENT_TYPE.TRANSIT
+
+  constructor(
+    public endPoint: Vector3,
+    public duration: number, // Must be above 0ms
+    public material: Material,
+    public objectID: string,
+  ) {
+    super()
+
+    if (this.duration < 1) {
+      throw new Error(`Transit durations must be at least 1ms`)
+    }
+  }
+
+  // Flipping a Transit does nothing
+  public flip = () => {}
+
+  public flatten = () => {
+    return [this]
+  }
+
+  // Transits have an unknown length
+  public getLength: () => number = () => {
+    return 0
+  }
+
+  // Transits have no speed, only a duration
+  public setMaxSpeed = (maxSpeed: number) => {
+    // noop
+  }
+
+  // Transits have no cost
+  public getCost: () => number = () => {
+    return 0
+  }
+
+  /**
+   * The duration of a transit is determined by its set duration, it cannot be shorter than 1ms
+   */
+  public getDuration = () => {
+    return Math.ceil(this.duration)
+  }
+
+  public getStart = () => {
+    return this.endPoint
+  }
+
+  public getEnd = () => {
+    return this.endPoint
+  }
+
+  public getDesiredEntryVelocity = () => {
+    // Assume the entry velocity is 0
+    return zeroVector
+  }
+
+  public getExpectedExitVelocity = () => {
+    // Assume the exit velocity is 0
+    return zeroVector
+  }
+
+  public generateToolpath = (id: number) => {
+    const move: MovementMove = {
+      id,
+      duration: this.getDuration(),
+      type: MovementMoveType.POINT_TRANSIT,
+      reference: MovementMoveReference.ABSOLUTE,
+      points: [this.endPoint.toArray()],
+      num_points: 1,
+    }
+
+    return [move]
+  }
+
+  public getApproximateCentroid = () => {
+    return this.endPoint
+  }
+
+  public samplePoint = (t: number) => {
+    // Transits exist at their endpoint
+    return this.endPoint
   }
 }

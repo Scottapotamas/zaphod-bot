@@ -38,8 +38,6 @@ const defaultSettings: Settings = {
   hiddenObjects: {},
 
   optimisation: {
-    startingPoint: [0, 0, 20],
-    endingPoint: [0, 0, 20],
     maxSpeed: 100,
     transitionMaxSpeed: 100,
     waitAtStartDuration: 1000,

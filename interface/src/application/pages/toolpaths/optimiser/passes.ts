@@ -5,6 +5,7 @@ import {
   Movement,
   Point,
   PointTransition,
+  Transit,
   Transition,
   TRANSITION_OBJECT_ID,
 } from './movements'
@@ -20,23 +21,21 @@ export function sparseToDense(
   sparseBag: Movement[],
   settings: Settings,
 ): DenseMovements {
-  // Start
-  let previousMovement: Movement = new Point(
-    new Vector3(
-      settings.optimisation.startingPoint[0],
-      settings.optimisation.startingPoint[1],
-      settings.optimisation.startingPoint[2],
-    ),
+  if (sparseBag.length === 0) {
+    // If there are no moves, return an empty dense bag
+    return declareDense([])
+  }
+
+  // Start with a Transit move to the start of the first movement
+  let previousMovement: Movement = new Transit(
+    sparseBag[0].getStart(),
     settings.optimisation.waitAtStartDuration,
     defaultTransitionMaterial,
     TRANSITION_OBJECT_ID,
   )
-  previousMovement.setMaxSpeed(settings.optimisation.maxSpeed)
 
-  // Add the initial wait at start to the movements
   const denseMovements: DenseMovements = declareDense([previousMovement])
 
-  // Middle
   for (let index = 0; index < sparseBag.length; index++) {
     const movement = sparseBag[index]
 
@@ -96,33 +95,6 @@ export function sparseToDense(
     previousMovement = movement
     continue
   }
-
-  // End
-  let lastMovement: Movement = new Point(
-    new Vector3(
-      settings.optimisation.endingPoint[0],
-      settings.optimisation.endingPoint[1],
-      settings.optimisation.endingPoint[2],
-    ),
-    1, // wait for 1ms at the end
-    defaultTransitionMaterial,
-    TRANSITION_OBJECT_ID,
-  )
-  lastMovement.setMaxSpeed(settings.optimisation.maxSpeed)
-
-  // Transition to the end
-  const transitionToEnd = new Transition(
-    previousMovement,
-    lastMovement,
-    defaultTransitionMaterial,
-  )
-  transitionToEnd.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
-
-  // Add the transition to the dense bag
-  denseMovements.push(transitionToEnd)
-
-  // Add the movement to the dense bag
-  denseMovements.push(lastMovement)
 
   // Flattened the movements
   return flattenDense(denseMovements)

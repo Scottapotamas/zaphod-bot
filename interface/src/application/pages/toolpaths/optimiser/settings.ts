@@ -27,9 +27,6 @@ export interface Settings {
 export interface OptimisationSettings {
   waitAtStartDuration: number
 
-  startingPoint: [x: number, y: number, z: number]
-  endingPoint: [x: number, y: number, z: number]
-
   maxSpeed: number // mm/s
   transitionMaxSpeed: number // mm/s
 }
