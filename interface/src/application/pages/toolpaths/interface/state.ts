@@ -28,7 +28,7 @@ const defaultSettings: Settings = {
     },
     particles: {
       drawInVelocityOrientation: false,
-      stopDelay: 10,
+      stopDelay: 5,
     },
   },
 
@@ -38,8 +38,8 @@ const defaultSettings: Settings = {
   skippedObjects: {},
 
   optimisation: {
-    maxSpeed: 100,
-    transitionMaxSpeed: 100,
+    maxSpeed: 300,
+    transitionMaxSpeed: 300,
     waitAtStartDuration: 1000,
     interLineTransitionAngle: 50,
     interLineTransitionShaveDistance: 5,
