@@ -16,7 +16,7 @@ export interface Settings {
   }
 
   // For disabling the rendering of objects
-  hiddenObjects: {
+  skippedObjects: {
     [id: string]: boolean
   }
 
@@ -69,7 +69,7 @@ export function getToMovementSettings<
 export function getShouldSkip(settings: Settings, keys: string[]) {
   // Iterate over every key, if any are marked as toggle off, skip
   for (const objName of keys) {
-    if (settings.hiddenObjects[objName]) {
+    if (settings.skippedObjects[objName]) {
       return true
     }
   }

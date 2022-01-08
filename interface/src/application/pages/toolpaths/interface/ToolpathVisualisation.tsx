@@ -239,6 +239,11 @@ export function ToolpathMovements() {
         for (let index = 0; index < denseMovements.length; index++) {
           const movement = denseMovements[index]
 
+          // Don't show hidden objects
+          if (visualisationSettings.hiddenObjects[movement.objectID]) {
+            continue
+          }
+
           let material: Material = movement.material
 
           const movementMaterialOverride =
