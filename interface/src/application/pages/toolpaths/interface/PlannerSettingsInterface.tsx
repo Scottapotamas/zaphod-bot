@@ -121,18 +121,6 @@ function ParticleWaitDurationControl() {
   }, [])
 
   return (
-    // <div style={{ marginLeft: 10, marginRight: 10 }}>
-    //   <Slider
-    //     min={0}
-    //     max={200}
-    //     stepSize={1}
-    //     labelStepSize={50}
-    //     value={localStopDelay}
-    //     labelRenderer={value => `${value}ms`}
-    //     onRelease={updateStopDelay}
-    //     onChange={setLocalStopDelay}
-    //   />
-    // </div>
     <NumericInput
       fill
       min={0}
@@ -163,18 +151,6 @@ function MaxSpeedControl() {
   }, [])
 
   return (
-    // <div style={{ marginLeft: 10, marginRight: 10 }}>
-    //   <Slider
-    //     min={0}
-    //     max={300}
-    //     stepSize={1}
-    //     labelStepSize={50}
-    //     value={Math.max(localSpeed, 1)}
-    //     labelRenderer={value => `${value}mm/s`}
-    //     onRelease={updateMaxSpeed}
-    //     onChange={setLocalSpeed}
-    //   />
-    // </div>
     <NumericInput
       fill
       min={0}
@@ -208,18 +184,6 @@ function TransitionMaxSpeedControl() {
   }, [])
 
   return (
-    // <div style={{ marginLeft: 10, marginRight: 10 }}>
-    //   <Slider
-    //     min={0}
-    //     max={300}
-    //     stepSize={1}
-    //     labelStepSize={50}
-    //     value={Math.max(localSpeed, 1)}
-    //     labelRenderer={value => `${value}mm/s`}
-    //     onRelease={updateTransitionMaxSpeed}
-    //     onChange={setLocalSpeed}
-    //   />
-    // </div>
     <NumericInput
       fill
       min={0}
