@@ -15,7 +15,27 @@ import { Vector3 } from 'three'
 import { defaultTransitionMaterial } from './material'
 
 /**
- * Add transition movements between each move if the start and the end are at different places
+ * Flatten any grouped movements into simple movements
+ */
+function flattenSparseBag(sparseBag: Movement[]): DenseMovements {
+  let denseFlatList: DenseMovements = declareDense([])
+
+  for (let index = 0; index < sparseBag.length; index++) {
+    const movement = sparseBag[index]
+
+    const flattened = movement.flatten()
+
+    for (let i = 0; i < flattened.length; i++) {
+      const f = flattened[i]
+      denseFlatList.push(f)
+    }
+  }
+
+  return denseFlatList
+}
+
+/**
+ * Add transition movements between each move
  */
 export function sparseToDense(
   sparseBag: Movement[],
@@ -26,9 +46,11 @@ export function sparseToDense(
     return declareDense([])
   }
 
+  const flattened = flattenSparseBag(sparseBag)
+
   // Start with a Transit move to the start of the first movement
   let previousMovement: Movement = new Transit(
-    sparseBag[0].getStart(),
+    flattened[0].getStart(),
     settings.optimisation.waitAtStartDuration,
     defaultTransitionMaterial,
     TRANSITION_OBJECT_ID,
@@ -36,8 +58,8 @@ export function sparseToDense(
 
   const denseMovements: DenseMovements = declareDense([previousMovement])
 
-  for (let index = 0; index < sparseBag.length; index++) {
-    const movement = sparseBag[index]
+  for (let index = 0; index < flattened.length; index++) {
+    const movement = flattened[index]
 
     // Set the max speed of the movement so velocities are scaled
     movement.setMaxSpeed(settings.optimisation.maxSpeed)
@@ -48,12 +70,12 @@ export function sparseToDense(
       isPoint(movement) &&
       movement.duration === 0 &&
       index >= 2 &&
-      index < sparseBag.length - 1
+      index < flattened.length - 1
     ) {
-      const movementPrevPrev = sparseBag[index - 2]
+      const movementPrevPrev = flattened[index - 2]
       const movementPrev = previousMovement
       const movementCurrent = movement
-      const movementNext = sparseBag[index + 1]
+      const movementNext = flattened[index + 1]
 
       // Build our transition movement from the old movement to the new
       const transition = new PointTransition(
@@ -97,22 +119,7 @@ export function sparseToDense(
   }
 
   // Flattened the movements
-  return flattenDense(denseMovements)
-}
-
-/**
- * Flatten any `OrderedMovements` groups into simple movements.
- */
-function flattenDense(denseBag: DenseMovements): DenseMovements {
-  let denseFlatList: DenseMovements = declareDense([])
-
-  for (let index = 0; index < denseBag.length; index++) {
-    const movement = denseBag[index]
-
-    denseFlatList.push(...movement.flatten())
-  }
-
-  return denseBag
+  return denseMovements
 }
 
 export function getTotalDuration(denseMoves: DenseMovements) {
@@ -257,21 +264,21 @@ export async function optimise(
 ) {
   const sparseLength = sparseBag.length
 
-  let ordering: Movement[] = []
+  let ordering: Movement[] = sparseBag
 
   const costRef = { cost: sparseToCost(sparseBag, settings) }
   const startingCost = costRef.cost
 
   let method = 'blender order'
 
-  // If an orderingCache is provided, start with that, otherwise do a nearest neighbour run first.
+  // If an ordering cache is provided, test it
   if (orderingCache) {
     // Copy the array, might not be necessary since this is on the other end of an IPC bridge and it's just been deserialised.
     // TODO: Bench removing this
-    ordering = sparseBag.slice()
+    const cachedOrdering = sparseBag.slice()
 
     // Sort the movements according to the movement cache
-    ordering.sort((a, b) => {
+    cachedOrdering.sort((a, b) => {
       const aOrder = orderingCache[a.interFrameID] ?? 0
       const bOrder = orderingCache[b.interFrameID] ?? 0
 
@@ -279,7 +286,7 @@ export async function optimise(
       return aOrder - bOrder
     })
 
-    const interFrameCacheCost = sparseToCost(ordering, settings)
+    const interFrameCacheCost = sparseToCost(cachedOrdering, settings)
 
     // console.log(
     //   `randomCost ${
@@ -289,18 +296,16 @@ export async function optimise(
     //   })`
     // );
 
-    // Make sure this is an improvement
-    if (interFrameCacheCost >= costRef.cost) {
-      // not an improvement, reset
-      ordering = sparseBag.slice()
-    } else {
+    if (interFrameCacheCost < costRef.cost) {
+      // If the inter frame cache is better than the naive ordering, use it
+      ordering = cachedOrdering
       costRef.cost = interFrameCacheCost
       method = 'cache'
     }
-  } else {
-    // First run, do a nearest neighbour search, the first movement is the starting point, so start there.
+  }
 
-    // Run a nearest neighbour search and see how optimal it is
+  // Try a nearest neighbour search, use it if it's better (even if we have a cache)
+  {
     const toOrder: Movement[] = sparseBag.slice() // Copy the array
 
     // Pick a random movement to start at, remove it from the array
@@ -308,9 +313,9 @@ export async function optimise(
       Math.floor(Math.random() * toOrder.length),
       1, // grab one
     )[0] // splice returns an array of the deleted items, index 0 is our starting point
-    ordering = [previousMovement]
+    const nnOrdering = [previousMovement]
 
-    // Pick the closest
+    // Find the closest next movement, potentially flipping it
     while (toOrder.length > 0) {
       let closest: Movement = previousMovement
       let closestDistance = Infinity
@@ -319,28 +324,43 @@ export async function optimise(
       for (let index = 0; index < toOrder.length; index++) {
         const movement = toOrder[index]
 
-        const d = movement
-          .getEnd()
-          .distanceToSquared(previousMovement.getStart())
+        // Check if the end of the next movement is closer
+        let d = movement.getStart().distanceToSquared(previousMovement.getEnd())
 
         if (d < closestDistance) {
           closestDistance = d
           closest = movement
           closestIndex = index
         }
+
+        // Try flipping it
+        movement.flip()
+
+        d = movement.getStart().distanceToSquared(previousMovement.getEnd())
+
+        // If it is closer, leave it flipped
+        if (d < closestDistance) {
+          closestDistance = d
+          closest = movement
+          closestIndex = index
+          continue
+        }
+
+        // Otherwise flip it back
+        movement.flip()
       }
 
       // We've found the next closest, pop it off
       toOrder.splice(closestIndex, 1)
 
       // And add it to the nnOrdered array
-      ordering.push(closest)
+      nnOrdering.push(closest)
 
       // Update the previousMovement
       previousMovement = closest
     }
 
-    const nnCost = sparseToCost(ordering, settings)
+    const nnCost = sparseToCost(nnOrdering, settings)
 
     // console.log(
     //   `randomCost ${costRef.cost} -> nnCost ${nnCost} (${
@@ -348,12 +368,10 @@ export async function optimise(
     //   })`
     // );
 
-    // Make sure this is an improvement
-    if (nnCost >= costRef.cost) {
-      // not an improvement, reset
-      ordering = sparseBag.slice()
-    } else {
+    if (nnCost < costRef.cost) {
+      // If NN is an improvement, use it as the starting point
       costRef.cost = nnCost
+      ordering = nnOrdering
       method = 'nearest neighbour'
     }
   }
