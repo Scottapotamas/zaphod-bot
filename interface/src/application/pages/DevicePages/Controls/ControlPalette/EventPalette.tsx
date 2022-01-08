@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 
 import {
   IntervalRequester,
@@ -6,73 +6,20 @@ import {
 } from '@electricui/components-core'
 
 import { Printer } from '@electricui/components-desktop'
-// import { SceneController } from './SceneControl/SceneController'
+import { Composition, Box } from 'atomic-layout'
 
-import { Icon, Intent } from '@blueprintjs/core'
+import {
+  Icon,
+  Intent,
+  Card,
+  Callout,
+  Tag,
+  Collapse,
+  Button,
+} from '@blueprintjs/core'
+import { IconNames } from '@blueprintjs/icons'
 
-import { useSetting } from '../../../toolpaths/interface/state'
-
-const QueueText = () => {
-  const queue_depth = useHardwareState(state => state.queue.movements)
-  const is_moving = useHardwareState(state => state.moStat.pathing_state) == 1
-  const queue_depth_ui = useSetting(state => state.movementQueueUI)
-
-  let iconColour: Intent
-
-  if (queue_depth == 0) {
-    iconColour = Intent.NONE
-  } else if (queue_depth > 0 && queue_depth < 25) {
-    if (is_moving) {
-      iconColour = Intent.SUCCESS
-    } else {
-      iconColour = Intent.WARNING
-    }
-  } else {
-    iconColour = Intent.DANGER
-  }
-
-  return (
-    <div>
-      <Icon icon="move" intent={iconColour} /> {queue_depth} ({queue_depth_ui})
-    </div>
-  )
-}
-
-const LEDQueueText = () => {
-  const queue_depth = useHardwareState(state => state.queue.lighting)
-  const queue_depth_ui = useSetting(state => state.lightQueueUI)
-
-  let iconColour: Intent
-
-  if (queue_depth == 0) {
-    iconColour = Intent.NONE
-  } else if (queue_depth > 0 && queue_depth < 35) {
-    iconColour = Intent.SUCCESS
-  } else {
-    iconColour = Intent.WARNING
-  }
-
-  return (
-    <div>
-      <Icon icon="lightbulb" intent={iconColour} /> {queue_depth} (
-      {queue_depth_ui})
-    </div>
-  )
-}
-
-const CurrentRGB = () => {
-  const red_led = useHardwareState(state => state.rgb.red)
-  const green_led = useHardwareState(state => state.rgb.green)
-  const blue_led = useHardwareState(state => state.rgb.blue)
-
-  return (
-    <Icon
-      icon="full-circle"
-      iconSize={60}
-      color={`rgb(${red_led},${green_led},${blue_led})`}
-    />
-  )
-}
+import { MSGID } from 'src/application/typedState'
 
 import { FolderPathSelector } from './../../../toolpaths/interface/FolderSelector'
 import { Optimiser } from './../../../toolpaths/interface/Optimiser'
@@ -82,7 +29,6 @@ import { ThreeSettingsInterface } from 'src/application/pages/toolpaths/interfac
 import { RenderInterface } from './../../../toolpaths/interface/RenderInterface'
 import { RenderableTree } from './../../../toolpaths/interface/RenderableTree'
 import { MaterialEditor } from './../../../toolpaths/interface/MaterialEditor'
-import { MSGID } from 'src/application/typedState'
 
 export const EventPalette = () => {
   return (
@@ -100,8 +46,7 @@ export const EventPalette = () => {
 
       <RenderInterface />
 
-      <QueueText />
-      <LEDQueueText />
+      {/* <Printer accessor={state => JSON.stringify(state[MSGID.MOTION])} /> */}
       <IntervalRequester
         variables={[MSGID.MOTION, MSGID.QUEUE_INFO]}
         interval={200}
