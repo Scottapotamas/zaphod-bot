@@ -8,7 +8,7 @@ import {
 } from 'zustand/middleware'
 import produce, { Draft } from 'immer'
 import { IconNames } from '@blueprintjs/icons'
-import { setSetting, useStore } from './state'
+import { incrementViewportFrameVersion, setSetting, useStore } from './state'
 import {
   GLOBAL_OVERRIDE_OBJECT_ID,
   TRANSITION_OBJECT_ID,
@@ -30,7 +30,6 @@ export type NodePath = NodeID[]
 
 export interface NodeInfo {
   type: NodeTypes
-  hidden: boolean
   parentID?: string | number
 }
 
@@ -41,11 +40,17 @@ interface SecondaryLabelProps {
 const marginRight = { marginRight: 3 }
 
 function SecondaryLabelFactory(props: SecondaryLabelProps) {
-  const thisIcon = useStore(state => {
-    const ourNode = findNodeWithID(state.treeStore.tree, props.id)
-    const hidden = ourNode?.nodeData!.hidden
+  const skippedIcon = useStore(state => {
+    const skipped = state.settings.skippedObjects[props.id]
 
-    return hidden ? IconNames.EYE_OFF : IconNames.EYE_OPEN
+    return skipped ? IconNames.CROSS : IconNames.TICK
+  })
+
+  const hiddenIcon = useStore(state => {
+    const hidden = state.visualisationSettings.hiddenObjects[props.id]
+    const skipped = state.settings.skippedObjects[props.id]
+
+    return hidden || skipped ? IconNames.EYE_OFF : IconNames.EYE_OPEN
   })
 
   const materialOverrideIcon = useStore(state => {
@@ -75,42 +80,52 @@ function SecondaryLabelFactory(props: SecondaryLabelProps) {
     return hasOverride ? IconNames.DOT : null
   })
 
-  const onClickHandler = useCallback(() => {
-    // Create our list of override keys
-    const overrideKeysToMerge: {
-      [key: string]: boolean
-    } = {}
-
-    // Update the Tree UI
+  const hideOnClickHandler = useCallback(() => {
     setSetting(state => {
-      // Find this node's state, otherwise we have a toggle with depth
-      const ourNode = findNodeWithID(state.treeStore.tree, props.id)
-      const hidden = ourNode?.nodeData!.hidden
+      const skipped = state.settings.skippedObjects[props.id]
+      const hidden = state.visualisationSettings.hiddenObjects[props.id]
 
-      if (hidden) {
+      const skippedOrHidden = skipped || hidden
+
+      if (skippedOrHidden) {
         // if this node is currently hidden, then we're about to reveal it,
         // in which case all parents must also be revealed
         forNodeAndParentsRecursive(state.treeStore.tree, props.id, node => {
-          node.nodeData!.hidden = false
-          overrideKeysToMerge[node.id] = false
+          state.visualisationSettings.hiddenObjects[node.id] = false
+          // Also un-skip if we're about to unhide
+          state.settings.skippedObjects[node.id] = false
         })
       }
 
       // Hide or show everything including this node and below
       forNodeWithIDAndChildren(state.treeStore.tree, props.id, node => {
-        node.nodeData!.hidden = !hidden
-        // Update our list of override keys
-        overrideKeysToMerge[node.id] = !hidden
+        state.visualisationSettings.hiddenObjects[node.id] = !skippedOrHidden
+
+        if (skipped) {
+          // Unskip if we were skipped
+          state.settings.skippedObjects[node.id] = false
+        }
       })
+
+      incrementViewportFrameVersion(state)
     })
+  }, [props.id])
 
-    // Update the settings
+  const skipOnClickHandler = useCallback(() => {
     setSetting(state => {
-      for (const key of Object.keys(overrideKeysToMerge)) {
-        const hidden = overrideKeysToMerge[key]
+      const skipped = state.settings.skippedObjects[props.id]
 
-        state.settings.hiddenObjects[key] = hidden
+      if (skipped) {
+        // if this node is currently skipped, then we're about to reveal it,
+        // in which case all parents must also be revealed
+        forNodeAndParentsRecursive(state.treeStore.tree, props.id, node => {
+          state.settings.skippedObjects[node.id] = false
+        })
       }
+      // Hide or show everything including this node and below
+      forNodeWithIDAndChildren(state.treeStore.tree, props.id, node => {
+        state.settings.skippedObjects[node.id] = !skipped
+      })
     })
   }, [props.id])
 
@@ -142,7 +157,19 @@ function SecondaryLabelFactory(props: SecondaryLabelProps) {
           // onClick={selectDeepestMaterialOverride}
         />
       ) : null}
-      <Icon icon={thisIcon} onClick={onClickHandler} />
+
+      {props.id === TRANSITION_OBJECT_ID ||
+      props.id === GLOBAL_OVERRIDE_OBJECT_ID ? null : (
+        <Icon
+          icon={skippedIcon}
+          onClick={skipOnClickHandler}
+          style={marginRight}
+        />
+      )}
+
+      {props.id === GLOBAL_OVERRIDE_OBJECT_ID ? null : (
+        <Icon icon={hiddenIcon} onClick={hideOnClickHandler} />
+      )}
     </>
   )
 }
@@ -160,7 +187,6 @@ export function renderablesToSceneTree(renderables: Renderable[]) {
       icon: IconNames.GLOBE,
       nodeData: {
         type: NodeTypes.GLOBAL,
-        hidden: false,
       },
     },
     {
@@ -169,7 +195,6 @@ export function renderablesToSceneTree(renderables: Renderable[]) {
       icon: IconNames.RANDOM,
       nodeData: {
         type: NodeTypes.TRANSITION,
-        hidden: false,
       },
     },
   ]
