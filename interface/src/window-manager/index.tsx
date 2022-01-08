@@ -44,11 +44,13 @@ function createMainWindow() {
       enableBlinkFeatures: 'CSSColorSchemeUARendering', // Enable dark scrollbars in dark mode
     },
     minHeight: 680,
-    minWidth: 1200,
+    minWidth: 1000,
     height: 680,
     width: 1200,
     title: 'Electric UI',
     backgroundColor: '#191b1d', // This needs to be set to something so the background on resize can be changed to match the dark / light mode theme
+    autoHideMenuBar: true,
+    titleBarStyle: 'hidden',
     show: false, // The window is shown once the transport manager is ready
     // Point at the application icon to use, on Windows use the .ico, other platforms use the png
     icon: pathJoin(
