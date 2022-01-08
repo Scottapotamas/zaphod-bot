@@ -53,7 +53,7 @@ function recalculateMovementsPerFrame() {
   const renderablesByFrame = getSetting(state => state.renderablesByFrame)
 
   setSetting(state => {
-    state.orderedMovementsByFrame = {}
+    state.unorderedMovementsByFrame = {}
 
     for (const fN of Object.keys(renderablesByFrame)) {
       const frameNumber = Number(fN)
@@ -62,7 +62,7 @@ function recalculateMovementsPerFrame() {
 
       const movements = renderablesToMovements(renderables, state.settings)
 
-      state.orderedMovementsByFrame[frameNumber] = movements
+      state.unorderedMovementsByFrame[frameNumber] = movements
     }
   })
 }

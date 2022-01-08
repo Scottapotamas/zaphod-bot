@@ -144,7 +144,7 @@ interface Store {
     [frame: number]: Renderable[]
   }
   // As the optimiser orders movements, the UI copy of the movements will be stored here
-  orderedMovementsByFrame: {
+  unorderedMovementsByFrame: {
     [frameNumber: number]: Movement[]
   }
   // Camera references
@@ -185,7 +185,7 @@ const initialState: Store = {
   movementOrdering: {},
   allRenderables: [],
   renderablesByFrame: {},
-  orderedMovementsByFrame: {},
+  unorderedMovementsByFrame: {},
 
   camera: null,
   orbitControls: null,
