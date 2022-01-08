@@ -128,6 +128,7 @@ import { GLOBAL_OVERRIDE_OBJECT_ID } from '../optimiser/movements'
 import { importMaterial } from '../optimiser/material'
 import { useDeviceID } from '@electricui/components-core'
 import { MSGID } from 'src/application/typedState'
+import { getOrderedMovementsForFrame } from './ToolpathVisualisation'
 
 async function getToolpathForCurrentFrame() {
   const viewportFrame = getSetting(state => state.viewportFrame)
@@ -135,13 +136,9 @@ async function getToolpathForCurrentFrame() {
   if (!persistentOptimiser) return null
 
   await persistentOptimiser.waitUntilFrameReady(viewportFrame)
-  const orderedMovements = getSetting(
-    state => state.orderedMovementsByFrame[viewportFrame],
-  )
+  const orderedMovements = getOrderedMovementsForFrame(viewportFrame)
   const settings = getSetting(state => state.settings)
   const visualisationSettings = getSetting(state => state.visualisationSettings)
-
-  if (!orderedMovements) return null
 
   const dense = sparseToDense(orderedMovements, settings)
   const globalMaterialOverride = visualisationSettings.objectMaterialOverrides[

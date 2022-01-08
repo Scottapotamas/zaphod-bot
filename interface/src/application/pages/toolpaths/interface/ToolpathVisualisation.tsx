@@ -78,9 +78,9 @@ function convertToThreeCoordinateSystem(
   return [vector[0], vector[2], -vector[1]]
 }
 
-function reorderMovementsForFrame(frameNumber: number): Movement[] {
+export function getOrderedMovementsForFrame(frameNumber: number): Movement[] {
   const orderedMovementsByFrame = getSetting(
-    state => state.orderedMovementsByFrame,
+    state => state.unorderedMovementsByFrame,
   )
   const movementOrdering = getSetting(state => state.movementOrdering)
 
@@ -217,7 +217,7 @@ export function ToolpathMovements() {
         lines.colors = []
         transitions.colors = []
 
-        const orderedMovements = reorderMovementsForFrame(
+        const orderedMovements = getOrderedMovementsForFrame(
           getSetting(state => state.viewportFrame),
         )
         const settings = getSetting(state => state.settings)
