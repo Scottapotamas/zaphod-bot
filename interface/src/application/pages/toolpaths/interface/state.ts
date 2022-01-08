@@ -19,7 +19,7 @@ import { ObjectNameTree } from '../optimiser/files'
 import { WritableDraft } from 'immer/dist/internal'
 import { TreeNodeInfo } from '@blueprintjs/core'
 import { NodeID, NodeInfo } from './RenderableTree'
-import type { ToolpathGenerator } from './../optimiser/main'
+import type { FRAME_STATE, ToolpathGenerator } from './../optimiser/main'
 
 const defaultSettings: Settings = {
   objectSettings: {
@@ -147,6 +147,15 @@ interface Store {
   unorderedMovementsByFrame: {
     [frameNumber: number]: Movement[]
   }
+  // The current estimated duration of each frame, in milliseconds
+  estimatedDurationByFrame: {
+    [frameNumber: number]: number
+  }
+  // The state of the optimisation of each frame,
+  frameOptimisationState: {
+    [frameNumber: number]: FRAME_STATE
+  }
+
   // Camera references
   camera: PerspectiveCameraImpl | null
   orbitControls: OrbitControlsImpl | null
@@ -186,6 +195,8 @@ const initialState: Store = {
   allRenderables: [],
   renderablesByFrame: {},
   unorderedMovementsByFrame: {},
+  estimatedDurationByFrame: {},
+  frameOptimisationState: {},
 
   camera: null,
   orbitControls: null,
@@ -236,4 +247,16 @@ export function incrementViewportFrameVersion(state: WritableDraft<Store>) {
   if (state.viewportFrameVersion === 255) {
     state.viewportFrameVersion = 0
   }
+}
+
+export function useViewportFrameDuration() {
+  return useSetting(
+    state => state.estimatedDurationByFrame[state.viewportFrame] ?? 0,
+  )
+}
+
+export function useViewportFrameState() {
+  return useSetting(
+    state => state.frameOptimisationState[state.viewportFrame] ?? 2,
+  ) // UNOPTIMISED = 2, avoiding circular dependency
 }
