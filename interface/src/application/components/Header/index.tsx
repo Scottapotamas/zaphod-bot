@@ -22,6 +22,8 @@ import { SettingsPage } from './SettingsPage'
 import { TemperatureTag } from './SummaryTags/TemperatureTag'
 import { CPUTag } from './SummaryTags/CPUTag'
 import { FanTag } from './SummaryTags/FanTag'
+import { LEDQueueText, QueueText } from './SummaryTags/QueueTag'
+
 import { MSGID } from 'src/application/typedState'
 
 interface InjectDeviceIDFromLocation {
@@ -97,6 +99,8 @@ export const Header = (
             <Areas.Right>
               <Composition templateCols="auto auto auto auto" gap={10}>
                 <CPUTag />
+                <QueueText/>
+                <LEDQueueText/>
                 <TemperatureTag />
                 <FanTag />
               </Composition>
