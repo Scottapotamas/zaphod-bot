@@ -68,7 +68,6 @@ export class GPencil {
       icon: IconNames.DRAW,
       nodeData: {
         type: NodeTypes.GPENCIL,
-        hidden: false,
       },
       childNodes: this.layers.map(layer => ({
         id: `${this.name}-${layer.info}`,

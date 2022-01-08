@@ -57,7 +57,6 @@ export class Particles {
       icon: IconNames.LAYOUT_SKEW_GRID,
       nodeData: {
         type: NodeTypes.PARTICLES,
-        hidden: false,
       },
       childNodes: this.systems.map(system => ({
         id: `${this.name}-${system.name}`,
@@ -65,7 +64,6 @@ export class Particles {
         icon: IconNames.LAYOUT_GROUP_BY,
         nodeData: {
           type: NodeTypes.PARTICLE_SYSTEM,
-          hidden: false,
         },
       })),
     }

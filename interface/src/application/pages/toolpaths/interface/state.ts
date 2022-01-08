@@ -24,7 +24,7 @@ import type { FRAME_STATE, ToolpathGenerator } from './../optimiser/main'
 const defaultSettings: Settings = {
   objectSettings: {
     gpencil: {
-      breakUpStrokes: true,
+      breakUpStrokes: false,
     },
     particles: {
       drawInVelocityOrientation: false,
