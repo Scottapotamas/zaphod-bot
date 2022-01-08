@@ -74,7 +74,7 @@ export function FolderPathSelector() {
 
   return (
     <FormGroup helperText={error} intent={error === '' ? 'none' : 'danger'}>
-      <div className="bp3-file-input .modifier" onClick={retrieveFilePath}>
+      <div className="bp3-file-input bp3-fill .modifier" onClick={retrieveFilePath}>
         <input type="file" />
         <span
           className={classnames({
