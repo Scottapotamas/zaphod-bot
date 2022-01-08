@@ -1,21 +1,8 @@
-//
-
-import { importJson, MovementJSON } from './import'
-import { Movement } from './movements'
-import {
-  Continue,
-  flattenDense,
-  getTotalDuration,
-  optimise,
-  OrderingCache,
-  Progress,
-  sparseToDense,
-} from './passes'
+import { MovementJSON } from './import'
+import { OrderingCache, Progress } from './passes'
 import { Settings } from './settings'
-import { spawn, Thread, Pool, Worker, ModuleThread } from 'threads'
+import { spawn, Pool, Worker, ModuleThread } from 'threads'
 import type { OptimisationWorker } from './workers/worker'
-import { toolpath, Toolpath } from './toolpath'
-import { renderablesToMovements } from '../interface/Optimiser'
 
 export enum FRAME_STATE {
   OPTIMISING_PARTIALLY = 0,

@@ -602,35 +602,8 @@ export class Transition extends Movement {
   }
 
   public getDuration = () => {
-    const defaultTotalDuration = this.getLength() / this.maxSpeed
-    const defaultSegmentTime = defaultTotalDuration / this.numSegments
-
-    let calculatedMaxSpeed = 0
-
-    // Calculate the maximum speed along each segment of the curve
-    for (let index = 0; index < this.numSegments; index++) {
-      const startT = index / this.numSegments
-      const endT = (index + 1) / this.numSegments
-
-      // Sample points along the movement
-      const start = this.samplePoint(startT)
-      const end = this.samplePoint(endT)
-
-      const distance = start.distanceTo(end)
-      const speed = distance / defaultSegmentTime
-
-      calculatedMaxSpeed = Math.max(calculatedMaxSpeed, speed)
-    }
-
-    const scaleFactor = calculatedMaxSpeed / this.maxSpeed
-
-    // Find the factor by which this differs from the maxSpeed intended
-
-    // Scale the duration by this factor so the fastest segment is taken at the max speed
-
-    //
     return Math.ceil(
-      (this.getLength() / this.maxSpeed) * scaleFactor * MILLISECONDS_IN_SECOND,
+      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
     )
   }
 
@@ -838,33 +811,8 @@ export class PointTransition extends Movement {
   }
 
   public getDuration = () => {
-    const defaultTotalDuration = this.getLength() / this.maxSpeed
-    const defaultSegmentTime = defaultTotalDuration / this.numSegments
-
-    let calculatedMaxSpeed = 0
-
-    // Calculate the maximum speed along each segment of the curve
-    for (let index = 0; index < this.numSegments; index++) {
-      const startT = index / this.numSegments
-      const endT = (index + 1) / this.numSegments
-
-      // Sample points along the movement
-      const start = this.samplePoint(startT)
-      const end = this.samplePoint(endT)
-
-      const distance = start.distanceTo(end)
-      const speed = distance / defaultSegmentTime
-
-      calculatedMaxSpeed = Math.max(calculatedMaxSpeed, speed)
-    }
-
-    const scaleFactor = calculatedMaxSpeed / this.maxSpeed
-
-    // Find the factor by which this differs from the maxSpeed intended
-
-    // Scale the duration by this factor so the fastest segment is taken at the max speed
     return Math.ceil(
-      (this.getLength() / this.maxSpeed) * scaleFactor * MILLISECONDS_IN_SECOND,
+      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
     )
   }
 

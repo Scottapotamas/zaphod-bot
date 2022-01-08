@@ -145,6 +145,7 @@ async function getToolpathForCurrentFrame() {
   const visualisationSettings = getSetting(state => state.visualisationSettings)
 
   const dense = sparseToDense(orderedMovements, settings)
+
   const globalMaterialOverride = visualisationSettings.objectMaterialOverrides[
     GLOBAL_OVERRIDE_OBJECT_ID
   ]

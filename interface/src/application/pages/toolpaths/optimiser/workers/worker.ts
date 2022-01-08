@@ -5,7 +5,6 @@ import { importJson, MovementJSON } from '../import'
 import { Movement } from '../movements'
 import {
   Continue,
-  flattenDense,
   getTotalDuration,
   optimise,
   OrderingCache,
@@ -40,8 +39,7 @@ export async function optimiseFrameBag(
   } = await optimise(movements, settings, updateProgress, orderingCache)
 
   const dense = sparseToDense(orderedMovements, settings)
-  const flattened = flattenDense(dense)
-  const duration = getTotalDuration(flattened)
+  const duration = getTotalDuration(dense)
 
   return {
     duration,

@@ -1,7 +1,6 @@
 import {
   declareDense,
   DenseMovements,
-  isMovementGroup,
   isPoint,
   Movement,
   Point,
@@ -125,13 +124,14 @@ export function sparseToDense(
   // Add the movement to the dense bag
   denseMovements.push(lastMovement)
 
-  return denseMovements
+  // Flattened the movements
+  return flattenDense(denseMovements)
 }
 
 /**
  * Flatten any `OrderedMovements` groups into simple movements.
  */
-export function flattenDense(denseBag: DenseMovements): DenseMovements {
+function flattenDense(denseBag: DenseMovements): DenseMovements {
   let denseFlatList: DenseMovements = declareDense([])
 
   for (let index = 0; index < denseBag.length; index++) {
@@ -176,9 +176,8 @@ export function sparseToCost(
   settings: Settings,
 ): number {
   const dense = sparseToDense(sparseBag, settings)
-  const flattened = flattenDense(dense)
 
-  return getTotalCost(flattened)
+  return getTotalCost(dense)
 }
 
 function swap(array: any[], a: number, b: number) {
@@ -411,7 +410,7 @@ export async function optimise(
     improved = false
     iteration++
 
-    const currentDense = flattenDense(sparseToDense(ordering, settings))
+    const currentDense = sparseToDense(ordering, settings)
     const curentDuration = getTotalDuration(currentDense)
 
     const shouldContinue = await updateProgress({
@@ -465,7 +464,7 @@ export async function optimise(
     }
   }
 
-  const currentDense = flattenDense(sparseToDense(ordering, settings))
+  const currentDense = sparseToDense(ordering, settings)
   const curentDuration = getTotalDuration(currentDense)
 
   // Final status update
