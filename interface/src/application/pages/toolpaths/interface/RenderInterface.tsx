@@ -66,7 +66,7 @@ function SceneLengthSlider() {
         max={sceneMaxFrame}
         onRelease={updateMinCurrentMax}
         onChange={setLocalMinMax}
-        stepSize={2}
+        stepSize={1}
       >
         <MultiSlider.Handle
           type="start"
@@ -377,7 +377,7 @@ export const RenderInterface = () => {
   const numFrames = useStore(state => state.sceneTotalFrames)
 
   return (
-    <Card>
+    <div>
       <FormGroup label="Frame Limits">
         {/* Re-render on total number of frames change */}
         {numFrames < 1 ? (
@@ -394,6 +394,6 @@ export const RenderInterface = () => {
       <CurrentFrameTime />
 
       <SendToolpathToDeviceIfExists />
-    </Card>
+    </div>
   )
 }

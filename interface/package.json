@@ -24,6 +24,7 @@
   "dependencies": {
     "@electricui/helpers": "0.9.1-1fb9ce2d",
     "source-map-support": "0.5.16",
+    "three-stdlib": "^2.6.4",
     "usb": "1.7.1"
   },
   "dependenciesMeta": {

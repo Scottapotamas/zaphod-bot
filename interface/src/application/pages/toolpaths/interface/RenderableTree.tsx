@@ -457,7 +457,6 @@ export function RenderableTree() {
   )
 
   return (
-    <Card>
       <Tree
         contents={tree}
         onNodeClick={handleNodeClick}
@@ -466,6 +465,5 @@ export function RenderableTree() {
         onNodeMouseEnter={handleNodeMouseEnter}
         onNodeMouseLeave={onNodeMouseLeave}
       />
-    </Card>
   )
 }
