@@ -35,7 +35,7 @@ const defaultSettings: Settings = {
   // Do object level overrides here. Particle subsystems can be `object -> subsystem name`
   objectOverrides: {},
 
-  hiddenObjects: {},
+  skippedObjects: {},
 
   optimisation: {
     maxSpeed: 100,
@@ -60,6 +60,11 @@ export interface VisualisationSettings {
   // Transition materials are overriden with the 'transition' key
   objectMaterialOverrides: {
     [objectID: string]: MaterialJSON
+  }
+
+  // Objects that are rendered, but hidden from view
+  hiddenObjects: {
+    [objectID: string]: boolean
   }
 }
 
@@ -179,6 +184,7 @@ const initialState: Store = {
     annotateDrawOrder: false,
     objectMaterialOverrides: {},
     curveSegments: 20, // 20 segments per curve by default
+    hiddenObjects: {},
   },
 
   treeStore: {
