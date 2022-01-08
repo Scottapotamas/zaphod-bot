@@ -46,11 +46,10 @@ export const EventPalette = () => {
 
       <Composition gap={10}>
         <Collapse isOpen={settingsExpanded}>
-          <Composition templateCols="1fr 2fr" gap={10}>
+          <Composition templateCols="1fr 1fr" gap={10}>
             <Card>
               <PlannerSettingsInterface />
             </Card>
-
             <Card>
               <RenderableTree />
               <MaterialEditor />
@@ -78,10 +77,7 @@ export const EventPalette = () => {
         </Card>
 
         <Optimiser />
-
-
       </Composition>
-
 
       {/* <ThreeSettingsInterface /> */}
 
