@@ -49,7 +49,7 @@ const MainWindow = (props: RouteComponentProps) => {
 
       <Composition
         areas={layoutDescription}
-        templateCols="minmax(300px, max-content) auto minmax(300px, max-content)"
+        templateCols="minmax(300px, 30vw) auto minmax(300px, max-content)"
         gap={10}
         justifyContent="space-between"
         alignContent="space-between"
@@ -58,13 +58,13 @@ const MainWindow = (props: RouteComponentProps) => {
         {Areas => (
           <React.Fragment>
             <Areas.Sidebar>
-              <Composition gapRow={30} templateCols="auto">
+              <Composition gapRow={30} templateCols="minmax(250px, 450px)">
                 <RobotSummary />
+                <ModeSelection />
                 <Composition gap={10} templateCols="1fr 1fr">
                   <ArmControlButton />
                   <HomeButton />
                 </Composition>
-                <ModeSelection />
               </Composition>
             </Areas.Sidebar>
 
