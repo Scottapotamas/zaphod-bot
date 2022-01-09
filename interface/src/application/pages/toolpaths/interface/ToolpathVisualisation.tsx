@@ -244,6 +244,13 @@ export function ToolpathMovements() {
             continue
           }
 
+          const duration = movement.getDuration()
+
+          // Don't show zero duration moves
+          if (duration === 0) {
+            continue
+          }
+
           let material: Material = movement.material
 
           const movementMaterialOverride =
