@@ -19,6 +19,8 @@ export enum NodeTypes {
   TRANSITION = 'transition',
   CAMERA = 'camera',
   CAMERA_ALIGNMENT = 'camera-alignment',
+  CAMERA_RULER = 'camera-ruler',
+  CAMERA_COLOR_LINES = 'camera-color-lines',
   GPENCIL = 'gpencil',
   GPENCIL_LAYER = 'gpencil-layer',
   PARTICLES = 'particles',

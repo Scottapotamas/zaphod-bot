@@ -101,7 +101,7 @@ function AnnotateOrderingToggle() {
     setEnabled(enabled => !enabled)
 
     setSetting(state => {
-      state.visualisationSettings.annotateDrawOrder = enabled
+      state.visualisationSettings.annotateDrawOrder = !enabled
       incrementViewportFrameVersion(state)
     })
   }, [])

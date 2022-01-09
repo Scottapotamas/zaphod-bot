@@ -1,4 +1,11 @@
-import { Color, PerspectiveCamera, Vector3, Quaternion, Euler } from 'three'
+import {
+  Color,
+  PerspectiveCamera,
+  Vector3,
+  Quaternion,
+  Euler,
+  MathUtils,
+} from 'three'
 import { NodeInfo, NodeTypes } from '../interface/RenderableTree'
 import { TreeNodeInfo } from '@blueprintjs/core'
 import { ObjectNameTree } from './files'
@@ -7,10 +14,15 @@ import { importMaterial, MaterialJSON } from './material'
 import { Point, Line, Movement, MovementGroup } from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
 import { IconNames } from '@blueprintjs/icons'
+import { SimpleColorMaterial } from './materials/Color'
 
 export interface CameraToMovementsSettings {
   // Whether to draw alignment helpers in real space
   drawAlignmentHelpers?: boolean
+  // Enable rulers for debugging
+  drawRulers?: boolean
+  // Enable coloured lines for debugging
+  drawCalibrationChart?: boolean
 }
 
 const euler = new Euler(0, 0, 0, 'XYZ')
@@ -46,6 +58,22 @@ export class Camera {
             type: NodeTypes.CAMERA_ALIGNMENT,
           },
         },
+        {
+          id: `${this.name}-ruler`,
+          label: 'Ruler',
+          icon: IconNames.MAXIMIZE,
+          nodeData: {
+            type: NodeTypes.CAMERA_RULER,
+          },
+        },
+        {
+          id: `${this.name}-color-lines`,
+          label: 'Ruler',
+          icon: IconNames.TIMELINE_BAR_CHART,
+          nodeData: {
+            type: NodeTypes.CAMERA_COLOR_LINES,
+          },
+        },
       ],
     }
 
@@ -55,7 +83,189 @@ export class Camera {
   public toMovements = (settings: Settings) => {
     const movements: Movement[] = []
 
-    // TODO: Create the alignment helper, if it's skipped, skip it
+    if (settings.objectSettings.camera.drawRulers) {
+      const grey = new SimpleColorMaterial([0.4, 0.4, 0.4])
+      const objectID = `${this.name}-ruler`
+
+      // Horizontal line
+      movements.push(
+        new Line(
+          new Vector3(0, 0, 100),
+          new Vector3(100, 0, 100),
+          grey,
+          objectID,
+        ),
+      )
+
+      // Vertical lines
+      for (let index = 0; index <= 10; index++) {
+        movements.push(
+          new Line(
+            new Vector3(index * 10, 0, 100),
+            new Vector3(index * 10, 0, index % 5 === 0 ? 120 : 110),
+            grey,
+            objectID,
+          ),
+        )
+      }
+    }
+
+    if (settings.objectSettings.camera.drawAlignmentHelpers) {
+      const grey = new SimpleColorMaterial([0.4, 0.4, 0.4])
+      const objectID = `${this.name}-alignment`
+
+      // A line toward camera
+
+      const directionOfCamera = new Vector3(
+        this.position[0],
+        this.position[1],
+        this.position[2],
+      ).normalize()
+
+      const center = new Vector3(0, 0, 100)
+
+      // A 50mm line from 100mm up (the center of the draw volume) aimed directly at the camera
+      movements.push(
+        new Line(
+          center.clone().add(directionOfCamera.clone().multiplyScalar(10)),
+          center.clone().add(directionOfCamera.clone().multiplyScalar(60)),
+          grey,
+          objectID,
+        ),
+      )
+    }
+
+    if (settings.objectSettings.camera.drawCalibrationChart) {
+      const objectID = `${this.name}-color-lines`
+
+      // Left side, 20 linear gradations of black to white
+      for (let index = 0; index <= 20; index++) {
+        movements.push(
+          new Line(
+            new Vector3(-50, 0, index * 5 + 50),
+            new Vector3(-40, 0, index * 5 + 50),
+            new SimpleColorMaterial([index / 10, index / 10, index / 10]),
+            objectID,
+          ),
+        )
+      }
+
+      // Left side, 20 linear gradations of black to red
+      for (let index = 0; index <= 20; index++) {
+        movements.push(
+          new Line(
+            new Vector3(-30, 0, index * 5 + 50),
+            new Vector3(-20, 0, index * 5 + 50),
+            new SimpleColorMaterial([index / 10, 0, 0]),
+            objectID,
+          ),
+        )
+      }
+
+      // Left side, 20 linear gradations of black to green
+      for (let index = 0; index <= 20; index++) {
+        movements.push(
+          new Line(
+            new Vector3(-10, 0, index * 5 + 50),
+            new Vector3(0, 0, index * 5 + 50),
+            new SimpleColorMaterial([0, index / 10, 0]),
+            objectID,
+          ),
+        )
+      }
+
+      // Left side, 20 linear gradations of black to blue
+      for (let index = 0; index <= 20; index++) {
+        movements.push(
+          new Line(
+            new Vector3(10, 0, index * 5 + 50),
+            new Vector3(20, 0, index * 5 + 50),
+            new SimpleColorMaterial([0, 0, index / 10]),
+            objectID,
+          ),
+        )
+      }
+
+      // A point with two lines pointing at it in the bottom right
+      movements.push(
+        new Line(
+          new Vector3(30, 0, 70),
+          new Vector3(40, 0, 70),
+          new SimpleColorMaterial([0.5, 0.5, 0.5]),
+          objectID,
+        ),
+      )
+
+      movements.push(
+        new Point(
+          new Vector3(50, 0, 70),
+          settings.objectSettings.light.stopDelay ?? 25,
+          new SimpleColorMaterial([0.5, 0.5, 0.5]),
+          objectID,
+        ),
+      )
+
+      movements.push(
+        new Line(
+          new Vector3(50, 0, 50),
+          new Vector3(50, 0, 60),
+          new SimpleColorMaterial([0.5, 0.5, 0.5]),
+          objectID,
+        ),
+      )
+
+      // A series of angles
+
+      let i = 0
+      for (const iterator of [0, 11.25, 22.5, 45, 90]) {
+        const angle = new Euler(0, MathUtils.degToRad(-iterator), 0)
+
+        const delta = new Vector3(1, 0, 0).applyEuler(angle).multiplyScalar(10)
+
+        movements.push(
+          // 0 degrees
+          new Line(
+            new Vector3(30, 0, 80 + i * 5),
+            new Vector3(40, 0, 80 + i * 5),
+            new SimpleColorMaterial([1, 1, 0]),
+            objectID,
+          ),
+          // 90
+          new Line(
+            new Vector3(40, 0, 80 + i * 5),
+            new Vector3(40, 0, 80 + i * 5).add(delta),
+            new SimpleColorMaterial([1, 0, 1]),
+            objectID,
+          ),
+        )
+        i++
+      }
+
+      i = 0
+      for (const iterator of [0, 11.25, 22.5, 33.75, 45]) {
+        const angle = new Euler(0, MathUtils.degToRad(-iterator - 135), 0)
+
+        const delta = new Vector3(1, 0, 0).applyEuler(angle).multiplyScalar(10)
+
+        movements.push(
+          // 0 degrees
+          new Line(
+            new Vector3(30, 0, 110 + i * 10),
+            new Vector3(40, 0, 110 + i * 10),
+            new SimpleColorMaterial([1, 1, 0]),
+            objectID,
+          ),
+          // 90
+          new Line(
+            new Vector3(40, 0, 110 + i * 10),
+            new Vector3(40, 0, 110 + i * 10).add(delta),
+            new SimpleColorMaterial([1, 0, 1]),
+            objectID,
+          ),
+        )
+        i++
+      }
+    }
 
     return movements
   }
@@ -66,14 +276,14 @@ export class Camera {
 
     // Do the blender -> threejs transform
     camera.position.set(this.position[0], this.position[2], -this.position[1])
+
     euler.set(this.rotation[0], this.rotation[2], this.rotation[1], 'XYZ')
 
     camera.quaternion.setFromEuler(euler)
 
     const quaternionTransform = new Quaternion()
 
-    // No idea what this transform should be...
-    quaternionTransform.setFromEuler(new Euler(0, (Math.PI * 8.4) / 4, 0))
+    quaternionTransform.setFromEuler(new Euler(0, 0, Math.PI / 2))
 
     camera.quaternion.multiply(quaternionTransform)
 
