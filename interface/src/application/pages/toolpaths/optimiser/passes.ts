@@ -1,7 +1,10 @@
 import {
   declareDense,
   DenseMovements,
+  InterLineTransition,
+  isLine,
   isPoint,
+  Line,
   Movement,
   Point,
   PointTransition,
@@ -11,8 +14,9 @@ import {
 } from './movements'
 
 import { Settings } from './settings'
-import { Vector3 } from 'three'
+import { MathUtils, Vector3 } from 'three'
 import { defaultTransitionMaterial } from './material'
+import { MixMaterial } from './materials/MixMaterial'
 
 /**
  * Flatten any grouped movements into simple movements
@@ -61,6 +65,9 @@ export function sparseToDense(
   for (let index = 0; index < flattened.length; index++) {
     const movement = flattened[index]
 
+    // Reset line lengths, etc
+    movement.resetOptimisationState()
+
     // Set the max speed of the movement so velocities are scaled
     movement.setMaxSpeed(settings.optimisation.maxSpeed)
 
@@ -90,6 +97,52 @@ export function sparseToDense(
 
       // Add the transition to the dense bag
       denseMovements.push(transition)
+
+      // Add the movement to the dense bag
+      denseMovements.push(movement)
+
+      // Update the last movement
+      previousMovement = movement
+      continue
+    }
+
+    // If the last movement and this movement are both lines, and their end and start points match up
+    // And their velocity angles aren't too dissimilar, reduce the length of the lines and do a transition inline
+    if (
+      isLine(previousMovement) &&
+      isLine(movement) &&
+      previousMovement.getEnd().distanceToSquared(movement.getStart()) < 1 &&
+      previousMovement
+        .getExpectedExitVelocity()
+        .clone()
+        .normalize()
+        .angleTo(movement.getDesiredEntryVelocity().clone().normalize()) <
+        MathUtils.degToRad(settings.optimisation.interLineTransitionAngle)
+    ) {
+      // Shrink the end of the previousLine
+      // Shrink the start of the current line
+
+      const previousLine = previousMovement as Line
+      const currentLine = movement as Line
+
+      previousLine.shrinkEndByDistance(
+        settings.optimisation.interLineTransitionShaveDistance,
+      )
+      currentLine.shrinkStartByDistance(
+        settings.optimisation.interLineTransitionShaveDistance,
+      )
+
+      const interLineTransition = new InterLineTransition(
+        previousMovement,
+        movement,
+        movement.objectID, // Take the object ID of this movement, they're probably the same.
+        new MixMaterial(previousMovement, movement),
+      )
+
+      interLineTransition.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
+
+      // Add the transition to the dense bag
+      denseMovements.push(interLineTransition)
 
       // Add the movement to the dense bag
       denseMovements.push(movement)

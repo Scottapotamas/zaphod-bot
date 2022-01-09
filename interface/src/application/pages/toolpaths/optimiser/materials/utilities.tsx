@@ -11,6 +11,7 @@ export enum MATERIALS {
   COLOR = 'color',
   COLOR_RAMP = 'color-ramp',
   VELOCITY = 'velocity',
+  MIX = 'mix',
   INVISIBLE = 'invisible',
 }
 
