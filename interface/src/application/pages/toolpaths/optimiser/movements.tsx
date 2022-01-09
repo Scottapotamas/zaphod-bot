@@ -17,7 +17,8 @@ export enum MOVEMENT_TYPE {
   LINE = 'line',
   POINT = 'point',
   TRANSITION = 'transition',
-  POINT_TRANSITION = 'transition',
+  POINT_TRANSITION = 'point-transition',
+  INTER_LINE_TRANSITION = 'inter-line-transition',
   TRANSIT = 'transit',
 }
 
@@ -107,6 +108,11 @@ export abstract class Movement {
    * Get the approximate centroid of the movement
    */
   abstract getApproximateCentroid: () => Vector3
+
+  /**
+   * Reset any optimisation specific state, such as fudging line lengths to fit transitions in the gaps
+   */
+  abstract resetOptimisationState: () => void
 
   /**
    * Every movement needs a material to generate the light moves, and generate the ThreeJS representation
@@ -270,6 +276,10 @@ export class MovementGroup extends Movement {
       'samplePoint called on MovementGroup, the movement bag should have been flattened',
     )
   }
+
+  public resetOptimisationState = () => {
+    // noop
+  }
 }
 
 export function isLine(movement: Movement): movement is Line {
@@ -283,6 +293,9 @@ export class Line extends Movement {
   readonly type = MOVEMENT_TYPE.LINE
   // Maximum speed in millimeters per second
   maxSpeed: number = defaultSpeed
+
+  private shrinkStartFactor = 0
+  private shrinkEndFactor = 0
 
   constructor(
     public from: Vector3,
@@ -307,7 +320,7 @@ export class Line extends Movement {
   }
 
   public getLength: () => number = () => {
-    return this.from.distanceTo(this.to)
+    return this.getStart().distanceTo(this.getEnd())
   }
 
   public getCost: () => number = () => {
@@ -324,12 +337,48 @@ export class Line extends Movement {
     )
   }
 
+  private getDirection = () => {
+    const direction = this.to.clone().sub(this.from).normalize()
+
+    return direction
+  }
+
   public getStart = () => {
+    if (this.shrinkStartFactor) {
+      const length = this.from.distanceTo(this.to)
+      return this.getDirection()
+        .multiplyScalar(length * this.shrinkStartFactor)
+        .add(this.from)
+    }
+
     return this.from
   }
 
   public getEnd = () => {
+    if (this.shrinkEndFactor) {
+      const length = this.from.distanceTo(this.to)
+      return this.getDirection()
+        .multiplyScalar(length * (1 - this.shrinkEndFactor))
+        .add(this.from)
+    }
+
     return this.to
+  }
+
+  // Shrink the start by an amount in millimeters
+  public shrinkStartByDistance = (distance: number) => {
+    const length = this.from.distanceTo(this.to)
+    const shinkFactor = Math.min(distance, length) / length
+
+    this.shrinkStartFactor = shinkFactor
+  }
+
+  // Shrink the end by an amount in millimeters
+  public shrinkEndByDistance = (distance: number) => {
+    const length = this.from.distanceTo(this.to)
+    const shinkFactor = Math.min(distance, length) / length
+
+    this.shrinkEndFactor = shinkFactor
   }
 
   public getDesiredEntryVelocity = () => {
@@ -371,6 +420,12 @@ export class Line extends Movement {
     const direction = this.getEnd().clone().sub(this.getStart()).normalize()
 
     return direction.multiplyScalar(length * t).add(start)
+  }
+
+  public resetOptimisationState = () => {
+    // line distance should be 100%
+    this.shrinkStartFactor = 0
+    this.shrinkEndFactor = 0
   }
 }
 
@@ -495,6 +550,10 @@ export class Point extends Movement {
     // Points are always just points, even if we fudge it a bit in the movement
     return this.pos
   }
+
+  public resetOptimisationState = () => {
+    // noop
+  }
 }
 
 export function isTransition(movement: Movement): movement is Transition {
@@ -563,6 +622,9 @@ export class Transition extends Movement {
     const temp = this.to
     this.to = this.from
     this.from = temp
+
+    // Reset the curve
+    this.curve = null
 
     // TODO: Flip the material
   }
@@ -665,6 +727,10 @@ export class Transition extends Movement {
     const curve = this.lazyGenerateCurve()
 
     return curve.getPoint(t)
+  }
+
+  public resetOptimisationState = () => {
+    // noop
   }
 }
 
@@ -790,6 +856,8 @@ export class PointTransition extends Movement {
     this.pointTo = this.pointFrom
     this.pointFrom = temp2
 
+    // Reset the curve
+    this.curve = null
     // TODO: Flip the material
   }
 
@@ -864,6 +932,167 @@ export class PointTransition extends Movement {
       this.pointTo.getStart(),
       this.postPointMovement.getStart(),
     ])
+  }
+
+  public resetOptimisationState = () => {
+    // noop
+  }
+}
+
+export function isInterLineTransition(
+  movement: Movement,
+): movement is InterLineTransition {
+  return movement.type === MOVEMENT_TYPE.INTER_LINE_TRANSITION
+}
+
+// const transitionCurveCache = new LRUCache<string, number>({
+//   maxSize: 1000, // store 1000 lengths by default
+// });
+
+// function transitionKeygen(a: Vector3, b: Vector3, c: Vector3, d: Vector3) {
+//   return `${a.x},${a.y},${a.z}-${b.x},${b.y},${b.z}-${c.x},${c.y},${c.z}-${d.x},${d.y},${d.z}`;
+// }
+
+// let cacheHits = 0;
+
+/**
+ * A transition is a move from one Movement to another.
+ *
+ * It's probably going to be a Cubic Bezier, with the velocity components used as control points.
+ */
+export class InterLineTransition extends Movement {
+  readonly type = MOVEMENT_TYPE.INTER_LINE_TRANSITION
+  maxSpeed: number = defaultSpeed // mm/s
+  private numSegments = 20
+
+  constructor(
+    public from: Line,
+    public to: Line,
+    public objectID: string, // Takes the ObjectID of the first line
+    public material: Material,
+  ) {
+    super()
+  }
+
+  private curve: CubicBezierCurve3 | null = null
+
+  private lazyGenerateCurve = () => {
+    if (this.curve) return this.curve
+
+    /**
+     * v0 – The starting point.
+     * v1 – The first control point.
+     * v2 – The second control point.
+     * v3 – The ending point.
+     */
+    this.curve = new CubicBezierCurve3(
+      this.from.getEnd(),
+      this.from.to,
+      this.to.from,
+      this.to.getStart(),
+    )
+
+    this.curve.arcLengthDivisions = 20 // divide into 20 segments for length calculations
+
+    return this.curve
+  }
+
+  // Swap the ordering of this transition movement
+  public flip = () => {
+    const temp = this.to
+    this.to = this.from
+    this.from = temp
+
+    // TODO: Flip the material
+  }
+
+  public flatten = () => {
+    return [this]
+  }
+
+  public getCost = () => {
+    return this.getLength()
+  }
+
+  public getLength = () => {
+    // // Check if we have a cached length first since this is expensive.
+    // const key = transitionKeygen(
+    //   this.getStart(),
+    //   this.getEnd(),
+    //   this.getDesiredEntryVelocity(),
+    //   this.getExpectedExitVelocity()
+    // );
+
+    // const cached = transitionCurveCache.get(key);
+
+    // if (cached) return cached;
+
+    // Otherwise generate the curve, get the length
+    const curve = this.lazyGenerateCurve()
+
+    const length = curve.getLength()
+
+    // transitionCurveCache.set(key, length);
+
+    return length
+  }
+
+  public setMaxSpeed = (maxSpeed: number) => {
+    this.maxSpeed = maxSpeed
+  }
+
+  public getDuration = () => {
+    return Math.ceil(
+      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
+    )
+  }
+
+  public getStart = () => {
+    return this.from.getEnd()
+  }
+
+  public getEnd = () => {
+    return this.to.getStart()
+  }
+
+  public getDesiredEntryVelocity = () => {
+    return this.from.getExpectedExitVelocity()
+  }
+
+  public getExpectedExitVelocity = () => {
+    return this.to.getDesiredEntryVelocity()
+  }
+
+  public generateToolpath = (id: number) => {
+    const move: MovementMove = {
+      id,
+      duration: this.getDuration(),
+      type: MovementMoveType.BEZIER_CUBIC, // Despite being a point, draw a line
+      reference: MovementMoveReference.ABSOLUTE,
+      points: [
+        this.from.getEnd().toArray(),
+        this.from.to.toArray(),
+        this.to.from.toArray(),
+        this.to.getStart().toArray(),
+      ],
+      num_points: 4,
+    }
+
+    return [move]
+  }
+
+  public getApproximateCentroid = () => {
+    return getCentroid([this.getStart(), this.getEnd()])
+  }
+
+  public samplePoint = (t: number) => {
+    const curve = this.lazyGenerateCurve()
+
+    return curve.getPoint(t)
+  }
+
+  public resetOptimisationState = () => {
+    // noop
   }
 }
 
@@ -957,5 +1186,9 @@ export class Transit extends Movement {
   public samplePoint = (t: number) => {
     // Transits exist at their endpoint
     return this.endPoint
+  }
+
+  public resetOptimisationState = () => {
+    // noop
   }
 }
