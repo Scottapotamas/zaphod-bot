@@ -250,15 +250,15 @@ export class Camera {
         movements.push(
           // 0 degrees
           new Line(
-            new Vector3(30, 0, 110 + i * 10),
             new Vector3(40, 0, 110 + i * 10),
+            new Vector3(50, 0, 110 + i * 10),
             new SimpleColorMaterial([1, 1, 0]),
             objectID,
           ),
           // 90
           new Line(
-            new Vector3(40, 0, 110 + i * 10),
-            new Vector3(40, 0, 110 + i * 10).add(delta),
+            new Vector3(50, 0, 110 + i * 10),
+            new Vector3(50, 0, 110 + i * 10).add(delta),
             new SimpleColorMaterial([1, 0, 1]),
             objectID,
           ),
