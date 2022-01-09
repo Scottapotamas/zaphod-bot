@@ -1,3 +1,4 @@
+import { CameraToMovementsSettings } from './camera'
 import { GPencilToMovementsSettings } from './gpencil'
 import { LightToMovementsSettings } from './light'
 import { ParticlesToMovementsSettings } from './particles'
@@ -8,6 +9,7 @@ export interface Settings {
     gpencil: GPencilToMovementsSettings
     particles: ParticlesToMovementsSettings
     light: LightToMovementsSettings
+    camera: CameraToMovementsSettings
   }
 
   // Per-object overrides
@@ -15,6 +17,8 @@ export interface Settings {
     [id: string]:
       | Partial<GPencilToMovementsSettings>
       | Partial<ParticlesToMovementsSettings>
+      | Partial<LightToMovementsSettings>
+      | Partial<CameraToMovementsSettings>
   }
 
   // For disabling the rendering of objects
@@ -66,14 +70,21 @@ export function getToMovementSettings(
   overrideKeys: string[],
 ): LightToMovementsSettings
 
+export function getToMovementSettings(
+  settings: Settings,
+  objType: 'camera',
+  overrideKeys: string[],
+): CameraToMovementsSettings
+
 export function getToMovementSettings<
   ReturnType =
     | GPencilToMovementsSettings
     | ParticlesToMovementsSettings
-    | LightToMovementsSettings,
+    | LightToMovementsSettings
+    | CameraToMovementsSettings,
 >(
   settings: Settings,
-  objType: 'gpencil' | 'particles' | 'light',
+  objType: 'gpencil' | 'particles' | 'light' | 'camera',
   overrideKeys: string[],
 ): ReturnType {
   let objSettings = settings.objectSettings[objType]

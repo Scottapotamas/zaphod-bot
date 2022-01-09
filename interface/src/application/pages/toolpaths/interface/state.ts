@@ -34,6 +34,11 @@ const defaultSettings: Settings = {
       stopDelay: 5,
       hideIfBlack: true,
     },
+    camera: {
+      drawAlignmentHelpers: false,
+      drawRulers: false,
+      drawCalibrationChart: false,
+    },
   },
 
   // Do object level overrides here. Particle subsystems can be `object -> subsystem name`
