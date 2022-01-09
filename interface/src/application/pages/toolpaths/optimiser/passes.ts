@@ -109,6 +109,7 @@ export function sparseToDense(
     // If the last movement and this movement are both lines, and their end and start points match up
     // And their velocity angles aren't too dissimilar, reduce the length of the lines and do a transition inline
     if (
+      settings.optimisation.smoothInterlineTransitions &&
       isLine(previousMovement) &&
       isLine(movement) &&
       previousMovement.getEnd().distanceToSquared(movement.getStart()) < 1 &&

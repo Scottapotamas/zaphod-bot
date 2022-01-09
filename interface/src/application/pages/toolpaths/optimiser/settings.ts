@@ -28,6 +28,11 @@ export interface OptimisationSettings {
   waitAtStartDuration: number
 
   /**
+   * Whether to smooth interline transitions
+   */
+  smoothInterlineTransitions: boolean
+
+  /**
    * The angle in degrees below which lines will be taken in a single pass
    */
   interLineTransitionAngle: number
