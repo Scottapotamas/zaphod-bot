@@ -4,7 +4,10 @@ import { Vector3 } from 'three'
 import { NodeInfo, NodeTypes } from '../interface/RenderableTree'
 import { ObjectNameTree } from './files'
 import { importMaterial, MaterialJSON } from './material'
-import { Point, Movement, Line, MovementGroup } from './movements'
+import { isSimpleColorMaterial, SimpleColorMaterial } from './materials/Color'
+import { ColorRampMaterial } from './materials/ColorRamp'
+import { lerpRGB } from './materials/utilities'
+import { Point, Movement, Line, MovementGroup, RGB } from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
 
 export class GPencilLayer {
@@ -116,6 +119,20 @@ export class GPencil {
 
         const material = importMaterial(layer.material)
 
+        let doVertexColoring = isSimpleColorMaterial(material)
+
+        let lastPointFinalColor = doVertexColoring
+          ? lerpRGB(
+              (material as SimpleColorMaterial).color,
+              [
+                stroke.points[0].vertexColor[0],
+                stroke.points[0].vertexColor[1],
+                stroke.points[0].vertexColor[2],
+              ],
+              stroke.points[0].vertexColor[3],
+            )
+          : ([0, 0, 0] as RGB)
+
         // Start at the second point, the first is located above
         for (let index = 1; index < stroke.points.length; index++) {
           const point = stroke.points[index]
@@ -123,11 +140,33 @@ export class GPencil {
 
           let currentPoint = new Vector3(co[0], co[1], co[2])
 
+          let vertexMat = material
+
+          if (doVertexColoring) {
+            // TODO: Not sure what mix mode we should actually use, for now it's just a simple lerp based on alpha of the vertex color
+            const thisPointFinalColor = lerpRGB(
+              (material as SimpleColorMaterial).color,
+              [
+                point.vertexColor[0],
+                point.vertexColor[1],
+                point.vertexColor[2],
+              ],
+              point.vertexColor[3],
+            )
+
+            vertexMat = new ColorRampMaterial(
+              lastPointFinalColor,
+              thisPointFinalColor,
+            )
+
+            lastPointFinalColor = thisPointFinalColor
+          }
+
           // Create a line from the lastPoint to the currentPoint
           const line: Movement = new Line(
             lastPoint,
             currentPoint,
-            material,
+            vertexMat,
             objectID,
           )
 
