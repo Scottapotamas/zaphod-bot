@@ -24,7 +24,6 @@ export enum MOVEMENT_TYPE {
 
 const defaultSpeed = 30 // mm/s
 const MILLISECONDS_IN_SECOND = 1000
-const MINIMUM_DURATION = 2 // ms
 
 /**
  * The base level optimisable movement.
@@ -96,9 +95,11 @@ export abstract class Movement {
   abstract getExpectedExitVelocity: () => Vector3
 
   /**
-   * Given a movement ID, generate the final movement(s) for sending to hardware
+   * Given a movement ID, generate the final movement for sending to hardware.
+   *
+   * At this stage it's one MovementMove per Movement, if more are required, have flatten produce more movements.
    */
-  abstract generateToolpath: (id: number) => MovementMove[]
+  abstract generateToolpath: (id: number) => MovementMove
 
   /**
    * Sample a point along this movement at time fraction t (0-1)
@@ -295,8 +296,9 @@ export class Line extends Movement {
   // Maximum speed in millimeters per second
   maxSpeed: number = defaultSpeed
 
-  private shrinkStartFactor = 0
-  private shrinkEndFactor = 0
+  // The maximum amount of shrink 0-1. If both are non-zero, meet at half way point
+  private maxStartShrinkFactor = 0
+  private maxEndShrinkFactor = 0
 
   constructor(
     public from: Vector3,
@@ -333,9 +335,8 @@ export class Line extends Movement {
   }
 
   public getDuration = () => {
-    return Math.max(
-      MINIMUM_DURATION,
-      Math.ceil((this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND),
+    return Math.ceil(
+      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
     )
   }
 
@@ -346,10 +347,18 @@ export class Line extends Movement {
   }
 
   public getStart = () => {
-    if (this.shrinkStartFactor) {
+    if (this.maxStartShrinkFactor) {
       const length = this.from.distanceTo(this.to)
+
+      let shrinkFactor = this.maxStartShrinkFactor
+
+      if (this.maxEndShrinkFactor) {
+        // If there's also a shrink factor on the end, clamp our start shrink factor to 0.5
+        shrinkFactor = MathUtils.clamp(this.maxStartShrinkFactor, 0, 0.5)
+      }
+
       return this.getDirection()
-        .multiplyScalar(length * this.shrinkStartFactor)
+        .multiplyScalar(length * shrinkFactor)
         .add(this.from)
     }
 
@@ -357,10 +366,18 @@ export class Line extends Movement {
   }
 
   public getEnd = () => {
-    if (this.shrinkEndFactor) {
+    if (this.maxEndShrinkFactor) {
       const length = this.from.distanceTo(this.to)
+
+      let shrinkFactor = this.maxEndShrinkFactor
+
+      if (this.maxStartShrinkFactor) {
+        // If there's also a shrink factor on the start, clamp our end shrink factor to 0.5
+        shrinkFactor = MathUtils.clamp(this.maxEndShrinkFactor, 0, 0.5)
+      }
+
       return this.getDirection()
-        .multiplyScalar(length * (1 - this.shrinkEndFactor))
+        .multiplyScalar(length * (1 - shrinkFactor))
         .add(this.from)
     }
 
@@ -370,17 +387,19 @@ export class Line extends Movement {
   // Shrink the start by an amount in millimeters
   public shrinkStartByDistance = (distance: number) => {
     const length = this.from.distanceTo(this.to)
-    const shinkFactor = Math.min(distance, length) / length
+    const clampedDistance = MathUtils.clamp(distance, 0, length)
+    const shinkFactor = clampedDistance / length
 
-    this.shrinkStartFactor = shinkFactor
+    this.maxStartShrinkFactor = shinkFactor
   }
 
   // Shrink the end by an amount in millimeters
   public shrinkEndByDistance = (distance: number) => {
     const length = this.from.distanceTo(this.to)
-    const shinkFactor = Math.min(distance, length) / length
+    const clampedDistance = MathUtils.clamp(distance, 0, length)
+    const shinkFactor = clampedDistance / length
 
-    this.shrinkEndFactor = shinkFactor
+    this.maxEndShrinkFactor = shinkFactor
   }
 
   public getDesiredEntryVelocity = () => {
@@ -409,7 +428,7 @@ export class Line extends Movement {
       num_points: 2,
     }
 
-    return [move]
+    return move
   }
 
   public getApproximateCentroid = () => {
@@ -426,8 +445,8 @@ export class Line extends Movement {
 
   public resetOptimisationState = () => {
     // line distance should be 100%
-    this.shrinkStartFactor = 0
-    this.shrinkEndFactor = 0
+    this.maxStartShrinkFactor = 0
+    this.maxEndShrinkFactor = 0
   }
 }
 
@@ -482,11 +501,11 @@ export class Point extends Movement {
    */
   public getDuration = () => {
     if (this.duration > 0) {
-      return Math.max(MINIMUM_DURATION, Math.ceil(this.duration))
+      return Math.ceil(this.duration)
     }
 
     // The minimum duration
-    return MINIMUM_DURATION
+    return 1
   }
 
   public getStart = () => {
@@ -541,7 +560,7 @@ export class Point extends Movement {
       num_points: 2,
     }
 
-    return [move]
+    return move
   }
 
   public getApproximateCentroid = () => {
@@ -667,9 +686,8 @@ export class Transition extends Movement {
   }
 
   public getDuration = () => {
-    return Math.max(
-      MINIMUM_DURATION,
-      Math.ceil((this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND),
+    return Math.ceil(
+      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
     )
   }
 
@@ -710,7 +728,7 @@ export class Transition extends Movement {
       num_points: 4,
     }
 
-    return [move]
+    return move
   }
 
   public getApproximateCentroid = () => {
@@ -883,9 +901,8 @@ export class PointTransition extends Movement {
   }
 
   public getDuration = () => {
-    return Math.max(
-      MINIMUM_DURATION,
-      Math.ceil((this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND),
+    return Math.ceil(
+      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
     )
   }
 
@@ -926,7 +943,7 @@ export class PointTransition extends Movement {
       num_points: 4,
     }
 
-    return [move]
+    return move
   }
 
   public getApproximateCentroid = () => {
@@ -1046,9 +1063,8 @@ export class InterLineTransition extends Movement {
   }
 
   public getDuration = () => {
-    return Math.max(
-      MINIMUM_DURATION,
-      Math.ceil((this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND),
+    return Math.ceil(
+      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
     )
   }
 
@@ -1083,7 +1099,7 @@ export class InterLineTransition extends Movement {
       num_points: 4,
     }
 
-    return [move]
+    return move
   }
 
   public getApproximateCentroid = () => {
@@ -1150,7 +1166,7 @@ export class Transit extends Movement {
    * The duration of a transit is determined by its set duration, it cannot be shorter than 1ms
    */
   public getDuration = () => {
-    return Math.max(MINIMUM_DURATION, Math.ceil(this.duration))
+    return Math.ceil(this.duration)
   }
 
   public getStart = () => {
@@ -1181,7 +1197,7 @@ export class Transit extends Movement {
       num_points: 1,
     }
 
-    return [move]
+    return move
   }
 
   public getApproximateCentroid = () => {
