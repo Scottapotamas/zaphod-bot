@@ -103,8 +103,9 @@ export function annotateDrawOrder(
     let intent: Intent = 'none'
 
     if (
-      movement.type === 'transition' ||
-      movement.type === 'point-transition'
+      movement.type === MOVEMENT_TYPE.TRANSITION ||
+      movement.type === MOVEMENT_TYPE.POINT_TRANSITION ||
+      movement.type === MOVEMENT_TYPE.INTER_LINE_TRANSITION
     ) {
       intent = 'primary'
     }
@@ -124,6 +125,9 @@ export function annotateDrawOrder(
       case MOVEMENT_TYPE.POINT_TRANSITION:
         type = 'PT'
         break
+      case MOVEMENT_TYPE.INTER_LINE_TRANSITION:
+        type = 'IT'
+        break
 
       default:
         break
@@ -134,7 +138,7 @@ export function annotateDrawOrder(
         movement.objectID,
         movement.getApproximateCentroid(),
         intent,
-        `${type} #${movementIndex}`,
+        `${type} #${movementIndex} (${movement.getDuration()}ms)`,
       ),
     )
   }
