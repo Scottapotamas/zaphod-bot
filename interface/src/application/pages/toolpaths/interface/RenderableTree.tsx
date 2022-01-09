@@ -23,6 +23,7 @@ export enum NodeTypes {
   GPENCIL_LAYER = 'gpencil-layer',
   PARTICLES = 'particles',
   PARTICLE_SYSTEM = 'particle-system',
+  LIGHT = 'light',
 }
 
 export type NodeID = string | number

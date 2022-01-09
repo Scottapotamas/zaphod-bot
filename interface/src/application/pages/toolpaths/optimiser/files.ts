@@ -2,7 +2,7 @@ import fs from 'fs'
 import path from 'path'
 import { importJson, Renderable } from './import'
 import { MovementJSON } from './import'
-import { Toolpath } from './passes'
+import type { Toolpath } from './toolpath'
 import { Camera } from './camera'
 
 async function* walkJSON(dir: string): AsyncGenerator<string> {

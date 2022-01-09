@@ -1,4 +1,5 @@
 import { GPencilToMovementsSettings } from './gpencil'
+import { LightToMovementsSettings } from './light'
 import { ParticlesToMovementsSettings } from './particles'
 
 export interface Settings {
@@ -6,6 +7,7 @@ export interface Settings {
   objectSettings: {
     gpencil: GPencilToMovementsSettings
     particles: ParticlesToMovementsSettings
+    light: LightToMovementsSettings
   }
 
   // Per-object overrides
@@ -58,11 +60,20 @@ export function getToMovementSettings(
   overrideKeys: string[],
 ): ParticlesToMovementsSettings
 
+export function getToMovementSettings(
+  settings: Settings,
+  objType: 'light',
+  overrideKeys: string[],
+): LightToMovementsSettings
+
 export function getToMovementSettings<
-  ReturnType = GPencilToMovementsSettings | ParticlesToMovementsSettings,
+  ReturnType =
+    | GPencilToMovementsSettings
+    | ParticlesToMovementsSettings
+    | LightToMovementsSettings,
 >(
   settings: Settings,
-  objType: 'gpencil' | 'particles',
+  objType: 'gpencil' | 'particles' | 'light',
   overrideKeys: string[],
 ): ReturnType {
   let objSettings = settings.objectSettings[objType]

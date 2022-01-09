@@ -30,6 +30,10 @@ const defaultSettings: Settings = {
       drawInVelocityOrientation: false,
       stopDelay: 5,
     },
+    light: {
+      stopDelay: 5,
+      hideIfBlack: true,
+    },
   },
 
   // Do object level overrides here. Particle subsystems can be `object -> subsystem name`
