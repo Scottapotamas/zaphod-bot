@@ -8,6 +8,9 @@ import {
   Slider,
   Switch,
   Tag,
+  Tab,
+  Tabs,
+  TabId,
 } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
 
@@ -55,18 +58,6 @@ function InterLineTransitionAngleControl() {
   }, [])
 
   return (
-    // <div style={{ marginLeft: 10, marginRight: 10 }}>
-    //   <Slider
-    //     min={0}
-    //     max={360}
-    //     stepSize={1}
-    //     labelStepSize={30}
-    //     value={angle}
-    //     labelRenderer={value => `${value}°`}
-    //     onRelease={updateAngle}
-    //     onChange={setAngle}
-    //   />
-    // </div>
     <NumericInput
       fill
       min={0}
@@ -99,18 +90,6 @@ function InterLineTransitionDistanceControl() {
   }, [])
 
   return (
-    // <div style={{ marginLeft: 10, marginRight: 10 }}>
-    //   <Slider
-    //     min={1}
-    //     max={10}
-    //     stepSize={1}
-    //     labelStepSize={2}
-    //     value={distange}
-    //     labelRenderer={value => `${value}mm`}
-    //     onRelease={updateDistance}
-    //     onChange={setDistance}
-    //   />
-    // </div>
     <NumericInput
       fill
       min={1}
@@ -146,6 +125,7 @@ function ParticleWaitDurationControl() {
       min={0}
       max={200}
       stepSize={25}
+      majorStepSize={100}
       value={localStopDelay}
       onValueChange={setAndUpdateStopDelay}
       rightElement={<Tag>ms</Tag>}
@@ -176,6 +156,7 @@ function MaxSpeedControl() {
       min={0}
       max={300}
       stepSize={25}
+      majorStepSize={100}
       value={localSpeed}
       onValueChange={setAndUpdateMaxSpeed}
       rightElement={<Tag>mm/sec</Tag>}
@@ -209,6 +190,7 @@ function TransitionMaxSpeedControl() {
       min={0}
       max={300}
       stepSize={25}
+      majorStepSize={100}
       value={localSpeed}
       onValueChange={setAndUpdateTransitionMaxSpeed}
       rightElement={<Tag>mm/sec</Tag>}
@@ -239,6 +221,7 @@ function WaitAtStartDurationControl() {
       min={0}
       max={5000}
       stepSize={100}
+      majorStepSize={1000}
       value={waitDuration}
       onValueChange={setAndUpdateDuration}
       rightElement={<Tag>ms</Tag>}
@@ -247,25 +230,226 @@ function WaitAtStartDurationControl() {
   )
 }
 
+function HideLightIfBlackControl() {
+  const [setting, set] = useState(
+    getSetting(state => state.settings.objectSettings.light.hideIfBlack),
+  )
+
+  const updateSetting = useCallback(setting => {
+    setSetting(state => {
+      state.settings.objectSettings.light.hideIfBlack = setting
+    })
+  }, [])
+
+  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
+    event => {
+      const checked = (event.target as HTMLInputElement).checked
+      set(checked)
+      updateSetting(checked)
+    },
+    [],
+  )
+
+  return <Checkbox checked={setting} onChange={handleClick} />
+}
+
+function DrawFrustumAlignmentControl() {
+  const [setting, set] = useState(
+    getSetting(
+      state => state.settings.objectSettings.camera.drawAlignmentHelpers,
+    ),
+  )
+
+  const updateSetting = useCallback(setting => {
+    setSetting(state => {
+      state.settings.objectSettings.camera.drawAlignmentHelpers = setting
+    })
+  }, [])
+
+  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
+    event => {
+      const checked = (event.target as HTMLInputElement).checked
+      set(checked)
+      updateSetting(checked)
+    },
+    [],
+  )
+
+  return <Checkbox checked={setting} onChange={handleClick} />
+}
+
+function DrawRulersControl() {
+  const [setting, set] = useState(
+    getSetting(state => state.settings.objectSettings.camera.drawRulers),
+  )
+
+  const updateSetting = useCallback(setting => {
+    setSetting(state => {
+      state.settings.objectSettings.camera.drawRulers = setting
+    })
+  }, [])
+
+  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
+    event => {
+      const checked = (event.target as HTMLInputElement).checked
+      set(checked)
+      updateSetting(checked)
+    },
+    [],
+  )
+
+  return <Checkbox checked={setting} onChange={handleClick} />
+}
+
+function DrawCalibrationChartControl() {
+  const [setting, set] = useState(
+    getSetting(
+      state => state.settings.objectSettings.camera.drawCalibrationChart,
+    ),
+  )
+
+  const updateSetting = useCallback(setting => {
+    setSetting(state => {
+      state.settings.objectSettings.camera.drawCalibrationChart = setting
+    })
+  }, [])
+
+  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
+    event => {
+      const checked = (event.target as HTMLInputElement).checked
+      set(checked)
+      updateSetting(checked)
+    },
+    [],
+  )
+
+  return <Checkbox checked={setting} onChange={handleClick} />
+}
+
+function DrawParticlesInVelocityOrientationControl() {
+  const [setting, set] = useState(
+    getSetting(
+      state =>
+        state.settings.objectSettings.particles.drawInVelocityOrientation,
+    ),
+  )
+
+  const updateSetting = useCallback(setting => {
+    setSetting(state => {
+      state.settings.objectSettings.particles.drawInVelocityOrientation =
+        setting
+    })
+  }, [])
+
+  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
+    event => {
+      const checked = (event.target as HTMLInputElement).checked
+      set(checked)
+      updateSetting(checked)
+    },
+    [],
+  )
+
+  return <Checkbox checked={setting} onChange={handleClick} />
+}
+
+const enum TABS {
+  GENERAL = 'general',
+  CAMERA_HELPERS = 'camera-helpers',
+  PARTICLES = 'particles',
+  LIGHT = 'light',
+  LINE = 'line',
+  VISUALISATION = 'visualisation',
+}
+
+function GeneralTab() {
+  return (
+    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+      Max Speed <MaxSpeedControl />
+      Max Transition <TransitionMaxSpeedControl />
+      Wait before Start <WaitAtStartDurationControl />
+    </Composition>
+  )
+}
+
+function CameraHelpersTab() {
+  return (
+    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+      Draw Ruler <DrawRulersControl />
+      Draw Frustum Alignment <DrawFrustumAlignmentControl />
+      Draw Calibration Chart <DrawCalibrationChartControl />
+    </Composition>
+  )
+}
+
+function ParticlesTab() {
+  return (
+    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+      Wait at Particle <ParticleWaitDurationControl />
+      Draw in Velocity Orientation <DrawParticlesInVelocityOrientationControl />
+    </Composition>
+  )
+}
+
+function LightTab() {
+  return (
+    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+      Wait at Light <ParticleWaitDurationControl />
+      Hide if Black <HideLightIfBlackControl />
+    </Composition>
+  )
+}
+
+function LineTab() {
+  return (
+    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+      Inter-line Optimisations Enabled <InterLineTransitionEnabledControl />
+      Inter-line Transition Angle <InterLineTransitionAngleControl />
+      Inter-line Transition Distance <InterLineTransitionDistanceControl />
+    </Composition>
+  )
+}
+
+function VisualisationTab() {
+  return (
+    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+      <p>Annotate Draw Order</p> <br />
+      <p>Curve Segments</p> <br />
+      <p>Orbit Camera</p> <br />
+    </Composition>
+  )
+}
+
 export const PlannerSettingsInterface = () => {
+  const [selected, setSelected] = useState(TABS.GENERAL)
+
+  const handleTabChange = useCallback(
+    (newTabId: TABS) => {
+      setSelected(newTabId)
+    },
+    [setSelected],
+  )
+
   return (
     <div>
-      <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
-        Max Speed
-        <MaxSpeedControl />
-        Max Transition
-        <TransitionMaxSpeedControl />
-        Wait at Particle
-        <ParticleWaitDurationControl />
-        Wait before Start
-        <WaitAtStartDurationControl />
-        Interline Optimisations Enabled
-        <InterLineTransitionEnabledControl />
-        Interline Transition Angle
-        <InterLineTransitionAngleControl />
-        Interline Transition Distance
-        <InterLineTransitionDistanceControl />
-      </Composition>
+      <Tabs onChange={handleTabChange} selectedTabId={selected}>
+        <Tab id={TABS.GENERAL} title="General" panel={<GeneralTab />} />
+        <Tab id={TABS.PARTICLES} title="Particles" panel={<ParticlesTab />} />
+        <Tab id={TABS.LINE} title="Lines" panel={<LineTab />} />
+        <Tab id={TABS.LIGHT} title="GPencil" panel={<LightTab />} />
+        <Tab
+          id={TABS.CAMERA_HELPERS}
+          title="Camera Helpers"
+          panel={<CameraHelpersTab />}
+        />
+
+        {/* <Tabs.Expander />
+        <Tab
+          id={TABS.VISUALISATION}
+          title="Visualisation"
+          panel={<VisualisationTab />}
+        /> */}
+      </Tabs>
     </div>
   )
 }
