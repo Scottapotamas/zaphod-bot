@@ -27,5 +27,7 @@ export abstract class Material {
     addColouredLine: AddLineCallback,
     addDottedLine: AddLineCallback,
     addReactComponent: AddComponentCallback,
+    fromT: number,
+    toT: number,
   ) => void
 }

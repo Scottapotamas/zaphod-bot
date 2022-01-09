@@ -71,6 +71,8 @@ export class VelocityMaterial extends Material {
     addColouredLine: AddLineCallback,
     addDottedLine: AddLineCallback,
     addReactComponent: AddComponentCallback,
+    fromT: number,
+    toT: number,
   ) => {
     // Annotate draw order
     annotateDrawOrder(
@@ -99,8 +101,14 @@ export class VelocityMaterial extends Material {
 
     // For the number of segments,
     for (let index = 0; index < numSegments; index++) {
-      const startT = index / numSegments
-      const endT = (index + 1) / numSegments
+      const startT = MathUtils.mapLinear(index / numSegments, 0, 1, fromT, toT)
+      const endT = MathUtils.mapLinear(
+        (index + 1) / numSegments,
+        0,
+        1,
+        fromT,
+        toT,
+      )
 
       // Sample points along the movement, these will define the drawn line segment
       const start = movement.samplePoint(startT)

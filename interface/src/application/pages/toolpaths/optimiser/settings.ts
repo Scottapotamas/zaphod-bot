@@ -27,6 +27,16 @@ export interface Settings {
 export interface OptimisationSettings {
   waitAtStartDuration: number
 
+  /**
+   * The angle in degrees below which lines will be taken in a single pass
+   */
+  interLineTransitionAngle: number
+
+  /**
+   * Distance in mm to shave off lines when doing inter line transitions
+   */
+  interLineTransitionShaveDistance: number
+
   maxSpeed: number // mm/s
   transitionMaxSpeed: number // mm/s
 }

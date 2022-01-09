@@ -116,6 +116,62 @@ function WaitAtStartDurationSlider() {
   )
 }
 
+function InterLineTransitionAngleSlider() {
+  const [angle, setAngle] = useState(
+    getSetting(state => state.settings.optimisation.interLineTransitionAngle),
+  )
+
+  const updateAngle = useCallback(angle => {
+    setSetting(state => {
+      state.settings.optimisation.interLineTransitionAngle = angle
+    })
+  }, [])
+
+  return (
+    <div style={{ marginLeft: 10, marginRight: 10 }}>
+      <Slider
+        min={0}
+        max={360}
+        stepSize={1}
+        labelStepSize={30}
+        value={angle}
+        labelRenderer={value => `${value}°`}
+        onRelease={updateAngle}
+        onChange={setAngle}
+      />
+    </div>
+  )
+}
+
+function InterLineTransitionDistanceSlider() {
+  const [distange, setDistance] = useState(
+    getSetting(
+      state => state.settings.optimisation.interLineTransitionShaveDistance,
+    ),
+  )
+
+  const updateDistance = useCallback(distance => {
+    setSetting(state => {
+      state.settings.optimisation.interLineTransitionShaveDistance = distance
+    })
+  }, [])
+
+  return (
+    <div style={{ marginLeft: 10, marginRight: 10 }}>
+      <Slider
+        min={1}
+        max={10}
+        stepSize={1}
+        labelStepSize={2}
+        value={distange}
+        labelRenderer={value => `${value}mm`}
+        onRelease={updateDistance}
+        onChange={setDistance}
+      />
+    </div>
+  )
+}
+
 function OrbitCameraCheckbox() {
   const [enabled, setEnabled] = useState(true)
 
@@ -186,6 +242,12 @@ export const SettingsInterface = () => {
       Optimisation | Materials | View
       <FormGroup label="Particle wait duration">
         <ParticleWaitDurationSlider />
+      </FormGroup>
+      <FormGroup label="InterLine Transition Angle">
+        <InterLineTransitionAngleSlider />
+      </FormGroup>
+      <FormGroup label="InterLine Transition Distance">
+        <InterLineTransitionDistanceSlider />
       </FormGroup>
       <FormGroup label="Maximum speed">
         <MaxSpeedSlider />

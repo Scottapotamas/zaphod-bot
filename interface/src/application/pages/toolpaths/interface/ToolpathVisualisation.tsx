@@ -268,6 +268,8 @@ export function ToolpathMovements() {
             addColouredLine,
             addDottedLine,
             addReactComponent,
+            0,
+            1,
           )
         }
 

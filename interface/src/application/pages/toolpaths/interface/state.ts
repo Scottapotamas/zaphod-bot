@@ -41,6 +41,8 @@ const defaultSettings: Settings = {
     maxSpeed: 100,
     transitionMaxSpeed: 100,
     waitAtStartDuration: 1000,
+    interLineTransitionAngle: 50,
+    interLineTransitionShaveDistance: 5,
   },
 }
 
