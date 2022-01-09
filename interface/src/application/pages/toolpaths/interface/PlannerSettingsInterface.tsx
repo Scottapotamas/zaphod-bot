@@ -17,6 +17,27 @@ import React, { useCallback, useState } from 'react'
 
 import { getSetting, incrementViewportFrameVersion, setSetting } from './state'
 
+function InterLineTransitionEnabledControl() {
+  const [allowed, setAllow] = useState(
+    getSetting(state => state.settings.optimisation.smoothInterlineTransitions),
+  )
+
+  const updateAllowed = useCallback(allowed => {
+    setSetting(state => {
+      state.settings.optimisation.smoothInterlineTransitions = allowed
+    })
+  }, [])
+
+  const setAndUpdateAngle: React.FormEventHandler<HTMLInputElement> =
+    useCallback(event => {
+      const checked = (event.target as HTMLInputElement).checked
+      setAllow(checked)
+      updateAllowed(checked)
+    }, [])
+
+  return <Checkbox checked={allowed} onChange={setAndUpdateAngle} />
+}
+
 function InterLineTransitionAngleControl() {
   const [angle, setAngle] = useState(
     getSetting(state => state.settings.optimisation.interLineTransitionAngle),
@@ -47,15 +68,15 @@ function InterLineTransitionAngleControl() {
     //   />
     // </div>
     <NumericInput
-    fill
-    min={0}
-    max={360}
-    stepSize={1}
-    value={angle}
-    onValueChange={setAndUpdateAngle}
-    rightElement={<Tag>°</Tag>}
-    style={{ width: '100%' }}
-  />
+      fill
+      min={0}
+      max={360}
+      stepSize={1}
+      value={angle}
+      onValueChange={setAndUpdateAngle}
+      rightElement={<Tag>°</Tag>}
+      style={{ width: '100%' }}
+    />
   )
 }
 
@@ -91,16 +112,15 @@ function InterLineTransitionDistanceControl() {
     //   />
     // </div>
     <NumericInput
-    fill
-    min={1}
-    max={10}
-    stepSize={1}
-    value={distange}
-    onValueChange={setAndUpdateDistance}
-    rightElement={<Tag>mm</Tag>}
-    style={{ width: '100%' }}
-  />
-
+      fill
+      min={1}
+      max={10}
+      stepSize={1}
+      value={distange}
+      onValueChange={setAndUpdateDistance}
+      rightElement={<Tag>mm</Tag>}
+      style={{ width: '100%' }}
+    />
   )
 }
 
@@ -239,12 +259,13 @@ export const PlannerSettingsInterface = () => {
         <ParticleWaitDurationControl />
         Wait before Start
         <WaitAtStartDurationControl />
+        Interline Optimisations Enabled
+        <InterLineTransitionEnabledControl />
         Interline Transition Angle
         <InterLineTransitionAngleControl />
         Interline Transition Distance
         <InterLineTransitionDistanceControl />
-
-        </Composition>
+      </Composition>
     </div>
   )
 }
