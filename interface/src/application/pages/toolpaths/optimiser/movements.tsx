@@ -24,6 +24,7 @@ export enum MOVEMENT_TYPE {
 
 const defaultSpeed = 30 // mm/s
 const MILLISECONDS_IN_SECOND = 1000
+const MINIMUM_DURATION = 2 // ms
 
 /**
  * The base level optimisable movement.
@@ -332,8 +333,9 @@ export class Line extends Movement {
   }
 
   public getDuration = () => {
-    return Math.ceil(
-      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
+    return Math.max(
+      MINIMUM_DURATION,
+      Math.ceil((this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND),
     )
   }
 
@@ -480,11 +482,11 @@ export class Point extends Movement {
    */
   public getDuration = () => {
     if (this.duration > 0) {
-      return Math.ceil(this.duration)
+      return Math.max(MINIMUM_DURATION, Math.ceil(this.duration))
     }
 
-    // The minimum duration is 1ms
-    return 1
+    // The minimum duration
+    return MINIMUM_DURATION
   }
 
   public getStart = () => {
@@ -665,8 +667,9 @@ export class Transition extends Movement {
   }
 
   public getDuration = () => {
-    return Math.ceil(
-      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
+    return Math.max(
+      MINIMUM_DURATION,
+      Math.ceil((this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND),
     )
   }
 
@@ -880,8 +883,9 @@ export class PointTransition extends Movement {
   }
 
   public getDuration = () => {
-    return Math.ceil(
-      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
+    return Math.max(
+      MINIMUM_DURATION,
+      Math.ceil((this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND),
     )
   }
 
@@ -1042,8 +1046,9 @@ export class InterLineTransition extends Movement {
   }
 
   public getDuration = () => {
-    return Math.ceil(
-      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
+    return Math.max(
+      MINIMUM_DURATION,
+      Math.ceil((this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND),
     )
   }
 
@@ -1145,7 +1150,7 @@ export class Transit extends Movement {
    * The duration of a transit is determined by its set duration, it cannot be shorter than 1ms
    */
   public getDuration = () => {
-    return Math.ceil(this.duration)
+    return Math.max(MINIMUM_DURATION, Math.ceil(this.duration))
   }
 
   public getStart = () => {
