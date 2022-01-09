@@ -71,12 +71,20 @@ export class MixMaterial extends Material {
     fromT: number,
     toT: number,
   ) => {
+    // Annotate draw order
+    annotateDrawOrder(
+      movementIndex,
+      movement,
+      visualisationSettings,
+      addReactComponent,
+    )
+
     // Render the start material to the half way point
     this.start.material.generateThreeJSRepresentation(
       movementIndex,
       movement,
       settings,
-      visualisationSettings,
+      Object.assign({}, visualisationSettings, { annotateDrawOrder: false }), // disable draw order annotation for the segments
       addColouredLine,
       addDottedLine,
       addReactComponent,
@@ -89,7 +97,7 @@ export class MixMaterial extends Material {
       movementIndex,
       movement,
       settings,
-      visualisationSettings,
+      Object.assign({}, visualisationSettings, { annotateDrawOrder: false }), // disable draw order annotation for the segments
       addColouredLine,
       addDottedLine,
       addReactComponent,
