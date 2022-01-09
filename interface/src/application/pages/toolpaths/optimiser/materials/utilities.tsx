@@ -74,8 +74,6 @@ export function hsiToRgb(
 
 /**
  * Linearly lerp between to colours, converting to HSI space first.
- *
- * TODO: Does this actually match the deltas implementation?
  */
 export function lerpRGB(
   a: [r: number, g: number, b: number],
@@ -86,9 +84,25 @@ export function lerpRGB(
   const [hA, sA, iA] = rgbToHsi(a[0], a[1], a[2])
   const [hB, sB, iB] = rgbToHsi(b[0], b[1], b[2])
 
-  const h = MathUtils.lerp(hA, hB, tClamped)
-  const s = MathUtils.lerp(sA, sB, tClamped)
-  const i = MathUtils.lerp(iA, iB, tClamped)
+  const distanceCCW = hA >= hB ? hA - hB : 1 + hA - hB
+  const distanceCW = hA >= hB ? 1 + hB - hA : hB - hA
+
+  let h =
+    distanceCW <= distanceCCW
+      ? hB + distanceCW * tClamped
+      : hB - distanceCCW * tClamped
+
+  //handle wrapping around
+  if (h < 0) {
+    h += 1
+  }
+
+  if (h > 1) {
+    h -= 1
+  }
+
+  const s = sA + tClamped * (sB - sA)
+  const i = iA + tClamped * (iB - iA)
 
   return hsiToRgb(h, s, i)
 }
