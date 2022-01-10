@@ -33,25 +33,25 @@ const ManualLEDPalette = () => {
         <ColorPalette
           height={200}
           width={200}
-          red={state => state.manual_led.red}
-          green={state => state.manual_led.green}
-          blue={state => state.manual_led.blue}
+          red={state => state.manual_led.red * 255}
+          green={state => state.manual_led.green * 255}
+          blue={state => state.manual_led.blue * 255}
           writer={(state, color) => {
-            state.manual_led.red = color.r
-            state.manual_led.green = color.g
-            state.manual_led.blue = color.b
+            state.manual_led.red = color.r / 255
+            state.manual_led.green = color.g / 255
+            state.manual_led.blue = color.b / 255
           }}
         />
         <HueSlider
           vertical
           height={200}
-          red={state => state.manual_led.red}
-          green={state => state.manual_led.green}
-          blue={state => state.manual_led.blue}
+          red={state => state.manual_led.red * 255}
+          green={state => state.manual_led.green * 255}
+          blue={state => state.manual_led.blue * 255}
           writer={(state, color) => {
-            state.manual_led.red = color.r
-            state.manual_led.green = color.g
-            state.manual_led.blue = color.b
+            state.manual_led.red = color.r / 255
+            state.manual_led.green = color.g / 255
+            state.manual_led.blue = color.b / 255
           }}
         />
       </Box>

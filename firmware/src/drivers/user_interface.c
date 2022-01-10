@@ -84,6 +84,11 @@ Fade_t        light_fade_inbound;
 
 uint32_t camera_shutter_duration_ms = 0;
 
+
+// Configuration controlled variables are done with raw pointer sharing - yuck
+LedSettings_t led_calibration = { 0 };
+
+
 eui_message_t ui_variables[] = {
         // Higher level system setup information
         EUI_CHAR_ARRAY_RO( MSGID_NICKNAME, device_nickname ),
@@ -129,8 +134,10 @@ eui_message_t ui_variables[] = {
         EUI_FUNC( MSGID_HOME, home_mech_cb ),
         EUI_UINT32( MSGID_CAPTURE, camera_shutter_duration_ms ),
 
+        EUI_CUSTOM( MSGID_LED_CALIBRATION, led_calibration ),
+
+
 //        EUI_FLOAT( "rotZ", z_rotation ),
-//        EUI_CUSTOM( "ledset", rgb_led_settings ),
 //        EUI_CUSTOM( "pwr_cal", power_trims ),
 };
 
@@ -174,6 +181,8 @@ user_interface_init( void )
     strcpy( (char *)&fw_info.build_time, ProgramBuildTime );
     strcpy( (char *)&fw_info.build_type, ProgramBuildType );
     strcpy( (char *)&fw_info.build_name, ProgramName );
+
+    configuration_set_led_correction_ptr( &led_calibration );
 }
 
 PUBLIC void
@@ -294,7 +303,10 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
             }
 #endif
 
-            if( strcmp( (char *)name_rx, MSGID_LED_MANUAL_REQUEST ) == 0 && header.data_len )
+            // Fire an event to refresh the LED if the UI sends a value in
+            // This makes display updates when manually setting colors or calibration values nice and responsive
+            if( strcmp( (char *)name_rx, MSGID_LED_MANUAL_REQUEST ) == 0 && header.data_len
+                || strcmp( (char *)name_rx, MSGID_LED_CALIBRATION ) == 0 && header.data_len )
             {
                 rgb_manual_led_event();
             }
