@@ -9,12 +9,13 @@
 #include "hal_gpio.h"
 #include "hal_pwm.h"
 #include "qassert.h"
+#include "stm32f4xx_ll_rcc.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
-#define PWM_PERIOD_DEFAULT 1024
+#define PWM_PERIOD_DEFAULT (4096)
 
 /*
  * TACH    - TIM9_1
@@ -33,7 +34,7 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
  */
 
 PRIVATE void
-hal_pwm_configure_peripheral( TIM_TypeDef *TIMx, uint32_t channel, uint32_t frequency );
+hal_pwm_configure_peripheral( uint8_t AHBx, TIM_TypeDef *TIMx, uint32_t channel, uint32_t frequency );
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -48,7 +49,7 @@ void hal_pwm_generation( PWMOutputTimerDef_t pwm_output, uint16_t frequency )
             NVIC_SetPriority( TIM1_UP_TIM10_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 7, 5 ) );
             NVIC_EnableIRQ( TIM1_UP_TIM10_IRQn );
 
-            hal_pwm_configure_peripheral( TIM10, LL_TIM_CHANNEL_CH1, frequency );
+            hal_pwm_configure_peripheral( 2, TIM10, LL_TIM_CHANNEL_CH1, frequency );
             break;
 
         case _PWM_TIM_BUZZER:
@@ -58,7 +59,7 @@ void hal_pwm_generation( PWMOutputTimerDef_t pwm_output, uint16_t frequency )
             NVIC_SetPriority( TIM1_TRG_COM_TIM11_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 7, 4 ) );
             NVIC_EnableIRQ( TIM1_TRG_COM_TIM11_IRQn );
 
-            hal_pwm_configure_peripheral( TIM11, LL_TIM_CHANNEL_CH1, frequency );
+            hal_pwm_configure_peripheral( 2, TIM11, LL_TIM_CHANNEL_CH1, frequency );
             break;
 
         case _PWM_TIM_AUX_0:
@@ -68,7 +69,7 @@ void hal_pwm_generation( PWMOutputTimerDef_t pwm_output, uint16_t frequency )
             NVIC_SetPriority( TIM2_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 7, 3 ) );
             NVIC_EnableIRQ( TIM2_IRQn );
 
-            hal_pwm_configure_peripheral( TIM2, LL_TIM_CHANNEL_CH1, frequency );
+            hal_pwm_configure_peripheral( 1, TIM2, LL_TIM_CHANNEL_CH1, frequency );
             break;
 
         case _PWM_TIM_AUX_1:
@@ -78,7 +79,7 @@ void hal_pwm_generation( PWMOutputTimerDef_t pwm_output, uint16_t frequency )
             NVIC_SetPriority( TIM8_BRK_TIM12_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 7, 3 ) );
             NVIC_EnableIRQ( TIM8_BRK_TIM12_IRQn );
 
-            hal_pwm_configure_peripheral( TIM12, LL_TIM_CHANNEL_CH2, frequency );
+            hal_pwm_configure_peripheral( 1, TIM12, LL_TIM_CHANNEL_CH2, frequency );
             break;
 
         case _PWM_TIM_AUX_2:
@@ -88,7 +89,7 @@ void hal_pwm_generation( PWMOutputTimerDef_t pwm_output, uint16_t frequency )
             NVIC_SetPriority( TIM8_BRK_TIM12_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 7, 3 ) );
             NVIC_EnableIRQ( TIM8_BRK_TIM12_IRQn );
 
-            hal_pwm_configure_peripheral( TIM12, LL_TIM_CHANNEL_CH1, frequency );
+            hal_pwm_configure_peripheral( 1, TIM12, LL_TIM_CHANNEL_CH1, frequency );
             break;
         default:
             ASSERT( false );
@@ -99,9 +100,46 @@ void hal_pwm_generation( PWMOutputTimerDef_t pwm_output, uint16_t frequency )
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void
-hal_pwm_configure_peripheral( TIM_TypeDef *TIMx, uint32_t channel, uint32_t frequency )
+hal_pwm_configure_peripheral( uint8_t AHBx, TIM_TypeDef *TIMx, uint32_t channel, uint32_t frequency )
 {
-    LL_TIM_SetPrescaler( TIMx, ( uint32_t )( SystemCoreClock / ( frequency * PWM_PERIOD_DEFAULT ) ) );
+    // Get the timer's clock frequency,
+    // = PCLK1 or PCLK2 with a 2x factor applied _if APB has any prescale set_
+    uint32_t  timer_clk = 0;
+    LL_RCC_ClocksTypeDef rcc_clks = { 0 };
+    LL_RCC_GetSystemClocksFreq( &rcc_clks );
+
+    if( AHBx == 1 )
+    {
+        if( LL_RCC_GetAPB1Prescaler() == 0 )
+        {
+            // PCLK1 prescaler is 1, therefore TIMCLK = PCLK
+            timer_clk = rcc_clks.PCLK1_Frequency;
+        }
+        else
+        {
+            // PCLK1 prescaler is different, therefore TIMCLK = PCLK * 2
+            timer_clk = rcc_clks.PCLK1_Frequency * 2;
+        }
+    }
+    else if( AHBx == 2 )
+    {
+        if( LL_RCC_GetAPB2Prescaler() == 0 )
+        {
+            // PCLK2 prescaler is 1, therefore TIMCLK = PCLK
+            timer_clk = rcc_clks.PCLK2_Frequency;
+        }
+        else
+        {
+            // PCLK2 prescaler is different, therefore TIMCLK = PCLK * 2
+            timer_clk = rcc_clks.PCLK2_Frequency * 2;
+        }
+    }
+    else
+    {
+        ASSERT(false);
+    }
+
+    LL_TIM_SetPrescaler( TIMx, ( uint32_t )( timer_clk / ( frequency * PWM_PERIOD_DEFAULT ) ) );
     LL_TIM_SetCounterMode( TIMx, LL_TIM_COUNTERMODE_UP );
     LL_TIM_SetAutoReload( TIMx, PWM_PERIOD_DEFAULT );
     LL_TIM_SetClockDivision( TIMx, LL_TIM_CLOCKDIVISION_DIV1 );
