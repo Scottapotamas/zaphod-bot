@@ -460,13 +460,13 @@ function DrawRulersControl() {
 function DrawCalibrationChartControl() {
   const [setting, set] = useState(
     getSetting(
-      state => state.settings.objectSettings.camera.drawCalibrationChart,
+      state => state.settings.objectSettings.camera.drawColorCalibrationChart,
     ),
   )
 
   const updateSetting = useCallback(setting => {
     setSetting(state => {
-      state.settings.objectSettings.camera.drawCalibrationChart = setting
+      state.settings.objectSettings.camera.drawColorCalibrationChart = setting
     })
   }, [])
 
