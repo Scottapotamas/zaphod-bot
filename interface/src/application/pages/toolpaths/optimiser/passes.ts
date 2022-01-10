@@ -4,6 +4,7 @@ import {
   InterLineTransition,
   isLine,
   isPoint,
+  isTransit,
   Line,
   Movement,
   Point,
@@ -70,6 +71,19 @@ export function sparseToDense(
 
     // Set the max speed of the movement so velocities are scaled
     movement.setMaxSpeed(settings.optimisation.maxSpeed)
+
+    // If the previous movement was a transit to the correct place for this movement, don't do a second transition
+    if (
+      isTransit(previousMovement) &&
+      previousMovement.getEnd().distanceToSquared(movement.getStart()) < 1
+    ) {
+      // Add the movement to the dense bag
+      denseMovements.push(movement)
+
+      // Update the last movement
+      previousMovement = movement
+      continue
+    }
 
     // Points are visited by catmulls if their duration is 0, and if we have available control points
     if (
@@ -359,7 +373,8 @@ export async function optimise(
   }
 
   // Try a nearest neighbour search, use it if it's better (even if we have a cache)
-  {
+  // Requires at least 2 movements
+  if (sparseBag.length >= 2) {
     const toOrder: Movement[] = sparseBag.slice() // Copy the array
 
     // Pick a random movement to start at, remove it from the array
@@ -444,7 +459,6 @@ export async function optimise(
   }
 
   // Establish base cost to compare against
-
   let improved = true // Start iterating
   let iteration = 0
   let stoppedEarly = false
