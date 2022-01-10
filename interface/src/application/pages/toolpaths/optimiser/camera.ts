@@ -318,6 +318,11 @@ export class Camera {
       }
     }
 
+    // Give the TSP solver a nudge in the right direction
+    movements.sort((a, b) => {
+      return b.samplePoint(0).z - a.samplePoint(0).z
+    })
+
     return movements
   }
 
