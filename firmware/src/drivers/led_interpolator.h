@@ -59,7 +59,7 @@ PUBLIC void
 led_interpolator_manual_override_release( void );
 
 PUBLIC void
-led_interpolator_manual_control_set_rgb( float red, float green, float blue, bool enabled );
+led_interpolator_manual_control_set_rgb( uint16_t red, uint16_t green, uint16_t blue, bool enabled );
 
 /* -------------------------------------------------------------------------- */
 

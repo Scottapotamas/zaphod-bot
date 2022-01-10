@@ -23,8 +23,11 @@ import {
   Button,
   NumberInput,
   Slider,
+  Switch,
+  Checkbox,
 } from '@electricui/components-desktop-blueprint'
 import { Printer } from '@electricui/components-desktop'
+import { MSGID, ServoInfo } from 'src/application/typedState'
 
 export const LEDCalibrationBlock = () => {
   return (
@@ -52,10 +55,10 @@ export const LEDCalibrationBlock = () => {
 
               <Button
                 writer={state => {
-                  state.hsv = {
-                    hue: 0,
-                    saturation: 0,
-                    lightness: 0.1,
+                  state.manual_led = {
+                    red: 0.1,
+                    green: 0.1,
+                    blue: 0.1,
                     enable: 1,
                   }
                 }}
@@ -64,10 +67,10 @@ export const LEDCalibrationBlock = () => {
               </Button>
               <Button
                 writer={state => {
-                  state.hsv = {
-                    hue: 0,
-                    saturation: 0,
-                    lightness: 0.5,
+                  state.manual_led = {
+                    red: 0.5,
+                    green: 0.5,
+                    blue: 0.5,
                     enable: 1,
                   }
                 }}
@@ -76,10 +79,10 @@ export const LEDCalibrationBlock = () => {
               </Button>
               <Button
                 writer={state => {
-                  state.hsv = {
-                    hue: 0,
-                    saturation: 0,
-                    lightness: 1.0,
+                  state.manual_led = {
+                    red: 1.0,
+                    green: 1.0,
+                    blue: 1.0,
                     enable: 1,
                   }
                 }}
@@ -92,11 +95,11 @@ export const LEDCalibrationBlock = () => {
             <ButtonGroup fill>
               <Button
                 writer={state => {
-                  state.hsv = {
-                    hue: 0,
-                    saturation: 0.0,
-                    lightness: 0.0,
-                    enable: 0,
+                  state.manual_led = {
+                    red: 0,
+                    green: 0,
+                    blue: 0,
+                    enable: 1,
                   }
                 }}
               >
@@ -106,10 +109,10 @@ export const LEDCalibrationBlock = () => {
               <Button
                 intent="danger"
                 writer={state => {
-                  state.hsv = {
-                    hue: 0,
-                    saturation: 1.0,
-                    lightness: 0.5,
+                  state.manual_led = {
+                    red: 0.5,
+                    green: 0,
+                    blue: 0,
                     enable: 1,
                   }
                 }}
@@ -119,10 +122,10 @@ export const LEDCalibrationBlock = () => {
               <Button
                 intent="success"
                 writer={state => {
-                  state.hsv = {
-                    hue: 0.33,
-                    saturation: 1,
-                    lightness: 0.5,
+                  state.manual_led = {
+                    red: 0,
+                    green: 0.5,
+                    blue: 0,
                     enable: 1,
                   }
                 }}
@@ -132,10 +135,10 @@ export const LEDCalibrationBlock = () => {
               <Button
                 intent="primary"
                 writer={state => {
-                  state.hsv = {
-                    hue: 0.66,
-                    saturation: 0,
-                    lightness: 0.5,
+                  state.manual_led = {
+                    red: 0,
+                    green: 0,
+                    blue: 0.5,
                     enable: 1,
                   }
                 }}
@@ -262,8 +265,6 @@ export const LEDCalibrationBlock = () => {
     </Composition>
   )
 }
-
-import { ServoInfo } from '../../../typedState'
 
 const PowerCalibrationCard = () => {
   const servo4: ServoInfo | null = useHardwareState(state => state.servo[3])

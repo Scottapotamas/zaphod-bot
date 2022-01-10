@@ -7,12 +7,12 @@
 
 /* ----- Defines ------------------------------------------------------------ */
 
-// LED Channel power. 0 for off, 0xFFFFFF for full output
+// LED Channel power. 0 for off, 0xFFFFFFFFFFFF for full output
 typedef struct
 {
-    uint8_t red;
-    uint8_t green;
-    uint8_t blue;
+    uint16_t red;
+    uint16_t green;
+    uint16_t blue;
 } RGBColour_t;
 
 typedef struct
