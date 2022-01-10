@@ -51,8 +51,8 @@ app_hardware_init( void )
     hal_adc_init();
     hal_hard_ic_init();
 
-    configuration_init();
     user_interface_init();
+    configuration_init();
 
     // Check for the cause of the microcontroller booting (errors vs normal power up)
     user_interface_set_reset_cause( hal_reset_cause_description( hal_reset_cause() ) );

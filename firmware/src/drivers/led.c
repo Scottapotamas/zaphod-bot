@@ -56,14 +56,32 @@ led_enable( bool enable )
 PUBLIC void
 led_set( float r, float g, float b )
 {
-    float setpoint_r = led_luminance_correct( r );
-    float setpoint_g = led_luminance_correct( g );
-    float setpoint_b = led_luminance_correct( b );
+    float setpoint_r = 0;
+    float setpoint_g = 0;
+    float setpoint_b = 0;
 
-    led_whitebalance_correct( &setpoint_r, &setpoint_g, &setpoint_b );
-    setpoint_r *= led_power_limit();
-    setpoint_g *= led_power_limit();
-    setpoint_b *= led_power_limit();
+    if( configuration_get_led_luma_correction_enabled() )
+    {
+        setpoint_r = led_luminance_correct( r );
+        setpoint_g = led_luminance_correct( g );
+        setpoint_b = led_luminance_correct( b );
+    }
+    else
+    {
+        setpoint_r = r;
+        setpoint_g = g;
+        setpoint_b = b;
+    }
+
+    if( configuration_get_led_wb_correction_enabled() )
+    {
+        led_whitebalance_correct( &setpoint_r, &setpoint_g, &setpoint_b );
+    }
+
+    // Override LED brightness value
+//    setpoint_r *= led_power_limit();
+//    setpoint_g *= led_power_limit();
+//    setpoint_b *= led_power_limit();
 
     setpoint_r = CLAMP( setpoint_r, 0.0f, 1.0f );
     setpoint_g = CLAMP( setpoint_g, 0.0f, 1.0f );
@@ -71,13 +89,13 @@ led_set( float r, float g, float b )
 
     // Set the output duty cycles for the led PWM channels
     // PWM peripheral expects 0-100 percentage input, and we need to invert the polarity of the duty cycle
-//    hal_pwm_set_percentage_f( _PWM_TIM_AUX_0, ( setpoint_r * -1.0 + 1.0 ) * 100.0f );
-//    hal_pwm_set_percentage_f( _PWM_TIM_AUX_2, ( setpoint_g * -1.0 + 1.0 ) * 100.0f );
-//    hal_pwm_set_percentage_f( _PWM_TIM_AUX_1, ( setpoint_b * -1.0 + 1.0 ) * 100.0f );
+    hal_pwm_set_percentage_f( _PWM_TIM_AUX_0, ( setpoint_r * -1.0 + 1.0 ) * 100.0f );
+    hal_pwm_set_percentage_f( _PWM_TIM_AUX_1, ( setpoint_g * -1.0 + 1.0 ) * 100.0f );
+    hal_pwm_set_percentage_f( _PWM_TIM_AUX_2, ( setpoint_b * -1.0 + 1.0 ) * 100.0f );
 
-    hal_pwm_set_percentage_f( _PWM_TIM_AUX_0, ( r * -1.0 + 1.0 ) * 100.0f );
-    hal_pwm_set_percentage_f( _PWM_TIM_AUX_1, ( g * -1.0 + 1.0 ) * 100.0f );
-    hal_pwm_set_percentage_f( _PWM_TIM_AUX_2, ( b * -1.0 + 1.0 ) * 100.0f );
+//    hal_pwm_set_percentage_f( _PWM_TIM_AUX_0, ( r * -1.0 + 1.0 ) * 100.0f );
+//    hal_pwm_set_percentage_f( _PWM_TIM_AUX_1, ( g * -1.0 + 1.0 ) * 100.0f );
+//    hal_pwm_set_percentage_f( _PWM_TIM_AUX_2, ( b * -1.0 + 1.0 ) * 100.0f );
 
     user_interface_set_led_values( setpoint_r * 0xFFFF, setpoint_g * 0xFFFF, setpoint_b * 0xFFFF );
 }

@@ -13,7 +13,7 @@
 /* ----- Defines ------------------------------------------------------------ */
 
 PowerCalibration_t power_trims = { 0 };
-LedSettings_t rgb_led_settings = { 0 };
+LedSettings_t *rgb_led_settings_ptr = 0;
 
 float z_rotation = 0;
 
@@ -42,6 +42,11 @@ configuration_init( void )
 PUBLIC void
 configuration_set_defaults( void )
 {
+    rgb_led_settings_ptr->correct_gamma = false;
+    rgb_led_settings_ptr->correct_wb = true;
+    rgb_led_settings_ptr->balance_red = 0xFFFFU * 0.3f;
+    rgb_led_settings_ptr->balance_green = 0;
+    rgb_led_settings_ptr->balance_blue = 0xFFFF * 0.79f;
 
 }
 
@@ -56,7 +61,7 @@ configuration_load( void )
 {
     // Load the data from non-volatile storage
     hal_flashmem_retrieve( PERSIST_ID_CAL_POWER, &power_trims, sizeof( PowerCalibration_t ) );
-    hal_flashmem_retrieve( PERSIST_ID_CAL_LED, &rgb_led_settings, sizeof( LedSettings_t ) );
+    hal_flashmem_retrieve( PERSIST_ID_CAL_LED, rgb_led_settings_ptr, sizeof( LedSettings_t ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -66,7 +71,7 @@ configuration_save( void )
 {
     //save settings to memory
     hal_flashmem_store( PERSIST_ID_CAL_POWER, &power_trims, sizeof( PowerCalibration_t ) );
-    hal_flashmem_store( PERSIST_ID_CAL_LED, &rgb_led_settings, sizeof( LedSettings_t ) );
+    hal_flashmem_store( PERSIST_ID_CAL_LED, rgb_led_settings_ptr, sizeof( LedSettings_t ) );
 
     buzzer_sound( 2, 4000, 50 );
 }
@@ -88,6 +93,8 @@ configuration_get_fan_curve_ptr( void )
     {
         return &fan_curve[0];
     }
+
+    return 0;
 }
 
 PUBLIC int16_t configuration_get_voltage_trim_mV( void )
@@ -114,18 +121,41 @@ PUBLIC int16_t configuration_get_servo_trim_mA( uint8_t servo )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-configuration_get_led_whitebalance( int16_t *red_offset, int16_t *green_offset, int16_t *blue_offset )
+PUBLIC void *
+configuration_set_led_correction_ptr( LedSettings_t *ptr )
 {
-    *red_offset   = rgb_led_settings.balance_red;
-    *green_offset = rgb_led_settings.balance_green;
-    *blue_offset  = rgb_led_settings.balance_blue;
+    if(ptr)
+    {
+        rgb_led_settings_ptr = ptr;
+    }
+
+    return 0;
 }
 
 PUBLIC void
-configuration_get_led_bias( int16_t *offset )
+configuration_get_led_whitebalance( uint16_t *red_offset, uint16_t *green_offset, uint16_t *blue_offset )
 {
-    *offset = rgb_led_settings.balance_total;
+    *red_offset   = rgb_led_settings_ptr->balance_red;
+    *green_offset = rgb_led_settings_ptr->balance_green;
+    *blue_offset  = rgb_led_settings_ptr->balance_blue;
+}
+
+PUBLIC void
+configuration_get_led_bias( uint16_t *offset )
+{
+    *offset = rgb_led_settings_ptr->balance_total;
+}
+
+PUBLIC bool
+configuration_get_led_luma_correction_enabled( void )
+{
+    return rgb_led_settings_ptr->correct_gamma;
+}
+
+PUBLIC bool
+configuration_get_led_wb_correction_enabled( void )
+{
+    return rgb_led_settings_ptr->correct_wb;
 }
 
 /* -------------------------------------------------------------------------- */

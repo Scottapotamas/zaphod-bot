@@ -38,15 +38,38 @@ export const LEDCalibrationBlock = () => {
       <Box>
         <Composition templateCols="1fr 2fr" gap={30}>
           <Box>
+            <Checkbox
+              checked={true}
+              unchecked={false}
+              accessor={state => state[MSGID.LED_CALIBRATION].correct_luma}
+              writer={(state, value) => {
+                state[MSGID.LED_CALIBRATION].correct_luma = value
+              }}
+            >
+              Luminance Curve Correction
+            </Checkbox>
+            <Checkbox
+              checked={true}
+              unchecked={false}
+              accessor={state => state[MSGID.LED_CALIBRATION].correct_whitebalance}
+              writer={(state, value) => {
+                state[MSGID.LED_CALIBRATION].correct_whitebalance = value
+              }}
+            >
+              Whitebalance Correction
+            </Checkbox>
+
+          </Box>
+          <Box>
             <h3>Whitebalance Check</h3>
             <ButtonGroup fill>
               <Button
                 writer={state => {
-                  state.hsv = {
-                    hue: 0,
-                    saturation: 0,
-                    lightness: 0,
-                    enable: 0,
+                  state.manual_led = {
+                    red: 0,
+                    green: 0,
+                    blue: 0,
+                    enable: 1,
                   }
                 }}
               >
@@ -164,20 +187,21 @@ export const LEDCalibrationBlock = () => {
                   <td>
                     <Slider
                       showTrackFill={false}
-                      writer={values => ({
-                        ledset: {
-                          offset_red: values.red_handle,
-                        },
-                      })}
-                      min={-1}
+                      writer={(state, values) => {
+                        state[MSGID.LED_CALIBRATION].offset_red =
+                          values.red_handle
+                      }}
+                      min={0}
                       max={1}
-                      stepSize={0.02}
+                      stepSize={0.01}
                       labelStepSize={0.5}
-                      labelRenderer={val => `${Math.round(val * 100)}%`}
+                      labelRenderer={val => `${Math.round(val * -100)}%`}
                     >
                       <Slider.Handle
                         name="red_handle"
-                        accessor={state => state.ledset.offset_red}
+                        accessor={state =>
+                          state[MSGID.LED_CALIBRATION].offset_red
+                        }
                       />
                     </Slider>
                   </td>
@@ -189,20 +213,21 @@ export const LEDCalibrationBlock = () => {
                   <td>
                     <Slider
                       showTrackFill={false}
-                      writer={values => ({
-                        ledset: {
-                          offset_green: values.green_handle,
-                        },
-                      })}
-                      min={-1}
+                      writer={(state, values) => {
+                        state[MSGID.LED_CALIBRATION].offset_green =
+                          values.green_handle
+                      }}
+                      min={0}
                       max={1}
-                      stepSize={0.02}
+                      stepSize={0.01}
                       labelStepSize={0.5}
-                      labelRenderer={val => `${Math.round(val * 100)}%`}
+                      labelRenderer={val => `${Math.round(val * -100)}%`}
                     >
                       <Slider.Handle
                         name="green_handle"
-                        accessor={state => state.ledset.offset_green}
+                        accessor={state =>
+                          state[MSGID.LED_CALIBRATION].offset_green
+                        }
                       />
                     </Slider>
                   </td>
@@ -214,20 +239,21 @@ export const LEDCalibrationBlock = () => {
                   <td>
                     <Slider
                       showTrackFill={false}
-                      writer={values => ({
-                        ledset: {
-                          offset_blue: values.blue_handle,
-                        },
-                      })}
-                      min={-1}
+                      writer={(state, values) => {
+                        state[MSGID.LED_CALIBRATION].offset_blue =
+                          values.blue_handle
+                      }}
+                      min={0}
                       max={1}
-                      stepSize={0.02}
+                      stepSize={0.01}
                       labelStepSize={0.5}
-                      labelRenderer={val => `${Math.round(val * 100)}%`}
+                      labelRenderer={val => `${Math.round(val * -100)}%`}
                     >
                       <Slider.Handle
                         name="blue_handle"
-                        accessor={state => state.ledset.offset_blue}
+                        accessor={state =>
+                          state[MSGID.LED_CALIBRATION].offset_blue
+                        }
                       />
                     </Slider>
                   </td>
@@ -239,20 +265,21 @@ export const LEDCalibrationBlock = () => {
                   <td>
                     <Slider
                       showTrackFill={false}
-                      writer={values => ({
-                        ledset: {
-                          offset_global: values.luma_handle,
-                        },
-                      })}
-                      min={-1}
+                      writer={(state, values) => {
+                        state[MSGID.LED_CALIBRATION].offset_global =
+                          values.luma_handle
+                      }}
+                      min={0}
                       max={1}
-                      stepSize={0.02}
+                      stepSize={0.01}
                       labelStepSize={0.5}
-                      labelRenderer={val => `${Math.round(val * 100)}%`}
+                      labelRenderer={val => `${Math.round(val * -100)}%`}
                     >
                       <Slider.Handle
                         name="luma_handle"
-                        accessor={state => state.ledset.offset_global}
+                        accessor={state =>
+                          state[MSGID.LED_CALIBRATION].offset_global
+                        }
                       />
                     </Slider>
                   </td>

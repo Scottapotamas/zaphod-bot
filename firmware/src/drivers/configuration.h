@@ -44,11 +44,21 @@ configuration_get_servo_trim_mA( uint8_t servo );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-configuration_get_led_whitebalance( int16_t *red_offset, int16_t *green_offset, int16_t *blue_offset );
+PUBLIC void *
+configuration_set_led_correction_ptr( LedSettings_t *ptr );
 
 PUBLIC void
-configuration_get_led_bias( int16_t *offset );
+configuration_get_led_whitebalance( uint16_t *red_offset, uint16_t *green_offset, uint16_t *blue_offset );
+
+PUBLIC void
+configuration_get_led_bias( uint16_t *offset );
+
+PUBLIC bool
+configuration_get_led_luma_correction_enabled( void );
+
+PUBLIC bool
+configuration_get_led_wb_correction_enabled( void );
+
 
 /* -------------------------------------------------------------------------- */
 
