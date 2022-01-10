@@ -5,12 +5,19 @@ import { NodeInfo, NodeTypes } from '../interface/RenderableTree'
 import { ObjectNameTree } from './files'
 import { importMaterial, MaterialJSON } from './material'
 import { isSimpleColorMaterial } from './materials/Color'
+import { DelayMaterial } from './materials/DelayMaterial'
 import { Point, Line, Movement, MovementGroup } from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
 
 export interface LightToMovementsSettings {
-  // How long to wait at the light before moving on.
-  stopDelay?: number
+  // How long to wait at the particle's position before going bright.
+  preWait?: number
+
+  // How long to be on for.
+  onDuration?: number
+
+  // How long to wait at the particle's position after going bright.
+  postWait?: number
 
   /**
    * If the colour of the light is black, don't render it at all.
@@ -76,10 +83,20 @@ export class Light {
       this.position[2],
     )
 
+    const duration =
+      (settingsWithOverride.preWait ?? 0) +
+      (settingsWithOverride.onDuration ?? 0) +
+      (settingsWithOverride.postWait ?? 0)
+
     const point = new Point(
       position,
-      settingsWithOverride.stopDelay ?? 0,
-      mat,
+      duration,
+      new DelayMaterial(
+        mat,
+        settingsWithOverride.preWait ?? 0,
+        settingsWithOverride.onDuration ?? 0,
+        settingsWithOverride.postWait ?? 0,
+      ),
       objectID,
     )
 
