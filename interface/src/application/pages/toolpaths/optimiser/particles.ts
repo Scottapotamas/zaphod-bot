@@ -32,8 +32,14 @@ export class ParticleSystem {
 }
 
 export interface ParticlesToMovementsSettings {
-  // How long to wait at each particle before moving on.
-  stopDelay?: number
+  // How long to wait at the particle's position before going bright.
+  preWait?: number
+
+  // How long to be on for.
+  onDuration?: number
+
+  // How long to wait at the particle's position after going bright.
+  postWait?: number
 
   // Pass through the point in the direction of its velocity, otherwise, stops at it from any direction.
   drawInVelocityOrientation?: boolean
@@ -96,9 +102,14 @@ export class Particles {
           particle.location[2],
         )
 
+        const duration =
+          (settingsWithOverride.preWait ?? 0) +
+          (settingsWithOverride.onDuration ?? 0) +
+          (settingsWithOverride.postWait ?? 0)
+
         const point = new Point(
           location,
-          settingsWithOverride.stopDelay ?? 0,
+          duration,
           importMaterial(system.material),
           objectID,
         )

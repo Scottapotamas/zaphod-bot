@@ -103,20 +103,20 @@ function InterLineTransitionDistanceControl() {
   )
 }
 
-function ParticleWaitDurationControl() {
-  const [localStopDelay, setLocalStopDelay] = useState(
-    getSetting(state => state.settings.objectSettings.particles.stopDelay) ?? 0,
+function ParticlePreWaitDurationControl() {
+  const [setting, set] = useState(
+    getSetting(state => state.settings.objectSettings.particles.preWait) ?? 0,
   )
 
-  const updateStopDelay = useCallback(delay => {
+  const update = useCallback(delay => {
     setSetting(state => {
-      state.settings.objectSettings.particles.stopDelay = delay
+      state.settings.objectSettings.particles.preWait = delay
     })
   }, [])
 
-  const setAndUpdateStopDelay = useCallback(delay => {
-    setLocalStopDelay(delay)
-    updateStopDelay(delay)
+  const handleUpdate = useCallback(delay => {
+    set(delay)
+    update(delay)
   }, [])
 
   return (
@@ -126,8 +126,164 @@ function ParticleWaitDurationControl() {
       max={200}
       stepSize={25}
       majorStepSize={100}
-      value={localStopDelay}
-      onValueChange={setAndUpdateStopDelay}
+      value={setting}
+      onValueChange={handleUpdate}
+      rightElement={<Tag>ms</Tag>}
+      style={{ width: '100%' }}
+    />
+  )
+}
+
+function ParticlePostWaitDurationControl() {
+  const [setting, set] = useState(
+    getSetting(state => state.settings.objectSettings.particles.postWait) ?? 0,
+  )
+
+  const update = useCallback(delay => {
+    setSetting(state => {
+      state.settings.objectSettings.particles.postWait = delay
+    })
+  }, [])
+
+  const handleUpdate = useCallback(delay => {
+    set(delay)
+    update(delay)
+  }, [])
+
+  return (
+    <NumericInput
+      fill
+      min={0}
+      max={200}
+      stepSize={25}
+      majorStepSize={100}
+      value={setting}
+      onValueChange={handleUpdate}
+      rightElement={<Tag>ms</Tag>}
+      style={{ width: '100%' }}
+    />
+  )
+}
+
+function ParticleOnDurationControl() {
+  const [setting, set] = useState(
+    getSetting(state => state.settings.objectSettings.particles.onDuration) ??
+      0,
+  )
+
+  const update = useCallback(delay => {
+    setSetting(state => {
+      state.settings.objectSettings.particles.onDuration = delay
+    })
+  }, [])
+
+  const handleUpdate = useCallback(delay => {
+    set(delay)
+    update(delay)
+  }, [])
+
+  return (
+    <NumericInput
+      fill
+      min={0}
+      max={200}
+      stepSize={25}
+      majorStepSize={100}
+      value={setting}
+      onValueChange={handleUpdate}
+      rightElement={<Tag>ms</Tag>}
+      style={{ width: '100%' }}
+    />
+  )
+}
+
+function LightPreWaitDurationControl() {
+  const [setting, set] = useState(
+    getSetting(state => state.settings.objectSettings.light.preWait) ?? 0,
+  )
+
+  const update = useCallback(delay => {
+    setSetting(state => {
+      state.settings.objectSettings.light.preWait = delay
+    })
+  }, [])
+
+  const handleUpdate = useCallback(delay => {
+    set(delay)
+    update(delay)
+  }, [])
+
+  return (
+    <NumericInput
+      fill
+      min={0}
+      max={200}
+      stepSize={25}
+      majorStepSize={100}
+      value={setting}
+      onValueChange={handleUpdate}
+      rightElement={<Tag>ms</Tag>}
+      style={{ width: '100%' }}
+    />
+  )
+}
+
+function LightPostWaitDurationControl() {
+  const [setting, set] = useState(
+    getSetting(state => state.settings.objectSettings.light.postWait) ?? 0,
+  )
+
+  const update = useCallback(delay => {
+    setSetting(state => {
+      state.settings.objectSettings.light.postWait = delay
+    })
+  }, [])
+
+  const handleUpdate = useCallback(delay => {
+    set(delay)
+    update(delay)
+  }, [])
+
+  return (
+    <NumericInput
+      fill
+      min={0}
+      max={200}
+      stepSize={25}
+      majorStepSize={100}
+      value={setting}
+      onValueChange={handleUpdate}
+      rightElement={<Tag>ms</Tag>}
+      style={{ width: '100%' }}
+    />
+  )
+}
+
+function LightOnDurationControl() {
+  const [setting, set] = useState(
+    getSetting(state => state.settings.objectSettings.light.onDuration) ?? 0,
+  )
+
+  const update = useCallback(delay => {
+    setSetting(state => {
+      state.settings.objectSettings.light.onDuration = delay
+    })
+  }, [])
+
+  const handleUpdate = useCallback(delay => {
+    set(delay)
+    update(delay)
+  }, [])
+
+  return (
+    <NumericInput
+      fill
+      min={0}
+      max={200}
+      stepSize={25}
+      majorStepSize={100}
+      value={setting}
+      onValueChange={handleUpdate}
       rightElement={<Tag>ms</Tag>}
       style={{ width: '100%' }}
     />
@@ -385,7 +541,9 @@ function CameraHelpersTab() {
 function ParticlesTab() {
   return (
     <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
-      Wait at Particle <ParticleWaitDurationControl />
+      Pre Wait <ParticlePreWaitDurationControl />
+      On Duration <ParticlePostWaitDurationControl />
+      Post Wait <ParticleOnDurationControl />
       Draw in Velocity Orientation <DrawParticlesInVelocityOrientationControl />
     </Composition>
   )
@@ -394,7 +552,9 @@ function ParticlesTab() {
 function LightTab() {
   return (
     <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
-      Wait at Light <ParticleWaitDurationControl />
+      Pre Wait <LightPreWaitDurationControl />
+      On Duration <LightPostWaitDurationControl />
+      Post Wait <LightOnDurationControl />
       Hide if Black <HideLightIfBlackControl />
     </Composition>
   )

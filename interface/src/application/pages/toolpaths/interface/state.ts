@@ -28,10 +28,14 @@ const defaultSettings: Settings = {
     },
     particles: {
       drawInVelocityOrientation: false,
-      stopDelay: 5,
+      preWait: 5,
+      onDuration: 5,
+      postWait: 5,
     },
     light: {
-      stopDelay: 5,
+      preWait: 5,
+      onDuration: 5,
+      postWait: 5,
       hideIfBlack: true,
     },
     camera: {

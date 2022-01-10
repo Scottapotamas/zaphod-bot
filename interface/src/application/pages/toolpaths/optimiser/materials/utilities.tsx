@@ -13,6 +13,7 @@ export enum MATERIALS {
   VELOCITY = 'velocity',
   MIX = 'mix',
   INVISIBLE = 'invisible',
+  DELAY = 'delay',
 }
 
 // Our angles are stored as floats in the range 0-1

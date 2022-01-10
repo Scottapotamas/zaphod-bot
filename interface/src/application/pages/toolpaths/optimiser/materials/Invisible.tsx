@@ -45,6 +45,17 @@ export function importInvisibleMaterial(json: InvisibleMaterialJSON) {
   return mat
 }
 
+export function invisibleLightFade(id: number, duration: number) {
+  const fade: LightMove = {
+    id,
+    duration: duration,
+    type: LightMoveType.IMMEDIATE,
+    points: [[0, 0, 0]], // Set a light move of the LED being off
+    num_points: 1,
+  }
+  return fade
+}
+
 export class InvisibleMaterial extends Material {
   readonly type = MATERIALS.INVISIBLE
 
@@ -53,13 +64,7 @@ export class InvisibleMaterial extends Material {
   }
 
   public generateLightpath = (id: number, movement: Movement) => {
-    const fade: LightMove = {
-      id,
-      duration: movement.getDuration(),
-      type: LightMoveType.IMMEDIATE,
-      points: [[0, 0, 0]], // Set a light move of the LED being off
-      num_points: 1,
-    }
+    const fade = invisibleLightFade(id, movement.getDuration())
 
     return [fade]
   }
