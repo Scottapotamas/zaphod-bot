@@ -15,6 +15,7 @@ import { Point, Line, Movement, MovementGroup } from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
 import { IconNames } from '@blueprintjs/icons'
 import { SimpleColorMaterial } from './materials/Color'
+import { DelayMaterial } from './materials/DelayMaterial'
 
 export interface CameraToMovementsSettings {
   // Whether to draw alignment helpers in real space
@@ -196,11 +197,21 @@ export class Camera {
         ),
       )
 
+      const duration =
+        (settings.objectSettings.light.preWait ?? 0) +
+        (settings.objectSettings.light.onDuration ?? 0) +
+        (settings.objectSettings.light.postWait ?? 0)
+
       movements.push(
         new Point(
           new Vector3(50, 0, 70),
-          settings.objectSettings.light.stopDelay ?? 25,
-          new SimpleColorMaterial([0.5, 0.5, 0.5]),
+          duration,
+          new DelayMaterial(
+            new SimpleColorMaterial([0.5, 0.5, 0.5]),
+            settings.objectSettings.light.preWait ?? 0,
+            settings.objectSettings.light.onDuration ?? 0,
+            settings.objectSettings.light.postWait ?? 0,
+          ),
           objectID,
         ),
       )
