@@ -78,7 +78,7 @@ export const OptimisationWorker = {
       if (partialUpdate) return false
 
       // need to wait for a microtick for other calls to come in
-      await new Promise((resolve, reject) => setTimeout(resolve))
+      await new Promise((resolve, reject) => setTimeout(resolve, 0))
 
       return shouldContinue
     }
