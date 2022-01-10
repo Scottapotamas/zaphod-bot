@@ -43,7 +43,7 @@ void hal_pwm_generation( PWMOutputTimerDef_t pwm_output, uint16_t frequency )
     {
         case _PWM_TIM_FAN:
             LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_TIM10 );
-            hal_gpio_init_alternate( _FAN_PWM, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_DOWN );
+            hal_gpio_init_alternate( _FAN_PWM, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_DOWN );
 
             NVIC_SetPriority( TIM1_UP_TIM10_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 7, 5 ) );
             NVIC_EnableIRQ( TIM1_UP_TIM10_IRQn );

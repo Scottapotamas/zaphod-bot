@@ -402,9 +402,9 @@ export class LEDCodec extends Codec<LedStatus> {
   encode(payload: LedStatus) {
     const packet = new SmartBuffer()
 
-    packet.writeUInt16LE(payload.red)
-    packet.writeUInt16LE(payload.green)
-    packet.writeUInt16LE(payload.blue)
+    packet.writeUInt16LE(payload.red * 0xFFFF )
+    packet.writeUInt16LE(payload.green * 0xFFFF )
+    packet.writeUInt16LE(payload.blue * 0xFFFF )
     packet.writeUInt8(payload.enable ? 1 : 0)
 
     return packet.toBuffer()
@@ -414,9 +414,9 @@ export class LEDCodec extends Codec<LedStatus> {
     const reader = SmartBuffer.fromBuffer(payload)
 
     const settings: LedStatus = {
-      red: reader.readUInt16LE(),
-      green: reader.readUInt16LE(),
-      blue: reader.readUInt16LE(),
+      red: reader.readUInt16LE() / 0xFFFF,
+      green: reader.readUInt16LE() / 0xFFFF,
+      blue: reader.readUInt16LE() / 0xFFFF,
       enable: reader.readUInt8() === 1 ? true : false,
     }
 
@@ -426,16 +426,21 @@ export class LEDCodec extends Codec<LedStatus> {
 
 export class RGBSettingsCodec extends Codec {
   filter(message: Message): boolean {
-    return message.messageID === 'ledset'
+    return message.messageID === MSGID.LED_CALIBRATION
   }
 
   encode(payload: LedSettings) {
     const packet = new SmartBuffer()
 
-    packet.writeInt16LE(payload.offset_red * 32767)
-    packet.writeInt16LE(payload.offset_green * 32767)
-    packet.writeInt16LE(payload.offset_blue * 32767)
-    packet.writeInt16LE(payload.offset_global * 32767)
+    let luma_value = (payload.correct_luma)? 1 : 0;
+    let wb_value = (payload.correct_whitebalance)? 1 : 0;
+
+    packet.writeUInt8(luma_value)
+    packet.writeUInt8(wb_value)
+    packet.writeUInt16LE(payload.offset_red * 0xFFFF)
+    packet.writeUInt16LE(payload.offset_green * 0xFFFF)
+    packet.writeUInt16LE(payload.offset_blue * 0xFFFF)
+    packet.writeUInt16LE(payload.offset_global * 0xFFFF)
 
     return packet.toBuffer()
   }
@@ -444,10 +449,12 @@ export class RGBSettingsCodec extends Codec {
     const reader = SmartBuffer.fromBuffer(payload)
 
     return {
-      offset_red: reader.readInt16LE() / 32767,
-      offset_green: reader.readInt16LE() / 32767,
-      offset_blue: reader.readInt16LE() / 32767,
-      offset_global: reader.readInt16LE() / 32767,
+      correct_luma: reader.readUInt8() === 0x01 ? true : false,
+      correct_whitebalance: reader.readUInt8() === 0x01 ? true : false,
+      offset_red: reader.readUInt16LE() / 0xFFFF,
+      offset_green: reader.readUInt16LE() / 0xFFFF,
+      offset_blue: reader.readUInt16LE() / 0xFFFF,
+      offset_global: reader.readUInt16LE() / 0xFFFF,
     }
   }
 }

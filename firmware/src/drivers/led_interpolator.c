@@ -169,15 +169,15 @@ led_interpolator_manual_override_release( void )
 }
 
 PUBLIC void
-led_interpolator_manual_control_set_rgb( float red, float green, float blue, bool enabled )
+led_interpolator_manual_control_set_rgb( uint16_t red, uint16_t green, uint16_t blue, bool enabled )
 {
     led_enable( enabled );    // Turn off the LED if the user isn't wanting it on
 
     GenericColour_t output_values = { 0.0f, 0.0f, 0.0f };
 
-    output_values.x = red / 255;
-    output_values.y = green / 255;
-    output_values.z = blue / 255;
+    output_values.x = (float)red / 0xFFFFU;
+    output_values.y = (float)green / 0xFFFFU;
+    output_values.z = (float)blue / 0xFFFFU;
 
     if( enabled )
     {

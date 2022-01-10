@@ -114,13 +114,15 @@ led_luminance_correct( float input )
 PRIVATE void
 led_whitebalance_correct( float *red, float *green, float *blue )
 {
-    int16_t wb_r, wb_g, wb_b = 0;
+    // Whitebalance corrections can only reduce the strength of a LED
+    // as correcting 'brighter' doesn't make sense if a given channel is at max
+    uint16_t wb_r, wb_g, wb_b = 0;
     configuration_get_led_whitebalance( &wb_r, &wb_g, &wb_b );
 
     // Apply offsets
-    *red   = *red * ( 1.0 - ( (float)wb_r / 32767.0f ) );
-    *green = *green * ( 1.0 - ( (float)wb_g / 32767.0f ) );
-    *blue  = *blue * ( 1.0 - ( (float)wb_b / 32767.0f ) );
+    *red   = *red * ( 1.0 - ( (float)wb_r / 0xFFFFU ) );
+    *green = *green * ( 1.0 - ( (float)wb_g / 0xFFFFU ) );
+    *blue  = *blue * ( 1.0 - ( (float)wb_b / 0xFFFFU ) );
 }
 
 /* -------------------------------------------------------------------------- */

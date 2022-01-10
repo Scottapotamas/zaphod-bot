@@ -36,6 +36,8 @@
   DISARM = "disarm",
   HOME = "home",
   CAPTURE = "capture",
+
+  LED_CALIBRATION = "calLED",
 }
 
 /**
@@ -209,6 +211,8 @@ export type LedStatus = {
 }
 
 export type LedSettings = {
+  correct_luma: boolean
+  correct_whitebalance: boolean
   offset_red: number
   offset_green: number
   offset_blue: number

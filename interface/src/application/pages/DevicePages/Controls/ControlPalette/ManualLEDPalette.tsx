@@ -70,7 +70,7 @@ const ManualLEDPalette = () => {
           intent={Intent.DANGER}
           writer={state => {
             state.manual_led = {
-              red: 128,
+              red: 0.5,
               green: 0,
               blue: 0,
               enable: 1,
@@ -82,7 +82,7 @@ const ManualLEDPalette = () => {
           writer={state => {
             state.manual_led = {
               red: 0,
-              green: 128,
+              green: 0.5,
               blue: 0,
               enable: 1,
             }
@@ -94,7 +94,7 @@ const ManualLEDPalette = () => {
             state.manual_led = {
               red: 0,
               green: 0,
-              blue: 128,
+              blue: 0.5,
               enable: 1,
             }
           }}
