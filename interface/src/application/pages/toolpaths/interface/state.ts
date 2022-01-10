@@ -41,7 +41,7 @@ const defaultSettings: Settings = {
     camera: {
       drawAlignmentHelpers: false,
       drawRulers: false,
-      drawCalibrationChart: false,
+      drawColorCalibrationChart: false,
     },
   },
 
