@@ -23,7 +23,9 @@ export interface CameraToMovementsSettings {
   // Enable rulers for debugging
   drawRulers?: boolean
   // Enable coloured lines for debugging
-  drawCalibrationChart?: boolean
+  drawColorCalibrationChart?: boolean
+  // Enable lines for debugging
+  drawMoveCalibrationChart?: boolean
 }
 
 const euler = new Euler(0, 0, 0, 'XYZ')
@@ -136,7 +138,7 @@ export class Camera {
       )
     }
 
-    if (settings.objectSettings.camera.drawCalibrationChart) {
+    if (settings.objectSettings.camera.drawColorCalibrationChart) {
       const objectID = `${this.name}-color-lines`
 
       // Left side, 20 linear gradations of black to white
@@ -186,6 +188,44 @@ export class Camera {
           ),
         )
       }
+
+      const white = new SimpleColorMaterial([1, 1, 1])
+
+      // Left side, 20 linear gradations of white at different speeds, from 10mm/s to 210mm/s
+      for (let index = 0; index <= 20; index++) {
+        const movement = new Line(
+          new Vector3(30, 0, index * 5 + 50),
+          new Vector3(40, 0, index * 5 + 50),
+          white,
+          objectID,
+        )
+
+        movement.maxSpeed = (index + 1) * 10
+        movement.lockSpeed = true
+
+        movements.push(movement)
+      }
+
+      const grey = new SimpleColorMaterial([0.5, 0.5, 0.5])
+
+      // Left side, 20 linear gradations of grey at different speeds, from 10mm/s to 210mm/s
+      for (let index = 0; index <= 20; index++) {
+        const movement = new Line(
+          new Vector3(50, 0, index * 5 + 50),
+          new Vector3(60, 0, index * 5 + 50),
+          grey,
+          objectID,
+        )
+
+        movement.maxSpeed = (index + 1) * 10
+        movement.lockSpeed = true
+
+        movements.push(movement)
+      }
+    }
+
+    if (settings.objectSettings.camera.drawMoveCalibrationChart) {
+      const objectID = `${this.name}-moves-lines`
 
       // A point with two lines pointing at it in the bottom right
       movements.push(

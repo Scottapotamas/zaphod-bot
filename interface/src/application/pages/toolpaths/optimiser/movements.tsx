@@ -294,11 +294,14 @@ export function isLine(movement: Movement): movement is Line {
 export class Line extends Movement {
   readonly type = MOVEMENT_TYPE.LINE
   // Maximum speed in millimeters per second
-  maxSpeed: number = defaultSpeed
+  public maxSpeed: number = defaultSpeed
 
   // The maximum amount of shrink 0-1. If both are non-zero, meet at half way point
   private maxStartShrinkFactor = 0
   private maxEndShrinkFactor = 0
+
+  // If we want to lock the speed regardless of the optimiser
+  public lockSpeed = false
 
   constructor(
     public from: Vector3,
@@ -331,6 +334,7 @@ export class Line extends Movement {
   }
 
   public setMaxSpeed = (maxSpeed: number) => {
+    if (this.lockSpeed) return
     this.maxSpeed = maxSpeed
   }
 
