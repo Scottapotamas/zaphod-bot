@@ -168,7 +168,7 @@ function ParticlePostWaitDurationControl() {
 function ParticleOnDurationControl() {
   const [setting, set] = useState(
     getSetting(state => state.settings.objectSettings.particles.onDuration) ??
-      0,
+      1,
   )
 
   const update = useCallback(delay => {
@@ -185,7 +185,7 @@ function ParticleOnDurationControl() {
   return (
     <NumericInput
       fill
-      min={0}
+      min={1}
       max={200}
       stepSize={25}
       majorStepSize={100}
@@ -261,7 +261,7 @@ function LightPostWaitDurationControl() {
 
 function LightOnDurationControl() {
   const [setting, set] = useState(
-    getSetting(state => state.settings.objectSettings.light.onDuration) ?? 0,
+    getSetting(state => state.settings.objectSettings.light.onDuration) ?? 1,
   )
 
   const update = useCallback(delay => {
@@ -278,7 +278,7 @@ function LightOnDurationControl() {
   return (
     <NumericInput
       fill
-      min={0}
+      min={1}
       max={200}
       stepSize={25}
       majorStepSize={100}
@@ -515,6 +515,7 @@ const enum TABS {
   PARTICLES = 'particles',
   LIGHT = 'light',
   LINE = 'line',
+  GPENCIL = 'gpencil',
   VISUALISATION = 'visualisation',
 }
 
@@ -542,8 +543,8 @@ function ParticlesTab() {
   return (
     <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
       Pre Wait <ParticlePreWaitDurationControl />
-      On Duration <ParticlePostWaitDurationControl />
-      Post Wait <ParticleOnDurationControl />
+      On Duration <ParticleOnDurationControl />
+      Post Wait <ParticlePostWaitDurationControl />
       Draw in Velocity Orientation <DrawParticlesInVelocityOrientationControl />
     </Composition>
   )
@@ -553,8 +554,8 @@ function LightTab() {
   return (
     <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
       Pre Wait <LightPreWaitDurationControl />
-      On Duration <LightPostWaitDurationControl />
-      Post Wait <LightOnDurationControl />
+      On Duration <LightOnDurationControl />
+      Post Wait <LightPostWaitDurationControl />
       Hide if Black <HideLightIfBlackControl />
     </Composition>
   )
@@ -595,8 +596,8 @@ export const PlannerSettingsInterface = () => {
       <Tabs onChange={handleTabChange} selectedTabId={selected}>
         <Tab id={TABS.GENERAL} title="General" panel={<GeneralTab />} />
         <Tab id={TABS.PARTICLES} title="Particles" panel={<ParticlesTab />} />
+        <Tab id={TABS.LIGHT} title="Lights" panel={<LightTab />} />
         <Tab id={TABS.LINE} title="Lines" panel={<LineTab />} />
-        <Tab id={TABS.LIGHT} title="GPencil" panel={<LightTab />} />
         <Tab
           id={TABS.CAMERA_HELPERS}
           title="Camera Helpers"
