@@ -79,7 +79,7 @@ hal_setup_capture( uint8_t input )
 #ifdef HLFB_TIM_3
             LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_TIM3 );
 
-            hal_gpio_init_alternate( _SERVO_1_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
+            hal_gpio_init_alternate( _SERVO_1_HLFB, LL_GPIO_MODE_ALTERNATE, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 
             NVIC_SetPriority( TIM3_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 2 ) );
             NVIC_EnableIRQ( TIM3_IRQn );
@@ -88,7 +88,7 @@ hal_setup_capture( uint8_t input )
 #else
             LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_TIM8 );
 
-            hal_gpio_init_alternate( _SERVO_1_HLFB, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
+            hal_gpio_init_alternate( _SERVO_1_HLFB, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 
             NVIC_SetPriority( TIM8_CC_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 2 ) );
             NVIC_EnableIRQ( TIM8_CC_IRQn );
@@ -101,7 +101,7 @@ hal_setup_capture( uint8_t input )
             // TIM4
             LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_TIM4 );
 
-            hal_gpio_init_alternate( _SERVO_2_HLFB, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
+            hal_gpio_init_alternate( _SERVO_2_HLFB, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 
             NVIC_SetPriority( TIM4_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 2 ) );
             NVIC_EnableIRQ( TIM4_IRQn );
@@ -113,7 +113,7 @@ hal_setup_capture( uint8_t input )
             // TIM1
             LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_TIM1 );
 
-            hal_gpio_init_alternate( _SERVO_3_HLFB, LL_GPIO_AF_1, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
+            hal_gpio_init_alternate( _SERVO_3_HLFB, LL_GPIO_AF_1, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 
             NVIC_SetPriority( TIM1_CC_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 2 ) );
             NVIC_EnableIRQ( TIM1_CC_IRQn );
@@ -125,7 +125,7 @@ hal_setup_capture( uint8_t input )
             // TIM5
             LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_TIM5 );
 
-            hal_gpio_init_alternate( _SERVO_4_HLFB, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
+            hal_gpio_init_alternate( _SERVO_4_HLFB, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 
             NVIC_SetPriority( TIM5_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 2 ) );
             NVIC_EnableIRQ( TIM5_IRQn );
@@ -137,7 +137,7 @@ hal_setup_capture( uint8_t input )
             //TIM9;
             LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_TIM9 );
 
-            hal_gpio_init_alternate( _FAN_TACHO, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_MEDIUM, LL_GPIO_PULL_NO );
+            hal_gpio_init_alternate( _FAN_TACHO, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 
             NVIC_SetPriority( TIM1_BRK_TIM9_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 1 ) );
             NVIC_EnableIRQ( TIM1_BRK_TIM9_IRQn );
