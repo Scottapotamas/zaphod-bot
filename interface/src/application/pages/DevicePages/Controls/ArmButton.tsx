@@ -5,10 +5,7 @@ import { Intent } from '@blueprintjs/core'
 
 import { Button } from '@electricui/components-desktop-blueprint'
 
-import {
-  IntervalRequester,
-  useHardwareState,
-} from '@electricui/components-core'
+import { useHardwareState } from '@electricui/components-core'
 
 import { MSGID, CONTROL_MODES, SUPERVISOR_STATES } from '../../../typedState'
 
@@ -23,6 +20,8 @@ export const ArmControlButton = () => {
     if (modeNotSelected) {
       return (
         <Button
+          minimal
+          outlined
           fill
           large
           disabled
@@ -36,13 +35,16 @@ export const ArmControlButton = () => {
     } else {
       return (
         <Button
+          minimal
+          outlined
+          active
           fill
           large
-          intent={Intent.WARNING}
+          intent={Intent.DANGER}
           icon={IconNames.PLAY}
           callback={MSGID.ARM}
         >
-          Arm ({control_mode})
+          ARM ({control_mode})
         </Button>
       )
     }
@@ -50,13 +52,16 @@ export const ArmControlButton = () => {
 
   return (
     <Button
+      minimal
+      outlined
+      active
       fill
       large
-      intent={Intent.PRIMARY}
+      intent={Intent.WARNING}
       icon={IconNames.STOP}
       callback={MSGID.DISARM}
     >
-      Disarm
+      DISARM
     </Button>
   )
 }
