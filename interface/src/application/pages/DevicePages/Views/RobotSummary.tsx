@@ -17,17 +17,20 @@ import { useHardwareState } from '@electricui/components-core'
 import { Printer } from '@electricui/components-desktop'
 
 import { MSGID, CONTROL_MODES, SUPERVISOR_STATES } from '../../../typedState'
+import { PositionTag } from './SummaryTags/PositionTag'
+import { HomeButton } from '../Controls/HomeButton'
+import { ArmControlTag } from '../Controls/ArmButton'
+
+import { intentClass } from '@blueprintjs/core/lib/esm/common/classes'
 
 const layoutDescription = `
-            State XAxis
-            State YAxis
-            State ZAxis 
+            State Home Position
           `
 
 const layoutDescriptionOld = `
-            State XAxis
-            State YAxis
-            Mode ZAxis 
+            State Position
+            State Position
+            Mode Position 
           `
 
 type RobotSummaryProps = {
@@ -50,28 +53,23 @@ export const RobotSummary = (props: RobotSummaryProps) => {
     supervisor_text = supervisor_state || 'UNKNOWN'
   }
 
+
+
   return (
     <React.Fragment>
       <Composition
         areas={layoutDescription}
-        templateCols="1fr 125px"
+        templateCols="1fr 40px 125px"
         gap={props.isLarge ? 10 : 5}
       >
         {Areas => (
           <React.Fragment>
             <Areas.State>
-              <Tag
-                fill
-                minimal
-                intent={(supervisor_state === SUPERVISOR_STATES[SUPERVISOR_STATES.ARMED])? Intent.WARNING:Intent.NONE}
-                // icon={IconNames.TICK_CIRCLE}
-                style={{ height: '100%' }}
-              >
-                <div style={{ textAlign: 'center' }}>
-                  <h2>{supervisor_text}</h2>
-                </div>
-              </Tag>
+               <ArmControlTag/>
+
             </Areas.State>
+
+
 
             <Areas.Mode>
               <Tag
@@ -86,38 +84,13 @@ export const RobotSummary = (props: RobotSummaryProps) => {
                 </div>
               </Tag>
             </Areas.Mode>
+<Areas.Home>            <HomeButton label=""/>
 
-            <Areas.XAxis>
-              <Tag
-                minimal
-                fill
-                large={props.isLarge}
-                icon={IconNames.DOUBLE_CARET_HORIZONTAL}
-              >
-                <div style={{ textAlign: 'right' }}>
-                  <Printer accessor={state => state.cpos.x} precision={2} /> mm
-                </div>
-              </Tag>
-            </Areas.XAxis>
-            <Areas.YAxis>
-              <Tag
-                minimal
-                fill
-                large={props.isLarge}
-                icon={IconNames.DOUBLE_CARET_VERTICAL}
-              >
-                <div style={{ textAlign: 'right' }}>
-                  <Printer accessor={state => state.cpos.y} precision={2} /> mm
-                </div>
-              </Tag>
-            </Areas.YAxis>
-            <Areas.ZAxis>
-              <Tag minimal fill large={props.isLarge} icon={IconNames.CARET_UP}>
-                <div style={{ textAlign: 'right' }}>
-                  <Printer accessor={state => state.cpos.z} precision={2} /> mm
-                </div>
-              </Tag>
-            </Areas.ZAxis>
+</Areas.Home>
+
+<Areas.Position>
+<PositionTag isLarge={props.isLarge}/>
+</Areas.Position>
           </React.Fragment>
         )}
       </Composition>
