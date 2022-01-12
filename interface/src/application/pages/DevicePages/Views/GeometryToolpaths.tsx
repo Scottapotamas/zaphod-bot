@@ -30,9 +30,21 @@ import {
   Vector2,
   PerspectiveCamera as PerspectiveCameraImpl,
 } from 'three'
-import { getSetting, setSetting, useSetting, useStore } from '../../toolpaths/interface/state'
+import {
+  getSetting,
+  setSetting,
+  useSetting,
+  useStore,
+} from '../../toolpaths/interface/state'
 
-import { ToolpathMovements, AxisLines } from '../../toolpaths/interface/ToolpathVisualisation'
+import { BridgeContextsContext } from '@electricui/components-desktop-charts'
+
+import { useContextBridge } from '@react-three/drei'
+
+import {
+  ToolpathMovements,
+  AxisLines,
+} from '../../toolpaths/interface/ToolpathVisualisation'
 import { DeltaAssembly } from 'src/application/components/RiggedModel'
 
 export const GeometryToolpathViewer = () => {
@@ -61,39 +73,46 @@ export const GeometryToolpathViewer = () => {
     [],
   )
 
+  const listOfContextsToBridge = React.useContext(BridgeContextsContext)
+
+  const ContextBridge = useContextBridge(...listOfContextsToBridge)
+
   return (
     <Canvas
       linear
+      dpr={[1, 2]}
       // shadows={true}
     >
-      <PerspectiveCamera
-        ref={setCameraRef}
-        makeDefault
-        position={[0, 150, 400]}
-      />
-      <OrbitControls ref={setOrbitControlsRef} />
-      <AxisLines />
+      <ContextBridge>
+        <PerspectiveCamera
+          ref={setCameraRef}
+          makeDefault
+          position={[0, 150, 400]}
+        />
+        <OrbitControls ref={setOrbitControlsRef} />
+        <AxisLines />
 
-      <ambientLight intensity={0.2} />
-      <directionalLight position={[-100, 0, -50]} intensity={1} color="red" />
-      <directionalLight
-        position={[-10, -20, -50]}
-        intensity={0.3}
-        color="#0c8cbf"
-      />
+        <ambientLight intensity={0.2} />
+        <directionalLight position={[-100, 0, -50]} intensity={1} color="red" />
+        <directionalLight
+          position={[-10, -20, -50]}
+          intensity={0.3}
+          color="#0c8cbf"
+        />
 
-      <spotLight
-        position={[400, 20, 400]}
-        intensity={2.5}
-        penumbra={1}
-        angle={0.3}
-        castShadow
-        color="#0c8cbf"
-      />
+        <spotLight
+          position={[400, 20, 400]}
+          intensity={2.5}
+          penumbra={1}
+          angle={0.3}
+          castShadow
+          color="#0c8cbf"
+        />
 
-      <ToolpathMovements />
-        <DeltaAssembly/>
-      {/* <fog attach="fog" args={['#101010', 600, 3000]} /> */}
+        <ToolpathMovements />
+        <DeltaAssembly />
+        {/* <fog attach="fog" args={['#101010', 600, 3000]} /> */}
+      </ContextBridge>
     </Canvas>
   )
 }
