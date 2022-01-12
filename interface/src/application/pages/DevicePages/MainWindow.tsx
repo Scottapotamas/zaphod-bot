@@ -5,24 +5,24 @@ import { Card } from '@blueprintjs/core'
 import { Composition, Box, Only, useBreakpointChange } from 'atomic-layout'
 import { IntervalRequester } from '@electricui/components-core'
 
-import { RiggedModel } from '../../components/RiggedModel'
+import { MSGID } from 'src/application/typedState'
 
 import { RobotSummary } from './Views/RobotSummary'
 import { ServoSummary } from './Views/ServoSummary'
-
 import { AngleChart } from './Views/AngleChart'
 import { LoadChart } from './Views/LoadChart'
 import { PowerChart } from './Views/PowerChart'
-
 import { ControlBlock } from './Controls/ControlBlock'
 import { ArmControlButton } from './Controls/ArmButton'
 import { HomeButton } from './Controls/HomeButton'
+import { EStopButton } from './Controls/EStopButton'
 import { ModeSelection } from './Controls/ModeSelection'
-
-import { MessageDataSource } from '@electricui/core-timeseries'
-import { MSGID } from 'src/application/typedState'
+import { SettingsPage } from './SettingsPage'
 
 import { GeometryToolpathViewer } from './Views/GeometryToolpaths'
+
+
+      <ModeSelection />
 
 const layoutDescription = `
             Sidebar . Charts

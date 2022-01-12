@@ -3,7 +3,6 @@ import './device-pages.css'
 import { RouteComponentProps, Router } from '@reach/router'
 
 import { DisconnectionModal } from '@electricui/components-desktop-blueprint'
-import { Header } from '../../components/Header'
 import { Intent } from '@blueprintjs/core'
 import React from 'react'
 import { navigate } from '@electricui/utility-electron'
@@ -35,7 +34,6 @@ export const DevicePages = (
       </DisconnectionModal>
 
       <div className="device-pages">
-        <Header deviceID={props.deviceID} {...props} />
         <div className="device-content">
           <MainWindow />
         </div>
