@@ -303,7 +303,7 @@ const PowerCalibrationCard = () => {
         <h2>Power Calibration</h2>
       </Box>
       <Box>
-        <IntervalRequester variables={['sys', 'servo']} interval={250} />
+        <IntervalRequester variables={['sys', 'servo']} interval={50} />
         <HTMLTable striped style={{ minWidth: '100%' }}>
           <thead>
             <tr>

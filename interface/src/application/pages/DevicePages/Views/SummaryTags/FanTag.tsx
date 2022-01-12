@@ -36,7 +36,7 @@ import {
   VerticalAxis,
 } from '@electricui/components-desktop-charts'
 import { Printer } from '@electricui/components-desktop'
-import { MSGID, FanState } from '../../../typedState'
+import { MSGID, FanState } from '../../../../typedState'
 
 function fanModeAccessor(state: ElectricUIDeveloperState) {
   switch (state[MSGID.FAN].state) {
