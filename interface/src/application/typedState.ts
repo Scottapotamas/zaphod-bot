@@ -2,42 +2,42 @@
  * Centralised defines for message identifiers to improve readability
  * and allow for easier refactor/sync with embedded hardware
  */
- export enum MSGID {
-  NICKNAME = "name",
-  RESET_CAUSE = "reset_type",
-  SYSTEM = "sys",
-  SUPERVISOR = "super",
-  FIRMWARE_INFO = "fwb",
-  
-  FAN = "fan",
-  FAN_CURVE = "curve",
-  
-  MODE_REQUEST = "req_mode",
-  MOTION = "moStat",
-  SERVO = "servo",
-  
-  POSITION_TARGET = "tpos",
-  POSITION_CURRENT = "cpos",
-  POSITION_EXPANSION = "exp_ang",
-  
-  LED = "rgb",
-  LED_MANUAL_REQUEST = "manual_led",
-  
-  QUEUE_INFO = "queue",
-  QUEUE_SYNC = "sync",
-  QUEUE_SYNC_ID = "syncid",
-  QUEUE_CLEAR = "clmv",
-  QUEUE_START = "stmv",
-  QUEUE_ADD_MOVE = "inmv",
-  QUEUE_ADD_FADE = "inlt",
-  
-  EMERGENCY_STOP = "estop",
-  ARM = "arm",
-  DISARM = "disarm",
-  HOME = "home",
-  CAPTURE = "capture",
+export enum MSGID {
+  NICKNAME = 'name',
+  RESET_CAUSE = 'reset_type',
+  SYSTEM = 'sys',
+  SUPERVISOR = 'super',
+  FIRMWARE_INFO = 'fwb',
 
-  LED_CALIBRATION = "calLED",
+  FAN = 'fan',
+  FAN_CURVE = 'curve',
+
+  MODE_REQUEST = 'req_mode',
+  MOTION = 'moStat',
+  SERVO = 'servo',
+
+  POSITION_TARGET = 'tpos',
+  POSITION_CURRENT = 'cpos',
+  POSITION_EXPANSION = 'exp_ang',
+
+  LED = 'rgb',
+  LED_MANUAL_REQUEST = 'manual_led',
+
+  QUEUE_INFO = 'queue',
+  QUEUE_SYNC = 'sync',
+  QUEUE_SYNC_ID = 'syncid',
+  QUEUE_CLEAR = 'clmv',
+  QUEUE_START = 'stmv',
+  QUEUE_ADD_MOVE = 'inmv',
+  QUEUE_ADD_FADE = 'inlt',
+
+  EMERGENCY_STOP = 'estop',
+  ARM = 'arm',
+  DISARM = 'disarm',
+  HOME = 'home',
+  CAPTURE = 'capture',
+
+  LED_CALIBRATION = 'calLED',
 }
 
 /**
@@ -49,12 +49,43 @@
  */
 declare global {
   interface ElectricUIDeveloperState {
-    [messageID: string]: any
+    [MSGID.NICKNAME]: string
+    [MSGID.RESET_CAUSE]: string
+    [MSGID.SYSTEM]: SystemStatus
+    [MSGID.SUPERVISOR]: SupervisorState
+    [MSGID.FIRMWARE_INFO]: FirmwareBuildInfo
 
-    // Example messageID typings
-    // led_blink: number
-    // led_state: number
-    // lit_time: number
+    [MSGID.FAN]: FanStatus
+    [MSGID.FAN_CURVE]: never // commented out in firmware
+
+    [MSGID.MODE_REQUEST]: CONTROL_MODES
+    [MSGID.MOTION]: MotionState
+    [MSGID.SERVO]:
+      | [ServoInfo, ServoInfo, ServoInfo]
+      | [ServoInfo, ServoInfo, ServoInfo, ServoInfo] // if expansion slot is in
+
+    [MSGID.POSITION_TARGET]: CartesianPoint
+    [MSGID.POSITION_CURRENT]: CartesianPoint
+    [MSGID.POSITION_EXPANSION]: number // float
+
+    [MSGID.LED]: LedStatus
+    [MSGID.LED_MANUAL_REQUEST]: LedStatus
+
+    [MSGID.QUEUE_INFO]: QueueDepthInfo
+    [MSGID.QUEUE_SYNC]: null // callback
+    [MSGID.QUEUE_SYNC_ID]: number // uint16
+    [MSGID.QUEUE_CLEAR]: null // callback
+    [MSGID.QUEUE_START]: null // callback
+    [MSGID.QUEUE_ADD_MOVE]: MovementMove
+    [MSGID.QUEUE_ADD_FADE]: LightMove
+
+    [MSGID.EMERGENCY_STOP]: null // callback
+    [MSGID.ARM]: null // callback
+    [MSGID.DISARM]: null // callback
+    [MSGID.HOME]: null // callback
+    [MSGID.CAPTURE]: number // uint32 ms
+
+    [MSGID.LED_CALIBRATION]: LedSettings
   }
 }
 
@@ -82,20 +113,26 @@ export type FirmwareBuildInfo = {
 export type KinematicsInfo = {
   // Dimensions used in the IK/FK calculations
   shoulder_radius: number
-  bicep_length: number,
-  forearm_length: number,
-  effector_radius: number,
+  bicep_length: number
+  forearm_length: number
+  effector_radius: number
 
   // Limits in cartesian space
-  limit_radius: number,
-  limit_z_min: number,
-  limit_z_max: number,
+  limit_radius: number
+  limit_z_min: number
+  limit_z_max: number
 
   // Flags if an axis is inverted
-  flip_x: number,
-  flip_y: number,
-  flip_z: number,
+  flip_x: number
+  flip_y: number
+  flip_z: number
+}
 
+export enum FanState {
+  OFF = 0,
+  STALL = 1,
+  STARTUP = 2,
+  OK = 3,
 }
 
 export type FanStatus = {
@@ -108,8 +145,6 @@ export type QueueDepthInfo = {
   movements: number
   lighting: number
 }
-
-
 
 export type ServoInfo = {
   enabled: boolean
@@ -228,4 +263,4 @@ export type PowerCalibration = {
 }
 
 // This exports these types into the dependency tree.
-export { }
+export {}

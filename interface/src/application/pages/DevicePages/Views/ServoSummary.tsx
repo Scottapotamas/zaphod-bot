@@ -134,7 +134,7 @@ const TargetAngleTag = (props: ServoStatusBlockProps) => {
         textAlign: 'right',
       }}
     >
-      {targetAngle.toFixed(1)} °
+      {targetAngle?.toFixed(1) ?? 'X'} °
     </Tag>
   )
 }
@@ -155,7 +155,7 @@ const FeedbackTag = (props: ServoStatusBlockProps) => {
         textAlign: 'right',
       }}
     >
-      {feedback.toFixed(1)} %
+      {feedback?.toFixed(1) ?? 'X'} %
     </Tag>
   )
 }
@@ -174,7 +174,7 @@ const PowerTag = (props: ServoStatusBlockProps) => {
         textAlign: 'right',
       }}
     >
-      {power.toFixed(1)} W
+      {power?.toFixed(1) ?? 'X'} W
     </Tag>
   )
 }
@@ -186,7 +186,6 @@ const layoutDescription = `
 `
 
 const ServoStats = (props: MotorData) => {
-  
   return (
     <React.Fragment>
       <Composition
@@ -217,8 +216,8 @@ const ServoStats = (props: MotorData) => {
 }
 
 export const ServoSummary = () => {
-  const motors: ServoInfo[] | null = useHardwareState(state => state.servo)
-  if (motors === null) {
+  const motors = useHardwareState(state => state.servo)
+  if (!motors) {
     return <span>No motor telemetry available...</span>
   }
 

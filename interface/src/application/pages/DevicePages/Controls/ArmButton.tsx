@@ -13,7 +13,7 @@ import {
 import { MSGID, CONTROL_MODES, SUPERVISOR_STATES } from '../../../typedState'
 
 export const ArmControlButton = () => {
-  const supervisor = useHardwareState<string>(state => state.super.supervisor)
+  const supervisor = useHardwareState(state => state.super.supervisor)
   const control_mode = useHardwareState(state => state.super.mode)
 
   const modeNotSelected = control_mode === CONTROL_MODES[CONTROL_MODES.NONE]

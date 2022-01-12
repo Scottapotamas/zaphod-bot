@@ -36,29 +36,27 @@ import {
   VerticalAxis,
 } from '@electricui/components-desktop-charts'
 import { Printer } from '@electricui/components-desktop'
+import { MSGID, FanState } from '../../../typedState'
 
-const FanMode = () => {
-  const fanstate = useHardwareState(state => state.fan.state)
+function fanModeAccessor(state: ElectricUIDeveloperState) {
+  switch (state[MSGID.FAN].state) {
+    case FanState.OFF:
+      return 'Off'
+    case FanState.STALL:
+      return 'Stall'
+    case FanState.STARTUP:
+      return 'Startup'
+    case FanState.OK:
+      return 'Ok'
 
-  if (fanstate == 0) {
-    return <div>Off</div>
-  } else if (fanstate == 1) {
-    return <div>Stall</div>
-  } else if (fanstate == 2) {
-    return <div>Startup</div>
-  } else if (fanstate == 3) {
-    return <div>OK</div>
+    default:
+      return 'unknown'
   }
-
-  return <div>null</div>
 }
 
 const fanDataSource = new MessageDataSource('fan')
 
 export const FanTag = () => {
-  const fanspeed = useHardwareState(state => state.fan.rpm).toFixed(0)
-  const fansetting = useHardwareState(state => state.fan.setpoint).toFixed(0)
-
   return (
     <div>
       <IntervalRequester variables={['fan']} interval={250} />
@@ -74,7 +72,7 @@ export const FanTag = () => {
               display: 'inline-block',
             }}
           >
-            <FanMode />
+            <Printer accessor={fanModeAccessor} />
           </div>
         </Tag>
         <Composition padding={30} gap={20} minWidth="500px">
@@ -96,8 +94,26 @@ export const FanTag = () => {
             <VerticalAxis label="Fan RPM" />
           </ChartContainer>
           <Statistics>
-            <Statistic value={<FanMode />} label="operation" />
-            <Statistic value={fanspeed} label={`RPM, at ${fansetting}%`} />
+            <Statistic accessor={fanModeAccessor} label="operation" />
+            <Statistic
+              // TODO: use precision={0} once Statistics support a precision prop
+              // accessor={state => state.fan.rpm}
+              value={
+                <Printer accessor={state => state.fan.rpm} precision={0} />
+              }
+              label={
+                <>
+                  RPM, at{' '}
+                  {
+                    <Printer
+                      accessor={state => state.fan.setpoint}
+                      precision={0}
+                    />
+                  }
+                  %
+                </>
+              }
+            />
           </Statistics>
         </Composition>
       </Popover>

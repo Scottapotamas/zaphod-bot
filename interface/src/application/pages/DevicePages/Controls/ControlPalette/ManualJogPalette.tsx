@@ -11,8 +11,8 @@ YM XM ZM
 `
 
 interface JogPaletteProps {
-  distance: Number
-  time: Number
+  distance: number
+  time: number
 }
 
 const JogPalette = (props: JogPaletteProps) => {

@@ -51,14 +51,15 @@ export const LEDCalibrationBlock = () => {
             <Checkbox
               checked={true}
               unchecked={false}
-              accessor={state => state[MSGID.LED_CALIBRATION].correct_whitebalance}
+              accessor={state =>
+                state[MSGID.LED_CALIBRATION].correct_whitebalance
+              }
               writer={(state, value) => {
                 state[MSGID.LED_CALIBRATION].correct_whitebalance = value
               }}
             >
               Whitebalance Correction
             </Checkbox>
-
           </Box>
           <Box>
             <h3>Whitebalance Check</h3>
@@ -69,7 +70,7 @@ export const LEDCalibrationBlock = () => {
                     red: 0,
                     green: 0,
                     blue: 0,
-                    enable: 1,
+                    enable: true,
                   }
                 }}
               >
@@ -82,7 +83,7 @@ export const LEDCalibrationBlock = () => {
                     red: 0.1,
                     green: 0.1,
                     blue: 0.1,
-                    enable: 1,
+                    enable: true,
                   }
                 }}
               >
@@ -94,7 +95,7 @@ export const LEDCalibrationBlock = () => {
                     red: 0.5,
                     green: 0.5,
                     blue: 0.5,
-                    enable: 1,
+                    enable: true,
                   }
                 }}
               >
@@ -106,7 +107,7 @@ export const LEDCalibrationBlock = () => {
                     red: 1.0,
                     green: 1.0,
                     blue: 1.0,
-                    enable: 1,
+                    enable: true,
                   }
                 }}
               >
@@ -122,7 +123,7 @@ export const LEDCalibrationBlock = () => {
                     red: 0,
                     green: 0,
                     blue: 0,
-                    enable: 1,
+                    enable: true,
                   }
                 }}
               >
@@ -136,7 +137,7 @@ export const LEDCalibrationBlock = () => {
                     red: 0.5,
                     green: 0,
                     blue: 0,
-                    enable: 1,
+                    enable: true,
                   }
                 }}
               >
@@ -149,7 +150,7 @@ export const LEDCalibrationBlock = () => {
                     red: 0,
                     green: 0.5,
                     blue: 0,
-                    enable: 1,
+                    enable: true,
                   }
                 }}
               >
@@ -162,7 +163,7 @@ export const LEDCalibrationBlock = () => {
                     red: 0,
                     green: 0,
                     blue: 0.5,
-                    enable: 1,
+                    enable: true,
                   }
                 }}
               >
@@ -294,9 +295,7 @@ export const LEDCalibrationBlock = () => {
 }
 
 const PowerCalibrationCard = () => {
-  const servo4: ServoInfo | null = useHardwareState(state => state.servo[3])
-
-  let expansion_servo = servo4 !== null
+  const expansion_servo = useHardwareState(state => !!state.servo[3])
 
   return (
     <Composition templateCols="1fr" justifyItems="center">
@@ -399,7 +398,7 @@ const PowerCalibrationCard = () => {
                   <b>Servo 4</b>
                 </td>
                 <td>
-                  <Printer accessor={state => state.servo[3].power} />
+                  <Printer accessor={state => state.servo[3]?.power} />
                 </td>
                 <td>
                   <NumberInput
