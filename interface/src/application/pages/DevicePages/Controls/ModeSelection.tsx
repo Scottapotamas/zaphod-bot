@@ -31,7 +31,7 @@ export const ModeSelection = () => {
           active={control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]}
           outlined 
           intent={control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]? Intent.PRIMARY: Intent.NONE}
-
+           
           icon="flow-end"
           writer={state => {
             state[MSGID.MODE_REQUEST] = 3

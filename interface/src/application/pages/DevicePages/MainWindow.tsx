@@ -24,8 +24,6 @@ import { AngleChart } from './Views/AngleChart'
 import { LoadChart } from './Views/LoadChart'
 import { PowerChart } from './Views/PowerChart'
 import { ControlBlock } from './Controls/ControlBlock'
-import { ArmControlButton } from './Controls/ArmButton'
-import { HomeButton } from './Controls/HomeButton'
 import { EStopButton } from './Controls/EStopButton'
 import { ModeSelection } from './Controls/ModeSelection'
 import { SettingsPage } from './SettingsPage'
@@ -73,11 +71,7 @@ const SideBar = () => {
 
       <ModeSelection />
 
-      <Composition templateCols="1fr 1fr" gap={10}>
-        <ArmControlButton />
-        <HomeButton />
-        <Box style={{gridColumnStart: '1', gridColumnEnd: '3'}}> <EStopButton /> </Box>
-      </Composition>
+         <EStopButton /> 
 
       <Dialog
         isOpen={configOpen}
