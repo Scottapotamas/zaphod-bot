@@ -93,7 +93,7 @@ enum FanDefines
 
 enum LedDefines
 {
-    LED_FREQUENCY_HZ = 1000U,    //  1kHz
+    LED_FREQUENCY_HZ = 8000U,   // TODO check timer output is accurate/prescale correct
     LED_SLEEP_TIMER  = 2500U,
 };
 
