@@ -21,7 +21,13 @@ import { MSGID, CONTROL_MODES, SUPERVISOR_STATES } from '../../../typedState'
 const layoutDescription = `
             State XAxis
             State YAxis
-            Mode ZAxis
+            State ZAxis 
+          `
+
+const layoutDescriptionOld = `
+            State XAxis
+            State YAxis
+            Mode ZAxis 
           `
 
 type RobotSummaryProps = {
@@ -29,8 +35,8 @@ type RobotSummaryProps = {
 }
 
 export const RobotSummary = (props: RobotSummaryProps) => {
-  const supervisor_state = useHardwareState(state => state.super.supervisor)
-  const is_moving = useHardwareState(state => state.moStat.pathing_state)
+  const supervisor_state = useHardwareState(state => state[MSGID.SUPERVISOR].supervisor)
+  const is_moving = useHardwareState(state => state[MSGID.MOTION].pathing_state)
 
   let supervisor_text: string = 'null'
 
@@ -48,17 +54,17 @@ export const RobotSummary = (props: RobotSummaryProps) => {
     <React.Fragment>
       <Composition
         areas={layoutDescription}
-        templateCols="1fr 100px"
+        templateCols="1fr 125px"
         gap={props.isLarge ? 10 : 5}
       >
         {Areas => (
           <React.Fragment>
             <Areas.State>
               <Tag
-                round
                 fill
-                intent={Intent.NONE}
-                icon={IconNames.TICK_CIRCLE}
+                minimal
+                intent={(supervisor_state === SUPERVISOR_STATES[SUPERVISOR_STATES.ARMED])? Intent.WARNING:Intent.NONE}
+                // icon={IconNames.TICK_CIRCLE}
                 style={{ height: '100%' }}
               >
                 <div style={{ textAlign: 'center' }}>
@@ -73,7 +79,6 @@ export const RobotSummary = (props: RobotSummaryProps) => {
                 round
                 fill
                 intent={Intent.NONE}
-                icon={IconNames.ZOOM_TO_FIT}
                 style={{ height: '100%' }}
               >
                 <div style={{ textAlign: 'center' }}>
@@ -83,14 +88,24 @@ export const RobotSummary = (props: RobotSummaryProps) => {
             </Areas.Mode>
 
             <Areas.XAxis>
-              <Tag minimal fill large={props.isLarge} icon={IconNames.DOUBLE_CARET_HORIZONTAL}>
+              <Tag
+                minimal
+                fill
+                large={props.isLarge}
+                icon={IconNames.DOUBLE_CARET_HORIZONTAL}
+              >
                 <div style={{ textAlign: 'right' }}>
                   <Printer accessor={state => state.cpos.x} precision={2} /> mm
                 </div>
               </Tag>
             </Areas.XAxis>
             <Areas.YAxis>
-              <Tag minimal fill large={props.isLarge} icon={IconNames.DOUBLE_CARET_VERTICAL}>
+              <Tag
+                minimal
+                fill
+                large={props.isLarge}
+                icon={IconNames.DOUBLE_CARET_VERTICAL}
+              >
                 <div style={{ textAlign: 'right' }}>
                   <Printer accessor={state => state.cpos.y} precision={2} /> mm
                 </div>
