@@ -53,7 +53,7 @@ import { MutableLineSegmentGeometry } from './ExternallyStoredLineSegments'
 import { importMaterial } from '../optimiser/material'
 import { Material } from '../optimiser/materials/Base'
 
-function AxisLines() {
+export function AxisLines() {
   return (
     <group position={[0, 0, 0]} scale={[1, 1, 1]}>
       <mesh>
