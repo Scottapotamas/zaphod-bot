@@ -30,7 +30,8 @@ import { kinematics_point_to_angle, CartesianPoint } from './inverse_kinematics'
 import DeltaBaseModel from './models/base.glb'
 import DeltaBicepModel from './models/bicep.glb'
 import DeltaEffectorModel from './models/effector.glb'
-import DeltaForearmModel from './models/forearm.glb'
+import { MSGID } from 'src/application/typedState'
+// import DeltaForearmModel from './models/forearm.glb'
 
 GLTF.preload(DeltaBaseModel)
 GLTF.preload(DeltaBicepModel)
@@ -128,7 +129,7 @@ function calculateLookAt(
   left: boolean,
   armIndex: number,
 ) {
-  mutableEffector.set(cpos.x, cpos.z + 190 + 140, cpos.y)
+  mutableEffector.set(cpos.x, cpos.z, cpos.y)
 
   mutableEuler.set(0, (armIndex * (-2 * Math.PI)) / 3, 0)
 
@@ -196,8 +197,6 @@ function ArmAssembly(props: ArmAssemblyProps) {
 }
 
 export const DeltaAssembly = () => {
-  // let cpos: CartesianPoint  = useHardwareState(MSGID.POSITION_CURRENT)!
-
   return (
     <group position={[0, -190, 0]} castShadow receiveShadow>
       {/* Base positioned such that threeJS '[0,0,0' is aligned line with the servo shaft center */}
@@ -212,10 +211,9 @@ export const DeltaAssembly = () => {
       <ControlledGroup
         positionAccessor={state => [
           state.cpos.x,
-          state.cpos.z + 190,
+          state.cpos.z +190,
           state.cpos.y,
         ]}
-        // position={[cpos.x, cpos.z, cpos.y]}
         rotation={[0, Math.PI / -2, 0]}
       >
         <GLTF
@@ -234,7 +232,7 @@ export const DeltaAssembly = () => {
         </mesh>
       </ControlledGroup>
 
-      {/* <group rotation={[0, Math.PI / -2, 0]}>
+       <group rotation={[0, Math.PI / -2, 0]}>
         {[0, 1, 2].map(armIndex => (
           <group
             rotation={[0, armIndex * ((-2 * Math.PI) / 3), 0]}
@@ -243,7 +241,7 @@ export const DeltaAssembly = () => {
             <ArmAssembly armIndex={armIndex} />
           </group>
         ))}
-      </group> */}
+      </group> 
     </group>
   )
 }
