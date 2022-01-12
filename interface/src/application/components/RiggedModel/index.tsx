@@ -86,7 +86,6 @@ function CameraViewTarget() {
   )
 }
 
-
 function ForearmGeometry() {
   return (
     <group>
@@ -121,7 +120,11 @@ const mutableEffector = new Vector3(0, 0, 0)
 const mutableOffset = new Vector3(0, 0, 0)
 const mutableEuler = new Euler(0, 0, 0)
 
-function calculateLookAt(cpos: { x: number; y: number; z: number }, left: boolean, armIndex: number) {
+function calculateLookAt(
+  cpos: { x: number; y: number; z: number },
+  left: boolean,
+  armIndex: number,
+) {
   mutableEffector.set(cpos.x, cpos.z + 190 + 140, cpos.y)
 
   mutableEuler.set(0, (armIndex * (-2 * Math.PI)) / 3, 0)
@@ -145,12 +148,19 @@ function ForearmHelper(props: ForearmHelperProps) {
 
   useEffect(() => {
     if (ref && ref.current) {
-      ref.current.lookAt(calculateLookAt(initialCpos, props.left, props.armIndex))
+      ref.current.lookAt(
+        calculateLookAt(initialCpos, props.left, props.armIndex),
+      )
     }
   }, [])
 
   return (
-    <group ref={ref} position={props.left ? [-bicep_length_mm, 0, -25.5] : [-bicep_length_mm, 0, +22.5]}>
+    <group
+      ref={ref}
+      position={
+        props.left ? [-bicep_length_mm, 0, -25.5] : [-bicep_length_mm, 0, +22.5]
+      }
+    >
       <ForearmGeometry />
     </group>
   )
@@ -182,6 +192,58 @@ function ArmAssembly(props: ArmAssemblyProps) {
   )
 }
 
+export const DeltaAssembly = () => {
+  // let cpos: CartesianPoint  = useHardwareState(MSGID.POSITION_CURRENT)!
+
+  return (
+    <group position={[0, -190, 0]} castShadow receiveShadow>
+      {/* Base positioned such that threeJS '[0,0,0' is aligned line with the servo shaft center */}
+      <group rotation={[0, (-90 * Math.PI) / 180, 0]}>
+        <GLTF
+          receiveShadow
+          asset={DeltaBaseModel}
+          position={[2.5, -135, -5.5]}
+        />
+      </group>
+      {/* End Effector */}
+      <ControlledGroup
+        positionAccessor={state => [
+          state.cpos.x,
+          state.cpos.z + 190,
+          state.cpos.y,
+        ]}
+        // position={[cpos.x, cpos.z, cpos.y]}
+        rotation={[0, Math.PI / -2, 0]}
+      >
+        <GLTF
+          receiveShadow
+          asset={DeltaEffectorModel}
+          position={[-43.25, -3, -0.25]}
+          rotation={[0, Math.PI / -2, 0]}
+        />
+        <mesh>
+          <sphereBufferGeometry attach="geometry" args={[3, 20, 20]} />
+          <meshStandardMaterial
+            attach="material"
+            color="orange"
+            roughness={0.6}
+          />
+        </mesh>
+      </ControlledGroup>
+
+      {/* <group rotation={[0, Math.PI / -2, 0]}>
+        {[0, 1, 2].map(armIndex => (
+          <group
+            rotation={[0, armIndex * ((-2 * Math.PI) / 3), 0]}
+            key={armIndex}
+          >
+            <ArmAssembly armIndex={armIndex} />
+          </group>
+        ))}
+      </group> */}
+    </group>
+  )
+}
 
 export const RiggedModel = () => {
   return (
@@ -189,7 +251,7 @@ export const RiggedModel = () => {
       <Environment
         camera={{
           fov: 80,
-          position: [0, 150, 500],
+          position: [0, 150, 600],
           far: 4000,
         }}
         shadows
@@ -201,8 +263,18 @@ export const RiggedModel = () => {
         {/* <AxisLines /> */}
 
         <ambientLight intensity={0.2} />
-        <directionalLight position={[-100, 0, -50]} intensity={1} color="red" castShadow />
-        <directionalLight position={[-10, -20, -50]} intensity={0.3} color="#0c8cbf" castShadow />
+        <directionalLight
+          position={[-100, 0, -50]}
+          intensity={1}
+          color="red"
+          castShadow
+        />
+        <directionalLight
+          position={[-10, -20, -50]}
+          intensity={0.3}
+          color="#0c8cbf"
+          castShadow
+        />
 
         <spotLight
           position={[400, 20, 400]}
@@ -217,7 +289,12 @@ export const RiggedModel = () => {
 
         {/* <fog attach="fog" args={['#101010', 600, 3000]} /> */}
 
-        <Backdrop floor={2} position={[0, 0, -500]} scale={[6000, 2000, 800]} receiveShadow>
+        <Backdrop
+          floor={2}
+          position={[0, 0, -500]}
+          scale={[6000, 2000, 800]}
+          receiveShadow
+        >
           <meshStandardMaterial color="#353540" envMapIntensity={0.3} />
         </Backdrop>
 
@@ -228,37 +305,7 @@ export const RiggedModel = () => {
           fog={false} // Reacts to fog (default=false)
         />
 
-        <group position={[0, 140, 0]} castShadow receiveShadow>
-          {/* Base positioned such that threeJS '[0,0,0' is aligned line with the servo shaft center */}
-          <group rotation={[0, (-90 * Math.PI) / 180, 0]}>
-            <GLTF receiveShadow asset={DeltaBaseModel} position={[2.5, -135, -5.5]} />
-          </group>
-          {/* End Effector */}
-          <ControlledGroup
-            positionAccessor={state => [state.cpos.x, state.cpos.z + 190, state.cpos.y]}
-            rotation={[0, Math.PI / -2, 0]}
-          >
-            <GLTF
-              receiveShadow
-              asset={DeltaEffectorModel}
-              position={[-43.25, -3, -0.25]}
-              rotation={[0, Math.PI / -2, 0]}
-            />
-            <mesh>
-              <sphereBufferGeometry attach="geometry" args={[3, 20, 20]} />
-              <meshStandardMaterial attach="material" color="orange" roughness={0.6} />
-            </mesh>
-          </ControlledGroup>
-
-          <group rotation={[0, Math.PI / -2, 0]}>
-            {/* Arms */}
-            {[0, 1, 2].map(armIndex => (
-              <group rotation={[0, armIndex * ((-2 * Math.PI) / 3), 0]} key={armIndex}>
-                <ArmAssembly armIndex={armIndex} />
-              </group>
-            ))}
-          </group>
-        </group>
+        <DeltaAssembly />
       </Environment>
     </div>
   )

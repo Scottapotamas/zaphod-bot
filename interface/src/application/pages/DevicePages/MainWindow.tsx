@@ -22,6 +22,8 @@ import { ModeSelection } from './Controls/ModeSelection'
 import { MessageDataSource } from '@electricui/core-timeseries'
 import { MSGID } from 'src/application/typedState'
 
+import { GeometryToolpathViewer } from './Views/GeometryToolpaths'
+
 const layoutDescription = `
             Sidebar . Charts
             Sidebar . Charts
@@ -29,12 +31,23 @@ const layoutDescription = `
           `
 
 const MainWindow = (props: RouteComponentProps) => {
+
+  
   return (
     <React.Fragment>
       <IntervalRequester interval={50} variables={['cpos']} />
       <IntervalRequester interval={80} variables={['servo']} />
 
       <div
+        style={{
+          width: '100vw',
+          height: '100vh',
+          position: 'absolute',
+        }}
+      >
+        <GeometryToolpathViewer />
+</div>
+       <div
         style={{
           position: 'absolute',
           top: '0',
@@ -44,8 +57,9 @@ const MainWindow = (props: RouteComponentProps) => {
           zIndex: '-1',
         }}
       >
-        <RiggedModel />
-      </div>
+        {/* <GeometryToolpathViewer /> */}
+        
+      </div> 
 
       <Composition
         areas={layoutDescription}
