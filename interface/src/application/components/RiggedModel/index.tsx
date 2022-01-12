@@ -7,7 +7,10 @@ import {
   GLTF,
   OrbitControls,
 } from '@electricui/components-desktop-three'
-import { useHardwareState, useHardwareStateSubscription } from '@electricui/components-core'
+import {
+  useHardwareState,
+  useHardwareStateSubscription,
+} from '@electricui/components-core'
 
 import {
   Backdrop,
@@ -140,14 +143,14 @@ function ForearmHelper(props: ForearmHelperProps) {
   const initialCpos = useHardwareStateSubscription(
     state => state.cpos,
     cpos => {
-      if (ref && ref.current) {
+      if (ref && ref.current && cpos) {
         ref.current.lookAt(calculateLookAt(cpos, props.left, props.armIndex))
       }
     },
   )
 
   useEffect(() => {
-    if (ref && ref.current) {
+    if (ref && ref.current && initialCpos) {
       ref.current.lookAt(
         calculateLookAt(initialCpos, props.left, props.armIndex),
       )

@@ -41,17 +41,6 @@ import { MSGID } from 'src/application/typedState'
 const temperatureDataSource = new MessageDataSource(MSGID.SYSTEM)
 
 export const TemperatureTag = () => {
-  const ambient_temp = useHardwareState(
-    state => state.sys.temp_ambient,
-  ).toFixed(0)
-  const regulator_temp = useHardwareState(
-    state => state.sys.temp_regulator,
-  ).toFixed(0)
-  const supply_temp = useHardwareState(state => state.sys.temp_supply).toFixed(
-    0,
-  )
-  const cpu_temp = useHardwareState(state => state.sys.temp_cpu).toFixed(0)
-
   return (
     <div>
       <IntervalRequester variables={[MSGID.SYSTEM]} interval={500} />
@@ -112,10 +101,37 @@ export const TemperatureTag = () => {
             <VerticalAxis label="Temperature °C" />
           </ChartContainer>
           <Statistics>
-            <Statistic value={ambient_temp} label={`Ambient`} suffix="º" />
-            <Statistic value={regulator_temp} label={`DC-DC Reg`} suffix="º" />
-            <Statistic value={supply_temp} label={`AC-DC PSU`} suffix="º" />
-            <Statistic value={cpu_temp} label={`CPU Core`} suffix="º" />
+            <Statistic
+              value={
+                <Printer accessor={state => state.temp.ambient} precision={0} />
+              }
+              label={`Ambient`}
+              suffix="º"
+            />
+            <Statistic
+              value={
+                <Printer
+                  accessor={state => state.temp.regulator}
+                  precision={0}
+                />
+              }
+              label={`DC-DC Reg`}
+              suffix="º"
+            />
+            <Statistic
+              value={
+                <Printer accessor={state => state.temp.supply} precision={0} />
+              }
+              label={`AC-DC PSU`}
+              suffix="º"
+            />
+            <Statistic
+              value={
+                <Printer accessor={state => state.temp.cpu} precision={0} />
+              }
+              label={`CPU Core`}
+              suffix="º"
+            />
           </Statistics>
         </Composition>
       </Popover>

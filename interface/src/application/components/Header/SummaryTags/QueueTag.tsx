@@ -45,9 +45,9 @@ export const QueueText = () => {
 
   let iconColour: Intent
 
-  if (queue_depth == 0) {
+  if (queue_depth === 0) {
     iconColour = Intent.NONE
-  } else if (queue_depth > 0 && queue_depth < 25) {
+  } else if (queue_depth && queue_depth > 0 && queue_depth < 25) {
     if (is_moving) {
       iconColour = Intent.SUCCESS
     } else {
@@ -69,7 +69,7 @@ export const QueueText = () => {
         }}
       >
         {queue_depth} / {queue_depth_ui}
-        </div>
+      </div>
     </Tag>
   )
 }
@@ -80,9 +80,9 @@ export const LEDQueueText = () => {
 
   let iconColour: Intent
 
-  if (queue_depth == 0) {
+  if (queue_depth === 0) {
     iconColour = Intent.NONE
-  } else if (queue_depth > 0 && queue_depth < 35) {
+  } else if (queue_depth && queue_depth > 0 && queue_depth < 35) {
     iconColour = Intent.SUCCESS
   } else {
     iconColour = Intent.WARNING

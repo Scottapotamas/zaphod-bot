@@ -21,6 +21,8 @@ import {
   AlphaSlider,
 } from '@electricui/components-desktop'
 
+import { MSGID } from '../../../../typedState'
+
 const ManualLEDPalette = () => {
   return (
     <Composition
@@ -33,25 +35,25 @@ const ManualLEDPalette = () => {
         <ColorPalette
           height={200}
           width={200}
-          red={state => state.manual_led.red * 255}
-          green={state => state.manual_led.green * 255}
-          blue={state => state.manual_led.blue * 255}
+          red={state => state[MSGID.LED_MANUAL_REQUEST].red * 255}
+          green={state => state[MSGID.LED_MANUAL_REQUEST].green * 255}
+          blue={state => state[MSGID.LED_MANUAL_REQUEST].blue * 255}
           writer={(state, color) => {
-            state.manual_led.red = color.r / 255
-            state.manual_led.green = color.g / 255
-            state.manual_led.blue = color.b / 255
+            state[MSGID.LED_MANUAL_REQUEST].red = color.r / 255
+            state[MSGID.LED_MANUAL_REQUEST].green = color.g / 255
+            state[MSGID.LED_MANUAL_REQUEST].blue = color.b / 255
           }}
         />
         <HueSlider
           vertical
           height={200}
-          red={state => state.manual_led.red * 255}
-          green={state => state.manual_led.green * 255}
-          blue={state => state.manual_led.blue * 255}
+          red={state => state[MSGID.LED_MANUAL_REQUEST].red * 255}
+          green={state => state[MSGID.LED_MANUAL_REQUEST].green * 255}
+          blue={state => state[MSGID.LED_MANUAL_REQUEST].blue * 255}
           writer={(state, color) => {
-            state.manual_led.red = color.r / 255
-            state.manual_led.green = color.g / 255
-            state.manual_led.blue = color.b / 255
+            state[MSGID.LED_MANUAL_REQUEST].red = color.r / 255
+            state[MSGID.LED_MANUAL_REQUEST].green = color.g / 255
+            state[MSGID.LED_MANUAL_REQUEST].blue = color.b / 255
           }}
         />
       </Box>
@@ -61,41 +63,43 @@ const ManualLEDPalette = () => {
           large
           innerLabel="OFF"
           innerLabelChecked="ON"
-          unchecked={0}
-          checked={1}
-          accessor={state => state.manual_led.enable}
-          writer={(state, value) => (state.manual_led.enable = value)}
+          unchecked={false}
+          checked={true}
+          accessor={state => state[MSGID.LED_MANUAL_REQUEST].enable}
+          writer={(state, value) => {
+            state[MSGID.LED_MANUAL_REQUEST].enable = value
+          }}
         ></Switch>
         <Button
           intent={Intent.DANGER}
           writer={state => {
-            state.manual_led = {
+            state[MSGID.LED_MANUAL_REQUEST] = {
               red: 0.5,
               green: 0,
               blue: 0,
-              enable: 1,
+              enable: true,
             }
           }}
         />
         <Button
           intent={Intent.SUCCESS}
           writer={state => {
-            state.manual_led = {
+            state[MSGID.LED_MANUAL_REQUEST] = {
               red: 0,
               green: 0.5,
               blue: 0,
-              enable: 1,
+              enable: true,
             }
           }}
         />
         <Button
           intent={Intent.PRIMARY}
           writer={state => {
-            state.manual_led = {
+            state[MSGID.LED_MANUAL_REQUEST] = {
               red: 0,
               green: 0,
               blue: 0.5,
-              enable: 1,
+              enable: true,
             }
           }}
         />
