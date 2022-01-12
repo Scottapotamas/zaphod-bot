@@ -2,8 +2,10 @@ import React from 'react'
 
 import { Dropdown, Button } from '@electricui/components-desktop-blueprint'
 import { MSGID, CONTROL_MODES } from 'src/application/typedState'
-import { Icon, Colors, NonIdealState, ButtonGroup } from '@blueprintjs/core'
+import { Icon, Colors, NonIdealState, ButtonGroup, Intent } from '@blueprintjs/core'
 import { useHardwareState } from '@electricui/components-core'
+
+import { Composition } from 'atomic-layout'
 
 export const ModeSelection = () => {
   const control_mode = useHardwareState(state => state.super.mode)
@@ -12,52 +14,56 @@ export const ModeSelection = () => {
 
   return (
     <React.Fragment>
-      <ButtonGroup fill>
-        <Button
-          minimal
-          large={largeButtons}
+      <Composition templateCols="1fr 1fr 1fr 1fr" gapCol={10}>
+      <Button
+          active={control_mode == CONTROL_MODES[CONTROL_MODES.MANUAL]}
+          outlined
+          intent={control_mode == CONTROL_MODES[CONTROL_MODES.MANUAL]? Intent.PRIMARY: Intent.NONE}
           icon="move"
           writer={state => {
             state[MSGID.MODE_REQUEST] = 1
           }}
-          active={control_mode == CONTROL_MODES[CONTROL_MODES.MANUAL]}
+          
         >
-          Jog
+          JOG
         </Button>
         <Button
-          minimal
-          large={largeButtons}
+          active={control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]}
+          outlined 
+          intent={control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]? Intent.PRIMARY: Intent.NONE}
+
           icon="flow-end"
           writer={state => {
             state[MSGID.MODE_REQUEST] = 3
           }}
-          active={control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]}
         >
-          Track
+          TRACK
         </Button>
         <Button
-          minimal
-          large={largeButtons}
+          active={control_mode == CONTROL_MODES[CONTROL_MODES.DEMO]}
+          outlined 
+          intent={control_mode == CONTROL_MODES[CONTROL_MODES.DEMO]? Intent.PRIMARY: Intent.NONE}
+
           icon="projects"
           writer={state => {
             state[MSGID.MODE_REQUEST] = 4
           }}
-          active={control_mode == CONTROL_MODES[CONTROL_MODES.DEMO]}
         >
-          Demo
+          DEMO
         </Button>
         <Button
-          minimal
-          large={largeButtons}
+          active={control_mode == CONTROL_MODES[CONTROL_MODES.EVENT]}
+          outlined 
+          intent={control_mode == CONTROL_MODES[CONTROL_MODES.EVENT]? Intent.PRIMARY: Intent.NONE}
+
           icon="document-open"
           writer={state => {
             state[MSGID.MODE_REQUEST] = 2
           }}
-          active={control_mode == CONTROL_MODES[CONTROL_MODES.EVENT]}
         >
-          Blender
+          BLENDER
         </Button>
-      </ButtonGroup>
+      </Composition>
     </React.Fragment>
   )
 }

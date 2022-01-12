@@ -1,8 +1,19 @@
-import React, { useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { RouteComponentProps } from '@reach/router'
+import { navigate } from '@electricui/utility-electron'
 
-import { Card } from '@blueprintjs/core'
 import { Composition, Box, Only, useBreakpointChange } from 'atomic-layout'
+
+import {
+  Card,
+  Tooltip,
+  Dialog,
+  Intent,
+  Position,
+  Button as BlueprintButton,
+} from '@blueprintjs/core'
+import { IconNames } from '@blueprintjs/icons'
+
 import { IntervalRequester } from '@electricui/components-core'
 
 import { MSGID } from 'src/application/typedState'
@@ -21,33 +32,80 @@ import { SettingsPage } from './SettingsPage'
 
 import { GeometryToolpathViewer } from './Views/GeometryToolpaths'
 
+const SideBar = () => {
+  const [configOpen, setConfigOpen] = useState(false)
+  const toggleConfig = useCallback(
+    () => setConfigOpen(value => !value),
+    [setConfigOpen],
+  )
+  const openConfig = useCallback(() => setConfigOpen(true), [setConfigOpen])
+  const closeConfig = useCallback(() => setConfigOpen(false), [setConfigOpen])
+
+  return (
+    <Composition gap={20} templateCols="1fr">
+      <Composition templateCols="auto 1fr"  gap={10}>
+        <Composition templateCols="1fr" alignItems="center">
+          <Tooltip content="Back to device list" position={Position.BOTTOM}>
+            <BlueprintButton
+              minimal
+              outlined
+              large
+              icon="key-backspace"
+              onClick={() => {
+                navigate('/')
+              }}
+            />
+          </Tooltip>
+
+          <Tooltip content="Settings" position={Position.BOTTOM}>
+            <BlueprintButton
+              minimal
+              outlined
+              large
+              icon={IconNames.WRENCH}
+              onClick={toggleConfig}
+            />
+          </Tooltip>
+        </Composition>
+
+        <RobotSummary isLarge={true}/>
+      </Composition>
 
       <ModeSelection />
 
+      <Composition templateCols="1fr 1fr" gap={10}>
+        <ArmControlButton />
+        <HomeButton />
+        <Box style={{gridColumnStart: '1', gridColumnEnd: '3'}}> <EStopButton /> </Box>
+      </Composition>
+
+      <Dialog
+        isOpen={configOpen}
+        onClose={closeConfig}
+        autoFocus
+        title="System Configuration"
+        icon={IconNames.WRENCH}
+        style={{ minWidth: '800px', minHeight: '400px' }}
+      >
+        <SettingsPage />
+      </Dialog>
+    </Composition>
+  )
+}
+
 const layoutDescription = `
-            Sidebar . Charts
-            Sidebar . Charts
-            Controls . Charts
+            Sidebar Three Charts
+            Sidebar Three Charts
+            Controls Three Charts
           `
 
 const MainWindow = (props: RouteComponentProps) => {
-
-  
   return (
     <React.Fragment>
-      <IntervalRequester interval={50} variables={['cpos']} />
+      <IntervalRequester interval={20} variables={['cpos']} />
       <IntervalRequester interval={80} variables={['servo']} />
 
       <div
-        style={{
-          width: '100vw',
-          height: '100vh',
-          position: 'absolute',
-        }}
-      >
-        <GeometryToolpathViewer />
-</div>
-       <div
         style={{
           position: 'absolute',
           top: '0',
@@ -57,14 +115,14 @@ const MainWindow = (props: RouteComponentProps) => {
           zIndex: '-1',
         }}
       >
-        {/* <GeometryToolpathViewer /> */}
-        
-      </div> 
+        <GeometryToolpathViewer />
+      </div>
 
       <Composition
         areas={layoutDescription}
         templateCols="minmax(300px, 30vw) auto minmax(300px, max-content)"
         gap={10}
+        padding={10}
         justifyContent="space-between"
         alignContent="space-between"
         style={{ height: '100%' }}
@@ -72,14 +130,7 @@ const MainWindow = (props: RouteComponentProps) => {
         {Areas => (
           <React.Fragment>
             <Areas.Sidebar>
-              <Composition gapRow={30} templateCols="minmax(250px, 450px)">
-                <RobotSummary />
-                <ModeSelection />
-                <Composition gap={10} templateCols="1fr 1fr">
-                  <ArmControlButton />
-                  <HomeButton />
-                </Composition>
-              </Composition>
+              <SideBar />
             </Areas.Sidebar>
 
             <Areas.Controls>
