@@ -27,13 +27,14 @@ const cpuDataSource = new MessageDataSource('sys')
 export const CPUTag = () => {
   return (
     <div>
-      <IntervalRequester interval={100} variables={['sys']} />
+      <IntervalRequester interval={200} variables={['sys']} />
 
-      <Popover interactionKind={PopoverInteractionKind.HOVER}>
+      {/* <Popover interactionKind={PopoverInteractionKind.HOVER}> */}
         <Tag fill large minimal icon={IconNames.STOPWATCH} intent={Intent.NONE}>
           <div
             style={{
-              width: '2em',
+              minWidth: '2em',
+              width: '100%',
               height: '1em',
               contain: 'strict',
               textAlign: 'right',
@@ -43,6 +44,8 @@ export const CPUTag = () => {
             <Printer accessor={state => state.sys.cpu_load} precision={0} />%
           </div>
         </Tag>
+        {/* <div style={{minWidth: '250px', minHeight: "80px"}}>Chart removed because <br/>of material issue</div> */}
+        {/* 
         <Composition padding={30} minWidth="500px">
           <ChartContainer height={300}>
             <LineChart
@@ -59,10 +62,11 @@ export const CPUTag = () => {
               yMax={100}
             />
             <TimeAxis />
-            <VerticalAxis label="Active Time %" />
+            <VerticalAxis label="Active Time %" /> 
           </ChartContainer>
         </Composition>
-      </Popover>
+        */}
+      {/* </Popover> */}
     </div>
   )
 }

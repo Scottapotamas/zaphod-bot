@@ -20,6 +20,7 @@ import { MSGID } from 'src/application/typedState'
 
 import { RobotSummary } from './Views/RobotSummary'
 import { ServoSummary } from './Views/ServoSummary'
+import { SystemSummary } from './Views/SystemSummary'
 import { AngleChart } from './Views/AngleChart'
 import { LoadChart } from './Views/LoadChart'
 import { PowerChart } from './Views/PowerChart'
@@ -96,8 +97,8 @@ const layoutDescription = `
 const MainWindow = (props: RouteComponentProps) => {
   return (
     <React.Fragment>
-      <IntervalRequester interval={20} variables={['cpos']} />
-      <IntervalRequester interval={80} variables={['servo']} />
+      <IntervalRequester interval={16} variables={['cpos']} />
+      <IntervalRequester interval={100} variables={['servo']} />
 
       <div
         style={{
@@ -133,6 +134,7 @@ const MainWindow = (props: RouteComponentProps) => {
 
             <Areas.Charts>
               <Composition gap={10}>
+                <SystemSummary/>
                 <ServoSummary />
                 {/* <AngleChart />
                 <LoadChart />

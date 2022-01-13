@@ -87,10 +87,10 @@ export const GeometryToolpathViewer = () => {
         <PerspectiveCamera
           ref={setCameraRef}
           makeDefault
-          position={[0, 150, 400]}
+          position={[0, 150, 600]}
         />
         <OrbitControls ref={setOrbitControlsRef} />
-        <AxisLines />
+        {/* <AxisLines /> */}
 
         <ambientLight intensity={0.2} />
         <directionalLight position={[-100, 0, -50]} intensity={1} color="red" />

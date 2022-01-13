@@ -58,10 +58,11 @@ export const QueueText = () => {
   }
 
   return (
-    <Tag minimal large icon={IconNames.EXCHANGE} intent={iconColour}>
+    <Tag minimal fill large icon={IconNames.EXCHANGE} intent={iconColour}>
       <div
         style={{
-          width: '4em',
+          minWidth: '4em',
+          width: '100%',
           height: '1em',
           contain: 'strict',
           textAlign: 'right',
@@ -89,14 +90,16 @@ export const LEDQueueText = () => {
   }
 
   return (
-    <Tag minimal large icon={IconNames.FLASH} intent={iconColour}>
+    <Tag minimal fill large icon={IconNames.FLASH} intent={iconColour}>
       <div
         style={{
-          width: '4em',
+          minWidth: '4em',
+          width: '100%',
           height: '1em',
           contain: 'strict',
           textAlign: 'right',
           display: 'inline-block',
+
         }}
       >
         {queue_depth} / {queue_depth_ui}

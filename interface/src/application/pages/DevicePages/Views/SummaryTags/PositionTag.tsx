@@ -1,42 +1,10 @@
 import React from 'react'
-import { RouteComponentProps } from '@reach/router'
 import { Composition, Box, Only } from 'atomic-layout'
 import {
-  Button,
-  Statistic,
-  Statistics,
-  Slider,
-  Switch,
-} from '@electricui/components-desktop-blueprint'
-import {
-  Card,
-  Divider,
-  HTMLTable,
-  Icon,
-  Label,
-  Text,
-  Tab,
   Tag,
-  Popover,
-  Intent,
-  PopoverInteractionKind,
 } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
-import {
-  IntervalRequester,
-  StateTree,
-  useHardwareState,
-} from '@electricui/components-core'
-import { MessageDataSource } from '@electricui/core-timeseries'
-import {
-  ChartContainer,
-  LineChart,
-  RealTimeDomain,
-  TimeAxis,
-  VerticalAxis,
-} from '@electricui/components-desktop-charts'
 import { Printer } from '@electricui/components-desktop'
-import { useSetting } from 'src/application/pages/toolpaths/interface/state'
 
 type TagProps = {
   isLarge?: boolean
