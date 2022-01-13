@@ -93,7 +93,7 @@ typedef struct
     //information about the current move being executed
     uint8_t  profile_type;
     uint8_t  move_progress;
-    uint16_t movement_identifier;
+    uint32_t movement_identifier;
 } MotionData_t;
 
 typedef struct

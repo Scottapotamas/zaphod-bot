@@ -139,7 +139,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
             user_interface_set_motion_state( TASKSTATE_MOTION_HOME );
 
-            //check the motors every 500ms to see if they are homed
+            // Check the motors every 500ms to see if they are homed
             eventTimerStartEvery( &me->timer1,
                                   (StateTask *)me,
                                   (StateEvent *)&stateEventReserved[STATE_TIMEOUT1_SIGNAL],
@@ -149,13 +149,13 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
         case STATE_TIMEOUT1_SIGNAL:
 
-            //check all the servos have homed successfully by polling their manager for a 'all good' condition
+            // Check all the servos have homed successfully by polling their manager for a 'all good' condition
             me->counter = 0;
             for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
             {
                 me->counter += servo_get_servo_ok( servo );
 
-                // the servo is/recently entered an error recovery state
+                // The servo is/recently entered an error recovery state
                 if( servo_get_servo_did_error( servo ) )
                 {
                     // Bail out of the mechanism homing process entirely
@@ -173,7 +173,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
             }
             else
             {
-                //allow subsequent homing check retries
+                // Allow subsequent homing check retries
                 if( me->retries++ > SERVO_HOMING_SUPERVISOR_RETRIES )
                 {
                     eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
@@ -217,14 +217,14 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
             return 0;
 
         case STATE_TIMEOUT1_SIGNAL:
-            //check all the servos are active
+            // Check all the servos are active
             me->counter = 0;
             for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
             {
                 me->counter += servo_get_servo_ok( servo );
             }
 
-            //a servo has dropped offline (fault or otherwise)
+            // A servo has dropped offline (fault or otherwise)
             if( me->counter != SERVO_COUNT )
             {
                 user_interface_report_error( "Servo loss" );
@@ -247,15 +247,15 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
 
         case MOTION_QUEUE_START_SYNC: {
             // Check that the ID we got the sync event for matches the current queue head ID
-            // TODO support sync events on ID's which aren't the current head
-            //      consider searching/ditching events until ID matches?
+            // TODO: support sync events on ID's which aren't the current head
+            //       consider searching/ditching events until ID matches?
             StateEvent *pendingMotion = eventQueuePeek( &me->super.requestQueue );
 
             if( pendingMotion )
             {
                 MotionPlannerEvent *ape          = (MotionPlannerEvent *)pendingMotion;
-                uint16_t            id_in_queue  = ( (Movement_t *)&ape->move )->identifier;
-                uint16_t            id_requested = ( (BarrierSyncEvent *)e )->id;
+                uint32_t            id_in_queue  = ( (Movement_t *)&ape->move )->sync_offset;
+                uint32_t            id_requested = ( (BarrierSyncEvent *)e )->id;
 
                 if( id_in_queue == id_requested )
                 {
@@ -305,10 +305,10 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
             AppTaskMotion_commit_queued_move( me );
             return 0;
 
-        // todo add motion handler watching on PATHING_STARTED?
+        // TODO: add motion handler watching on PATHING_STARTED?
         //      possibly not needed...
         case PATHING_COMPLETE: {
-            // the pathing engine completed movement execution,
+            // The pathing engine completed movement execution,
             // run another event, or go back to inactive to wait for new instructions
             if( eventQueueUsed( &me->super.requestQueue ) )
             {
@@ -320,7 +320,7 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
 
                 if( next_move->duration )
                 {
-                    // add an item to the queue
+                    // Add an item to the queue
                     stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
                 }
                 else
@@ -373,7 +373,7 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
             // Stop the motion interpolation engine
             path_interpolator_stop();
 
-            //update state for UI
+            // Update state for UI
             user_interface_set_motion_state( TASKSTATE_MOTION_RECOVERY );
 
             // Come back next loop and clear out queue etc
@@ -392,7 +392,7 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
             return 0;
 
         case STATE_TIMEOUT1_SIGNAL:
-            //check all the servos are not-enabled
+            // Check all the servos are not-enabled
             me->counter = SERVO_COUNT;
             for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
             {
@@ -467,7 +467,7 @@ PRIVATE void AppTaskMotion_clear_queue( AppTaskMotion *me )
         next = eventQueueGet( &me->super.requestQueue );
     }
 
-    //update UI with queue content count
+    // Update UI with queue content count
     user_interface_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 }
 
@@ -475,7 +475,7 @@ PRIVATE void AppTaskMotion_clear_queue( AppTaskMotion *me )
 
 PRIVATE void AppTaskMotion_add_event_to_queue( AppTaskMotion *me, const StateEvent *e )
 {
-    //already in motion, so add this one to the queue
+    // Already in motion, so add this one to the queue
     MotionPlannerEvent *mpe = (MotionPlannerEvent *)e;
 
     ASSERT( mpe->move.duration != 0 );
@@ -484,7 +484,7 @@ PRIVATE void AppTaskMotion_add_event_to_queue( AppTaskMotion *me, const StateEve
     uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
     if( queue_usage <= MOVEMENT_QUEUE_DEPTH_MAX )
     {
-        int32_t speed = cartesian_move_speed( &mpe->move );
+        mm_per_second_t speed = cartesian_move_speed( &mpe->move );
 
         if( speed < EFFECTOR_SPEED_LIMIT )
         {
@@ -492,15 +492,15 @@ PRIVATE void AppTaskMotion_add_event_to_queue( AppTaskMotion *me, const StateEve
         }
         else
         {
-            user_interface_report_error( "Requested illegal speed" );
+            user_interface_report_error( "Requested illegal speed move" );
         }
     }
     else
     {
-        //queue full, clearly the input motion processor isn't abiding by the spec.
+        // Queue full, clearly the input motion processor isn't abiding by the spec.
         user_interface_report_error( "Motion Queue Full" );
 
-        //shutdown
+        // Shutdown
         eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
         STATE_TRAN( AppTaskMotion_recovery );
     }
