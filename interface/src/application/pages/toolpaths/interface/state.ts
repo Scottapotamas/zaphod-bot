@@ -82,6 +82,10 @@ export interface VisualisationSettings {
   hiddenObjects: {
     [objectID: string]: boolean
   }
+
+  // The virtualised timeline within a frame
+  previewProgress: boolean
+  previewProgressValue: number
 }
 
 export function getMaterialOverride(
@@ -145,6 +149,12 @@ interface Store {
 
   visualisationSettings: VisualisationSettings
 
+  endEffector: {
+    x: number
+    y: number
+    z: number
+  }
+
   // Tree view store
   treeStore: {
     tree: TreeNodeInfo<NodeInfo>[]
@@ -201,6 +211,14 @@ const initialState: Store = {
     objectMaterialOverrides: {},
     curveSegments: 20, // 20 segments per curve by default
     hiddenObjects: {},
+    previewProgress: false,
+    previewProgressValue: 0,
+  },
+
+  endEffector: {
+    x: 0,
+    y: 0,
+    z: 0,
   },
 
   treeStore: {

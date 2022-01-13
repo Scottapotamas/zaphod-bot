@@ -33,6 +33,7 @@ import {
   Color,
   Vector2,
   PerspectiveCamera as PerspectiveCameraImpl,
+  MathUtils,
 } from 'three'
 import { getSetting, setSetting, useSetting, useStore } from './state'
 import { MovementMoveType } from '../optimiser/hardware'
@@ -52,6 +53,7 @@ import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeome
 import { MutableLineSegmentGeometry } from './ExternallyStoredLineSegments'
 import { importMaterial } from '../optimiser/material'
 import { Material } from '../optimiser/materials/Base'
+import { DeltaAssembly } from './../../../components/RiggedModel'
 
 export function AxisLines() {
   return (
@@ -236,6 +238,12 @@ export function ToolpathMovements() {
             )
           : null
 
+        let durationCounter = 0
+
+        const frameDuration = getSetting(
+          state => state.estimatedDurationByFrame[state.viewportFrame],
+        )
+
         for (let index = 0; index < denseMovements.length; index++) {
           const movement = denseMovements[index]
 
@@ -245,6 +253,50 @@ export function ToolpathMovements() {
           }
 
           const duration = movement.getDuration()
+
+          let renderThisMovementUpTo = 1
+
+          // If doing preview,
+          if (visualisationSettings.previewProgress) {
+            const thisMovementStart = durationCounter / frameDuration
+            const thisMovementEnd = (durationCounter + duration) / frameDuration
+
+            /**
+             *  Render up to |
+             *   [     ] [     ] [    ]
+             */
+            if (thisMovementEnd <= visualisationSettings.previewProgressValue) {
+              // render entire movement
+              // this is a noop, continue the flow as normal
+            } else if (
+              thisMovementStart < visualisationSettings.previewProgressValue &&
+              thisMovementEnd > visualisationSettings.previewProgressValue
+            ) {
+              // render this movement partially
+              renderThisMovementUpTo = MathUtils.mapLinear(
+                visualisationSettings.previewProgressValue,
+                thisMovementStart,
+                thisMovementEnd,
+                0,
+                1,
+              )
+
+              // Calculate the current position of the delta
+              const deltaPos = movement.samplePoint(renderThisMovementUpTo)
+
+              setSetting(state => {
+                state.endEffector.x = deltaPos.x
+                state.endEffector.y = deltaPos.y
+                state.endEffector.z = deltaPos.z
+              })
+            } else {
+              // don't render this movement
+              continue
+            }
+          }
+
+          // Update the duration counter
+          durationCounter += duration
 
           // Don't show zero duration moves
           if (duration === 0) {
@@ -276,7 +328,7 @@ export function ToolpathMovements() {
             addDottedLine,
             addReactComponent,
             0,
-            1,
+            renderThisMovementUpTo,
           )
         }
 
@@ -405,6 +457,7 @@ export const ToolpathVisualisation = () => {
         ref={setCameraRef}
         makeDefault
         position={[0, 150, 400]}
+        far={10000}
       />
       <OrbitControls ref={setOrbitControlsRef} />
       <AxisLines />
@@ -427,6 +480,7 @@ export const ToolpathVisualisation = () => {
       />
 
       <ToolpathMovements />
+      <DeltaAssembly />
 
       {/* <fog attach="fog" args={['#101010', 600, 3000]} /> */}
     </Canvas>

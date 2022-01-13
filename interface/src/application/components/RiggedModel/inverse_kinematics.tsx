@@ -12,7 +12,7 @@ interface AngleCalcResult {
 
 // TODO: accept booleans from outside this function
 const flip_x: number = 1
-const flip_y: number = 1
+const flip_y: number = -1
 const flip_z: number = 1
 
 const f: number = 50.0 // radius of motor shafts on base

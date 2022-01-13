@@ -18,7 +18,12 @@ import { Composition, Box } from 'atomic-layout'
 
 import React, { useCallback, useState } from 'react'
 
-import { getSetting, incrementViewportFrameVersion, setSetting } from './state'
+import {
+  getSetting,
+  incrementViewportFrameVersion,
+  setSetting,
+  useSetting,
+} from './state'
 
 function InterLineTransitionEnabledControl() {
   const [allowed, setAllow] = useState(
@@ -509,6 +514,69 @@ function DrawParticlesInVelocityOrientationControl() {
   return <Checkbox checked={setting} onChange={handleClick} />
 }
 
+function PreviewProgressControl() {
+  const [setting, set] = useState(
+    getSetting(state => state.visualisationSettings.previewProgress),
+  )
+
+  const updateSetting = useCallback(setting => {
+    setSetting(state => {
+      state.visualisationSettings.previewProgress = setting
+    })
+  }, [])
+
+  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
+    event => {
+      const checked = (event.target as HTMLInputElement).checked
+      set(checked)
+      updateSetting(checked)
+    },
+    [],
+  )
+
+  return <Checkbox checked={setting} onChange={handleClick} />
+}
+
+function PreviewTimelineControl() {
+  const [setting, set] = useState(
+    getSetting(state => state.visualisationSettings.previewProgressValue),
+  )
+
+  const updatePreviewTimeline = useCallback(factor => {
+    set(factor)
+
+    setSetting(state => {
+      state.visualisationSettings.previewProgressValue = factor
+
+      // Trigger an update, wrap around
+      incrementViewportFrameVersion(state)
+    })
+  }, [])
+
+  const duration = useSetting(
+    state => state.estimatedDurationByFrame[state.viewportFrame] ?? 0,
+  )
+
+  return (
+    <div style={{ marginLeft: 10, marginRight: 10 }}>
+      <Slider
+        min={0}
+        max={1}
+        value={setting}
+        labelRenderer={val => {
+          if (val === 0) return 'Start'
+          if (val === 1) return 'End'
+
+          return `${Math.round(((val * duration) / 1000) * 10) / 10}s`
+        }}
+        labelStepSize={1}
+        onChange={updatePreviewTimeline}
+        stepSize={0.001}
+      />
+    </div>
+  )
+}
+
 const enum TABS {
   GENERAL = 'general',
   CAMERA_HELPERS = 'camera-helpers',
@@ -562,18 +630,36 @@ function LightTab() {
 }
 
 function LineTab() {
+  const interlineOptimisationsEnabled = useSetting(
+    state => state.settings.optimisation.smoothInterlineTransitions,
+  )
+
   return (
     <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
       Inter-line Optimisations Enabled <InterLineTransitionEnabledControl />
-      Inter-line Transition Angle <InterLineTransitionAngleControl />
-      Inter-line Transition Distance <InterLineTransitionDistanceControl />
+      {interlineOptimisationsEnabled ? (
+        <>
+          Inter-line Transition Angle <InterLineTransitionAngleControl />
+          Inter-line Transition Distance <InterLineTransitionDistanceControl />
+        </>
+      ) : null}
     </Composition>
   )
 }
 
 function VisualisationTab() {
+  const previewEnabled = useSetting(
+    state => state.visualisationSettings.previewProgress,
+  )
+
   return (
     <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+      Preview Progress <PreviewProgressControl />
+      {previewEnabled ? (
+        <>
+          Preview Timeline <PreviewTimelineControl />
+        </>
+      ) : null}
       <p>Annotate Draw Order</p> <br />
       <p>Curve Segments</p> <br />
       <p>Orbit Camera</p> <br />
@@ -604,12 +690,12 @@ export const PlannerSettingsInterface = () => {
           panel={<CameraHelpersTab />}
         />
 
-        {/* <Tabs.Expander />
+        <Tabs.Expander />
         <Tab
           id={TABS.VISUALISATION}
           title="Visualisation"
           panel={<VisualisationTab />}
-        /> */}
+        />
       </Tabs>
     </div>
   )
