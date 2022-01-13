@@ -25,12 +25,12 @@
     POINT( X2, Y2, Z2 ) \
 }
 
-#define DELAY_MOVEMENT( DURATION ) {.type =_POINT_TRANSIT, .ref =_POS_RELATIVE, .identifier=0, .duration=DURATION, .num_pts=1, .points={ {0,0,0} }}
-#define MOVE_TO( DURATION, TO ) {.type =_POINT_TRANSIT, .ref =_POS_ABSOLUTE, .identifier=0, .duration=DURATION, .num_pts=1, .points={ TO }}
-#define MOVE_BETWEEN( DURATION, FROM, TO ) {.type =_LINE, .ref =_POS_ABSOLUTE, .identifier=0, .duration=DURATION, .num_pts=2, .points={ FROM, TO}}
-#define MOVE_BETWEEN_SMOOTH( DURATION, SMOOTH, X1, Y1, Z1, X2, Y2, Z2 ) {.type =_BEZIER_CUBIC, .ref =_POS_ABSOLUTE, .identifier=0, .duration=DURATION, .num_pts=4, .points=POINT_PAIR_CUBIC(X1*1000, Y1*1000, Z1*1000, X2*1000, Y2*1000, Z2*1000, SMOOTH) }
+#define DELAY_MOVEMENT( DURATION ) {.type =_POINT_TRANSIT, .ref =_POS_RELATIVE, .sync_offset=0, .duration=DURATION, .num_pts=1, .points={ {0,0,0} }}
+#define MOVE_TO( DURATION, TO ) {.type =_POINT_TRANSIT, .ref =_POS_ABSOLUTE, .sync_offset=0, .duration=DURATION, .num_pts=1, .points={ TO }}
+#define MOVE_BETWEEN( DURATION, FROM, TO ) {.type =_LINE, .ref =_POS_ABSOLUTE, .sync_offset=0, .duration=DURATION, .num_pts=2, .points={ FROM, TO}}
+#define MOVE_BETWEEN_SMOOTH( DURATION, SMOOTH, X1, Y1, Z1, X2, Y2, Z2 ) {.type =_BEZIER_CUBIC, .ref =_POS_ABSOLUTE, .sync_offset=0, .duration=DURATION, .num_pts=4, .points=POINT_PAIR_CUBIC(X1*1000, Y1*1000, Z1*1000, X2*1000, Y2*1000, Z2*1000, SMOOTH) }
 
-#define CUBIC_BEZIER( DURATION, A, B, C, D ) {.type =_BEZIER_CUBIC, .ref =_POS_ABSOLUTE, .identifier=0, .duration=DURATION, .num_pts=4, .points={ A, B, C, D } }
+#define CUBIC_BEZIER( DURATION, A, B, C, D ) {.type =_BEZIER_CUBIC, .ref =_POS_ABSOLUTE, .sync_offset=0, .duration=DURATION, .num_pts=4, .points={ A, B, C, D } }
 
 /* -------------------------------------------------------------------------- */
 
@@ -250,7 +250,7 @@ demonstration_prepare_demo_move( uint8_t demo_index )
 PUBLIC void
 demonstration_prepare_sequence( void )
 {
-    for( uint8_t i = 0; i < DIM( demo_one ); i++ )
+    for( uint32_t i = 0; i < DIM( demo_one ); i++ )
     {
         demonstration_emit_event( i );
     }
@@ -264,6 +264,8 @@ demonstration_emit_event( uint8_t sequence )
     // TODO Ensure the requested index isn't out of sequence (no gaps)
     // TODO Validate that the effector is at the starting point for the event
 
+    // TODO: fix/rework identifier handling for demo mode emit_event to support global timestamp ID
+
     if( sequence <= DIM( demo_one ) )
     {
         // Generate the event
@@ -272,7 +274,7 @@ demonstration_emit_event( uint8_t sequence )
         if( motion_request )
         {
             memcpy( &motion_request->move, &demo_one[sequence], sizeof( Movement_t ) );
-            motion_request->move.identifier = sequence;    // set the ID of the move, as the demo array doesn't have any
+            motion_request->move.sync_offset = sequence;    // set the ID of the move, as the demo array doesn't have any
             eventPublish( (StateEvent *)motion_request );
         }
     }

@@ -19,7 +19,6 @@
 #include "user_interface.h"
 #include "kinematics.h"
 #include "motion_types.h"
-#include "status.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -56,8 +55,8 @@ PRIVATE void path_interpolator_premove_transforms( Movement_t *move );
 PRIVATE void path_interpolator_execute_move( Movement_t *move, float percentage );
 PRIVATE void path_interpolator_calculate_percentage( uint16_t move_duration );
 
-PRIVATE void path_interpolator_notify_pathing_started( uint16_t move_id );
-PRIVATE void path_interpolator_notify_pathing_complete( uint16_t move_id );
+PRIVATE void path_interpolator_notify_pathing_started( uint32_t move_id );
+PRIVATE void path_interpolator_notify_pathing_complete( uint32_t move_id );
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -147,7 +146,7 @@ path_interpolator_get_global_position( void )
 PUBLIC void
 path_interpolator_start( void )
 {
-    // Request that the statemachine transitions to "ON"
+    // Request that the state-machine transitions to "ON"
     planner.enable = true;
 }
 
@@ -158,7 +157,7 @@ path_interpolator_stop( void )
 {
     MotionPlanner_t *me = &planner;
 
-    // Request that the statemachine return to "OFF"
+    // Request that the state-machine return to "OFF"
     me->enable = false;
 
     // Wipe out the moves currently loaded into the queue
@@ -208,7 +207,7 @@ path_interpolator_process( void )
         case PLANNER_EXECUTE_A:
             STATE_ENTRY_ACTION
             user_interface_set_pathing_status( me->currentState );
-            path_interpolator_notify_pathing_started( me->move_a.identifier );
+            path_interpolator_notify_pathing_started( me->move_a.sync_offset );
 
             path_interpolator_premove_transforms( &me->move_a );
             me->movement_started      = hal_systick_get_ms();
@@ -234,7 +233,7 @@ path_interpolator_process( void )
                     STATE_NEXT( PLANNER_OFF );
                 }
 
-                path_interpolator_notify_pathing_complete( me->move_a.identifier );
+                path_interpolator_notify_pathing_complete( me->move_a.sync_offset );
             }
             else
             {
@@ -249,7 +248,7 @@ path_interpolator_process( void )
         case PLANNER_EXECUTE_B:
             STATE_ENTRY_ACTION
             user_interface_set_pathing_status( me->currentState );
-            path_interpolator_notify_pathing_started( me->move_b.identifier );
+            path_interpolator_notify_pathing_started( me->move_b.sync_offset );
 
             path_interpolator_premove_transforms( &me->move_b );
             me->movement_started      = hal_systick_get_ms();
@@ -275,7 +274,7 @@ path_interpolator_process( void )
                     STATE_NEXT( PLANNER_OFF );
                 }
 
-                path_interpolator_notify_pathing_complete( me->move_b.identifier );
+                path_interpolator_notify_pathing_complete( me->move_b.sync_offset );
             }
             else
             {
@@ -365,24 +364,24 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
     // Update the config/UI data based on these actions
     user_interface_set_position( target.x, target.y, target.z );
     memcpy( &planner.effector_position, &target, sizeof( CartesianPoint_t ) );
-    user_interface_set_movement_data( move->identifier, move->type, ( uint8_t )( percentage * 100 ) );
+    user_interface_set_movement_data( move->sync_offset, move->type, ( uint8_t )( percentage * 100 ) );
 }
 
 PRIVATE void
-path_interpolator_notify_pathing_started( uint16_t move_id )
+path_interpolator_notify_pathing_started( uint32_t move_id )
 {
     BarrierSyncEvent *barrier_ev = EVENT_NEW( BarrierSyncEvent, PATHING_STARTED );
-    uint16_t          publish_id = move_id;
+    uint32_t          publish_id = move_id;
 
     memcpy( &barrier_ev->id, &publish_id, sizeof( move_id ) );
     eventPublish( (StateEvent *)barrier_ev );
 }
 
 PRIVATE void
-path_interpolator_notify_pathing_complete( uint16_t move_id )
+path_interpolator_notify_pathing_complete( uint32_t move_id )
 {
     BarrierSyncEvent *barrier_ev = EVENT_NEW( BarrierSyncEvent, PATHING_COMPLETE );
-    uint16_t          publish_id = move_id;
+    uint32_t          publish_id = move_id;
 
     memcpy( &barrier_ev->id, &publish_id, sizeof( move_id ) );
     eventPublish( (StateEvent *)barrier_ev );
