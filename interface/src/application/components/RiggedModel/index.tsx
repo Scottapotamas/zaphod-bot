@@ -191,14 +191,14 @@ function EndEffector() {
           position={[-43.25, -3, -0.25]}
           rotation={[0, Math.PI / -2, 0]}
         />
-        <mesh position={[0, -LIGHT_OFFSET, 0]}>
+        {/* <mesh position={[0, -LIGHT_OFFSET, 0]}>
           <sphereBufferGeometry attach="geometry" args={[3, 20, 20]} />
           <meshStandardMaterial
             attach="material"
             color="orange"
             roughness={0.6}
           />
-        </mesh>
+        </mesh> */}
       </group>
     </>
   )

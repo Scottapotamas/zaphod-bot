@@ -128,12 +128,29 @@ export const ArmControlTag = () => {
       return (
         <Tag fill minimal intent={Intent.NONE} style={{ height: '100%' }}>
           <div style={{ position: 'absolute', left: '3em', top: '30%' }}>
-            <Icon icon={IconNames.SEARCH} size={42} />
           </div>
 
           <div style={{ textAlign: 'center', minWidth: '100px' }}>
-            <h2>WAITING FOR MODE SELECTION</h2>
           </div>
+          <Composition
+            areas={tagContentLayout}
+            alignItems="center"
+            justifyItems="center"
+            justifyContent="space-evenly"
+          >
+            {Areas => (
+              <React.Fragment>
+                <Areas.Icon>
+                <Icon icon={IconNames.SEARCH} size={42} />
+                </Areas.Icon>
+                <Areas.Title style={{ textAlign: 'center', minWidth: '100px' }}>
+                <h2>WAITING <br/> FOR MODE</h2>
+                </Areas.Title>
+
+              </React.Fragment>
+            )}
+          </Composition>
+
         </Tag>
       )
     } else {

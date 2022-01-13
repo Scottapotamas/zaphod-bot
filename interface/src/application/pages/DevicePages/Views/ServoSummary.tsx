@@ -8,6 +8,7 @@ import { IconNames } from '@blueprintjs/icons'
 import { useHardwareState } from '@electricui/components-core'
 
 import { MSGID, SUPERVISOR_STATES, ServoInfo } from '../../../typedState'
+import { Printer } from '@electricui/components-desktop'
 
 const servoColor: Intent[] = [
   Intent.SUCCESS,
@@ -49,7 +50,7 @@ interface ServoStatusBlockProps {
 
 const ServoStatusBlock = (props: ServoStatusBlockProps) => {
   const servoState = useHardwareState(
-    state => state.servo[props.motorIndex].state,
+    state => state[MSGID.SERVO][props.motorIndex].state,
   )
 
   let operation_mode: string
@@ -106,6 +107,7 @@ const ServoStatusBlock = (props: ServoStatusBlockProps) => {
     <Tag
       fill
       minimal
+      large
       style={{
         fontWeight: 'bold',
         fontSize: 'larger',
@@ -119,9 +121,6 @@ const ServoStatusBlock = (props: ServoStatusBlockProps) => {
 }
 
 const TargetAngleTag = (props: ServoStatusBlockProps) => {
-  const targetAngle = useHardwareState(
-    state => state.servo[props.motorIndex].target_angle,
-  )
 
   return (
     <Tag
@@ -131,18 +130,16 @@ const TargetAngleTag = (props: ServoStatusBlockProps) => {
       style={{
         fontWeight: 'bold',
         minWidth: '50px',
-        textAlign: 'right',
+        textAlign: 'center',
       }}
     >
-      {targetAngle?.toFixed(1) ?? 'X'} °
+      <Printer accessor={state => state[MSGID.SERVO][props.motorIndex].feedback} precision={1}/> °
+
     </Tag>
   )
 }
 
 const FeedbackTag = (props: ServoStatusBlockProps) => {
-  const feedback = useHardwareState(
-    state => state.servo[props.motorIndex].feedback,
-  )
 
   return (
     <Tag
@@ -152,16 +149,15 @@ const FeedbackTag = (props: ServoStatusBlockProps) => {
       style={{
         fontWeight: 'bold',
         minWidth: '50px',
-        textAlign: 'right',
+        textAlign: 'center',
       }}
     >
-      {feedback?.toFixed(1) ?? 'X'} %
+      <Printer accessor={state => state[MSGID.SERVO][props.motorIndex].feedback} precision={1}/> %
     </Tag>
   )
 }
 
 const PowerTag = (props: ServoStatusBlockProps) => {
-  const power = useHardwareState(state => state.servo[props.motorIndex].power)
 
   return (
     <Tag
@@ -171,18 +167,20 @@ const PowerTag = (props: ServoStatusBlockProps) => {
       style={{
         fontWeight: 'bold',
         minWidth: '50px',
-        textAlign: 'right',
+        textAlign: 'center',
+
       }}
     >
-      {power?.toFixed(1) ?? 'X'} W
+      <Printer accessor={state => state[MSGID.SERVO][props.motorIndex].power} precision={1}/> W
     </Tag>
   )
 }
 
 const layoutDescription = `
-  State Angle
-  State Feedback 
-  State Power
+  State 
+  Angle
+  Feedback 
+  Power
 `
 
 const ServoStats = (props: MotorData) => {
@@ -190,7 +188,7 @@ const ServoStats = (props: MotorData) => {
     <React.Fragment>
       <Composition
         areas={layoutDescription}
-        templateCols="3fr 1fr"
+        templateCols=" 1fr"
         gapCol={10}
         gapRow={5}
       >
@@ -216,15 +214,16 @@ const ServoStats = (props: MotorData) => {
 }
 
 export const ServoSummary = () => {
-  const motors = useHardwareState(state => state.servo)
+  const motors = useHardwareState(state => state[MSGID.SERVO])
+
   if (!motors) {
     return <span>No motor telemetry available...</span>
   }
 
   return (
-    <Composition gap={10}>
+    <Composition gap={10} >
       {motors.map((clearpath, index) => (
-        <Box key={index}>
+        <Box key={index} style={{gridColumnStart: index+1}} width="1fr">
           <ServoStats servo={clearpath} index={index} />
         </Box>
       ))}
