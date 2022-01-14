@@ -51,8 +51,8 @@ const defaultSettings: Settings = {
   skippedObjects: {},
 
   optimisation: {
-    maxSpeed: 300,
-    transitionMaxSpeed: 300,
+    maxSpeed: 275,
+    transitionMaxSpeed: 275,
     waitAtStartDuration: 1000,
     interLineTransitionAngle: 50,
     interLineTransitionShaveDistance: 5,
@@ -85,7 +85,7 @@ export interface VisualisationSettings {
 
   // The virtualised timeline within a frame
   previewProgress: boolean
-  previewProgressValue: number
+  frameProgress: number
 }
 
 export function getMaterialOverride(
@@ -134,6 +134,9 @@ interface Store {
 
   // The currently viewed frame
   viewportFrame: number
+
+  // The currently rendering frame
+  currentlyRenderingFrame: number
 
   /**
    * A reference to the current optimiser, for requesting a toolpath
@@ -192,6 +195,9 @@ interface Store {
   // Queue depths for sending data to hardware
   movementQueueUI: number
   lightQueueUI: number
+
+  // 0 means don't override, any number above is a time in milliseconds to trigger the camera for
+  cameraOverrideDuration: number
 }
 
 const initialState: Store = {
@@ -203,6 +209,7 @@ const initialState: Store = {
   selectedMinFrame: 1,
   selectedMaxFrame: 1,
   viewportFrame: 1,
+  currentlyRenderingFrame: 0,
   persistentOptimiser: null,
 
   viewportFrameVersion: 0,
@@ -212,7 +219,7 @@ const initialState: Store = {
     curveSegments: 20, // 20 segments per curve by default
     hiddenObjects: {},
     previewProgress: false,
-    previewProgressValue: 0,
+    frameProgress: 0,
   },
 
   endEffector: {
@@ -241,6 +248,8 @@ const initialState: Store = {
 
   movementQueueUI: 0,
   lightQueueUI: 0,
+
+  cameraOverrideDuration: 0,
 }
 
 export const useStore = create<

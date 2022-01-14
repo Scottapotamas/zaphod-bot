@@ -134,13 +134,12 @@ import { MSGID } from 'src/application/typedState'
 import { getOrderedMovementsForFrame } from './ToolpathVisualisation'
 import { FRAME_STATE } from '../optimiser/main'
 
-async function getToolpathForCurrentFrame() {
-  const viewportFrame = getSetting(state => state.viewportFrame)
+async function getToolpathForFrame(frameNumber: number) {
   const persistentOptimiser = getSetting(state => state.persistentOptimiser)
   if (!persistentOptimiser) return null
 
-  await persistentOptimiser.waitUntilFrameReady(viewportFrame)
-  const orderedMovements = getOrderedMovementsForFrame(viewportFrame)
+  await persistentOptimiser.waitUntilFrameReady(frameNumber)
+  const orderedMovements = getOrderedMovementsForFrame(frameNumber)
   const settings = getSetting(state => state.settings)
   const visualisationSettings = getSetting(state => state.visualisationSettings)
 
@@ -181,7 +180,9 @@ function CopyToolpathToClipboard() {
   const handleRender = useCallback(() => {
     setIsLoading(true)
 
-    getToolpathForCurrentFrame().then(t => {
+    const viewportFrame = getSetting(state => state.viewportFrame)
+
+    getToolpathForFrame(viewportFrame).then(t => {
       // Just copy it to the clipboard for now
       clipboard.writeText(JSON.stringify(t))
 
@@ -195,6 +196,8 @@ function CopyToolpathToClipboard() {
     </Button>
   )
 }
+
+const ESTIMATED_DURATION_OFFSET = 2000
 
 export function SendToolpath() {
   const sequenceSenderRef: React.MutableRefObject<SequenceSender | null> =
@@ -236,13 +239,34 @@ export function SendToolpath() {
     const cancellationToken = new CancellationToken()
     const syncMessage = new Message(MSGID.QUEUE_CLEAR, null)
     await sendMessage(syncMessage, cancellationToken)
+    await sendCapture(0) // cancel any currently running capture
 
     await query(MSGID.QUEUE_INFO, cancellationToken)
   }, [sendMessage])
 
-  const queryQueueDepth = useCallback(async () => {
+  const sendAngle = useCallback(
+    async (angle: number) => {
+      const cancellationToken = new CancellationToken()
+      const syncMessage = new Message(MSGID.POSITION_EXPANSION, angle)
+      await sendMessage(syncMessage, cancellationToken)
+    },
+    [sendMessage],
+  )
+
+  const sendCapture = useCallback(
+    async (duration: number) => {
+      const cancellationToken = new CancellationToken()
+      const syncMessage = new Message(MSGID.CAPTURE, duration)
+      console.log(`Capturing for ${duration}ms`)
+      await sendMessage(syncMessage, cancellationToken)
+    },
+    [sendMessage],
+  )
+
+  const queryMotionAndQueueDepth = useCallback(async () => {
     const cancellationToken = new CancellationToken()
     await query(MSGID.QUEUE_INFO, cancellationToken)
+    await query(MSGID.MOTION, cancellationToken)
   }, [sendMessage])
 
   const updateOptimisticQueueDepth = useCallback(
@@ -261,12 +285,19 @@ export function SendToolpath() {
         sendMovement,
         sendLightMove,
         sendClear,
-        queryQueueDepth,
+        queryMotionAndQueueDepth,
         updateOptimisticQueueDepth,
       )
     }
     return sequenceSenderRef.current
   }
+
+  useEffect(() => {
+    return () => {
+      // clean up the sequence sender on unmount
+      getSequenceSender().clear()
+    }
+  }, [])
 
   useHardwareStateSubscription(
     state => state.queue,
@@ -276,48 +307,155 @@ export function SendToolpath() {
   )
 
   useHardwareStateSubscription(
-    state => state.err,
-    (err: string) => {
-      console.error(`Hardware reporting error: ${err}`)
+    state => state[MSGID.MOTION],
+    moStat => {
+      if (moStat) {
+        getSequenceSender().updateHardwareProgress(
+          moStat.movement_identifier,
+          moStat.move_progress,
+        )
+      }
     },
   )
 
   const [isLoading, setIsLoading] = useState(false)
+  const cancellationTokenRef = useRef(new CancellationToken())
 
-  const handleRender = useCallback(() => {
-    setIsLoading(true)
+  const renderSequence = useCallback(
+    async (
+      minFrameNumber: number,
+      maxFrameNumber: number,
+      cancellationToken: CancellationToken,
+    ) => {
+      getSequenceSender().clear()
 
-    getSequenceSender().clear()
+      cancellationTokenRef.current = cancellationToken
 
-    getToolpathForCurrentFrame().then(t => {
-      setIsLoading(false)
-      // The toolpath is generated, queue it
+      try {
+        for (
+          let frameNumber = minFrameNumber;
+          frameNumber <= maxFrameNumber;
+          frameNumber++
+        ) {
+          console.log(`rendering frame ${frameNumber}`)
+          cancellationToken.haltIfCancelled()
 
-      if (!t) {
-        console.log(`couldn't find toolpath for frame?`)
-        return
+          setSetting(state => {
+            state.currentlyRenderingFrame = frameNumber
+            state.viewportFrame = frameNumber
+            incrementViewportFrameVersion(state)
+
+            // TODO: Report progress to UI, frame number, expected duration remaining
+          })
+
+          // Calculate how long to capture for
+          const captureDuration = getSetting(state => {
+            if (state.cameraOverrideDuration > 0) {
+              return state.cameraOverrideDuration
+            }
+
+            return (
+              state.estimatedDurationByFrame[frameNumber] +
+              ESTIMATED_DURATION_OFFSET
+            ) // two seconds of wiggle room because who knows
+          })
+
+          // Process the toolpath into final form
+          const toolpath = await getToolpathForFrame(frameNumber)
+
+          if (!toolpath) {
+            console.error(`Couldn't find toolpath for frame ${frameNumber}`)
+            return
+          }
+
+          console.log(`toolpath has ${toolpath.movementMoves.length} moves`)
+
+          if (toolpath.movementMoves.length === 0) {
+            // TODO: Still capture with the camera
+            continue
+          }
+
+          // TODO: Ask fourth axis to go to desired position
+          await getSequenceSender().ingest(toolpath, cancellationToken)
+          await getSequenceSender().waitForInitialBatch()
+
+          console.log(`Initial batch sent to Delta`)
+
+          // TODO: Wait for fourth axis to reach desired position
+
+          cancellationToken.haltIfCancelled()
+
+          // Start the capture
+          await sendCapture(captureDuration) // Start the camera capture
+          const captureCompleteTime = new Promise((resolve, reject) =>
+            setTimeout(resolve, captureDuration),
+          )
+
+          console.log(`Sending sync`)
+
+          await sendSync() // Begin rendering
+
+          console.log(`Waiting for frame to complete`)
+
+          await getSequenceSender().waitForFrameToComplete()
+
+          console.log(`Frame finished rendering`)
+
+          cancellationToken.haltIfCancelled()
+          await captureCompleteTime // Wait for the capture duration to finish
+
+          console.log(`Capture finished`)
+        }
+      } catch (e) {
+        if (cancellationToken.caused(e)) {
+          // noop
+        } else {
+          console.error(e)
+        }
       }
+    },
+    [setIsLoading, sendSync],
+  )
 
-      getSequenceSender().ingest(t)
-    })
-  }, [setIsLoading])
+  const handleRangeRender = useCallback(() => {
+    const minFrameNumber = getSetting(state => state.selectedMinFrame)
+    const maxFrameNumber = getSetting(state => state.selectedMaxFrame)
+    cancellationTokenRef.current?.cancel()
 
-  const handleStart = useCallback(() => {
-    sendSync()
-  }, [sendSync])
+    return renderSequence(
+      minFrameNumber,
+      maxFrameNumber,
+      new CancellationToken(),
+    )
+  }, [renderSequence])
+
+  const handleViewportFrameRender = useCallback(() => {
+    const viewportFrame = getSetting(state => state.viewportFrame)
+    cancellationTokenRef.current?.cancel()
+
+    return renderSequence(viewportFrame, viewportFrame, new CancellationToken())
+  }, [setIsLoading, sendSync])
 
   const handleClear = useCallback(() => {
+    cancellationTokenRef.current?.cancel()
     getSequenceSender().clear()
   }, [])
 
   return (
     <>
-      <Button onClick={handleRender} loading={isLoading}>
-        Send to hardware
+      <Button
+        onClick={handleViewportFrameRender}
+        loading={isLoading}
+        intent="primary"
+      >
+        Render viewport frame
       </Button>
-
-      <Button onClick={handleStart}>Sync</Button>
-      <Button onClick={handleClear}>Clear</Button>
+      <Button onClick={handleRangeRender} loading={isLoading} intent="success">
+        Render sequence
+      </Button>
+      <Button onClick={handleClear} intent="danger">
+        Clear
+      </Button>
     </>
   )
 }
@@ -366,10 +504,36 @@ export function CurrentFrameTime() {
       break
   }
 
+  const currentlyRenderingFrame = useSetting(
+    state => state.currentlyRenderingFrame,
+  )
+  const maxFrame = useSetting(state => state.selectedMaxFrame)
+
+  const totalRendertime = useSetting(state => {
+    let total = 0
+
+    for (const duration of Object.values(state.estimatedDurationByFrame)) {
+      total += duration + ESTIMATED_DURATION_OFFSET
+    }
+
+    return total
+  })
+
   return (
-    <p>
+    <>
       <b>Estimated Time:</b> <span style={{ color }}>{niceDurationTime}s</span>
-    </p>
+      <br />
+      <b>Rendering frame</b>:{' '}
+      <span style={{ color: Colors.GRAY3 }}>
+        {currentlyRenderingFrame}/{maxFrame}
+      </span>
+      <br />
+      <b>Total duration</b>:{' '}
+      <span style={{ color: Colors.GRAY3 }}>
+        {Math.round((totalRendertime / 1000) * 10) / 10}s (
+        {Math.ceil(totalRendertime / 1000 / 60)} min)
+      </span>
+    </>
   )
 }
 
@@ -391,7 +555,9 @@ export const RenderInterface = () => {
         {numFrames < 1 ? null : <Timeline key={numFrames} />}
       </FormGroup>
 
-      <CurrentFrameTime />
+      <p>
+        <CurrentFrameTime />
+      </p>
 
       <SendToolpathToDeviceIfExists />
     </div>

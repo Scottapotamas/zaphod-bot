@@ -14,7 +14,10 @@ import {
 } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
 
-import { IntervalRequester } from '@electricui/components-core'
+import {
+  IntervalRequester,
+  useHardwareStateSubscription,
+} from '@electricui/components-core'
 
 import { MSGID } from 'src/application/typedState'
 
@@ -40,9 +43,17 @@ const SideBar = () => {
   const openConfig = useCallback(() => setConfigOpen(true), [setConfigOpen])
   const closeConfig = useCallback(() => setConfigOpen(false), [setConfigOpen])
 
+  // Report errors to console
+  useHardwareStateSubscription(
+    state => state.err,
+    (err: string) => {
+      console.error(`Hardware reporting error: ${err}`)
+    },
+  )
+
   return (
     <Composition gap={20} templateCols="1fr">
-      <Composition templateCols="auto 1fr"  gap={10}>
+      <Composition templateCols="auto 1fr" gap={10}>
         <Composition templateCols="1fr" alignItems="center">
           <Tooltip content="Back to device list" position={Position.BOTTOM}>
             <BlueprintButton
@@ -67,12 +78,12 @@ const SideBar = () => {
           </Tooltip>
         </Composition>
 
-        <RobotSummary isLarge={true}/>
+        <RobotSummary isLarge={true} />
       </Composition>
 
       <ModeSelection />
 
-         <EStopButton /> 
+      <EStopButton />
 
       <Dialog
         isOpen={configOpen}
