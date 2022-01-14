@@ -133,7 +133,7 @@ const TargetAngleTag = (props: ServoStatusBlockProps) => {
         textAlign: 'center',
       }}
     >
-      <Printer accessor={state => state[MSGID.SERVO][props.motorIndex].feedback} precision={1}/> °
+      <Printer accessor={state => state[MSGID.SERVO][props.motorIndex].target_angle} precision={1}/> °
 
     </Tag>
   )

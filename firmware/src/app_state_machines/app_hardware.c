@@ -66,10 +66,7 @@ app_hardware_init( void )
     servo_init( _CLEARPATH_1 );
     servo_init( _CLEARPATH_2 );
     servo_init( _CLEARPATH_3 );
-
-#ifdef EXPANSION_SERVO
     servo_init( _CLEARPATH_4 );
-#endif
 }
 
 /* ----- End ---------------------------------------------------------------- */

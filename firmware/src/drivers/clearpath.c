@@ -106,7 +106,6 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] = {
                        .requires_homing = true },
 
 
-#ifdef EXPANSION_SERVO
     [_CLEARPATH_4] = { .pin_enable    = _SERVO_4_ENABLE,
                        .pin_direction = _SERVO_4_A,
                        .pin_step      = _SERVO_4_B,
@@ -115,7 +114,6 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] = {
                        .adc_current   = HAL_ADC_INPUT_M4_CURRENT,
                        .pin_oc_fault  = _SERVO_4_CURRENT_FAULT,
                        .requires_homing = false },
-#endif
 };
 
 PRIVATE float servo_get_hlfb_percent( ClearpathServoInstance_t servo );

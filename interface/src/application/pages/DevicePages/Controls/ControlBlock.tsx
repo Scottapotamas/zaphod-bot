@@ -22,7 +22,7 @@ export const ControlBlock = () => {
         <NonIdealState
           title="Select desired mode"
           description="Select a control mode before arming"
-          action={<p>blah this is a thing</p>}
+          action={<p><br/></p>}
         ></NonIdealState>
       </Callout>
     )

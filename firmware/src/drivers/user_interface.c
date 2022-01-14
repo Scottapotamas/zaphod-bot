@@ -40,9 +40,8 @@ PRIVATE void home_mech_cb( void );
 PRIVATE void execute_motion_queue( void );
 PRIVATE void clear_all_queue( void );
 PRIVATE void tracked_position_event( void );
-#ifdef EXPANSION_SERVO
+
 PRIVATE void tracked_external_servo_request( void );
-#endif
 
 PRIVATE void rgb_manual_led_event( void );
 PRIVATE void movement_generate_event( void );
@@ -64,12 +63,8 @@ FanData_t      fan_stats;
 
 uint8_t mode_request = 0;
 
-#ifdef EXPANSION_SERVO
 MotorData_t motion_servo[4];
 float       external_servo_angle_target;
-#else
-MotorData_t motion_servo[3];
-#endif
 
 CartesianPoint_t current_position;    // global position of end effector in cartesian space
 CartesianPoint_t target_position;
@@ -110,9 +105,7 @@ eui_message_t ui_variables[] = {
         EUI_CUSTOM( MSGID_POSITION_TARGET, target_position ),
         EUI_CUSTOM_RO( MSGID_POSITION_CURRENT, current_position ),
 
-#ifdef EXPANSION_SERVO
-    EUI_FLOAT( MSGID_POSITION_EXPANSION, external_servo_angle_target),
-#endif
+        EUI_FLOAT( MSGID_POSITION_EXPANSION, external_servo_angle_target),
 
         EUI_CUSTOM_RO( MSGID_LED, rgb_led_drive ),
         EUI_CUSTOM( MSGID_LED_MANUAL_REQUEST, rgb_manual_control ),
@@ -296,12 +289,10 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
                 tracked_position_event();
             }
 
-#ifdef EXPANSION_SERVO
             if( strcmp( (char *)name_rx, MSGID_POSITION_EXPANSION ) == 0 && header.data_len )
             {
                 tracked_external_servo_request();
             }
-#endif
 
             // Fire an event to refresh the LED if the UI sends a value in
             // This makes display updates when manually setting colors or calibration values nice and responsive
@@ -681,7 +672,6 @@ PRIVATE void tracked_position_event( void )
     }
 }
 
-#ifdef EXPANSION_SERVO
 PRIVATE void tracked_external_servo_request( void )
 {
     ExpansionServoRequestEvent *angle_request = EVENT_NEW( ExpansionServoRequestEvent, TRACKED_EXTERNAL_SERVO_REQUEST );
@@ -693,7 +683,6 @@ PRIVATE void tracked_external_servo_request( void )
         memset( &external_servo_angle_target, 0, sizeof( external_servo_angle_target ) );
     }
 }
-#endif
 
 /* -------------------------------------------------------------------------- */
 
