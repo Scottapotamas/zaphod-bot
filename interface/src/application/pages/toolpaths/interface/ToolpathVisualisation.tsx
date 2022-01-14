@@ -265,16 +265,16 @@ export function ToolpathMovements() {
              *  Render up to |
              *   [     ] [     ] [    ]
              */
-            if (thisMovementEnd <= visualisationSettings.previewProgressValue) {
+            if (thisMovementEnd <= visualisationSettings.frameProgress) {
               // render entire movement
               // this is a noop, continue the flow as normal
             } else if (
-              thisMovementStart < visualisationSettings.previewProgressValue &&
-              thisMovementEnd > visualisationSettings.previewProgressValue
+              thisMovementStart < visualisationSettings.frameProgress &&
+              thisMovementEnd > visualisationSettings.frameProgress
             ) {
               // render this movement partially
               renderThisMovementUpTo = MathUtils.mapLinear(
-                visualisationSettings.previewProgressValue,
+                visualisationSettings.frameProgress,
                 thisMovementStart,
                 thisMovementEnd,
                 0,

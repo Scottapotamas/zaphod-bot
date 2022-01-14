@@ -359,6 +359,59 @@ function TransitionMaxSpeedControl() {
     />
   )
 }
+function CameraDurationControl() {
+  const [setting, set] = useState(
+    getSetting(state => state.cameraOverrideDuration),
+  )
+
+  const update = useCallback(newTransitionMaxSpeed => {
+    setSetting(state => {
+      state.cameraOverrideDuration = Math.max(newTransitionMaxSpeed, 1)
+    })
+  }, [])
+
+  const setAndUpdateTransitionMaxSpeed = useCallback(newTransitionMaxSpeed => {
+    set(newTransitionMaxSpeed)
+    update(newTransitionMaxSpeed)
+  }, [])
+
+  return (
+    <NumericInput
+      fill
+      min={1}
+      max={30000}
+      stepSize={25}
+      majorStepSize={100}
+      value={setting}
+      onValueChange={setAndUpdateTransitionMaxSpeed}
+      rightElement={<Tag>ms</Tag>}
+      style={{ width: '100%' }}
+    />
+  )
+}
+
+function CameraDurationOverrideControl() {
+  const [setting, set] = useState(
+    getSetting(state => state.cameraOverrideDuration > 0),
+  )
+
+  const updateSetting = useCallback(setting => {
+    setSetting(state => {
+      state.cameraOverrideDuration = setting ? 100 : 0
+    })
+  }, [])
+
+  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
+    event => {
+      const checked = (event.target as HTMLInputElement).checked
+      set(checked)
+      updateSetting(checked)
+    },
+    [],
+  )
+
+  return <Checkbox checked={setting} onChange={handleClick} />
+}
 
 function WaitAtStartDurationControl() {
   const [waitDuration, setWaitDuration] = useState(
@@ -539,14 +592,14 @@ function PreviewProgressControl() {
 
 function PreviewTimelineControl() {
   const [setting, set] = useState(
-    getSetting(state => state.visualisationSettings.previewProgressValue),
+    getSetting(state => state.visualisationSettings.frameProgress),
   )
 
   const updatePreviewTimeline = useCallback(factor => {
     set(factor)
 
     setSetting(state => {
-      state.visualisationSettings.previewProgressValue = factor
+      state.visualisationSettings.frameProgress = factor
 
       // Trigger an update, wrap around
       incrementViewportFrameVersion(state)
@@ -598,11 +651,22 @@ function GeneralTab() {
 }
 
 function CameraHelpersTab() {
+  const cameraDurationOverrideEnabled = useSetting(
+    state => state.cameraOverrideDuration > 0,
+  )
+
   return (
     <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
       Draw Ruler <DrawRulersControl />
       Draw Frustum Alignment <DrawFrustumAlignmentControl />
       Draw Calibration Chart <DrawCalibrationChartControl />
+      Enable duration override <CameraDurationOverrideControl />
+      {cameraDurationOverrideEnabled ? (
+        <>
+          {' '}
+          Camera duration <CameraDurationControl />
+        </>
+      ) : null}
     </Composition>
   )
 }
@@ -684,13 +748,13 @@ export const PlannerSettingsInterface = () => {
         <Tab id={TABS.PARTICLES} title="Particles" panel={<ParticlesTab />} />
         <Tab id={TABS.LIGHT} title="Lights" panel={<LightTab />} />
         <Tab id={TABS.LINE} title="Lines" panel={<LineTab />} />
+        <Tabs.Expander />
         <Tab
           id={TABS.CAMERA_HELPERS}
-          title="Camera Helpers"
+          title="Camera"
           panel={<CameraHelpersTab />}
         />
 
-        <Tabs.Expander />
         <Tab
           id={TABS.VISUALISATION}
           title="Visualisation"

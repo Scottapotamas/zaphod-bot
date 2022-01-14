@@ -1,3 +1,4 @@
+import { CancellationToken, Deferred } from '@electricui/core'
 import { LightMove, MovementMove } from './../optimiser/hardware'
 import { Toolpath } from './../optimiser/toolpath'
 
@@ -15,13 +16,20 @@ export class SequenceSender {
   private hardwareMovementQueueDepth = 0
   private hardwareLightMoveQueueDepth = 0
 
-  private movementQueueWatermark = 30
-  private lightMoveQueueWatermark = 30
+  private movementQueueWatermark = 10
+  private lightMoveQueueWatermark = 10
 
   private movementMoves: MovementMove[] = []
   private lightMoves: LightMove[] = []
 
   private interval: NodeJS.Timeout | null = null
+
+  private isRendering = false
+  private finalMovementID = 0
+  private cancellationToken = new CancellationToken()
+
+  private completionDeferred = new Deferred<void>()
+  private initialBatchDeferred = new Deferred<void>()
 
   constructor(
     private sendMovement: SendMovement,
@@ -36,6 +44,10 @@ export class SequenceSender {
     this.stopTimers = this.stopTimers.bind(this)
     this.notifyUIOfOptimisticQueues = this.notifyUIOfOptimisticQueues.bind(this)
     this.updateHardwareQueues = this.updateHardwareQueues.bind(this)
+    this.updateHardwareProgress = this.updateHardwareProgress.bind(this)
+
+    this.waitForFrameToComplete = this.waitForFrameToComplete.bind(this)
+    this.waitForInitialBatch = this.waitForInitialBatch.bind(this)
   }
 
   stopTimers() {
@@ -51,24 +63,31 @@ export class SequenceSender {
       this.interval = null
     }
 
-    this.interval = setInterval(this.tick, 200)
+    this.interval = setInterval(this.tick, 50)
   }
 
   async clear() {
     // clear the queue, cancel anything we were sending out
     this.movementMoves = []
     this.lightMoves = []
+    this.isRendering = false
+
+    this.completionDeferred = new Deferred<void>()
+    this.initialBatchDeferred = new Deferred<void>()
 
     this.notifyUIOfOptimisticQueues()
     this.stopTimers()
     await this.sendClear()
   }
 
-  async ingest(toolpath: Toolpath) {
+  async ingest(toolpath: Toolpath, cancellationToken: CancellationToken) {
+    this.cancellationToken = cancellationToken
     await this.clear()
 
     this.movementMoves = toolpath.movementMoves
     this.lightMoves = toolpath.lightMoves
+
+    this.finalMovementID = this.movementMoves[this.movementMoves.length - 1].id
 
     this.startTimers()
   }
@@ -80,14 +99,24 @@ export class SequenceSender {
     )
   }
 
+  waitForFrameToComplete() {
+    return this.completionDeferred.promise
+  }
+
+  waitForInitialBatch() {
+    return this.initialBatchDeferred.promise
+  }
+
   async tick() {
+    if (this.isRendering) {
+      // Request a queue update to start
+      await this.requestQueueUpdates()
+    }
+
     // If both queues are empty, don't do anything in the tick
     if (this.movementMoves.length === 0 && this.lightMoves.length === 0) {
       return
     }
-
-    // Request a queue update to start
-    await this.requestQueueUpdates()
 
     // While both queues are empty and there is at least one movement in the queue
     while (
@@ -95,6 +124,12 @@ export class SequenceSender {
       this.hardwareLightMoveQueueDepth < this.lightMoveQueueWatermark &&
       (this.movementMoves.length > 0 || this.lightMoves.length > 0)
     ) {
+      if (this.cancellationToken.isCancelled()) {
+        this.completionDeferred.reject(this.cancellationToken.token)
+        this.initialBatchDeferred.reject(this.cancellationToken.token)
+        this.clear()
+        return
+      }
       // Peek the next movement and potentially the next light move
       const movement: MovementMove | undefined = this.movementMoves[0]
       const firstLightMove: LightMove | undefined = this.lightMoves[0]
@@ -117,6 +152,7 @@ export class SequenceSender {
         this.notifyUIOfOptimisticQueues()
 
         await this.sendMovement(shifted)
+        this.isRendering = true
         continue
       }
 
@@ -128,6 +164,9 @@ export class SequenceSender {
       await this.sendLightMove(shifted)
     }
 
+    // The initial batch has been sent
+    this.initialBatchDeferred.resolve()
+
     // request a queue update when we're done
     await this.requestQueueUpdates()
   }
@@ -135,6 +174,18 @@ export class SequenceSender {
   updateHardwareQueues(motionDepth: number, fadeDepth: number) {
     this.hardwareMovementQueueDepth = motionDepth
     this.hardwareLightMoveQueueDepth = fadeDepth
+
+    // console.log(
+    //   `hardware update received ${motionDepth} (${this.movementMoves.length}), ${fadeDepth} (${this.lightMoves.length})`,
+    // )
+  }
+  updateHardwareProgress(movementID: number, movementProgress: number) {
+    if (!this.isRendering) return
+
+    if (movementID === this.finalMovementID && movementProgress > 99) {
+      this.isRendering = false
+      this.completionDeferred.resolve()
+    }
 
     // console.log(
     //   `hardware update received ${motionDepth} (${this.movementMoves.length}), ${fadeDepth} (${this.lightMoves.length})`,
