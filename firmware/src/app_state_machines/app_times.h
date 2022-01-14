@@ -102,11 +102,7 @@ enum LedDefines
 enum ServoDefines
 {
 
-#ifdef EXPANSION_SERVO
     SERVO_COUNT = 4U,
-#else
-    SERVO_COUNT = 3U,
-#endif
 
     //Clearpath motion range allowed by mechanism
     SERVO_STEPS_PER_REV    = 6400U,

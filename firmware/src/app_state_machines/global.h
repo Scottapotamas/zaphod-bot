@@ -28,9 +28,6 @@ typedef union    ///< Allow mapping int16 to uint16
 
 /* ----- Defines ------------------------------------------------------------ */
 
-//#define EXPANSION_SERVO
-
-
 //! \def PRIVATE
 /// Makes it more clear that static functions/data are really private.
 #define PRIVATE static

@@ -56,10 +56,7 @@ hal_hard_ic_init( void )
     hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_1 );
     hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_2 );
     hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_3 );
-
-#ifdef EXPANSION_SERVO
     hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_4 );
-#endif
 }
 
 /* -------------------------------------------------------------------------- */
