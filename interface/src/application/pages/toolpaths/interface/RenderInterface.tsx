@@ -15,7 +15,7 @@ import { toolpath } from '../optimiser/toolpath'
 
 import { SequenceSender } from './sequenceSender'
 
-import { LightMove, MovementMove } from './../optimiser/hardware'
+import { PlannerLightMove, PlannerMovementMove } from './../optimiser/hardware'
 
 import {
   useHardwareStateSubscription,
@@ -207,7 +207,7 @@ export function SendToolpath() {
   const query = useQuery()
 
   const sendMovement = useCallback(
-    (move: MovementMove) => {
+    (move: PlannerMovementMove) => {
       const cancellationToken = new CancellationToken()
       const message = new Message(MSGID.QUEUE_ADD_MOVE, move)
 
@@ -217,7 +217,7 @@ export function SendToolpath() {
   )
 
   const sendLightMove = useCallback(
-    (fade: LightMove) => {
+    (fade: PlannerLightMove) => {
       const cancellationToken = new CancellationToken()
       const message = new Message(MSGID.QUEUE_ADD_FADE, fade)
 

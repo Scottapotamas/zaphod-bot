@@ -211,7 +211,7 @@ export type CartesianPoint = {
 }
 
 export type MovementMove = {
-  id: number
+  timestamp: number
   duration: number
   type: MovementMoveType
   reference: MovementMoveReference
@@ -231,7 +231,7 @@ export type Intensity = number
 export type LightPoint = [Hue, Saturation, Intensity]
 
 export type LightMove = {
-  id: number
+  timestamp: number
   duration: number
   type: LightMoveType
   points: Array<LightPoint>

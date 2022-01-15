@@ -2,7 +2,7 @@ import { CatmullRomCurve3, CubicBezierCurve3, MathUtils, Vector3 } from 'three'
 import { defaultTransitionMaterial } from './material'
 import { Material } from '../optimiser/materials/Base'
 import {
-  MovementMove,
+  PlannerMovementMove,
   MovementMoveReference,
   MovementMoveType,
 } from './hardware'
@@ -99,7 +99,7 @@ export abstract class Movement {
    *
    * At this stage it's one MovementMove per Movement, if more are required, have flatten produce more movements.
    */
-  abstract generateToolpath: (id: number) => MovementMove
+  abstract generateToolpath: () => PlannerMovementMove
 
   /**
    * Sample a point along this movement at time fraction t (0-1)
@@ -251,7 +251,7 @@ export class MovementGroup extends Movement {
     return this.movements[this.movements.length - 1].getExpectedExitVelocity()
   }
 
-  public generateToolpath = (id: number) => {
+  public generateToolpath = () => {
     throw new Error(
       'generateToolpath called on MovementGroup, the movement bag should have been flattened',
     )
@@ -422,9 +422,8 @@ export class Line extends Movement {
       .multiplyScalar(this.maxSpeed)
   }
 
-  public generateToolpath = (id: number) => {
-    const move: MovementMove = {
-      id,
+  public generateToolpath = () => {
+    const move: PlannerMovementMove = {
       duration: this.getDuration(),
       type: MovementMoveType.LINE,
       reference: MovementMoveReference.ABSOLUTE,
@@ -554,9 +553,8 @@ export class Point extends Movement {
     return this.velocity.normalize().multiplyScalar(this.maxSpeed)
   }
 
-  public generateToolpath = (id: number) => {
-    const move: MovementMove = {
-      id,
+  public generateToolpath = () => {
+    const move: PlannerMovementMove = {
       duration: this.getDuration(),
       type: MovementMoveType.LINE, // Despite being a point, draw a line
       reference: MovementMoveReference.ABSOLUTE,
@@ -711,9 +709,8 @@ export class Transition extends Movement {
     return this.to.getDesiredEntryVelocity()
   }
 
-  public generateToolpath = (id: number) => {
-    const move: MovementMove = {
-      id,
+  public generateToolpath = () => {
+    const move: PlannerMovementMove = {
       duration: this.getDuration(),
       type: MovementMoveType.BEZIER_CUBIC, // Despite being a point, draw a line
       reference: MovementMoveReference.ABSOLUTE,
@@ -926,9 +923,8 @@ export class PointTransition extends Movement {
     return this.pointTo.getDesiredEntryVelocity()
   }
 
-  public generateToolpath = (id: number) => {
-    const move: MovementMove = {
-      id,
+  public generateToolpath = () => {
+    const move: PlannerMovementMove = {
       duration: this.getDuration(),
       type: MovementMoveType.CATMULL_SPLINE, // Despite being a point, draw a line
       reference: MovementMoveReference.ABSOLUTE,
@@ -1088,9 +1084,8 @@ export class InterLineTransition extends Movement {
     return this.to.getDesiredEntryVelocity()
   }
 
-  public generateToolpath = (id: number) => {
-    const move: MovementMove = {
-      id,
+  public generateToolpath = () => {
+    const move: PlannerMovementMove = {
       duration: this.getDuration(),
       type: MovementMoveType.BEZIER_CUBIC, // Despite being a point, draw a line
       reference: MovementMoveReference.ABSOLUTE,
@@ -1191,9 +1186,8 @@ export class Transit extends Movement {
     return zeroVector
   }
 
-  public generateToolpath = (id: number) => {
-    const move: MovementMove = {
-      id,
+  public generateToolpath = () => {
+    const move: PlannerMovementMove = {
       duration: this.getDuration(),
       type: MovementMoveType.POINT_TRANSIT,
       reference: MovementMoveReference.ABSOLUTE,

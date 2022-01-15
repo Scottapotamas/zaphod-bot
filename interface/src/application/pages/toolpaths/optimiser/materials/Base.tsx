@@ -1,7 +1,7 @@
 import { NodeID } from '../../interface/RenderableTree'
 import { VisualisationSettings } from '../../interface/state'
 import { Settings } from '../../optimiser/settings'
-import { LightMove } from './../hardware'
+import { PlannerLightMove } from './../hardware'
 import { AddComponentCallback, AddLineCallback, Movement } from './../movements'
 
 /**
@@ -13,7 +13,7 @@ export abstract class Material {
   /**
    * Given a movement ID, generate the light moves for this material.
    */
-  abstract generateLightpath: (id: number, movement: Movement) => LightMove[]
+  abstract generateLightpath: (movement: Movement) => PlannerLightMove[]
 
   /**
    * Given a movement, sample some points and generate line segments, react components

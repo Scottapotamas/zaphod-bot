@@ -1,7 +1,7 @@
 import { MathUtils, Vector3 } from 'three'
 import { VisualisationSettings } from '../../interface/state'
 import { Settings } from '../../optimiser/settings'
-import { LightMove, LightMoveType } from './../hardware'
+import { PlannerLightMove, LightMoveType } from './../hardware'
 import {
   AddComponentCallback,
   AddLineCallback,
@@ -36,15 +36,11 @@ export class MixMaterial extends Material {
     super()
   }
 
-  public generateLightpath = (id: number, movement: Movement) => {
-    const fadesStart: LightMove[] = this.start.material.generateLightpath(
-      id,
-      movement,
-    )
-    const fadesEnd: LightMove[] = this.end.material.generateLightpath(
-      id,
-      movement,
-    )
+  public generateLightpath = (movement: Movement) => {
+    const fadesStart: PlannerLightMove[] =
+      this.start.material.generateLightpath(movement)
+    const fadesEnd: PlannerLightMove[] =
+      this.end.material.generateLightpath(movement)
 
     return [
       ...fadesStart.map(fade => {
