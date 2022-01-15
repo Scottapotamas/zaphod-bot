@@ -223,6 +223,8 @@ path_interpolator_process( void )
             }
             else if( path_interpolator_get_move_done() )
             {
+                path_interpolator_execute_move( &me->move_a, me->progress_percent );
+
                 if( me->move_b.duration )
                 {
                     STATE_NEXT( PLANNER_EXECUTE_B );
@@ -262,6 +264,8 @@ path_interpolator_process( void )
             }
             else if( path_interpolator_get_move_done() )
             {
+                path_interpolator_execute_move( &me->move_b, me->progress_percent );
+
                 if( me->move_a.duration )
                 {
                     STATE_NEXT( PLANNER_EXECUTE_A );

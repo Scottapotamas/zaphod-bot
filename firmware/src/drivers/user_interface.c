@@ -501,7 +501,7 @@ user_interface_reset_tracking_target()
 }
 
 PUBLIC void
-user_interface_set_movement_data( uint8_t move_id, uint8_t move_type, uint8_t progress )
+user_interface_set_movement_data(uint16_t move_id, uint8_t move_type, uint8_t progress )
 {
     motion_global.movement_identifier = move_id;
     motion_global.profile_type        = move_type;
