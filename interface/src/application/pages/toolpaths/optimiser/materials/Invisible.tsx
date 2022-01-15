@@ -1,7 +1,7 @@
 import { MathUtils, Vector3 } from 'three'
 import { VisualisationSettings } from '../../interface/state'
 import { Settings } from '../../optimiser/settings'
-import { LightMove, LightMoveType } from './../hardware'
+import { PlannerLightMove, LightMoveType } from './../hardware'
 import {
   AddComponentCallback,
   AddLineCallback,
@@ -45,9 +45,8 @@ export function importInvisibleMaterial(json: InvisibleMaterialJSON) {
   return mat
 }
 
-export function invisibleLightFade(id: number, duration: number) {
-  const fade: LightMove = {
-    id,
+export function invisibleLightFade(duration: number) {
+  const fade: PlannerLightMove = {
     duration: duration,
     type: LightMoveType.IMMEDIATE,
     points: [[0, 0, 0]], // Set a light move of the LED being off
@@ -63,8 +62,8 @@ export class InvisibleMaterial extends Material {
     super()
   }
 
-  public generateLightpath = (id: number, movement: Movement) => {
-    const fade = invisibleLightFade(id, movement.getDuration())
+  public generateLightpath = (movement: Movement) => {
+    const fade = invisibleLightFade(movement.getDuration())
 
     return [fade]
   }

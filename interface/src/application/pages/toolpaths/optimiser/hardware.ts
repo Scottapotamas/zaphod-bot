@@ -13,8 +13,7 @@ export enum MovementMoveReference {
 
 export type MovementPoint = [number, number, number] // mm
 
-export type MovementMove = {
-  id: number // shared ID between movements and lights to prevent timing mismatches
+export type PlannerMovementMove = {
   duration: number // ms
   type: MovementMoveType
   reference: MovementMoveReference
@@ -33,8 +32,7 @@ export type Intensity = number
 
 export type LightPoint = [Hue, Saturation, Intensity]
 
-export type LightMove = {
-  id: number
+export type PlannerLightMove = {
   duration: number
   type: LightMoveType
   points: Array<LightPoint>

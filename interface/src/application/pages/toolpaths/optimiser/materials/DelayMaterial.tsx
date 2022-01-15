@@ -1,6 +1,6 @@
 import { VisualisationSettings } from '../../interface/state'
 import { Settings } from '../../optimiser/settings'
-import { LightMove } from './../hardware'
+import { PlannerLightMove } from './../hardware'
 import { AddComponentCallback, AddLineCallback, Movement } from './../movements'
 import { Material } from './Base'
 import { MATERIALS } from './utilities'
@@ -26,12 +26,12 @@ export class DelayMaterial extends Material {
     super()
   }
 
-  public generateLightpath = (id: number, movement: Movement) => {
+  public generateLightpath = (movement: Movement) => {
     const totalDuration = movement.getDuration()
     const onDuration = this.onDuration
     const factor = onDuration / totalDuration
 
-    const fades: LightMove[] = this.material.generateLightpath(id, movement)
+    const fades: PlannerLightMove[] = this.material.generateLightpath(movement)
 
     fades.forEach(fade => {
       if (fades.length <= 1) {
@@ -48,11 +48,11 @@ export class DelayMaterial extends Material {
     })
 
     if (this.preWait > 0) {
-      fades.unshift(invisibleLightFade(id, this.preWait))
+      fades.unshift(invisibleLightFade(this.preWait))
     }
 
     if (this.postWait > 0) {
-      fades.push(invisibleLightFade(id, this.postWait))
+      fades.push(invisibleLightFade(this.postWait))
     }
 
     return fades

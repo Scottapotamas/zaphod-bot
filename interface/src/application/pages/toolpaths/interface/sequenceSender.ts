@@ -1,5 +1,5 @@
 import { CancellationToken, Deferred } from '@electricui/core'
-import { LightMove, MovementMove } from './../optimiser/hardware'
+import { LightMove, MovementMove } from '../../../../application/typedState'
 import { Toolpath } from './../optimiser/toolpath'
 
 export type SendMovement = (movement: MovementMove) => Promise<void>
@@ -25,7 +25,7 @@ export class SequenceSender {
   private interval: NodeJS.Timeout | null = null
 
   private isRendering = false
-  private finalMovementID = 0
+  private finalMovementTimestamp = 0
   private cancellationToken = new CancellationToken()
 
   private completionDeferred = new Deferred<void>()
@@ -87,7 +87,8 @@ export class SequenceSender {
     this.movementMoves = toolpath.movementMoves
     this.lightMoves = toolpath.lightMoves
 
-    this.finalMovementID = this.movementMoves[this.movementMoves.length - 1].id
+    this.finalMovementTimestamp =
+      this.movementMoves[this.movementMoves.length - 1].timestamp
 
     this.startTimers()
   }
@@ -137,7 +138,7 @@ export class SequenceSender {
       // If there are movements left, intersperse the light moves between them
       if (movement) {
         // If the light move should be sent before the next movement, send it first
-        if (firstLightMove && firstLightMove.id < movement.id) {
+        if (firstLightMove && firstLightMove.timestamp < movement.timestamp) {
           this.hardwareLightMoveQueueDepth++
           const shifted = this.lightMoves.shift()!
           this.notifyUIOfOptimisticQueues()
@@ -182,7 +183,7 @@ export class SequenceSender {
   updateHardwareProgress(movementID: number, movementProgress: number) {
     if (!this.isRendering) return
 
-    if (movementID === this.finalMovementID && movementProgress > 99) {
+    if (movementID === this.finalMovementTimestamp && movementProgress > 99) {
       this.isRendering = false
       this.completionDeferred.resolve()
     }

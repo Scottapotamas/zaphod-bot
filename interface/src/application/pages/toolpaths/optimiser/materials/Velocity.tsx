@@ -1,7 +1,7 @@
 import { MathUtils, Vector3 } from 'three'
 import { VisualisationSettings } from '../../interface/state'
 import { Settings } from '../../optimiser/settings'
-import { LightMove, LightMoveType } from './../hardware'
+import { PlannerLightMove, LightMoveType } from './../hardware'
 import {
   AddComponentCallback,
   AddLineCallback,
@@ -49,11 +49,10 @@ export class VelocityMaterial extends Material {
     super()
   }
 
-  public generateLightpath = (id: number, movement: Movement) => {
+  public generateLightpath = (movement: Movement) => {
     // TODO: Have the Delta have a material that does this with its own information
 
-    const fade: LightMove = {
-      id,
+    const fade: PlannerLightMove = {
       duration: movement.getDuration(),
       type: LightMoveType.IMMEDIATE,
       points: [rgbToHsi(1, 1, 1)],

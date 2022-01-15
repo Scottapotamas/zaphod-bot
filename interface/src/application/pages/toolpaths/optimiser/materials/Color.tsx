@@ -1,7 +1,7 @@
 import { MathUtils, Vector3 } from 'three'
 import { VisualisationSettings } from '../../interface/state'
 import { Settings } from '../../optimiser/settings'
-import { LightMove, LightMoveType } from './../hardware'
+import { PlannerLightMove, LightMoveType } from './../hardware'
 import {
   AddComponentCallback,
   AddLineCallback,
@@ -51,9 +51,8 @@ export class SimpleColorMaterial extends Material {
     super()
   }
 
-  public generateLightpath = (id: number, movement: Movement) => {
-    const fade: LightMove = {
-      id,
+  public generateLightpath = (movement: Movement) => {
+    const fade: PlannerLightMove = {
       duration: movement.getDuration(),
       type: LightMoveType.IMMEDIATE,
       points: [rgbToHsi(this.color[0], this.color[1], this.color[2])],
