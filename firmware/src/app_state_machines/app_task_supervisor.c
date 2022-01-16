@@ -8,7 +8,6 @@
 #include "app_events.h"
 #include "app_signals.h"
 #include "app_times.h"
-#include "app_version.h"
 #include "global.h"
 #include "qassert.h"
 
@@ -22,7 +21,8 @@
 #include "sensors.h"
 #include "shutter_release.h"
 #include "status.h"
-#include "clearpath.h"
+
+#include "hal_systick.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -93,9 +93,6 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask *)me, MODE_MANUAL );
 
     eventSubscribe((StateTask *)me, QUEUE_SYNC_START );
-
-    eventSubscribe( (StateTask *)me, QUEUE_SYNC_MOTION_NEXT );
-    eventSubscribe( (StateTask *)me, QUEUE_SYNC_LED_NEXT );
 
     eventSubscribe( (StateTask *)me, CAMERA_CAPTURE );
 
@@ -410,27 +407,24 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
             return 0;
 
         case QUEUE_SYNC_START: {
-            // Passed in the identifier which we are blocking against
-            BarrierSyncEvent *inbound_sync = (BarrierSyncEvent *)e;
+            // Set 'now' as the reference timestamp from which moves/fades are executed
+            uint32_t epoch_timestamp = hal_systick_get_ms();
+            // TODO: refactor to use a timer_ms rather than the hal systick
 
-            if( inbound_sync )
-            {
-                if( inbound_sync->id )    //non-zero syncs only - zero is reserved for immediate moves etc
-                {
-                    // Create sync start events for the motion and led tasks
-                    BarrierSyncEvent *motor_sync = EVENT_NEW( BarrierSyncEvent, MOTION_QUEUE_START_SYNC );
-                    BarrierSyncEvent *led_sync   = EVENT_NEW( BarrierSyncEvent, LED_QUEUE_START_SYNC );
+            // Create sync start events for the motion and led tasks
+            SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
+            SyncTimestampEvent *led_sync   = EVENT_NEW( SyncTimestampEvent, LED_QUEUE_START );
 
-                    motor_sync->id = inbound_sync->id;
-                    led_sync->id   = inbound_sync->id;
+            motor_sync->epoch = epoch_timestamp;
+            led_sync->epoch   = epoch_timestamp;
 
-                    eventPublish( (StateEvent *)motor_sync );
-                    eventPublish( (StateEvent *)led_sync );
-                }
-            }
+            eventPublish( (StateEvent *)motor_sync );
+            eventPublish( (StateEvent *)led_sync );
+
             return 0;
         }
 
+            // TODO: Remove movement request proxy behaviour through supervisor?
         case MOVEMENT_REQUEST: {
             //catch the inbound movement event
             MotionPlannerEvent *mpe = (MotionPlannerEvent *)e;

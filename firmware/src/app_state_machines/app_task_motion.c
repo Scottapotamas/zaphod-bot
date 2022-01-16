@@ -88,7 +88,6 @@ PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __att
     eventSubscribe( (StateTask *)me, MOTION_QUEUE_ADD );
     eventSubscribe( (StateTask *)me, MOTION_QUEUE_CLEAR );
     eventSubscribe( (StateTask *)me, MOTION_QUEUE_START );
-    eventSubscribe( (StateTask *)me, MOTION_QUEUE_START_SYNC );
 
     eventSubscribe( (StateTask *)me, PATHING_COMPLETE );
 
@@ -245,6 +244,8 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
             STATE_TRAN( AppTaskMotion_active );
             return 0;
 
+            // TODO: remove this obsolete code block once refactor complete
+            /*
         case MOTION_QUEUE_START_SYNC: {
             // Check that the ID we got the sync event for matches the current queue head ID
             // TODO: support sync events on ID's which aren't the current head
@@ -255,7 +256,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
             {
                 MotionPlannerEvent *ape          = (MotionPlannerEvent *)pendingMotion;
                 uint32_t            id_in_queue  = ( (Movement_t *)&ape->move )->sync_offset;
-                uint32_t            id_requested = ( (BarrierSyncEvent *)e )->id;
+                uint32_t            id_requested = ( (SyncTimestampEvent *)e )->id;
 
                 if( id_in_queue == id_requested )
                 {
@@ -273,7 +274,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
 
             return 0;
         }
-
+*/
         case MOTION_EMERGENCY:
             STATE_TRAN( AppTaskMotion_recovery );
             return 0;

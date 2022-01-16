@@ -37,7 +37,6 @@ PRIVATE void start_mech_cb( void );
 PRIVATE void stop_mech_cb( void );
 PRIVATE void emergency_stop_cb( void );
 PRIVATE void home_mech_cb( void );
-PRIVATE void execute_motion_queue( void );
 PRIVATE void clear_all_queue( void );
 PRIVATE void tracked_position_event( void );
 
@@ -73,7 +72,6 @@ LedState_t rgb_led_drive;
 LedState_t rgb_manual_control;
 
 QueueDepths_t queue_data;
-uint16_t      sync_id_val = 0;
 Movement_t    motion_inbound;
 Fade_t        light_fade_inbound;
 
@@ -114,9 +112,6 @@ eui_message_t ui_variables[] = {
         EUI_CUSTOM_RO( MSGID_QUEUE_INFO, queue_data ),
         EUI_FUNC( MSGID_QUEUE_CLEAR, clear_all_queue ),
         EUI_FUNC( MSGID_QUEUE_SYNC, sync_begin_queues ),
-        EUI_UINT16( MSGID_QUEUE_SYNC_ID, sync_id_val ),
-        EUI_FUNC( MSGID_QUEUE_START, execute_motion_queue ),
-
         EUI_CUSTOM( MSGID_QUEUE_ADD_FADE, light_fade_inbound ),
         EUI_CUSTOM( MSGID_QUEUE_ADD_MOVE, motion_inbound ),
 
@@ -649,17 +644,6 @@ PRIVATE void movement_generate_event( void )
     }
 }
 
-PRIVATE void execute_motion_queue( void )
-{
-    eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
-}
-
-PRIVATE void clear_all_queue( void )
-{
-    eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
-    eventPublish( EVENT_NEW(StateEvent, LED_QUEUE_CLEAR ) );
-}
-
 PRIVATE void tracked_position_event( void )
 {
     TrackedPositionRequestEvent *position_request = EVENT_NEW( TrackedPositionRequestEvent, TRACKED_TARGET_REQUEST );
@@ -700,16 +684,19 @@ PRIVATE void lighting_generate_event( void )
 
 /* -------------------------------------------------------------------------- */
 
+// Send an event to the supervisor requesting the start of the queues
+// Supervisor will generate the epoch for timing reference, and fire events to the motion
+// and LED planner tasks.
+
 PRIVATE void sync_begin_queues( void )
 {
-    BarrierSyncEvent *barrier_ev = EVENT_NEW(BarrierSyncEvent, QUEUE_SYNC_START );
+    eventPublish( EVENT_NEW( StateEvent, QUEUE_SYNC_START ) );
+}
 
-    if( barrier_ev )
-    {
-        memcpy( &barrier_ev->id, &sync_id_val, sizeof( sync_id_val ) );
-        eventPublish( (StateEvent *)barrier_ev );
-        memset( &sync_id_val, 0, sizeof( sync_id_val ) );
-    }
+PRIVATE void clear_all_queue( void )
+{
+    eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
+    eventPublish( EVENT_NEW(StateEvent, LED_QUEUE_CLEAR ) );
 }
 
 /* -------------------------------------------------------------------------- */
