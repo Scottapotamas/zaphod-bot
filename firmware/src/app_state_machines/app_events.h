@@ -92,11 +92,11 @@ typedef struct ExpansionServoRequestEvent__
 /* -------------------------------------------------------------------------- */
 
 /** Motion and Lighting Barrier Message Data **/
-typedef struct BarrierSyncEvent__
+typedef struct SyncTimestampEvent__
 {
     StateEvent super;    // Encapsulated event reference
-    uint32_t   id;       // UUID of the movement/lighting that we want to synchronise
-} BarrierSyncEvent;
+    uint32_t   epoch;    // base timestamp used for global 'timestamp id' sync
+} SyncTimestampEvent;
 
 /* -------------------------------------------------------------------------- */
 

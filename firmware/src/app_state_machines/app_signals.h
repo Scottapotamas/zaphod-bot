@@ -52,30 +52,28 @@ enum AppSignals
     MOTION_EMERGENCY,    // Kill motors immediately
 
     MOTION_QUEUE_START,
-    MOTION_QUEUE_START_SYNC,
     MOTION_QUEUE_ADD,      // Provide movement information for queue processing
     MOTION_QUEUE_CLEAR,    // empty out pending movements
 
     PATHING_STARTED,     // started executing a move
     PATHING_COMPLETE,    // finished moving along a provided profile path
 
-    ANIMATION_COMPLETE,    // finished drawing out the led animated colour ramp
 
     /* LED Handler Signals */
     LED_OFF,    // Turn off led immediately, clear the queue
     LED_QUEUE_START,
-    LED_QUEUE_START_SYNC,
     LED_QUEUE_ADD,      // Provide led animation object to queue
     LED_QUEUE_CLEAR,    // empty pending animations
+
+    ANIMATION_STARTED,  // started executing a fade
+    ANIMATION_COMPLETE,    // finished drawing out the led animated colour ramp
 
     LED_ALLOW_MANUAL_CONTROL,
     LED_RESTRICT_MANUAL_CONTROL,
 
     LED_MANUAL_SET,
 
-    QUEUE_SYNC_START,    // Provide a start signal to tasks which follow the id indexed queues. Should contain a BarrierSyncEvent
-    QUEUE_SYNC_MOTION_NEXT,
-    QUEUE_SYNC_LED_NEXT,
+    QUEUE_SYNC_START,    // Provide a start signal to tasks which follow the id indexed queues. Should contain a SyncTimestampEvent
 
     CAMERA_CAPTURE,
 

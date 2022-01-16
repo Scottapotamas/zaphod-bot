@@ -25,9 +25,7 @@
 
 #define MSGID_QUEUE_INFO     "queue"
 #define MSGID_QUEUE_SYNC     "sync"
-#define MSGID_QUEUE_SYNC_ID  "syncid"
 #define MSGID_QUEUE_CLEAR    "clmv"
-#define MSGID_QUEUE_START    "stmv"
 #define MSGID_QUEUE_ADD_MOVE "inmv"
 #define MSGID_QUEUE_ADD_FADE "inlt"
 

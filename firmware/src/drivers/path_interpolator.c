@@ -370,20 +370,20 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
 PRIVATE void
 path_interpolator_notify_pathing_started( uint32_t move_id )
 {
-    BarrierSyncEvent *barrier_ev = EVENT_NEW( BarrierSyncEvent, PATHING_STARTED );
+    SyncTimestampEvent *barrier_ev = EVENT_NEW( SyncTimestampEvent, PATHING_STARTED );
     uint32_t          publish_id = move_id;
 
-    memcpy( &barrier_ev->id, &publish_id, sizeof( move_id ) );
+    memcpy( &barrier_ev->epoch, &publish_id, sizeof( move_id ) );
     eventPublish( (StateEvent *)barrier_ev );
 }
 
 PRIVATE void
 path_interpolator_notify_pathing_complete( uint32_t move_id )
 {
-    BarrierSyncEvent *barrier_ev = EVENT_NEW( BarrierSyncEvent, PATHING_COMPLETE );
+    SyncTimestampEvent *barrier_ev = EVENT_NEW( SyncTimestampEvent, PATHING_COMPLETE );
     uint32_t          publish_id = move_id;
 
-    memcpy( &barrier_ev->id, &publish_id, sizeof( move_id ) );
+    memcpy( &barrier_ev->epoch, &publish_id, sizeof( move_id ) );
     eventPublish( (StateEvent *)barrier_ev );
 }
 

@@ -218,11 +218,11 @@ led_interpolator_process( void )
             STATE_TRANSITION_TEST
             if( me->animation_run )
             {
-                if( me->fade_a.duration && me->fade_a.identifier == me->execute_id )
+                if( me->fade_a.duration && me->fade_a.sync_offset == me->execute_id )
                 {
                     STATE_NEXT( ANIMATION_EXECUTE_A );
                 }
-                else if( me->fade_b.duration && me->fade_b.identifier == me->execute_id )
+                else if( me->fade_b.duration && me->fade_b.sync_offset == me->execute_id )
                 {
                     STATE_NEXT( ANIMATION_EXECUTE_B );
                 }
@@ -259,7 +259,7 @@ led_interpolator_process( void )
             }
             else if( led_interpolator_get_fade_done() )
             {
-                if( me->fade_b.duration && me->fade_b.identifier == me->execute_id )
+                if( me->fade_b.duration && me->fade_b.sync_offset == me->execute_id )
                 {
                     STATE_NEXT( ANIMATION_EXECUTE_B );
                 }
@@ -295,7 +295,7 @@ led_interpolator_process( void )
             }
             else if( led_interpolator_get_fade_done() )
             {
-                if( me->fade_a.duration && me->fade_a.identifier == me->execute_id )
+                if( me->fade_a.duration && me->fade_a.sync_offset == me->execute_id )
                 {
                     STATE_NEXT( ANIMATION_EXECUTE_A );
                 }
