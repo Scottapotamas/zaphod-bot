@@ -25,8 +25,7 @@
 typedef enum
 {
     PLANNER_OFF,
-    PLANNER_EXECUTE_A,
-    PLANNER_EXECUTE_B
+    PLANNER_WAIT_AND_EXECUTE,
 } PlanningState_t;
 
 typedef struct
@@ -35,16 +34,18 @@ typedef struct
     PlanningState_t currentState;
     PlanningState_t nextState;
 
-    Movement_t move_a;    // copy of the current movement
-    Movement_t move_b;    // copy of the current movement
+    Movement_t move_a;          // Slot A movement storage
+    Movement_t move_b;          // Slot B movement storage
+    Movement_t *current_move;   // Points to move_a or move_b
 
-    bool     enable;                   //if the planner is enabled
+    bool     enable;                   // The planner is enabled
+    uint32_t epoch_timestamp;          // Reference system time for move offset sequencing
+
     uint32_t movement_started;         // timestamp the start point
     uint32_t movement_est_complete;    // timestamp the predicted end point
     float    progress_percent;         // calculated progress
 
     CartesianPoint_t effector_position;    //position of the end effector (used for relative moves)
-
 } MotionPlanner_t;
 
 /* ----- Private Variables -------------------------------------------------- */
@@ -69,10 +70,23 @@ path_interpolator_init( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
+path_interpolator_set_epoch_reference( uint32_t timestamp_ms )
+{
+    MotionPlanner_t *me                   = &planner;
+
+    if( timestamp_ms )
+    {
+        me->epoch_timestamp = timestamp_ms;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
 path_interpolator_set_next( Movement_t *movement_to_process )
 {
     MotionPlanner_t *me                   = &planner;
-    Movement_t *     movement_insert_slot = { 0 };    // allows us to put the new move into whichever slot is available
+    Movement_t *     movement_insert_slot = { 0 };    // Allows us to put the new move into whichever slot is available
 
     if( me->move_a.duration == 0 )
     {
@@ -83,7 +97,10 @@ path_interpolator_set_next( Movement_t *movement_to_process )
         movement_insert_slot = &me->move_b;
     }
 
-    memcpy( movement_insert_slot, movement_to_process, sizeof( Movement_t ) );
+    if( movement_insert_slot != NULL )
+    {
+        memcpy( movement_insert_slot, movement_to_process, sizeof( Movement_t ) );
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -122,6 +139,8 @@ path_interpolator_calculate_percentage( uint16_t move_duration )
     // calculate current target completion based on time elapsed
     // time remaining is the allotted duration - time used (start to now), divide by the duration to get 0.0->1.0 progress
     uint32_t time_used = hal_systick_get_ms() - me->movement_started;
+    // TODO: use timer_ms_t instead of raw systick here
+
 
     if( move_duration )
     {
@@ -183,109 +202,102 @@ path_interpolator_process( void )
 {
     MotionPlanner_t *me = &planner;
 
+    if( !planner.enable )
+    {
+        STATE_NEXT( PLANNER_OFF );
+    }
+
     switch( me->currentState )
     {
         case PLANNER_OFF:
             STATE_ENTRY_ACTION
-            user_interface_set_pathing_status( me->currentState );
+
             STATE_TRANSITION_TEST
             if( planner.enable )
             {
-                if( me->move_a.duration )
+                // At least one slot has a loaded move?
+                if( me->move_a.duration || me->move_b.duration )
                 {
-                    STATE_NEXT( PLANNER_EXECUTE_A );
-                }
-                else if( me->move_b.duration )
-                {
-                    STATE_NEXT( PLANNER_EXECUTE_B );
+                    STATE_NEXT( PLANNER_WAIT_AND_EXECUTE );
                 }
             }
             STATE_EXIT_ACTION
             STATE_END
             break;
 
-        case PLANNER_EXECUTE_A:
+        case PLANNER_WAIT_AND_EXECUTE:
             STATE_ENTRY_ACTION
-            user_interface_set_pathing_status( me->currentState );
-            path_interpolator_notify_pathing_started( me->move_a.sync_offset );
+            // Pick the first slot with a valid move
+            if( me->move_a.duration )
+            {
+                me->current_move = &me->move_a;
+            }
+            else if( me->move_b.duration )
+            {
+                me->current_move = &me->move_b;
+            }
 
-            path_interpolator_premove_transforms( &me->move_a );
-            me->movement_started      = hal_systick_get_ms();
-            me->movement_est_complete = me->movement_started + me->move_a.duration;
-            me->progress_percent      = 0;
             STATE_TRANSITION_TEST
-            path_interpolator_calculate_percentage( me->move_a.duration );
+            // Calculate the time since the 'epoch' event
+            uint32_t time_since_epoch_ms = hal_systick_get_ms() - me->epoch_timestamp;
 
-            if( !planner.enable || !me->move_a.duration )
+            // Start the move once the move sync offset time matches the epoch + elapsed time
+            if( time_since_epoch_ms == me->current_move->sync_offset )
             {
-                STATE_NEXT( PLANNER_OFF );
+                // Start the move
+                me->movement_started      = hal_systick_get_ms();
+                me->movement_est_complete = me->movement_started + me->current_move->duration;
+                me->progress_percent      = 0;
+
+                path_interpolator_notify_pathing_started( me->current_move->sync_offset );
+                path_interpolator_premove_transforms( me->current_move );
             }
-            else if( path_interpolator_get_move_done() )
+            else if( time_since_epoch_ms > me->current_move->sync_offset )
             {
-                path_interpolator_execute_move( &me->move_a, me->progress_percent );
+                // Continue the move
+                path_interpolator_calculate_percentage( me->current_move->duration );
+                path_interpolator_execute_move( me->current_move, me->progress_percent );
 
-                if( me->move_b.duration )
+                // Check if the move is done
+                if( path_interpolator_get_move_done() )
                 {
-                    STATE_NEXT( PLANNER_EXECUTE_B );
-                }
-                else
-                {
-                    STATE_NEXT( PLANNER_OFF );
+                    path_interpolator_notify_pathing_complete( me->current_move->sync_offset );
+
+                    // Clear out the current state
+                    memset( me->current_move, 0, sizeof( Movement_t ) );
+
+                    // Update the pointer to the other slot
+                    if( me->current_move == &me->move_a )
+                    {
+                        me->current_move = &me->move_b;
+                    }
+                    else
+                    {
+                        me->current_move = &me->move_a;
+                    }
+
+                    // Other move slot ready?
+                    
+                    // Fall back into the handler's off state until new moves are loaded
+                    if( !me->current_move->duration )
+                    {
+                        STATE_NEXT( PLANNER_OFF );
+                    }
+
                 }
 
-                path_interpolator_notify_pathing_complete( me->move_a.sync_offset );
-            }
-            else
-            {
-                path_interpolator_execute_move( &me->move_a, me->progress_percent );
             }
 
             STATE_EXIT_ACTION
-            memset( &me->move_a, 0, sizeof( Movement_t ) );
-            STATE_END
-            break;
-
-        case PLANNER_EXECUTE_B:
-            STATE_ENTRY_ACTION
-            user_interface_set_pathing_status( me->currentState );
-            path_interpolator_notify_pathing_started( me->move_b.sync_offset );
-
-            path_interpolator_premove_transforms( &me->move_b );
-            me->movement_started      = hal_systick_get_ms();
-            me->movement_est_complete = me->movement_started + me->move_b.duration;
-            me->progress_percent      = 0;
-            STATE_TRANSITION_TEST
-            path_interpolator_calculate_percentage( me->move_b.duration );
-
-            if( !planner.enable || !me->move_b.duration )
-            {
-                STATE_NEXT( PLANNER_OFF );
-            }
-            else if( path_interpolator_get_move_done() )
-            {
-                path_interpolator_execute_move( &me->move_b, me->progress_percent );
-
-                if( me->move_a.duration )
-                {
-                    STATE_NEXT( PLANNER_EXECUTE_A );
-                }
-                else
-                {
-                    STATE_NEXT( PLANNER_OFF );
-                }
-
-                path_interpolator_notify_pathing_complete( me->move_b.sync_offset );
-            }
-            else
-            {
-                path_interpolator_execute_move( &me->move_b, me->progress_percent );
-            }
-
-            STATE_EXIT_ACTION
-            memset( &me->move_b, 0, sizeof( Movement_t ) );
+                me->current_move = 0;
+                me->progress_percent = 0;
+                me->movement_started = 0;
+                me->movement_est_complete = 0;
             STATE_END
             break;
     }
+
+    user_interface_set_pathing_status( me->currentState );
 }
 
 PRIVATE void
