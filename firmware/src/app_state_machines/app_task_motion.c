@@ -240,41 +240,20 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
             AppTaskMotion_clear_queue( me );
             return 0;
 
-        case MOTION_QUEUE_START:
+        case MOTION_QUEUE_START: {
+
+            uint32_t epoch_ms = ( (SyncTimestampEvent *)e )->epoch;
+
+            // TODO: check validity of epoch event, rather than the value?
+            if( epoch_ms )
+            {
+                path_interpolator_set_epoch_reference(epoch_ms);
+            }
+
             STATE_TRAN( AppTaskMotion_active );
             return 0;
-
-            // TODO: remove this obsolete code block once refactor complete
-            /*
-        case MOTION_QUEUE_START_SYNC: {
-            // Check that the ID we got the sync event for matches the current queue head ID
-            // TODO: support sync events on ID's which aren't the current head
-            //       consider searching/ditching events until ID matches?
-            StateEvent *pendingMotion = eventQueuePeek( &me->super.requestQueue );
-
-            if( pendingMotion )
-            {
-                MotionPlannerEvent *ape          = (MotionPlannerEvent *)pendingMotion;
-                uint32_t            id_in_queue  = ( (Movement_t *)&ape->move )->sync_offset;
-                uint32_t            id_requested = ( (SyncTimestampEvent *)e )->id;
-
-                if( id_in_queue == id_requested )
-                {
-                    STATE_TRAN( AppTaskMotion_active );
-                }
-                else
-                {
-                    user_interface_report_error( "Sync fail - queued ID mismatch" );
-                }
-            }
-            else
-            {
-                user_interface_report_error( "Sync fail - nothing queued" );
-            }
-
-            return 0;
         }
-*/
+
         case MOTION_EMERGENCY:
             STATE_TRAN( AppTaskMotion_recovery );
             return 0;

@@ -23,6 +23,11 @@ path_interpolator_process( void );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
+path_interpolator_set_epoch_reference( uint32_t timestamp_ms );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
 path_interpolator_set_next( Movement_t *movement_to_process );
 
 /* -------------------------------------------------------------------------- */
