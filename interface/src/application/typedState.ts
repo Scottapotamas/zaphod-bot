@@ -25,9 +25,7 @@ export enum MSGID {
 
   QUEUE_INFO = 'queue',
   QUEUE_SYNC = 'sync',
-  QUEUE_SYNC_ID = 'syncid',
   QUEUE_CLEAR = 'clmv',
-  QUEUE_START = 'stmv',
   QUEUE_ADD_MOVE = 'inmv',
   QUEUE_ADD_FADE = 'inlt',
 
@@ -73,9 +71,7 @@ declare global {
 
     [MSGID.QUEUE_INFO]: QueueDepthInfo
     [MSGID.QUEUE_SYNC]: null // callback
-    [MSGID.QUEUE_SYNC_ID]: number // uint16
     [MSGID.QUEUE_CLEAR]: null // callback
-    [MSGID.QUEUE_START]: null // callback
     [MSGID.QUEUE_ADD_MOVE]: MovementMove
     [MSGID.QUEUE_ADD_FADE]: LightMove
 
@@ -211,7 +207,7 @@ export type CartesianPoint = {
 }
 
 export type MovementMove = {
-  timestamp: number
+  sync_offset: number
   duration: number
   type: MovementMoveType
   reference: MovementMoveReference

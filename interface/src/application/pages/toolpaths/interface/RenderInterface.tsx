@@ -228,8 +228,6 @@ export function SendToolpath() {
 
   const sendSync = useCallback(async () => {
     const cancellationToken = new CancellationToken()
-    const syncIDMessage = new Message(MSGID.QUEUE_SYNC_ID, 1)
-    await sendMessage(syncIDMessage, cancellationToken)
 
     const syncMessage = new Message(MSGID.QUEUE_SYNC, null)
     await sendMessage(syncMessage, cancellationToken)

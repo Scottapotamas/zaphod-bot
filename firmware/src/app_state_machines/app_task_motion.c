@@ -248,9 +248,9 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
                 uint32_t epoch_ms = ste->epoch;
 
                 path_interpolator_set_epoch_reference(epoch_ms);
+                STATE_TRAN( AppTaskMotion_active );
             }
 
-            STATE_TRAN( AppTaskMotion_active );
             return 0;
         }
 

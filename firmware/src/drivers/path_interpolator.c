@@ -271,10 +271,12 @@ path_interpolator_process( void )
                     if( me->current_move == &me->move_a )
                     {
                         me->current_move = &me->move_b;
+                        me->movement_started = 0;
                     }
                     else
                     {
                         me->current_move = &me->move_a;
+                        me->movement_started = 0;
                     }
 
                     // Other move slot ready?

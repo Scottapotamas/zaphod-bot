@@ -49,7 +49,6 @@ typedef struct
     uint16_t        duration;      // execution time in milliseconds
     FadeAdjective_t type;          // type of interpolation used between points
     uint8_t         num_pts;       // number of used elements in points array
-    //padding x2
     HSIColour_t input_colours[COLOUR_SETPOINT_COUNT];    //array of colours
 } Fade_t;
 

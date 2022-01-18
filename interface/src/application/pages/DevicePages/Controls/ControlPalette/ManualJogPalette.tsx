@@ -4,6 +4,7 @@ import { Icon, MultiSlider, NumericInput, Tag, Intent } from '@blueprintjs/core'
 import { Composition } from 'atomic-layout'
 
 import { Button, NumberInput } from '@electricui/components-desktop-blueprint'
+import { MSGID } from 'src/application/typedState'
 
 const JogButtonAreas = `
 XP YP ZP
@@ -27,7 +28,7 @@ const JogPalette = (props: JogPaletteProps) => {
                 state.inmv = {
                   type: 0,
                   reference: 1,
-                  id: 0,
+                  sync_offset: 0,
                   duration: props.time,
                   points: [[props.distance, 0, 0]],
                 }
@@ -43,7 +44,7 @@ const JogPalette = (props: JogPaletteProps) => {
                 state.inmv = {
                   type: 0,
                   reference: 1,
-                  id: 0,
+                  sync_offset: 0,
                   duration: props.time,
                   points: [[0, props.distance, 0]],
                 }
@@ -59,7 +60,7 @@ const JogPalette = (props: JogPaletteProps) => {
                 state.inmv = {
                   type: 0,
                   reference: 1,
-                  id: 0,
+                  sync_offset: 0,
                   duration: props.time,
                   points: [[-props.distance, 0, 0]],
                 }
@@ -75,7 +76,7 @@ const JogPalette = (props: JogPaletteProps) => {
                 state.inmv = {
                   type: 0,
                   reference: 1,
-                  id: 0,
+                  sync_offset: 0,
                   duration: props.time,
                   points: [[0, -props.distance, 0]],
                 }
@@ -92,7 +93,7 @@ const JogPalette = (props: JogPaletteProps) => {
                 state.inmv = {
                   type: 0,
                   reference: 1,
-                  id: 0,
+                  sync_offset: 0,
                   duration: props.time,
                   points: [[0, 0, props.distance]],
                 }
@@ -109,7 +110,7 @@ const JogPalette = (props: JogPaletteProps) => {
                 state.inmv = {
                   type: 0,
                   reference: 1,
-                  id: 0,
+                  sync_offset: 0,
                   duration: props.time,
                   points: [[0, 0, -props.distance]],
                 }
