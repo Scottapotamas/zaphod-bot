@@ -241,12 +241,12 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
             return 0;
 
         case MOTION_QUEUE_START: {
+            SyncTimestampEvent *ste = (SyncTimestampEvent *)e;
 
-            uint32_t epoch_ms = ( (SyncTimestampEvent *)e )->epoch;
-
-            // TODO: check validity of epoch event, rather than the value?
-            if( epoch_ms )
+            if( ste )
             {
+                uint32_t epoch_ms = ste->epoch;
+
                 path_interpolator_set_epoch_reference(epoch_ms);
             }
 
