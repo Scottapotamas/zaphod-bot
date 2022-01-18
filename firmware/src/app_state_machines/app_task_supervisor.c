@@ -529,7 +529,9 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
                 memcpy( &motion_request->move, &mpe->move, sizeof( Movement_t ) );
                 eventPublish( (StateEvent *)motion_request );
 
-                eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
+                SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
+                motor_sync->epoch = hal_systick_get_ms();
+                eventPublish( (StateEvent *)motor_sync );
             }
 
             return 0;
@@ -637,7 +639,10 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
                     if( shaping == SOLUTION_VALID )
                     {
                         eventPublish( (StateEvent *)motev );
-                        eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
+                        SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
+                        motor_sync->epoch = hal_systick_get_ms();
+                        eventPublish( (StateEvent *)motor_sync );
+
                     }
 
                 }
@@ -732,7 +737,7 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
         case STATE_TIMEOUT1_SIGNAL:
 
             // Start the event queue
-            eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
+//            eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
 
             return 0;
 
@@ -838,7 +843,10 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
                 motev->move.points[0].z   = 0;
 
                 eventPublish( (StateEvent *)motev );
-                eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
+
+                SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
+                motor_sync->epoch = hal_systick_get_ms();
+                eventPublish( (StateEvent *)motor_sync );
             }
 
             return 0;
@@ -892,7 +900,10 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
                     motev->move.points[0].z   = 0;
 
                     eventPublish( (StateEvent *)motev );
-                    eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
+                    SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
+                    motor_sync->epoch = hal_systick_get_ms();
+                    eventPublish( (StateEvent *)motor_sync );
+
                 }
             }
             return 0;
@@ -983,7 +994,9 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
             motev->move.points[0].z = 0;
 
             eventPublish( (StateEvent *)motev );
-            eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
+            SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
+            motor_sync->epoch = hal_systick_get_ms();
+            eventPublish( (StateEvent *)motor_sync );
 
             return 0;
         }
@@ -1043,7 +1056,11 @@ PRIVATE void AppTaskSupervisorPublishRehomeEvent( void )
     motev->move.points[0].z = 0;
 
     eventPublish( (StateEvent *)motev );
-    eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
+
+    SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
+    motor_sync->epoch = hal_systick_get_ms();
+    eventPublish( (StateEvent *)motor_sync );
+
 }
 
 /* -------------------------------------------------------------------------- */

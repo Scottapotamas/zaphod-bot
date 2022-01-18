@@ -242,7 +242,7 @@ path_interpolator_process( void )
             uint32_t time_since_epoch_ms = hal_systick_get_ms() - me->epoch_timestamp;
 
             // Start the move once the move sync offset time matches the epoch + elapsed time
-            if( time_since_epoch_ms == me->current_move->sync_offset )
+            if( time_since_epoch_ms >= me->current_move->sync_offset && !me->movement_started )
             {
                 // Start the move
                 me->movement_started      = hal_systick_get_ms();
@@ -252,7 +252,8 @@ path_interpolator_process( void )
                 path_interpolator_notify_pathing_started( me->current_move->sync_offset );
                 path_interpolator_premove_transforms( me->current_move );
             }
-            else if( time_since_epoch_ms > me->current_move->sync_offset )
+
+            if( time_since_epoch_ms > me->current_move->sync_offset )
             {
                 // Continue the move
                 path_interpolator_calculate_percentage( me->current_move->duration );
