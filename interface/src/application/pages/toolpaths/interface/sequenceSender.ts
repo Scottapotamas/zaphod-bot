@@ -88,7 +88,7 @@ export class SequenceSender {
     this.lightMoves = toolpath.lightMoves
 
     this.finalMovementTimestamp =
-      this.movementMoves[this.movementMoves.length - 1].timestamp
+      this.movementMoves[this.movementMoves.length - 1].sync_offset
 
     this.startTimers()
   }
@@ -138,7 +138,7 @@ export class SequenceSender {
       // If there are movements left, intersperse the light moves between them
       if (movement) {
         // If the light move should be sent before the next movement, send it first
-        if (firstLightMove && firstLightMove.timestamp < movement.timestamp) {
+        if (firstLightMove && firstLightMove.timestamp < movement.sync_offset) {
           this.hardwareLightMoveQueueDepth++
           const shifted = this.lightMoves.shift()!
           this.notifyUIOfOptimisticQueues()

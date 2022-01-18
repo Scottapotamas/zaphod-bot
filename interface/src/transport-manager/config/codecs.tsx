@@ -280,9 +280,12 @@ export class InboundMotionCodec extends Codec {
 
     packet.writeUInt8(payload.type)
     packet.writeUInt8(payload.reference)
-    packet.writeUInt32LE(payload.timestamp)
+    packet.writeUInt8(payload.num_points)
+    packet.writeUInt8(0x00) // padding
+    packet.writeUInt32LE(payload.sync_offset)
+
     packet.writeUInt16LE(payload.duration)
-    packet.writeUInt16LE(payload.num_points)
+    packet.writeUInt16LE(0x0000) // padding
 
     for (let index = 0; index < 4; index++) {
       const pointData = payload.points[index]
@@ -306,12 +309,20 @@ export class InboundMotionCodec extends Codec {
 
     const points_decoded: Array<MovementPoint> = []
 
+    let type = reader.readUInt8()
+    let reference = reader.readUInt8()
+    let num_points = reader.readUInt8()
+    reader.readUInt8()  // padding
+    let sync_offset = reader.readUInt32LE()
+    let duration = reader.readUInt16LE()
+    reader.readUInt16LE() // padding
+
     const movement: MovementMove = {
-      type: reader.readUInt8(),
-      reference: reader.readUInt8(),
-      timestamp: reader.readUInt32LE(),
-      duration: reader.readUInt16LE(),
-      num_points: reader.readUInt16LE(),
+      type: type,
+      reference: reference,
+      num_points: num_points,
+      sync_offset: sync_offset,
+      duration: duration,
       points: points_decoded,
     }
 
@@ -342,8 +353,6 @@ export class InboundFadeCodec extends Codec {
     packet.writeUInt16LE(payload.duration)
     packet.writeUInt8(payload.type)
     packet.writeUInt8(payload.num_points)
-    packet.writeUInt8(0x00)
-    packet.writeUInt8(0x00)
 
     for (let index = 0; index < 2; index++) {
       const pointData = payload.points[index]
@@ -374,9 +383,6 @@ export class InboundFadeCodec extends Codec {
       num_points: reader.readUInt8(),
       points: points_decoded,
     }
-
-    // two padding bytes
-    const garbage = reader.readUInt16LE()
 
     for (let index = 0; index < 2; index++) {
       const pointData: LightPoint = [

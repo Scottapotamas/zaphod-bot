@@ -29,7 +29,7 @@ export function toolpath(denseMovements: DenseMovements): Toolpath {
     // Add the movement
     movementMoves.push({
       ...move,
-      timestamp: movementTimestamp,
+      sync_offset: movementTimestamp,
     })
 
     if (lightFadeTimestamp !== movementTimestamp) {
