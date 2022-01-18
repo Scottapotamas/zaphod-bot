@@ -57,7 +57,7 @@ export const TemperatureTag = () => {
             }}
           >
             <Printer
-              accessor={state => state.sys.temp_regulator}
+              accessor={state => state[MSGID.SYSTEM].temp_regulator}
               precision={0}
             />{' '}
             °C

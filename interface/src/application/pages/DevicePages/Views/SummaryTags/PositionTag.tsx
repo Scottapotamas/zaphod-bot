@@ -5,6 +5,7 @@ import {
 } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
 import { Printer } from '@electricui/components-desktop'
+import { MSGID } from 'src/application/typedState'
 
 type TagProps = {
   isLarge?: boolean
@@ -20,7 +21,7 @@ export const PositionTag = (props: TagProps) => {
         icon={IconNames.DOUBLE_CARET_HORIZONTAL}
       >
         <div style={{ textAlign: 'right' }}>
-          <Printer accessor={state => state.cpos.x} precision={2} /> mm
+          <Printer accessor={state => state[MSGID.POSITION_CURRENT].x} precision={2} /> mm
         </div>
       </Tag>
       <Tag
@@ -30,12 +31,12 @@ export const PositionTag = (props: TagProps) => {
         icon={IconNames.DOUBLE_CARET_VERTICAL}
       >
         <div style={{ textAlign: 'right' }}>
-          <Printer accessor={state => state.cpos.y} precision={2} /> mm
+          <Printer accessor={state => state[MSGID.POSITION_CURRENT].y} precision={2} /> mm
         </div>
       </Tag>
       <Tag minimal fill large={props.isLarge} icon={IconNames.CARET_UP}>
         <div style={{ textAlign: 'right' }}>
-          <Printer accessor={state => state.cpos.z} precision={2} /> mm
+          <Printer accessor={state => state[MSGID.POSITION_CURRENT].z} precision={2} /> mm
         </div>
       </Tag>
     </Composition>

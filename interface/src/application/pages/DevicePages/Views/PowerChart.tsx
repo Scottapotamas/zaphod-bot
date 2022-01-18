@@ -27,7 +27,7 @@ const servoTelemetryDataSource = new MessageDataSource(MSGID.SERVO)
 
 export const PowerChart = () => {
   const numMotors: number | null = useHardwareState(
-    state => (state.servo || []).length,
+    state => (state[MSGID.SERVO] || []).length,
   )
 
   const isDark = useDarkMode()

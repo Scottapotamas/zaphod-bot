@@ -38,7 +38,7 @@ const layoutDescription = `
 
 export const SystemSummary = () => {
   const numMotors: number | null = useHardwareState(
-    state => (state.servo || []).length,
+    state => (state[MSGID.SERVO] || []).length,
   )
 
   const isDark = useDarkMode()

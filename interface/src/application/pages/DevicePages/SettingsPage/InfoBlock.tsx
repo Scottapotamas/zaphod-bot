@@ -8,6 +8,7 @@ import React from 'react'
 import { Composition, Box } from 'atomic-layout'
 import { Statistic } from '@electricui/components-desktop-blueprint'
 import { Printer } from '@electricui/components-desktop'
+import { MSGID } from 'src/application/typedState'
 
 const SensorsActive = () => {
   const sensorEnabledState =
@@ -30,7 +31,7 @@ const ModuleActive = () => {
 }
 
 const LastResetReason = () => {
-  const last_reset_reason = useHardwareState(state => state.reset_type)
+  const last_reset_reason = useHardwareState(state => state[MSGID.RESET_CAUSE])
 
   if (last_reset_reason) {
     return <div>Last reset: {last_reset_reason}</div>
@@ -57,7 +58,7 @@ const BuildInfoTable = () => {
         <b>Name</b>
       </td>
       <td>
-        <Printer accessor={state => state.fwb.name} />
+        <Printer accessor={state => state[MSGID.FIRMWARE_INFO].name} />
       </td>
     </tr>
     <tr>
@@ -65,7 +66,7 @@ const BuildInfoTable = () => {
         <b>Branch</b>
       </td>
       <td>
-        <Printer accessor={state => state.fwb.branch} />
+        <Printer accessor={state => state[MSGID.FIRMWARE_INFO].branch} />
       </td>
     </tr>
     <tr>
@@ -73,7 +74,7 @@ const BuildInfoTable = () => {
         <b>Info</b>
       </td>
       <td>
-        <Printer accessor={state => state.fwb.info} />
+        <Printer accessor={state => state[MSGID.FIRMWARE_INFO].info} />
       </td>
     </tr>
     <tr>
@@ -81,7 +82,7 @@ const BuildInfoTable = () => {
         <b>Type</b>
       </td>
       <td>
-        <Printer accessor={state => state.fwb.type} />
+        <Printer accessor={state => state[MSGID.FIRMWARE_INFO].type} />
       </td>
     </tr>
     <tr>
@@ -89,7 +90,7 @@ const BuildInfoTable = () => {
         <b>Date</b>
       </td>
       <td>
-        <Printer accessor={state => state.fwb.date} />
+        <Printer accessor={state => state[MSGID.FIRMWARE_INFO].date} />
       </td>
     </tr>
     <tr>
@@ -97,7 +98,7 @@ const BuildInfoTable = () => {
         <b>Time</b>
       </td>
       <td>
-        <Printer accessor={state => state.fwb.time} />
+        <Printer accessor={state => state[MSGID.FIRMWARE_INFO].time} />
       </td>
     </tr>
   </tbody>
@@ -119,7 +120,7 @@ export const InfoBlock = () => {
       {Areas => (
         <React.Fragment>
           <Areas.Stats>
-            <IntervalRequester interval={200} variables={['sys']} />
+            <IntervalRequester interval={200} variables={[MSGID.SYSTEM]} />
             <h3>System Configuration</h3>
             <SensorsActive />
             <br />
