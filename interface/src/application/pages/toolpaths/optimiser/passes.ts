@@ -75,7 +75,7 @@ export function sparseToDense(
     // If the previous movement was a transit to the correct place for this movement, don't do a second transition
     if (
       isTransit(previousMovement) &&
-      previousMovement.getEnd().distanceToSquared(movement.getStart()) < 1
+      previousMovement.getEnd().distanceTo(movement.getStart()) < 1
     ) {
       // Add the movement to the dense bag
       denseMovements.push(movement)
@@ -126,7 +126,7 @@ export function sparseToDense(
       settings.optimisation.smoothInterlineTransitions &&
       isLine(previousMovement) &&
       isLine(movement) &&
-      previousMovement.getEnd().distanceToSquared(movement.getStart()) < 1 &&
+      previousMovement.getEnd().distanceTo(movement.getStart()) < 1 &&
       previousMovement
         .getExpectedExitVelocity()
         .clone()
@@ -202,101 +202,35 @@ export function getTotalDuration(denseMoves: DenseMovements) {
   return cost
 }
 
-export function getTotalCost(denseMoves: DenseMovements) {
-  // For now, use the total duration as the cost function
-  let cost = 0
+/**
+ * Take a sparse set of movements, calculate their total 'cost'
+ */
+export function sparseToCost(movements: Movement[]): number {
+  let d2Total = 0
 
-  for (let index = 0; index < denseMoves.length; index++) {
-    const movement = denseMoves[index]
-    const newCost = movement.getCost()
-    cost += movement.getCost()
+  for (let index = 1; index < movements.length; index++) {
+    const movementP = movements[index - 1]
+    const movement = movements[index]
+    const d2 = movementP.getEnd().distanceTo(movement.getStart())
+
+    d2Total += d2
   }
 
-  return cost
-}
+  // for (let index = 1; index < movements.length; index++) {
+  //   const movementP = movements[index - 1]
+  //   const movement = movements[index]
+  //   const d2 = new Transition(movementP, movement, defaultTransitionMaterial)
 
-/**
- * Take a sparse set of movements, join them, flatten them, calculate the total duration
- */
-export function sparseToCost(
-  sparseBag: Movement[],
-  settings: Settings,
-): number {
-  const dense = sparseToDense(sparseBag, settings)
+  //   d2Total += d2.getLength()
+  // }
 
-  return getTotalCost(dense)
+  return d2Total
 }
 
 function swap(array: any[], a: number, b: number) {
   const temp = array[a]
   array[a] = array[b]
   array[b] = temp
-}
-
-/**
- * Swaps two line segments if the cost is better, returns if the swap was better
- */
-function swapIsBetter(
-  movements: Movement[],
-  costRef: { cost: number },
-  settings: Settings,
-  i: number,
-  j: number,
-): boolean {
-  // Do the swap
-  swap(movements, i, j)
-
-  // Calculate the new cost
-  const tourCostWithSwap = sparseToCost(movements, settings)
-
-  // console.log(
-  //   `trying to swap ${i} and ${j}, cost flipped is ${tourCostWithSwap}, without is ${costRef.cost}.`
-  // );
-
-  // if it's worse or equal, swap it back
-  if (tourCostWithSwap >= costRef.cost) {
-    swap(movements, i, j)
-    return false
-  }
-
-  // Otherwise it's better, update the cost
-  costRef.cost = tourCostWithSwap
-  return true
-}
-
-/**
- * Flips a singular movement if the cost is better, returns if it was better.
- */
-function flipIsBetter(
-  movements: Movement[],
-  costRef: { cost: number },
-  settings: Settings,
-  i: number,
-): boolean {
-  // If the movement is a Point, we can't flip, bail early
-  if (isPoint(movements[i])) {
-    return false
-  }
-
-  // Do the flip
-  movements[i].flip()
-
-  // Calculate the new cost
-  const tourCostWithFlip = sparseToCost(movements, settings)
-
-  // console.log(
-  //   `trying to flip ${i}, cost flipped is ${tourCostWithFlip}, without is ${costRef.cost}.`
-  // );
-
-  // if it's worse or equal, swap it back
-  if (tourCostWithFlip >= costRef.cost) {
-    movements[i].flip()
-    return false
-  }
-
-  // Otherwise it's better, update the cost
-  costRef.cost = tourCostWithFlip
-  return true
 }
 
 export interface OrderingCache {
@@ -319,6 +253,191 @@ export interface Progress {
 
 export type Continue = boolean
 
+function optimiseByCache(sparseBag: Movement[], orderingCache: OrderingCache) {
+  const movements = sparseBag.slice() // Copy the ordering
+
+  // Sort the movements according to the movement cache
+  movements.sort((a, b) => {
+    const aOrder = orderingCache[a.interFrameID] ?? 0
+    const bOrder = orderingCache[b.interFrameID] ?? 0
+
+    // Sort in ascending order
+    return aOrder - bOrder
+  })
+
+  return movements
+}
+
+function optimiseBySearch(sparseBag: Movement[]) {
+  if (sparseBag.length < 2) {
+    return sparseBag
+  }
+
+  const toOrder: Movement[] = sparseBag.slice() // Copy the array
+
+  // Pick a random movement to start at, remove it from the array
+  let previousMovement = toOrder.splice(
+    Math.floor(Math.random() * toOrder.length),
+    1, // grab one
+  )[0] // splice returns an array of the deleted items, index 0 is our starting point
+  const nnOrdering = [previousMovement]
+
+  // Find the closest next movement, potentially flipping it
+  while (toOrder.length > 0) {
+    let closest: Movement = previousMovement
+    let closestDistance = Infinity
+    let closestIndex = 0
+
+    for (let index = 0; index < toOrder.length; index++) {
+      const movement = toOrder[index]
+
+      // Check if the end of the next movement is closer
+      let d = movement.getStart().distanceTo(previousMovement.getEnd())
+
+      if (d < closestDistance) {
+        closestDistance = d
+        closest = movement
+        closestIndex = index
+      }
+
+      // Try flipping it
+      movement.flip()
+
+      d = movement.getStart().distanceTo(previousMovement.getEnd())
+
+      // If it is closer, leave it flipped
+      if (d < closestDistance) {
+        closestDistance = d
+        closest = movement
+        closestIndex = index
+        continue
+      }
+
+      // Otherwise flip it back
+      movement.flip()
+    }
+
+    // We've found the next closest, pop it off
+    toOrder.splice(closestIndex, 1)
+
+    // And add it to the nnOrdered array
+    nnOrdering.push(closest)
+
+    // Update the previousMovement
+    previousMovement = closest
+  }
+
+  return nnOrdering
+}
+
+function optimise2Opt(sparseBag: Movement[], timeLimit = 0) {
+  const ordering: Movement[] = sparseBag.slice()
+
+  let improved = true // Start iterating
+  let iteration = 0
+  let cost = sparseToCost(ordering)
+  const start = Date.now()
+
+  while (improved) {
+    improved = false
+    iteration++
+
+    if (timeLimit > 0 && Date.now() - start > timeLimit) {
+      return { ordering, iteration, completed: false }
+    }
+
+    // Start and end points are fixed with this algorithm
+    iteration: for (let i = 1; i < ordering.length - 2; i++) {
+      for (let j = i + 1; j < ordering.length - 1; j++) {
+        const A = ordering[i - 1]
+        const B = ordering[i]
+        const C = ordering[i + 1]
+        const D = ordering[j - 1]
+        const E = ordering[j]
+        const F = ordering[j + 1]
+
+        // Calculate the distances of the different segments, flipped or swapped
+        const dABnC = A.getEnd().distanceTo(B.getStart()) + B.getEnd().distanceTo(C.getStart()) // prettier-ignore
+        const dDEnF = D.getEnd().distanceTo(E.getStart()) + E.getEnd().distanceTo(F.getStart()) // prettier-ignore
+
+        const dAEnC = A.getEnd().distanceTo(E.getStart()) + E.getEnd().distanceTo(C.getStart()) // prettier-ignore
+        const dDBnF = D.getEnd().distanceTo(B.getStart()) + B.getEnd().distanceTo(F.getStart()) // prettier-ignore
+
+        const dABfC = A.getEnd().distanceTo(B.getEnd()) + B.getStart().distanceTo(C.getStart()) // prettier-ignore
+        const dDEfF = D.getEnd().distanceTo(E.getEnd()) + E.getStart().distanceTo(F.getStart()) // prettier-ignore
+
+        const dAEfC = A.getEnd().distanceTo(E.getEnd()) + E.getStart().distanceTo(C.getStart()) // prettier-ignore
+        const dDBfF = D.getEnd().distanceTo(B.getEnd()) + B.getStart().distanceTo(F.getStart()) // prettier-ignore
+
+        // Calculate cost deltas
+        const current = dABnC + dDEnF
+        const flipI = dABfC + dDEnF
+        const flipJ = dABnC + dDEfF
+        const flipIJ = dABfC + dDEfF
+        const swappedIJ = dAEnC + dDBnF
+        const flipISwapIJ = dAEnC + dDBfF
+        const flipJSwapIJ = dAEfC + dDBnF
+        const flipIJSwapIJ = dAEfC + dDBfF
+
+        // Find the winner
+        const smallest = Math.min(
+          current,
+          flipI,
+          flipJ,
+          flipIJ,
+          swappedIJ,
+          flipISwapIJ,
+          flipJSwapIJ,
+          flipIJSwapIJ,
+        )
+
+        // Do the operations of the winner
+        if (smallest === current) {
+          // No improvement
+          // continue // try the next one
+        } else if (smallest === flipI) {
+          ordering[i].flip()
+          cost = cost - current + flipI
+          improved = true
+        } else if (smallest === flipJ) {
+          ordering[j].flip()
+          cost = cost - current + flipJ
+          improved = true
+        } else if (smallest === flipIJ) {
+          ordering[i].flip()
+          ordering[j].flip()
+          cost = cost - current + flipIJ
+          improved = true
+        } else if (smallest === swappedIJ) {
+          swap(ordering, i, j)
+          cost = cost - current + swappedIJ
+          improved = true
+        } else if (smallest === flipISwapIJ) {
+          ordering[i].flip()
+          swap(ordering, i, j)
+          cost = cost - current + flipISwapIJ
+          improved = true
+        } else if (smallest === flipJSwapIJ) {
+          ordering[j].flip()
+          swap(ordering, i, j)
+          cost = cost - current + flipJSwapIJ
+          improved = true
+        } else if (smallest === flipIJSwapIJ) {
+          ordering[i].flip()
+          ordering[j].flip()
+          swap(ordering, i, j)
+          cost = cost - current + flipIJSwapIJ
+          improved = true
+        }
+
+        // continue iteration
+      }
+    }
+  }
+
+  return { ordering, iteration, completed: true }
+}
+
 /**
  * Reorders and flips the members of a sparse bag of movements, optimising for the fastest tour.
  *
@@ -326,222 +445,87 @@ export type Continue = boolean
  */
 export async function optimise(
   sparseBag: Movement[],
+  partialUpdate: boolean,
   settings: Settings,
   updateProgress: (progress: Progress) => Promise<Continue>,
   orderingCache: OrderingCache | null = null,
 ) {
-  const sparseLength = sparseBag.length
-
-  let ordering: Movement[] = sparseBag
-
-  const costRef = { cost: sparseToCost(sparseBag, settings) }
-  const startingCost = costRef.cost
-
-  let method = 'blender order'
-
-  // If an ordering cache is provided, test it
-  if (orderingCache) {
-    // Copy the array, might not be necessary since this is on the other end of an IPC bridge and it's just been deserialised.
-    // TODO: Bench removing this
-    const cachedOrdering = sparseBag.slice()
-
-    // Sort the movements according to the movement cache
-    cachedOrdering.sort((a, b) => {
-      const aOrder = orderingCache[a.interFrameID] ?? 0
-      const bOrder = orderingCache[b.interFrameID] ?? 0
-
-      // Sort in ascending order
-      return aOrder - bOrder
-    })
-
-    const interFrameCacheCost = sparseToCost(cachedOrdering, settings)
-
-    // console.log(
-    //   `randomCost ${
-    //     costRef.cost
-    //   } -> interFrameCacheCost ${interFrameCacheCost} (${
-    //     interFrameCacheCost > costRef.cost ? "ditching cache" : "using cache"
-    //   })`
-    // );
-
-    if (interFrameCacheCost < costRef.cost) {
-      // If the inter frame cache is better than the naive ordering, use it
-      ordering = cachedOrdering
-      costRef.cost = interFrameCacheCost
-      method = 'cache'
-    }
-  }
-
-  // Try a nearest neighbour search, use it if it's better (even if we have a cache)
-  // Requires at least 2 movements
-  if (sparseBag.length >= 2) {
-    const toOrder: Movement[] = sparseBag.slice() // Copy the array
-
-    // Pick a random movement to start at, remove it from the array
-    let previousMovement = toOrder.splice(
-      Math.floor(Math.random() * toOrder.length),
-      1, // grab one
-    )[0] // splice returns an array of the deleted items, index 0 is our starting point
-    const nnOrdering = [previousMovement]
-
-    // Find the closest next movement, potentially flipping it
-    while (toOrder.length > 0) {
-      let closest: Movement = previousMovement
-      let closestDistance = Infinity
-      let closestIndex = 0
-
-      for (let index = 0; index < toOrder.length; index++) {
-        const movement = toOrder[index]
-
-        // Check if the end of the next movement is closer
-        let d = movement.getStart().distanceToSquared(previousMovement.getEnd())
-
-        if (d < closestDistance) {
-          closestDistance = d
-          closest = movement
-          closestIndex = index
-        }
-
-        // Try flipping it
-        movement.flip()
-
-        d = movement.getStart().distanceToSquared(previousMovement.getEnd())
-
-        // If it is closer, leave it flipped
-        if (d < closestDistance) {
-          closestDistance = d
-          closest = movement
-          closestIndex = index
-          continue
-        }
-
-        // Otherwise flip it back
-        movement.flip()
-      }
-
-      // We've found the next closest, pop it off
-      toOrder.splice(closestIndex, 1)
-
-      // And add it to the nnOrdered array
-      nnOrdering.push(closest)
-
-      // Update the previousMovement
-      previousMovement = closest
-    }
-
-    const nnCost = sparseToCost(nnOrdering, settings)
-
-    // console.log(
-    //   `randomCost ${costRef.cost} -> nnCost ${nnCost} (${
-    //     nnCost > costRef.cost ? "ditching NN" : "using NN"
-    //   })`
-    // );
-
-    if (nnCost < costRef.cost) {
-      // If NN is an improvement, use it as the starting point
-      costRef.cost = nnCost
-      ordering = nnOrdering
-      method = 'nearest neighbour'
-    }
-  }
+  const startedOptimisation = Date.now()
 
   // Setup our ordering cache
   const nextOrderingCache: OrderingCache = {}
 
   const populateOrderingCache = () => {
     // Store the final order for passing to the next frame
-    for (let index = 0; index < ordering.length; index++) {
-      const movement = ordering[index]
+    for (let index = 0; index < sparseBag.length; index++) {
+      const movement = sparseBag[index]
       nextOrderingCache[movement.interFrameID] = index
     }
 
     return nextOrderingCache
   }
 
-  // Establish base cost to compare against
-  let improved = true // Start iterating
-  let iteration = 0
-  let stoppedEarly = false
-  let startedTSP = Date.now()
+  const startingCost = sparseToCost(sparseBag)
 
-  while (improved) {
-    improved = false
-    iteration++
+  // Partial updates just run a beam search
 
-    const currentDense = sparseToDense(ordering, settings)
+  if (partialUpdate) {
+    const beamSearched = optimiseBySearch(sparseBag)
+
+    const currentDense = sparseToDense(beamSearched, settings)
+    const curentDuration = getTotalDuration(currentDense)
+
+    // Final status update
+    await updateProgress({
+      duration: getTotalDuration(currentDense),
+      text: `Optimised to ${Math.round(curentDuration * 100) / 100}ms`,
+      orderingCache: populateOrderingCache(),
+      completed: true,
+      minimaFound: false,
+      timeSpent: Date.now() - startedOptimisation,
+      startingCost,
+      currentCost: sparseToCost(sparseBag),
+    })
+
+    return
+  }
+
+  let ordering = sparseBag
+
+  let iterations = 0
+
+  // Otherwise do a 2opt
+  while (true) {
+    // Do one second of optimisation at a time, then check in to see if we should cancel
+    const nextPass = optimise2Opt(ordering, 1000)
+
+    iterations += nextPass.iteration
+
+    console.log(
+      `did ${nextPass.iteration} that second, total of ${iterations}, ${
+        iterations / ((Date.now() - startedOptimisation) / 1000)
+      } iter/s`,
+    )
+
+    const currentDense = sparseToDense(nextPass.ordering, settings)
     const curentDuration = getTotalDuration(currentDense)
 
     const shouldContinue = await updateProgress({
-      duration: curentDuration,
-      text: `Optimised to ${
-        Math.round(curentDuration * 100) / 100
-      }ms via ${method}`,
+      duration: getTotalDuration(currentDense),
+      text: `Optimised to ${Math.round(curentDuration * 100) / 100}ms`,
       orderingCache: populateOrderingCache(),
-      completed: false,
-      minimaFound: false,
-      timeSpent: Date.now() - startedTSP,
+      completed: nextPass.completed,
+      minimaFound: nextPass.completed,
+      timeSpent: Date.now() - startedOptimisation,
       startingCost,
-      currentCost: costRef.cost,
+      currentCost: sparseToCost(sparseBag),
     })
 
-    if (!shouldContinue) {
-      stoppedEarly = true
-      break
+    ordering = nextPass.ordering
+
+    // If we've reached a minima, or should stop, exit
+    if (nextPass.completed || !shouldContinue) {
+      return
     }
-
-    method = '2-opt'
-
-    iteration: for (let i = 0; i < sparseLength - 1; i++) {
-      for (let j = i + 1; j < sparseLength; j++) {
-        // Try flipping each member first
-        if (flipIsBetter(ordering, costRef, settings, i)) {
-          improved = true
-          continue iteration
-        }
-        if (flipIsBetter(ordering, costRef, settings, j)) {
-          improved = true
-          continue iteration
-        }
-
-        // Try swapping the two movements
-        if (swapIsBetter(ordering, costRef, settings, i, j)) {
-          improved = true
-          continue iteration
-        }
-
-        // Try flipping each member again
-        if (flipIsBetter(ordering, costRef, settings, i)) {
-          improved = true
-          continue iteration
-        }
-        if (flipIsBetter(ordering, costRef, settings, j)) {
-          improved = true
-          continue iteration
-        }
-      }
-    }
-  }
-
-  const currentDense = sparseToDense(ordering, settings)
-  const curentDuration = getTotalDuration(currentDense)
-
-  // Final status update
-  await updateProgress({
-    duration: getTotalDuration(currentDense),
-    text: `Optimised to ${Math.round(curentDuration * 100) / 100}ms`,
-    orderingCache: populateOrderingCache(),
-    completed: true,
-    minimaFound: !stoppedEarly,
-    timeSpent: Date.now() - startedTSP,
-    startingCost,
-    currentCost: costRef.cost,
-  })
-
-  return {
-    orderedMovements: ordering,
-    cost: costRef.cost,
-    iterations: iteration,
-    orderingCache: populateOrderingCache(),
-    stoppedEarly,
   }
 }

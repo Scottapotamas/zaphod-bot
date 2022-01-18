@@ -13,40 +13,6 @@ import {
 } from '../passes'
 import { Settings } from '../settings'
 
-// This will be called across an IPC bridge, all arguments must be serialisable
-export async function optimiseFrameBag(
-  sparseBagToImport: MovementJSON[],
-  settings: Settings,
-  updateProgress: (progress: Progress) => Promise<Continue>,
-  orderingCache?: OrderingCache,
-) {
-  const movements: Movement[] = []
-
-  // Process the raw objects into movements
-  for (const json of sparseBagToImport) {
-    const imported = importJson(json)
-    for (const movement of imported.toMovements(settings)) {
-      movements.push(movement)
-    }
-  }
-
-  // Run the optimiser
-  const {
-    orderedMovements,
-    cost,
-    orderingCache: nextOrderingCache,
-    iterations,
-  } = await optimise(movements, settings, updateProgress, orderingCache)
-
-  const dense = sparseToDense(orderedMovements, settings)
-  const duration = getTotalDuration(dense)
-
-  return {
-    duration,
-    orderingCache: nextOrderingCache,
-  }
-}
-
 let progressUpdates = new Subject<Progress>()
 
 let shouldContinue = true
@@ -65,7 +31,7 @@ export const OptimisationWorker = {
     return Observable.from(progressUpdates)
   },
 
-  optimise(
+  async optimise(
     sparseBagToImport: MovementJSON[],
     settings: Settings,
     partialUpdate: boolean,
@@ -74,17 +40,29 @@ export const OptimisationWorker = {
     const updateProgress = async (progress: Progress): Promise<Continue> => {
       progressUpdates.next(progress)
 
-      // Partial updates stop after the first iteration
-      if (partialUpdate) return false
-
       // need to wait for a microtick for other calls to come in
       await new Promise((resolve, reject) => setTimeout(resolve, 0))
+
+      // Partial updates stop after the first iteration
+      if (partialUpdate) return false
 
       return shouldContinue
     }
 
-    return optimiseFrameBag(
-      sparseBagToImport,
+    const movements: Movement[] = []
+
+    // Process the raw objects into movements
+    for (const json of sparseBagToImport) {
+      const imported = importJson(json)
+      for (const movement of imported.toMovements(settings)) {
+        movements.push(movement)
+      }
+    }
+
+    // Run the optimiser
+    await optimise(
+      movements,
+      partialUpdate,
       settings,
       updateProgress,
       orderingCache,

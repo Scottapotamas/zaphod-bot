@@ -312,7 +312,7 @@ export class ToolpathGenerator {
       )
 
       // Start the optimisation pass
-      const { duration } = await worker.optimise(
+      await worker.optimise(
         this.movementJSON.get(frameNumber)!,
         this.settings,
         partialOptimisation, // if this is a partial update, stop after the first iteration

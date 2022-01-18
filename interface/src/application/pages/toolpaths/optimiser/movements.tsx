@@ -158,6 +158,10 @@ export class MovementGroup extends Movement {
 
   public addMovement = (movement: Movement) => {
     this.movements.push(movement)
+
+    this.interFrameID = `[${this.movements
+      .map(movement => movement.interFrameID)
+      .join(',')}]`
   }
 
   public flip = () => {
@@ -281,6 +285,9 @@ export class MovementGroup extends Movement {
 
   public resetOptimisationState = () => {
     // noop
+    for (const movement of this.movements) {
+      movement.resetOptimisationState()
+    }
   }
 }
 
