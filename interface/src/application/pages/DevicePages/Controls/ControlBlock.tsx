@@ -11,10 +11,9 @@ import { TrackPalette } from './ControlPalette/TrackPalette'
 import { EventPalette } from './ControlPalette/EventPalette'
 
 import { MSGID } from '../../../typedState'
-import { NINJA } from '@blueprintjs/icons/lib/esm/generated/iconContents'
 
 export const ControlBlock = () => {
-  const control_mode = useHardwareState(state => state.super.mode)
+  const control_mode = useHardwareState(state => state[MSGID.SUPERVISOR].mode)
 
   if (control_mode == CONTROL_MODES[CONTROL_MODES.NONE]) {
     return (

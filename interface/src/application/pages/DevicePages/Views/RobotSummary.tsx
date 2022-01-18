@@ -38,7 +38,9 @@ type RobotSummaryProps = {
 }
 
 export const RobotSummary = (props: RobotSummaryProps) => {
-  const supervisor_state = useHardwareState(state => state[MSGID.SUPERVISOR].supervisor)
+  const supervisor_state = useHardwareState(
+    state => state[MSGID.SUPERVISOR].supervisor,
+  )
   const is_moving = useHardwareState(state => state[MSGID.MOTION].pathing_state)
 
   let supervisor_text: string = 'null'
@@ -53,8 +55,6 @@ export const RobotSummary = (props: RobotSummaryProps) => {
     supervisor_text = supervisor_state || 'UNKNOWN'
   }
 
-
-
   return (
     <React.Fragment>
       <Composition
@@ -65,11 +65,8 @@ export const RobotSummary = (props: RobotSummaryProps) => {
         {Areas => (
           <React.Fragment>
             <Areas.State>
-               <ArmControlTag/>
-
+              <ArmControlTag />
             </Areas.State>
-
-
 
             <Areas.Mode>
               <Tag
@@ -80,17 +77,18 @@ export const RobotSummary = (props: RobotSummaryProps) => {
                 style={{ height: '100%' }}
               >
                 <div style={{ textAlign: 'center' }}>
-                  <Printer accessor={state => state.super.mode} /> MODE
+                  <Printer accessor={state => state[MSGID.SUPERVISOR].mode} />{' '}
+                  MODE
                 </div>
               </Tag>
             </Areas.Mode>
-<Areas.Home>            <HomeButton label=""/>
+            <Areas.Home>
+              <HomeButton label="" />
+            </Areas.Home>
 
-</Areas.Home>
-
-<Areas.Position>
-<PositionTag isLarge={props.isLarge}/>
-</Areas.Position>
+            <Areas.Position>
+              <PositionTag isLarge={props.isLarge} />
+            </Areas.Position>
           </React.Fragment>
         )}
       </Composition>

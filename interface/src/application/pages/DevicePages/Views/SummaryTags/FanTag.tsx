@@ -54,12 +54,12 @@ function fanModeAccessor(state: ElectricUIDeveloperState) {
   }
 }
 
-const fanDataSource = new MessageDataSource('fan')
+const fanDataSource = new MessageDataSource(MSGID.FAN)
 
 export const FanTag = () => {
   return (
     <div>
-      <IntervalRequester variables={['fan']} interval={250} />
+      <IntervalRequester variables={[MSGID.FAN]} interval={250} />
 
       <Popover interactionKind={PopoverInteractionKind.HOVER}>
         <Tag fill large minimal icon={IconNames.FLAME} intent={Intent.NONE}>
@@ -99,14 +99,14 @@ export const FanTag = () => {
               // TODO: use precision={0} once Statistics support a precision prop
               // accessor={state => state.fan.rpm}
               value={
-                <Printer accessor={state => state.fan.rpm} precision={0} />
+                <Printer accessor={state => state[MSGID.FAN].rpm} precision={0} />
               }
               label={
                 <>
                   RPM, at{' '}
                   {
                     <Printer
-                      accessor={state => state.fan.setpoint}
+                      accessor={state => state[MSGID.FAN].setpoint}
                       precision={0}
                     />
                   }

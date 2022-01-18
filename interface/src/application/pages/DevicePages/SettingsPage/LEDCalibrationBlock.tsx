@@ -66,7 +66,7 @@ export const LEDCalibrationBlock = () => {
             <ButtonGroup fill>
               <Button
                 writer={state => {
-                  state.manual_led = {
+                  state[MSGID.LED_MANUAL_REQUEST] = {
                     red: 0,
                     green: 0,
                     blue: 0,
@@ -79,7 +79,7 @@ export const LEDCalibrationBlock = () => {
 
               <Button
                 writer={state => {
-                  state.manual_led = {
+                  state[MSGID.LED_MANUAL_REQUEST] = {
                     red: 0.1,
                     green: 0.1,
                     blue: 0.1,
@@ -91,7 +91,7 @@ export const LEDCalibrationBlock = () => {
               </Button>
               <Button
                 writer={state => {
-                  state.manual_led = {
+                  state[MSGID.LED_MANUAL_REQUEST] = {
                     red: 0.5,
                     green: 0.5,
                     blue: 0.5,
@@ -103,7 +103,7 @@ export const LEDCalibrationBlock = () => {
               </Button>
               <Button
                 writer={state => {
-                  state.manual_led = {
+                  state[MSGID.LED_MANUAL_REQUEST] = {
                     red: 1.0,
                     green: 1.0,
                     blue: 1.0,
@@ -119,7 +119,7 @@ export const LEDCalibrationBlock = () => {
             <ButtonGroup fill>
               <Button
                 writer={state => {
-                  state.manual_led = {
+                  state[MSGID.LED_MANUAL_REQUEST] = {
                     red: 0,
                     green: 0,
                     blue: 0,
@@ -133,7 +133,7 @@ export const LEDCalibrationBlock = () => {
               <Button
                 intent="danger"
                 writer={state => {
-                  state.manual_led = {
+                  state[MSGID.LED_MANUAL_REQUEST] = {
                     red: 0.5,
                     green: 0,
                     blue: 0,
@@ -146,7 +146,7 @@ export const LEDCalibrationBlock = () => {
               <Button
                 intent="success"
                 writer={state => {
-                  state.manual_led = {
+                  state[MSGID.LED_MANUAL_REQUEST] = {
                     red: 0,
                     green: 0.5,
                     blue: 0,
@@ -159,7 +159,7 @@ export const LEDCalibrationBlock = () => {
               <Button
                 intent="primary"
                 writer={state => {
-                  state.manual_led = {
+                  state[MSGID.LED_MANUAL_REQUEST] = {
                     red: 0,
                     green: 0,
                     blue: 0.5,
@@ -295,7 +295,7 @@ export const LEDCalibrationBlock = () => {
 }
 
 const PowerCalibrationCard = () => {
-  const expansion_servo = useHardwareState(state => !!state.servo[3])
+  const expansion_servo = useHardwareState(state => !!state[MSGID.SERVO][3])
 
   return (
     <Composition templateCols="1fr" justifyItems="center">
@@ -303,7 +303,7 @@ const PowerCalibrationCard = () => {
         <h2>Power Calibration</h2>
       </Box>
       <Box>
-        <IntervalRequester variables={['sys', 'servo']} interval={50} />
+        <IntervalRequester variables={[MSGID.SYSTEM, MSGID.SERVO]} interval={50} />
         <HTMLTable striped style={{ minWidth: '100%' }}>
           <thead>
             <tr>
@@ -337,7 +337,7 @@ const PowerCalibrationCard = () => {
                 <b>Servo 1</b>
               </td>
               <td>
-                <Printer accessor={state => state.servo[0].power} />
+                <Printer accessor={state => state[MSGID.SERVO][0].power} />
               </td>
               <td>
                 <NumberInput
@@ -356,7 +356,7 @@ const PowerCalibrationCard = () => {
                 <b>Servo 2</b>
               </td>
               <td>
-                <Printer accessor={state => state.servo[1].power} />
+                <Printer accessor={state => state[MSGID.SERVO][1].power} />
               </td>
               <td>
                 <NumberInput
@@ -375,7 +375,7 @@ const PowerCalibrationCard = () => {
                 <b>Servo 3</b>
               </td>
               <td>
-                <Printer accessor={state => state.servo[2].power} />
+                <Printer accessor={state => state[MSGID.SERVO][2].power} />
               </td>
               <td>
                 <NumberInput
@@ -398,7 +398,7 @@ const PowerCalibrationCard = () => {
                   <b>Servo 4</b>
                 </td>
                 <td>
-                  <Printer accessor={state => state.servo[3]?.power} />
+                  <Printer accessor={state => state[MSGID.SERVO][3]?.power} />
                 </td>
                 <td>
                   <NumberInput

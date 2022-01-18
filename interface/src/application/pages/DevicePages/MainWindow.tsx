@@ -108,8 +108,8 @@ const layoutDescription = `
 const MainWindow = (props: RouteComponentProps) => {
   return (
     <React.Fragment>
-      <IntervalRequester interval={16} variables={['cpos']} />
-      <IntervalRequester interval={100} variables={['servo']} />
+      <IntervalRequester interval={16} variables={[MSGID.POSITION_CURRENT]} /> 
+       <IntervalRequester interval={100} variables={[MSGID.SERVO]} />
 
       <div
         style={{

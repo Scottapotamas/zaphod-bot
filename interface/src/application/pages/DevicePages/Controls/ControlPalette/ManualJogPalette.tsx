@@ -25,7 +25,7 @@ const JogPalette = (props: JogPaletteProps) => {
             <Button
               large
               writer={state => {
-                state.inmv = {
+                state[MSGID.QUEUE_ADD_MOVE] = {
                   type: 0,
                   reference: 1,
                   sync_offset: 0,
@@ -41,7 +41,7 @@ const JogPalette = (props: JogPaletteProps) => {
             <Button
               large
               writer={state => {
-                state.inmv = {
+                state[MSGID.QUEUE_ADD_MOVE] = {
                   type: 0,
                   reference: 1,
                   sync_offset: 0,
@@ -57,7 +57,7 @@ const JogPalette = (props: JogPaletteProps) => {
             <Button
               large
               writer={state => {
-                state.inmv = {
+                state[MSGID.QUEUE_ADD_MOVE] = {
                   type: 0,
                   reference: 1,
                   sync_offset: 0,
@@ -73,7 +73,7 @@ const JogPalette = (props: JogPaletteProps) => {
             <Button
               large
               writer={state => {
-                state.inmv = {
+                state[MSGID.QUEUE_ADD_MOVE] = {
                   type: 0,
                   reference: 1,
                   sync_offset: 0,
@@ -90,7 +90,7 @@ const JogPalette = (props: JogPaletteProps) => {
               large
               fill
               writer={state => {
-                state.inmv = {
+                state[MSGID.QUEUE_ADD_MOVE] = {
                   type: 0,
                   reference: 1,
                   sync_offset: 0,
@@ -107,7 +107,7 @@ const JogPalette = (props: JogPaletteProps) => {
               large
               fill
               writer={state => {
-                state.inmv = {
+                state[MSGID.QUEUE_ADD_MOVE] = {
                   type: 0,
                   reference: 1,
                   sync_offset: 0,

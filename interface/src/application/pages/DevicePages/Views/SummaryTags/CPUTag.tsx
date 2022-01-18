@@ -21,13 +21,14 @@ import {
 
 import { MessageDataSource } from '@electricui/core-timeseries'
 import { IconNames } from '@blueprintjs/icons'
+import { MSGID } from 'src/application/typedState'
 
-const cpuDataSource = new MessageDataSource('sys')
+const cpuDataSource = new MessageDataSource(MSGID.SYSTEM)
 
 export const CPUTag = () => {
   return (
     <div>
-      <IntervalRequester interval={200} variables={['sys']} />
+      <IntervalRequester interval={200} variables={[MSGID.SYSTEM]} />
 
       {/* <Popover interactionKind={PopoverInteractionKind.HOVER}> */}
         <Tag fill large minimal icon={IconNames.STOPWATCH} intent={Intent.NONE}>
@@ -41,7 +42,7 @@ export const CPUTag = () => {
               display: 'inline-block',
             }}
           >
-            <Printer accessor={state => state.sys.cpu_load} precision={0} />%
+            <Printer accessor={state => state[MSGID.SYSTEM].cpu_load} precision={0} />%
           </div>
         </Tag>
         {/* <div style={{minWidth: '250px', minHeight: "80px"}}>Chart removed because <br/>of material issue</div> */}

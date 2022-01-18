@@ -4,6 +4,7 @@ import { Button, Slider } from '@electricui/components-desktop-blueprint'
 import { Icon, MultiSlider, NumericInput, Callout } from '@blueprintjs/core'
 
 import { Composition } from 'atomic-layout'
+import { MSGID } from 'src/application/typedState'
 
 const SliderAreas = `
 HorizontalXArea VerticalZArea
@@ -13,28 +14,6 @@ HorizontalYArea VerticalZArea
 export const TrackPalette = () => {
   return (
     <div>
-      {/* <Button
-              writer={state => {
-                state.tpos = {
-                  x: 0,
-                  y: 0,
-                  z: 40,
-                }
-              }}
-            >
-              Pos 1
-            </Button>
-            <Button
-              writer={state => {
-                state.tpos = {
-                  x: 10,
-                  y: 10,
-                  z: 40,
-                }
-              }}
-            >
-              Pos 2
-            </Button> */}
       <Composition
         areas={SliderAreas}
         gap={20}
@@ -51,15 +30,15 @@ export const TrackPalette = () => {
                   labelStepSize={50}
                   throttleDuration={10}
                   writer={(state, values) => {
-                    state.tpos = {
+                    state[MSGID.POSITION_TARGET] = {
                       x: values.target_x,
-                      y: state.tpos.y,
-                      z: state.tpos.z,
+                      y: state[MSGID.POSITION_TARGET].y,
+                      z: state[MSGID.POSITION_TARGET].tpos.z,
                     }
                   }}
                 >
                   <Slider.Handle
-                    accessor={state => state.tpos.x}
+                    accessor={state => state[MSGID.POSITION_TARGET].x}
                     name="target_x"
                   />
                 </Slider>
@@ -74,15 +53,15 @@ export const TrackPalette = () => {
                 labelStepSize={25}
                 throttleDuration={10}
                 writer={(state, values) => {
-                  state.tpos = {
-                    x: state.tpos.x,
+                  state[MSGID.POSITION_TARGET] = {
+                    x: state[MSGID.POSITION_TARGET].x,
                     y: values.target_y,
-                    z: state.tpos.z,
+                    z: state[MSGID.POSITION_TARGET].z,
                   }
                 }}
               >
                 <Slider.Handle
-                  accessor={state => state.tpos.y}
+                  accessor={state => state[MSGID.POSITION_TARGET].y}
                   name="target_y"
                 />
               </Slider>
@@ -99,15 +78,15 @@ export const TrackPalette = () => {
                 labelStepSize={25}
                 throttleDuration={10}
                 writer={(state, values) => {
-                  state.tpos = {
-                    x: state.tpos.x,
-                    y: state.tpos.y,
+                  state[MSGID.POSITION_TARGET] = {
+                    x: state[MSGID.POSITION_TARGET].x,
+                    y: state[MSGID.POSITION_TARGET].y,
                     z: values.target_z,
                   }
                 }}
               >
                 <Slider.Handle
-                  accessor={state => state.tpos.z}
+                  accessor={state => state[MSGID.POSITION_TARGET].z}
                   name="target_z"
                 />
               </Slider>

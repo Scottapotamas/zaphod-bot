@@ -18,7 +18,7 @@ const servoColor: Intent[] = [
 ]
 
 const MotorSafetyMode = () => {
-  const motor_state = useHardwareState(state => state.super.motors)
+  const motor_state = useHardwareState(state => state[MSGID.SUPERVISOR].motors)
   var motors_are_active: string = 'null'
 
   switch (motor_state) {

@@ -8,7 +8,7 @@ import { useHardwareState } from '@electricui/components-core'
 import { Composition } from 'atomic-layout'
 
 export const ModeSelection = () => {
-  const control_mode = useHardwareState(state => state.super.mode)
+  const control_mode = useHardwareState(state => state[MSGID.SUPERVISOR].mode)
 
   const largeButtons: boolean = false
 
@@ -69,7 +69,7 @@ export const ModeSelection = () => {
 }
 
 export const ModeSelectionDropdown = () => {
-  const control_mode = useHardwareState(state => state.super.mode)
+  const control_mode = useHardwareState(state => state[MSGID.SUPERVISOR].mode)
 
   return (
     <React.Fragment>
