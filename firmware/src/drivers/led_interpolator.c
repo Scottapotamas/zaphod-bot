@@ -18,14 +18,14 @@
 #include "global.h"
 #include "led.h"
 #include "led_types.h"
+#include "app_events.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
 typedef enum
 {
     ANIMATION_OFF,
-    ANIMATION_EXECUTE_A,
-    ANIMATION_EXECUTE_B,
+    ANIMATION_WAIT_AND_EXECUTE,
     ANIMATION_MANUAL,
 } RGBState_t;
 
@@ -35,18 +35,19 @@ typedef struct
     RGBState_t currentState;
     RGBState_t nextState;
 
-    bool     manual_mode;      // user control
-    bool     animation_run;    // if the planner is enabled
-    uint16_t execute_id;
+    Fade_t   fade_a;                    // Slot A fade storage
+    Fade_t   fade_b;                    // Slot B fade storage
+    Fade_t *current_fade;               // Points to fade_a or fade_b
 
-    Fade_t   fade_a;                    // pointer to a movement
-    Fade_t   fade_b;                    // pointer to b movement
+    bool     manual_mode;               // user control
+    bool     animation_run;             // if the planner is enabled
+    uint32_t epoch_timestamp;           // Reference system time for fade offset sequencing
+
     uint32_t animation_started;         // timestamp the start
     uint32_t animation_est_complete;    // timestamp when the animation will end
     float    progress_percent;          // calculated progress
 
     RGBColour_t led_colour;    // current channel outputs
-
 } LEDPlanner_t;
 
 /* ----- Private Variables -------------------------------------------------- */
@@ -68,6 +69,12 @@ hsi_to_rgb( float h, float s, float i, float *r, float *g, float *b );
 PRIVATE float
 hue_to_channel( float p, float q, float t );
 
+PRIVATE void
+led_interpolator_notify_animation_started( uint32_t fade_id );
+
+PRIVATE void
+led_interpolator_notify_animation_complete( uint32_t fade_id );
+
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
@@ -81,10 +88,23 @@ led_interpolator_init( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
+led_interpolator_set_epoch_reference( uint32_t timestamp_ms )
+{
+    LEDPlanner_t *me = &planner;
+
+    if( timestamp_ms )
+    {
+        me->epoch_timestamp = timestamp_ms;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
 led_interpolator_set_objective( Fade_t *fade_to_process )
 {
     LEDPlanner_t *me               = &planner;
-    Fade_t *      fade_insert_slot = { 0 };    // allows us to put the new fade into whichever slot is available
+    Fade_t *      fade_insert_slot = { 0 };    // Allows us to put the new fade into whichever slot is available
 
     if( me->fade_a.duration == 0 )
     {
@@ -95,8 +115,11 @@ led_interpolator_set_objective( Fade_t *fade_to_process )
         fade_insert_slot = &me->fade_b;
     }
 
-    memcpy( fade_insert_slot, fade_to_process, sizeof( Fade_t ) );
-    me->manual_mode = false;
+    if( fade_insert_slot != NULL )
+    {
+        memcpy( fade_insert_slot, fade_to_process, sizeof( Fade_t ) );
+        me->manual_mode = false;
+    }
 }
 
 PUBLIC bool
@@ -115,13 +138,6 @@ led_interpolator_is_empty( void )
     bool slot_b_empty = ( planner.fade_b.duration == 0 );
 
     return ( slot_a_empty && slot_b_empty );
-}
-
-PUBLIC void
-led_interpolator_start_id( uint16_t id )
-{
-    planner.execute_id = id;
-    led_interpolator_start();
 }
 
 PUBLIC void
@@ -218,13 +234,9 @@ led_interpolator_process( void )
             STATE_TRANSITION_TEST
             if( me->animation_run )
             {
-                if( me->fade_a.duration && me->fade_a.sync_offset == me->execute_id )
+                if( me->fade_a.duration || me->fade_b.duration )
                 {
-                    STATE_NEXT( ANIMATION_EXECUTE_A );
-                }
-                else if( me->fade_b.duration && me->fade_b.sync_offset == me->execute_id )
-                {
-                    STATE_NEXT( ANIMATION_EXECUTE_B );
+                    STATE_NEXT( ANIMATION_WAIT_AND_EXECUTE );
                 }
             }
 
@@ -241,84 +253,81 @@ led_interpolator_process( void )
 
             STATE_EXIT_ACTION
             led_enable( true );
+            me->animation_started = 0;
             STATE_END
             break;
 
-        case ANIMATION_EXECUTE_A:
+        case ANIMATION_WAIT_AND_EXECUTE:
             STATE_ENTRY_ACTION
-            user_interface_set_led_status( me->currentState );
-            me->animation_started      = hal_systick_get_ms();
-            me->animation_est_complete = me->animation_started + me->fade_a.duration;
-            me->progress_percent       = 0;
+            // Pick the first slot with a valid move
+            if( me->fade_a.duration )
+            {
+                me->current_fade = &me->fade_a;
+            }
+            else if( me->fade_b.duration )
+            {
+                me->current_fade = &me->fade_b;
+            }
+
             STATE_TRANSITION_TEST
-            led_interpolator_calculate_percentage( me->fade_a.duration );
+            // Calculate the time since the 'epoch' event
+            uint32_t time_since_epoch_ms = hal_systick_get_ms() - me->epoch_timestamp;
 
-            if( !me->animation_run || !me->fade_a.duration )
+            // Start the fade once sync offset time matches the epoch + elapsed time
+            if( time_since_epoch_ms >= me->current_fade->sync_offset && !me->animation_started )
             {
-                STATE_NEXT( ANIMATION_OFF );
+                me->animation_started      = hal_systick_get_ms();
+                me->animation_est_complete = me->animation_started + me->current_fade->duration;
+                me->progress_percent      = 0;
+
+                led_interpolator_notify_animation_started( me->current_fade->sync_offset );
             }
-            else if( led_interpolator_get_fade_done() )
+
+            if( time_since_epoch_ms > me->current_fade->sync_offset )
             {
-                if( me->fade_b.duration && me->fade_b.sync_offset == me->execute_id )
+                // Set the LED as required for this tick's progress percentage
+                led_interpolator_calculate_percentage( me->current_fade->duration );
+                led_interpolator_execute_fade( me->current_fade, me->progress_percent );
+
+                // Check if the move is done
+                if( led_interpolator_get_fade_done() )
                 {
-                    STATE_NEXT( ANIMATION_EXECUTE_B );
-                }
-                else
-                {
-                    STATE_NEXT( ANIMATION_OFF );
-                }
+                    led_interpolator_notify_animation_complete(me->current_fade->sync_offset );
 
-                eventPublish( EVENT_NEW( StateEvent, ANIMATION_COMPLETE ) );
-            }
-            else
-            {
-                led_interpolator_execute_fade( &me->fade_a, me->progress_percent );
-            }
+                    // TODO: update UI with status?
 
+                    // Clear out the current state
+                    memset( me->current_fade, 0, sizeof( Fade_t ) );
+
+                    // Update the pointer to the other slot
+                    if( me->current_fade == &me->fade_a )
+                    {
+                        me->current_fade = &me->fade_b;
+                        me->animation_started = 0;
+                    }
+                    else
+                    {
+                        me->current_fade = &me->fade_a;
+                        me->animation_started = 0;
+                    }
+
+                    // Fall back into the handler's off state until slots are loaded
+                    if( !me->current_fade->duration )
+                    {
+                        STATE_NEXT( ANIMATION_OFF );
+                    }
+                }
+            }
             STATE_EXIT_ACTION
-            memset( &me->fade_a, 0, sizeof( Fade_t ) );
-            STATE_END
-            break;
-
-        case ANIMATION_EXECUTE_B:
-            STATE_ENTRY_ACTION
-            user_interface_set_led_status( me->currentState );
-            me->animation_started      = hal_systick_get_ms();
-            me->animation_est_complete = me->animation_started + me->fade_b.duration;
-            me->progress_percent       = 0;
-            STATE_TRANSITION_TEST
-            led_interpolator_calculate_percentage( me->fade_b.duration );
-
-            if( !me->animation_run || !me->fade_b.duration )
-            {
-                STATE_NEXT( ANIMATION_OFF );
-            }
-            else if( led_interpolator_get_fade_done() )
-            {
-                if( me->fade_a.duration && me->fade_a.sync_offset == me->execute_id )
-                {
-                    STATE_NEXT( ANIMATION_EXECUTE_A );
-                }
-                else
-                {
-                    STATE_NEXT( ANIMATION_OFF );
-                }
-
-                eventPublish( EVENT_NEW( StateEvent, ANIMATION_COMPLETE ) );
-            }
-            else
-            {
-                led_interpolator_execute_fade( &me->fade_b, me->progress_percent );
-            }
-
-            STATE_EXIT_ACTION
-            memset( &me->fade_b, 0, sizeof( Fade_t ) );
+                me->current_fade = 0;
+                me->progress_percent = 0;
+                me->animation_started = 0;
+                me->animation_est_complete = 0;
             STATE_END
             break;
 
         case ANIMATION_MANUAL:
             STATE_ENTRY_ACTION
-            user_interface_set_led_status( me->currentState );
 
             STATE_TRANSITION_TEST
             // All the fun for this state is done one-shot when the setting event comes in
@@ -332,6 +341,8 @@ led_interpolator_process( void )
             STATE_END
             break;
     }
+
+    user_interface_set_led_status( me->currentState );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -344,6 +355,7 @@ led_interpolator_calculate_percentage( uint16_t fade_duration )
     // calculate current target completion based on time elapsed
     // time remaining is the allotted duration - time used (start to now), divide by the duration to get 0.0->1.0 progress
     uint32_t time_used = hal_systick_get_ms() - me->animation_started;
+    // TODO: use timer_ms_t instead of raw systick here
 
     if( fade_duration )
     {
@@ -499,4 +511,23 @@ float hue_to_channel( float p, float q, float t )
     return p;
 }
 
+PRIVATE void
+led_interpolator_notify_animation_started( uint32_t fade_id )
+{
+    SyncTimestampEvent *barrier_ev = EVENT_NEW( SyncTimestampEvent, ANIMATION_STARTED );
+    uint32_t          publish_id = fade_id;
+
+    memcpy( &barrier_ev->epoch, &publish_id, sizeof( fade_id ) );
+    eventPublish( (StateEvent *)barrier_ev );
+}
+
+PRIVATE void
+led_interpolator_notify_animation_complete( uint32_t fade_id )
+{
+    SyncTimestampEvent *barrier_ev = EVENT_NEW( SyncTimestampEvent, ANIMATION_COMPLETE );
+    uint32_t          publish_id = fade_id;
+
+    memcpy( &barrier_ev->epoch, &publish_id, sizeof( fade_id ) );
+    eventPublish( (StateEvent *)barrier_ev );
+}
 /* ----- End ---------------------------------------------------------------- */
