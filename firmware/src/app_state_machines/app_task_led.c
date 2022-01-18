@@ -118,55 +118,18 @@ PRIVATE STATE AppTaskLed_inactive( AppTaskLed *me, const StateEvent *e )
             AppTaskLed_clear_queue( me );
             return 0;
 
-        case LED_QUEUE_START:
-            // TODO catch sync epoch if it exists?
-            // 0 ID's are run immediately
-            me->identifier_to_execute = 0;
-            STATE_TRAN( AppTaskLed_active );
-            return 0;
+        case LED_QUEUE_START: {
+            SyncTimestampEvent *ste = (SyncTimestampEvent *)e;
 
-            // TODO: Remove obsolete LED queue sync start code after refactor
-            /*
-        case LED_QUEUE_START_SYNC: {
-            if( eventQueueUsed( &me->super.requestQueue ) )
+            if( ste )
             {
-                // peek at the next queue item
-                StateEvent *next = eventQueuePeek( &me->super.requestQueue );
-                ASSERT( next );
-                LightingPlannerEvent *lpe          = (LightingPlannerEvent *)next;
-                Fade_t *              pending_fade = &lpe->animation;
-
-                uint16_t id_requested     = ( (SyncTimestampEvent *)e )->id;    // ID coming in from the barrier event
-                me->identifier_to_execute = id_requested;
-
-                // Handle when lighting event queue ID is behind the requested ID
-                while( id_requested > pending_fade->identifier
-                       && eventQueueUsed( &me->super.requestQueue ) )
-                {
-                    user_interface_report_error( "Culling Fade" );
-
-                    // Delete the current peeked fade
-                    next = eventQueueGet( &me->super.requestQueue );
-                    eventPoolGarbageCollect( (StateEvent *)next );
-
-                    // Peek the next event in the queue
-                    next = eventQueuePeek( &me->super.requestQueue );
-                    ASSERT( next );
-                    lpe          = (LightingPlannerEvent *)next;
-                    pending_fade = &lpe->animation;
-                }
-
-                // Lighting event queue ID matches the sync ID, so execute the lighting animation
+                uint32_t epoch_ms = ste->epoch;
+                led_interpolator_set_epoch_reference( epoch_ms );
                 STATE_TRAN( AppTaskLed_active );
             }
-            else    // no events in the queue
-            {
-                user_interface_report_error( "LED Sync Fail - no events" );
-            }
-
-            return 0;
         }
-*/
+            return 0;
+
         case LED_ALLOW_MANUAL_CONTROL:
             STATE_TRAN( AppTaskLed_active_manual );
             return 0;
@@ -185,14 +148,16 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            // todo tell the ui about the led state in use
-
+            // TODO: tell the ui about the led state in use
             AppTaskLed_commit_queued_fade( me );
-            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+
+            if( led_interpolator_is_ready_for_next() )
+            {
+                stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+            }
             return 0;
 
         case STATE_STEP1_SIGNAL:
-            AppTaskLed_commit_queued_fade( me );
             AppTaskLed_commit_queued_fade( me );
             return 0;
 
@@ -206,18 +171,18 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
                 LightingPlannerEvent *lpe            = (LightingPlannerEvent *)next;
                 Fade_t *              next_animation = &lpe->animation;
 
-                if( next_animation->sync_offset >= me->identifier_to_execute )
+                if( next_animation->duration )
                 {
                     stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
                 }
                 else
                 {
-                    // todo reassess this state transition conditional
                     STATE_TRAN( AppTaskLed_inactive );
                 }
             }
             else if( led_interpolator_is_empty() )
             {
+                // TODO: check why there's an else if here, but not in the motion task
                 STATE_TRAN( AppTaskLed_inactive );
             }
 
@@ -333,6 +298,8 @@ PRIVATE void AppTaskLed_commit_queued_fade( AppTaskLed *me )
         {
             // Add the valid lighting 'fade' animation to the ping-pong buffer
             led_interpolator_set_objective( next_animation );
+            led_interpolator_start();
+
             eventPoolGarbageCollect( (StateEvent *)next );
         }
     }

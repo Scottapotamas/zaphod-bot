@@ -23,6 +23,11 @@ led_interpolator_process( void );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
+led_interpolator_set_epoch_reference( uint32_t timestamp_ms );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
 led_interpolator_set_objective( Fade_t *fade_to_process );
 
 /* -------------------------------------------------------------------------- */
@@ -34,11 +39,6 @@ led_interpolator_is_ready_for_next( void );
 
 PUBLIC bool
 led_interpolator_is_empty( void );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-led_interpolator_start_id( uint16_t id );
 
 /* -------------------------------------------------------------------------- */
 

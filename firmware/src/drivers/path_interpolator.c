@@ -286,11 +286,8 @@ path_interpolator_process( void )
                     {
                         STATE_NEXT( PLANNER_OFF );
                     }
-
                 }
-
             }
-
             STATE_EXIT_ACTION
                 me->current_move = 0;
                 me->progress_percent = 0;
