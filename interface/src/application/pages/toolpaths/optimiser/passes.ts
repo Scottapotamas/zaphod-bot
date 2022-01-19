@@ -715,11 +715,11 @@ export async function optimise(
       currentCost: sparseToCost(sparseBag),
     })
 
-    console.log(
-      `iterations: ${iterations}, currentDuration: ${currentDuration}, time: ${
-        (Date.now() - startedOptimisation) / 1000
-      }s`,
-    )
+    // console.log(
+    //   `iterations: ${iterations}, currentDuration: ${currentDuration}, time: ${
+    //     (Date.now() - startedOptimisation) / 1000
+    //   }s`,
+    // )
 
     ordering = nextPass.ordering
 
