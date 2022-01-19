@@ -37,36 +37,40 @@ export const OptimisationWorker = {
     partialUpdate: boolean,
     orderingCache?: OrderingCache,
   ) {
-    const updateProgress = async (progress: Progress): Promise<Continue> => {
-      progressUpdates.next(progress)
+    try {
+      const updateProgress = async (progress: Progress): Promise<Continue> => {
+        progressUpdates.next(progress)
 
-      // need to wait for a microtick for other calls to come in
-      await new Promise((resolve, reject) => setTimeout(resolve, 0))
+        // need to wait for a microtick for other calls to come in
+        await new Promise((resolve, reject) => setTimeout(resolve, 0))
 
-      // Partial updates stop after the first iteration
-      if (partialUpdate) return false
+        // Partial updates stop after the first iteration
+        if (partialUpdate) return false
 
-      return shouldContinue
-    }
-
-    const movements: Movement[] = []
-
-    // Process the raw objects into movements
-    for (const json of sparseBagToImport) {
-      const imported = importJson(json)
-      for (const movement of imported.toMovements(settings)) {
-        movements.push(movement)
+        return shouldContinue
       }
-    }
 
-    // Run the optimiser
-    await optimise(
-      movements,
-      partialUpdate,
-      settings,
-      updateProgress,
-      orderingCache,
-    )
+      const movements: Movement[] = []
+
+      // Process the raw objects into movements
+      for (const json of sparseBagToImport) {
+        const imported = importJson(json)
+        for (const movement of imported.toMovements(settings)) {
+          movements.push(movement)
+        }
+      }
+
+      // Run the optimiser
+      await optimise(
+        movements,
+        partialUpdate,
+        settings,
+        updateProgress,
+        orderingCache,
+      )
+    } catch (e) {
+      progressUpdates.error(e)
+    }
   },
 }
 
