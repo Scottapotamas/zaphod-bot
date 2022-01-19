@@ -14,10 +14,10 @@
 /* -------------------------------------------------------------------------- */
 
 #define POINT_MM( X, Y, Z ) { .x=MM_TO_MICRONS(X), .y=MM_TO_MICRONS(Y), .z=MM_TO_MICRONS(Z) }
-#define POINT( X, Y, Z ) { .x=X, .y=Y, .z=Z }
+#define POINT( X, Y, Z ) { .x=(X), .y=(Y), .z=(Z) }
 
-// Create an acceleration shaped line movement powered by a bezier curve with control points near the start and end points
-#define INTERP_AB( A, B, WEIGHT ) (A + ((B - A) * WEIGHT))
+// Create an acceleration shaped line movement powered by a Bézier curve with control points near the start and end points
+#define INTERP_AB( A, B, WEIGHT ) ((A) + (((B) - (A)) * WEIGHT))
 #define POINT_PAIR_CUBIC( X1, Y1, Z1, X2, Y2, Z2, SMOOTH ) { \
     POINT( X1, Y1, Z1 ), \
     POINT( INTERP_AB(X1, X2, SMOOTH), INTERP_AB(Y1, Y2, SMOOTH), INTERP_AB(Z1, Z2, SMOOTH) ), \
@@ -25,12 +25,12 @@
     POINT( X2, Y2, Z2 ) \
 }
 
-#define DELAY_MOVEMENT( DURATION ) {.type =_POINT_TRANSIT, .ref =_POS_RELATIVE, .sync_offset=0, .duration=DURATION, .num_pts=1, .points={ {0,0,0} }}
-#define MOVE_TO( DURATION, TO ) {.type =_POINT_TRANSIT, .ref =_POS_ABSOLUTE, .sync_offset=0, .duration=DURATION, .num_pts=1, .points={ TO }}
-#define MOVE_BETWEEN( DURATION, FROM, TO ) {.type =_LINE, .ref =_POS_ABSOLUTE, .sync_offset=0, .duration=DURATION, .num_pts=2, .points={ FROM, TO}}
-#define MOVE_BETWEEN_SMOOTH( DURATION, SMOOTH, X1, Y1, Z1, X2, Y2, Z2 ) {.type =_BEZIER_CUBIC, .ref =_POS_ABSOLUTE, .sync_offset=0, .duration=DURATION, .num_pts=4, .points=POINT_PAIR_CUBIC(X1*1000, Y1*1000, Z1*1000, X2*1000, Y2*1000, Z2*1000, SMOOTH) }
+#define DELAY_MOVEMENT( DURATION ) {.type =_POINT_TRANSIT, .ref =_POS_RELATIVE, .sync_offset=0, .duration=(DURATION), .num_pts=1, .points={ {0,0,0} }}
+#define MOVE_TO( DURATION, TO ) {.type =_POINT_TRANSIT, .ref =_POS_ABSOLUTE, .sync_offset=0, .duration=(DURATION), .num_pts=1, .points={ TO }}
+#define MOVE_BETWEEN( DURATION, FROM, TO ) {.type =_LINE, .ref =_POS_ABSOLUTE, .sync_offset=0, .duration=(DURATION), .num_pts=2, .points={ FROM, TO}}
+#define MOVE_BETWEEN_SMOOTH( DURATION, SMOOTH, X1, Y1, Z1, X2, Y2, Z2 ) {.type =_BEZIER_CUBIC, .ref =_POS_ABSOLUTE, .sync_offset=0, .duration=(DURATION), .num_pts=4, .points=POINT_PAIR_CUBIC((X1)*1000, (Y1)*1000, (Z1)*1000, (X2)*1000, (Y2)*1000, (Z2)*1000, (SMOOTH)) }
 
-#define CUBIC_BEZIER( DURATION, A, B, C, D ) {.type =_BEZIER_CUBIC, .ref =_POS_ABSOLUTE, .sync_offset=0, .duration=DURATION, .num_pts=4, .points={ A, B, C, D } }
+#define CUBIC_BEZIER( DURATION, A, B, C, D ) {.type =_BEZIER_CUBIC, .ref =_POS_ABSOLUTE, .sync_offset=0, .duration=(DURATION), .num_pts=4, .points={ A, B, C, D } }
 
 /* -------------------------------------------------------------------------- */
 
@@ -258,13 +258,12 @@ demonstration_prepare_sequence( void )
 
 /* -------------------------------------------------------------------------- */
 
+PRIVATE uint32_t previous_sync_offset = 0;
+
 PRIVATE void
 demonstration_emit_event( uint8_t sequence )
 {
-    // TODO Ensure the requested index isn't out of sequence (no gaps)
     // TODO Validate that the effector is at the starting point for the event
-
-    // TODO: fix/rework identifier handling for demo mode emit_event to support global timestamp ID
 
     if( sequence <= DIM( demo_one ) )
     {
@@ -274,7 +273,15 @@ demonstration_emit_event( uint8_t sequence )
         if( motion_request )
         {
             memcpy( &motion_request->move, &demo_one[sequence], sizeof( Movement_t ) );
-            motion_request->move.sync_offset = sequence;    // set the ID of the move, as the demo array doesn't have any
+
+            // set the timestamp offset for the move dynamically
+            if( sequence > 0 )
+            {
+                uint32_t previous_move_duration = demo_one[sequence - 1].duration;
+                motion_request->move.sync_offset = previous_sync_offset + previous_move_duration + 1;
+            }
+
+            previous_sync_offset = motion_request->move.sync_offset;
             eventPublish( (StateEvent *)motion_request );
         }
     }

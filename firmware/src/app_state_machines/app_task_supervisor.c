@@ -726,11 +726,12 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
 
             return 0;
 
-        case STATE_TIMEOUT1_SIGNAL:
-
-            // Start the event queue
-            //            eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
-
+        case STATE_TIMEOUT1_SIGNAL: {
+            // Generate a sync event to start queue execution
+            SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
+            timer_ms_stopwatch_start( &motor_sync->epoch );
+            eventPublish( (StateEvent *)motor_sync );
+        }
             return 0;
 
         case MECHANISM_STOP:
@@ -804,6 +805,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
                     case CONTROL_DEMO:
                         STATE_TRAN( AppTaskSupervisor_armed_demo );
                         break;
+
                     case CONTROL_TRACK:
                         STATE_TRAN( AppTaskSupervisor_armed_track );
                         break;
@@ -858,6 +860,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
                     case CONTROL_DEMO:
                         STATE_TRAN( AppTaskSupervisor_armed_demo );
                         break;
+
                     case CONTROL_TRACK:
                         STATE_TRAN( AppTaskSupervisor_armed_track );
                         break;
