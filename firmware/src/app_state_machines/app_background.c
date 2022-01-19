@@ -85,8 +85,6 @@ app_background( void )
 
     shutter_process();
     led_interpolator_process();
-
-    //process any running movements and allow servo drivers to process commands
     path_interpolator_process();
 
     for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
