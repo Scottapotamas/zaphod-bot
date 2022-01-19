@@ -125,7 +125,7 @@ path_interpolator_get_progress( void )
 PUBLIC bool
 path_interpolator_get_move_done( void )
 {
-    return ( planner.progress_percent >= 1.0f - FLT_EPSILON ) || planner.enable == false;
+    return ( planner.progress_percent >= 1.0f - FLT_EPSILON ) || planner.currentState == PLANNER_OFF;
 }
 
 /* -------------------------------------------------------------------------- */
