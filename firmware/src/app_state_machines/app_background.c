@@ -13,8 +13,6 @@
 #include "fan.h"
 #include "hal_adc.h"
 #include "hal_system_speed.h"
-#include "led_interpolator.h"
-#include "path_interpolator.h"
 #include "sensors.h"
 #include "shutter_release.h"
 #include "status.h"
@@ -84,13 +82,13 @@ app_background( void )
     }
 
     shutter_process();
-    led_interpolator_process();
-    path_interpolator_process();
 
     for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
     {
         servo_process( servo );
     }
+
+    user_interface_handle_data();
 }
 
 /* ----- End ---------------------------------------------------------------- */

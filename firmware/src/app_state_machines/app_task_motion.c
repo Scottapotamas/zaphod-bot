@@ -371,13 +371,13 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
 
         case STATE_TIMEOUT1_SIGNAL:
             // Check all the servos are not-enabled
-            me->counter = SERVO_COUNT;
+            me->counter = 0;
             for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
             {
-                me->counter -= !servo_get_servo_ok( servo );
+                me->counter += !servo_get_servo_ok( servo );
             }
 
-            if( me->counter <= 0 )
+            if( me->counter == SERVO_COUNT )
             {
                 eventPublish( EVENT_NEW( StateEvent, MOTION_DISABLED ) );
                 STATE_TRAN( AppTaskMotion_main );

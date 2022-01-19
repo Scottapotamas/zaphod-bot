@@ -23,9 +23,10 @@
 
 #include "button.h"
 #include "hal_adc.h"
-#include "hal_button.h"
 #include "hal_systick.h"
-#include "user_interface.h"
+
+#include "led_interpolator.h"
+#include "path_interpolator.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -141,8 +142,10 @@ void app_tasks_init( void )
     stateTaskerStartTask( &mainTasker, t );
 
     hal_systick_hook( 1, eventTimerTick );
-    hal_systick_hook( 1, user_interface_handle_data );
-    hal_systick_hook( 1, hal_adc_tick );
+    hal_systick_hook( 2, hal_adc_tick );
+
+    hal_systick_hook( 1, led_interpolator_process );
+    hal_systick_hook( 1, path_interpolator_process );
 }
 
 /* -------------------------------------------------------------------------- */
