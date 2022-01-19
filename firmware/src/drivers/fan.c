@@ -7,11 +7,10 @@
 #include "app_times.h"
 #include "configuration.h"
 #include "fan.h"
-#include "hal_hard_ic.h"
 #include "hal_pwm.h"
-#include "hal_systick.h"
 #include "sensors.h"
 #include "simple_state_machine.h"
+#include "timer_ms.h"
 
 /* ----- Private Types ------------------------------------------------------ */
 
@@ -22,7 +21,7 @@ typedef struct
     FanState_t nextState;
     uint8_t    speed;            // as a percentage 0-100, what the fan should be at 'now'
     uint8_t    set_speed;        // as a percentage 0-100, requested speed target
-    uint32_t   startup_timer;    // amount of time to 'blip' the fan for reliable starts
+    timer_ms_t startup_timer;    // amount of time to 'blip' the fan for reliable starts
 } Fan_t;
 
 /* ----- Private Variables -------------------------------------------------- */
@@ -121,23 +120,19 @@ fan_process( void )
         case FAN_STATE_STALL:
             STATE_ENTRY_ACTION
             // Stop the fan because we think it's stalled
-            me->speed         = 0;
-            me->startup_timer = hal_systick_get_ms();
-
+            me->speed = 0;
+            timer_ms_start( &me->startup_timer, FAN_STALL_WAIT_TIME_MS );
             STATE_TRANSITION_TEST
-
             // Check if the current setpoint is likely under the RPM stall limit
             if( me->set_speed < ( FAN_STALL_MAX_RPM / FAN_STALL_FAULT_RPM ) )
             {
-                me->set_speed += 10;    //increase the setpoint by 10%
+                me->set_speed += 10;    // increase the setpoint by 10%
             }
 
-            //has timer expired
-            if( ( hal_systick_get_ms() - me->startup_timer ) > FAN_STALL_WAIT_TIME_MS )
+            if( timer_ms_is_expired( &me->startup_timer ) )
             {
                 STATE_NEXT( FAN_STATE_START );
             }
-
             STATE_EXIT_ACTION
             STATE_END
             break;
@@ -145,16 +140,13 @@ fan_process( void )
         case FAN_STATE_START:
             STATE_ENTRY_ACTION
             // Set PWM to 100% for configurable short period
-            me->speed         = 100;
-            me->startup_timer = hal_systick_get_ms();
-
+            me->speed = 100;
+            timer_ms_start( &me->startup_timer, FAN_STARTUP_TIME_MS );
             STATE_TRANSITION_TEST
-            // Has the timer expired?
-            if( ( hal_systick_get_ms() - me->startup_timer ) > FAN_STARTUP_TIME_MS )
+            if( timer_ms_is_expired( &me->startup_timer ) )
             {
                 STATE_NEXT( FAN_STATE_ON );
             }
-
             STATE_EXIT_ACTION
             STATE_END
             break;
@@ -182,7 +174,7 @@ fan_process( void )
             // Rotor stop detection
             if( fan_hall_rpm < FAN_STALL_FAULT_RPM )
             {
-                //restart the fan
+                // restart the fan
                 STATE_NEXT( FAN_STATE_STALL );
             }
 
@@ -206,21 +198,21 @@ fan_speed_at_temp( float temperature )
     if( fan_curve )
     {
         // Protect against out-of-bounds temperature inputs
-        if( temperature < fan_curve[0].temperature )
+        if( (uint8_t)temperature < fan_curve[0].temperature )
         {
             // Temperature is lower than lowest point in LUT
             return fan_curve[0].percentage;
         }
-        else if( temperature > fan_curve[NUM_FAN_CURVE_POINTS - 1].temperature )
+        else if( (uint8_t)temperature > fan_curve[NUM_FAN_CURVE_POINTS - 1].temperature )
         {
             // Temperature exceeds max LUT value
             return 100.0;
         }
 
-        for( uint8_t i = 0; i < NUM_FAN_CURVE_POINTS - 1; i++ )
+        for( uint32_t i = 0; i < NUM_FAN_CURVE_POINTS - 1; i++ )
         {
             // Within range between two rows of the LUT
-            if( temperature > fan_curve[i].temperature && temperature <= fan_curve[i + 1].temperature )
+            if( (uint8_t)temperature > fan_curve[i].temperature && (uint8_t)temperature <= fan_curve[i + 1].temperature )
             {
                 // Linear interpolation for fan speed between the surrounding rows in LUT
                 return fan_curve[i].percentage + ( ( ( temperature - fan_curve[i].temperature ) / ( fan_curve[i + 1].temperature - fan_curve[i].temperature ) ) * ( fan_curve[i + 1].percentage - fan_curve[i].percentage ) );

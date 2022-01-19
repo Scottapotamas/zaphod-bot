@@ -13,13 +13,12 @@
 #include "global.h"
 #include "simple_state_machine.h"
 
-#include "hal_systick.h"
-
 #include "clearpath.h"
 #include "user_interface.h"
 #include "kinematics.h"
 #include "motion_types.h"
 
+#include "timer_ms.h"
 /* ----- Defines ------------------------------------------------------------ */
 
 typedef enum
@@ -39,10 +38,10 @@ typedef struct
     Movement_t *current_move;   // Points to move_a or move_b
 
     bool     enable;                   // The planner is enabled
-    uint32_t epoch_timestamp;          // Reference system time for move offset sequencing
+    timer_ms_t epoch_timestamp;          // Reference system time for move offset sequencing
 
-    uint32_t movement_started;         // timestamp the start point
-    uint32_t movement_est_complete;    // timestamp the predicted end point
+    timer_ms_t movement_started;         // timestamp the start point
+    timer_ms_t movement_est_complete;    // timestamp the predicted end point
     float    progress_percent;         // calculated progress
 
     CartesianPoint_t effector_position;    //position of the end effector (used for relative moves)
@@ -70,13 +69,13 @@ path_interpolator_init( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_set_epoch_reference( uint32_t timestamp_ms )
+path_interpolator_set_epoch_reference( timer_ms_t sync_timer )
 {
     MotionPlanner_t *me                   = &planner;
 
-    if( timestamp_ms )
+    if( sync_timer )
     {
-        me->epoch_timestamp = timestamp_ms;
+        me->epoch_timestamp = sync_timer;
     }
 }
 
@@ -138,9 +137,7 @@ path_interpolator_calculate_percentage( uint16_t move_duration )
 
     // calculate current target completion based on time elapsed
     // time remaining is the allotted duration - time used (start to now), divide by the duration to get 0.0->1.0 progress
-    uint32_t time_used = hal_systick_get_ms() - me->movement_started;
-    // TODO: use timer_ms_t instead of raw systick here
-
+    uint32_t time_used = timer_ms_stopwatch_lap( &me->movement_started );
 
     if( move_duration )
     {
@@ -239,14 +236,14 @@ path_interpolator_process( void )
 
             STATE_TRANSITION_TEST
             // Calculate the time since the 'epoch' event
-            uint32_t time_since_epoch_ms = hal_systick_get_ms() - me->epoch_timestamp;
+            uint32_t time_since_epoch_ms = timer_ms_stopwatch_lap( &me->epoch_timestamp );
 
             // Start the move once the move sync offset time matches the epoch + elapsed time
-            if( time_since_epoch_ms >= me->current_move->sync_offset && !me->movement_started )
+            if( time_since_epoch_ms >= me->current_move->sync_offset && !timer_ms_is_running( &me->movement_started ) )
             {
                 // Start the move
-                me->movement_started      = hal_systick_get_ms();
-                me->movement_est_complete = me->movement_started + me->current_move->duration;
+                timer_ms_stopwatch_start( &me->movement_started );
+                timer_ms_start( &me->movement_est_complete, me->current_move->duration );
                 me->progress_percent      = 0;
 
                 path_interpolator_notify_pathing_started( me->current_move->sync_offset );
@@ -271,12 +268,12 @@ path_interpolator_process( void )
                     if( me->current_move == &me->move_a )
                     {
                         me->current_move = &me->move_b;
-                        me->movement_started = 0;
+                        timer_ms_stop( &me->movement_started );
                     }
                     else
                     {
                         me->current_move = &me->move_a;
-                        me->movement_started = 0;
+                        timer_ms_stop( &me->movement_started );
                     }
 
                     // Other move slot ready?
@@ -291,8 +288,8 @@ path_interpolator_process( void )
             STATE_EXIT_ACTION
                 me->current_move = 0;
                 me->progress_percent = 0;
-                me->movement_started = 0;
-                me->movement_est_complete = 0;
+                timer_ms_stop( &me->movement_started );
+                timer_ms_stop( &me->movement_est_complete );
             STATE_END
             break;
     }

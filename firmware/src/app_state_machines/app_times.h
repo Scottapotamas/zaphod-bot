@@ -125,7 +125,7 @@ enum ServoDefines
     SERVO_HOMING_ENDSTOP_RAMP_MIN        = 15U,     // lower limit % of torque expected to trigger homing endstop behaviour
     SERVO_HOMING_ENDSTOP_RAMP_MAX        = 25U,     // upper limit % of torque expected to home
     SERVO_HOMING_FOLDBACK_CHECK_START_MS = 200U,    // ms after peak to start checking foldback level
-    SERVO_HOMING_FOLDBACK_CHECK_END_MS   = 500U,    // ms after peak to ccheck foldback is still ok
+    SERVO_HOMING_FOLDBACK_CHECK_END_MS   = 500U,    // ms after peak to check foldback is still ok
     SERVO_HOMING_FOLDBACK_TORQUE_MIN     = 4U,      // % torque min expected during foldback
     SERVO_HOMING_FOLDBACK_TORQUE_MAX     = 6U,      // % torque max expected during foldback
     SERVO_HOMING_SIMILARITY_PERCENT      = 1U,      // % torque error allowed during stabilisation period

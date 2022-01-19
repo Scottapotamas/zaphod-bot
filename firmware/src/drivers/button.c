@@ -5,8 +5,8 @@
 #include "qassert.h"
 
 #include "app_times.h"
-#include "hal_systick.h"
 #include "simple_state_machine.h"
+#include "timer_ms.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -22,7 +22,7 @@ typedef enum
 /* Internal structure */
 typedef struct
 {
-    uint32_t        StartTime;     /*!< Time when button was pressed */
+    timer_ms_t      StartTime;     /*!< Time when button was pressed */
     uint8_t         lastStatus;    /*!< Button status on last check */
     ButtonState_t   previousState; /*!< Previous button state */
     ButtonState_t   currentState;  /*!< Current button state */
@@ -114,7 +114,7 @@ button_process( void )
 
                 case BUTTON_STATE_PRESSED:
                     STATE_ENTRY_ACTION
-                    me->StartTime = hal_systick_get_ms();
+                    timer_ms_stopwatch_start( &me->StartTime );
                     if( me->handler )
                     {
                         me->handler( i, BUTTON_PRESS_TYPE_DOWN );
@@ -122,15 +122,15 @@ button_process( void )
                     STATE_TRANSITION_TEST
                     if( is_pressed ) /* Button still pressed */
                     {
-                        if( ( hal_systick_get_ms() - me->StartTime ) > TIME_BUTTON_LONG_PRESS )
+                        if( timer_ms_stopwatch_lap( &me->StartTime ) > TIME_BUTTON_LONG_PRESS )
                         {
                             me->handler( i, BUTTON_PRESS_TYPE_LONG );
                             STATE_NEXT( BUTTON_STATE_WAITRELEASE );
                         }
                     }
-                    else if( !is_pressed ) /* Button was released */
+                    else /* Button was released */
                     {
-                        if( ( hal_systick_get_ms() - me->StartTime ) > TIME_BUTTON_NORMAL_PRESS )
+                        if( timer_ms_stopwatch_lap( &me->StartTime ) > TIME_BUTTON_NORMAL_PRESS )
                         {
                             /* Pressed longer than the minimum time */
                             me->handler( i, BUTTON_PRESS_TYPE_NORMAL );
@@ -141,10 +141,6 @@ button_process( void )
                             /* Ignore presses that are too short */
                             STATE_NEXT( BUTTON_STATE_WAITRELEASE );
                         }
-                    }
-                    else
-                    {
-                        STATE_NEXT( BUTTON_STATE_WAITRELEASE );
                     }
                     STATE_EXIT_ACTION
                     STATE_END

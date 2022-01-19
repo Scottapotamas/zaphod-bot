@@ -245,9 +245,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
 
             if( ste )
             {
-                uint32_t epoch_ms = ste->epoch;
-
-                path_interpolator_set_epoch_reference(epoch_ms);
+                path_interpolator_set_epoch_reference( ste->epoch );
                 STATE_TRAN( AppTaskMotion_active );
             }
 

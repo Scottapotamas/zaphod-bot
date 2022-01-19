@@ -22,8 +22,6 @@
 #include "shutter_release.h"
 #include "status.h"
 
-#include "hal_systick.h"
-
 /* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
@@ -407,20 +405,16 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
             return 0;
 
         case QUEUE_SYNC_START: {
-            // Set 'now' as the reference timestamp from which moves/fades are executed
-            uint32_t epoch_timestamp = hal_systick_get_ms();
-            // TODO: refactor to use a timer_ms rather than the hal systick
-
             // Create sync start events for the motion and led tasks
             SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
             SyncTimestampEvent *led_sync   = EVENT_NEW( SyncTimestampEvent, LED_QUEUE_START );
 
-            motor_sync->epoch = epoch_timestamp;
-            led_sync->epoch   = epoch_timestamp;
+            // Set 'now' as the reference time from which moves/fades are executed
+            timer_ms_stopwatch_start( &motor_sync->epoch );
+            timer_ms_stopwatch_start( &led_sync->epoch );
 
             eventPublish( (StateEvent *)motor_sync );
             eventPublish( (StateEvent *)led_sync );
-
             return 0;
         }
 
@@ -530,7 +524,7 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
                 eventPublish( (StateEvent *)motion_request );
 
                 SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
-                motor_sync->epoch = hal_systick_get_ms();
+                timer_ms_stopwatch_start( &motor_sync->epoch );
                 eventPublish( (StateEvent *)motor_sync );
             }
 
@@ -640,7 +634,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
                     {
                         eventPublish( (StateEvent *)motev );
                         SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
-                        motor_sync->epoch = hal_systick_get_ms();
+                        timer_ms_stopwatch_start( &motor_sync->epoch );
                         eventPublish( (StateEvent *)motor_sync );
 
                     }
@@ -845,7 +839,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
                 eventPublish( (StateEvent *)motev );
 
                 SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
-                motor_sync->epoch = hal_systick_get_ms();
+                timer_ms_stopwatch_start( &motor_sync->epoch );
                 eventPublish( (StateEvent *)motor_sync );
             }
 
@@ -901,7 +895,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
 
                     eventPublish( (StateEvent *)motev );
                     SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
-                    motor_sync->epoch = hal_systick_get_ms();
+                    timer_ms_stopwatch_start( &motor_sync->epoch );
                     eventPublish( (StateEvent *)motor_sync );
 
                 }
@@ -995,7 +989,7 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
 
             eventPublish( (StateEvent *)motev );
             SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
-            motor_sync->epoch = hal_systick_get_ms();
+            timer_ms_stopwatch_start( &motor_sync->epoch );
             eventPublish( (StateEvent *)motor_sync );
 
             return 0;
@@ -1058,7 +1052,7 @@ PRIVATE void AppTaskSupervisorPublishRehomeEvent( void )
     eventPublish( (StateEvent *)motev );
 
     SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
-    motor_sync->epoch = hal_systick_get_ms();
+    timer_ms_stopwatch_start( &motor_sync->epoch );
     eventPublish( (StateEvent *)motor_sync );
 
 }
