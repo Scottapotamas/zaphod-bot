@@ -353,7 +353,7 @@ function d(
 }
 
 export function optimise2Opt(sparseBag: Movement[], timeLimit = 0) {
-  const ordering: Movement[] = sparseBag.slice()
+  let ordering: Movement[] = sparseBag.slice()
 
   let improved = true // Start iterating
   let iteration = 0
@@ -362,17 +362,40 @@ export function optimise2Opt(sparseBag: Movement[], timeLimit = 0) {
 
   while (improved) {
     improved = false
-    iteration++
 
-    if (timeLimit > 0 && Date.now() - start > timeLimit) {
-      return {
-        ordering,
-        iteration,
-        completed: false,
-        time: Date.now() - start,
+    const n = false
+    const f = true
+
+    {
+      // Test for all rotations, removing the longest link if possible
+      let longestLinkIndex = 0
+      let longestLinkDistance = 0
+
+      for (let index = 0; index < ordering.length; index++) {
+        const prev = ordering[index]
+        const current = ordering[(index + 1) % ordering.length]
+        const distance = prev.getEnd().distanceTo(current.getStart())
+
+        if (distance > longestLinkDistance) {
+          longestLinkIndex = index
+          longestLinkDistance = distance
+        }
+      }
+
+      if (longestLinkIndex !== ordering.length - 1) {
+        const left = ordering.slice(0, longestLinkIndex + 1)
+        const right = ordering.slice(longestLinkIndex + 1)
+
+        // Reorder the arrays to remove the longest link
+        ordering = right.concat(left)
+        const newLink = right[right.length - 1]
+          .getEnd()
+          .distanceTo(left[0].getStart())
+        cost = cost - longestLinkDistance + newLink
+
+        // console.log(`rotated array, delta ${-longestLinkDistance + newLink}`)
       }
     }
-
     // The main iteration loop can't flip or swap the ends, so do that up here
     {
       // Test flipping the start
@@ -380,10 +403,11 @@ export function optimise2Opt(sparseBag: Movement[], timeLimit = 0) {
       const B = ordering[1]
 
       const dAnB = A.getEnd().distanceTo(B.getStart())
-      const dAfB = A.getStart().distanceTo(B.getEnd())
+      const dAfB = A.getStart().distanceTo(B.getStart())
 
       if (dAfB < dAnB) {
         A.flip()
+        // console.log(`flipping start`)
 
         const delta = dAnB - dAfB
 
@@ -401,6 +425,7 @@ export function optimise2Opt(sparseBag: Movement[], timeLimit = 0) {
 
       if (dEFf < dEFn) {
         F.flip()
+        // console.log(`flipping end`)
 
         const delta = dEFn - dEFf
 
@@ -408,56 +433,57 @@ export function optimise2Opt(sparseBag: Movement[], timeLimit = 0) {
         improved = true
       }
     }
-    {
-      // Test a left rotation
-      const A = ordering[0]
-      const B = ordering[1]
-      const C = ordering[ordering.length - 2]
-      const D = ordering[ordering.length - 1]
+    // {
+    //   // Test a left rotation
+    //   const A = ordering[0]
+    //   const B = ordering[1]
+    //   const C = ordering[ordering.length - 2]
+    //   const D = ordering[ordering.length - 1]
 
-      // A B ... C D
-      // B ... C D A
-      // destroys the AB link, adds the DA link
+    //   // A B ... C D
+    //   // B ... C D A
+    //   // destroys the AB link, adds the DA link
 
-      const dAnBn = d(A, n, B, n)
-      const dDnAn = d(D, n, A, n)
+    //   const dAnBn = d(A, n, B, n)
+    //   const dDnAn = d(D, n, A, n)
 
-      if (dDnAn < dAnBn) {
-        ordering.push(ordering.shift()!)
+    //   if (dDnAn < dAnBn) {
+    //     ordering.push(ordering.shift()!)
+    //     // console.log(`rotating left`)
 
-        const delta = dAnBn - dDnAn
+    //     const delta = dAnBn - dDnAn
 
-        cost = cost - delta
-        improved = true
-      }
-    }
-    {
-      // Test a right rotation
-      const A = ordering[0]
-      const B = ordering[1]
-      const C = ordering[ordering.length - 2]
-      const D = ordering[ordering.length - 1]
+    //     cost = cost - delta
+    //     improved = true
+    //   }
+    // }
+    // {
+    //   // Test a right rotation
+    //   const A = ordering[0]
+    //   const B = ordering[1]
+    //   const C = ordering[ordering.length - 2]
+    //   const D = ordering[ordering.length - 1]
 
-      // A B ... C D
-      // D A B ... C
-      // destroys the CD link, adds the DA link
+    //   // A B ... C D
+    //   // D A B ... C
+    //   // destroys the CD link, adds the DA link
 
-      const dCnDn = d(C, n, D, n)
-      const dDnAn = d(D, n, A, n)
+    //   const dCnDn = d(C, n, D, n)
+    //   const dDnAn = d(D, n, A, n)
 
-      if (dDnAn < dCnDn) {
-        ordering.unshift(ordering.pop()!)
+    //   if (dDnAn < dCnDn) {
+    //     ordering.unshift(ordering.pop()!)
+    //     // console.log(`rotating right`)
 
-        const delta = dCnDn - dDnAn
+    //     const delta = dCnDn - dDnAn
 
-        cost = cost - delta
-        improved = true
-      }
-    }
+    //     cost = cost - delta
+    //     improved = true
+    //   }
+    // }
     {
       // TODO: Test a flip
     }
-
     // Start and end points are fixed with this algorithm
     iteration: for (let b = 1; b < ordering.length - 2; b++) {
       for (let e = b + 1; e < ordering.length - 1; e++) {
@@ -620,10 +646,10 @@ export async function optimise(
   // Setup our ordering cache
   const nextOrderingCache: OrderingCache = {}
 
-  const populateOrderingCache = () => {
+  const populateOrderingCache = (movements: Movement[]) => {
     // Store the final order for passing to the next frame
-    for (let index = 0; index < sparseBag.length; index++) {
-      const movement = sparseBag[index]
+    for (let index = 0; index < movements.length; index++) {
+      const movement = movements[index]
       nextOrderingCache[movement.interFrameID] = index
     }
 
@@ -644,7 +670,7 @@ export async function optimise(
     await updateProgress({
       duration: getTotalDuration(currentDense),
       text: `Optimised to ${Math.round(curentDuration * 100) / 100}ms`,
-      orderingCache: populateOrderingCache(),
+      orderingCache: populateOrderingCache(beamSearched),
       completed: true,
       minimaFound: false,
       timeSpent: Date.now() - startedOptimisation,
@@ -667,23 +693,33 @@ export async function optimise(
     iterations += nextPass.iteration
 
     const currentDense = sparseToDense(nextPass.ordering, settings)
-    const curentDuration = getTotalDuration(currentDense)
+    const currentDuration = getTotalDuration(currentDense)
+
+    // Finish within the time it takes to _do_ the frame no matter what
+    let done =
+      nextPass.completed || Date.now() - startedOptimisation > currentDuration
 
     const shouldContinue = await updateProgress({
       duration: getTotalDuration(currentDense),
-      text: `Optimised to ${Math.round(curentDuration * 100) / 100}ms`,
-      orderingCache: populateOrderingCache(),
-      completed: nextPass.completed,
-      minimaFound: nextPass.completed,
+      text: `Optimised to ${Math.round(currentDuration * 100) / 100}ms`,
+      orderingCache: populateOrderingCache(nextPass.ordering),
+      completed: done,
+      minimaFound: done,
       timeSpent: Date.now() - startedOptimisation,
       startingCost,
       currentCost: sparseToCost(sparseBag),
     })
 
+    console.log(
+      `iterations: ${iterations}, currentDuration: ${currentDuration}, time: ${
+        (Date.now() - startedOptimisation) / 1000
+      }s`,
+    )
+
     ordering = nextPass.ordering
 
-    // If we've reached a minima, or should stop, exit
-    if (nextPass.completed || !shouldContinue) {
+    // If we've reached a minima, or should stop, or we've taken longer than the length of the tour to optimise, exit
+    if (done || !shouldContinue) {
       return
     }
   }
