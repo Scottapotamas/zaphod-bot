@@ -4,8 +4,8 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
-#include <led_types.h>
 #include "timer_ms.h"
+#include <led_types.h>
 
 /* ----- Defines ------------------------------------------------------------ */
 

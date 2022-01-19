@@ -58,14 +58,13 @@ enum AppSignals
     PATHING_STARTED,     // started executing a move
     PATHING_COMPLETE,    // finished moving along a provided profile path
 
-
     /* LED Handler Signals */
     LED_OFF,    // Turn off led immediately, clear the queue
     LED_QUEUE_START,
     LED_QUEUE_ADD,      // Provide led animation object to queue
     LED_QUEUE_CLEAR,    // empty pending animations
 
-    ANIMATION_STARTED,  // started executing a fade
+    ANIMATION_STARTED,     // started executing a fade
     ANIMATION_COMPLETE,    // finished drawing out the led animated colour ramp
 
     LED_ALLOW_MANUAL_CONTROL,

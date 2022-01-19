@@ -38,7 +38,7 @@ PUBLIC const char *ProgramBuildBranch = "develop";
 
 #ifndef NDEBUG
 PUBLIC const char *ProgramBuildInfo   = VERSION " "
-                                              "D";
+                                                "D";
 #else
 PUBLIC const char *ProgramBuildInfo = VERSION;
 #endif

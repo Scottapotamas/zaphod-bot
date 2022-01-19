@@ -50,9 +50,9 @@ typedef enum
 
 PUBLIC StateTask *
 appTaskMotionCreate( AppTaskMotion *me,
-                     StateEvent *   eventQueueData[],
+                     StateEvent    *eventQueueData[],
                      const uint8_t  eventQueueSize,
-                     StateEvent *   movementQueue[],
+                     StateEvent    *movementQueue[],
                      const uint8_t  movementQueueSize )
 {
     // Clear all task data
@@ -294,7 +294,7 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
                 ASSERT( next );
 
                 MotionPlannerEvent *ape       = (MotionPlannerEvent *)next;
-                Movement_t *        next_move = &ape->move;
+                Movement_t         *next_move = &ape->move;
 
                 if( next_move->duration )
                 {
@@ -417,7 +417,7 @@ PRIVATE void AppTaskMotion_commit_queued_move( AppTaskMotion *me )
         ASSERT( next );
 
         MotionPlannerEvent *mpe       = (MotionPlannerEvent *)next;
-        Movement_t *        next_move = &mpe->move;
+        Movement_t         *next_move = &mpe->move;
 
         if( next_move->duration )
         {

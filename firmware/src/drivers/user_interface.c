@@ -2,9 +2,9 @@
 
 /* ----- Local Includes ----------------------------------------------------- */
 
+#include "configuration.h"
 #include "user_interface.h"
 #include "user_interface_msgid.h"
-#include "configuration.h"
 
 #include "app_task_ids.h"
 #include "app_tasks.h"
@@ -14,16 +14,16 @@
 #include "app_times.h"
 #include "app_version.h"
 #include "event_subscribe.h"
-#include "hal_uuid.h"
 #include "hal_uart.h"
+#include "hal_uuid.h"
 
 /* ----- Private Function Declaration --------------------------------------- */
 
 PRIVATE void
 user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t message );
 
-PRIVATE void user_interface_tx_put_external(uint8_t *c, uint16_t length );
-PRIVATE void user_interface_eui_callback_external(uint8_t message );
+PRIVATE void user_interface_tx_put_external( uint8_t *c, uint16_t length );
+PRIVATE void user_interface_eui_callback_external( uint8_t message );
 
 PRIVATE void user_interface_tx_put_internal( uint8_t *c, uint16_t length );
 PRIVATE void user_interface_eui_callback_internal( uint8_t message );
@@ -77,56 +77,53 @@ Fade_t        light_fade_inbound;
 
 uint32_t camera_shutter_duration_ms = 0;
 
-
 // Configuration controlled variables are done with raw pointer sharing - yuck
 LedSettings_t led_calibration = { 0 };
 
-
 eui_message_t ui_variables[] = {
-        // Higher level system setup information
-        EUI_CHAR_ARRAY_RO( MSGID_NICKNAME, device_nickname ),
-        EUI_CHAR_ARRAY_RO( MSGID_RESET_CAUSE, reset_cause ),
-        EUI_CUSTOM( MSGID_FIRMWARE_INFO, fw_info ),
-//        EUI_CUSTOM_RO( MSGID_KINEMATICS, mechanical_info ),
+    // Higher level system setup information
+    EUI_CHAR_ARRAY_RO( MSGID_NICKNAME, device_nickname ),
+    EUI_CHAR_ARRAY_RO( MSGID_RESET_CAUSE, reset_cause ),
+    EUI_CUSTOM( MSGID_FIRMWARE_INFO, fw_info ),
+    //    EUI_CUSTOM_RO( MSGID_KINEMATICS, mechanical_info ),
 
-        EUI_CUSTOM( MSGID_SYSTEM, system_stats ),
-        EUI_CUSTOM( MSGID_SUPERVISOR, supervisor_states ),
-        EUI_CUSTOM( MSGID_FAN, fan_stats ),
-        EUI_CUSTOM_RO( MSGID_MOTION, motion_global ),
-        EUI_CUSTOM_RO( MSGID_SERVO, motion_servo ),
+    EUI_CUSTOM( MSGID_SYSTEM, system_stats ),
+    EUI_CUSTOM( MSGID_SUPERVISOR, supervisor_states ),
+    EUI_CUSTOM( MSGID_FAN, fan_stats ),
+    EUI_CUSTOM_RO( MSGID_MOTION, motion_global ),
+    EUI_CUSTOM_RO( MSGID_SERVO, motion_servo ),
 
-        // UI requests a change of operating mode
-        EUI_UINT8( MSGID_MODE_REQUEST, mode_request ),
-//        EUI_CUSTOM( MSGID_FAN_CURVE, fan_curve ),
+    // UI requests a change of operating mode
+    EUI_UINT8( MSGID_MODE_REQUEST, mode_request ),
+    //    EUI_CUSTOM( MSGID_FAN_CURVE, fan_curve ),
 
-        // Current and target positions in cartesian space
-        EUI_CUSTOM( MSGID_POSITION_TARGET, target_position ),
-        EUI_CUSTOM_RO( MSGID_POSITION_CURRENT, current_position ),
+    // Current and target positions in cartesian space
+    EUI_CUSTOM( MSGID_POSITION_TARGET, target_position ),
+    EUI_CUSTOM_RO( MSGID_POSITION_CURRENT, current_position ),
 
         EUI_FLOAT( MSGID_POSITION_EXPANSION, external_servo_angle_target),
 
-        EUI_CUSTOM_RO( MSGID_LED, rgb_led_drive ),
-        EUI_CUSTOM( MSGID_LED_MANUAL_REQUEST, rgb_manual_control ),
+    EUI_CUSTOM_RO( MSGID_LED, rgb_led_drive ),
+    EUI_CUSTOM( MSGID_LED_MANUAL_REQUEST, rgb_manual_control ),
 
-        // Movement/Lighting Queue Handling
-        EUI_CUSTOM_RO( MSGID_QUEUE_INFO, queue_data ),
-        EUI_FUNC( MSGID_QUEUE_CLEAR, clear_all_queue ),
-        EUI_FUNC( MSGID_QUEUE_SYNC, sync_begin_queues ),
-        EUI_CUSTOM( MSGID_QUEUE_ADD_FADE, light_fade_inbound ),
-        EUI_CUSTOM( MSGID_QUEUE_ADD_MOVE, motion_inbound ),
+    // Movement/Lighting Queue Handling
+    EUI_CUSTOM_RO( MSGID_QUEUE_INFO, queue_data ),
+    EUI_FUNC( MSGID_QUEUE_CLEAR, clear_all_queue ),
+    EUI_FUNC( MSGID_QUEUE_SYNC, sync_begin_queues ),
+    EUI_CUSTOM( MSGID_QUEUE_ADD_FADE, light_fade_inbound ),
+    EUI_CUSTOM( MSGID_QUEUE_ADD_MOVE, motion_inbound ),
 
-        // Event trigger callbacks
-        EUI_FUNC( MSGID_EMERGENCY_STOP, emergency_stop_cb ),
-        EUI_FUNC( MSGID_ARM, start_mech_cb ),
-        EUI_FUNC( MSGID_DISARM, stop_mech_cb ),
-        EUI_FUNC( MSGID_HOME, home_mech_cb ),
-        EUI_UINT32( MSGID_CAPTURE, camera_shutter_duration_ms ),
+    // Event trigger callbacks
+    EUI_FUNC( MSGID_EMERGENCY_STOP, emergency_stop_cb ),
+    EUI_FUNC( MSGID_ARM, start_mech_cb ),
+    EUI_FUNC( MSGID_DISARM, stop_mech_cb ),
+    EUI_FUNC( MSGID_HOME, home_mech_cb ),
+    EUI_UINT32( MSGID_CAPTURE, camera_shutter_duration_ms ),
 
-        EUI_CUSTOM( MSGID_LED_CALIBRATION, led_calibration ),
+    EUI_CUSTOM( MSGID_LED_CALIBRATION, led_calibration ),
 
-
-//        EUI_FLOAT( "rotZ", z_rotation ),
-//        EUI_CUSTOM( "pwr_cal", power_trims ),
+    //    EUI_FLOAT( "rotZ", z_rotation ),
+    //    EUI_CUSTOM( "pwr_cal", power_trims ),
 };
 
 enum
@@ -137,9 +134,9 @@ enum
 } EUI_LINK_NAMES;
 
 eui_interface_t communication_interface[] = {
-        EUI_INTERFACE_CB( &user_interface_tx_put_module, &user_interface_eui_callback_module ),
-        EUI_INTERFACE_CB( &user_interface_tx_put_internal, &user_interface_eui_callback_internal ),
-        EUI_INTERFACE_CB(&user_interface_tx_put_external, &user_interface_eui_callback_external ),
+    EUI_INTERFACE_CB( &user_interface_tx_put_module, &user_interface_eui_callback_module ),
+    EUI_INTERFACE_CB( &user_interface_tx_put_internal, &user_interface_eui_callback_internal ),
+    EUI_INTERFACE_CB( &user_interface_tx_put_external, &user_interface_eui_callback_external ),
 };
 
 /* ----- Public Functions --------------------------------------------------- */
@@ -152,10 +149,9 @@ user_interface_init( void )
 
     EUI_LINK( communication_interface );
     EUI_TRACK( ui_variables );
-    eui_setup_identifier( (char *)HAL_UUID, 12 );    //header byte is 96-bit, therefore 12-bytes
+    eui_setup_identifier( (char *)HAL_UUID, 12 );    // header byte is 96-bit, therefore 12-bytes
 
-
-    //set build info to hardcoded values
+    // set build info to hardcoded values
     memset( &fw_info.build_branch, 0, sizeof( fw_info.build_branch ) );
     memset( &fw_info.build_info, 0, sizeof( fw_info.build_info ) );
     memset( &fw_info.build_date, 0, sizeof( fw_info.build_date ) );
@@ -187,13 +183,13 @@ user_interface_handle_data( void )
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void
-user_interface_tx_put_external(uint8_t *c, uint16_t length )
+user_interface_tx_put_external( uint8_t *c, uint16_t length )
 {
     hal_uart_write( HAL_UART_PORT_EXTERNAL, c, length );
 }
 
 PRIVATE void
-user_interface_eui_callback_external(uint8_t message )
+user_interface_eui_callback_external( uint8_t message )
 {
     user_interface_eui_callback( LINK_EXTERNAL, &communication_interface[LINK_EXTERNAL], message );
 }
@@ -237,8 +233,8 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
         case EUI_CB_TRACKED: {
             // UI received a tracked message ID and has completed processing
             eui_header_t header  = interface->packet.header;
-            void *       payload = interface->packet.data_in;
-            uint8_t *    name_rx = interface->packet.id_in;
+            void        *payload = interface->packet.data_in;
+            uint8_t     *name_rx = interface->packet.id_in;
 
             // See if the inbound packet name matches our intended variable
             if( strcmp( (char *)name_rx, MSGID_MODE_REQUEST ) == 0 )
@@ -337,9 +333,9 @@ user_interface_report_error( char *error_string )
 {
     // Send the text to the UI for display to user
     eui_message_t err_message = { .id   = MSGID_ERROR,
-            .type = TYPE_CHAR,
-            .size = strlen( error_string ),
-            { .data = error_string } };
+                                  .type = TYPE_CHAR,
+                                  .size = strlen( error_string ),
+                                  { .data = error_string } };
 
     eui_send_untracked( &err_message );
 }
@@ -357,7 +353,7 @@ user_interface_set_cpu_load( uint8_t percent )
 PUBLIC void
 user_interface_set_cpu_clock( uint32_t clock )
 {
-    system_stats.cpu_clock = clock / 1000000;    //convert to Mhz
+    system_stats.cpu_clock = clock / 1000000;    // convert to Mhz
 }
 
 /* -------------------------------------------------------------------------- */
@@ -696,7 +692,7 @@ PRIVATE void sync_begin_queues( void )
 PRIVATE void clear_all_queue( void )
 {
     eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
-    eventPublish( EVENT_NEW(StateEvent, LED_QUEUE_CLEAR ) );
+    eventPublish( EVENT_NEW( StateEvent, LED_QUEUE_CLEAR ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -713,6 +709,5 @@ trigger_camera_capture( void )
         memset( &camera_shutter_duration_ms, 0, sizeof( camera_shutter_duration_ms ) );
     }
 }
-
 
 /* ----- End ---------------------------------------------------------------- */

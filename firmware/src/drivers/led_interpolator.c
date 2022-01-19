@@ -13,12 +13,12 @@
 #include "event_subscribe.h"
 #include "simple_state_machine.h"
 
-#include "user_interface.h"
+#include "app_events.h"
 #include "global.h"
 #include "led.h"
 #include "led_types.h"
-#include "app_events.h"
 #include "timer_ms.h"
+#include "user_interface.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -35,17 +35,17 @@ typedef struct
     RGBState_t currentState;
     RGBState_t nextState;
 
-    Fade_t   fade_a;                    // Slot A fade storage
-    Fade_t   fade_b;                    // Slot B fade storage
-    Fade_t *current_fade;               // Points to fade_a or fade_b
+    Fade_t  fade_a;          // Slot A fade storage
+    Fade_t  fade_b;          // Slot B fade storage
+    Fade_t *current_fade;    // Points to fade_a or fade_b
 
-    bool     manual_mode;               // user control
-    bool     animation_run;             // if the planner is enabled
-    timer_ms_t epoch_timestamp;         // Reference system time for fade offset sequencing
+    bool       manual_mode;        // user control
+    bool       animation_run;      // if the planner is enabled
+    timer_ms_t epoch_timestamp;    // Reference system time for fade offset sequencing
 
-    timer_ms_t animation_started;       // timestamp the start
-    timer_ms_t animation_est_complete;  // timestamp when the animation will end
-    float    progress_percent;          // calculated progress
+    timer_ms_t animation_started;         // timestamp the start
+    timer_ms_t animation_est_complete;    // timestamp when the animation will end
+    float      progress_percent;          // calculated progress
 
     RGBColour_t led_colour;    // current channel outputs
 } LEDPlanner_t;
@@ -104,7 +104,7 @@ PUBLIC void
 led_interpolator_set_objective( Fade_t *fade_to_process )
 {
     LEDPlanner_t *me               = &planner;
-    Fade_t *      fade_insert_slot = { 0 };    // Allows us to put the new fade into whichever slot is available
+    Fade_t       *fade_insert_slot = { 0 };    // Allows us to put the new fade into whichever slot is available
 
     if( me->fade_a.duration == 0 )
     {
@@ -200,7 +200,6 @@ led_interpolator_manual_control_set_rgb( uint16_t red, uint16_t green, uint16_t 
         // Set the LED channel values in RGB percentages [0.0f -> 1.0f]
         led_set( output_values.x, output_values.y, output_values.z );
     }
-
 }
 
 /* -------------------------------------------------------------------------- */
@@ -278,7 +277,7 @@ led_interpolator_process( void )
             {
                 timer_ms_stopwatch_start( &me->animation_started );
                 timer_ms_start( &me->animation_est_complete, me->current_fade->duration );
-                me->progress_percent      = 0;
+                me->progress_percent = 0;
 
                 led_interpolator_notify_animation_started( me->current_fade->sync_offset );
             }
@@ -292,7 +291,7 @@ led_interpolator_process( void )
                 // Check if the move is done
                 if( led_interpolator_get_fade_done() )
                 {
-                    led_interpolator_notify_animation_complete(me->current_fade->sync_offset );
+                    led_interpolator_notify_animation_complete( me->current_fade->sync_offset );
 
                     // TODO: update UI with status?
 
@@ -319,10 +318,10 @@ led_interpolator_process( void )
                 }
             }
             STATE_EXIT_ACTION
-                me->current_fade = 0;
-                me->progress_percent = 0;
-                timer_ms_stop( &me->animation_started );
-                timer_ms_stop( &me->animation_est_complete );
+            me->current_fade     = 0;
+            me->progress_percent = 0;
+            timer_ms_stop( &me->animation_started );
+            timer_ms_stop( &me->animation_est_complete );
             STATE_END
             break;
 
@@ -419,13 +418,13 @@ hsi_lerp_linear( HSIColour_t p[], size_t points, float pos_weight, HSIColour_t *
 
     // Linear interpolation between two points (lerp)
 
-    //for hue, remember that its a circular range so we need to take the shortest path across the wrapping
+    // for hue, remember that its a circular range so we need to take the shortest path across the wrapping
     float distance_ccw = ( p[0].hue >= p[1].hue ) ? p[0].hue - p[1].hue : 1 + p[0].hue - p[1].hue;
     float distance_cw  = ( p[0].hue >= p[1].hue ) ? 1 + p[1].hue - p[0].hue : p[1].hue - p[0].hue;
 
     output->hue = ( distance_cw <= distance_ccw ) ? p[1].hue + ( distance_cw * pos_weight ) : p[1].hue - ( distance_ccw * pos_weight );
 
-    //handle wrapping around
+    // handle wrapping around
     if( output->hue < 0 )
     {
         output->hue += 1;
@@ -514,7 +513,7 @@ PRIVATE void
 led_interpolator_notify_animation_started( uint32_t fade_id )
 {
     SyncTimestampEvent *barrier_ev = EVENT_NEW( SyncTimestampEvent, ANIMATION_STARTED );
-    uint32_t          publish_id = fade_id;
+    uint32_t            publish_id = fade_id;
 
     memcpy( &barrier_ev->epoch, &publish_id, sizeof( fade_id ) );
     eventPublish( (StateEvent *)barrier_ev );
@@ -524,7 +523,7 @@ PRIVATE void
 led_interpolator_notify_animation_complete( uint32_t fade_id )
 {
     SyncTimestampEvent *barrier_ev = EVENT_NEW( SyncTimestampEvent, ANIMATION_COMPLETE );
-    uint32_t          publish_id = fade_id;
+    uint32_t            publish_id = fade_id;
 
     memcpy( &barrier_ev->epoch, &publish_id, sizeof( fade_id ) );
     eventPublish( (StateEvent *)barrier_ev );

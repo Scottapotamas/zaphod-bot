@@ -170,7 +170,7 @@ typedef union    ///< Allow mapping int16 to uint16
                                  } while(0)
 
 /* ----- End ------------~--------------------------------------------------- */
-#ifdef    __cplusplus
+#ifdef __cplusplus
 }
 #endif
 #endif

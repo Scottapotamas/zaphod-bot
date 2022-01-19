@@ -34,10 +34,10 @@ PRIVATE void AppTaskLed_commit_queued_fade( AppTaskLed *me );
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC StateTask *
-appTaskLedCreate( AppTaskLed *  me,
-                  StateEvent *  eventQueueData[],
+appTaskLedCreate( AppTaskLed   *me,
+                  StateEvent   *eventQueueData[],
                   const uint8_t eventQueueSize,
-                  StateEvent *  lightingQueue[],
+                  StateEvent   *lightingQueue[],
                   const uint8_t lightingQueueSize )
 {
     // Clear all task data
@@ -169,7 +169,7 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
                 StateEvent *next = eventQueuePeek( &me->super.requestQueue );
                 ASSERT( next );
                 LightingPlannerEvent *lpe            = (LightingPlannerEvent *)next;
-                Fade_t *              next_animation = &lpe->animation;
+                Fade_t               *next_animation = &lpe->animation;
 
                 if( next_animation->duration )
                 {
@@ -255,7 +255,7 @@ AppTaskLed_clear_queue( AppTaskLed *me )
         next = eventQueueGet( &me->super.requestQueue );
     }
 
-    //update UI with queue content count
+    // update UI with queue content count
     user_interface_set_led_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 }
 
@@ -276,7 +276,7 @@ PRIVATE void AppTaskLed_add_event_to_queue( AppTaskLed *me, const StateEvent *e 
     }
     else
     {
-        //queue full, clearly the input processor isn't abiding by the spec.
+        // queue full, clearly the input processor isn't abiding by the spec.
         user_interface_report_error( "LED Queue Full" );
     }
 
@@ -292,7 +292,7 @@ PRIVATE void AppTaskLed_commit_queued_fade( AppTaskLed *me )
         ASSERT( next );
 
         LightingPlannerEvent *lpe            = (LightingPlannerEvent *)next;
-        Fade_t *              next_animation = &lpe->animation;
+        Fade_t               *next_animation = &lpe->animation;
 
         if( next_animation->duration )
         {

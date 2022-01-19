@@ -4,8 +4,8 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
-#include <motion_types.h>
 #include "timer_ms.h"
+#include <motion_types.h>
 
 /* ----- Defines ------------------------------------------------------------ */
 

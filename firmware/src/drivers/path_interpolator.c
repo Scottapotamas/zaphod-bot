@@ -14,9 +14,9 @@
 #include "simple_state_machine.h"
 
 #include "clearpath.h"
-#include "user_interface.h"
 #include "kinematics.h"
 #include "motion_types.h"
+#include "user_interface.h"
 
 #include "timer_ms.h"
 /* ----- Defines ------------------------------------------------------------ */
@@ -33,18 +33,18 @@ typedef struct
     PlanningState_t currentState;
     PlanningState_t nextState;
 
-    Movement_t move_a;          // Slot A movement storage
-    Movement_t move_b;          // Slot B movement storage
-    Movement_t *current_move;   // Points to move_a or move_b
+    Movement_t  move_a;          // Slot A movement storage
+    Movement_t  move_b;          // Slot B movement storage
+    Movement_t *current_move;    // Points to move_a or move_b
 
-    bool     enable;                   // The planner is enabled
-    timer_ms_t epoch_timestamp;          // Reference system time for move offset sequencing
+    bool       enable;             // The planner is enabled
+    timer_ms_t epoch_timestamp;    // Reference system time for move offset sequencing
 
     timer_ms_t movement_started;         // timestamp the start point
     timer_ms_t movement_est_complete;    // timestamp the predicted end point
-    float    progress_percent;         // calculated progress
+    float      progress_percent;         // calculated progress
 
-    CartesianPoint_t effector_position;    //position of the end effector (used for relative moves)
+    CartesianPoint_t effector_position;    // position of the end effector (used for relative moves)
 } MotionPlanner_t;
 
 /* ----- Private Variables -------------------------------------------------- */
@@ -71,7 +71,7 @@ path_interpolator_init( void )
 PUBLIC void
 path_interpolator_set_epoch_reference( timer_ms_t sync_timer )
 {
-    MotionPlanner_t *me                   = &planner;
+    MotionPlanner_t *me = &planner;
 
     if( sync_timer )
     {
@@ -85,7 +85,7 @@ PUBLIC void
 path_interpolator_set_next( Movement_t *movement_to_process )
 {
     MotionPlanner_t *me                   = &planner;
-    Movement_t *     movement_insert_slot = { 0 };    // Allows us to put the new move into whichever slot is available
+    Movement_t      *movement_insert_slot = { 0 };    // Allows us to put the new move into whichever slot is available
 
     if( me->move_a.duration == 0 )
     {
@@ -244,7 +244,7 @@ path_interpolator_process( void )
                 // Start the move
                 timer_ms_stopwatch_start( &me->movement_started );
                 timer_ms_start( &me->movement_est_complete, me->current_move->duration );
-                me->progress_percent      = 0;
+                me->progress_percent = 0;
 
                 path_interpolator_notify_pathing_started( me->current_move->sync_offset );
                 path_interpolator_premove_transforms( me->current_move );
@@ -277,19 +277,20 @@ path_interpolator_process( void )
                     }
 
                     // Other move slot ready?
-                    
+
                     // Fall back into the handler's off state until new moves are loaded
                     if( !me->current_move->duration )
                     {
+                        planner.enable = false;
                         STATE_NEXT( PLANNER_OFF );
                     }
                 }
             }
             STATE_EXIT_ACTION
-                me->current_move = 0;
-                me->progress_percent = 0;
-                timer_ms_stop( &me->movement_started );
-                timer_ms_stop( &me->movement_est_complete );
+            me->current_move     = 0;
+            me->progress_percent = 0;
+            timer_ms_stop( &me->movement_started );
+            timer_ms_stop( &me->movement_est_complete );
             STATE_END
             break;
     }
@@ -300,7 +301,7 @@ path_interpolator_process( void )
 PRIVATE void
 path_interpolator_premove_transforms( Movement_t *move )
 {
-    //apply current position to a relative movement
+    // apply current position to a relative movement
     if( move->ref == _POS_RELATIVE )
     {
         for( uint8_t i = 0; i < move->num_pts; i++ )
@@ -332,8 +333,8 @@ path_interpolator_premove_transforms( Movement_t *move )
 PRIVATE void
 path_interpolator_execute_move( Movement_t *move, float percentage )
 {
-    CartesianPoint_t target       = { 0, 0, 0 };    //target position in cartesian space
-    JointAngles_t    angle_target = { 0, 0, 0 };    //target motor shaft angle in degrees
+    CartesianPoint_t target       = { 0, 0, 0 };    // target position in cartesian space
+    JointAngles_t    angle_target = { 0, 0, 0 };    // target motor shaft angle in degrees
 
     switch( move->type )
     {
@@ -357,7 +358,7 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
             cartesian_point_on_cubic_bezier( move->points, move->num_pts, percentage, &target );
             break;
         default:
-            //TODO this should be considered a motion error
+            // TODO this should be considered a motion error
 
             break;
     }
@@ -373,14 +374,14 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
     // Update the config/UI data based on these actions
     user_interface_set_position( target.x, target.y, target.z );
     memcpy( &planner.effector_position, &target, sizeof( CartesianPoint_t ) );
-    user_interface_set_movement_data( move->sync_offset, move->type, ( uint8_t )( percentage * 100 ) );
+    user_interface_set_movement_data( move->sync_offset, move->type, (uint8_t)( percentage * 100 ) );
 }
 
 PRIVATE void
 path_interpolator_notify_pathing_started( uint32_t move_id )
 {
     SyncTimestampEvent *barrier_ev = EVENT_NEW( SyncTimestampEvent, PATHING_STARTED );
-    uint32_t          publish_id = move_id;
+    uint32_t            publish_id = move_id;
 
     memcpy( &barrier_ev->epoch, &publish_id, sizeof( move_id ) );
     eventPublish( (StateEvent *)barrier_ev );
@@ -390,7 +391,7 @@ PRIVATE void
 path_interpolator_notify_pathing_complete( uint32_t move_id )
 {
     SyncTimestampEvent *barrier_ev = EVENT_NEW( SyncTimestampEvent, PATHING_COMPLETE );
-    uint32_t          publish_id = move_id;
+    uint32_t            publish_id = move_id;
 
     memcpy( &barrier_ev->epoch, &publish_id, sizeof( move_id ) );
     eventPublish( (StateEvent *)barrier_ev );

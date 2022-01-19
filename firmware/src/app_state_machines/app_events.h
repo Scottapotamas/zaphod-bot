@@ -86,8 +86,8 @@ typedef struct TrackedPositionRequestEvent__
 /** Tracked position request command */
 typedef struct ExpansionServoRequestEvent__
 {
-    StateEvent  super;     // Encapsulated event reference
-    float       target;    // Target shaft angle in degrees
+    StateEvent super;     // Encapsulated event reference
+    float      target;    // Target shaft angle in degrees
 } ExpansionServoRequestEvent;
 
 /* -------------------------------------------------------------------------- */

@@ -245,7 +245,7 @@ cartesian_point_on_catmull_spline( CartesianPoint_t *p, size_t points, float pos
     /* Derivation from http://www.mvps.org/directx/articles/catmull/
      *
                                     [  0  2  0  0 ]   [ p0 ]
-	q(t) = 0.5( t, t^2, t^3 ) * | -1  0  1  0 | * | p1 |
+        q(t) = 0.5( t, t^2, t^3 ) * | -1  0  1  0 | * | p1 |
                                     |  2 -5  4 -1 |   | p2 |
                                     [ -1  3 -3  1 ]   [ p3 ]
      */
@@ -296,7 +296,7 @@ cartesian_point_on_quadratic_bezier( CartesianPoint_t *p, size_t points, float p
 
     // B(t) = ((1-t)^2 * p0) + (2(1 - t) * t * p1) + (t^2 * p2) where 0 < t < 1
 
-    //cache oft-used values to improve read-ability
+    // cache oft-used values to improve read-ability
     float t   = pos_weight;
     float tsq = t * t;
 
@@ -342,7 +342,7 @@ cartesian_point_on_cubic_bezier( CartesianPoint_t *p, size_t points, float pos_w
 
     // B(t) = ((1-t)^3 * p0) + (3(1 - t)^2 * t * P1) + (3(1-t)t^2 * P2) + (t^3 * P3) where 0 < t < 1
 
-    //cache oft-used values to improve read-ability
+    // cache oft-used values to improve read-ability
     float t   = pos_weight;
     float tsq = t * t;
     float tcu = tsq * t;
@@ -396,7 +396,7 @@ cartesian_point_on_spiral( CartesianPoint_t *p, size_t points, float pos_weight,
 
     uint8_t numSpirals = 7;
 
-    //cache oft-used values to improve read-ability
+    // cache oft-used values to improve read-ability
     float t           = pos_weight;
     float a           = 1 / numSpirals;
     float denominator = sqrt( 1 + a * a * t * t );

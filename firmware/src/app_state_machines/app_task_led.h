@@ -36,10 +36,10 @@ struct AppTaskLed
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC StateTask *
-appTaskLedCreate( AppTaskLed *  me,
-                  StateEvent *  eventQueueData[],
+appTaskLedCreate( AppTaskLed   *me,
+                  StateEvent   *eventQueueData[],
                   const uint8_t eventQueueSize,
-                  StateEvent *  lightingQueue[],
+                  StateEvent   *lightingQueue[],
                   const uint8_t lightingQueueSize );
 
 /* ----- End ---------------------------------------------------------------- */

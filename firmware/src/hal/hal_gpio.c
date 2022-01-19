@@ -93,7 +93,7 @@ const HalGpioDef_t HalGpioHardwareMap[] = {
     [_EXT_OUTPUT_0] = { .mode = MODE_OUT_PP, .port = PORT_C, .pin = PIN_12, .initial = 0 },
 
     [_EXT_INPUT_1]  = { .mode = MODE_INPUT, .port = PORT_D, .pin = PIN_0, .initial = 0 },
-    [_EXT_OUTPUT_1] = { .mode = MODE_OUT_PP, .port = PORT_D, .pin = PIN_1, .initial = 1 },
+    [_EXT_OUTPUT_1] = { .mode = MODE_OUT_PP, .port = PORT_D, .pin = PIN_1, .initial = 0 },
 
     /* --- EXPANSION CARD --- */
     [_CARD_POWER_EN] = { .mode = MODE_OUT_PP, .port = PORT_D, .pin = PIN_7, .initial = 0 },

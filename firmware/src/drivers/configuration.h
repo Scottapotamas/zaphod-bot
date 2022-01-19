@@ -9,11 +9,10 @@ extern "C" {
 
 /* ----- Local Includes ----------------------------------------------------- */
 
-#include "global.h"
 #include "configuration_types.h"
+#include "global.h"
 
 /* ----- Defines ------------------------------------------------------------ */
-
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -58,7 +57,6 @@ configuration_get_led_luma_correction_enabled( void );
 
 PUBLIC bool
 configuration_get_led_wb_correction_enabled( void );
-
 
 /* -------------------------------------------------------------------------- */
 

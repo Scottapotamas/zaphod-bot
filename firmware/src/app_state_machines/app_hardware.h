@@ -7,8 +7,8 @@ extern "C" {
 
 /* ----- System Includes ---------------------------------------------------- */
 
-#include <stdint.h>
 #include "global.h"
+#include <stdint.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 

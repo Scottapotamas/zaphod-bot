@@ -87,13 +87,13 @@ typedef enum
 typedef struct
 {
     // TODO: optimise packing of movement_t, consider bitfield with type/ref/point count...
-    MotionAdjective_t type;           // style of motion interpolation/path
-    MotionReference_t ref;            // relative or absolute positioning frame
-    uint8_t           num_pts;        // number of used elements in points array
+    MotionAdjective_t type;       // style of motion interpolation/path
+    MotionReference_t ref;        // relative or absolute positioning frame
+    uint8_t           num_pts;    // number of used elements in points array
     uint8_t           reserved;
     uint32_t          sync_offset;    // milliseconds after sync timestamp when move should execute
                                       //     this used as a (timebased) global identifier
-    uint16_t         duration;                         // execution duration in milliseconds
+    uint16_t         duration;        // execution duration in milliseconds
     uint16_t         reserved2;
     CartesianPoint_t points[MOVEMENT_POINTS_COUNT];    // array of 3d points
 } Movement_t;

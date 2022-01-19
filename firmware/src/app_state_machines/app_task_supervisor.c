@@ -15,12 +15,12 @@
 #include "app_task_supervisor_private.h"
 
 #include "buzzer.h"
-#include "user_interface.h"
 #include "demonstration.h"
 #include "path_interpolator.h"
 #include "sensors.h"
 #include "shutter_release.h"
 #include "status.h"
+#include "user_interface.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -30,7 +30,7 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 PUBLIC StateTask *
 appTaskSupervisorCreate( AppTaskSupervisor *me,
-                         StateEvent *       eventQueueData[],
+                         StateEvent        *eventQueueData[],
                          const uint8_t      eventQueueSize )
 {
     // Clear all task data
@@ -61,7 +61,7 @@ PRIVATE void AppTaskSupervisorConstructor( AppTaskSupervisor *me )
 
 // State Machine Initial State
 PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
-                                        const StateEvent * e __attribute__( ( __unused__ ) ) )
+                                        const StateEvent  *e __attribute__( ( __unused__ ) ) )
 {
     button_init( BUTTON_0, AppTaskSupervisorButtonEvent );
     button_init( BUTTON_1, AppTaskSupervisorButtonEvent );
@@ -90,7 +90,7 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask *)me, MODE_EVENT );
     eventSubscribe( (StateTask *)me, MODE_MANUAL );
 
-    eventSubscribe((StateTask *)me, QUEUE_SYNC_START );
+    eventSubscribe( (StateTask *)me, QUEUE_SYNC_START );
 
     eventSubscribe( (StateTask *)me, CAMERA_CAPTURE );
 
@@ -100,14 +100,14 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
 /* -------------------------------------------------------------------------- */
 
 PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
-                                      const StateEvent * e )
+                                      const StateEvent  *e )
 {
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL: {
             user_interface_set_main_state( SUPERVISOR_MAIN );
 
-            //start the board hardware sensors
+            // start the board hardware sensors
             sensors_enable();
 
             status_green( false );
@@ -157,7 +157,7 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
 // Start a mechanism startup
 
 PRIVATE STATE AppTaskSupervisor_disarmed( AppTaskSupervisor *me,
-                                          const StateEvent * e )
+                                          const StateEvent  *e )
 {
     switch( e->signal )
     {
@@ -207,7 +207,7 @@ PRIVATE STATE AppTaskSupervisor_disarmed( AppTaskSupervisor *me,
 // Start a mechanism startup
 
 PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
-                                           const StateEvent * e )
+                                           const StateEvent  *e )
 {
     switch( e->signal )
     {
@@ -218,7 +218,7 @@ PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
             status_external( true );
             buzzer_sound( BUZZER_ARMING_START_NUM, BUZZER_ARMING_START_TONE, BUZZER_ARMING_START_DURATION );
 
-            //request a motion handler homing process
+            // request a motion handler homing process
             eventPublish( EVENT_NEW( StateEvent, MOTION_PREPARE ) );
 
             // timeout incase the motion handler doesn't signal back
@@ -276,7 +276,7 @@ PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
 // Handle startup errors
 
 PRIVATE STATE AppTaskSupervisor_arm_error( AppTaskSupervisor *me,
-                                           const StateEvent * e )
+                                           const StateEvent  *e )
 {
     switch( e->signal )
     {
@@ -288,7 +288,7 @@ PRIVATE STATE AppTaskSupervisor_arm_error( AppTaskSupervisor *me,
             // so treat it as a high severity error, and trigger e-stop behaviour
             eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
 
-            //send message to UI
+            // send message to UI
             user_interface_report_error( "Arming Error" );
 
             buzzer_sound( BUZZER_ARMING_ERROR_NUM, BUZZER_ARMING_ERROR_TONE, BUZZER_ARMING_ERROR_DURATION );
@@ -311,7 +311,7 @@ PRIVATE STATE AppTaskSupervisor_arm_error( AppTaskSupervisor *me,
 // Motor arming succeeded
 
 PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
-                                             const StateEvent * e )
+                                             const StateEvent  *e )
 {
     switch( e->signal )
     {
@@ -324,7 +324,7 @@ PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
             status_external( true );
             buzzer_sound( BUZZER_ARMING_OK_NUM, BUZZER_ARMING_OK_TONE, BUZZER_ARMING_OK_DURATION );
 
-            //start additional subsystems here as required
+            // start additional subsystems here as required
 
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
 
@@ -380,7 +380,7 @@ PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
 // Running Supervisor State
 
 PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
-                                             const StateEvent * e )
+                                             const StateEvent  *e )
 {
     switch( e->signal )
     {
@@ -388,7 +388,7 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
             user_interface_set_main_state( SUPERVISOR_ARMED );
             user_interface_set_control_mode( CONTROL_EVENT );
 
-            //set up any recurring monitoring processes
+            // set up any recurring monitoring processes
 
             return 0;
 
@@ -420,7 +420,7 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
 
             // TODO: Remove movement request proxy behaviour through supervisor?
         case MOVEMENT_REQUEST: {
-            //catch the inbound movement event
+            // catch the inbound movement event
             MotionPlannerEvent *mpe = (MotionPlannerEvent *)e;
 
             // Create event to pass event for motion handler
@@ -487,7 +487,7 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
 }
 
 PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
-                                              const StateEvent * e )
+                                              const StateEvent  *e )
 {
     switch( e->signal )
     {
@@ -511,7 +511,7 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
             return 0;
 
         case MOVEMENT_REQUEST: {
-            //catch the inbound movement event
+            // catch the inbound movement event
             MotionPlannerEvent *mpe = (MotionPlannerEvent *)e;
 
             // Create event to pass event for motion handler
@@ -559,7 +559,7 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
 }
 
 PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
-                                             const StateEvent * e )
+                                             const StateEvent  *e )
 {
     switch( e->signal )
     {
@@ -591,7 +591,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
                 if( !x_deadband || !y_deadband || !z_deadband )
                 {
                     bool was_moving = false;
-                    
+
                     // We don't want to move while the effector is currently moving
                     // Tell the pathing engine to stop/reset before pushing a new move
                     if( !path_interpolator_get_move_done() )
@@ -636,9 +636,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
                         SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
                         timer_ms_stopwatch_start( &motor_sync->epoch );
                         eventPublish( (StateEvent *)motor_sync );
-
                     }
-
                 }
                 else
                 {
@@ -708,7 +706,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
 }
 
 PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
-                                            const StateEvent * e )
+                                            const StateEvent  *e )
 {
     switch( e->signal )
     {
@@ -731,7 +729,7 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
         case STATE_TIMEOUT1_SIGNAL:
 
             // Start the event queue
-//            eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
+            //            eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_START ) );
 
             return 0;
 
@@ -770,7 +768,7 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
 }
 
 PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
-                                                   const StateEvent * e )
+                                                   const StateEvent  *e )
 {
     switch( e->signal )
     {
@@ -778,9 +776,9 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
             user_interface_set_main_state( SUPERVISOR_ARMED );
             user_interface_set_control_mode( CONTROL_CHANGING );
 
-            //empty out the queues
+            // empty out the queues
             eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
-            eventPublish( EVENT_NEW(StateEvent, LED_QUEUE_CLEAR ) );
+            eventPublish( EVENT_NEW( StateEvent, LED_QUEUE_CLEAR ) );
 
             buzzer_sound( BUZZER_MODE_CHANGE_NUM, BUZZER_MODE_CHANGE_TONE, BUZZER_MODE_CHANGE_DURATION );
 
@@ -825,11 +823,11 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
             }
             else
             {
-                //request a move to 0,0,0
+                // request a move to 0,0,0
                 MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
                 motev->move.type          = _POINT_TRANSIT;
                 motev->move.ref           = _POS_ABSOLUTE;
-                motev->move.sync_offset    = 0;
+                motev->move.sync_offset   = 0;
                 motev->move.duration      = 800;
                 motev->move.num_pts       = 1;
                 motev->move.points[0].x   = 0;
@@ -882,11 +880,11 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
                 // if the effector isn't moving, and isn't home, then issue another homing move
                 if( path_interpolator_get_move_done() )
                 {
-                    //request a move to 0,0,0
+                    // request a move to 0,0,0
                     MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
                     motev->move.type          = _POINT_TRANSIT;
                     motev->move.ref           = _POS_ABSOLUTE;
-                    motev->move.sync_offset    = 0;
+                    motev->move.sync_offset   = 0;
                     motev->move.duration      = 800;
                     motev->move.num_pts       = 1;
                     motev->move.points[0].x   = 0;
@@ -897,7 +895,6 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
                     SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
                     timer_ms_stopwatch_start( &motor_sync->epoch );
                     eventPublish( (StateEvent *)motor_sync );
-
                 }
             }
             return 0;
@@ -946,7 +943,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
 // Start a graceful shutdown process
 
 PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
-                                                 const StateEvent * e )
+                                                 const StateEvent  *e )
 {
     switch( e->signal )
     {
@@ -954,13 +951,13 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
             user_interface_set_main_state( SUPERVISOR_DISARMING );
             user_interface_set_control_mode( me->selected_control_mode );
 
-            //empty out the queues
+            // empty out the queues
             eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
-            eventPublish( EVENT_NEW(StateEvent, LED_QUEUE_CLEAR ) );
+            eventPublish( EVENT_NEW( StateEvent, LED_QUEUE_CLEAR ) );
 
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
 
-            //come back and check the position until we are home
+            // come back and check the position until we are home
             eventTimerStartEvery( &me->timer1,
                                   (StateTask *)me,
                                   (StateEvent *)&stateEventReserved[STATE_TIMEOUT1_SIGNAL],
@@ -973,14 +970,14 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
             return 0;
 
         case STATE_STEP1_SIGNAL: {
-            //request a move to 0,0,0
+            // request a move to 0,0,0
             MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
 
-            //transit to starting position
-            motev->move.type       = _POINT_TRANSIT;
-            motev->move.ref        = _POS_ABSOLUTE;
-            motev->move.duration   = 1500;
-            motev->move.num_pts    = 1;
+            // transit to starting position
+            motev->move.type        = _POINT_TRANSIT;
+            motev->move.ref         = _POS_ABSOLUTE;
+            motev->move.duration    = 1500;
+            motev->move.num_pts     = 1;
             motev->move.sync_offset = 0;
 
             motev->move.points[0].x = 0;
@@ -1037,7 +1034,7 @@ PRIVATE void AppTaskSupervisorPublishRehomeEvent( void )
 {
     eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
 
-    //request a move to 0,0,0
+    // request a move to 0,0,0
     MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
     motev->move.type          = _POINT_TRANSIT;
     motev->move.ref           = _POS_ABSOLUTE;
@@ -1054,7 +1051,6 @@ PRIVATE void AppTaskSupervisorPublishRehomeEvent( void )
     SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
     timer_ms_stopwatch_start( &motor_sync->epoch );
     eventPublish( (StateEvent *)motor_sync );
-
 }
 
 /* -------------------------------------------------------------------------- */

@@ -11,13 +11,12 @@ extern "C" {
 
 /* ----- Local Includes ----------------------------------------------------- */
 
-#include "user_interface_types.h"
+#include "configuration_types.h"
 #include "global.h"
 #include "motion_types.h"
-#include "configuration_types.h"
+#include "user_interface_types.h"
 
 /* ----- Defines ------------------------------------------------------------ */
-
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -26,7 +25,6 @@ user_interface_init( void );
 
 PUBLIC void
 user_interface_handle_data( void );
-
 
 /* -------------------------------------------------------------------------- */
 
@@ -133,10 +131,6 @@ user_interface_set_motion_state( uint8_t status );
 PUBLIC void
 user_interface_set_motion_queue_depth( uint8_t utilisation );
 
-
-
-
-
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -170,11 +164,10 @@ user_interface_set_led_queue_depth( uint8_t utilisation );
 
 /* -------------------------------------------------------------------------- */
 
-
 /* -------------------------------------------------------------------------- */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif //USER_INTERFACE_H
+#endif    // USER_INTERFACE_H

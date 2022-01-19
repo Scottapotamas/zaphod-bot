@@ -12,14 +12,14 @@
 #include "hal_uart.h"
 #include "hal_watchdog.h"
 
-#include "configuration.h"
-#include "user_interface.h"
-#include "sensors.h"
 #include "buzzer.h"
 #include "clearpath.h"
+#include "configuration.h"
 #include "fan.h"
+#include "sensors.h"
 #include "shutter_release.h"
 #include "status.h"
+#include "user_interface.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -62,7 +62,7 @@ app_hardware_init( void )
     sensors_init();
     shutter_init();
 
-    //delta main servo motor handlers
+    // delta main servo motor handlers
     servo_init( _CLEARPATH_1 );
     servo_init( _CLEARPATH_2 );
     servo_init( _CLEARPATH_3 );

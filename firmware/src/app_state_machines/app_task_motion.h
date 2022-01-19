@@ -38,9 +38,9 @@ struct AppTaskMotion
 
 PUBLIC StateTask *
 appTaskMotionCreate( AppTaskMotion *me,
-                     StateEvent *   eventQueueData[],
+                     StateEvent    *eventQueueData[],
                      const uint8_t  eventQueueSize,
-                     StateEvent *   movementQueue[],
+                     StateEvent    *movementQueue[],
                      const uint8_t  movementQueueSize );
 
 /* ----- End ---------------------------------------------------------------- */

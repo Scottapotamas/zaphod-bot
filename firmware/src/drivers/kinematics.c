@@ -3,20 +3,20 @@
 #include <math.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
-#include "kinematics.h"
 #include "global.h"
+#include "kinematics.h"
 
 #include "configuration.h"
-#include "user_interface.h"
 #include "motion_types.h"
+#include "user_interface.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
-//position offset between kinematics space and cartesian user-space
+// position offset between kinematics space and cartesian user-space
 CartesianPoint_t offset_position = {
-    .x =  0,
-    .y =  0,
-    .z =  MM_TO_MICRONS( 190 )
+    .x = 0,
+    .y = 0,
+    .z = MM_TO_MICRONS( 190 )
 };
 
 // Constrain motion to the practical parts of the movement volume
@@ -64,15 +64,15 @@ PUBLIC void
 kinematics_init( void )
 {
     // calculate/cache common trig constants
-    sqrt3  = M_SQRT3;
-    sqrt1div3 = sqrtf( 1.0f/3.0f );
-    sin120 = sqrt3 / 2.0f;
-    sin30  = 0.5f;
-    cos120 = -0.5f;
-    tan60  = sqrt3;
-    tan30  = 1 / sqrt3;
+    sqrt3     = M_SQRT3;
+    sqrt1div3 = sqrtf( 1.0f / 3.0f );
+    sin120    = sqrt3 / 2.0f;
+    sin30     = 0.5f;
+    cos120    = -0.5f;
+    tan60     = sqrt3;
+    tan30     = 1 / sqrt3;
 
-    //cache common calculations
+    // cache common calculations
     deg_to_rad = M_PI / 180.0f;
     t          = ( f - e ) * tan30 / 2;
 

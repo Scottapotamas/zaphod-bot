@@ -5,24 +5,24 @@
 #include "configuration.h"
 #include "configuration_types.h"
 
-#include "hal_flashmem.h"
-#include "app_version.h"
 #include "app_times.h"
+#include "app_version.h"
 #include "buzzer.h"
+#include "hal_flashmem.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
-PowerCalibration_t power_trims = { 0 };
-LedSettings_t *rgb_led_settings_ptr = 0;
+PowerCalibration_t power_trims          = { 0 };
+LedSettings_t     *rgb_led_settings_ptr = 0;
 
 float z_rotation = 0;
 
 FanCurve_t fan_curve[NUM_FAN_CURVE_POINTS] = {
-        { .temperature = 0, .percentage = 20 },
-        { .temperature = 20, .percentage = 20 },
-        { .temperature = 35, .percentage = 45 },
-        { .temperature = 45, .percentage = 90 },
-        { .temperature = 60, .percentage = 100 },
+    { .temperature = 0, .percentage = 20 },
+    { .temperature = 20, .percentage = 20 },
+    { .temperature = 35, .percentage = 45 },
+    { .temperature = 45, .percentage = 90 },
+    { .temperature = 60, .percentage = 100 },
 };
 
 /* ----- Public Functions --------------------------------------------------- */
@@ -30,7 +30,7 @@ FanCurve_t fan_curve[NUM_FAN_CURVE_POINTS] = {
 PUBLIC void
 configuration_init( void )
 {
-    //perform any setup here if needed
+    // perform any setup here if needed
     configuration_set_defaults();
 
     // Load settings from flash memory
@@ -43,11 +43,10 @@ PUBLIC void
 configuration_set_defaults( void )
 {
     rgb_led_settings_ptr->correct_gamma = false;
-    rgb_led_settings_ptr->correct_wb = true;
-    rgb_led_settings_ptr->balance_red = 0xFFFFU * 0.3f;
+    rgb_led_settings_ptr->correct_wb    = true;
+    rgb_led_settings_ptr->balance_red   = 0xFFFFU * 0.3f;
     rgb_led_settings_ptr->balance_green = 0;
-    rgb_led_settings_ptr->balance_blue = 0xFFFF * 0.79f;
-
+    rgb_led_settings_ptr->balance_blue  = 0xFFFF * 0.79f;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -69,7 +68,7 @@ configuration_load( void )
 PUBLIC void
 configuration_save( void )
 {
-    //save settings to memory
+    // save settings to memory
     hal_flashmem_store( PERSIST_ID_CAL_POWER, &power_trims, sizeof( PowerCalibration_t ) );
     hal_flashmem_store( PERSIST_ID_CAL_LED, rgb_led_settings_ptr, sizeof( LedSettings_t ) );
 
@@ -124,7 +123,7 @@ PUBLIC int16_t configuration_get_servo_trim_mA( uint8_t servo )
 PUBLIC void *
 configuration_set_led_correction_ptr( LedSettings_t *ptr )
 {
-    if(ptr)
+    if( ptr )
     {
         rgb_led_settings_ptr = ptr;
     }
@@ -166,6 +165,5 @@ configuration_get_rotation_z()
     float angle = CLAMP( z_rotation, 0.0f, 360.0f );
     return angle;
 }
-
 
 /* ----- End ---------------------------------------------------------------- */

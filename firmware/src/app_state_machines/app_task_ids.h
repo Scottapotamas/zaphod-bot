@@ -31,10 +31,10 @@ enum AppTaskID
 {
     TASK_IDLE = 0,    // Default system IDLE
 
-    TASK_SUPERVISOR,       //High priority task that oversees the system
-    TASK_MOTION,           //Handle the motion command queue and pathing engine, higher level motor supervisor
-    TASK_LIGHTING,         //Handle the led command queue and animations engine
-                           //	TASK_EXPANSION,			//Handle the internal and external IO
+    TASK_SUPERVISOR,    // High priority task that oversees the system
+    TASK_MOTION,        // Handle the motion command queue and pathing engine, higher level motor supervisor
+    TASK_LIGHTING,      // Handle the led command queue and animations engine
+                      //	TASK_EXPANSION,			//Handle the internal and external IO
 
     TASK_MAX,    // Last entry used to define the size of task table
 };
