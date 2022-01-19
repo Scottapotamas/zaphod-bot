@@ -42,7 +42,7 @@ PRIVATE HalSoftICState_t hal_soft_ic1;
 PUBLIC void
 hal_soft_ic_init( void )
 {
-    //setup the higher level handling of ADC readings
+    // Setup the higher level handling of ADC readings
     memset( &hal_soft_ic1, 0, sizeof( hal_soft_ic1 ) );
     memset( &soft_ic_rate, 0, sizeof( soft_ic_rate ) );
     memset( &soft_ic_enabled, 0, sizeof( soft_ic_enabled ) );
@@ -152,12 +152,12 @@ hal_soft_ic_stop( HalSoftICInput_t input )
 PUBLIC void
 hal_soft_ic_tick( void )
 {
-    //only sample when something wants us to run
+    // Only sample when something wants us to run
     if( hal_soft_ic1.running )
     {
         hal_soft_ic1.tick++;
 
-        //see if its time to sample (at rate of the fastest channel)
+        // See if time to sample has arrived (at rate of the fastest channel)
         if( hal_soft_ic1.tick > hal_soft_ic1.rate )
         {
             hal_soft_ic1.tick = 0;

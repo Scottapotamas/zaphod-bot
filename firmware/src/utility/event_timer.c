@@ -47,7 +47,7 @@ eventTimerInit( void )
 
 /* -------------------------------------------------------------------------- */
 
-// setup a periodic timer to fire EVERY 'nTicks' clock ticks and send
+// Use a periodic timer to fire EVERY 'nTicks' clock ticks and send
 // timeout message 'timeoutEvent' to active object 'timeoutTask'
 PUBLIC void
 __eventTimerStartEvery( EventTimer              *me,
@@ -67,7 +67,7 @@ __eventTimerStartEvery( EventTimer              *me,
 
 /* -------------------------------------------------------------------------- */
 
-// setup a one-shot timer to fire IN 'nTicks' clock ticks and send
+// Use a one-shot timer to fire IN 'nTicks' clock ticks and send
 // timeout message 'timeoutEvent' to active object 'timeoutTask'
 PUBLIC void
 __eventTimerStartOnce( EventTimer              *me,

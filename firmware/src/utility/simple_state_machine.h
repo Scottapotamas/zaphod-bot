@@ -1,7 +1,7 @@
 /**
  * @file      simple_state_machine.h
  *
- * @brief     A very basic macro level state machine architecure that
+ * @brief     A very basic macro level state machine architecture that
  *            can be used with a simple switch statements. To use it there
  *            needs to be a couple of enums and a structure with the state
  *            machine private data. Like in:

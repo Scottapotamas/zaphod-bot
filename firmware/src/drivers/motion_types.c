@@ -52,8 +52,8 @@ PUBLIC void
 cartesian_point_rotate_around_z( CartesianPoint_t *a, float degrees )
 {
     float radians = degrees * M_PI / 180.0f;
-    float cos_w   = cos( radians );
-    float sin_w   = sin( radians );
+    float cos_w   = cosf( radians );
+    float sin_w   = sinf( radians );
 
     a->x = a->x * cos_w - a->y * sin_w;
     a->y = a->x * sin_w + a->y * cos_w;
@@ -141,7 +141,7 @@ int32_t cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b )
         int32_t delta_y = a->y - b->y;
         int32_t delta_z = a->z - b->z;
         float   dist    = sqrtf( (float)( delta_x * delta_x ) + (float)( delta_y * delta_y ) + (float)( delta_z * delta_z ) );
-        distance        = fabsf( dist );
+        distance        = (int32_t)fabsf( dist );
     }
 
     return distance;
@@ -149,7 +149,7 @@ int32_t cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b )
 
 /* -------------------------------------------------------------------------- */
 
-// Calculate the control points for a cubic bezier curve which allows for acceleration shaping of a linear move
+// Calculate the control points for a cubic Bézier curve which allows for acceleration shaping of a linear move
 // Accepts a line based movement, and mutates it into a cubic bezier
 // Should be called BEFORE sending the movement to the queue
 PUBLIC KinematicsSolution_t
@@ -399,10 +399,10 @@ cartesian_point_on_spiral( CartesianPoint_t *p, size_t points, float pos_weight,
     // cache oft-used values to improve read-ability
     float t           = pos_weight;
     float a           = 1 / numSpirals;
-    float denominator = sqrt( 1 + a * a * t * t );
+    float denominator = sqrtf( 1 + a * a * t * t );
 
-    output->x = cos( t ) / denominator;
-    output->y = sin( t ) / denominator;
+    output->x = cosf( t ) / denominator;
+    output->y = sinf( t ) / denominator;
     output->z = ( -1 * a * t ) / denominator;
 
     return SOLUTION_VALID;

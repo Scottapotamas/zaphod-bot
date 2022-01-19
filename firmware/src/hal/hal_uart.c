@@ -565,7 +565,7 @@ hal_uart_start_tx( HalUart_t *h )
     primask = __get_PRIMASK();
     __disable_irq();
 
-    /* If transfer is not on-going */
+    /* If transfer is not ongoing */
     if( !LL_DMA_IsEnabledStream( h->dma_peripheral, h->dma_stream_tx ) )
     {
         h->tx_sneak_bytes = fifo_used_linear( &h->tx_fifo );
@@ -686,7 +686,7 @@ void DMA1_Stream7_IRQHandler( void )
     {
         LL_DMA_ClearFlag_TC7( DMA1 );    // Clear transfer complete flag
 
-        // Flush the data we just finished transferring, and send more as needed
+        // Flush the data we just finished transferring, and send more than needed
         hal_uart_completed_tx( &hal_uart[HAL_UART_PORT_EXTERNAL] );
     }
 }

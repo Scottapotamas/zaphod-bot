@@ -20,7 +20,7 @@ hal_temperature_micro_degrees_C( uint32_t raw_adc )
 {
     if( raw_adc == 0 )
     {
-        return -1000.0;
+        return -1000.0f;
     }
 
     float Vsense = ( (float)raw_adc * 3.3f ) / 4096.0f;
@@ -48,10 +48,10 @@ hal_temperature_pcb_degrees_C( uint32_t raw_adc )
 {
     if( raw_adc == 0 )
     {
-        return -1000.0;
+        return -1000.0f;
     }
 
-	return ( 1/( (log(((2700.0 * (4096.0 - raw_adc)) / raw_adc)/10000.0)/3360.0) + (1 / (273.15 + 25.000)) ) ) - 273.15;
+	return ( 1/( (logf(((2700.0f * (4096.0f - raw_adc)) / raw_adc)/10000.0f)/3360.0f) + (1 / (273.15f + 25.000f)) ) ) - 273.15f;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -72,10 +72,10 @@ hal_temperature_ext_degrees_C( uint32_t raw_adc )
 {
     if( raw_adc == 0 )
     {
-        return -1000.0;
+        return -1000.0f;
     }
 
-    return ( 1 / ( ( log( ( ( 2400.0 * ( 4096.0 - raw_adc ) ) / raw_adc ) / 10000.0 ) / 3435.0 ) + ( 1 / ( 273.15 + 25.000 ) ) ) ) - 273.15;
+    return ( 1 / ( ( logf( ( ( 2400.0f * ( 4096.0f - raw_adc ) ) / raw_adc ) / 10000.0f ) / 3435.0f ) + ( 1 / ( 273.15f + 25.000f ) ) ) ) - 273.15f;
 }
 
 /* ----- End ---------------------------------------------------------------- */

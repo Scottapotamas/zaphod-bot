@@ -152,7 +152,7 @@ hal_setup_capture( uint8_t input )
             LL_TIM_IC_SetPrescaler( TIM9, LL_TIM_CHANNEL_CH1, LL_TIM_ICPSC_DIV1 );    // FAN_IC_PRESCALE
             LL_TIM_IC_SetPolarity( TIM9, LL_TIM_CHANNEL_CH1, LL_TIM_IC_POLARITY_RISING );
 
-            // Store the edge-trigger setting so we know how many triggers occur per period
+            // Store the edge-trigger setting to know how many triggers occur per period
             if( LL_TIM_IC_GetPolarity( TIM9, LL_TIM_CHANNEL_CH1 ) == LL_TIM_IC_POLARITY_BOTHEDGE )
             {
                 // rising AND falling edge
@@ -189,7 +189,7 @@ hal_hard_ic_configure_pwm_input( TIM_TypeDef *TIMx )
     // Timer Clock Configuration
     LL_TIM_SetClockDivision( TIMx, LL_TIM_CLOCKDIVISION_DIV4 );
 
-    // The prescaler is setup so the 45Hz squarewave from the Clearpath servo's _just_ fits within the 16-bit counter
+    // The prescaler is configured such that the 45Hz squarewave from the Clearpath servo's _just_ fits within the 16-bit counter
     LL_TIM_SetPrescaler( TIMx, 60 );
     LL_TIM_SetCounterMode( TIMx, LL_TIM_COUNTERMODE_UP );
     //LL_TIM_SetAutoReload(TIMx, 0xFFFF);
@@ -312,7 +312,7 @@ void TIM1_BRK_TIM9_IRQHandler( void )
     {
         LL_TIM_ClearFlag_CC1( TIM9 );
 
-        static uint32_t cnt_delta = 0;
+        static uint32_t cnt_delta;
 
         if( !fan_state.first_edge_done )    // First edge timestamp
         {
@@ -334,7 +334,6 @@ void TIM1_BRK_TIM9_IRQHandler( void )
             }
             else    // overflowing capture - need to adjust timer prescale value
             {
-                cnt_delta = 0;
                 ASSERT( false );
             }
 

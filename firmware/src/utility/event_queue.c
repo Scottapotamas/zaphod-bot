@@ -100,7 +100,7 @@ eventQueueGet( EventQueue * restrict queue )
     // Get the front event
     e = queue->front;
 
-    // Update the house keeping
+    // Update housekeeping
     if( queue->used > 0 ) // something in the queue?
     {
         --queue->used;                   // one less event in the ring-buffer

@@ -231,7 +231,7 @@ servo_get_hlfb_percent( ClearpathServoInstance_t servo )
     // 65% DC => 1/3rd max torque in +ve direction
 
     // Get the HLFB duty, and scale to -100% to +100% range
-    percentage = hal_hard_ic_read_f( ServoHardwareMap[servo].ic_feedback ) * 2.05 - 100.0;
+    percentage = hal_hard_ic_read_f( ServoHardwareMap[servo].ic_feedback ) * 2.05f - 100.0f;
     CLAMP( percentage, -100.0f, 100.0f );
 
     return percentage;
@@ -341,8 +341,8 @@ servo_process( ClearpathServoInstance_t servo )
 
         case SERVO_STATE_HOMING_FIND_ENDSTOP:
             STATE_ENTRY_ACTION
-            // EN pin high starts automatic homing process on clearpath servo
-            // Servo homing behaviour is defined with the clearpath setup software, uses torque based end-stop sensing
+            // EN pin high starts the automatic homing process on the Clearpath servo.
+            // Servo homing behaviour is defined with the Clearpath setup software, uses torque based end-stop sensing
             hal_gpio_write_pin( ServoHardwareMap[servo].pin_enable, SERVO_ENABLE );
 
             //            timer_ms_start( &me->timer, 999 );
@@ -376,7 +376,7 @@ servo_process( ClearpathServoInstance_t servo )
             }
             else
             {
-                // Found the a local peak, check it's over the servo's expected threshold + some error padding
+                // Found a local peak, check it's over the servo's expected threshold + some error padding
                 if( servo_feedback < -1 * SERVO_HOMING_ENDSTOP_RAMP_MIN )
                 {
                     STATE_NEXT( SERVO_STATE_HOMING_CHECK_FOLDBACK );
@@ -402,7 +402,7 @@ servo_process( ClearpathServoInstance_t servo )
             // Check the value is reasonable for a continuous slice of time
             if( timer_ms_stopwatch_lap( &me->timer ) > SERVO_HOMING_FOLDBACK_CHECK_START_MS )
             {
-                // Check if foldback holding torque value is outside of expected range...
+                // Check if foldback holding torque value is outside the expected range...
                 if( servo_feedback > -1 * SERVO_HOMING_FOLDBACK_TORQUE_MIN
                     && servo_feedback < -1 * SERVO_HOMING_FOLDBACK_TORQUE_MAX )
                 {
@@ -612,10 +612,8 @@ servo_process( ClearpathServoInstance_t servo )
 PRIVATE int16_t
 convert_angle_steps( float kinematics_shoulder_angle )
 {
-    float   converted_angle = kinematics_shoulder_angle + SERVO_MIN_ANGLE;
-    int16_t angle_as_steps  = converted_angle * SERVO_STEPS_PER_DEGREE;
-
-    return angle_as_steps;
+    float  converted_angle = ( kinematics_shoulder_angle + SERVO_MIN_ANGLE ) * SERVO_STEPS_PER_DEGREE;
+    return (int16_t)converted_angle;
 }
 
 /* -------------------------------------------------------------------------- */

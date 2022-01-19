@@ -25,7 +25,7 @@
 PUBLIC void
 average_short_init( AverageShort_t *me, uint16_t span )
 {
-    /* span must sensible and fit in buffer */
+    /* span must be sensible and fit in buffer */
     // REQUIRE( span > 0 );
     // REQUIRE( span <= AVERAGE_SHORT_MAX_SPAN );
 
@@ -65,7 +65,7 @@ average_short_update( AverageShort_t *me, uint16_t new )
         }
     }
 
-    /* Remember this this new value as the last added */
+    /* Remember this new value as the last added */
     me->last = new;
 
     /* Add new value to index */

@@ -418,7 +418,7 @@ hsi_lerp_linear( HSIColour_t p[], size_t points, float pos_weight, HSIColour_t *
 
     // Linear interpolation between two points (lerp)
 
-    // for hue, remember that its a circular range so we need to take the shortest path across the wrapping
+    // for hue, remember it covers a circular range: we need to take the shortest path across the wrapping point
     float distance_ccw = ( p[0].hue >= p[1].hue ) ? p[0].hue - p[1].hue : 1 + p[0].hue - p[1].hue;
     float distance_cw  = ( p[0].hue >= p[1].hue ) ? 1 + p[1].hue - p[0].hue : p[1].hue - p[0].hue;
 
@@ -472,9 +472,9 @@ void hsi_to_rgb( float h, float s, float i, float *r, float *g, float *b )
 
         p = 2 * i - q;
 
-        *r = hue_to_channel( p, q, h + 1 / 3.0 );
+        *r = hue_to_channel( p, q, h + 1.0f / 3.0f );
         *g = hue_to_channel( p, q, h );
-        *b = hue_to_channel( p, q, h - 1 / 3.0 );
+        *b = hue_to_channel( p, q, h - 1.0f / 3.0f );
     }
 }
 
@@ -491,19 +491,19 @@ float hue_to_channel( float p, float q, float t )
         t -= 1;
     }
 
-    if( t < 1 / 6.0 )
+    if( t < 1 / 6.0f )
     {
         return p + ( q - p ) * 6 * t;
     }
 
-    if( t < 1 / 2.0 )
+    if( t < 1 / 2.0f )
     {
         return q;
     }
 
-    if( t < 2 / 3.0 )
+    if( t < 2 / 3.0f )
     {
-        return p + ( q - p ) * ( 2 / 3.0 - t ) * 6;
+        return p + ( q - p ) * ( 2.0f / 3.0f - t ) * 6.0f;
     }
 
     return p;

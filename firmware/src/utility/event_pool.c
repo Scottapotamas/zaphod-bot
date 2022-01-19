@@ -167,7 +167,7 @@ eventPoolNewEvent( uint16_t eventSize, Signal signal )
     // something is not freeing the events.
     ASSERT( false );
 
-    // When NASSERT is defined, the ASSERTs are disabled and we return NULL.
+    // When NASSERT is defined, the ASSERTs are disabled, return NULL.
     return 0;
 }
 

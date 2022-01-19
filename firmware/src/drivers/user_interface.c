@@ -236,6 +236,8 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
             void        *payload = interface->packet.data_in;
             uint8_t     *name_rx = interface->packet.id_in;
 
+            bool has_payload = (header.data_len > 0);
+
             // See if the inbound packet name matches our intended variable
             if( strcmp( (char *)name_rx, MSGID_MODE_REQUEST ) == 0 )
             {
@@ -265,17 +267,17 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
                 }
             }
 
-            if( strcmp( (char *)name_rx, MSGID_QUEUE_ADD_MOVE ) == 0 && header.data_len )
+            if( strcmp( (char *)name_rx, MSGID_QUEUE_ADD_MOVE ) == 0 && has_payload )
             {
                 movement_generate_event();
             }
 
-            if( strcmp( (char *)name_rx, MSGID_QUEUE_ADD_FADE ) == 0 && header.data_len )
+            if( strcmp( (char *)name_rx, MSGID_QUEUE_ADD_FADE ) == 0 && has_payload )
             {
                 lighting_generate_event();
             }
 
-            if( strcmp( (char *)name_rx, MSGID_POSITION_TARGET ) == 0 && header.data_len )
+            if( strcmp( (char *)name_rx, MSGID_POSITION_TARGET ) == 0 && has_payload )
             {
                 tracked_position_event();
             }
@@ -287,13 +289,13 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
 
             // Fire an event to refresh the LED if the UI sends a value in
             // This makes display updates when manually setting colors or calibration values nice and responsive
-            if( strcmp( (char *)name_rx, MSGID_LED_MANUAL_REQUEST ) == 0 && header.data_len
-                || strcmp( (char *)name_rx, MSGID_LED_CALIBRATION ) == 0 && header.data_len )
+            if( strcmp( (char *)name_rx, MSGID_LED_MANUAL_REQUEST ) == 0 && has_payload
+                || strcmp( (char *)name_rx, MSGID_LED_CALIBRATION ) == 0 && has_payload )
             {
                 rgb_manual_led_event();
             }
 
-            if( strcmp( (char *)name_rx, MSGID_CAPTURE ) == 0 && header.data_len )
+            if( strcmp( (char *)name_rx, MSGID_CAPTURE ) == 0 && has_payload )
             {
                 trigger_camera_capture();
             }

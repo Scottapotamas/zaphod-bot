@@ -162,7 +162,7 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
             return 0;
 
         case ANIMATION_COMPLETE: {
-            // the led interpolation engine has completed the animation execution,
+            // the LED interpolation engine has completed the animation execution,
             // loop around to process another event with the same ID, or go back to inactive and wait for sync
             if( eventQueueUsed( &me->super.requestQueue ) )
             {

@@ -290,7 +290,7 @@ hal_flashmem_find_end_address( uint8_t sector )
 
     hal_flashmem_debug( 1 );
 
-    // Walk though entries until we find blank space
+    // Walk through entries until we find blank space
     while( scan_addr < sector_limit_addr && !end_found )
     {
         // 'Read' the entry metadata
@@ -330,7 +330,7 @@ hal_flashmem_find_variable_entry( uint16_t identifier )
     bool                   id_found = false;
     StoredVariableHeader_t tmp_entry;
 
-    // Walk though entries until we find our ID, then follow the chain of address to the last one
+    // Walk through entries until we find our ID, then follow the chain of address to the last one
     while( scan_addr < sector_limit_addr && !id_found )
     {
         // 'Read' the entry metadata

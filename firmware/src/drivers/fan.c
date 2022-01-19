@@ -200,13 +200,13 @@ fan_speed_at_temp( float temperature )
         // Protect against out-of-bounds temperature inputs
         if( (uint8_t)temperature < fan_curve[0].temperature )
         {
-            // Temperature is lower than lowest point in LUT
+            // Temperature is lower than the lowest point in LUT
             return fan_curve[0].percentage;
         }
         else if( (uint8_t)temperature > fan_curve[NUM_FAN_CURVE_POINTS - 1].temperature )
         {
             // Temperature exceeds max LUT value
-            return 100.0;
+            return 100.0f;
         }
 
         for( uint32_t i = 0; i < NUM_FAN_CURVE_POINTS - 1; i++ )

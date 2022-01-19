@@ -126,12 +126,12 @@ kinematics_clamp_volume( CartesianPoint_t *point )
 /* -------------------------------------------------------------------------- */
 
 /*
- * Accept a x/y/z cartesian input, write into provided pointer to angle structure
+ * Accept an x/y/z cartesian input, write into provided pointer to angle structure
  * Returns 0 when OK, 1 for error
  *
  * Calculate the output motor angles with an IK solver
  * Bounds checks to ensure motors aren't being commanded past their practical limits
- * Set the target angles for the clearpath driver to then handle.
+ * Set the target angles for the Clearpath driver to then handle.
  *
  * Returns status
  */
