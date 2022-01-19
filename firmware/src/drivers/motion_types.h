@@ -9,7 +9,7 @@
 
 // Co-ordinate space in xyz, measured in microns.
 // This provides micron resolution positioning to 2147 meters...
-// for reference, 16-bit positioning would bound the axis to 65mm travel
+// for reference, 16-bit positioning would constrain the axis to 65 mm travel
 typedef struct
 {
     int32_t x;
@@ -92,7 +92,7 @@ typedef struct
     uint8_t           num_pts;    // number of used elements in points array
     uint8_t           reserved;
     uint32_t          sync_offset;    // milliseconds after sync timestamp when move should execute
-                                      //     this used as a (timebased) global identifier
+                                      //     used as a (timebased) global identifier
     uint16_t         duration;        // execution duration in milliseconds
     uint16_t         reserved2;
     CartesianPoint_t points[MOVEMENT_POINTS_COUNT];    // array of 3d points

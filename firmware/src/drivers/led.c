@@ -87,11 +87,11 @@ led_set( float r, float g, float b )
     setpoint_g = CLAMP( setpoint_g, 0.0f, 1.0f );
     setpoint_b = CLAMP( setpoint_b, 0.0f, 1.0f );
 
-    // Set the output duty cycles for the led PWM channels
+    // Set the output duty cycles for the LED PWM channels
     // PWM peripheral expects 0-100 percentage input, and we need to invert the polarity of the duty cycle
-    hal_pwm_set_percentage_f( _PWM_TIM_AUX_0, ( setpoint_r * -1.0 + 1.0 ) * 100.0f );
-    hal_pwm_set_percentage_f( _PWM_TIM_AUX_1, ( setpoint_g * -1.0 + 1.0 ) * 100.0f );
-    hal_pwm_set_percentage_f( _PWM_TIM_AUX_2, ( setpoint_b * -1.0 + 1.0 ) * 100.0f );
+    hal_pwm_set_percentage_f( _PWM_TIM_AUX_0, ( setpoint_r * -1.0f + 1.0f ) * 100.0f );
+    hal_pwm_set_percentage_f( _PWM_TIM_AUX_1, ( setpoint_g * -1.0f + 1.0f ) * 100.0f );
+    hal_pwm_set_percentage_f( _PWM_TIM_AUX_2, ( setpoint_b * -1.0f + 1.0f ) * 100.0f );
 
     user_interface_set_led_values( setpoint_r * 0xFFFF, setpoint_g * 0xFFFF, setpoint_b * 0xFFFF );
 }
@@ -109,7 +109,7 @@ led_luminance_correct( float input )
      *  Y = ((L* + 16) / 116)^3    if L* > 8
      */
 
-    float luminance = 0.0f;
+    float luminance;
 
     if( lightness <= 8 )
     {
@@ -117,7 +117,7 @@ led_luminance_correct( float input )
     }
     else
     {
-        luminance = pow( ( ( lightness + 16 ) / 116 ), 3 );
+        luminance = powf( ( ( lightness + 16 ) / 116 ), 3 );
     }
 
     return luminance;
@@ -134,9 +134,9 @@ led_whitebalance_correct( float *red, float *green, float *blue )
     configuration_get_led_whitebalance( &wb_r, &wb_g, &wb_b );
 
     // Apply offsets
-    *red   = *red * ( 1.0 - ( (float)wb_r / 0xFFFFU ) );
-    *green = *green * ( 1.0 - ( (float)wb_g / 0xFFFFU ) );
-    *blue  = *blue * ( 1.0 - ( (float)wb_b / 0xFFFFU ) );
+    *red   = *red * ( 1.0f - ( (float)wb_r / 0xFFFFU ) );
+    *green = *green * ( 1.0f - ( (float)wb_g / 0xFFFFU ) );
+    *blue  = *blue * ( 1.0f - ( (float)wb_b / 0xFFFFU ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -144,12 +144,12 @@ led_whitebalance_correct( float *red, float *green, float *blue )
 PRIVATE float
 led_power_limit()
 {
-    int16_t limit = 0;
+    uint16_t limit = 0;
     configuration_get_led_bias( &limit );
 
     // Apply offset based on that value
 
-    return 1.0 - ( (float)limit / 32767 );
+    return 1.0f - ( (float)limit / 32767 );
 }
 
 /* ----- End ---------------------------------------------------------------- */

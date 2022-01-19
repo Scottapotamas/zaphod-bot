@@ -43,8 +43,8 @@ enum AppSignals
     MECHANISM_STOP,
     MECHANISM_REHOME,
 
-    MOTION_HOMED,    // all motors have homed without detected error
-    MOTION_ERROR,    // error while homing
+    MOTION_HOMED,    // All motors have homed without detected error
+    MOTION_ERROR,    // Error while homing
     MOTION_DISABLED,
 
     /* Motion Handler Signals */
@@ -53,26 +53,26 @@ enum AppSignals
 
     MOTION_QUEUE_START,
     MOTION_QUEUE_ADD,      // Provide movement information for queue processing
-    MOTION_QUEUE_CLEAR,    // empty out pending movements
+    MOTION_QUEUE_CLEAR,    // Empty out pending movements
 
-    PATHING_STARTED,     // started executing a move
-    PATHING_COMPLETE,    // finished moving along a provided profile path
+    PATHING_STARTED,     // Started executing a move
+    PATHING_COMPLETE,    // Finished moving along a provided profile path
 
     /* LED Handler Signals */
     LED_OFF,    // Turn off led immediately, clear the queue
     LED_QUEUE_START,
     LED_QUEUE_ADD,      // Provide led animation object to queue
-    LED_QUEUE_CLEAR,    // empty pending animations
+    LED_QUEUE_CLEAR,    // Empty pending animations
 
-    ANIMATION_STARTED,     // started executing a fade
-    ANIMATION_COMPLETE,    // finished drawing out the led animated colour ramp
+    ANIMATION_STARTED,     // Started executing a fade
+    ANIMATION_COMPLETE,    // Finished drawing out the LED animated colour ramp
 
     LED_ALLOW_MANUAL_CONTROL,
     LED_RESTRICT_MANUAL_CONTROL,
 
     LED_MANUAL_SET,
 
-    QUEUE_SYNC_START,    // Provide a start signal to tasks which follow the id indexed queues. Should contain a SyncTimestampEvent
+    QUEUE_SYNC_START,    // Signal intent for motion/fade queues to start. Should contain a SyncTimestampEvent
 
     CAMERA_CAPTURE,
 

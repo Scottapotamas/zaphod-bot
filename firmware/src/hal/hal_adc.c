@@ -64,8 +64,8 @@ PRIVATE uint32_t adc_channels[HAL_ADC_INPUT_NUM];    // Destination 'userspace' 
 
 PRIVATE uint16_t       adc_rate[HAL_ADC_INPUT_NUM];        // Track the requested rate per-channel
 PRIVATE uint8_t        adc_enabled[HAL_ADC_INPUT_NUM];     // Track if each channel is needed or not
-PRIVATE uint32_t       adc_peaks[HAL_ADC_INPUT_NUM];       // Track highest value
-PRIVATE AverageShort_t adc_averages[HAL_ADC_INPUT_NUM];    // Track average value
+PRIVATE uint32_t       adc_peaks[HAL_ADC_INPUT_NUM];       // Track the highest value
+PRIVATE AverageShort_t adc_averages[HAL_ADC_INPUT_NUM];    // Track the average value
 
 PRIVATE HalAdcState_t hal_adc1;    // Track behaviour for our peripheral (running, set rate etc)
 
@@ -74,7 +74,7 @@ PRIVATE HalAdcState_t hal_adc1;    // Track behaviour for our peripheral (runnin
 PUBLIC void
 hal_adc_init( void )
 {
-    //setup the higher level handling of ADC readings
+    // Init the higher level handling of ADC readings
     memset( &hal_adc1, 0, sizeof( hal_adc1 ) );
     memset( &adc_peaks, 0, sizeof( adc_peaks ) );
     memset( &adc_rate, 0, sizeof( adc_rate ) );

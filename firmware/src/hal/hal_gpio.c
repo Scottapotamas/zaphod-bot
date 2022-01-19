@@ -210,8 +210,9 @@ hal_gpio_init( HalGpioPortPin_t gpio_port_pin_nr,
             hal_gpio_init_as_output_pp( m->port, m->pin, initial_state );
             break;
 
+        case MODE_AF_OD:
         case MODE_AF_PP:
-            // Expect the 'alternate mode' driver (UART, PWM etc) to setup the GPIO as required, so ignore it here
+            // Expect the 'alternate mode' driver (UART, PWM etc.) to configure the GPIO as required, so ignore it here
             break;
     }
 }

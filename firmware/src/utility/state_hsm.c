@@ -188,7 +188,7 @@ PUBLIC void
 hsmDispatch( Hsm *me, const StateEvent *e )
 {
   /// Execute the event in the current state and keep
-  /// passing the event up the ancestor hierachy chain
+  /// passing the event up the ancestor hierarchy chain
   /// until the event is handled (i.e. returns 0) or
   /// me->sourceState becomes 0 because we reached the
   /// top state HsmTop (which returns 0 for everything)
@@ -262,7 +262,7 @@ hsmStaticTransitionSetup( Hsm *me, Tran_ *tran, State target )
   }
 
   /// ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
-  /// Check 4: Are we transitionining up to the parent of this state?
+  /// Check 4: Are we transitioning up to the parent of this state?
   ///          i.e. source->super == target
 
   if( sourceParent == target )
@@ -438,7 +438,7 @@ hsmDynamicTransition( Hsm *me, State target )
 
   if( me->sourceState == targetParent )
   {
-    /// No need to exit the source state as we are decending to a child
+    /// No need to exit the source state as we are descending to a child
     goto DynInLCA;
   }
 
@@ -492,7 +492,7 @@ hsmDynamicTransition( Hsm *me, State target )
 
   // ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
 
-  /// We are definitly not in the same banch of states, so we are
+  /// We are definitely not in the same batch of states, so we are
   /// now sure that the sourceState needs to be exited
   (void)TRIGGER( me->sourceState, STATE_EXIT_SIGNAL );
 
@@ -534,7 +534,7 @@ hsmDynamicTransition( Hsm *me, State target )
 
   /// ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-
   /// When reach this, we could not find a path between the source and the target,
-  /// something is very wrong with the state machine (i.e. misconfigured)
+  /// something is very wrong with the state machine (i.e. misconfiguration)
   ASSERT(0);
 
   /// ~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-~-

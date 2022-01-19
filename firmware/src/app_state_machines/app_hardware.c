@@ -42,7 +42,7 @@ app_hardware_init( void )
 
     hal_systick_init();
 
-    // We need to do a full reset of usart clocks/peripherals on boot, as the DMA setup seems
+    // We need to do a full reset of USART clocks/peripherals on boot, as the DMA setup seems
     // to cling onto error flags across firmware flashing - making debugging hard
     hal_uart_global_deinit();
 

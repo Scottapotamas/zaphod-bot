@@ -1,6 +1,10 @@
 #ifndef CONFIGURATION_TYPES_H
 #define CONFIGURATION_TYPES_H
 
+/* ----- Local Includes ----------------------------------------------------- */
+
+#include "global.h"
+
 /* ----- Defines ------------------------------------------------------------ */
 
 typedef struct

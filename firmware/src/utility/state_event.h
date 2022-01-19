@@ -49,7 +49,7 @@ struct Dynamic
 
 /* -------------------------------------------------------------------------- */
 
-//! Base Event stucture. Additional application specific events can be
+//! Base Event structure. Additional application specific events can be
 /// declared with this struct declared as the first member named super
 /// like in:
 ///

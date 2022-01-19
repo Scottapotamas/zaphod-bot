@@ -207,7 +207,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
         case STATE_ENTRY_SIGNAL:
             user_interface_set_motion_state( TASKSTATE_MOTION_INACTIVE );
 
-            // Continuously check that the servo's are still happy while holding position
+            // Continuously check that the servos are still happy while holding position
             eventTimerStartEvery( &me->timer1,
                                   (StateTask *)me,
                                   (StateEvent *)&stateEventReserved[STATE_TIMEOUT1_SIGNAL],
@@ -287,7 +287,7 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
         //      possibly not needed...
         case PATHING_COMPLETE: {
             // The pathing engine completed movement execution,
-            // run another event, or go back to inactive to wait for new instructions
+            // run another event, or go back to inactive and wait for new instructions
             if( eventQueueUsed( &me->super.requestQueue ) )
             {
                 StateEvent *next = eventQueuePeek( &me->super.requestQueue );
@@ -391,7 +391,7 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
                 }
                 else
                 {
-                    ASSERT( true );    // motors aren't shutdown after repeated attempts -> hardfault
+                    ASSERT( true );    // motors aren't shutdown after repeated attempts -> hard-fault
                 }
             }
 

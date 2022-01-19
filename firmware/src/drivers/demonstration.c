@@ -42,7 +42,7 @@ static const Movement_t demo_one[] = {
     //        MOVE_BETWEEN( 1000, POINT_MM(-60,0,50), POINT_MM(60,0,50)),
     //        MOVE_BETWEEN( 1000, POINT_MM(60,0,50), POINT_MM(0,0,50)),
 
-    // linear moves on x axis, then linear moves on y axis
+    // linear moves on x-axis, then linear moves on y-axis
     DELAY_MOVEMENT( 100 ),
     MOVE_BETWEEN_SMOOTH( 1000, 0.05f, 0, 0, 50, -60, 0, 50 ),
     MOVE_BETWEEN_SMOOTH( 1000, 0.05f, -60, 0, 50, 60, 0, 50 ),

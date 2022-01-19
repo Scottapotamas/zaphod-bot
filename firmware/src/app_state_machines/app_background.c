@@ -47,7 +47,7 @@ app_background( void )
     // rate limit less important background processes
     if( timer_ms_is_expired( &button_timer ) )
     {
-        // Need to turn the E-Stop light on to power the pullup for the E-STOP button
+        // Need to turn the E-Stop light on to power the pull-up for the E-STOP button
         status_external_override( true );
         button_process();
         status_external_resume();
@@ -77,7 +77,7 @@ app_background( void )
         sensors_microcontroller_C();
         sensors_input_V();
 
-        user_interface_set_cpu_load( hal_system_speed_get_load() );
+        user_interface_set_cpu_load( (uint8_t)hal_system_speed_get_load() );
         user_interface_set_cpu_clock( hal_system_speed_get_speed() );
 
         timer_ms_start( &adc_timer, BACKGROUND_ADC_AVG_POLL_MS );

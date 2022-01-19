@@ -629,7 +629,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
                         shaping = cartesian_plan_smoothed_line( &motev->move, 0.001f, 0.001f );
                     }
 
-                    // Convert the line to a acceleration-damped line, and send it to the planner
+                    // Convert the line to an acceleration-damped line, and send it to the planner
                     if( shaping == SOLUTION_VALID )
                     {
                         eventPublish( (StateEvent *)motev );
