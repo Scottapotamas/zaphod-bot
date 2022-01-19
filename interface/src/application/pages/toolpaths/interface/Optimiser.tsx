@@ -34,6 +34,8 @@ import { Movement } from '../optimiser/movements'
 import { Renderable } from '../optimiser/import'
 import { renderablesToSceneTree } from './RenderableTree'
 
+import os from 'os'
+
 export function renderablesToMovements(
   renderables: Renderable[],
   settings: Settings,
@@ -82,7 +84,7 @@ export function Optimiser() {
     if (persistentOptimiser.current === null) {
       persistentOptimiser.current = new ToolpathGenerator(
         getCurrentSettings(),
-        4,
+        Math.max(1, os.cpus().length / 2 - 1), // assume hyperthreading
       )
     }
 

@@ -81,6 +81,8 @@ export class ToolpathGenerator {
     this.setFrameMinimum = this.setFrameMinimum.bind(this)
     this.setFrameMaximum = this.setFrameMaximum.bind(this)
 
+    console.log(`Booting ${numThreads} workers`)
+
     this.pool = Pool(
       () =>
         spawn(
