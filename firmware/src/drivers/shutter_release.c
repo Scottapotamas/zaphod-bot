@@ -6,9 +6,9 @@
 
 #include "app_times.h"
 #include "hal_gpio.h"
-#include "hal_systick.h"
 #include "shutter_release.h"
 #include "simple_state_machine.h"
+#include "timer_ms.h"
 
 /* ----- Private Types ------------------------------------------------------ */
 
@@ -25,7 +25,7 @@ typedef struct
     ShutterState_t nextState;
 
     HalGpioPortPin_t control_pin;          // the GPIO responsible for triggering the camera
-    uint32_t         exposure_timer;       // track how long the shutter has been open for
+    timer_ms_t       exposure_timer;       // track how long the shutter has been open for
     uint32_t         exposure_duration;    // amount of time to hold the shutter release line for
     bool             capture;
 } Shutter_t;
@@ -80,35 +80,26 @@ shutter_process( void )
     {
         case SHUTTER_STATE_OFF:
             STATE_ENTRY_ACTION
-
             hal_gpio_write_pin( me->control_pin, GPIO_LOW );
-
             STATE_TRANSITION_TEST
-
             if( me->capture )
             {
                 STATE_NEXT( SHUTTER_STATE_ON );
             }
-
             STATE_EXIT_ACTION
             STATE_END
             break;
 
         case SHUTTER_STATE_ON:
             STATE_ENTRY_ACTION
-
             hal_gpio_write_pin( me->control_pin, GPIO_HIGH );
-            me->exposure_timer = hal_systick_get_ms();
-
+            timer_ms_start( &me->exposure_timer, me->exposure_duration);
             STATE_TRANSITION_TEST
-
-            if( ( hal_systick_get_ms() - me->exposure_timer ) > me->exposure_duration || !me->capture )
+            if( timer_ms_is_expired( &me->exposure_timer) || !me->capture )
             {
                 STATE_NEXT( SHUTTER_STATE_OFF );
             }
-
             STATE_EXIT_ACTION
-
             hal_gpio_write_pin( me->control_pin, GPIO_LOW );
             me->capture = false;
 

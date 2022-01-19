@@ -6,8 +6,8 @@
 
 #include "buzzer.h"
 #include "hal_pwm.h"
-#include "hal_systick.h"
 #include "simple_state_machine.h"
+#include "timer_ms.h"
 
 /* ----- Private Types ------------------------------------------------------ */
 
@@ -25,7 +25,7 @@ typedef struct
     uint8_t       count;
     uint16_t      duration;
     uint16_t      frequency;
-    uint32_t      timer;
+    timer_ms_t    timer;
 } Buzzer_t;
 
 /* ----- Private Variables -------------------------------------------------- */
@@ -73,12 +73,12 @@ buzzer_process( void )
                 buzzer.count--;
             }
 
-            buzzer.timer = hal_systick_get_ms();
+            timer_ms_start( &buzzer.timer, buzzer.duration );
 
             STATE_TRANSITION_TEST
 
             if( ( buzzer.count > 0 )
-                && ( hal_systick_get_ms() - buzzer.timer ) > buzzer.duration )
+                && timer_ms_is_expired( &buzzer.timer ) )
             {
                 STATE_NEXT( BUZZER_STATE_ON );
             }
@@ -90,12 +90,12 @@ buzzer_process( void )
         case BUZZER_STATE_ON:
             STATE_ENTRY_ACTION
 
-            buzzer.timer = hal_systick_get_ms();
             hal_pwm_set_percentage_f( _PWM_TIM_BUZZER, 50 );
+            timer_ms_start( &buzzer.timer, buzzer.duration );
 
             STATE_TRANSITION_TEST
 
-            if( ( hal_systick_get_ms() - buzzer.timer ) > buzzer.duration )
+            if( timer_ms_is_expired( &buzzer.timer ) )
             {
                 STATE_NEXT( BUZZER_STATE_OFF );
             }

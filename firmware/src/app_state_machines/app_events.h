@@ -19,6 +19,7 @@ extern "C" {
 #include "motion_types.h"
 #include "state_event.h"
 #include "state_task.h"
+#include "timer_ms.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -95,7 +96,7 @@ typedef struct ExpansionServoRequestEvent__
 typedef struct SyncTimestampEvent__
 {
     StateEvent super;    // Encapsulated event reference
-    uint32_t   epoch;    // base timestamp used for global 'timestamp id' sync
+    timer_ms_t epoch;    // running time reference used for global 'timestamp id' sync
 } SyncTimestampEvent;
 
 /* -------------------------------------------------------------------------- */

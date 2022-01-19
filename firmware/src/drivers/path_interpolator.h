@@ -5,6 +5,7 @@
 
 #include "global.h"
 #include <motion_types.h>
+#include "timer_ms.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -23,7 +24,7 @@ path_interpolator_process( void );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_set_epoch_reference( uint32_t timestamp_ms );
+path_interpolator_set_epoch_reference( timer_ms_t sync_timer );
 
 /* -------------------------------------------------------------------------- */
 

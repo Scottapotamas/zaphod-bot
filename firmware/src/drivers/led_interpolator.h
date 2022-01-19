@@ -5,6 +5,7 @@
 
 #include "global.h"
 #include <led_types.h>
+#include "timer_ms.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -23,7 +24,7 @@ led_interpolator_process( void );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-led_interpolator_set_epoch_reference( uint32_t timestamp_ms );
+led_interpolator_set_epoch_reference( timer_ms_t timestamp_ms );
 
 /* -------------------------------------------------------------------------- */
 

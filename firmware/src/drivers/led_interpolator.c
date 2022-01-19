@@ -11,7 +11,6 @@
 #include "app_signals.h"
 #include "app_times.h"
 #include "event_subscribe.h"
-#include "hal_systick.h"
 #include "simple_state_machine.h"
 
 #include "user_interface.h"
@@ -19,6 +18,7 @@
 #include "led.h"
 #include "led_types.h"
 #include "app_events.h"
+#include "timer_ms.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -41,10 +41,10 @@ typedef struct
 
     bool     manual_mode;               // user control
     bool     animation_run;             // if the planner is enabled
-    uint32_t epoch_timestamp;           // Reference system time for fade offset sequencing
+    timer_ms_t epoch_timestamp;         // Reference system time for fade offset sequencing
 
-    uint32_t animation_started;         // timestamp the start
-    uint32_t animation_est_complete;    // timestamp when the animation will end
+    timer_ms_t animation_started;       // timestamp the start
+    timer_ms_t animation_est_complete;  // timestamp when the animation will end
     float    progress_percent;          // calculated progress
 
     RGBColour_t led_colour;    // current channel outputs
@@ -88,7 +88,7 @@ led_interpolator_init( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-led_interpolator_set_epoch_reference( uint32_t timestamp_ms )
+led_interpolator_set_epoch_reference( timer_ms_t timestamp_ms )
 {
     LEDPlanner_t *me = &planner;
 
@@ -229,8 +229,8 @@ led_interpolator_process( void )
             user_interface_set_led_status( me->currentState );
             led_interpolator_set_dark();
 
-            // Track how long we've been off for
-            me->animation_started = hal_systick_get_ms();
+            // Disable the LED driver once we've been off for a while
+            timer_ms_start( &me->animation_started, LED_SLEEP_TIMER );
             STATE_TRANSITION_TEST
             if( me->animation_run )
             {
@@ -246,14 +246,14 @@ led_interpolator_process( void )
             }
 
             // If off for extended period of time, turn the LED driver off
-            if( hal_systick_get_ms() - me->animation_started >= LED_SLEEP_TIMER )
+            if( timer_ms_is_expired( &me->animation_started ) )
             {
                 led_enable( false );
             }
 
             STATE_EXIT_ACTION
             led_enable( true );
-            me->animation_started = 0;
+            timer_ms_stop( &me->animation_started );
             STATE_END
             break;
 
@@ -271,13 +271,13 @@ led_interpolator_process( void )
 
             STATE_TRANSITION_TEST
             // Calculate the time since the 'epoch' event
-            uint32_t time_since_epoch_ms = hal_systick_get_ms() - me->epoch_timestamp;
+            uint32_t time_since_epoch_ms = timer_ms_stopwatch_lap( &me->epoch_timestamp );
 
             // Start the fade once sync offset time matches the epoch + elapsed time
-            if( time_since_epoch_ms >= me->current_fade->sync_offset && !me->animation_started )
+            if( time_since_epoch_ms >= me->current_fade->sync_offset && !timer_ms_is_running( &me->animation_started ) )
             {
-                me->animation_started      = hal_systick_get_ms();
-                me->animation_est_complete = me->animation_started + me->current_fade->duration;
+                timer_ms_stopwatch_start( &me->animation_started );
+                timer_ms_start( &me->animation_est_complete, me->current_fade->duration );
                 me->progress_percent      = 0;
 
                 led_interpolator_notify_animation_started( me->current_fade->sync_offset );
@@ -303,12 +303,12 @@ led_interpolator_process( void )
                     if( me->current_fade == &me->fade_a )
                     {
                         me->current_fade = &me->fade_b;
-                        me->animation_started = 0;
+                        timer_ms_stop( &me->animation_started );
                     }
                     else
                     {
                         me->current_fade = &me->fade_a;
-                        me->animation_started = 0;
+                        timer_ms_stop( &me->animation_started );
                     }
 
                     // Fall back into the handler's off state until slots are loaded
@@ -321,8 +321,8 @@ led_interpolator_process( void )
             STATE_EXIT_ACTION
                 me->current_fade = 0;
                 me->progress_percent = 0;
-                me->animation_started = 0;
-                me->animation_est_complete = 0;
+                timer_ms_stop( &me->animation_started );
+                timer_ms_stop( &me->animation_est_complete );
             STATE_END
             break;
 
@@ -354,8 +354,7 @@ led_interpolator_calculate_percentage( uint16_t fade_duration )
 
     // calculate current target completion based on time elapsed
     // time remaining is the allotted duration - time used (start to now), divide by the duration to get 0.0->1.0 progress
-    uint32_t time_used = hal_systick_get_ms() - me->animation_started;
-    // TODO: use timer_ms_t instead of raw systick here
+    uint32_t time_used = timer_ms_stopwatch_lap( &me->animation_started );
 
     if( fade_duration )
     {
