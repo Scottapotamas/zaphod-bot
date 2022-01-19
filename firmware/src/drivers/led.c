@@ -33,6 +33,7 @@ led_init( void )
     hal_pwm_generation( _PWM_TIM_AUX_0, LED_FREQUENCY_HZ );
     hal_pwm_generation( _PWM_TIM_AUX_1, LED_FREQUENCY_HZ );
     hal_pwm_generation( _PWM_TIM_AUX_2, LED_FREQUENCY_HZ );
+    led_set( 0.0f, 0.0f, 0.0f );
 }
 
 /* -------------------------------------------------------------------------- */
