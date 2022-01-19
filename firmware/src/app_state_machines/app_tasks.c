@@ -21,11 +21,11 @@
 #include "app_task_motion.h"
 #include "app_task_supervisor.h"
 
-#include "user_interface.h"
 #include "button.h"
+#include "hal_adc.h"
 #include "hal_button.h"
 #include "hal_systick.h"
-#include "hal_adc.h"
+#include "user_interface.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -58,20 +58,20 @@ EventSubscribers eventSubscriberList[STATE_MAX_SIGNAL];
 // ~~~ Task Control Blocks & Event Queues ~~~
 
 AppTaskMotion appTaskMotion;
-StateEvent *  appTaskMotionEventQueue[MOVEMENT_QUEUE_DEPTH_MAX];
-StateEvent *  appTaskMotionQueue[150];
+StateEvent   *appTaskMotionEventQueue[MOVEMENT_QUEUE_DEPTH_MAX];
+StateEvent   *appTaskMotionQueue[150];
 
 AppTaskLed  appTaskLed;
 StateEvent *appTaskLedEventQueue[LED_QUEUE_DEPTH_MAX];
 StateEvent *appTaskLedQueue[250];
 
 AppTaskSupervisor appTaskSupervisor;
-StateEvent *      appTaskSupervisorEventQueue[20];
+StateEvent       *appTaskSupervisorEventQueue[20];
 
 // ~~~ Tasker ~~~
 
 PRIVATE StateTasker_t mainTasker;
-PUBLIC StateTask *mainTaskTable[TASK_MAX];
+PUBLIC StateTask     *mainTaskTable[TASK_MAX];
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -112,7 +112,7 @@ void app_tasks_init( void )
     /* ~~~ State Machines Initialisation ~~~ */
     StateTask *t;
 
-    //Handle motion controls
+    // Handle motion controls
     t = appTaskMotionCreate( &appTaskMotion,
                              appTaskMotionEventQueue,
                              DIM( appTaskMotionEventQueue ),
@@ -132,7 +132,7 @@ void app_tasks_init( void )
     stateTaskerAddTask( &mainTasker, t, TASK_LIGHTING, "Lighting" );
     stateTaskerStartTask( &mainTasker, t );
 
-    //Overseer task
+    // Overseer task
     t = appTaskSupervisorCreate( &appTaskSupervisor,
                                  appTaskSupervisorEventQueue,
                                  DIM( appTaskSupervisorEventQueue ) );

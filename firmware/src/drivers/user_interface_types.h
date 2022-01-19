@@ -33,14 +33,14 @@ typedef enum
 
 typedef struct
 {
-    bool sensors_enable;    //if ADC sampling and conversions are active
-    bool module_enable;     //add-in card powered
+    bool sensors_enable;    // if ADC sampling and conversions are active
+    bool module_enable;     // add-in card powered
 
-    //microcontroller info
-    uint8_t cpu_load;     //percentage
-    uint8_t cpu_clock;    //speed in Mhz
+    // microcontroller info
+    uint8_t cpu_load;     // percentage
+    uint8_t cpu_clock;    // speed in Mhz
 
-    int16_t input_voltage;    //voltage
+    int16_t input_voltage;    // voltage
     int16_t temp_pcb_ambient;
     int16_t temp_pcb_regulator;
     int16_t temp_external_probe;
@@ -86,11 +86,11 @@ typedef struct
 
 typedef struct
 {
-    //pathing engine state idle, running, etc
+    // pathing engine state idle, running, etc
     uint8_t pathing_state;
-    //motion handler information
+    // motion handler information
     uint8_t motion_state;
-    //information about the current move being executed
+    // information about the current move being executed
     uint8_t  profile_type;
     uint8_t  move_progress;
     uint32_t movement_identifier;
@@ -127,4 +127,4 @@ typedef struct
 }
 #endif
 
-#endif //USER_INTERFACE_TYPES_H
+#endif    // USER_INTERFACE_TYPES_H

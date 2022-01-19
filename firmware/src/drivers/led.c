@@ -7,10 +7,10 @@
 
 #include "app_times.h"
 #include "configuration.h"
-#include "user_interface.h"
 #include "hal_gpio.h"
 #include "hal_pwm.h"
 #include "led.h"
+#include "user_interface.h"
 
 /* ----- Private Types ------------------------------------------------------ */
 

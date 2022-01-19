@@ -13,13 +13,13 @@
 
 #include "app_signals.h"
 #include "app_times.h"
-#include "user_interface.h"
 #include "event_subscribe.h"
 #include "global.h"
 #include "qassert.h"
 #include "simple_state_machine.h"
 #include "status.h"
 #include "timer_ms.h"
+#include "user_interface.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -45,12 +45,12 @@ typedef struct
     ServoState_t currentState;
     ServoState_t nextState;
 
-    float   ic_feedback_trim;
-    float   homing_feedback;
+    float      ic_feedback_trim;
+    float      homing_feedback;
     timer_ms_t timer;
-    int16_t angle_current_steps;
-    int16_t angle_target_steps;
-    bool    enabled;
+    int16_t    angle_current_steps;
+    int16_t    angle_target_steps;
+    bool       enabled;
 } Servo_t;
 
 typedef struct
@@ -68,7 +68,7 @@ typedef struct
     HalAdcInput_t    adc_current;
     HalGpioPortPin_t pin_oc_fault;
 
-    bool             requires_homing;
+    bool requires_homing;
 
 } ServoHardware_t;
 
@@ -77,32 +77,31 @@ typedef struct
 PRIVATE Servo_t clearpath[_NUMBER_CLEARPATH_SERVOS];
 
 PRIVATE const ServoHardware_t ServoHardwareMap[] = {
-    [_CLEARPATH_1] = { .pin_enable    = _SERVO_1_ENABLE,
-                       .pin_direction = _SERVO_1_A,
-                       .pin_step      = _SERVO_1_B,
-                       .pin_feedback  = _SERVO_1_HLFB,
-                       .ic_feedback   = HAL_HARD_IC_HLFB_SERVO_1,
-                       .adc_current   = HAL_ADC_INPUT_M1_CURRENT,
-                       .pin_oc_fault  = _SERVO_1_CURRENT_FAULT,
+    [_CLEARPATH_1] = { .pin_enable      = _SERVO_1_ENABLE,
+                       .pin_direction   = _SERVO_1_A,
+                       .pin_step        = _SERVO_1_B,
+                       .pin_feedback    = _SERVO_1_HLFB,
+                       .ic_feedback     = HAL_HARD_IC_HLFB_SERVO_1,
+                       .adc_current     = HAL_ADC_INPUT_M1_CURRENT,
+                       .pin_oc_fault    = _SERVO_1_CURRENT_FAULT,
                        .requires_homing = true },
 
-    [_CLEARPATH_2] = { .pin_enable    = _SERVO_2_ENABLE,
-                       .pin_direction = _SERVO_2_A,
-                       .pin_step      = _SERVO_2_B,
-                       .pin_feedback  = _SERVO_2_HLFB,
-                       .ic_feedback   = HAL_HARD_IC_HLFB_SERVO_2,
-                       .adc_current   = HAL_ADC_INPUT_M2_CURRENT,
-                       .pin_oc_fault  = _SERVO_2_CURRENT_FAULT,
+    [_CLEARPATH_2] = { .pin_enable      = _SERVO_2_ENABLE,
+                       .pin_direction   = _SERVO_2_A,
+                       .pin_step        = _SERVO_2_B,
+                       .pin_feedback    = _SERVO_2_HLFB,
+                       .ic_feedback     = HAL_HARD_IC_HLFB_SERVO_2,
+                       .adc_current     = HAL_ADC_INPUT_M2_CURRENT,
+                       .pin_oc_fault    = _SERVO_2_CURRENT_FAULT,
                        .requires_homing = true },
 
-
-    [_CLEARPATH_3] = { .pin_enable    = _SERVO_3_ENABLE,
-                       .pin_direction = _SERVO_3_A,
-                       .pin_step      = _SERVO_3_B,
-                       .pin_feedback  = _SERVO_3_HLFB,
-                       .ic_feedback   = HAL_HARD_IC_HLFB_SERVO_3,
-                       .adc_current   = HAL_ADC_INPUT_M3_CURRENT,
-                       .pin_oc_fault  = _SERVO_3_CURRENT_FAULT,
+    [_CLEARPATH_3] = { .pin_enable      = _SERVO_3_ENABLE,
+                       .pin_direction   = _SERVO_3_A,
+                       .pin_step        = _SERVO_3_B,
+                       .pin_feedback    = _SERVO_3_HLFB,
+                       .ic_feedback     = HAL_HARD_IC_HLFB_SERVO_3,
+                       .adc_current     = HAL_ADC_INPUT_M3_CURRENT,
+                       .pin_oc_fault    = _SERVO_3_CURRENT_FAULT,
                        .requires_homing = true },
 
 
@@ -176,7 +175,7 @@ servo_set_target_angle_raw( ClearpathServoInstance_t servo, float angle_degrees 
     user_interface_motor_target_angle( servo, angle_degrees );
 
     const uint32_t steps_per_degree = ( 400 / SERVO_ANGLE_PER_REV );
-   me->angle_target_steps = steps_per_degree * angle_degrees;
+    me->angle_target_steps          = steps_per_degree * angle_degrees;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -283,7 +282,7 @@ servo_process( ClearpathServoInstance_t servo )
             timer_ms_start( &me->timer, SERVO_FAULT_LINGER_MS );
             STATE_TRANSITION_TEST
 
-            if( timer_ms_is_expired(&me->timer) )
+            if( timer_ms_is_expired( &me->timer ) )
             {
                 STATE_NEXT( SERVO_STATE_INACTIVE );
             }
@@ -346,7 +345,7 @@ servo_process( ClearpathServoInstance_t servo )
             // Servo homing behaviour is defined with the clearpath setup software, uses torque based end-stop sensing
             hal_gpio_write_pin( ServoHardwareMap[servo].pin_enable, SERVO_ENABLE );
 
-//            timer_ms_start( &me->timer, 999 );
+            //            timer_ms_start( &me->timer, 999 );
             STATE_TRANSITION_TEST
             // We expect the torque to be positive while the arm transits towards the endstop
             // When it goes under 0% HLFB, the torque has changed direction and we've likely just contacted the endstop
@@ -372,7 +371,7 @@ servo_process( ClearpathServoInstance_t servo )
             // Once the servo reaches its thresholded homing torque, torque foldback kicks in
             if( servo_feedback < me->homing_feedback )
             {
-                //increasing torque in -ve direction
+                // increasing torque in -ve direction
                 me->homing_feedback = servo_feedback;
             }
             else
@@ -433,8 +432,8 @@ servo_process( ClearpathServoInstance_t servo )
             me->homing_feedback  = ( 0.1f * servo_feedback ) + ( clearpath[servo].ic_feedback_trim * 0.9f );
 
             // Current torque feedback is similar to previous running average
-            if(     -1 * SERVO_HOMING_SIMILARITY_PERCENT < feedback_error
-                ||  feedback_error < SERVO_HOMING_SIMILARITY_PERCENT )
+            if( -1 * SERVO_HOMING_SIMILARITY_PERCENT < feedback_error
+                || feedback_error < SERVO_HOMING_SIMILARITY_PERCENT )
             {
                 // Check we've maintained this level for a minimum amount of time
                 if( timer_ms_stopwatch_lap( &me->timer ) > SERVO_HOMING_SIMILARITY_MS )
@@ -472,7 +471,7 @@ servo_process( ClearpathServoInstance_t servo )
             }
 
             // Allow some time for the motor to decelerate before we worry about excessive no-motion loads
-            if( timer_ms_is_expired( &me->timer ) );
+            if( timer_ms_is_expired( &me->timer ) )
             {
                 //  Check if the motor has been drawing higher than expected power while stationary
                 //  OR if the idle torque is above/below a generous bound

@@ -93,9 +93,9 @@ shutter_process( void )
         case SHUTTER_STATE_ON:
             STATE_ENTRY_ACTION
             hal_gpio_write_pin( me->control_pin, GPIO_HIGH );
-            timer_ms_start( &me->exposure_timer, me->exposure_duration);
+            timer_ms_start( &me->exposure_timer, me->exposure_duration );
             STATE_TRANSITION_TEST
-            if( timer_ms_is_expired( &me->exposure_timer) || !me->capture )
+            if( timer_ms_is_expired( &me->exposure_timer ) || !me->capture )
             {
                 STATE_NEXT( SHUTTER_STATE_OFF );
             }

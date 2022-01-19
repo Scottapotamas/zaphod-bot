@@ -104,21 +104,21 @@ enum ServoDefines
 
     SERVO_COUNT = 4U,
 
-    //Clearpath motion range allowed by mechanism
+    // Clearpath motion range allowed by mechanism
     SERVO_STEPS_PER_REV    = 6400U,
     SERVO_ANGLE_PER_REV    = 360U,
     SERVO_STEPS_PER_DEGREE = ( SERVO_STEPS_PER_REV / SERVO_ANGLE_PER_REV ),
-    SERVO_MIN_ANGLE        = 45U,    //this is the negative angle limit
-    SERVO_ZERO_ANGLE       = 0U,     //bicep elbow is parallel to motor axis
-    SERVO_MAX_ANGLE        = 65U,    //arm is fully extended
+    SERVO_MIN_ANGLE        = 45U,    // this is the negative angle limit
+    SERVO_ZERO_ANGLE       = 0U,     // bicep elbow is parallel to motor axis
+    SERVO_MAX_ANGLE        = 65U,    // arm is fully extended
     SERVO_MIN_STEPS        = ( SERVO_MIN_ANGLE * SERVO_STEPS_PER_DEGREE ),
     SERVO_MAX_STEPS        = ( SERVO_MAX_ANGLE * SERVO_STEPS_PER_DEGREE ),
 
     SERVO_HOME_OFFSET = 25U,
 
-    //Homing parameters
+    // Homing parameters
     SERVO_HOMING_CALIBRATION_SAMPLES = 10U,
-    SERVO_HOMING_CALIBRATION_MS      = ( SERVO_HOMING_CALIBRATION_SAMPLES * 22U ),    //45hz -> 22ms per sample,
+    SERVO_HOMING_CALIBRATION_MS      = ( SERVO_HOMING_CALIBRATION_SAMPLES * 22U ),    // 45hz -> 22ms per sample,
     SERVO_HOMING_CALIBRATION_TORQUE  = 10U,                                           // maximum torque we expect to see during torque calibration
 
     SERVO_HOMING_ENDSTOP_TRANSIT_TORQUE  = 20U,     // shutdown if servo exceeds this limit during the move towards the endstop
@@ -141,11 +141,11 @@ enum ServoDefines
     SERVO_RECOVERY_DWELL_MS = 50U,
     SERVO_RECOVERY_RETRIES  = 7U,
 
-    //Clearpath will filter pulses shorter than 1us
-    //ULN2303 NPN driver has rise time of ~5ns, fall of ~10nsec
+    // Clearpath will filter pulses shorter than 1us
+    // ULN2303 NPN driver has rise time of ~5ns, fall of ~10nsec
     SERVO_PULSE_DURATION_US = 10U,
 
-    //Error evaluation parameters
+    // Error evaluation parameters
     SERVO_IDLE_POWER_ALERT_W = 40U,
     SERVO_IDLE_TORQUE_ALERT  = 30U,
     SERVO_IDLE_SETTLE_MS     = 50U,
@@ -153,14 +153,14 @@ enum ServoDefines
     SERVO_OC_FAULT           = false,
     SERVO_OC_OK              = true,
 
-    //Fault handling
+    // Fault handling
     SERVO_FAULT_LINGER_MS = 500U,
 
-    //Clearpath input high = clockwise rotation. Alias against pin state
+    // Clearpath input high = clockwise rotation. Alias against pin state
     SERVO_DIR_CCW = true,
     SERVO_DIR_CW  = false,
 
-    //Clearpath EN high = enable/GO
+    // Clearpath EN high = enable/GO
     SERVO_ENABLE  = true,
     SERVO_DISABLE = false,
 };

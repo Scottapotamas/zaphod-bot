@@ -58,7 +58,7 @@ struct AppTaskSupervisor
 
 PUBLIC StateTask *
 appTaskSupervisorCreate( AppTaskSupervisor *me,
-                         StateEvent *       eventQueueData[],
+                         StateEvent        *eventQueueData[],
                          const uint8_t      eventQueueSize );
 
 /* ----- End ---------------------------------------------------------------- */

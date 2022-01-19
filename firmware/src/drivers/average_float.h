@@ -18,12 +18,12 @@ extern "C" {
 /* ----- Types -------------------------------------------------------------- */
 
 /** Structure to keep track of short term averages
-  * (e.g. 60 sec of every second). Declare the below structure and
-  * use average_float_init to reset the structure and set the span required.
-  * Then call average short with a pointer to the storage struct and the new
-  * value to be averaged. Average value of all values of var is returned and
-  * also available in the structure.
-  */
+ * (e.g. 60 sec of every second). Declare the below structure and
+ * use average_float_init to reset the structure and set the span required.
+ * Then call average short with a pointer to the storage struct and the new
+ * value to be averaged. Average value of all values of var is returned and
+ * also available in the structure.
+ */
 typedef struct
 {
     uint16_t span;      /* Number of values to average */

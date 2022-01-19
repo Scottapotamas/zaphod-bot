@@ -45,11 +45,11 @@ typedef enum
 
 typedef struct
 {
-    uint32_t        sync_offset;    // unique identifier of animation
-    uint16_t        duration;      // execution time in milliseconds
-    FadeAdjective_t type;          // type of interpolation used between points
-    uint8_t         num_pts;       // number of used elements in points array
-    HSIColour_t input_colours[COLOUR_SETPOINT_COUNT];    //array of colours
+    uint32_t        sync_offset;                             // unique identifier of animation
+    uint16_t        duration;                                // execution time in milliseconds
+    FadeAdjective_t type;                                    // type of interpolation used between points
+    uint8_t         num_pts;                                 // number of used elements in points array
+    HSIColour_t     input_colours[COLOUR_SETPOINT_COUNT];    // array of colours
 } Fade_t;
 
 /* -------------------------------------------------------------------------- */

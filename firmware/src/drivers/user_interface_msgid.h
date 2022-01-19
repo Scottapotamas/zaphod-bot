@@ -4,8 +4,8 @@
 #define MSGID_NICKNAME      "name"
 #define MSGID_RESET_CAUSE   "reset_type"
 #define MSGID_FIRMWARE_INFO "fwb"
-#define MSGID_KINEMATICS "kinematics"
-#define MSGID_ERROR      "err"
+#define MSGID_KINEMATICS    "kinematics"
+#define MSGID_ERROR         "err"
 
 #define MSGID_SYSTEM     "sys"
 #define MSGID_SUPERVISOR "super"
@@ -35,7 +35,7 @@
 #define MSGID_HOME           "home"
 #define MSGID_CAPTURE        "capture"
 
-#define MSGID_LED_CALIBRATION        "calLED"
+#define MSGID_LED_CALIBRATION "calLED"
 
 // TODO: reimplement configuration messages
 //        EUI_FLOAT( "rotZ", z_rotation ),

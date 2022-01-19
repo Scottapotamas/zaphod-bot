@@ -3,8 +3,6 @@
 
 /* ----- Defines ------------------------------------------------------------ */
 
-
-
 typedef struct
 {
     int16_t voltage;
@@ -16,8 +14,8 @@ typedef struct
 
 typedef struct
 {
-    bool correct_gamma;
-    bool correct_wb;
+    bool     correct_gamma;
+    bool     correct_wb;
     uint16_t balance_red;
     uint16_t balance_green;
     uint16_t balance_blue;
@@ -34,4 +32,4 @@ typedef struct
 
 /* -------------------------------------------------------------------------- */
 
-#endif //CONFIGURATION_TYPES_H
+#endif    // CONFIGURATION_TYPES_H
