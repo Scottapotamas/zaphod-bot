@@ -360,6 +360,11 @@ export function optimise2Opt(sparseBag: Movement[], timeLimit = 0) {
   let cost = sparseToCost(ordering)
   const start = Date.now()
 
+  // Only support more than 4
+  if (sparseBag.length < 4) {
+    return { ordering, iteration, completed: true, time: Date.now() - start }
+  }
+
   while (improved) {
     improved = false
 
