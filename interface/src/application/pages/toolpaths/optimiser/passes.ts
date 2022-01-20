@@ -167,6 +167,67 @@ export function sparseToDense(
       continue
     }
 
+    if (settings.optimisation.lineRunUp > 0 && isLine(movement)) {
+      const endPoint = movement.getStart()
+      const backwardDirection = movement
+        .getDesiredEntryVelocity()
+        .normalize()
+        .multiplyScalar(-1)
+      const startPoint = backwardDirection
+        .multiplyScalar(settings.optimisation.lineRunUp * movement.getLength())
+        .add(endPoint)
+
+      const runUp = new Line(
+        startPoint,
+        endPoint,
+        defaultTransitionMaterial,
+        TRANSITION_OBJECT_ID,
+      )
+      // Set the speed to the incoming line's speed, not the transition speed.
+      runUp.setMaxSpeed(settings.optimisation.maxSpeed)
+
+      // Build our transition movement from the old movement to the new
+      const transition = new Transition(
+        previousMovement,
+        runUp,
+        defaultTransitionMaterial,
+      )
+      transition.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
+
+      // Add the transition to the dense bag
+      denseMovements.push(transition)
+
+      // Add the run up
+      denseMovements.push(runUp)
+
+      // Add the movement to the dense bag
+      denseMovements.push(movement)
+
+      const startPointRunOut = movement.getEnd()
+      const backwardDirectionRunOut = movement
+        .getExpectedExitVelocity()
+        .normalize()
+      const endPointRunOut = backwardDirectionRunOut
+        .multiplyScalar(settings.optimisation.lineRunUp * movement.getLength())
+        .add(startPointRunOut)
+
+      const runOut = new Line(
+        startPointRunOut,
+        endPointRunOut,
+        defaultTransitionMaterial,
+        TRANSITION_OBJECT_ID,
+      )
+      // Set the speed to the incoming line's speed, not the transition speed.
+      runOut.setMaxSpeed(settings.optimisation.maxSpeed)
+
+      denseMovements.push(runOut)
+
+      // Update the last movement
+      previousMovement = runOut
+
+      continue
+    }
+
     // Build our transition movement from the old movement to the new
     const transition = new Transition(
       previousMovement,

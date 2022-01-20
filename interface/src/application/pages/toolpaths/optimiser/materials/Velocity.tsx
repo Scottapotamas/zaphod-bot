@@ -16,7 +16,15 @@ import { Html } from '@react-three/drei'
 import { Intent, Tag } from '@blueprintjs/core'
 import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
-import { annotateDrawOrder, lerpRGB, MATERIALS, rgbToHsi } from './utilities'
+import {
+  annotateDrawOrder,
+  generateHtmlTagFromAveragePosition,
+  lerpRGB,
+  MATERIALS,
+  movementTypeToIntent,
+  movementTypeToLetter,
+  rgbToHsi,
+} from './utilities'
 import { IconNames } from '@blueprintjs/icons'
 
 export interface VelocityMaterialJSON {
@@ -74,11 +82,26 @@ export class VelocityMaterial extends Material {
     toT: number,
   ) => {
     // Annotate draw order
-    annotateDrawOrder(
-      movementIndex,
-      movement,
-      visualisationSettings,
-      addReactComponent,
+    // annotateDrawOrder(
+    //   movementIndex,
+    //   movement,
+    //   visualisationSettings,
+    //   addReactComponent,
+    // )
+
+    addReactComponent(
+      generateHtmlTagFromAveragePosition(
+        movement.objectID,
+        movement.getApproximateCentroid(),
+        movementTypeToIntent(movement),
+        `${movementTypeToLetter(
+          movement,
+        )} #${movementIndex} (${movement.getDuration()}ms, ${
+          Math.round(
+            (movement.getLength() / movement.getDuration()) * 1000 * 10,
+          ) / 10
+        }mm/s)`,
+      ),
     )
 
     // A simple color material draws the line segment(s) from the start to the end with a single color

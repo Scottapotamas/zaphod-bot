@@ -48,6 +48,11 @@ export interface OptimisationSettings {
    */
   interLineTransitionShaveDistance: number
 
+  /**
+   * Line runups, mitigates velocity changes
+   */
+  lineRunUp: number
+
   maxSpeed: number // mm/s
   transitionMaxSpeed: number // mm/s
 }
