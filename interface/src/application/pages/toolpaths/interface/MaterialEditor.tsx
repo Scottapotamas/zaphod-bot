@@ -23,6 +23,10 @@ import {
   VelocityMaterialEditor,
   VelocityMaterialJSON,
 } from './../optimiser/materials/Velocity'
+import {
+  RandomColorMaterialEditor,
+  RandomColorMaterialJSON,
+} from '../optimiser/materials/Random'
 
 interface MaterialOption {
   materialType: MATERIALS
@@ -55,6 +59,11 @@ const materialOptions: MaterialOption[] = [
     materialType: MATERIALS.INVISIBLE,
     text: 'Invisible on Delta',
     icon: IconNames.EYE_OFF,
+  },
+  {
+    materialType: MATERIALS.RANDOM,
+    text: 'Random Color',
+    icon: IconNames.RANDOM,
   },
 ]
 
@@ -186,6 +195,14 @@ function selectMaterialEditor(objectID: NodeID, json: MaterialJSON | null) {
         <VelocityMaterialEditor
           objectID={objectID}
           json={json as VelocityMaterialJSON}
+        />
+      )
+      break
+    case MATERIALS.RANDOM:
+      MaterialOverrideEditor = (
+        <RandomColorMaterialEditor
+          objectID={objectID}
+          json={json as RandomColorMaterialJSON}
         />
       )
       break

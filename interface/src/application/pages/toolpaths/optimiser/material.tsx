@@ -14,6 +14,11 @@ import {
   InvisibleMaterialDefaultJSON,
   InvisibleMaterialJSON,
 } from './materials/Invisible'
+import {
+  importRandomColorMaterial,
+  RandomColorMaterialDefaultJSON,
+  RandomColorMaterialJSON,
+} from './materials/Random'
 import { MATERIALS } from './materials/utilities'
 import {
   importVelocityMaterial,
@@ -26,6 +31,7 @@ export type MaterialJSON =
   | ColorRampMaterialJSON
   | VelocityMaterialJSON
   | InvisibleMaterialJSON
+  | RandomColorMaterialJSON
 
 export const defaultTransitionMaterial = new InvisibleMaterial([
   19 / 255,
@@ -43,6 +49,8 @@ export function importMaterial(json: MaterialJSON) {
       return importVelocityMaterial(json)
     case MATERIALS.INVISIBLE:
       return importInvisibleMaterial(json)
+    case MATERIALS.RANDOM:
+      return importRandomColorMaterial(json)
 
     default:
       throw new Error(`Error importing material, unknown type ${json['type']}`)
@@ -61,6 +69,8 @@ export function getDefaultJSONForType(type: MATERIALS) {
       return VelocityMaterialDefaultJSON
     case MATERIALS.INVISIBLE:
       return InvisibleMaterialDefaultJSON
+    case MATERIALS.RANDOM:
+      return RandomColorMaterialDefaultJSON
 
     default:
       throw new Error(
