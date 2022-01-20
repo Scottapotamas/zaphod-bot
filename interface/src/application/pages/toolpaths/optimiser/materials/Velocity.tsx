@@ -89,10 +89,10 @@ export class VelocityMaterial extends Material {
         : visualisationSettings.curveSegments
 
     // Calculate the bounds of the colors used
-    const intendedSpeed =
-      isTransition(movement) || isPointTransition(movement)
-        ? settings.optimisation.transitionMaxSpeed
-        : settings.optimisation.maxSpeed
+    const intendedSpeed = Math.max(
+      settings.optimisation.transitionMaxSpeed,
+      settings.optimisation.maxSpeed,
+    )
 
     const movementDuration = movement.getDuration()
 

@@ -492,6 +492,12 @@ export function optimise2Opt(sparseBag: Movement[], timeLimit = 0) {
     // Start and end points are fixed with this algorithm
     iteration: for (let b = 1; b < ordering.length - 2; b++) {
       for (let e = b + 1; e < ordering.length - 1; e++) {
+        const time = Date.now() - start
+        // Check if the time limit has been exceeded
+        if (time > timeLimit) {
+          return { ordering, iteration, completed: true, time: time }
+        }
+
         // If they're next to each other, it's a special case
         if (e === b + 1) {
           const A = ordering[b - 1]
@@ -629,6 +635,8 @@ export function optimise2Opt(sparseBag: Movement[], timeLimit = 0) {
         }
       }
     }
+
+    iteration++
   }
 
   return { ordering, iteration, completed: true, time: Date.now() - start }
