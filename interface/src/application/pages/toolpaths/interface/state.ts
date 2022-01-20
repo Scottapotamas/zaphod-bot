@@ -58,6 +58,7 @@ const defaultSettings: Settings = {
     interLineTransitionShaveDistance: 5,
     smoothInterlineTransitions: false,
     lineRunUp: 0,
+    disableShapedTransitions: false,
   },
 }
 

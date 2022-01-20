@@ -23,7 +23,7 @@ export enum MOVEMENT_TYPE {
 }
 
 const defaultSpeed = 30 // mm/s
-const MILLISECONDS_IN_SECOND = 1000
+export const MILLISECONDS_IN_SECOND = 1000
 
 /**
  * The base level optimisable movement.

@@ -53,6 +53,11 @@ export interface OptimisationSettings {
    */
   lineRunUp: number
 
+  /**
+   * Disable shaped transitions
+   */
+  disableShapedTransitions: boolean
+
   maxSpeed: number // mm/s
   transitionMaxSpeed: number // mm/s
 }
