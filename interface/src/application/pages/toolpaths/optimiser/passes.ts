@@ -6,6 +6,7 @@ import {
   isPoint,
   isTransit,
   Line,
+  MILLISECONDS_IN_SECOND,
   Movement,
   Point,
   PointTransition,
@@ -85,41 +86,6 @@ export function sparseToDense(
       continue
     }
 
-    // Points are visited by catmulls if their duration is 0, and if we have available control points
-    if (
-      isPoint(previousMovement) &&
-      isPoint(movement) &&
-      movement.duration === 0 &&
-      index >= 2 &&
-      index < flattened.length - 1
-    ) {
-      const movementPrevPrev = flattened[index - 2]
-      const movementPrev = previousMovement
-      const movementCurrent = movement
-      const movementNext = flattened[index + 1]
-
-      // Build our transition movement from the old movement to the new
-      const transition = new PointTransition(
-        movementPrevPrev,
-        movementPrev,
-        movementCurrent,
-        movementNext,
-        defaultTransitionMaterial,
-      )
-
-      transition.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
-
-      // Add the transition to the dense bag
-      denseMovements.push(transition)
-
-      // Add the movement to the dense bag
-      denseMovements.push(movement)
-
-      // Update the last movement
-      previousMovement = movement
-      continue
-    }
-
     // If the last movement and this movement are both lines, and their end and start points match up
     // And their velocity angles aren't too dissimilar, reduce the length of the lines and do a transition inline
     if (
@@ -158,6 +124,63 @@ export function sparseToDense(
 
       // Add the transition to the dense bag
       denseMovements.push(interLineTransition)
+
+      // Add the movement to the dense bag
+      denseMovements.push(movement)
+
+      // Update the last movement
+      previousMovement = movement
+      continue
+    }
+
+    // Overrides any other behaviour
+    if (settings.optimisation.disableShapedTransitions) {
+      // Build our transition movement from the old movement to the new, just use a simple Line
+      const transit = new Line(
+        previousMovement.getEnd(),
+        movement.getStart(),
+        defaultTransitionMaterial,
+        TRANSITION_OBJECT_ID,
+      )
+      transit.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
+
+      // Add the transition to the dense bag
+      denseMovements.push(transit)
+
+      // Add the movement to the dense bag
+      denseMovements.push(movement)
+
+      // Update the last movement
+      previousMovement = movement
+      continue
+    }
+
+    // Points are visited by catmulls if their duration is 0, and if we have available control points
+    if (
+      isPoint(previousMovement) &&
+      isPoint(movement) &&
+      movement.duration === 0 &&
+      index >= 2 &&
+      index < flattened.length - 1
+    ) {
+      const movementPrevPrev = flattened[index - 2]
+      const movementPrev = previousMovement
+      const movementCurrent = movement
+      const movementNext = flattened[index + 1]
+
+      // Build our transition movement from the old movement to the new
+      const transition = new PointTransition(
+        movementPrevPrev,
+        movementPrev,
+        movementCurrent,
+        movementNext,
+        defaultTransitionMaterial,
+      )
+
+      transition.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
+
+      // Add the transition to the dense bag
+      denseMovements.push(transition)
 
       // Add the movement to the dense bag
       denseMovements.push(movement)
