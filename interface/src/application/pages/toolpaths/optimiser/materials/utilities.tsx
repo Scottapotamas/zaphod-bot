@@ -14,6 +14,7 @@ export enum MATERIALS {
   MIX = 'mix',
   INVISIBLE = 'invisible',
   DELAY = 'delay',
+  RANDOM = 'random',
 }
 
 // Our angles are stored as floats in the range 0-1
