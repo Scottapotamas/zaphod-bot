@@ -108,6 +108,36 @@ function InterLineTransitionDistanceControl() {
   )
 }
 
+function LineRunUpDistanceControl() {
+  const [distange, setDistance] = useState(
+    getSetting(state => state.settings.optimisation.lineRunUp) * 100,
+  )
+
+  const updateDistance = useCallback(distance => {
+    setSetting(state => {
+      state.settings.optimisation.lineRunUp = distance
+    })
+  }, [])
+
+  const setAndUpdateDistance = useCallback(distance => {
+    setDistance(distance)
+    updateDistance(distance / 100)
+  }, [])
+
+  return (
+    <NumericInput
+      fill
+      min={0}
+      max={100}
+      stepSize={1}
+      value={distange}
+      onValueChange={setAndUpdateDistance}
+      rightElement={<Tag>%</Tag>}
+      style={{ width: '100%' }}
+    />
+  )
+}
+
 function ParticlePreWaitDurationControl() {
   const [setting, set] = useState(
     getSetting(state => state.settings.objectSettings.particles.preWait) ?? 0,
@@ -707,6 +737,7 @@ function LineTab() {
           Inter-line Transition Distance <InterLineTransitionDistanceControl />
         </>
       ) : null}
+      Line run up <LineRunUpDistanceControl />
     </Composition>
   )
 }

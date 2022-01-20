@@ -108,6 +108,47 @@ export function lerpRGB(
   return hsiToRgb(h, s, i)
 }
 
+export function movementTypeToLetter(movement: Movement) {
+  let type = 'U'
+
+  switch (movement.type) {
+    case MOVEMENT_TYPE.LINE:
+      type = 'L'
+      break
+    case MOVEMENT_TYPE.POINT:
+      type = 'P'
+      break
+    case MOVEMENT_TYPE.TRANSITION:
+      type = 'T'
+      break
+    case MOVEMENT_TYPE.POINT_TRANSITION:
+      type = 'PT'
+      break
+    case MOVEMENT_TYPE.INTER_LINE_TRANSITION:
+      type = 'IT'
+      break
+
+    default:
+      break
+  }
+
+  return type
+}
+
+export function movementTypeToIntent(movement: Movement) {
+  let intent: Intent = 'none'
+
+  if (
+    movement.type === MOVEMENT_TYPE.TRANSITION ||
+    movement.type === MOVEMENT_TYPE.POINT_TRANSITION ||
+    movement.type === MOVEMENT_TYPE.INTER_LINE_TRANSITION
+  ) {
+    intent = 'primary'
+  }
+
+  return intent
+}
+
 export function annotateDrawOrder(
   movementIndex: number,
   movement: Movement,
@@ -115,38 +156,8 @@ export function annotateDrawOrder(
   addReactComponent: AddComponentCallback,
 ) {
   if (visualisationSettings.annotateDrawOrder) {
-    let intent: Intent = 'none'
-
-    if (
-      movement.type === MOVEMENT_TYPE.TRANSITION ||
-      movement.type === MOVEMENT_TYPE.POINT_TRANSITION ||
-      movement.type === MOVEMENT_TYPE.INTER_LINE_TRANSITION
-    ) {
-      intent = 'primary'
-    }
-
-    let type = 'U'
-
-    switch (movement.type) {
-      case MOVEMENT_TYPE.LINE:
-        type = 'L'
-        break
-      case MOVEMENT_TYPE.POINT:
-        type = 'P'
-        break
-      case MOVEMENT_TYPE.TRANSITION:
-        type = 'T'
-        break
-      case MOVEMENT_TYPE.POINT_TRANSITION:
-        type = 'PT'
-        break
-      case MOVEMENT_TYPE.INTER_LINE_TRANSITION:
-        type = 'IT'
-        break
-
-      default:
-        break
-    }
+    const intent = movementTypeToIntent(movement)
+    const type = movementTypeToLetter(movement)
 
     addReactComponent(
       generateHtmlTagFromAveragePosition(
@@ -159,7 +170,7 @@ export function annotateDrawOrder(
   }
 }
 
-function generateHtmlTagFromAveragePosition(
+export function generateHtmlTagFromAveragePosition(
   objectID: NodeID,
   centroid: Vector3,
   intent: Intent,
