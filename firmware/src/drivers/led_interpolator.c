@@ -302,13 +302,13 @@ led_interpolator_process( void )
                     if( me->current_fade == &me->fade_a )
                     {
                         me->current_fade = &me->fade_b;
-                        timer_ms_stop( &me->animation_started );
                     }
                     else
                     {
                         me->current_fade = &me->fade_a;
-                        timer_ms_stop( &me->animation_started );
                     }
+
+                    timer_ms_stop( &me->animation_started );
 
                     // Fall back into the handler's off state until slots are loaded
                     if( !me->current_fade->duration )
