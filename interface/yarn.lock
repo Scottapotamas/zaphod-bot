@@ -1467,7 +1467,7 @@ __metadata:
   bin:
     upgrade-blueprint-2.0.0-rename: scripts/upgrade-blueprint-2.0.0-rename.sh
     upgrade-blueprint-3.0.0-rename: scripts/upgrade-blueprint-3.0.0-rename.sh
-  checksum: 3aa5215ac1d9bacd5c1b99e07ebfc52fdcf9bfcfa012539503812512d9c57f7b7fb2a619986f59f7795ce528f1e5ade3d9eb2c02c643f05b899ddc8c4789be7a
+  checksum: e0d46e04469f9e4e1ba279d0cddf516a411a44ae1d1fb5c905741ae9e2ca64cb3d1d97800321033a5862639a177c4296f5d9688983c2687dbdce9db05d535034
   languageName: node
   linkType: hard
 
@@ -6391,6 +6391,7 @@ __metadata:
     webpack-cli: ^3.3.11
     webpack-dev-server: ^3.11.0
     webpack-merge: ^4.2.2
+    xxhash-wasm: ^1.0.1
     yargs: ^13.2.1
     zustand: ^3.6.7
   dependenciesMeta:
@@ -16191,6 +16192,13 @@ typescript@^3.7.2:
   dependencies:
     object-keys: ~0.4.0
   checksum: a8b79f31502c163205984eaa2b196051cd2fab0882b49758e30f2f9018255bc6c462e32a090bf3385d1bda04755ad8cc0052a09e049b0038f49eb9b950d9c447
+  languageName: node
+  linkType: hard
+
+"xxhash-wasm@npm:^1.0.1":
+  version: 1.0.1
+  resolution: "xxhash-wasm@npm:1.0.1"
+  checksum: beb7677772724508c6ffde7924c0c8b3b879337d1d1598563af09e87befc6a335015bec0fa41873cc27d4745f32dea19d20f9c606ea71d29e1c949e8a13d5c24
   languageName: node
   linkType: hard
 
