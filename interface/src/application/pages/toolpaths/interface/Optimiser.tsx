@@ -11,7 +11,7 @@ import {
 } from '@electricui/components-desktop-charts'
 
 import { FrameProgressUpdate, ToolpathGenerator } from '../optimiser/main'
-import { importFolder } from '../optimiser/files'
+import { importFolder, renderablesToMovements } from '../optimiser/files'
 import {
   DataSource,
   Event,
@@ -30,26 +30,11 @@ import {
   useStore,
   incrementViewportFrameVersion,
 } from './state'
-import { Movement } from '../optimiser/movements'
+import { Movement, SerialisedTour } from '../optimiser/movements'
 import { Renderable } from '../optimiser/import'
 import { renderablesToSceneTree } from './RenderableTree'
 
 import os from 'os'
-
-export function renderablesToMovements(
-  renderables: Renderable[],
-  settings: Settings,
-) {
-  const movements: Movement[] = []
-
-  for (const renderable of renderables) {
-    for (const movement of renderable.toMovements(settings)) {
-      movements.push(movement)
-    }
-  }
-
-  return movements
-}
 
 function recalculateMovementsPerFrame() {
   const renderablesByFrame = getSetting(state => state.renderablesByFrame)
@@ -172,7 +157,7 @@ export function Optimiser() {
   const onProgress = useCallback(
     (progress: FrameProgressUpdate) => {
       setSetting(state => {
-        state.movementOrdering[progress.frameNumber] = progress.orderingCache
+        state.movementOrdering[progress.frameNumber] = progress.serialisedTour
         state.estimatedDurationByFrame[progress.frameNumber] = progress.duration
         state.frameOptimisationState[progress.frameNumber] = progress.frameState
 

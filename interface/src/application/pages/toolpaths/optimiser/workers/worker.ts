@@ -2,12 +2,11 @@ import { Observable, Subject } from 'threads/observable'
 import { expose } from 'threads/worker'
 
 import { importJson, MovementJSON } from '../import'
-import { Movement } from '../movements'
+import { Movement, SerialisedTour } from '../movements'
 import {
   Continue,
   getTotalDuration,
   optimise,
-  OrderingCache,
   Progress,
   sparseToDense,
 } from '../passes'
@@ -35,7 +34,8 @@ export const OptimisationWorker = {
     sparseBagToImport: MovementJSON[],
     settings: Settings,
     partialUpdate: boolean,
-    orderingCache?: OrderingCache,
+    debugInfo: any,
+    cache?: SerialisedTour,
   ) {
     try {
       const updateProgress = async (progress: Progress): Promise<Continue> => {
@@ -61,13 +61,7 @@ export const OptimisationWorker = {
       }
 
       // Run the optimiser
-      await optimise(
-        movements,
-        partialUpdate,
-        settings,
-        updateProgress,
-        orderingCache,
-      )
+      await optimise(movements, partialUpdate, settings, updateProgress, debugInfo, cache)
     } catch (e) {
       progressUpdates.error(e)
     }

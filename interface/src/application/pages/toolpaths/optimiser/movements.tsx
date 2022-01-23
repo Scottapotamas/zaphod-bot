@@ -45,16 +45,24 @@ export abstract class Movement {
   public interFrameID: string = ''
 
   /**
+   * Whether the movement is flipped
+   */
+  public isFlipped: boolean = false
+
+  /**
    * Take this movement in the opposite direction
    */
   abstract flip: () => void
 
   /**
-   * Flatten this movement, calling a callback with its children.
-   *
-   * By default just adds itself to the array
+   * Flatten this movement, returning a list of it and its children in order
    */
   abstract flatten: () => Movement[]
+
+  /**
+   * Hydrate this movement with cached data
+   */
+  abstract hydrate: (serialised: SerialisedTour) => void
 
   /**
    * Get the length of this movement in mm
@@ -135,6 +143,65 @@ export type AddLineCallback = (
 
 export type AddComponentCallback = (component: React.ReactNode) => void
 
+export interface SerialisedTour {
+  [interFrameID: string]: {
+    order: number
+    flipped: boolean
+  }
+}
+
+export function serialiseTour(movements: Movement[]): SerialisedTour {
+  const ordering: {
+    [interFrameID: string]: {
+      order: number
+      flipped: boolean
+    }
+  } = {}
+
+  let index = 0
+  for (let i = 0; i < movements.length; i++) {
+    if (isMovementGroup(movements[i])) {
+      ordering[movements[i].interFrameID] = {
+        order: index, // So we know where to insert the movement group in the list
+        flipped: movements[i].isFlipped,
+      }
+    }
+
+    // Flatten movements
+    const flattened = movements[i].flatten()
+
+    for (let j = 0; j < flattened.length; j++) {
+      const movement = flattened[j]
+      ordering[movement.interFrameID] = {
+        order: index++,
+        flipped: movement.isFlipped,
+      }
+    }
+  }
+
+  return ordering
+}
+
+export function deserialiseTour(
+  sparseBag: Movement[],
+  serialised: SerialisedTour,
+) {
+  const movements = sparseBag.slice()
+  // Hydration sorts movement groups recursively
+  for (let index = 0; index < movements.length; index++) {
+    const movement = movements[index]
+    movement.hydrate(serialised)
+  }
+
+  // Sort the final ordering
+  movements.sort((a, b) => {
+    const aOrder = serialised[a.interFrameID]?.order ?? 0
+    const bOrder = serialised[b.interFrameID]?.order ?? 0
+    return aOrder - bOrder
+  })
+  return movements
+}
+
 export type DenseMovements = Movement[] & { __dense: true }
 
 export function declareDense(movements: Movement[]) {
@@ -154,7 +221,7 @@ export class MovementGroup extends Movement {
 
   public objectID = '___movement_group' // This should never match
 
-  public movements: Movement[] = []
+  private movements: Movement[] = []
 
   public addMovement = (movement: Movement) => {
     this.movements.push(movement)
@@ -165,18 +232,39 @@ export class MovementGroup extends Movement {
   }
 
   public flip = () => {
-    for (const movement of this.movements) {
+    for (let index = 0; index < this.movements.length; index++) {
+      const movement = this.movements[index]
       movement.flip()
     }
     this.movements.reverse()
   }
 
+  public getMovements = () => {
+    return this.movements
+  }
+
   public flatten = () => {
     const movements = []
-    for (const movement of this.movements) {
+    for (let index = 0; index < this.getMovements().length; index++) {
+      const movement = this.getMovements()[index]
       movements.push(...movement.flatten())
     }
     return movements
+  }
+
+  public hydrate = (serialised: SerialisedTour) => {
+    // Hydrate children first
+    for (let index = 0; index < this.getMovements().length; index++) {
+      const movement = this.getMovements()[index]
+      movement.hydrate(serialised)
+    }
+
+    // Sort these movements
+    this.getMovements().sort((a, b) => {
+      const aOrder = serialised[a.interFrameID].order ?? 0
+      const bOrder = serialised[b.interFrameID].order ?? 0
+      return aOrder - bOrder
+    })
   }
 
   public getLength: () => number = () => {
@@ -184,7 +272,7 @@ export class MovementGroup extends Movement {
       return 0
     }
 
-    return this.movements.reduce(
+    return this.getMovements().reduce(
       (len, movement) => movement.getLength() + len,
       0,
     )
@@ -195,7 +283,10 @@ export class MovementGroup extends Movement {
       return 0
     }
 
-    return this.movements.reduce((len, movement) => movement.getCost() + len, 0)
+    return this.getMovements().reduce(
+      (len, movement) => movement.getCost() + len,
+      0,
+    )
   }
 
   public setMaxSpeed = (speed: number) => {
@@ -203,7 +294,8 @@ export class MovementGroup extends Movement {
       throw new Error('MovementGroup is empty, but setSpeed was called')
     }
 
-    for (const movement of this.movements) {
+    for (let index = 0; index < this.getMovements().length; index++) {
+      const movement = this.getMovements()[index]
       movement.setMaxSpeed(speed)
     }
   }
@@ -213,7 +305,7 @@ export class MovementGroup extends Movement {
       return 0
     }
 
-    return this.movements.reduce(
+    return this.getMovements().reduce(
       (dur, movement) => movement.getDuration() + dur,
       0,
     )
@@ -224,7 +316,7 @@ export class MovementGroup extends Movement {
       throw new Error('MovementGroup is empty, but getStart was called')
     }
 
-    return this.movements[0].getStart()
+    return this.getMovements()[0].getStart()
   }
 
   public getEnd = () => {
@@ -232,7 +324,7 @@ export class MovementGroup extends Movement {
       throw new Error('MovementGroup is empty, but getEnd was called')
     }
 
-    return this.movements[this.movements.length - 1].getEnd()
+    return this.getMovements()[this.getMovements().length - 1].getEnd()
   }
 
   public getDesiredEntryVelocity = () => {
@@ -242,7 +334,7 @@ export class MovementGroup extends Movement {
       )
     }
 
-    return this.movements[0].getDesiredEntryVelocity()
+    return this.getMovements()[0].getDesiredEntryVelocity()
   }
 
   public getExpectedExitVelocity = () => {
@@ -252,7 +344,9 @@ export class MovementGroup extends Movement {
       )
     }
 
-    return this.movements[this.movements.length - 1].getExpectedExitVelocity()
+    return this.getMovements()[
+      this.getMovements().length - 1
+    ].getExpectedExitVelocity()
   }
 
   public generateToolpath = () => {
@@ -270,7 +364,8 @@ export class MovementGroup extends Movement {
 
     const centers: Vector3[] = []
 
-    for (const movement of this.movements) {
+    for (let index = 0; index < this.getMovements().length; index++) {
+      const movement = this.getMovements()[index]
       centers.push(movement.getApproximateCentroid())
     }
 
@@ -285,7 +380,8 @@ export class MovementGroup extends Movement {
 
   public resetOptimisationState = () => {
     // noop
-    for (const movement of this.movements) {
+    for (let index = 0; index < this.getMovements().length; index++) {
+      const movement = this.getMovements()[index]
       movement.resetOptimisationState()
     }
   }
@@ -311,8 +407,8 @@ export class Line extends Movement {
   public lockSpeed = false
 
   constructor(
-    public from: Vector3,
-    public to: Vector3,
+    private from: Vector3,
+    private to: Vector3,
     public material: Material,
     public objectID: string,
   ) {
@@ -321,15 +417,23 @@ export class Line extends Movement {
 
   // Swap the ordering of these points
   public flip = () => {
-    const temp = this.to
-    this.to = this.from
-    this.from = temp
+    this.isFlipped = !this.isFlipped
+  }
 
-    // TODO: Flip the material
+  public getTo = () => {
+    return this.isFlipped ? this.from : this.to
+  }
+
+  public getFrom = () => {
+    return this.isFlipped ? this.to : this.from
   }
 
   public flatten = () => {
     return [this]
+  }
+
+  public hydrate = (serialised: SerialisedTour) => {
+    this.isFlipped = serialised[this.interFrameID].flipped
   }
 
   public getLength: () => number = () => {
@@ -352,14 +456,14 @@ export class Line extends Movement {
   }
 
   private getDirection = () => {
-    const direction = this.to.clone().sub(this.from).normalize()
+    const direction = this.getTo().clone().sub(this.getFrom()).normalize()
 
     return direction
   }
 
   public getStart = () => {
     if (this.maxStartShrinkFactor) {
-      const length = this.from.distanceTo(this.to)
+      const length = this.getFrom().distanceTo(this.getTo())
 
       let shrinkFactor = this.maxStartShrinkFactor
 
@@ -370,15 +474,15 @@ export class Line extends Movement {
 
       return this.getDirection()
         .multiplyScalar(length * shrinkFactor)
-        .add(this.from)
+        .add(this.getFrom())
     }
 
-    return this.from
+    return this.getFrom()
   }
 
   public getEnd = () => {
     if (this.maxEndShrinkFactor) {
-      const length = this.from.distanceTo(this.to)
+      const length = this.getFrom().distanceTo(this.getTo())
 
       let shrinkFactor = this.maxEndShrinkFactor
 
@@ -389,15 +493,15 @@ export class Line extends Movement {
 
       return this.getDirection()
         .multiplyScalar(length * (1 - shrinkFactor))
-        .add(this.from)
+        .add(this.getFrom())
     }
 
-    return this.to
+    return this.getTo()
   }
 
   // Shrink the start by an amount in millimeters
   public shrinkStartByDistance = (distance: number) => {
-    const length = this.from.distanceTo(this.to)
+    const length = this.getFrom().distanceTo(this.getTo())
     const clampedDistance = MathUtils.clamp(distance, 0, length)
     const shinkFactor = clampedDistance / length
 
@@ -406,7 +510,7 @@ export class Line extends Movement {
 
   // Shrink the end by an amount in millimeters
   public shrinkEndByDistance = (distance: number) => {
-    const length = this.from.distanceTo(this.to)
+    const length = this.getFrom().distanceTo(this.getTo())
     const clampedDistance = MathUtils.clamp(distance, 0, length)
     const shinkFactor = clampedDistance / length
 
@@ -414,17 +518,17 @@ export class Line extends Movement {
   }
 
   public getDesiredEntryVelocity = () => {
-    return this.to
+    return this.getTo()
       .clone()
-      .sub(this.from)
+      .sub(this.getFrom())
       .normalize()
       .multiplyScalar(this.maxSpeed)
   }
 
   public getExpectedExitVelocity = () => {
-    return this.to
+    return this.getTo()
       .clone()
-      .sub(this.from)
+      .sub(this.getFrom())
       .normalize()
       .multiplyScalar(this.maxSpeed)
   }
@@ -490,6 +594,10 @@ export class Point extends Movement {
 
   public flatten = () => {
     return [this]
+  }
+
+  public hydrate = (serialised: SerialisedTour) => {
+    this.isFlipped = serialised[this.interFrameID].flipped
   }
 
   public getLength: () => number = () => {
@@ -649,18 +757,26 @@ export class Transition extends Movement {
 
   // Swap the ordering of this transition movement
   public flip = () => {
-    const temp = this.to
-    this.to = this.from
-    this.from = temp
+    this.isFlipped = !this.isFlipped
 
     // Reset the curve
     this.curve = null
-
-    // TODO: Flip the material
   }
 
   public flatten = () => {
     return [this]
+  }
+
+  private getTo = () => {
+    return this.isFlipped ? this.from : this.to
+  }
+
+  private getFrom = () => {
+    return this.isFlipped ? this.to : this.from
+  }
+
+  public hydrate = (serialised: SerialisedTour) => {
+    this.isFlipped = serialised[this.interFrameID].flipped
   }
 
   public getCost = () => {
@@ -701,19 +817,19 @@ export class Transition extends Movement {
   }
 
   public getStart = () => {
-    return this.from.getEnd()
+    return this.getFrom().getEnd()
   }
 
   public getEnd = () => {
-    return this.to.getStart()
+    return this.getTo().getStart()
   }
 
   public getDesiredEntryVelocity = () => {
-    return this.from.getExpectedExitVelocity()
+    return this.getFrom().getExpectedExitVelocity()
   }
 
   public getExpectedExitVelocity = () => {
-    return this.to.getDesiredEntryVelocity()
+    return this.getTo().getDesiredEntryVelocity()
   }
 
   public generateToolpath = () => {
@@ -791,10 +907,10 @@ export class PointTransition extends Movement {
   private numSegments = 20
 
   constructor(
-    public prePointMovement: Movement,
-    public pointFrom: Point,
-    public pointTo: Point,
-    public postPointMovement: Movement,
+    private prePointMovement: Movement,
+    private pointFrom: Point,
+    private pointTo: Point,
+    private postPointMovement: Movement,
     public material: Material,
   ) {
     super()
@@ -804,6 +920,22 @@ export class PointTransition extends Movement {
   private curvelength: number | null = null
 
   private curve: CatmullRomCurve3 | null = null
+
+  public getPrePointMovement = () => {
+    return this.prePointMovement
+  }
+
+  public getPointFrom = () => {
+    return this.pointFrom
+  }
+
+  public getPointTo = () => {
+    return this.pointTo
+  }
+
+  public getPostPointMovement = () => {
+    return this.postPointMovement
+  }
 
   private lazyGenerateCurve = () => {
     if (this.curve) return this.curve
@@ -816,10 +948,10 @@ export class PointTransition extends Movement {
      */
     this.curve = new CatmullRomCurve3(
       [
-        this.prePointMovement.getEnd(),
-        this.pointFrom.getEnd(),
-        this.pointTo.getStart(),
-        this.postPointMovement.getStart(),
+        this.getPrePointMovement().getEnd(),
+        this.getPointFrom().getEnd(),
+        this.getPointTo().getStart(),
+        this.getPostPointMovement().getStart(),
       ],
       false,
       'catmullrom',
@@ -877,13 +1009,7 @@ export class PointTransition extends Movement {
 
   // Swap the ordering of this transition movement
   public flip = () => {
-    const temp = this.prePointMovement
-    this.prePointMovement = this.postPointMovement
-    this.postPointMovement = temp
-
-    const temp2 = this.pointTo
-    this.pointTo = this.pointFrom
-    this.pointFrom = temp2
+    this.isFlipped = !this.isFlipped
 
     // Reset the curve
     this.curve = null
@@ -892,6 +1018,10 @@ export class PointTransition extends Movement {
 
   public flatten = () => {
     return [this]
+  }
+
+  public hydrate = (serialised: SerialisedTour) => {
+    this.isFlipped = serialised[this.interFrameID].flipped
   }
 
   public getCost = () => {
@@ -915,19 +1045,19 @@ export class PointTransition extends Movement {
   }
 
   public getStart = () => {
-    return this.pointFrom.getEnd()
+    return this.getPointFrom().getEnd()
   }
 
   public getEnd = () => {
-    return this.pointTo.getStart()
+    return this.getPointTo().getStart()
   }
 
   public getDesiredEntryVelocity = () => {
-    return this.pointFrom.getExpectedExitVelocity()
+    return this.getPointFrom().getExpectedExitVelocity()
   }
 
   public getExpectedExitVelocity = () => {
-    return this.pointTo.getDesiredEntryVelocity()
+    return this.getPointTo().getDesiredEntryVelocity()
   }
 
   public generateToolpath = () => {
@@ -936,16 +1066,16 @@ export class PointTransition extends Movement {
       type: MovementMoveType.CATMULL_SPLINE, // Despite being a point, draw a line
       reference: MovementMoveReference.ABSOLUTE,
       points: [
-        // this.prePointMovement.getEnd().toArray(),
-        // this.pointFrom.getEnd().toArray(),
-        // this.pointTo.getStart().toArray(),
-        // this.postPointMovement.getStart().toArray(),
+        // this.getPrePointMovement().getEnd().toArray(),
+        // this.getPointFrom().getEnd().toArray(),
+        // this.getPointTo().getStart().toArray(),
+        // this.getPostPointMovement().getStart().toArray(),
 
-        this.prePointMovement.getEnd().toArray(),
+        this.getPrePointMovement().getEnd().toArray(),
 
-        this.pointFrom.getEnd().toArray(),
-        this.pointTo.getStart().toArray(),
-        this.postPointMovement.getStart().toArray(),
+        this.getPointFrom().getEnd().toArray(),
+        this.getPointTo().getStart().toArray(),
+        this.getPostPointMovement().getStart().toArray(),
       ],
       num_points: 4,
     }
@@ -955,10 +1085,10 @@ export class PointTransition extends Movement {
 
   public getApproximateCentroid = () => {
     return getCentroid([
-      this.prePointMovement.getEnd(),
-      this.pointFrom.getEnd(),
-      this.pointTo.getStart(),
-      this.postPointMovement.getStart(),
+      this.getPrePointMovement().getEnd(),
+      this.getPointFrom().getEnd(),
+      this.getPointTo().getStart(),
+      this.getPostPointMovement().getStart(),
     ])
   }
 
@@ -994,12 +1124,20 @@ export class InterLineTransition extends Movement {
   private numSegments = 20
 
   constructor(
-    public from: Line,
-    public to: Line,
+    private from: Line,
+    private to: Line,
     public objectID: string, // Takes the ObjectID of the first line
     public material: Material,
   ) {
     super()
+  }
+
+  public getFrom = () => {
+    return this.from
+  }
+
+  public getTo = () => {
+    return this.to
   }
 
   private curve: CubicBezierCurve3 | null = null
@@ -1014,10 +1152,10 @@ export class InterLineTransition extends Movement {
      * v3 – The ending point.
      */
     this.curve = new CubicBezierCurve3(
-      this.from.getEnd(),
-      this.from.to,
-      this.to.from,
-      this.to.getStart(),
+      this.getFrom().getEnd(),
+      this.getFrom().getTo(),
+      this.getTo().getFrom(),
+      this.getTo().getStart(),
     )
 
     this.curve.arcLengthDivisions = 20 // divide into 20 segments for length calculations
@@ -1027,15 +1165,17 @@ export class InterLineTransition extends Movement {
 
   // Swap the ordering of this transition movement
   public flip = () => {
-    const temp = this.to
-    this.to = this.from
-    this.from = temp
+    this.isFlipped = !this.isFlipped
 
     // TODO: Flip the material
   }
 
   public flatten = () => {
     return [this]
+  }
+
+  public hydrate = (serialised: SerialisedTour) => {
+    this.isFlipped = serialised[this.interFrameID].flipped
   }
 
   public getCost = () => {
@@ -1076,19 +1216,19 @@ export class InterLineTransition extends Movement {
   }
 
   public getStart = () => {
-    return this.from.getEnd()
+    return this.getFrom().getEnd()
   }
 
   public getEnd = () => {
-    return this.to.getStart()
+    return this.getTo().getStart()
   }
 
   public getDesiredEntryVelocity = () => {
-    return this.from.getExpectedExitVelocity()
+    return this.getFrom().getExpectedExitVelocity()
   }
 
   public getExpectedExitVelocity = () => {
-    return this.to.getDesiredEntryVelocity()
+    return this.getTo().getDesiredEntryVelocity()
   }
 
   public generateToolpath = () => {
@@ -1097,10 +1237,10 @@ export class InterLineTransition extends Movement {
       type: MovementMoveType.BEZIER_CUBIC, // Despite being a point, draw a line
       reference: MovementMoveReference.ABSOLUTE,
       points: [
-        this.from.getEnd().toArray(),
-        this.from.to.toArray(),
-        this.to.from.toArray(),
-        this.to.getStart().toArray(),
+        this.getFrom().getEnd().toArray(),
+        this.getFrom().getTo().toArray(),
+        this.getTo().getFrom().toArray(),
+        this.getTo().getStart().toArray(),
       ],
       num_points: 4,
     }
@@ -1151,6 +1291,10 @@ export class Transit extends Movement {
 
   public flatten = () => {
     return [this]
+  }
+
+  public hydrate = (serialised: SerialisedTour) => {
+    this.isFlipped = serialised[this.interFrameID].flipped
   }
 
   // Transits have an unknown length

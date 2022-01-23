@@ -42,6 +42,7 @@ import { CatmullRomLine } from './CatmullLine'
 import { MovementPoint } from 'src/application/typedState'
 import { Vector3 } from 'three'
 import {
+  deserialiseTour,
   GLOBAL_OVERRIDE_OBJECT_ID,
   Movement,
   RGB,
@@ -88,17 +89,8 @@ export function getOrderedMovementsForFrame(frameNumber: number): Movement[] {
 
   const movements = orderedMovementsByFrame[frameNumber] ?? []
   const ordering = movementOrdering[frameNumber] ?? {}
-  const movementsCopy = movements.slice()
 
-  movementsCopy.sort((a, b) => {
-    const aOrder = ordering[a.interFrameID] ?? 0
-    const bOrder = ordering[b.interFrameID] ?? 0
-
-    // Sort in ascending order
-    return aOrder - bOrder
-  })
-
-  return movementsCopy
+  return deserialiseTour(movements.slice(), ordering)
 }
 
 /**

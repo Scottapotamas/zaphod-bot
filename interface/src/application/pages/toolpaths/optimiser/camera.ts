@@ -16,6 +16,7 @@ import { getShouldSkip, getToMovementSettings, Settings } from './settings'
 import { IconNames } from '@blueprintjs/icons'
 import { SimpleColorMaterial } from './materials/Color'
 import { DelayMaterial } from './materials/DelayMaterial'
+import { optimalFlippingForTour } from './passes'
 
 export interface CameraToMovementsSettings {
   // Whether to draw alignment helpers in real space
@@ -84,14 +85,34 @@ export class Camera {
   }
 
   public toMovements = (settings: Settings) => {
-    const movements: Movement[] = []
+    const groups: {
+      [height: number]: MovementGroup
+    } = {}
+
+    function addMovement(movement: Movement) {
+      movement.interFrameID = `(${movement.getStart().x},${
+        movement.getStart().y
+      },${movement.getStart().z}->${movement.getEnd().x},${
+        movement.getEnd().y
+      },${movement.getEnd().z})`
+
+      const height = movement.getApproximateCentroid().z
+
+      if (!groups[height]) {
+        groups[height] = new MovementGroup()
+      }
+
+      const group = groups[height]
+
+      group.addMovement(movement)
+    }
 
     if (settings.objectSettings.camera.drawRulers) {
       const grey = new SimpleColorMaterial([0.4, 0.4, 0.4])
       const objectID = `${this.name}-ruler`
 
       // Horizontal line
-      movements.push(
+      addMovement(
         new Line(
           new Vector3(0, 0, 100),
           new Vector3(100, 0, 100),
@@ -102,7 +123,7 @@ export class Camera {
 
       // Vertical lines
       for (let index = 0; index <= 10; index++) {
-        movements.push(
+        addMovement(
           new Line(
             new Vector3(index * 10, 0, 100),
             new Vector3(index * 10, 0, index % 5 === 0 ? 120 : 110),
@@ -128,7 +149,7 @@ export class Camera {
       const center = new Vector3(0, 0, 100)
 
       // A 50mm line from 100mm up (the center of the draw volume) aimed directly at the camera
-      movements.push(
+      addMovement(
         new Line(
           center.clone().add(directionOfCamera.clone().multiplyScalar(10)),
           center.clone().add(directionOfCamera.clone().multiplyScalar(60)),
@@ -143,7 +164,7 @@ export class Camera {
 
       // Left side, 20 linear gradations of black to white
       for (let index = 0; index <= 20; index++) {
-        movements.push(
+        addMovement(
           new Line(
             new Vector3(-50, 0, index * 5 + 50),
             new Vector3(-40, 0, index * 5 + 50),
@@ -155,7 +176,7 @@ export class Camera {
 
       // Left side, 20 linear gradations of black to red
       for (let index = 0; index <= 20; index++) {
-        movements.push(
+        addMovement(
           new Line(
             new Vector3(-30, 0, index * 5 + 50),
             new Vector3(-20, 0, index * 5 + 50),
@@ -167,7 +188,7 @@ export class Camera {
 
       // Left side, 20 linear gradations of black to green
       for (let index = 0; index <= 20; index++) {
-        movements.push(
+        addMovement(
           new Line(
             new Vector3(-10, 0, index * 5 + 50),
             new Vector3(0, 0, index * 5 + 50),
@@ -179,7 +200,7 @@ export class Camera {
 
       // Left side, 20 linear gradations of black to blue
       for (let index = 0; index <= 20; index++) {
-        movements.push(
+        addMovement(
           new Line(
             new Vector3(10, 0, index * 5 + 50),
             new Vector3(20, 0, index * 5 + 50),
@@ -203,7 +224,7 @@ export class Camera {
         movement.maxSpeed = (index + 1) * 10
         movement.lockSpeed = true
 
-        movements.push(movement)
+        addMovement(movement)
       }
 
       const grey = new SimpleColorMaterial([0.5, 0.5, 0.5])
@@ -220,7 +241,7 @@ export class Camera {
         movement.maxSpeed = (index + 1) * 10
         movement.lockSpeed = true
 
-        movements.push(movement)
+        addMovement(movement)
       }
     }
 
@@ -228,7 +249,7 @@ export class Camera {
       const objectID = `${this.name}-moves-lines`
 
       // A point with two lines pointing at it in the bottom right
-      movements.push(
+      addMovement(
         new Line(
           new Vector3(30, 0, 70),
           new Vector3(40, 0, 70),
@@ -242,7 +263,7 @@ export class Camera {
         (settings.objectSettings.light.onDuration ?? 0) +
         (settings.objectSettings.light.postWait ?? 0)
 
-      movements.push(
+      addMovement(
         new Point(
           new Vector3(50, 0, 70),
           duration,
@@ -256,7 +277,7 @@ export class Camera {
         ),
       )
 
-      movements.push(
+      addMovement(
         new Line(
           new Vector3(50, 0, 50),
           new Vector3(50, 0, 60),
@@ -273,7 +294,7 @@ export class Camera {
 
         const delta = new Vector3(1, 0, 0).applyEuler(angle).multiplyScalar(10)
 
-        movements.push(
+        addMovement(
           // 0 degrees
           new Line(
             new Vector3(30, 0, 80 + i * 5),
@@ -281,6 +302,8 @@ export class Camera {
             new SimpleColorMaterial([1, 1, 0]),
             objectID,
           ),
+        )
+        addMovement(
           // 90
           new Line(
             new Vector3(40, 0, 80 + i * 5),
@@ -298,7 +321,7 @@ export class Camera {
 
         const delta = new Vector3(1, 0, 0).applyEuler(angle).multiplyScalar(10)
 
-        movements.push(
+        addMovement(
           // 0 degrees
           new Line(
             new Vector3(40, 0, 110 + i * 10),
@@ -306,6 +329,8 @@ export class Camera {
             new SimpleColorMaterial([1, 1, 0]),
             objectID,
           ),
+        )
+        addMovement(
           // 90
           new Line(
             new Vector3(50, 0, 110 + i * 10),
@@ -319,9 +344,22 @@ export class Camera {
     }
 
     // Give the TSP solver a nudge in the right direction
-    movements.sort((a, b) => {
-      return b.samplePoint(0).z - a.samplePoint(0).z
-    })
+    // movements.sort((a, b) => {
+    //   return b.samplePoint(0).z - a.samplePoint(0).z
+    // })
+
+    const movements: Movement[] = []
+
+    let flip = false
+    for (const group of Object.values(groups)) {
+      if (flip) {
+        group.flip()
+        flip = !flip
+      }
+      movements.push(group)
+    }
+
+    optimalFlippingForTour(movements)
 
     return movements
   }

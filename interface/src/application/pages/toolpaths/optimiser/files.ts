@@ -4,6 +4,8 @@ import { importJson, Renderable } from './import'
 import { MovementJSON } from './import'
 import type { Toolpath } from './toolpath'
 import { Camera } from './camera'
+import { Settings } from './settings'
+import { Movement } from './movements'
 
 async function* walkJSON(dir: string): AsyncGenerator<string> {
   for await (const d of await fs.promises.opendir(dir)) {
@@ -70,6 +72,21 @@ export async function importFolder(folderPath: string) {
     minFrame,
     maxFrame,
   }
+}
+
+export function renderablesToMovements(
+  renderables: Renderable[],
+  settings: Settings,
+) {
+  const movements: Movement[] = []
+
+  for (const renderable of renderables) {
+    for (const movement of renderable.toMovements(settings)) {
+      movements.push(movement)
+    }
+  }
+
+  return movements
 }
 
 export interface ObjectNameTree {
