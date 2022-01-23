@@ -9,9 +9,12 @@ import { Quaternion, Vector3 } from 'three'
 
 import { importMaterial, MaterialJSON } from '../optimiser/material'
 import { useCallback } from 'react'
-import { OrderingCache } from '../optimiser/passes'
 import { Renderable } from '../optimiser/import'
-import { GLOBAL_OVERRIDE_OBJECT_ID, Movement } from '../optimiser/movements'
+import {
+  GLOBAL_OVERRIDE_OBJECT_ID,
+  Movement,
+  SerialisedTour,
+} from '../optimiser/movements'
 import shallow from 'zustand/shallow'
 import { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { PerspectiveCamera as PerspectiveCameraImpl } from 'three'
@@ -21,7 +24,7 @@ import { TreeNodeInfo } from '@blueprintjs/core'
 import { NodeID, NodeInfo } from './RenderableTree'
 import type { FRAME_STATE, ToolpathGenerator } from './../optimiser/main'
 
-const defaultSettings: Settings = {
+export const defaultSettings: Settings = {
   objectSettings: {
     gpencil: {
       breakUpStrokes: false,
@@ -167,9 +170,9 @@ interface Store {
     hoveredObjectIDs: NodeID[] // Store the IDs of all currently hovered objects
   }
 
-  // The OrderingCache per frame, used to reconstruct movements on the UI side
+  // The SerialisedTour per frame, used to reconstruct movements on the UI side
   movementOrdering: {
-    [frameNumber: number]: OrderingCache
+    [frameNumber: number]: SerialisedTour
   }
   // An array of all renderables through the entire scene stored here, for a list of object names, etc.
   allRenderables: Renderable[]

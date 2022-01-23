@@ -67,8 +67,9 @@ const colors = [
   hex2rgb('#D13913'),
   // hex2rgb('#8F398F'),
   hex2rgb('#00B3A4'),
-  hex2rgb('#DB2C6F'),
+  // hex2rgb('#DB2C6F'),
   hex2rgb('#9BBF30'),
+  hex2rgb('#7157D9'),
   hex2rgb('#96622D'),
 ]
 

@@ -181,7 +181,7 @@ export class GPencil {
         }
 
         if (settingsWithOverride.breakUpStrokes) {
-          movements.push(...orderedMovements.movements)
+          movements.push(...orderedMovements.getMovements())
         } else {
           movements.push(orderedMovements)
         }

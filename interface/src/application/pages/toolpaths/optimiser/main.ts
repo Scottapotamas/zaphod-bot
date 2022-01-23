@@ -1,5 +1,6 @@
 import { MovementJSON } from './import'
-import { OrderingCache, Progress } from './passes'
+import { Progress } from './passes'
+import { SerialisedTour } from './movements'
 import { Settings } from './settings'
 import { spawn, Pool, Worker, ModuleThread } from 'threads'
 import type { OptimisationWorker } from './workers/worker'
@@ -22,7 +23,7 @@ export interface FrameProgressUpdate {
   timeSpent: number
   startingCost: number
   currentCost: number
-  orderingCache: OrderingCache
+  serialisedTour: SerialisedTour
 
   frameState: FRAME_STATE
 }
@@ -54,7 +55,7 @@ export class ToolpathGenerator {
    */
   private unfinishedFrames: number[] = []
   private frameState: Map<number, FRAME_STATE> = new Map()
-  private frameCache: Map<number, OrderingCache> = new Map()
+  private frameCache: Map<number, SerialisedTour> = new Map()
 
   private frameSubscriptions: Map<number, Deferred<void>> = new Map()
   private onCompleteDeferred = new Deferred<void>()
@@ -267,7 +268,7 @@ export class ToolpathGenerator {
         updates++
 
         // Update the frame cache
-        this.frameCache.set(frameNumber, progress.orderingCache)
+        this.frameCache.set(frameNumber, progress.serialisedTour)
 
         // Update our status if this is the last progress update
         if (progress.completed) {
@@ -296,7 +297,7 @@ export class ToolpathGenerator {
           currentCost: progress.currentCost,
           frameState:
             this.frameState.get(frameNumber) ?? FRAME_STATE.UNOPTIMISED,
-          orderingCache: progress.orderingCache,
+          serialisedTour: progress.serialisedTour,
         })
       }
 
@@ -318,6 +319,9 @@ export class ToolpathGenerator {
         this.movementJSON.get(frameNumber)!,
         this.settings,
         partialOptimisation, // if this is a partial update, stop after the first iteration
+        {
+          frameNumber,
+        },
         partialOptimisation
           ? undefined
           : this.getClosestFrameCache(frameNumber), // Only provide a cache for the full optimisation
