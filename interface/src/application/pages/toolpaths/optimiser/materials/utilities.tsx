@@ -9,12 +9,14 @@ import React from 'react'
 export enum MATERIALS {
   DEFAULT = 'default', // used for overrides to indicate no override
   COLOR = 'color',
-  COLOR_RAMP = 'color-ramp',
+  COLOR_RAMP = 'color_ramp',
   VELOCITY = 'velocity',
   MIX = 'mix',
   INVISIBLE = 'invisible',
   DELAY = 'delay',
   RANDOM = 'random',
+  FLICKER = 'flicker',
+  Z_GRADIENT = 'z_gradient',
 }
 
 // Our angles are stored as floats in the range 0-1

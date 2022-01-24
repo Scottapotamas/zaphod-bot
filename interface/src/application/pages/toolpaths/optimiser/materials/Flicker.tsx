@@ -18,26 +18,26 @@ import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
 import { annotateDrawOrder, lerpRGB, MATERIALS, rgbToHsi } from './utilities'
 
-export interface ColorRampMaterialJSON {
-  type: MATERIALS.COLOR_RAMP
+export interface FlickerMaterialJSON {
+  type: MATERIALS.FLICKER
   color_from: RGB
   color_to: RGB
 }
 
-export const ColorRampMaterialDefaultJSON: ColorRampMaterialJSON = {
-  type: MATERIALS.COLOR_RAMP,
-  color_from: [1, 1, 1],
+export const FlickerMaterialDefaultJSON: FlickerMaterialJSON = {
+  type: MATERIALS.FLICKER,
+  color_from: [0, 0, 0],
   color_to: [1, 1, 1],
 }
 
-export function isColorRampMaterial(
+export function isFlickerMaterial(
   material: Material,
-): material is ColorRampMaterial {
-  return material.type === MATERIALS.COLOR_RAMP
+): material is FlickerMaterial {
+  return material.type === MATERIALS.FLICKER
 }
 
-export function importColorRampMaterial(json: ColorRampMaterialJSON) {
-  const mat = new ColorRampMaterial(
+export function importFlickerMaterial(json: FlickerMaterialJSON) {
+  const mat = new FlickerMaterial(
     [json.color_from[0], json.color_from[1], json.color_from[2]],
     [json.color_to[0], json.color_to[1], json.color_to[2]],
   )
@@ -45,20 +45,28 @@ export function importColorRampMaterial(json: ColorRampMaterialJSON) {
   return mat
 }
 
-export class ColorRampMaterial extends Material {
-  readonly type = MATERIALS.COLOR_RAMP
+export class FlickerMaterial extends Material {
+  readonly type = MATERIALS.FLICKER
 
   constructor(public start: RGB, public end: RGB) {
     super()
+    this.pickColor = this.pickColor.bind(this)
+  }
+
+  pickColor() {
+    return lerpRGB(this.start, this.end, Math.random())
   }
 
   public generateLightpath = (movement: Movement) => {
+    const col1 = this.pickColor()
+    const col2 = this.pickColor()
+
     const fade: PlannerLightMove = {
       duration: movement.getDuration(),
       type: LightMoveType.RAMP,
       points: [
-        rgbToHsi(this.start[0], this.start[1], this.start[2]),
-        rgbToHsi(this.end[0], this.end[1], this.end[2]),
+        rgbToHsi(col1[0], col1[1], col1[2]),
+        rgbToHsi(col2[0], col2[1], col2[2]),
       ],
       num_points: 2,
     }
@@ -107,9 +115,10 @@ export class ColorRampMaterial extends Material {
       const start = movement.samplePoint(startT)
       const end = movement.samplePoint(endT)
 
-      // Sample along the gradient between the two colours
-      const startCol = lerpRGB(this.start, this.end, startT)
-      const endCol = lerpRGB(this.start, this.end, endT)
+      // Pick random colours
+
+      const startCol = this.pickColor()
+      const endCol = this.pickColor()
 
       // Add the line
       addColouredLine(start, end, startCol, endCol, movement.objectID)
@@ -117,15 +126,15 @@ export class ColorRampMaterial extends Material {
   }
 }
 
-export interface ColorRampMaterialEditorProps {
+export interface FlickerMaterialEditorProps {
   objectID: NodeID
-  json: ColorRampMaterialJSON
+  json: FlickerMaterialJSON
 }
 
-export function ColorRampMaterialEditor(props: ColorRampMaterialEditorProps) {
+export function FlickerMaterialEditor(props: FlickerMaterialEditorProps) {
   return (
     <>
-      ColorRampMaterialEditorProps for {props.objectID} with color from [
+      FlickerMaterialEditorProps for {props.objectID} with color from [
       {props.json.color_from.join(', ')}] to [{props.json.color_to.join(', ')}]
     </>
   )

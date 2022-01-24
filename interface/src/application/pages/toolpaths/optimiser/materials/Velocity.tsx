@@ -89,20 +89,22 @@ export class VelocityMaterial extends Material {
     //   addReactComponent,
     // )
 
-    addReactComponent(
-      generateHtmlTagFromAveragePosition(
-        movement.objectID,
-        movement.getApproximateCentroid(),
-        movementTypeToIntent(movement),
-        `${movementTypeToLetter(
-          movement,
-        )} #${movementIndex} (${movement.getDuration()}ms, ${
-          Math.round(
-            (movement.getLength() / movement.getDuration()) * 1000 * 10,
-          ) / 10
-        }mm/s)`,
-      ),
-    )
+    if (visualisationSettings.annotateDrawOrder) {
+      addReactComponent(
+        generateHtmlTagFromAveragePosition(
+          movement.objectID,
+          movement.getApproximateCentroid(),
+          movementTypeToIntent(movement),
+          `${movementTypeToLetter(
+            movement,
+          )} #${movementIndex} (${movement.getDuration()}ms, ${
+            Math.round(
+              (movement.getLength() / movement.getDuration()) * 1000 * 10,
+            ) / 10
+          }mm/s)`,
+        ),
+      )
+    }
 
     // A simple color material draws the line segment(s) from the start to the end with a single color
     const numSegments =

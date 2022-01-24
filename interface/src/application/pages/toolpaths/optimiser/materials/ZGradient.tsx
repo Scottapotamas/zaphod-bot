@@ -18,47 +18,72 @@ import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
 import { annotateDrawOrder, lerpRGB, MATERIALS, rgbToHsi } from './utilities'
 
-export interface ColorRampMaterialJSON {
-  type: MATERIALS.COLOR_RAMP
+export interface ZGradientMaterialJSON {
+  type: MATERIALS.Z_GRADIENT
   color_from: RGB
   color_to: RGB
+  z_from: number
+  z_to: number
 }
 
-export const ColorRampMaterialDefaultJSON: ColorRampMaterialJSON = {
-  type: MATERIALS.COLOR_RAMP,
-  color_from: [1, 1, 1],
+export const ZGradientMaterialDefaultJSON: ZGradientMaterialJSON = {
+  type: MATERIALS.Z_GRADIENT,
+  color_from: [0, 0, 0],
   color_to: [1, 1, 1],
+  z_from: 0,
+  z_to: 1,
 }
 
-export function isColorRampMaterial(
+export function isZGradientMaterial(
   material: Material,
-): material is ColorRampMaterial {
-  return material.type === MATERIALS.COLOR_RAMP
+): material is ZGradientMaterial {
+  return material.type === MATERIALS.Z_GRADIENT
 }
 
-export function importColorRampMaterial(json: ColorRampMaterialJSON) {
-  const mat = new ColorRampMaterial(
+export function importZGradientMaterial(json: ZGradientMaterialJSON) {
+  const mat = new ZGradientMaterial(
     [json.color_from[0], json.color_from[1], json.color_from[2]],
     [json.color_to[0], json.color_to[1], json.color_to[2]],
+    json.z_from,
+    json.z_to,
   )
 
   return mat
 }
 
-export class ColorRampMaterial extends Material {
-  readonly type = MATERIALS.COLOR_RAMP
+export class ZGradientMaterial extends Material {
+  readonly type = MATERIALS.Z_GRADIENT
 
-  constructor(public start: RGB, public end: RGB) {
+  constructor(
+    public start: RGB,
+    public end: RGB,
+    public zFrom: number,
+    public zTo: number,
+  ) {
     super()
+    this.calculateColor = this.calculateColor.bind(this)
+  }
+
+  calculateColor(z: number) {
+    const clamped = MathUtils.clamp(
+      MathUtils.mapLinear(z, this.zFrom, this.zTo, 0, 1),
+      0,
+      1,
+    )
+
+    return lerpRGB(this.start, this.end, clamped)
   }
 
   public generateLightpath = (movement: Movement) => {
+    const col1 = this.calculateColor(movement.getStart().z)
+    const col2 = this.calculateColor(movement.getEnd().z)
+
     const fade: PlannerLightMove = {
       duration: movement.getDuration(),
       type: LightMoveType.RAMP,
       points: [
-        rgbToHsi(this.start[0], this.start[1], this.start[2]),
-        rgbToHsi(this.end[0], this.end[1], this.end[2]),
+        rgbToHsi(col1[0], col1[1], col1[2]),
+        rgbToHsi(col2[0], col2[1], col2[2]),
       ],
       num_points: 2,
     }
@@ -107,9 +132,9 @@ export class ColorRampMaterial extends Material {
       const start = movement.samplePoint(startT)
       const end = movement.samplePoint(endT)
 
-      // Sample along the gradient between the two colours
-      const startCol = lerpRGB(this.start, this.end, startT)
-      const endCol = lerpRGB(this.start, this.end, endT)
+      // Pick random colours
+      const startCol = this.calculateColor(start.z)
+      const endCol = this.calculateColor(end.z)
 
       // Add the line
       addColouredLine(start, end, startCol, endCol, movement.objectID)
@@ -117,16 +142,17 @@ export class ColorRampMaterial extends Material {
   }
 }
 
-export interface ColorRampMaterialEditorProps {
+export interface ZGradientMaterialEditorProps {
   objectID: NodeID
-  json: ColorRampMaterialJSON
+  json: ZGradientMaterialJSON
 }
 
-export function ColorRampMaterialEditor(props: ColorRampMaterialEditorProps) {
+export function ZGradientMaterialEditor(props: ZGradientMaterialEditorProps) {
   return (
     <>
-      ColorRampMaterialEditorProps for {props.objectID} with color from [
+      ZGradientMaterialEditorProps for {props.objectID} with color from [
       {props.json.color_from.join(', ')}] to [{props.json.color_to.join(', ')}]
+      over z{props.json.z_from} to z{props.json.z_to}
     </>
   )
 }

@@ -2,6 +2,24 @@
 
 Materials can't have any effect on the ordering of the movements.
 
+## Blender Materials
+
+Materials support arbitrary data transfer. Any `Object Data` custom properties
+with the prefix `material_` will be transfered into the `material` entry without
+the prefix. We use the `Object Data` custom properties because that usually
+makes more sense with the object. GPencil and Lights are supported
+
+Eg: to use the rainbow colour:
+
+`material_type`: `rainbow`
+
+Or a regular colour material
+
+```
+material_type: color
+material_color: [1.0, 1.0, 1.0, 1.0]
+```
+
 # TODO:
 
 Refactor materials so we can modify them on the UI side without re-optimising
