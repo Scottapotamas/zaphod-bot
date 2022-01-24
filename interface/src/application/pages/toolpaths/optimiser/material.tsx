@@ -9,6 +9,11 @@ import {
   importColorRampMaterial,
 } from './materials/ColorRamp'
 import {
+  FlickerMaterialDefaultJSON,
+  FlickerMaterialJSON,
+  importFlickerMaterial,
+} from './materials/Flicker'
+import {
   importInvisibleMaterial,
   InvisibleMaterial,
   InvisibleMaterialDefaultJSON,
@@ -25,6 +30,11 @@ import {
   VelocityMaterialDefaultJSON,
   VelocityMaterialJSON,
 } from './materials/Velocity'
+import {
+  importZGradientMaterial,
+  ZGradientMaterialDefaultJSON,
+  ZGradientMaterialJSON,
+} from './materials/ZGradient'
 
 export type MaterialJSON =
   | ColorMaterialJSON
@@ -32,6 +42,8 @@ export type MaterialJSON =
   | VelocityMaterialJSON
   | InvisibleMaterialJSON
   | RandomColorMaterialJSON
+  | FlickerMaterialJSON
+  | ZGradientMaterialJSON
 
 export const defaultTransitionMaterial = new InvisibleMaterial([
   19 / 255,
@@ -51,6 +63,10 @@ export function importMaterial(json: MaterialJSON) {
       return importInvisibleMaterial(json)
     case MATERIALS.RANDOM:
       return importRandomColorMaterial(json)
+    case MATERIALS.FLICKER:
+      return importFlickerMaterial(json)
+    case MATERIALS.Z_GRADIENT:
+      return importZGradientMaterial(json)
 
     default:
       throw new Error(`Error importing material, unknown type ${json['type']}`)
@@ -71,6 +87,10 @@ export function getDefaultJSONForType(type: MATERIALS) {
       return InvisibleMaterialDefaultJSON
     case MATERIALS.RANDOM:
       return RandomColorMaterialDefaultJSON
+    case MATERIALS.FLICKER:
+      return FlickerMaterialDefaultJSON
+    case MATERIALS.Z_GRADIENT:
+      return ZGradientMaterialDefaultJSON
 
     default:
       throw new Error(
