@@ -1,11 +1,32 @@
 import { MathUtils, Vector3 } from 'three'
 import { VisualisationSettings } from '../../interface/state'
-import { Settings } from '../../optimiser/settings'
-import { PlannerLightMove } from './../hardware'
-import { AddComponentCallback, AddLineCallback, Movement } from './../movements'
+import { Settings } from '../settings'
+import { PlannerLightMove } from '../hardware'
+import { AddComponentCallback, AddLineCallback, Movement } from '../movements'
 import { Material } from './Base'
 
 import { annotateDrawOrder, MATERIALS } from './utilities'
+import { importMaterial, MaterialJSON } from '../material'
+
+export interface MixMaterialJSON {
+  type: MATERIALS.MIX
+  background: MaterialJSON
+  foreground: MaterialJSON
+  transitionT: number
+}
+
+export const MixMaterialDefaultJSON: MixMaterialJSON = {
+  type: MATERIALS.MIX,
+  background: {
+    type: MATERIALS.COLOR,
+    color: [1, 1, 1, 1],
+  },
+  foreground: {
+    type: MATERIALS.COLOR,
+    color: [1, 1, 1, 1],
+  },
+  transitionT: 0.5,
+}
 
 export function isMixMaterial(material: Material): material is MixMaterial {
   return material.type === MATERIALS.MIX
@@ -114,3 +135,11 @@ export class MixMaterial extends Material {
     )
   }
 }
+
+// // This is a circular reference to ../material.tsx
+// export function importMixMaterial(json: MixMaterialJSON): MixMaterial {
+//   const background = importMaterial(json.background)
+//   const foreground = importMaterial(json.foreground)
+
+//   return new MixMaterial(background, foreground, json.transitionT)
+// }

@@ -1,4 +1,8 @@
-import { VisualisationSettings } from '../../interface/state'
+import {
+  incrementViewportFrameVersion,
+  setSetting,
+  VisualisationSettings,
+} from '../../interface/state'
 import { Settings } from '../../optimiser/settings'
 import { Movement, RGB, RGBA } from './../movements'
 import { Material } from './Base'
@@ -6,6 +10,8 @@ import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
 import { lerpRGB, MATERIALS } from './utilities'
 import { Vector3 } from 'three'
+import { ColorPicker } from '../../interface/ColorPicker'
+import { Composition, Box } from 'atomic-layout'
 
 export interface ColorRampMaterialJSON {
   type: MATERIALS.COLOR_RAMP
@@ -53,15 +59,31 @@ export class ColorRampMaterial extends Material {
 }
 
 export interface ColorRampMaterialEditorProps {
-  objectID: NodeID
   json: ColorRampMaterialJSON
+  mutateJson: (writer: (json: ColorRampMaterialJSON) => void) => void
 }
 
 export function ColorRampMaterialEditor(props: ColorRampMaterialEditorProps) {
   return (
-    <>
-      ColorRampMaterialEditorProps for {props.objectID} with color from [
-      {props.json.color_from.join(', ')}] to [{props.json.color_to.join(', ')}]
-    </>
+    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+      From:
+      <ColorPicker
+        defaultColor={props.json.color_from}
+        writer={col => {
+          props.mutateJson(json => {
+            json.color_from = col
+          })
+        }}
+      />
+      To:
+      <ColorPicker
+        defaultColor={props.json.color_to}
+        writer={col => {
+          props.mutateJson(json => {
+            json.color_to = col
+          })
+        }}
+      />
+    </Composition>
   )
 }

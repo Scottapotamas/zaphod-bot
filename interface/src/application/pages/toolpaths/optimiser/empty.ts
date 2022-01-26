@@ -29,6 +29,10 @@ export class Empty {
     return node
   }
 
+  public getOriginalMaterialJSON = (objectID: string) => {
+    return null
+  }
+
   public toMovements = (settings: Settings) => {
     return []
   }

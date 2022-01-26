@@ -1,19 +1,21 @@
-import { RGB } from './../movements'
+import { RGB, RGBA } from './../movements'
 import { Material } from './Base'
 import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
 import { lerpRGB, MATERIALS } from './utilities'
+import { ColorPicker } from '../../interface/ColorPicker'
+import { Composition, Box } from 'atomic-layout'
 
 export interface FlickerMaterialJSON {
   type: MATERIALS.FLICKER
-  color_from: RGB
-  color_to: RGB
+  color_from: RGBA
+  color_to: RGBA
 }
 
 export const FlickerMaterialDefaultJSON: FlickerMaterialJSON = {
   type: MATERIALS.FLICKER,
-  color_from: [0, 0, 0],
-  color_to: [1, 1, 1],
+  color_from: [0, 0, 0, 1],
+  color_to: [1, 1, 1, 1],
 }
 
 export function isFlickerMaterial(
@@ -44,15 +46,31 @@ export class FlickerMaterial extends Material {
 }
 
 export interface FlickerMaterialEditorProps {
-  objectID: NodeID
   json: FlickerMaterialJSON
+  mutateJson: (writer: (json: FlickerMaterialJSON) => void) => void
 }
 
 export function FlickerMaterialEditor(props: FlickerMaterialEditorProps) {
   return (
-    <>
-      FlickerMaterialEditorProps for {props.objectID} with color from [
-      {props.json.color_from.join(', ')}] to [{props.json.color_to.join(', ')}]
-    </>
+    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+      From:
+      <ColorPicker
+        defaultColor={props.json.color_from}
+        writer={col => {
+          props.mutateJson(json => {
+            json.color_from = col
+          })
+        }}
+      />
+      To:
+      <ColorPicker
+        defaultColor={props.json.color_to}
+        writer={col => {
+          props.mutateJson(json => {
+            json.color_to = col
+          })
+        }}
+      />
+    </Composition>
   )
 }

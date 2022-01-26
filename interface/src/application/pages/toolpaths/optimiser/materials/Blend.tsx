@@ -1,18 +1,44 @@
-import { MathUtils, Vector3 } from 'three'
-import { VisualisationSettings } from '../../interface/state'
-import { Settings } from '../../optimiser/settings'
-import { importMaterial, MaterialJSON } from '../material'
-import { PlannerLightMove } from './../hardware'
+import { Card, Icon, IconName } from '@blueprintjs/core'
+import React, { useCallback, useState } from 'react'
 import {
-  AddComponentCallback,
-  AddLineCallback,
-  Movement,
-  RGB,
-  RGBA,
-} from './../movements'
+  findNodeWithID,
+  NodeID,
+  NodeTypes,
+} from './../../interface/RenderableTree'
+
+import { Button, MenuItem } from '@blueprintjs/core'
+import { ItemRenderer, Select } from '@blueprintjs/select'
+import { MATERIALS } from './utilities'
+import { getDefaultJSONForType, MaterialJSON } from '../material'
+import { IconNames } from '@blueprintjs/icons'
+import { ColorMaterialEditor, ColorMaterialJSON } from './Color'
+import { ColorRampMaterialEditor, ColorRampMaterialJSON } from './ColorRamp'
+import { InvisibleMaterialEditor, InvisibleMaterialJSON } from './Invisible'
+import { VelocityMaterialEditor, VelocityMaterialJSON } from './Velocity'
+import { RandomColorMaterialEditor, RandomColorMaterialJSON } from './Random'
+import { FlickerMaterialEditor, FlickerMaterialJSON } from './Flicker'
+import { ZDepthMaterialEditor, ZDepthMaterialJSON } from './ZDepth'
+import { ZGradientMaterialEditor, ZGradientMaterialJSON } from './ZGradient'
+
+import { MathUtils, Vector3 } from 'three'
+import { Settings } from '../../optimiser/settings'
+import { importMaterial } from '../material'
+import { PlannerLightMove } from './../hardware'
+import { Movement, RGB, RGBA } from './../movements'
 import { Material } from './Base'
 
-import { annotateDrawOrder, MATERIALS } from './utilities'
+import { VisualisationSettings } from '../../interface/state'
+import { ColorPicker } from '../../interface/ColorPicker'
+
+import { annotateDrawOrder } from './utilities'
+import {
+  MaterialSelector,
+  MaterialEditor,
+  MaterialOption,
+  calculateInitialMaterialJSON,
+  Spacer,
+} from '../../interface/MaterialSelector'
+import { Composition, Box } from 'atomic-layout'
 
 export enum BlendMode {
   NORMAL = 'normal',
@@ -122,4 +148,103 @@ export function importBlendMaterial(json: BlendMaterialJSON): BlendMaterial {
   const foreground = importMaterial(json.foreground)
 
   return new BlendMaterial(background, foreground, json.mode)
+}
+
+export interface BlendMaterialEditorProps {
+  json: BlendMaterialJSON
+  mutateJson: (writer: (json: BlendMaterialJSON) => void) => void
+}
+
+interface MaterialSelectorProps {}
+
+const materialEditorStyle = {
+  display: 'grid',
+  gridTemplateColumns: '1fr 1fr',
+}
+
+export function BlendMaterialEditor(props: BlendMaterialEditorProps) {
+  const selectBackgroundMaterialType = useCallback(
+    (option: MaterialOption) => {
+      const override = calculateInitialMaterialJSON(option.materialType, null)
+
+      props.mutateJson(blendJson => {
+        if (!override) {
+          console.error(
+            `A material doesn't have a default`,
+            option.materialType,
+          )
+          return
+        }
+        blendJson.background = override
+      })
+    },
+    [props.mutateJson],
+  )
+  const selectForegroundMaterialType = useCallback(
+    (option: MaterialOption) => {
+      const override = calculateInitialMaterialJSON(option.materialType, null)
+
+      props.mutateJson(blendJson => {
+        if (!override) {
+          console.error(
+            `A material doesn't have a default`,
+            option.materialType,
+          )
+          return
+        }
+        blendJson.foreground = override
+      })
+    },
+    [props.mutateJson],
+  )
+
+  const backgroundUpdate = useCallback(
+    (backgroundWriter: (json: MaterialJSON) => void) => {
+      props.mutateJson(blendJson => {
+        backgroundWriter(blendJson.background)
+      })
+    },
+    [props.mutateJson],
+  )
+  const foregroundUpdate = useCallback(
+    (foregroundWriter: (json: MaterialJSON) => void) => {
+      props.mutateJson(blendJson => {
+        foregroundWriter(blendJson.foreground)
+      })
+    },
+    [props.mutateJson],
+  )
+
+  return (
+    <>
+      <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+        Background
+        <MaterialSelector
+          selectedType={props.json.background.type}
+          onChange={selectBackgroundMaterialType}
+          disallowDefault
+        />
+      </Composition>
+      <MaterialEditor
+        json={props.json.background}
+        updateJson={backgroundUpdate}
+      />
+
+      <Spacer />
+
+      <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+        Foreground
+        <MaterialSelector
+          selectedType={props.json.foreground.type}
+          onChange={selectForegroundMaterialType}
+          disallowDefault
+        />
+      </Composition>
+
+      <MaterialEditor
+        json={props.json.foreground}
+        updateJson={foregroundUpdate}
+      />
+    </>
+  )
 }

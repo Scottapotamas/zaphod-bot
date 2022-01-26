@@ -77,6 +77,18 @@ export class Particles {
     return node
   }
 
+  public getOriginalMaterialJSON = (objectID: string) => {
+    for (const system of this.systems) {
+      const systemID = `${this.name}-${system.name}`
+
+      if (systemID === objectID) {
+        return system.material
+      }
+    }
+
+    return null
+  }
+
   public toMovements = (settings: Settings) => {
     const movements: Movement[] = []
 

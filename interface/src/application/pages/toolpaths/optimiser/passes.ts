@@ -22,7 +22,7 @@ import {
 import { Settings } from './settings'
 import { Line3, MathUtils, Vector3 } from 'three'
 import { defaultTransitionMaterial } from './material'
-import { MixMaterial } from './materials/MixMaterial'
+import { MixMaterial } from './materials/Mix'
 import xxhash, { XXHash } from 'xxhash-wasm'
 import { Permutor } from './permutor'
 import assert from 'assert'

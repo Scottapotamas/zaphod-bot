@@ -80,6 +80,8 @@ export function hsiToRgb(
 
 /**
  * Linearly lerp between to colours, converting to HSI space first.
+ *
+ * TODO: this doesn't work if the saturation of one colour is 0, it'll lerp from 'red'
  */
 export function lerpRGB(
   a: [r: number, g: number, b: number],
@@ -197,11 +199,7 @@ export function generateHtmlTagFromAveragePosition(
   return component
 }
 
-function TagThatHidesWhenNotInList(props: {
-  objectID: NodeID
-  intent: Intent
-  text: string
-}) {
+function TagThatHidesWhenNotInList(props: { intent: Intent; text: string }) {
   const isHidden = useStore(state => {
     // If nothing is hovered, display everything
     if (state.treeStore.hoveredObjectIDs.length === 0) {

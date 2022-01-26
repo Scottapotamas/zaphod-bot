@@ -22,6 +22,7 @@ import {
   rgbToHsi,
 } from './utilities'
 import { IconNames } from '@blueprintjs/icons'
+import { Composition, Box } from 'atomic-layout'
 
 export interface VelocityMaterialJSON {
   type: MATERIALS.VELOCITY
@@ -207,8 +208,8 @@ function calculateColorFromSpeed(speed: number, intendedSpeed: number) {
 }
 
 export interface VelocityMaterialEditorProps {
-  objectID: NodeID
   json: VelocityMaterialJSON
+  mutateJson: (writer: (json: VelocityMaterialJSON) => void) => void
 }
 
 const velocityGradient = {
@@ -227,25 +228,27 @@ const velocityInfo = {
 
 export function VelocityMaterialEditor(props: VelocityMaterialEditorProps) {
   return (
-    <div>
-      <div style={velocityGradient}></div>
-      <div style={velocityInfo}>
-        <div>
-          <Tag intent="none" icon={IconNames.ARROW_UP} minimal>
-            Stationary
-          </Tag>
-        </div>
-        <div>
-          <Tag intent="success" icon={IconNames.ARROW_UP}>
-            Intended Speed
-          </Tag>
-        </div>
-        <div style={{ textAlign: 'right' }}>
-          <Tag intent="danger" rightIcon={IconNames.ARROW_UP}>
-            Hardware Limit
-          </Tag>
+    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+      <div>
+        <div style={velocityGradient}></div>
+        <div style={velocityInfo}>
+          <div>
+            <Tag intent="none" icon={IconNames.ARROW_UP} minimal>
+              Stationary
+            </Tag>
+          </div>
+          <div>
+            <Tag intent="success" icon={IconNames.ARROW_UP}>
+              Intended Speed
+            </Tag>
+          </div>
+          <div style={{ textAlign: 'right' }}>
+            <Tag intent="danger" rightIcon={IconNames.ARROW_UP}>
+              Hardware Limit
+            </Tag>
+          </div>
         </div>
       </div>
-    </div>
+    </Composition>
   )
 }

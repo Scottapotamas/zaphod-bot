@@ -49,6 +49,14 @@ export class Light {
     return node
   }
 
+  public getOriginalMaterialJSON = (objectID: string) => {
+    if (this.name === objectID) {
+      return this.material
+    }
+
+    return null
+  }
+
   public toMovements = (settings: Settings) => {
     const movements: Movement[] = []
 
