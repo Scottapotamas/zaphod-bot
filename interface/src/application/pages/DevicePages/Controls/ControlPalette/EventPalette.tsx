@@ -28,7 +28,7 @@ import { PlannerSettingsInterface } from 'src/application/pages/toolpaths/interf
 import { ThreeSettingsInterface } from 'src/application/pages/toolpaths/interface/ThreeSettingsInterface'
 import { RenderInterface } from './../../../toolpaths/interface/RenderInterface'
 import { RenderableTree } from './../../../toolpaths/interface/RenderableTree'
-import { MaterialEditor } from './../../../toolpaths/interface/MaterialEditor'
+import { MaterialEditorInterface } from '../../../toolpaths/interface/MaterialEditorInterface'
 
 export const EventPalette = () => {
   let [settingsExpanded, setSettingsExpanded] = useState(false)
@@ -52,7 +52,7 @@ export const EventPalette = () => {
             </Card>
             <Card>
               <RenderableTree />
-              <MaterialEditor />
+              <MaterialEditorInterface />
             </Card>
           </Composition>
         </Collapse>

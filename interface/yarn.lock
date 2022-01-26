@@ -1481,6 +1481,23 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@blueprintjs/popover2@npm:^0.12.9":
+  version: 0.12.9
+  resolution: "@blueprintjs/popover2@npm:0.12.9"
+  dependencies:
+    "@blueprintjs/core": ^3.52.0
+    "@popperjs/core": ^2.5.4
+    classnames: ^2.2
+    dom4: ^2.1.5
+    react-popper: ^2.2.4
+    resize-observer-polyfill: ^1.5.1
+    tslib: ~1.13.0
+  peerDependencies:
+    react: ^16.8.0 || ^17
+  checksum: f782600f3cd372abbdd47b9ca3ab9265c1e62e4b3b353d4b06c11c3663d62b01d597df11ba21aff9885a825c7960af878d8448922944489de4bc80c5019981de
+  languageName: node
+  linkType: hard
+
 "@blueprintjs/select@npm:^3.18.11, @blueprintjs/select@npm:^3.18.6":
   version: 3.18.11
   resolution: "@blueprintjs/select@npm:3.18.11"
@@ -2491,6 +2508,13 @@ __metadata:
     style-value-types: ^3.1.7
     tslib: ^1.10.0
   checksum: 70e433763ba5328dc9f82d26bf245ff965f6de0fd931fe15452e855a53b620dd90d45139234a5e0bfa8d3498a3f762bdd75c1e29f56705323571785ee526ea5e
+  languageName: node
+  linkType: hard
+
+"@popperjs/core@npm:^2.5.4":
+  version: 2.11.2
+  resolution: "@popperjs/core@npm:2.11.2"
+  checksum: 5695bf020eda54636e16a62dc9b5fdd92beaf7b2d19f62fcef049d57c5cff92773562d80cbf760b217c3ec928da310eb24994ab6a00fd39dffa0af9b5dfc01a6
   languageName: node
   linkType: hard
 
@@ -6283,6 +6307,7 @@ __metadata:
     "@babel/preset-env": ^7.1.0
     "@blueprintjs/core": ^3.52.0
     "@blueprintjs/icons": ^3.31.0
+    "@blueprintjs/popover2": ^0.12.9
     "@blueprintjs/select": ^3.18.11
     "@blueprintjs/table": ^3.9.13
     "@electricui/build-tools": 0.10.0-1fb9ce2d
@@ -6374,6 +6399,7 @@ __metadata:
     promise-socket: ^4.0.0
     qbus: ^0.9.7
     react: 17.0.2
+    react-color-palette: ^6.2.0
     react-dom: 17.0.2
     react-pose: ^4.0.10
     react-pretty-numbers: ^3.0.0
@@ -12105,6 +12131,15 @@ fsevents@~2.1.1:
   languageName: node
   linkType: hard
 
+"react-color-palette@npm:^6.2.0":
+  version: 6.2.0
+  resolution: "react-color-palette@npm:6.2.0"
+  peerDependencies:
+    react: ">=16.8.0"
+  checksum: dd974763f1227deec9010bc4f1260efb372aca8776ad9cbf8b05f324ee7fa73534b0b027911adb9a335169dbd25764da4dc8d2009f3888aa88bd8b17ea5e782a
+  languageName: node
+  linkType: hard
+
 "react-colorful@npm:^5.5.0":
   version: 5.5.1
   resolution: "react-colorful@npm:5.5.1"
@@ -12143,6 +12178,13 @@ fsevents@~2.1.1:
   version: 2.0.4
   resolution: "react-fast-compare@npm:2.0.4"
   checksum: 06046595f90a4e3e3a56f40a8078c00aa71bdb064ddb98343f577f546aa22e888831fd45f009c93b34707cc842b4c637737e956fd13d6f80607ee92fb9cf9a1c
+  languageName: node
+  linkType: hard
+
+"react-fast-compare@npm:^3.0.1":
+  version: 3.2.0
+  resolution: "react-fast-compare@npm:3.2.0"
+  checksum: 8ef272c825ae329f61633ce4ce7f15aa5b84e5214d88bc0823880236e03e985a13195befa2c7a4eda7db3b017dc7985729152d88445823f652403cf36c2b86aa
   languageName: node
   linkType: hard
 
@@ -12215,6 +12257,19 @@ fsevents@~2.1.1:
   peerDependencies:
     react: 0.14.x || ^15.0.0 || ^16.0.0 || ^17.0.0
   checksum: a0f5994f5799f1c7364498f74df123dd2561fff4ae834b10fdcca74d9a8e159b523ed1f0708db33bad606933ab4f0d5ce9c90e48cbb671bf30016c890f3c7ea4
+  languageName: node
+  linkType: hard
+
+"react-popper@npm:^2.2.4":
+  version: 2.2.5
+  resolution: "react-popper@npm:2.2.5"
+  dependencies:
+    react-fast-compare: ^3.0.1
+    warning: ^4.0.2
+  peerDependencies:
+    "@popperjs/core": ^2.0.0
+    react: ^16.8.0 || ^17
+  checksum: 915fcf08e1da4fd48a200074fcdd936f601ee2173f1e730cfed8a54fd47716aa8bf9cce2392463e3bcbe64a096d0baf463809ed2874b94d3a9d430ae6d817b5d
   languageName: node
   linkType: hard
 

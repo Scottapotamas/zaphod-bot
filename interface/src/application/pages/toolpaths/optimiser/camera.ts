@@ -87,6 +87,10 @@ export class Camera {
     return node
   }
 
+  public getOriginalMaterialJSON = (objectID: string) => {
+    return null
+  }
+
   public toMovements = (settings: Settings) => {
     const groups: {
       [height: number]: MovementGroup

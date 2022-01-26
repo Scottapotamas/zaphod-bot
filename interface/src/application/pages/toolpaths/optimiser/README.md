@@ -38,6 +38,9 @@ material.foreground = {'type': 'z_depth', 'color_from': [1.0, 1.0, 1.0], 'color_
 material.foreground.color_from = [0,0,1]
 ```
 
+{'type': 'z_gradient', 'z_from': 105, 'z_to': 180, 'color_from': [0.360784,
+0.145098, 0.360784], 'color_to': [0.760784, 0.454902, 0.760784]}
+
 ## Empty special data export
 
 Custom properties of empty objects with the prefix `frame.` are exported, minus

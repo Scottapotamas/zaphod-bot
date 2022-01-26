@@ -86,6 +86,18 @@ export class GPencil {
     return node
   }
 
+  public getOriginalMaterialJSON = (objectID: string) => {
+    for (const layer of this.layers) {
+      const layerID = `${this.name}-${layer.info}`
+
+      if (layerID === objectID) {
+        return layer.material
+      }
+    }
+
+    return null
+  }
+
   public toMovements = (settings: Settings) => {
     const movements: Movement[] = []
 

@@ -1,11 +1,20 @@
-import { VisualisationSettings } from '../../interface/state'
+import {
+  incrementViewportFrameVersion,
+  setSetting,
+  VisualisationSettings,
+} from '../../interface/state'
 import { Settings } from '../../optimiser/settings'
 import { Movement, RGB, RGBA } from './../movements'
 import { Material } from './Base'
 import { NodeID } from '../../interface/RenderableTree'
-import React from 'react'
+import React, { useCallback } from 'react'
 import { MATERIALS } from './utilities'
 import { Vector3 } from 'three'
+import { Classes, Popover2 } from '@blueprintjs/popover2'
+import { Button } from '@blueprintjs/core'
+import { Store } from '../../interface/state'
+import { ColorPicker } from '../../interface/ColorPicker'
+import { Composition, Box } from 'atomic-layout'
 
 export interface ColorMaterialJSON {
   type: MATERIALS.COLOR
@@ -52,15 +61,22 @@ export class SimpleColorMaterial extends Material {
 }
 
 export interface ColorMaterialEditorProps {
-  objectID: NodeID
   json: ColorMaterialJSON
+  mutateJson: (writer: (json: ColorMaterialJSON) => void) => void
 }
 
 export function ColorMaterialEditor(props: ColorMaterialEditorProps) {
   return (
-    <>
-      ColorMaterialEditor for {props.objectID} with color [
-      {props.json.color.join(', ')}]
-    </>
+    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+      Color
+      <ColorPicker
+        defaultColor={props.json.color}
+        writer={col => {
+          props.mutateJson(json => {
+            json.color = col
+          })
+        }}
+      />
+    </Composition>
   )
 }

@@ -37,6 +37,7 @@ import {
 function SceneLengthSlider() {
   const sceneMinFrame = useStore(state => state.sceneMinFrame) ?? null
   const sceneMaxFrame = useStore(state => state.sceneMaxFrame) ?? null
+  const range = sceneMaxFrame - sceneMinFrame
 
   const [localMinMax, setLocalMinMax] = useState([
     getSetting(state => state.sceneMinFrame),
@@ -61,7 +62,7 @@ function SceneLengthSlider() {
     <div style={{ marginLeft: 10, marginRight: 10 }}>
       <MultiSlider
         defaultTrackIntent={Intent.SUCCESS}
-        labelStepSize={20}
+        labelStepSize={range > 100 ? 50 : 20}
         min={sceneMinFrame}
         max={sceneMaxFrame}
         onRelease={updateMinCurrentMax}
@@ -88,6 +89,7 @@ function Timeline() {
   const selectedMinFrame = useStore(state => state.selectedMinFrame) ?? 1
   const selectedMaxFrame = useStore(state => state.selectedMaxFrame) ?? 1
   const viewportFrame = useStore(state => state.viewportFrame) ?? 1
+  const range = selectedMaxFrame - selectedMinFrame
 
   const updateViewportFrame = useCallback(frameNumber => {
     setSetting(state => {
@@ -113,7 +115,7 @@ function Timeline() {
   return (
     <div style={{ marginLeft: 10, marginRight: 10 }}>
       <Slider
-        labelStepSize={20}
+        labelStepSize={range > 100 ? 50 : 20}
         min={selectedMinFrame}
         max={selectedMaxFrame}
         value={viewportFrame}

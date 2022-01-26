@@ -126,7 +126,7 @@ export function getMaterialOverride(
   return importMaterial(mat)
 }
 
-interface Store {
+export interface Store {
   folder: string | null
   settings: Settings
   sceneMinFrame: number

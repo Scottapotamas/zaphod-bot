@@ -1,5 +1,4 @@
 import { MathUtils, Vector3 } from 'three'
-import { VisualisationSettings } from '../../interface/state'
 import { Settings } from '../../optimiser/settings'
 import { PlannerLightMove, LightMoveType } from './../hardware'
 import {
@@ -8,21 +7,29 @@ import {
   Movement,
   MOVEMENT_TYPE,
   RGB,
+  RGBA,
 } from './../movements'
 import { Material } from './Base'
 import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
 import { annotateDrawOrder, MATERIALS } from './utilities'
+import {
+  incrementViewportFrameVersion,
+  setSetting,
+  VisualisationSettings,
+} from '../../interface/state'
+import { Composition, Box } from 'atomic-layout'
 
+import { ColorPicker } from '../../interface/ColorPicker'
 export interface InvisibleMaterialJSON {
   type: MATERIALS.INVISIBLE
   // For the color in the UI
-  color: [number, number, number]
+  color: RGBA
 }
 
 export const InvisibleMaterialDefaultJSON: InvisibleMaterialJSON = {
   type: MATERIALS.INVISIBLE,
-  color: [0.3, 0.3, 0.3],
+  color: [0.3, 0.3, 0.3, 1],
 }
 
 export function isInvisibleMaterial(
@@ -120,15 +127,22 @@ export class InvisibleMaterial extends Material {
 }
 
 export interface InvisibleMaterialEditorProps {
-  objectID: NodeID
   json: InvisibleMaterialJSON
+  mutateJson: (writer: (json: InvisibleMaterialJSON) => void) => void
 }
 
 export function InvisibleMaterialEditor(props: InvisibleMaterialEditorProps) {
   return (
-    <>
-      InvisibleMaterialEditorProps for {props.objectID} with visualisation color
-      [{props.json.color.join(', ')}]
-    </>
+    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+      Viewer Color
+      <ColorPicker
+        defaultColor={props.json.color}
+        writer={col => {
+          props.mutateJson(json => {
+            json.color = col
+          })
+        }}
+      />
+    </Composition>
   )
 }

@@ -1,24 +1,27 @@
-import { MathUtils, Vector3 } from 'three'
+import { MathUtils, Vector2, Vector3 } from 'three'
 import { VisualisationSettings } from '../../interface/state'
 import { Settings } from '../../optimiser/settings'
-import { Movement, RGB } from './../movements'
+import { Movement, RGB, RGBA } from './../movements'
 import { Material } from './Base'
 import { NodeID } from '../../interface/RenderableTree'
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import { lerpRGB, MATERIALS } from './utilities'
+import { ColorPicker } from '../../interface/ColorPicker'
+import { NumericInput, Tag } from '@blueprintjs/core'
+import { Composition, Box } from 'atomic-layout'
 
 export interface ZGradientMaterialJSON {
   type: MATERIALS.Z_GRADIENT
-  color_from: RGB
-  color_to: RGB
+  color_from: RGBA
+  color_to: RGBA
   z_from: number
   z_to: number
 }
 
 export const ZGradientMaterialDefaultJSON: ZGradientMaterialJSON = {
   type: MATERIALS.Z_GRADIENT,
-  color_from: [0, 0, 0],
-  color_to: [1, 1, 1],
+  color_from: [0, 0, 0, 1],
+  color_to: [1, 1, 1, 1],
   z_from: 0,
   z_to: 1,
 }
@@ -72,16 +75,98 @@ export class ZGradientMaterial extends Material {
 }
 
 export interface ZGradientMaterialEditorProps {
-  objectID: NodeID
   json: ZGradientMaterialJSON
+  mutateJson: (writer: (json: ZGradientMaterialJSON) => void) => void
 }
 
 export function ZGradientMaterialEditor(props: ZGradientMaterialEditorProps) {
+  const [zFrom, setZFrom] = useState(props.json.z_from)
+  const [zTo, setZTo] = useState(props.json.z_to)
+
+  const handleUpdateZFrom = useCallback(
+    z => {
+      setZFrom(z)
+    },
+    [setZFrom],
+  )
+
+  const handleReleaseFrom: React.FocusEventHandler<HTMLInputElement> =
+    useCallback(
+      event => {
+        setZFrom(Number(event.currentTarget.value))
+
+        props.mutateJson(json => {
+          json.z_from = Number(event.currentTarget.value)
+        })
+      },
+      [props.mutateJson],
+    )
+
+  const handleUpdateZTo = useCallback(
+    z => {
+      setZTo(z)
+    },
+    [setZTo],
+  )
+
+  const handleReleaseTo: React.FocusEventHandler<HTMLInputElement> =
+    useCallback(
+      event => {
+        setZTo(Number(event.currentTarget.value))
+
+        props.mutateJson(json => {
+          json.z_to = Number(event.currentTarget.value)
+        })
+      },
+      [props.mutateJson],
+    )
+
   return (
-    <>
-      ZGradientMaterialEditorProps for {props.objectID} with color from [
-      {props.json.color_from.join(', ')}] to [{props.json.color_to.join(', ')}]
-      over z{props.json.z_from} to z{props.json.z_to}
-    </>
+    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+      From:
+      <ColorPicker
+        defaultColor={props.json.color_from}
+        writer={col => {
+          props.mutateJson(json => {
+            json.color_from = col
+          })
+        }}
+      />
+      To:
+      <ColorPicker
+        defaultColor={props.json.color_to}
+        writer={col => {
+          props.mutateJson(json => {
+            json.color_to = col
+          })
+        }}
+      />
+      At Z:
+      <NumericInput
+        fill
+        min={0}
+        max={2000}
+        stepSize={25}
+        majorStepSize={100}
+        value={zFrom}
+        onValueChange={handleUpdateZFrom}
+        onBlur={handleReleaseFrom}
+        rightElement={<Tag>mm</Tag>}
+        style={{ width: '100%' }}
+      />
+      To Z:
+      <NumericInput
+        fill
+        min={0}
+        max={2000}
+        stepSize={25}
+        majorStepSize={100}
+        value={zTo}
+        onValueChange={handleUpdateZTo}
+        onBlur={handleReleaseTo}
+        rightElement={<Tag>mm</Tag>}
+        style={{ width: '100%' }}
+      />
+    </Composition>
   )
 }

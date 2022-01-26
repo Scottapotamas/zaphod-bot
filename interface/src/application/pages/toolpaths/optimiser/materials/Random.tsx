@@ -7,6 +7,7 @@ import React from 'react'
 import { MATERIALS } from './utilities'
 import { Vector3 } from 'three'
 
+import { Composition, Box } from 'atomic-layout'
 export interface RandomColorMaterialJSON {
   type: MATERIALS.RANDOM
   color: [number, number, number, number]
@@ -91,12 +92,16 @@ export class RandomColorMaterial extends Material {
 }
 
 export interface RandomColorMaterialEditorProps {
-  objectID: NodeID
   json: RandomColorMaterialJSON
+  mutateJson: (writer: (json: RandomColorMaterialJSON) => void) => void
 }
 
 export function RandomColorMaterialEditor(
   props: RandomColorMaterialEditorProps,
 ) {
-  return <>RandomColorMaterialEditor for {props.objectID}</>
+  return (
+    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+      Random Colors!
+    </Composition>
+  )
 }

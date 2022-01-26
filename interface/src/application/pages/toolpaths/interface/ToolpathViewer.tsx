@@ -13,7 +13,7 @@ import { ThreeSettingsInterface } from './ThreeSettingsInterface'
 import { RenderInterface } from './RenderInterface'
 import { ToolpathVisualisation } from './ToolpathVisualisation'
 import { RenderableTree } from './RenderableTree'
-import { MaterialEditor } from './MaterialEditor'
+import { MaterialEditorInterface } from './MaterialEditorInterface'
 
 export const ToolpathViewer = (props: RouteComponentProps) => {
   return (
@@ -31,8 +31,7 @@ export const ToolpathViewer = (props: RouteComponentProps) => {
         <Button onClick={() => navigate(`/`)} style={{ margin: 10 }}>
           Back to connections screen
         </Button>
-<Composition gap={10} padding={10}>
-
+        <Composition gap={10} padding={10}>
           <Card>
             <PlannerSettingsInterface />
           </Card>
@@ -40,20 +39,21 @@ export const ToolpathViewer = (props: RouteComponentProps) => {
           <Card>
             <FolderPathSelector />
             <RenderableTree />
-            <br/>
-            <MaterialEditor />
+            <br />
+            <MaterialEditorInterface />
             <RenderInterface />
           </Card>
 
           <Optimiser />
-
-
         </Composition>
-        <br/><br/><br/><br/>
-          {/* TODO: Move these view controls to below the three area */}
-          {/* Consider adding button to hide/show the delta model */}
-          {/* Consider a 'reset view' button? */}
-          <ThreeSettingsInterface />
+        <br />
+        <br />
+        <br />
+        <br />
+        {/* TODO: Move these view controls to below the three area */}
+        {/* Consider adding button to hide/show the delta model */}
+        {/* Consider a 'reset view' button? */}
+        <ThreeSettingsInterface />
       </div>
     </React.Fragment>
   )
