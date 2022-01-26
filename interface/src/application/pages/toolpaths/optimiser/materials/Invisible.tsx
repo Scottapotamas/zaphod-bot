@@ -5,18 +5,14 @@ import { PlannerLightMove, LightMoveType } from './../hardware'
 import {
   AddComponentCallback,
   AddLineCallback,
-  isPointTransition,
-  isTransition,
   Movement,
   MOVEMENT_TYPE,
   RGB,
 } from './../movements'
 import { Material } from './Base'
-import { Html } from '@react-three/drei'
-import { Intent, Tag } from '@blueprintjs/core'
 import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
-import { annotateDrawOrder, lerpRGB, MATERIALS, rgbToHsi } from './utilities'
+import { annotateDrawOrder, MATERIALS } from './utilities'
 
 export interface InvisibleMaterialJSON {
   type: MATERIALS.INVISIBLE
@@ -62,7 +58,14 @@ export class InvisibleMaterial extends Material {
     super()
   }
 
-  public generateLightpath = (movement: Movement) => {
+  public generateLightpath = (
+    movement: Movement,
+    settings: Settings,
+    visualisationSettings: VisualisationSettings,
+    cameraPosition: Vector3,
+    fromT: number,
+    toT: number,
+  ) => {
     const fade = invisibleLightFade(movement.getDuration())
 
     return [fade]
@@ -73,6 +76,7 @@ export class InvisibleMaterial extends Material {
     movement: Movement,
     settings: Settings,
     visualisationSettings: VisualisationSettings,
+    cameraPosition: Vector3,
     addColouredLine: AddLineCallback,
     addDottedLine: AddLineCallback,
     addReactComponent: AddComponentCallback,

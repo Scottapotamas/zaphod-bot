@@ -170,6 +170,13 @@ interface Store {
     hoveredObjectIDs: NodeID[] // Store the IDs of all currently hovered objects
   }
 
+  // Arbitrary data store from Empty objects in Blender
+  arbitrary: {
+    [frameNumber: number]: {
+      [key: string]: any
+    }
+  }
+
   // The SerialisedTour per frame, used to reconstruct movements on the UI side
   movementOrdering: {
     [frameNumber: number]: SerialisedTour
@@ -232,6 +239,8 @@ const initialState: Store = {
     y: 0,
     z: 0,
   },
+
+  arbitrary: {},
 
   treeStore: {
     tree: [],

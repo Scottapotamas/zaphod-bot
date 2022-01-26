@@ -209,6 +209,7 @@ export function Optimiser() {
             state.treeStore.tree = renderablesToSceneTree(
               imported.allRenderables,
             )
+            state.arbitrary = imported.frameData
 
             console.log(`injested ${state.sceneTotalFrames} frames`)
           })

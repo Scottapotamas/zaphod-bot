@@ -5,19 +5,15 @@ import { PlannerLightMove, LightMoveType } from './../hardware'
 import {
   AddComponentCallback,
   AddLineCallback,
-  isPointTransition,
-  isTransition,
   Movement,
   MOVEMENT_TYPE,
   RGB,
 } from './../movements'
 import { Material } from './Base'
-import { Html } from '@react-three/drei'
-import { Intent, Tag } from '@blueprintjs/core'
+import { Tag } from '@blueprintjs/core'
 import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
 import {
-  annotateDrawOrder,
   generateHtmlTagFromAveragePosition,
   lerpRGB,
   MATERIALS,
@@ -57,7 +53,25 @@ export class VelocityMaterial extends Material {
     super()
   }
 
-  public generateLightpath = (movement: Movement) => {
+  // public calculateColor = (
+  //   movement: Movement,
+
+  //   settings: Settings,
+  //   visualisationSettings: VisualisationSettings,
+
+  //   t: number,
+  // ): RGB => {
+  //   return [0, 0, 0]
+  // }
+
+  public generateLightpath = (
+    movement: Movement,
+    settings: Settings,
+    visualisationSettings: VisualisationSettings,
+    cameraPosition: Vector3,
+    fromT: number,
+    toT: number,
+  ) => {
     // TODO: Have the Delta have a material that does this with its own information
 
     const fade: PlannerLightMove = {
@@ -75,20 +89,13 @@ export class VelocityMaterial extends Material {
     movement: Movement,
     settings: Settings,
     visualisationSettings: VisualisationSettings,
+    cameraPosition: Vector3,
     addColouredLine: AddLineCallback,
     addDottedLine: AddLineCallback,
     addReactComponent: AddComponentCallback,
     fromT: number,
     toT: number,
   ) => {
-    // Annotate draw order
-    // annotateDrawOrder(
-    //   movementIndex,
-    //   movement,
-    //   visualisationSettings,
-    //   addReactComponent,
-    // )
-
     if (visualisationSettings.annotateDrawOrder) {
       addReactComponent(
         generateHtmlTagFromAveragePosition(

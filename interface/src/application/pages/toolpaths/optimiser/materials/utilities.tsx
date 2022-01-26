@@ -17,6 +17,8 @@ export enum MATERIALS {
   RANDOM = 'random',
   FLICKER = 'flicker',
   Z_GRADIENT = 'z_gradient',
+  Z_DEPTH = 'z_depth',
+  BLEND = 'blend',
 }
 
 // Our angles are stored as floats in the range 0-1

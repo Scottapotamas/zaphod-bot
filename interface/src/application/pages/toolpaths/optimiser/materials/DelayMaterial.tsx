@@ -5,6 +5,7 @@ import { AddComponentCallback, AddLineCallback, Movement } from './../movements'
 import { Material } from './Base'
 import { MATERIALS } from './utilities'
 import { invisibleLightFade } from './Invisible'
+import { Vector3 } from 'three'
 
 export function isDelayMaterial(material: Material): material is DelayMaterial {
   return material.type === MATERIALS.DELAY
@@ -26,12 +27,26 @@ export class DelayMaterial extends Material {
     super()
   }
 
-  public generateLightpath = (movement: Movement) => {
+  public generateLightpath = (
+    movement: Movement,
+    settings: Settings,
+    visualisationSettings: VisualisationSettings,
+    cameraPosition: Vector3,
+    fromT: number,
+    toT: number,
+  ) => {
     const totalDuration = movement.getDuration()
     const onDuration = this.onDuration
     const factor = onDuration / totalDuration
 
-    const fades: PlannerLightMove[] = this.material.generateLightpath(movement)
+    const fades: PlannerLightMove[] = this.material.generateLightpath(
+      movement,
+      settings,
+      visualisationSettings,
+      cameraPosition,
+      fromT,
+      toT,
+    )
 
     fades.forEach(fade => {
       if (fades.length <= 1) {
@@ -63,6 +78,7 @@ export class DelayMaterial extends Material {
     movement: Movement,
     settings: Settings,
     visualisationSettings: VisualisationSettings,
+    cameraPosition: Vector3,
     addColouredLine: AddLineCallback,
     addDottedLine: AddLineCallback,
     addReactComponent: AddComponentCallback,
@@ -75,6 +91,7 @@ export class DelayMaterial extends Material {
       movement,
       settings,
       visualisationSettings,
+      cameraPosition,
       addColouredLine,
       addDottedLine,
       addReactComponent,

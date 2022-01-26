@@ -26,6 +26,7 @@ export enum NodeTypes {
   PARTICLES = 'particles',
   PARTICLE_SYSTEM = 'particle-system',
   LIGHT = 'light',
+  EMPTY = 'empty',
 }
 
 export type NodeID = string | number
@@ -460,13 +461,13 @@ export function RenderableTree() {
   )
 
   return (
-      <Tree
-        contents={tree}
-        onNodeClick={handleNodeClick}
-        onNodeCollapse={handleNodeCollapse}
-        onNodeExpand={handleNodeExpand}
-        onNodeMouseEnter={handleNodeMouseEnter}
-        onNodeMouseLeave={onNodeMouseLeave}
-      />
+    <Tree
+      contents={tree}
+      onNodeClick={handleNodeClick}
+      onNodeCollapse={handleNodeCollapse}
+      onNodeExpand={handleNodeExpand}
+      onNodeMouseEnter={handleNodeMouseEnter}
+      onNodeMouseLeave={onNodeMouseLeave}
+    />
   )
 }

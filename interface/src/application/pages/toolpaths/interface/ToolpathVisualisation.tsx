@@ -55,6 +55,7 @@ import { MutableLineSegmentGeometry } from './ExternallyStoredLineSegments'
 import { importMaterial } from '../optimiser/material'
 import { Material } from '../optimiser/materials/Base'
 import { DeltaAssembly } from './../../../components/RiggedModel'
+import { isCamera } from '../optimiser/camera'
 
 export function AxisLines() {
   return (
@@ -195,6 +196,18 @@ export function ToolpathMovements() {
         // On viewport frame change, or toolpath update, regenerate the ordering,
         // and update the lines
 
+        const renderablesForFrame =
+          getSetting(state => state.renderablesByFrame[state.viewportFrame]) ??
+          []
+
+        const blenderCamera = renderablesForFrame.find(isCamera)
+
+        const cameraPosition = new Vector3(
+          blenderCamera?.position[0] ?? 0,
+          blenderCamera?.position[1] ?? 0,
+          blenderCamera?.position[2] ?? 0,
+        )
+
         // Refresh the line geometries
         lineIndex = 0
         transitionIndex = 0
@@ -316,6 +329,7 @@ export function ToolpathMovements() {
             movement,
             settings,
             visualisationSettings,
+            cameraPosition,
             addColouredLine,
             addDottedLine,
             addReactComponent,

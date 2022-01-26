@@ -133,6 +133,8 @@ import { useDeviceID } from '@electricui/components-core'
 import { MSGID } from 'src/application/typedState'
 import { getOrderedMovementsForFrame } from './ToolpathVisualisation'
 import { FRAME_STATE } from '../optimiser/main'
+import { isCamera } from '../optimiser/camera'
+import { Vector3 } from 'three'
 
 async function getToolpathForFrame(frameNumber: number) {
   const persistentOptimiser = getSetting(state => state.persistentOptimiser)
@@ -142,6 +144,17 @@ async function getToolpathForFrame(frameNumber: number) {
   const orderedMovements = getOrderedMovementsForFrame(frameNumber)
   const settings = getSetting(state => state.settings)
   const visualisationSettings = getSetting(state => state.visualisationSettings)
+
+  const renderablesForFrame =
+    getSetting(state => state.renderablesByFrame[state.viewportFrame]) ?? []
+
+  const blenderCamera = renderablesForFrame.find(isCamera)
+
+  const cameraPosition = new Vector3(
+    blenderCamera?.position[0] ?? 0,
+    blenderCamera?.position[1] ?? 0,
+    blenderCamera?.position[2] ?? 0,
+  )
 
   const dense = sparseToDense(orderedMovements, settings)
 
@@ -171,7 +184,7 @@ async function getToolpathForFrame(frameNumber: number) {
     }
   })
 
-  return toolpath(dense)
+  return toolpath(dense, settings, visualisationSettings, cameraPosition)
 }
 
 function CopyToolpathToClipboard() {
