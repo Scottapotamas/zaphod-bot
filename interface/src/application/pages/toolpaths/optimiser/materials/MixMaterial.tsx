@@ -1,22 +1,11 @@
 import { MathUtils, Vector3 } from 'three'
 import { VisualisationSettings } from '../../interface/state'
 import { Settings } from '../../optimiser/settings'
-import { PlannerLightMove, LightMoveType } from './../hardware'
-import {
-  AddComponentCallback,
-  AddLineCallback,
-  isPointTransition,
-  isTransition,
-  Movement,
-  MOVEMENT_TYPE,
-  RGB,
-} from './../movements'
+import { PlannerLightMove } from './../hardware'
+import { AddComponentCallback, AddLineCallback, Movement } from './../movements'
 import { Material } from './Base'
-import { Html } from '@react-three/drei'
-import { Intent, Tag } from '@blueprintjs/core'
-import { NodeID } from '../../interface/RenderableTree'
-import React from 'react'
-import { annotateDrawOrder, lerpRGB, MATERIALS, rgbToHsi } from './utilities'
+
+import { annotateDrawOrder, MATERIALS } from './utilities'
 
 export function isMixMaterial(material: Material): material is MixMaterial {
   return material.type === MATERIALS.MIX
@@ -36,11 +25,31 @@ export class MixMaterial extends Material {
     super()
   }
 
-  public generateLightpath = (movement: Movement) => {
+  public generateLightpath = (
+    movement: Movement,
+    settings: Settings,
+    visualisationSettings: VisualisationSettings,
+    cameraPosition: Vector3,
+    fromT: number,
+    toT: number,
+  ) => {
     const fadesStart: PlannerLightMove[] =
-      this.start.material.generateLightpath(movement)
-    const fadesEnd: PlannerLightMove[] =
-      this.end.material.generateLightpath(movement)
+      this.start.material.generateLightpath(
+        movement,
+        settings,
+        visualisationSettings,
+        cameraPosition,
+        fromT,
+        toT,
+      )
+    const fadesEnd: PlannerLightMove[] = this.end.material.generateLightpath(
+      movement,
+      settings,
+      visualisationSettings,
+      cameraPosition,
+      fromT,
+      toT,
+    )
 
     return [
       ...fadesStart.map(fade => {
@@ -61,6 +70,7 @@ export class MixMaterial extends Material {
     movement: Movement,
     settings: Settings,
     visualisationSettings: VisualisationSettings,
+    cameraPosition: Vector3,
     addColouredLine: AddLineCallback,
     addDottedLine: AddLineCallback,
     addReactComponent: AddComponentCallback,
@@ -81,6 +91,7 @@ export class MixMaterial extends Material {
       movement,
       settings,
       Object.assign({}, visualisationSettings, { annotateDrawOrder: false }), // disable draw order annotation for the segments
+      cameraPosition,
       addColouredLine,
       addDottedLine,
       addReactComponent,
@@ -94,6 +105,7 @@ export class MixMaterial extends Material {
       movement,
       settings,
       Object.assign({}, visualisationSettings, { annotateDrawOrder: false }), // disable draw order annotation for the segments
+      cameraPosition,
       addColouredLine,
       addDottedLine,
       addReactComponent,

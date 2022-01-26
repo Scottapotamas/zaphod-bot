@@ -47,6 +47,7 @@
     "@blueprintjs/core": "^3.52.0",
     "@blueprintjs/icons": "^3.31.0",
     "@blueprintjs/select": "^3.18.11",
+    "@blueprintjs/table": "^3.9.13",
     "@electricui/build-tools": "0.10.0-1fb9ce2d",
     "@electricui/charts": "0.9.3-1fb9ce2d",
     "@electricui/components-core": "0.9.1-1fb9ce2d",

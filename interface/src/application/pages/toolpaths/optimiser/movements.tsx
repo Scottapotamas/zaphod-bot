@@ -132,6 +132,7 @@ export abstract class Movement {
 
 export type XYZ = [x: number, y: number, z: number]
 export type RGB = [r: number, g: number, b: number]
+export type RGBA = [r: number, g: number, b: number, a: number]
 
 export type AddLineCallback = (
   start: Vector3,
@@ -261,8 +262,8 @@ export class MovementGroup extends Movement {
 
     // Sort these movements
     this.getMovements().sort((a, b) => {
-      const aOrder = serialised[a.interFrameID].order ?? 0
-      const bOrder = serialised[b.interFrameID].order ?? 0
+      const aOrder = serialised[a.interFrameID]?.order ?? 0
+      const bOrder = serialised[b.interFrameID]?.order ?? 0
       return aOrder - bOrder
     })
   }
@@ -433,7 +434,7 @@ export class Line extends Movement {
   }
 
   public hydrate = (serialised: SerialisedTour) => {
-    this.isFlipped = serialised[this.interFrameID].flipped
+    this.isFlipped = serialised[this.interFrameID]?.flipped
   }
 
   public getLength: () => number = () => {
@@ -597,7 +598,7 @@ export class Point extends Movement {
   }
 
   public hydrate = (serialised: SerialisedTour) => {
-    this.isFlipped = serialised[this.interFrameID].flipped
+    this.isFlipped = serialised[this.interFrameID]?.flipped
   }
 
   public getLength: () => number = () => {
@@ -776,7 +777,7 @@ export class Transition extends Movement {
   }
 
   public hydrate = (serialised: SerialisedTour) => {
-    this.isFlipped = serialised[this.interFrameID].flipped
+    this.isFlipped = serialised[this.interFrameID]?.flipped
   }
 
   public getCost = () => {
@@ -1021,7 +1022,7 @@ export class PointTransition extends Movement {
   }
 
   public hydrate = (serialised: SerialisedTour) => {
-    this.isFlipped = serialised[this.interFrameID].flipped
+    this.isFlipped = serialised[this.interFrameID]?.flipped
   }
 
   public getCost = () => {
@@ -1175,7 +1176,7 @@ export class InterLineTransition extends Movement {
   }
 
   public hydrate = (serialised: SerialisedTour) => {
-    this.isFlipped = serialised[this.interFrameID].flipped
+    this.isFlipped = serialised[this.interFrameID]?.flipped
   }
 
   public getCost = () => {
@@ -1294,7 +1295,7 @@ export class Transit extends Movement {
   }
 
   public hydrate = (serialised: SerialisedTour) => {
-    this.isFlipped = serialised[this.interFrameID].flipped
+    this.isFlipped = serialised[this.interFrameID]?.flipped
   }
 
   // Transits have an unknown length

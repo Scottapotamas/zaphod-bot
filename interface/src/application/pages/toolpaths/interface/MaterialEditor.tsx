@@ -1,12 +1,13 @@
 import { Card, Icon, IconName } from '@blueprintjs/core'
 import React, { useCallback, useState } from 'react'
-import { findNodeWithID, NodeID } from './RenderableTree'
+import { findNodeWithID, NodeID, NodeTypes } from './RenderableTree'
 import { incrementViewportFrameVersion, setSetting, useStore } from './state'
 import { Button, MenuItem } from '@blueprintjs/core'
 import { ItemRenderer, Select } from '@blueprintjs/select'
 import { MATERIALS } from '../optimiser/materials/utilities'
 import { getDefaultJSONForType, MaterialJSON } from '../optimiser/material'
 import { IconNames } from '@blueprintjs/icons'
+import { EmptyViewer } from './EmptyViewer'
 import {
   ColorMaterialEditor,
   ColorMaterialJSON,
@@ -96,6 +97,13 @@ const materialEditorStyle = {
 export function MaterialEditor() {
   const selectedItemID = useStore(state => state.treeStore.selectedItemID)
 
+  const selectedItemType = useStore(state =>
+    state.treeStore.selectedItemID
+      ? findNodeWithID(state.treeStore.tree, state.treeStore.selectedItemID)
+          ?.nodeData?.type ?? null
+      : null,
+  )
+
   const materialTypeOverride = useStore(state => {
     if (!state.treeStore.selectedItemID) {
       return null
@@ -138,6 +146,10 @@ export function MaterialEditor() {
 
   // Hide this section if no items are selected
   if (selectedItemID === null) return null
+
+  if (selectedItemType === NodeTypes.EMPTY) {
+    return <EmptyViewer id={selectedItemID} />
+  }
 
   return (
     <div style={materialEditorStyle}>

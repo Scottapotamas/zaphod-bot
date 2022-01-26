@@ -29,7 +29,10 @@ export interface CameraToMovementsSettings {
   drawMoveCalibrationChart?: boolean
 }
 
-const euler = new Euler(0, 0, 0, 'XYZ')
+const conversionQuaternion = new Quaternion()
+conversionQuaternion
+  .setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2)
+  .invert() // Invert the three -> blender transform
 
 export class Camera {
   readonly type = 'camera'
@@ -40,7 +43,7 @@ export class Camera {
     public sensorHeight: number,
     public sensorWidth: number,
     public position: [number, number, number],
-    public rotation: [number, number, number],
+    public quaternion: [number, number, number, number],
     public near: number,
     public far: number,
   ) {}
@@ -136,6 +139,10 @@ export class Camera {
 
     if (settings.objectSettings.camera.drawAlignmentHelpers) {
       const grey = new SimpleColorMaterial([0.4, 0.4, 0.4])
+      const red = new SimpleColorMaterial([0.4, 0.0, 0.0])
+      const green = new SimpleColorMaterial([0.0, 0.4, 0.0])
+      const blue = new SimpleColorMaterial([0.0, 0.0, 0.4])
+      const black = new SimpleColorMaterial([0.0, 0.0, 0.0])
       const objectID = `${this.name}-alignment`
 
       // A line toward camera
@@ -154,6 +161,55 @@ export class Camera {
           center.clone().add(directionOfCamera.clone().multiplyScalar(10)),
           center.clone().add(directionOfCamera.clone().multiplyScalar(60)),
           grey,
+          objectID,
+        ),
+      )
+
+      // Add a 10mm line in the direction of the camera's quaternion for debugging
+      const blenderCameraOrientation = new Quaternion(
+        this.quaternion[0],
+        this.quaternion[1],
+        this.quaternion[2],
+        this.quaternion[3],
+      )
+      const xVec = new Vector3(1, 0, 0)
+      xVec.applyQuaternion(blenderCameraOrientation)
+      const yVec = new Vector3(0, 1, 0)
+      yVec.applyQuaternion(blenderCameraOrientation)
+      const zVec = new Vector3(0, 0, 1)
+      zVec.applyQuaternion(blenderCameraOrientation)
+
+      addMovement(
+        new Line(
+          center.clone().add(xVec.clone().multiplyScalar(0)),
+          center.clone().add(xVec.clone().multiplyScalar(10)),
+          red,
+          objectID,
+        ),
+      )
+      addMovement(
+        new Line(
+          center.clone().add(yVec.clone().multiplyScalar(0)),
+          center.clone().add(yVec.clone().multiplyScalar(10)),
+          green,
+          objectID,
+        ),
+      )
+      addMovement(
+        new Line(
+          center.clone().add(zVec.clone().multiplyScalar(0)),
+          center.clone().add(zVec.clone().multiplyScalar(10)),
+          blue,
+          objectID,
+        ),
+      )
+
+      // The camera should aim at the end point of this line
+      addMovement(
+        new Line(
+          center.clone().add(zVec.clone().multiplyScalar(0)),
+          center.clone().add(zVec.clone().multiplyScalar(-20)),
+          black,
           objectID,
         ),
       )
@@ -371,19 +427,28 @@ export class Camera {
     // Do the blender -> threejs transform
     camera.position.set(this.position[0], this.position[2], -this.position[1])
 
-    euler.set(this.rotation[0], this.rotation[2], this.rotation[1], 'XYZ')
+    const blenderCameraOrientation = new Quaternion(
+      this.quaternion[0],
+      this.quaternion[1],
+      this.quaternion[2],
+      this.quaternion[3],
+    )
 
-    camera.quaternion.setFromEuler(euler)
+    const zVec = new Vector3(0, 0, 1)
+    zVec.applyQuaternion(blenderCameraOrientation)
 
-    const quaternionTransform = new Quaternion()
+    const toLook = new Vector3(
+      this.position[0],
+      this.position[2],
+      -this.position[1],
+    ).add(zVec.clone().multiplyScalar(-100))
 
-    quaternionTransform.setFromEuler(new Euler(0, 0, Math.PI / 2))
+    camera.lookAt(toLook)
 
-    camera.quaternion.multiply(quaternionTransform)
-
-    // camera.lookAt(0, 0, 0)
-
+    camera.updateMatrixWorld()
     camera.updateProjectionMatrix()
+
+    camera.quaternion
   }
 }
 
@@ -399,7 +464,7 @@ export interface CameraJSON {
   sensor_height: number
   sensor_width: number
   position: [number, number, number]
-  rotation: [number, number, number]
+  quaternion: [x: number, y: number, z: number, w: number]
   near: number
   far: number
 }
@@ -411,7 +476,7 @@ export function importCamera(json: CameraJSON) {
     json.sensor_height,
     json.sensor_width,
     json.position,
-    json.rotation,
+    json.quaternion,
     json.near,
     json.far,
   )

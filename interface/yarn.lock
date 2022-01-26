@@ -1495,6 +1495,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@blueprintjs/table@npm:^3.9.13":
+  version: 3.9.13
+  resolution: "@blueprintjs/table@npm:3.9.13"
+  dependencies:
+    "@blueprintjs/core": ^3.52.0
+    classnames: ^2.2
+    prop-types: ^15.7.2
+    react-lifecycles-compat: ^3.0.4
+    tslib: ~1.13.0
+  peerDependencies:
+    react: ^15.3.0 || 16 || 17
+    react-dom: ^15.3.0 || 16 || 17
+  checksum: b1a24fdac5a51cb9acba0a9346b3d8dc2deeeb954871655572986c15988e3e9768807a9c2ab0b7c323185a3ecd19e673d7ff90f2b8acd52472fc0a70bc17ac00
+  languageName: node
+  linkType: hard
+
 "@chevrotain/types@npm:^9.1.0":
   version: 9.1.0
   resolution: "@chevrotain/types@npm:9.1.0"
@@ -6268,6 +6284,7 @@ __metadata:
     "@blueprintjs/core": ^3.52.0
     "@blueprintjs/icons": ^3.31.0
     "@blueprintjs/select": ^3.18.11
+    "@blueprintjs/table": ^3.9.13
     "@electricui/build-tools": 0.10.0-1fb9ce2d
     "@electricui/charts": 0.9.3-1fb9ce2d
     "@electricui/components-core": 0.9.1-1fb9ce2d

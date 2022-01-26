@@ -35,6 +35,16 @@ import {
   ZGradientMaterialDefaultJSON,
   ZGradientMaterialJSON,
 } from './materials/ZGradient'
+import {
+  importZDepthMaterial,
+  ZDepthMaterialDefaultJSON,
+  ZDepthMaterialJSON,
+} from './materials/ZDepth'
+import {
+  importBlendMaterial,
+  BlendMaterialDefaultJSON,
+  BlendMaterialJSON,
+} from './materials/Blend'
 
 export type MaterialJSON =
   | ColorMaterialJSON
@@ -44,6 +54,8 @@ export type MaterialJSON =
   | RandomColorMaterialJSON
   | FlickerMaterialJSON
   | ZGradientMaterialJSON
+  | ZDepthMaterialJSON
+  | BlendMaterialJSON
 
 export const defaultTransitionMaterial = new InvisibleMaterial([
   19 / 255,
@@ -67,6 +79,10 @@ export function importMaterial(json: MaterialJSON) {
       return importFlickerMaterial(json)
     case MATERIALS.Z_GRADIENT:
       return importZGradientMaterial(json)
+    case MATERIALS.Z_DEPTH:
+      return importZDepthMaterial(json)
+    case MATERIALS.BLEND:
+      return importBlendMaterial(json)
 
     default:
       throw new Error(`Error importing material, unknown type ${json['type']}`)
@@ -91,6 +107,10 @@ export function getDefaultJSONForType(type: MATERIALS) {
       return FlickerMaterialDefaultJSON
     case MATERIALS.Z_GRADIENT:
       return ZGradientMaterialDefaultJSON
+    case MATERIALS.Z_DEPTH:
+      return ZDepthMaterialDefaultJSON
+    case MATERIALS.BLEND:
+      return BlendMaterialDefaultJSON
 
     default:
       throw new Error(

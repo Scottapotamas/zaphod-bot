@@ -14,10 +14,28 @@ import { IconNames } from '@blueprintjs/icons'
 
 import { Composition, Box } from 'atomic-layout'
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { isCamera } from '../optimiser/camera'
 
-import { getSetting, incrementViewportFrameVersion, setSetting } from './state'
+import {
+  getSetting,
+  incrementViewportFrameVersion,
+  setSetting,
+  useStore,
+} from './state'
+
+function setThreeJSCamera() {
+  const sceneCamera = getSetting(state => state.camera)
+  const renderablesForFrame =
+    getSetting(state => state.renderablesByFrame[state.viewportFrame]) ?? []
+
+  const blenderCamera = renderablesForFrame.find(isCamera)
+  console.log(`aligning camera`, blenderCamera)
+
+  if (sceneCamera && blenderCamera) {
+    blenderCamera.alignCamera(sceneCamera)
+  }
+}
 
 function OrbitCameraToggle() {
   const [enabled, setEnabled] = useState(true)
@@ -34,22 +52,26 @@ function OrbitCameraToggle() {
 
       // Search for the camera for this frame if we've disabled orbitControls
       if (!checked) {
-        console.log(`aligning camera`)
-
-        const sceneCamera = getSetting(state => state.camera)
-        const renderablesForFrame =
-          getSetting(state => state.renderablesByFrame[state.viewportFrame]) ??
-          []
-
-        const blenderCamera = renderablesForFrame.find(isCamera)
-
-        if (sceneCamera && blenderCamera) {
-          blenderCamera.alignCamera(sceneCamera)
-        }
+        setThreeJSCamera()
       }
     },
     [],
   )
+
+  useEffect(() => {
+    return useStore.subscribe(
+      state => state.viewportFrame,
+      frameNumber => {
+        const orbitControls = getSetting(state => state.orbitControls)
+
+        if (orbitControls && orbitControls.enabled) {
+          return
+        }
+
+        setThreeJSCamera()
+      },
+    )
+  })
 
   const toggleChecked = useCallback(_ => {
     setEnabled(enabled => !enabled)

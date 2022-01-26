@@ -6,6 +6,7 @@ import type { Toolpath } from './toolpath'
 import { Camera } from './camera'
 import { Settings } from './settings'
 import { Movement } from './movements'
+import { isEmpty } from './empty'
 
 async function* walkJSON(dir: string): AsyncGenerator<string> {
   for await (const d of await fs.promises.opendir(dir)) {
@@ -25,6 +26,12 @@ export async function importFolder(folderPath: string) {
   } = {}
 
   const allRenderables: Renderable[] = []
+
+  const frameData: {
+    [frame: number]: {
+      [key: string]: any
+    }
+  } = {}
 
   let minFrame = Infinity
   let maxFrame = -Infinity
@@ -53,6 +60,11 @@ export async function importFolder(folderPath: string) {
     // Import the file
     const renderable = importJson(parsed)
 
+    // Import any frame data
+    if (isEmpty(renderable)) {
+      frameData[parsed.frame] = renderable.data
+    }
+
     // Add it to the global list
     allRenderables.push(renderable)
 
@@ -71,6 +83,7 @@ export async function importFolder(folderPath: string) {
     allRenderables,
     minFrame,
     maxFrame,
+    frameData,
   }
 }
 

@@ -1,5 +1,8 @@
 import { DenseMovements } from './movements'
 import { LightMove, MovementMove } from '../../../../application/typedState'
+import { Settings } from './settings'
+import { VisualisationSettings } from '../interface/state'
+import { Vector3 } from 'three'
 
 export interface Toolpath {
   movementMoves: MovementMove[]
@@ -11,7 +14,12 @@ export interface Toolpath {
  *
  * Done just before rendering on the UI thread.
  */
-export function toolpath(denseMovements: DenseMovements): Toolpath {
+export function toolpath(
+  denseMovements: DenseMovements,
+  settings: Settings,
+  visualisationSettings: VisualisationSettings,
+  cameraPosition: Vector3,
+): Toolpath {
   const movementMoves: MovementMove[] = []
   const lightMoves: LightMove[] = []
 
@@ -44,7 +52,14 @@ export function toolpath(denseMovements: DenseMovements): Toolpath {
     lightFadeTimestamp = movementTimestamp
 
     // Build the light moves
-    for (const lightMove of movement.material.generateLightpath(movement)) {
+    for (const lightMove of movement.material.generateLightpath(
+      movement,
+      settings,
+      visualisationSettings,
+      cameraPosition,
+      0, // from start
+      1, // to end
+    )) {
       lightMoves.push({
         ...lightMove,
         timestamp: lightFadeTimestamp,
