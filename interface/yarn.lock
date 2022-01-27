@@ -1568,17 +1568,17 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electricui/build-tools@npm:0.10.0-1fb9ce2d":
-  version: 0.10.0-1fb9ce2d
-  resolution: "@electricui/build-tools@npm:0.10.0-1fb9ce2d"
+"@electricui/build-tools@npm:0.10.0-3b5eefbf":
+  version: 0.10.0-3b5eefbf
+  resolution: "@electricui/build-tools@npm:0.10.0-3b5eefbf"
   dependencies:
     "@babel/core": ^7.12.3
     "@babel/plugin-syntax-dynamic-import": ^7.8.3
     "@babel/preset-env": ^7.14.7
     "@babel/preset-react": ^7.12.1
-    "@electricui/helpers": 0.9.1-1fb9ce2d
-    "@electricui/loader": 0.9.1-1fb9ce2d
-    "@electricui/webpack-native-loader": 0.8.2-1fb9ce2d
+    "@electricui/helpers": 0.9.1-3b5eefbf
+    "@electricui/loader": 0.9.1-3b5eefbf
+    "@electricui/webpack-native-loader": 0.8.2-3b5eefbf
     "@pmmmwh/react-refresh-webpack-plugin": ^0.5.2
     async-exit-hook: ^2.0.1
     babel-loader: ^8.1.0
@@ -1624,51 +1624,51 @@ __metadata:
     webpack: ^5.64.4
   bin:
     electricui-build-tools: ./lib/cli.js
-  checksum: 5ba4802be8df7c089ab8cfa580d22cb612d35176a6ec461a82bca079b4338b63c96c38d351a458f92473518e3387d24a561e8dd4e9bccda445b9070adb70f4bd
+  checksum: 6d25679963fda823d89f6b78fe7fb522afa22bd1a4b4cb635b5861c0aef36aed672580bb8d3dfc67d864c8631e8086412b0f8ca222966ff2f39f46fa36bb8363
   languageName: node
   linkType: hard
 
-"@electricui/charts@npm:0.9.3-1fb9ce2d":
-  version: 0.9.3-1fb9ce2d
-  resolution: "@electricui/charts@npm:0.9.3-1fb9ce2d"
+"@electricui/charts@npm:0.9.3-3b5eefbf":
+  version: 0.9.3-3b5eefbf
+  resolution: "@electricui/charts@npm:0.9.3-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
-    "@electricui/dataflow": 0.9.2-1fb9ce2d
-    "@electricui/timeseries": 0.9.1
-    "@electricui/timeseries-react": 0.9.1
+    "@electricui/dataflow": 0.9.2-3b5eefbf
+    "@electricui/timeseries": 0.9.2-3b5eefbf
+    "@electricui/timeseries-react": 0.9.2-3b5eefbf
     "@electricui/timing": 0.9.0
     "@react-spring/rafz": ^9.2.3
-    "@react-three/drei": ^7.22.6
-    "@react-three/fiber": ^7.0.7
+    "@react-three/drei": ^8.3.1
+    "@react-three/fiber": ^7.0.24
     csv-writer: ^1.5.0
     react-merge-refs: ^1.1.0
     scheduler: ^0.20.1
     three: 0.134.0
-    three-stdlib: ^2.5.9
+    three-stdlib: ^2.6.4
     victory: 36.2.0
   peerDependencies:
     react: 17.0.2
     react-dom: 17.0.2
-  checksum: 4c1e5c0befc55b06e552416f7aac129ff4f473f362e5a513a3d98279b2ac29de98fb28030bb7bdcc6a96c2fdbeb51a9494e58e56ca17a82705ca886e4963c1c5
+  checksum: 618e5370f92da7be4a1bb57390f8e03f8bf67c39138fbde722e8e4f49438a268a8fcdfc9b3b62faeb274f9dc9d0c1b107ba74e04cf0266e1fb868dc57af60a35
   languageName: node
   linkType: hard
 
-"@electricui/components-core@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/components-core@npm:0.9.1-1fb9ce2d"
+"@electricui/components-core@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/components-core@npm:0.9.1-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
-    "@electricui/core": 0.9.1-1fb9ce2d
-    "@electricui/core-redux-state": 0.9.1-1fb9ce2d
-    "@electricui/protocol-binary": 0.9.1-1fb9ce2d
-    "@electricui/protocol-binary-cobs": 0.9.1-1fb9ce2d
-    "@electricui/protocol-binary-codecs": 0.9.1-1fb9ce2d
-    "@electricui/protocol-binary-connection-handshake": 0.9.1-1fb9ce2d
+    "@electricui/core": 0.9.1-3b5eefbf
+    "@electricui/core-redux-state": 0.9.1-3b5eefbf
+    "@electricui/protocol-binary": 0.9.1-3b5eefbf
+    "@electricui/protocol-binary-cobs": 0.9.1-3b5eefbf
+    "@electricui/protocol-binary-codecs": 0.9.1-3b5eefbf
+    "@electricui/protocol-binary-connection-handshake": 0.9.1-3b5eefbf
     "@electricui/protocol-binary-constants": 0.9.0
-    "@electricui/protocol-binary-fifo-queue": 0.9.1-1fb9ce2d
-    "@electricui/protocol-binary-heartbeats": 0.9.1-1fb9ce2d
-    "@electricui/protocol-binary-large-packet-handler": 0.9.1-1fb9ce2d
-    "@electricui/protocol-binary-sequence-numbers": 0.9.1-1fb9ce2d
+    "@electricui/protocol-binary-fifo-queue": 0.9.1-3b5eefbf
+    "@electricui/protocol-binary-heartbeats": 0.9.1-3b5eefbf
+    "@electricui/protocol-binary-large-packet-handler": 0.9.1-3b5eefbf
+    "@electricui/protocol-binary-sequence-numbers": 0.9.1-3b5eefbf
     "@electricui/timing": 0.9.0
     "@react-spring/rafz": ^9.2.3
     debug: ^4.3.1
@@ -1679,25 +1679,25 @@ __metadata:
     react-dom: 17.0.2
     react-redux: "*"
     redux: "*"
-  checksum: f7bf60640c677d208b2c53686890735cb24059fa6634366139eef72f62c9c04823093e073e836b7a42d7c5a6a81e9eac4ea1dbff70d87ed7949637f4fe662984
+  checksum: 8ed1e7d70d1b0375edea9ea56223989a9791d125e149f1de2633445c52b52058006157152f32f3cc48b0199519bc8c94e07bfd36dcfb95f048266d55e30249d7
   languageName: node
   linkType: hard
 
-"@electricui/components-desktop-blueprint-loggers@npm:0.9.3-1fb9ce2d":
-  version: 0.9.3-1fb9ce2d
-  resolution: "@electricui/components-desktop-blueprint-loggers@npm:0.9.3-1fb9ce2d"
+"@electricui/components-desktop-blueprint-loggers@npm:0.9.3-3b5eefbf":
+  version: 0.9.3-3b5eefbf
+  resolution: "@electricui/components-desktop-blueprint-loggers@npm:0.9.3-3b5eefbf"
   dependencies:
     "@blueprintjs/core": ^3.50.4
     "@blueprintjs/icons": ^3.30.2
-    "@electricui/components-core": 0.9.1-1fb9ce2d
-    "@electricui/components-desktop": 0.9.1-1fb9ce2d
-    "@electricui/components-desktop-charts": 0.9.3-1fb9ce2d
-    "@electricui/core": 0.9.1-1fb9ce2d
-    "@electricui/core-timeseries": 0.9.3-1fb9ce2d
-    "@electricui/timeseries": 0.9.1
-    "@electricui/timeseries-react": 0.9.1
+    "@electricui/components-core": 0.9.1-3b5eefbf
+    "@electricui/components-desktop": 0.9.1-3b5eefbf
+    "@electricui/components-desktop-charts": 0.9.3-3b5eefbf
+    "@electricui/core": 0.9.1-3b5eefbf
+    "@electricui/core-timeseries": 0.9.3-3b5eefbf
+    "@electricui/timeseries": 0.9.2-3b5eefbf
+    "@electricui/timeseries-react": 0.9.2-3b5eefbf
     "@electricui/timing": 0.9.0
-    "@electricui/utility-electron": 0.9.1-1fb9ce2d
+    "@electricui/utility-electron": 0.9.1-3b5eefbf
     atomic-layout: ^0.13.0
     classnames: ^2.2.6
     console-feed: ^3.2.2
@@ -1712,23 +1712,23 @@ __metadata:
     react-redux: "*"
     redux: "*"
     styled-components: ">=4.0.0"
-  checksum: 7c61f41c6d9b4cfd0588f6ed17a6ac9cb1663faacb0c357d2fe2885dc17a9b7a278ebea2080bfb7dfc6bcfb354ec55458adf2dec328633eb5033f2b9614ded86
+  checksum: be7659b5e5d280c6b31422d216ca841f5a31adaa9c368bcaefe3466124a06ac7ac55a35aa95616692325df80dad57cc8986aef87b8333caffe710d9fd9d769f5
   languageName: node
   linkType: hard
 
-"@electricui/components-desktop-blueprint@npm:0.9.3-1fb9ce2d":
-  version: 0.9.3-1fb9ce2d
-  resolution: "@electricui/components-desktop-blueprint@npm:0.9.3-1fb9ce2d"
+"@electricui/components-desktop-blueprint@npm:0.9.3-3b5eefbf":
+  version: 0.9.3-3b5eefbf
+  resolution: "@electricui/components-desktop-blueprint@npm:0.9.3-3b5eefbf"
   dependencies:
     "@blueprintjs/core": ^3.50.4
     "@blueprintjs/icons": ^3.30.2
     "@blueprintjs/select": ^3.18.6
     "@electricui/async-utilities": 0.9.0
-    "@electricui/components-core": 0.9.1-1fb9ce2d
-    "@electricui/components-desktop": 0.9.1-1fb9ce2d
-    "@electricui/core": 0.9.1-1fb9ce2d
-    "@electricui/core-device-manager-proxy": 0.9.1-1fb9ce2d
-    "@electricui/core-timeseries": 0.9.3-1fb9ce2d
+    "@electricui/components-core": 0.9.1-3b5eefbf
+    "@electricui/components-desktop": 0.9.1-3b5eefbf
+    "@electricui/core": 0.9.1-3b5eefbf
+    "@electricui/core-device-manager-proxy": 0.9.1-3b5eefbf
+    "@electricui/core-timeseries": 0.9.3-3b5eefbf
     atomic-layout: ^0.13.0
     classnames: ^2.2.6
     debug: ^4.3.1
@@ -1744,25 +1744,25 @@ __metadata:
     react-redux: "*"
     redux: "*"
     styled-components: ">=4.0.0"
-  checksum: 98b99f45de68dbccc594611cff64ac217be6e263ada85f1d89a49be1803fa089dba45157b89cb95521c0d818628a4e595a7c058f64d559a4a0eeaf2e379275ac
+  checksum: ef71e4e9ce6d13efb99b6fb6ff5f33551dc2b29d44838b1740551399bb6d4dcaae0b45cde08bad03668f1200d9205a001eebaf6406c5e47329022de27bfe65e4
   languageName: node
   linkType: hard
 
-"@electricui/components-desktop-charts@npm:0.9.3-1fb9ce2d":
-  version: 0.9.3-1fb9ce2d
-  resolution: "@electricui/components-desktop-charts@npm:0.9.3-1fb9ce2d"
+"@electricui/components-desktop-charts@npm:0.9.3-3b5eefbf":
+  version: 0.9.3-3b5eefbf
+  resolution: "@electricui/components-desktop-charts@npm:0.9.3-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
-    "@electricui/charts": 0.9.3-1fb9ce2d
-    "@electricui/components-core": 0.9.1-1fb9ce2d
-    "@electricui/components-desktop": 0.9.1-1fb9ce2d
-    "@electricui/core": 0.9.1-1fb9ce2d
-    "@electricui/core-redux-state": 0.9.1-1fb9ce2d
-    "@electricui/core-timeseries": 0.9.3-1fb9ce2d
-    "@electricui/timeseries": 0.9.1
-    "@electricui/timeseries-react": 0.9.1
+    "@electricui/charts": 0.9.3-3b5eefbf
+    "@electricui/components-core": 0.9.1-3b5eefbf
+    "@electricui/components-desktop": 0.9.1-3b5eefbf
+    "@electricui/core": 0.9.1-3b5eefbf
+    "@electricui/core-redux-state": 0.9.1-3b5eefbf
+    "@electricui/core-timeseries": 0.9.3-3b5eefbf
+    "@electricui/timeseries": 0.9.2-3b5eefbf
+    "@electricui/timeseries-react": 0.9.2-3b5eefbf
     "@electricui/timing": 0.9.0
-    "@react-three/fiber": ^7.0.7
+    "@react-three/fiber": ^7.0.24
     csv-writer: ^1.5.0
     date-fns: ^2.16.1
     three: 0.134.0
@@ -1775,21 +1775,21 @@ __metadata:
     react-redux: "*"
     redux: "*"
     styled-components: ">=4.0.0"
-  checksum: ac96534cca91750ed5414fdb86e89ac32a0ef93f920ff865ab57ca540052089ef04d82bcea44e6832dacd306252af3ea8977664fb0ff047f08d89bad5de739db
+  checksum: 8f343db48a56490473de3e721026c6981f5bde0ed73996476f00d61934c53b160bd9587f0911237f828319b39c17316245624699fd894c616f615d93a5d6ed2e
   languageName: node
   linkType: hard
 
-"@electricui/components-desktop-three@npm:0.9.3-1fb9ce2d":
-  version: 0.9.3-1fb9ce2d
-  resolution: "@electricui/components-desktop-three@npm:0.9.3-1fb9ce2d"
+"@electricui/components-desktop-three@npm:0.9.3-3b5eefbf":
+  version: 0.9.3-3b5eefbf
+  resolution: "@electricui/components-desktop-three@npm:0.9.3-3b5eefbf"
   dependencies:
-    "@electricui/charts": 0.9.3-1fb9ce2d
-    "@electricui/components-core": 0.9.1-1fb9ce2d
-    "@electricui/components-desktop-charts": 0.9.3-1fb9ce2d
-    "@react-three/drei": ^7.22.6
-    "@react-three/fiber": ^7.0.7
+    "@electricui/charts": 0.9.3-3b5eefbf
+    "@electricui/components-core": 0.9.1-3b5eefbf
+    "@electricui/components-desktop-charts": 0.9.3-3b5eefbf
+    "@react-three/drei": ^8.3.1
+    "@react-three/fiber": ^7.0.24
     three: 0.134.0
-    three-stdlib: ^2.5.9
+    three-stdlib: ^2.6.4
   peerDependencies:
     electron: 13.1.7
     react: 17.0.2
@@ -1797,18 +1797,18 @@ __metadata:
     react-redux: "*"
     redux: "*"
     styled-components: ">=4.0.0"
-  checksum: 9c87ed98ce8b023d563b354d6dc35ba1f95ac64a1bd47c5e1555edd7f1a96373c26a98a1ba2aa6b0aec8b9150bbb188834c3642b25679d06fe89a3aa610d7527
+  checksum: 4772844e1690296df049afe10261335fe27d3423131b92d1fa65747ec59176bedad622fac3f12676eca7d2b22c6f64c586a162e8992eb0c3583f20260dd5aa54
   languageName: node
   linkType: hard
 
-"@electricui/components-desktop@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/components-desktop@npm:0.9.1-1fb9ce2d"
+"@electricui/components-desktop@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/components-desktop@npm:0.9.1-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
-    "@electricui/components-core": 0.9.1-1fb9ce2d
-    "@electricui/core": 0.9.1-1fb9ce2d
-    "@electricui/utility-electron": 0.9.1-1fb9ce2d
+    "@electricui/components-core": 0.9.1-3b5eefbf
+    "@electricui/core": 0.9.1-3b5eefbf
+    "@electricui/utility-electron": 0.9.1-3b5eefbf
     "@react-spring/web": 9.2.1
     atomic-layout: ^0.13.0
     csstype: ^3.0.4
@@ -1822,17 +1822,17 @@ __metadata:
     react-redux: "*"
     redux: "*"
     styled-components: ">=4.0.0"
-  checksum: 277faeea7ba9fe43ac90b52ddd698612139ba2b0888ca6d8afd227f827250dd07bcc7dbed30e5ad3b2a0792a52c9e8045457bbbceb8e2eb327aad0dec2c341d8
+  checksum: 3ea5f69db5e70300b621b7529d84cb165f77e0d6b1ac14af39e1f12c54d5c75905526a895a7e7eb9eb9bbe06af428e127aca7619047e27d996fe5f6aff616775
   languageName: node
   linkType: hard
 
-"@electricui/core-device-manager-proxy@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/core-device-manager-proxy@npm:0.9.1-1fb9ce2d"
+"@electricui/core-device-manager-proxy@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/core-device-manager-proxy@npm:0.9.1-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
-    "@electricui/components-core": 0.9.1-1fb9ce2d
-    "@electricui/core": 0.9.1-1fb9ce2d
+    "@electricui/components-core": 0.9.1-3b5eefbf
+    "@electricui/core": 0.9.1-3b5eefbf
     "@electricui/timing": 0.9.0
     debug: ^4.3.1
   peerDependencies:
@@ -1841,13 +1841,13 @@ __metadata:
     react-dom: 17.0.2
     react-redux: "*"
     redux: "*"
-  checksum: a6a7521f78d31abfa99d28a7f55577cfb9744601e1aeb51d9863266d6636395161670a5c46432cd3f16382473fc4f1a1c1a15d462dd349fcaf00dc3fcc073554
+  checksum: ac08581c5349d07642762b72a2ca204c4cfe729c6a9738485070ecabb0f85b1597353deeef947540feef497a521988f97b4cbfb080df1c487370a78971432834
   languageName: node
   linkType: hard
 
-"@electricui/core-redux-state@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/core-redux-state@npm:0.9.1-1fb9ce2d"
+"@electricui/core-redux-state@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/core-redux-state@npm:0.9.1-3b5eefbf"
   dependencies:
     debug: ^4.3.1
     deepmerge: ^4.2.2
@@ -1857,35 +1857,35 @@ __metadata:
     react: 17.0.2
     react-redux: "*"
     redux: "*"
-  checksum: 90a9cd7c308bff1464e9e0aadff127ff124ec1388ac88d123d40d36d6aa90535314dd8484ccaae6f621993ee9c6540f5d3d8356865c9363d82f9b3cf34c129ed
+  checksum: 27ec1a0deb0d79d16f826cf4fe29557ab0e4d8f8c05fda0642f30b0e59b8ed0453b51725a5352127242ce922199608361e87685a921fa598d7d3af6264f9655d
   languageName: node
   linkType: hard
 
-"@electricui/core-timeseries@npm:0.9.3-1fb9ce2d":
-  version: 0.9.3-1fb9ce2d
-  resolution: "@electricui/core-timeseries@npm:0.9.3-1fb9ce2d"
+"@electricui/core-timeseries@npm:0.9.3-3b5eefbf":
+  version: 0.9.3-3b5eefbf
+  resolution: "@electricui/core-timeseries@npm:0.9.3-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
-    "@electricui/components-core": 0.9.1-1fb9ce2d
-    "@electricui/core": 0.9.1-1fb9ce2d
-    "@electricui/core-device-manager-proxy": 0.9.1-1fb9ce2d
-    "@electricui/dataflow": 0.9.2-1fb9ce2d
-    "@electricui/timeseries": 0.9.1
-    "@electricui/timeseries-react": 0.9.1
-    "@react-three/fiber": ^7.0.7
+    "@electricui/components-core": 0.9.1-3b5eefbf
+    "@electricui/core": 0.9.1-3b5eefbf
+    "@electricui/core-device-manager-proxy": 0.9.1-3b5eefbf
+    "@electricui/dataflow": 0.9.2-3b5eefbf
+    "@electricui/timeseries": 0.9.2-3b5eefbf
+    "@electricui/timeseries-react": 0.9.2-3b5eefbf
+    "@react-three/fiber": ^7.0.24
     debug: ^4.3.1
     three: 0.134.0
   peerDependencies:
     electron: 13.1.7
     react: 17.0.2
     react-dom: 17.0.2
-  checksum: 5b0d0924a951a0e7091a42205f2216f72944fe4745a57bb8789e1b2a401b998325d17ac11c5da984b1ec3922d02fddedeb3d26adefe2be142665b883c8b375d4
+  checksum: f035b54e5fc6e78251927958e6fb34186c09217610df4751528fb8671077bb39020ea367718ee80cec9096a9bf4f1e925bb9559bc460c9329a8b2add9205403f
   languageName: node
   linkType: hard
 
-"@electricui/core@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/core@npm:0.9.1-1fb9ce2d"
+"@electricui/core@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/core@npm:0.9.1-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
     "@electricui/timing": 0.9.0
@@ -1894,22 +1894,22 @@ __metadata:
     p-queue: ^6.6.2
     rxjs: ^6.5.2
     uuid: ^8.3.0
-  checksum: 0bdd4ef0a31226bc981fdabc37592b38fa95921fd47b713acf45673ce09924f4b3a2629cb6770734a3780fa137f219dcdad2c78311a2f08eb447b294f2f8427d
+  checksum: 7d82c815b8ae02a2c5935cf764a5e976f5cb90f8e211316f343490e0642807661281a64e2565c96724760eba329656440842b9fa64962b8d3f45aec04d1ef665
   languageName: node
   linkType: hard
 
-"@electricui/dataflow@npm:0.9.2-1fb9ce2d":
-  version: 0.9.2-1fb9ce2d
-  resolution: "@electricui/dataflow@npm:0.9.2-1fb9ce2d"
+"@electricui/dataflow@npm:0.9.2-3b5eefbf":
+  version: 0.9.2-3b5eefbf
+  resolution: "@electricui/dataflow@npm:0.9.2-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
-    "@electricui/timeseries": 0.9.1
+    "@electricui/timeseries": 0.9.2-3b5eefbf
     node-interval-tree: ^1.3.3
     sorted-btree: ^1.5.0
   peerDependencies:
     react: 17.0.2
     react-dom: 17.0.2
-  checksum: 89c09998593fe4954d6909dc87cb17bbc14ae8fa6e4756d6480233fd8d38a003c1ef3b3b887899f976d9fc0d19a44cf23ad753f55104fa8d61b1c7620c72fcea
+  checksum: 61ede196eb6e634b4c81c7ffaf23e18133481b7e7942d29fd0d10930a42d94b57b315eaacb92a6cdb880dd464f02261e9a32a4f6954bd009234e8748bfb6ad25
   languageName: node
   linkType: hard
 
@@ -1924,35 +1924,46 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electricui/loader@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/loader@npm:0.9.1-1fb9ce2d"
+"@electricui/helpers@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/helpers@npm:0.9.1-3b5eefbf"
+  dependencies:
+    node-fetch: ^2.6.0
+  peerDependencies:
+    electron: 13.1.7
+  checksum: 55da144bcef2eefc27ad022ccb37a1ca01f32c986bc4fe92e65da7a9a36f22ab3c15420ec2c7d7723cf816348e16dadc8926dd66f82449356f00f5d586ce8483
+  languageName: node
+  linkType: hard
+
+"@electricui/loader@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/loader@npm:0.9.1-3b5eefbf"
   dependencies:
     find-root: ^1.1.0
     form-data: ^2.3.3
     node-fetch: ^2.3.0
   peerDependencies:
     webpack: ^5.64.4
-  checksum: 0aed4e7ea5d760729c78ac8c0fc5df654911fb66c0d38398f2f1aaf63a1863a2768b96247ba5d93e043d580c0da389a28cce26ce6c9130fe68ffac77fe2db30e
+  checksum: 2ec0a6fa3473fb1cda4d10fabc3ce1c4d6d6a87bbfce5c393da9524f0bf84dc721f386c97d8177a879f9875b6dc1b87f3d6df1213f53168d0993c61b6d1296f6
   languageName: node
   linkType: hard
 
-"@electricui/protocol-binary-cobs@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/protocol-binary-cobs@npm:0.9.1-1fb9ce2d"
+"@electricui/protocol-binary-cobs@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/protocol-binary-cobs@npm:0.9.1-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
-    "@electricui/core": 0.9.1-1fb9ce2d
+    "@electricui/core": 0.9.1-3b5eefbf
     debug: ^4.3.1
-  checksum: bf14d3fae3987044a92137701c8160bb730f34cae74cbb30cd6f64b0d6fdc3e4c1dc6b8d61d47a9a5ed0f32acdc48c99bdc99cc675e9e5cc1a383d64f533dab0
+  checksum: 6c3500a88e2032f597efda5b54e78864a8a8964d6f52d1510b0126f51c4ff46314855d879a2da494084002bfb41143e8083e4a62e5695e99079ec614500e0689
   languageName: node
   linkType: hard
 
-"@electricui/protocol-binary-codecs@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/protocol-binary-codecs@npm:0.9.1-1fb9ce2d"
+"@electricui/protocol-binary-codecs@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/protocol-binary-codecs@npm:0.9.1-3b5eefbf"
   dependencies:
-    "@electricui/core": 0.9.1-1fb9ce2d
+    "@electricui/core": 0.9.1-3b5eefbf
     "@electricui/protocol-binary-constants": 0.9.0
     better-queue: ^3.8.10
     bluebird: ^3.5.3
@@ -1961,16 +1972,16 @@ __metadata:
     memoize-one: ^5.0.0
     rxjs: ^6.4.0
     xstate: ^4.3.2
-  checksum: 0fb40359500cdfd6a23fba23307263083a35a71d7abadd17866a14cdec47e6dc83590661805c83f687593cd205f0588b30178bf2666c9b2364389e36b60ebf6c
+  checksum: 329688c845ac418e36ab8943f7ab570dfec83594f4787ef0fee197e9ff1aa450ebd707cd6f6518801d0833a5fcf14acac681836973f1a82cfd3e1080aa9eac87
   languageName: node
   linkType: hard
 
-"@electricui/protocol-binary-connection-handshake@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/protocol-binary-connection-handshake@npm:0.9.1-1fb9ce2d"
+"@electricui/protocol-binary-connection-handshake@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/protocol-binary-connection-handshake@npm:0.9.1-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
-    "@electricui/core": 0.9.1-1fb9ce2d
+    "@electricui/core": 0.9.1-3b5eefbf
     better-queue: ^3.8.10
     bluebird: ^3.7.2
     debug: ^4.3.1
@@ -1978,7 +1989,7 @@ __metadata:
     memoize-one: ^5.1.1
     rxjs: ^6.5.5
     xstate: ^4.8.0
-  checksum: 88d397d700cac6e6ef146fcacf37e8e43a12b0624fb7b2f69630c3c7bad2cb1b3d45fafe7c42e497950a1e6c35e8400357ef8f9ca2b251f2cee89663ae8e4599
+  checksum: c95c98f6c68c4a5839fed3e6068fc001756d872ace7779267763b4b48aef64c8d94e547f5cb24eba49c3dad4074c9518e32c69bd0880e241d1d38c9bdfb476c2
   languageName: node
   linkType: hard
 
@@ -1989,12 +2000,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electricui/protocol-binary-fifo-queue@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/protocol-binary-fifo-queue@npm:0.9.1-1fb9ce2d"
+"@electricui/protocol-binary-fifo-queue@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/protocol-binary-fifo-queue@npm:0.9.1-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
-    "@electricui/core": 0.9.1-1fb9ce2d
+    "@electricui/core": 0.9.1-3b5eefbf
     "@electricui/protocol-binary-constants": 0.9.0
     better-queue: ^3.8.10
     bluebird: ^3.5.3
@@ -2003,16 +2014,16 @@ __metadata:
     memoize-one: ^5.0.0
     rxjs: ^6.4.0
     xstate: ^4.3.2
-  checksum: 2a6dce939421c55a9efc7b7e0027e22592206d4814a61c500cad855118d988673e628732a8fe6b1586ef92e02bf84714f5ff4814b9c2d7492a3fec69b328ae3c
+  checksum: 84f229a6eeaf217f9f207dd820582a0f6ec66c47a6371f63f47ae1b71a63b9c0e401a5dcbf17c9043a053b66eccff16057f86b282d6242616d58eaa87e1045d0
   languageName: node
   linkType: hard
 
-"@electricui/protocol-binary-heartbeats@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/protocol-binary-heartbeats@npm:0.9.1-1fb9ce2d"
+"@electricui/protocol-binary-heartbeats@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/protocol-binary-heartbeats@npm:0.9.1-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
-    "@electricui/core": 0.9.1-1fb9ce2d
+    "@electricui/core": 0.9.1-3b5eefbf
     "@electricui/protocol-binary-constants": 0.9.0
     "@electricui/timing": 0.9.0
     better-queue: ^3.8.10
@@ -2022,67 +2033,67 @@ __metadata:
     memoize-one: ^5.0.0
     rxjs: ^6.4.0
     xstate: ^4.3.2
-  checksum: a5877da2f40def78fc83730cd8d115b5e36f2b36a6cc7c612e8fdf348ef25a433bf2d0ac10b8dcb89a847dfdd9d22d92a4f89082bf81b40938422aa3c3ad1d8e
+  checksum: 169b4d6c4228088b856cc2837a1eae4bd123993018bd58c937c6e7e5a6e94c6867dffb9f74d6cc45af745ed5694387dcd28d4db454044d8e57e70447d183a1fe
   languageName: node
   linkType: hard
 
-"@electricui/protocol-binary-large-packet-handler@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/protocol-binary-large-packet-handler@npm:0.9.1-1fb9ce2d"
+"@electricui/protocol-binary-large-packet-handler@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/protocol-binary-large-packet-handler@npm:0.9.1-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
-    "@electricui/core": 0.9.1-1fb9ce2d
-    "@electricui/protocol-binary-codecs": 0.9.1-1fb9ce2d
+    "@electricui/core": 0.9.1-3b5eefbf
+    "@electricui/protocol-binary-codecs": 0.9.1-3b5eefbf
     "@electricui/protocol-binary-constants": 0.9.0
     debug: ^4.3.1
     node-interval-tree: ^1.3.3
-  checksum: 701f92f7a4cf968d9bacbc9359d618358b1e00419d8125d72b2f35dd6b8248fefbc29c113642aba1ebb5338e8604980e9296e562a4f1ae92d51a66655ac4eeef
+  checksum: d22996f625335f6bbe7ca2fb39d5ce4ab6d19ec64ad70807ab361941fddca3d3ca945a8bcf823ad1e7da84b4440ad2c2fd6f828deb76af6180d87b7409994b0e
   languageName: node
   linkType: hard
 
-"@electricui/protocol-binary-sequence-numbers@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/protocol-binary-sequence-numbers@npm:0.9.1-1fb9ce2d"
+"@electricui/protocol-binary-sequence-numbers@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/protocol-binary-sequence-numbers@npm:0.9.1-3b5eefbf"
   dependencies:
-    "@electricui/core": 0.9.1-1fb9ce2d
+    "@electricui/core": 0.9.1-3b5eefbf
     debug: ^4.3.1
-  checksum: 42775cd050e5c8311e9fd1b588c40a756c728c63cac026b5f4d0a7bdf3a4ef314dfc67b7c4582cbcaf9d787b3695b0b2529dede9dc5bf872d36f3ca8317d728a
+  checksum: a56dd0b572b41e3ef4dbdfa70f15aaede67909aab2e8445710468a82c67ae18d05cf44d598db3b19739c2f0eb6a512907b023ae44a291a999ce84681c16ee6ff
   languageName: node
   linkType: hard
 
-"@electricui/protocol-binary@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/protocol-binary@npm:0.9.1-1fb9ce2d"
+"@electricui/protocol-binary@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/protocol-binary@npm:0.9.1-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
-    "@electricui/core": 0.9.1-1fb9ce2d
+    "@electricui/core": 0.9.1-3b5eefbf
     "@electricui/protocol-binary-constants": 0.9.0
     "@electricui/timing": 0.9.0
     "@electricui/utility-crc16": 0.9.0
     debug: ^4.3.1
-  checksum: dab083fd40d1ac232b34b5561e91c123f9883f245807578129b2d4036cbb67d86888ae5b8268f3828d073c3a4eb537433f78b1799e321bca8954365e2de3c432
+  checksum: d1bbcdb5d958ae86d31f9988d303be327ed5fc512db5cbd3894bb9395f9e4102271f6e95d994318e25040b7ed0e8e62ccc5770523ab53332cc1c165c90918fbf
   languageName: node
   linkType: hard
 
-"@electricui/timeseries-react@npm:0.9.1":
-  version: 0.9.1
-  resolution: "@electricui/timeseries-react@npm:0.9.1"
+"@electricui/timeseries-react@npm:0.9.2-3b5eefbf":
+  version: 0.9.2-3b5eefbf
+  resolution: "@electricui/timeseries-react@npm:0.9.2-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
-    "@electricui/timeseries": 0.9.1
+    "@electricui/timeseries": 0.9.2-3b5eefbf
     react: 17.0.2
     react-dom: 17.0.2
-  checksum: b51b2764ae0f274457e6abe542100ee96e3e5849768e7a75a6556d6a02e411da3769c6d5e6813edbcf02d2d8e133c5a33a4fd309ba2bb19d04074923df875c85
+  checksum: 88db1bbf64e3e1deb8b1e0d60d08dac17ea6441bb6588c01b0b7c6ec6ba84c46dd5a5c5c8b1eba48deb4aaabecb453ff254370fb294e7e3760bf38bdfad61431
   languageName: node
   linkType: hard
 
-"@electricui/timeseries@npm:0.9.1":
-  version: 0.9.1
-  resolution: "@electricui/timeseries@npm:0.9.1"
+"@electricui/timeseries@npm:0.9.2-3b5eefbf":
+  version: 0.9.2-3b5eefbf
+  resolution: "@electricui/timeseries@npm:0.9.2-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
     sorted-btree: ^1.5.0
-  checksum: 16da00b0199528fcf541f006b97e1cab2197742f28e78829fbed89dd88235ee2b3a590718b4a36dbf3203d741b349e28711c6bfcdea18cce26c53f2b0f5c6698
+  checksum: c939b91eb7a7b788d501120bb29c6bacb5446476ff43c4cdd5918c73fc2ac536ce17822c67ecb36f5a56e12e9cdbc160f8f4d669d9be59b2e2c38444a6c2bd54
   languageName: node
   linkType: hard
 
@@ -2093,41 +2104,41 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electricui/transport-node-serial@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/transport-node-serial@npm:0.9.1-1fb9ce2d"
+"@electricui/transport-node-serial@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/transport-node-serial@npm:0.9.1-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
-    "@electricui/core": 0.9.1-1fb9ce2d
+    "@electricui/core": 0.9.1-3b5eefbf
     "@electricui/protocol-binary-constants": 0.9.0
     debug: ^4.3.1
-  checksum: 180136ab51751541c781ebac04fad744b707a23751a0a124d8609c58e883fd3665405174f251d89466403b9377f317855f7159eb860b31defb18a08f88b9ff2d
+  checksum: 3eb4dc0f04b21913f117548d702e3a5c3e26a834403867c9a774ce05a35edbd279482b7cf038b38e306a7321f65fcf9b031daeaed681d022cf4afbba42eb7f53
   languageName: node
   linkType: hard
 
-"@electricui/transport-node-usb-discovery@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/transport-node-usb-discovery@npm:0.9.1-1fb9ce2d"
+"@electricui/transport-node-usb-discovery@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/transport-node-usb-discovery@npm:0.9.1-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
-    "@electricui/core": 0.9.1-1fb9ce2d
+    "@electricui/core": 0.9.1-3b5eefbf
     "@electricui/protocol-binary-constants": 0.9.0
     bluebird: ^3.5.3
     debug: ^4.3.1
   peerDependencies:
     usb: 1.7.1
-  checksum: 52245f0edf9c268c5934014ae6b512837eb3a9625cff33e30f872febfe6cecf70dac1fef373911ba68b6688fccff168b9cc87b2196168cbd619400c3827b7d53
+  checksum: c188a1216b86d0e1febbfe2eea4fbc626ac9ab5a826fa3b667b9abb06545092ca6774e4d60ebe2e8a24b489d0df22fb01f42ba13af0164c64b4a406ceb0d4b72
   languageName: node
   linkType: hard
 
-"@electricui/transport-node-websocket@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/transport-node-websocket@npm:0.9.1-1fb9ce2d"
+"@electricui/transport-node-websocket@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/transport-node-websocket@npm:0.9.1-3b5eefbf"
   dependencies:
     "@electricui/async-utilities": 0.9.0
     bluebird: ^3.5.3
     debug: ^4.3.1
-  checksum: fe103bf76ce4b0b0424d9738754e1c8dd886a5c60cd3302935ef79f07984071907608980a09393e2ec712249e9596155fecef66d22fb7deb1c691601e631a04c
+  checksum: 2256c72dde6adb47a399c2b819ccd9b2940138f2849581600becce16b6f05a138f1cf26e3689e0fb72100ac12cfa19f674ae850373a9c634107dbd1ed7673c7b
   languageName: node
   linkType: hard
 
@@ -2138,11 +2149,11 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electricui/utility-electron@npm:0.9.1-1fb9ce2d":
-  version: 0.9.1-1fb9ce2d
-  resolution: "@electricui/utility-electron@npm:0.9.1-1fb9ce2d"
+"@electricui/utility-electron@npm:0.9.1-3b5eefbf":
+  version: 0.9.1-3b5eefbf
+  resolution: "@electricui/utility-electron@npm:0.9.1-3b5eefbf"
   dependencies:
-    "@electricui/helpers": 0.9.1-1fb9ce2d
+    "@electricui/helpers": 0.9.1-3b5eefbf
     "@reach/router": ^1.2.1
     debug: ^4.3.1
     electron-devtools-installer: 3.1.1
@@ -2151,7 +2162,7 @@ __metadata:
     electron: 13.1.7
     react: 17.0.2
     react-dom: 17.0.2
-  checksum: ab17e62385c63e962ddb3b0b67ee724b6776c75f6148d8d50594d7c263600f27b6d537678c0f368db909747b993a6c7fd156b4a545214d971c73957e37b1c94c
+  checksum: 12b6635fce614ae34a79be2793e2eabf9a87b5c23a403d154d1342595dc5ee89e59b2cfdc1496980099ad3d679aa65e8ada3946131da4579925685c6fe0fe04a
   languageName: node
   linkType: hard
 
@@ -2164,14 +2175,14 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@electricui/webpack-native-loader@npm:0.8.2-1fb9ce2d":
-  version: 0.8.2-1fb9ce2d
-  resolution: "@electricui/webpack-native-loader@npm:0.8.2-1fb9ce2d"
+"@electricui/webpack-native-loader@npm:0.8.2-3b5eefbf":
+  version: 0.8.2-3b5eefbf
+  resolution: "@electricui/webpack-native-loader@npm:0.8.2-3b5eefbf"
   dependencies:
     loader-utils: ^1.4.0
   peerDependencies:
     webpack: ^5.64.4
-  checksum: 2e097f95856422f1753a8b3a10b5cbffb5c449452e08eafd1f5cf9f994f9f595f193150eed4ac860037f29745e1ffd8b788c7177c68ec292ce2cbb72b2c88bf2
+  checksum: 32ac0934f21237139d0d0716baa1413aa35d6a0d3af7a3dccfee32b6855a57a56f6f5b79bf4621ab802e13bf4e806d54d8ef320670146dbf49d66dd32da6dfc1
   languageName: node
   linkType: hard
 
@@ -2666,38 +2677,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-three/drei@npm:^7.22.6":
-  version: 7.27.5
-  resolution: "@react-three/drei@npm:7.27.5"
-  dependencies:
-    "@babel/runtime": ^7.11.2
-    "@react-spring/three": ^9.3.1
-    "@use-gesture/react": ^10.2.0
-    detect-gpu: ^3.1.28
-    glsl-noise: ^0.0.0
-    lodash.omit: ^4.5.0
-    lodash.pick: ^4.4.0
-    react-composer: ^5.0.2
-    react-merge-refs: ^1.1.0
-    stats.js: ^0.17.0
-    three-mesh-bvh: ^0.5.2
-    three-stdlib: ^2.6.1
-    troika-three-text: ^0.44.0
-    use-asset: ^1.0.4
-    utility-types: ^3.10.0
-    zustand: ^3.5.13
-  peerDependencies:
-    "@react-three/fiber": ">=6.0"
-    react: ">=17.0"
-    react-dom: ">=17.0"
-    three: ">=0.128.0"
-  peerDependenciesMeta:
-    react-dom:
-      optional: true
-  checksum: f71456766f1267cd489c0ac61defb9876b120a3b3437afd5d96a1f3af8b454072a47efc7a09967f2dfdb70e5de5c26b7bfa7e10f4235b06723847ca1d42f79a4
-  languageName: node
-  linkType: hard
-
 "@react-three/drei@npm:^8.3.1":
   version: 8.3.1
   resolution: "@react-three/drei@npm:8.3.1"
@@ -2730,7 +2709,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@react-three/fiber@npm:^7.0.24, @react-three/fiber@npm:^7.0.7, @react-three/fiber@npm:latest":
+"@react-three/fiber@npm:^7.0.24, @react-three/fiber@npm:latest":
   version: 7.0.24
   resolution: "@react-three/fiber@npm:7.0.24"
   dependencies:
@@ -6310,37 +6289,37 @@ __metadata:
     "@blueprintjs/popover2": ^0.12.9
     "@blueprintjs/select": ^3.18.11
     "@blueprintjs/table": ^3.9.13
-    "@electricui/build-tools": 0.10.0-1fb9ce2d
-    "@electricui/charts": 0.9.3-1fb9ce2d
-    "@electricui/components-core": 0.9.1-1fb9ce2d
-    "@electricui/components-desktop": 0.9.1-1fb9ce2d
-    "@electricui/components-desktop-blueprint": 0.9.3-1fb9ce2d
-    "@electricui/components-desktop-blueprint-loggers": 0.9.3-1fb9ce2d
-    "@electricui/components-desktop-charts": 0.9.3-1fb9ce2d
-    "@electricui/components-desktop-three": 0.9.3-1fb9ce2d
-    "@electricui/core": 0.9.1-1fb9ce2d
-    "@electricui/core-device-manager-proxy": 0.9.1-1fb9ce2d
-    "@electricui/core-redux-state": 0.9.1-1fb9ce2d
-    "@electricui/core-timeseries": 0.9.3-1fb9ce2d
-    "@electricui/dataflow": 0.9.2-1fb9ce2d
+    "@electricui/build-tools": 0.10.0-3b5eefbf
+    "@electricui/charts": 0.9.3-3b5eefbf
+    "@electricui/components-core": 0.9.1-3b5eefbf
+    "@electricui/components-desktop": 0.9.1-3b5eefbf
+    "@electricui/components-desktop-blueprint": 0.9.3-3b5eefbf
+    "@electricui/components-desktop-blueprint-loggers": 0.9.3-3b5eefbf
+    "@electricui/components-desktop-charts": 0.9.3-3b5eefbf
+    "@electricui/components-desktop-three": 0.9.3-3b5eefbf
+    "@electricui/core": 0.9.1-3b5eefbf
+    "@electricui/core-device-manager-proxy": 0.9.1-3b5eefbf
+    "@electricui/core-redux-state": 0.9.1-3b5eefbf
+    "@electricui/core-timeseries": 0.9.3-3b5eefbf
+    "@electricui/dataflow": 0.9.2-3b5eefbf
     "@electricui/helpers": 0.9.1-1fb9ce2d
-    "@electricui/loader": 0.9.1-1fb9ce2d
-    "@electricui/protocol-binary": 0.9.1-1fb9ce2d
-    "@electricui/protocol-binary-cobs": 0.9.1-1fb9ce2d
-    "@electricui/protocol-binary-codecs": 0.9.1-1fb9ce2d
-    "@electricui/protocol-binary-connection-handshake": 0.9.1-1fb9ce2d
+    "@electricui/loader": 0.9.1-3b5eefbf
+    "@electricui/protocol-binary": 0.9.1-3b5eefbf
+    "@electricui/protocol-binary-cobs": 0.9.1-3b5eefbf
+    "@electricui/protocol-binary-codecs": 0.9.1-3b5eefbf
+    "@electricui/protocol-binary-connection-handshake": 0.9.1-3b5eefbf
     "@electricui/protocol-binary-constants": 0.9.0
-    "@electricui/protocol-binary-fifo-queue": 0.9.1-1fb9ce2d
-    "@electricui/protocol-binary-heartbeats": 0.9.1-1fb9ce2d
-    "@electricui/protocol-binary-large-packet-handler": 0.9.1-1fb9ce2d
-    "@electricui/timeseries": 0.9.1
-    "@electricui/timeseries-react": 0.9.1
+    "@electricui/protocol-binary-fifo-queue": 0.9.1-3b5eefbf
+    "@electricui/protocol-binary-heartbeats": 0.9.1-3b5eefbf
+    "@electricui/protocol-binary-large-packet-handler": 0.9.1-3b5eefbf
+    "@electricui/timeseries": 0.9.2-3b5eefbf
+    "@electricui/timeseries-react": 0.9.2-3b5eefbf
     "@electricui/timing": 0.9.0
-    "@electricui/transport-node-serial": 0.9.1-1fb9ce2d
-    "@electricui/transport-node-usb-discovery": 0.9.1-1fb9ce2d
-    "@electricui/transport-node-websocket": 0.9.1-1fb9ce2d
+    "@electricui/transport-node-serial": 0.9.1-3b5eefbf
+    "@electricui/transport-node-usb-discovery": 0.9.1-3b5eefbf
+    "@electricui/transport-node-websocket": 0.9.1-3b5eefbf
     "@electricui/utility-crc16": 0.9.0
-    "@electricui/utility-electron": 0.9.1-1fb9ce2d
+    "@electricui/utility-electron": 0.9.1-3b5eefbf
     "@electricui/utility-ipc": 0.8.1
     "@reach/router": ^1.2.1
     "@react-three/drei": ^8.3.1
@@ -14397,7 +14376,7 @@ resolve@1.12.0:
   languageName: node
   linkType: hard
 
-"three-stdlib@npm:^2.5.9, three-stdlib@npm:^2.6.1":
+"three-stdlib@npm:^2.6.1":
   version: 2.6.1
   resolution: "three-stdlib@npm:2.6.1"
   dependencies:
