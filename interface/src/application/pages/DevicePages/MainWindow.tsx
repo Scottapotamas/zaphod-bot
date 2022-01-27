@@ -145,11 +145,11 @@ const MainWindow = (props: RouteComponentProps) => {
 
             <Areas.Charts>
               <Composition gap={10}>
-                <SystemSummary/>
+                <SystemSummary />
                 <ServoSummary />
-                {/* <AngleChart />
+                <AngleChart />
                 <LoadChart />
-                <PowerChart /> */}
+                <PowerChart />
               </Composition>
             </Areas.Charts>
           </React.Fragment>
