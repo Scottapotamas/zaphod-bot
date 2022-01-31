@@ -431,28 +431,35 @@ export class Camera {
     // Do the blender -> threejs transform
     camera.position.set(this.position[0], this.position[2], -this.position[1])
 
-    const blenderCameraOrientation = new Quaternion(
+    camera.quaternion.set(
       this.quaternion[0],
       this.quaternion[1],
       this.quaternion[2],
       this.quaternion[3],
     )
 
-    const zVec = new Vector3(0, 0, 1)
-    zVec.applyQuaternion(blenderCameraOrientation)
+    if (false) {
+      const blenderCameraOrientation = new Quaternion(
+        this.quaternion[0],
+        this.quaternion[1],
+        this.quaternion[2],
+        this.quaternion[3],
+      )
 
-    const toLook = new Vector3(
-      this.position[0],
-      this.position[2],
-      -this.position[1],
-    ).add(zVec.clone().multiplyScalar(-100))
+      const zVec = new Vector3(0, 0, 1)
+      zVec.applyQuaternion(blenderCameraOrientation)
 
-    camera.lookAt(toLook)
+      const toLook = new Vector3(
+        this.position[0],
+        this.position[2],
+        -this.position[1],
+      ).add(zVec.clone().multiplyScalar(-100))
+
+      camera.lookAt(toLook)
+    }
 
     camera.updateMatrixWorld()
     camera.updateProjectionMatrix()
-
-    camera.quaternion
   }
 }
 

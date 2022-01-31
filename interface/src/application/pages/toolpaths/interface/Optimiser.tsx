@@ -212,6 +212,8 @@ export function Optimiser() {
             state.arbitrary = imported.frameData
 
             console.log(`injested ${state.sceneTotalFrames} frames`)
+
+            incrementViewportFrameVersion(state)
           })
 
           // Recalculate the movements for each frame
