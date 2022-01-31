@@ -30,7 +30,6 @@ function setThreeJSCamera() {
     getSetting(state => state.renderablesByFrame[state.viewportFrame]) ?? []
 
   const blenderCamera = renderablesForFrame.find(isCamera)
-  console.log(`aligning camera`, blenderCamera)
 
   if (sceneCamera && blenderCamera) {
     blenderCamera.alignCamera(sceneCamera)
@@ -51,7 +50,7 @@ function OrbitCameraToggle() {
       }
 
       // Search for the camera for this frame if we've disabled orbitControls
-      if (!checked) {
+      if (getSetting(state => state.matchCameraAnimation)) {
         setThreeJSCamera()
       }
     },
@@ -62,13 +61,9 @@ function OrbitCameraToggle() {
     return useStore.subscribe(
       state => state.viewportFrame,
       frameNumber => {
-        const orbitControls = getSetting(state => state.orbitControls)
-
-        if (orbitControls && orbitControls.enabled) {
-          return
+        if (getSetting(state => state.matchCameraAnimation)) {
+          setThreeJSCamera()
         }
-
-        setThreeJSCamera()
       },
     )
   })

@@ -203,6 +203,7 @@ export interface Store {
   // Camera references
   camera: PerspectiveCameraImpl | null
   orbitControls: OrbitControlsImpl | null
+  matchCameraAnimation: boolean
 
   // Queue depths for sending data to hardware
   movementQueueUI: number
@@ -259,6 +260,7 @@ const initialState: Store = {
 
   camera: null,
   orbitControls: null,
+  matchCameraAnimation: true,
 
   movementQueueUI: 0,
   lightQueueUI: 0,
