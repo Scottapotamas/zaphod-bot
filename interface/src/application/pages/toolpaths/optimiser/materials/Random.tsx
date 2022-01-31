@@ -65,12 +65,18 @@ const colors = [
 
 let counter = 0
 
-function pickColor() {
+const map = new Map()
+
+function pickColor(id: string) {
+  if (map.has(id)) return map.get(id)!
+
   counter++
 
   if (counter > colors.length - 1) {
     counter = 0
   }
+
+  map.set(id, colors[counter])
 
   return colors[counter]
 }
@@ -87,7 +93,7 @@ export class RandomColorMaterial extends Material {
 
     t: number,
   ): RGB => {
-    return pickColor()
+    return pickColor(movement.interFrameID)
   }
 }
 

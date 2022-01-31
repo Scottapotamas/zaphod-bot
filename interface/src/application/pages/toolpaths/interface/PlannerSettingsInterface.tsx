@@ -129,6 +129,69 @@ function InterLineTransitionDistanceControl() {
   )
 }
 
+function GPencilOutputType() {
+  const [setting, set] = useState(
+    getSetting(state => state.settings.objectSettings.gpencil.outputType) ?? 0,
+  )
+
+  const update = useCallback(t => {
+    setSetting(state => {
+      state.settings.objectSettings.gpencil.outputType = t
+    })
+  }, [])
+
+  const handleUpdate = useCallback(t => {
+    set(t)
+    update(t)
+  }, [])
+
+  return (
+    <NumericInput
+      fill
+      min={0}
+      max={2}
+      stepSize={1}
+      majorStepSize={1}
+      value={setting}
+      onValueChange={handleUpdate}
+      rightElement={<Tag>type</Tag>}
+      style={{ width: '100%' }}
+    />
+  )
+}
+
+function GPencilSimplificationControl() {
+  const [distange, setDistance] = useState(
+    getSetting(
+      state => state.settings.objectSettings.gpencil.simplificationTolerance,
+    ),
+  )
+
+  const updateDistance = useCallback(distance => {
+    setSetting(state => {
+      state.settings.objectSettings.gpencil.simplificationTolerance = distance
+    })
+  }, [])
+
+  const setAndUpdateDistance = useCallback(distance => {
+    setDistance(distance)
+    updateDistance(distance)
+  }, [])
+
+  return (
+    <NumericInput
+      fill
+      min={0}
+      max={10}
+      stepSize={0.5}
+      minorStepSize={0.1}
+      value={distange}
+      onValueChange={setAndUpdateDistance}
+      style={{ width: '100%' }}
+    />
+  )
+}
+
 function LineRunUpDistanceControl() {
   const [distange, setDistance] = useState(
     getSetting(state => state.settings.optimisation.lineRunUp) * 100,
@@ -752,6 +815,8 @@ function LineTab() {
 
   return (
     <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+      GPencil simplification <GPencilSimplificationControl />
+      GPencil Output type <GPencilOutputType />
       Inter-line Optimisations Enabled <InterLineTransitionEnabledControl />
       {interlineOptimisationsEnabled ? (
         <>

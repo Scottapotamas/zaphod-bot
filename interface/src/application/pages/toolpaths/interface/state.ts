@@ -23,11 +23,13 @@ import { WritableDraft } from 'immer/dist/internal'
 import { TreeNodeInfo } from '@blueprintjs/core'
 import { NodeID, NodeInfo } from './RenderableTree'
 import type { FRAME_STATE, ToolpathGenerator } from './../optimiser/main'
+import { GPencilOutputType } from '../optimiser/gpencil'
 
 export const defaultSettings: Settings = {
   objectSettings: {
     gpencil: {
-      breakUpStrokes: false,
+      outputType: GPencilOutputType.LINE_GROUP,
+      simplificationTolerance: 0,
     },
     particles: {
       drawInVelocityOrientation: false,
