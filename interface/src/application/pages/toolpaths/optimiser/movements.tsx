@@ -17,9 +17,10 @@ export enum MOVEMENT_TYPE {
   LINE = 'line',
   POINT = 'point',
   TRANSITION = 'transition',
-  POINT_TRANSITION = 'point-transition',
-  INTER_LINE_TRANSITION = 'inter-line-transition',
+  POINT_TRANSITION = 'point_transition',
+  INTER_LINE_TRANSITION = 'inter_line_transition',
   TRANSIT = 'transit',
+  CATMULL_CHAIN = 'catmull_chain',
 }
 
 const defaultSpeed = 30 // mm/s
@@ -895,6 +896,7 @@ export function isPointTransition(
 ): movement is PointTransition {
   return movement.type === MOVEMENT_TYPE.POINT_TRANSITION
 }
+
 /**
  * A transition is a move from one Point to another.
  *
@@ -1357,6 +1359,157 @@ export class Transit extends Movement {
   public samplePoint = (t: number) => {
     // Transits exist at their endpoint
     return this.endPoint
+  }
+
+  public resetOptimisationState = () => {
+    // noop
+  }
+}
+
+/**
+ * A transition is a move from one Point to another.
+ *
+ * Uses a catmull spline to visit points
+ */
+export class CatmullChain extends Movement {
+  readonly type = MOVEMENT_TYPE.CATMULL_CHAIN
+
+  // Maximum speed in millimeters per second
+  public maxSpeed: number = defaultSpeed
+
+  private numSegments = 20
+
+  constructor(
+    public points: Vector3[],
+    public material: Material,
+    public objectID: string,
+  ) {
+    super()
+  }
+
+  private curvePoints: Vector3[] = []
+  private curvelength: number | null = null
+
+  private curve: CatmullRomCurve3 | null = null
+
+  private lazyGenerateCurve = () => {
+    if (this.curve) return this.curve
+
+    const points = this.isFlipped
+      ? this.points.slice().reverse()
+      : this.points.slice()
+
+    /**
+     * v0 – The starting point.
+     * v1 – The first control point.
+     * v2 – The second control point.
+     * v3 – The ending point.
+     */
+    this.curve = new CatmullRomCurve3(points, false, 'catmullrom')
+
+    this.curve.arcLengthDivisions = this.points.length * 4
+
+    return this.curve
+  }
+
+  private lazyGenerateCurveLength = () => {
+    if (this.curvelength) return this.curvelength
+
+    const curve = this.lazyGenerateCurve()
+
+    return curve.getLength()
+  }
+
+  public samplePoint = (t: number) => {
+    const curve = this.lazyGenerateCurve()
+
+    return curve.getPoint(t)
+  }
+
+  // Swap the ordering of this transition movement
+  public flip = () => {
+    this.isFlipped = !this.isFlipped
+
+    // Reset the curve
+    this.curve = null
+    // TODO: Flip the material
+  }
+
+  public flatten = () => {
+    return [this]
+  }
+
+  public hydrate = (serialised: SerialisedTour) => {
+    this.isFlipped = serialised[this.interFrameID]?.flipped
+  }
+
+  public getCost = () => {
+    return this.getLength()
+  }
+
+  public getLength = () => {
+    const length = this.lazyGenerateCurveLength()
+
+    return length
+  }
+
+  public setMaxSpeed = (maxSpeed: number) => {
+    this.maxSpeed = maxSpeed
+  }
+
+  public getDuration = () => {
+    return Math.ceil(
+      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
+    )
+  }
+
+  public getStart = () => {
+    return this.isFlipped ? this.points[this.points.length - 1] : this.points[0]
+  }
+
+  public getEnd = () => {
+    return this.isFlipped ? this.points[0] : this.points[this.points.length - 1]
+  }
+
+  public getDesiredEntryVelocity = () => {
+    return this.samplePoint(0.05)
+      .clone()
+      .sub(this.samplePoint(0))
+      .normalize()
+      .multiplyScalar(this.maxSpeed)
+  }
+
+  public getExpectedExitVelocity = () => {
+    return this.samplePoint(1)
+      .clone()
+      .sub(this.samplePoint(0.95))
+      .normalize()
+      .multiplyScalar(this.maxSpeed)
+  }
+
+  public generateToolpath = () => {
+    // TODO
+
+    const move: PlannerMovementMove = {
+      duration: this.getDuration(),
+      type: MovementMoveType.CATMULL_SPLINE, // Despite being a point, draw a line
+      reference: MovementMoveReference.ABSOLUTE,
+      points: [],
+      num_points: 4,
+    }
+
+    return move
+  }
+
+  public getApproximateCentroid = () => {
+    return getCentroid([
+      this.samplePoint(0),
+      this.samplePoint(0.2),
+      this.samplePoint(0.4),
+      this.samplePoint(0.6),
+      this.samplePoint(0.8),
+      this.samplePoint(1),
+    ])
   }
 
   public resetOptimisationState = () => {

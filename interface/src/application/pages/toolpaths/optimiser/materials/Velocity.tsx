@@ -119,7 +119,7 @@ export class VelocityMaterial extends Material {
       movement.type === MOVEMENT_TYPE.LINE ||
       movement.type === MOVEMENT_TYPE.POINT
         ? 1
-        : visualisationSettings.curveSegments
+        : Math.ceil(movement.getLength() / 5)
 
     // Calculate the bounds of the colors used
     const intendedSpeed = Math.max(

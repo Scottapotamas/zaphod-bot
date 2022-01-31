@@ -103,7 +103,7 @@ export class InvisibleMaterial extends Material {
       movement.type === MOVEMENT_TYPE.LINE ||
       movement.type === MOVEMENT_TYPE.POINT
         ? 1
-        : visualisationSettings.curveSegments
+        : Math.ceil(movement.getLength() / 5)
 
     // For the number of segments,
     for (let index = 0; index < numSegments; index++) {

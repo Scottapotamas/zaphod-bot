@@ -1,13 +1,20 @@
 import { TreeNodeInfo } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
-import { Vector3 } from 'three'
+import { Line3, Vector3 } from 'three'
 import { NodeInfo, NodeTypes } from '../interface/RenderableTree'
 import { ObjectNameTree } from './files'
 import { importMaterial, MaterialJSON } from './material'
 import { isSimpleColorMaterial, SimpleColorMaterial } from './materials/Color'
 import { ColorRampMaterial } from './materials/ColorRamp'
 import { lerpRGB } from './materials/utilities'
-import { Point, Movement, Line, MovementGroup, RGB } from './movements'
+import {
+  Point,
+  Movement,
+  Line,
+  MovementGroup,
+  RGB,
+  CatmullChain,
+} from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
 
 export class GPencilLayer {
@@ -46,11 +53,21 @@ export interface GPencilStrokePoint {
   vertexColor: [number, number, number, number] // Vertex color
 }
 
+export enum GPencilOutputType {
+  LINES = 0,
+  LINE_GROUP = 1,
+  CATMULL_CHAIN = 2,
+}
+
 export interface GPencilToMovementsSettings {
   /**
-   * If enabled, strokes are broken up into singular lines that may be individually optimised.
+   * Determine the type of output
    */
-  breakUpStrokes?: boolean
+  outputType?: GPencilOutputType
+  /**
+   * Simplification tolerance
+   */
+  simplificationTolerance?: number
 }
 
 export class GPencil {
@@ -121,15 +138,43 @@ export class GPencil {
           [this.name, objectID],
         )
 
+        const simplified = simplify(
+          stroke.points,
+          settingsWithOverride.simplificationTolerance ?? 0,
+        )
+
+        const material = importMaterial(layer.material)
+
+        if (
+          settingsWithOverride.outputType === GPencilOutputType.CATMULL_CHAIN
+        ) {
+          const movement = new CatmullChain(
+            simplified.map(
+              gPencilPoint =>
+                new Vector3(
+                  gPencilPoint.co[0],
+                  gPencilPoint.co[1],
+                  gPencilPoint.co[2],
+                ),
+            ),
+            material,
+            objectID,
+          )
+          movement.interFrameID = `${simplified[0].id}->${
+            simplified[simplified.length - 1].id
+          }`
+
+          movements.push(movement)
+          continue
+        }
+
         let lastPoint = new Vector3(
-          stroke.points[0].co[0],
-          stroke.points[0].co[1],
-          stroke.points[0].co[2],
+          simplified[0].co[0],
+          simplified[0].co[1],
+          simplified[0].co[2],
         )
 
         const orderedMovements = new MovementGroup()
-
-        const material = importMaterial(layer.material)
 
         let doVertexColoring = isSimpleColorMaterial(material)
 
@@ -137,17 +182,17 @@ export class GPencil {
           ? lerpRGB(
               (material as SimpleColorMaterial).color,
               [
-                stroke.points[0].vertexColor[0],
-                stroke.points[0].vertexColor[1],
-                stroke.points[0].vertexColor[2],
+                simplified[0].vertexColor[0],
+                simplified[0].vertexColor[1],
+                simplified[0].vertexColor[2],
               ],
-              stroke.points[0].vertexColor[3],
+              simplified[0].vertexColor[3],
             )
           : ([0, 0, 0] as RGB)
 
         // Start at the second point, the first is located above
-        for (let index = 1; index < stroke.points.length; index++) {
-          const point = stroke.points[index]
+        for (let index = 1; index < simplified.length; index++) {
+          const point = simplified[index]
           const co = point.co
 
           let currentPoint = new Vector3(co[0], co[1], co[2])
@@ -188,11 +233,9 @@ export class GPencil {
           orderedMovements.addMovement(line)
 
           lastPoint = currentPoint
-
-          // TODO: Read vertex colours and mix into the layer material
         }
 
-        if (settingsWithOverride.breakUpStrokes) {
+        if (settingsWithOverride.outputType === GPencilOutputType.LINES) {
           movements.push(...orderedMovements.getMovements())
         } else {
           movements.push(orderedMovements)
@@ -223,7 +266,6 @@ export interface GPencilJSON {
     }[]
   }[]
 }
-
 export function importGPencil(json: GPencilJSON) {
   const gPencil = new GPencil(json.name)
 
@@ -242,4 +284,111 @@ export function importGPencil(json: GPencilJSON) {
   }
 
   return gPencil
+}
+
+/**
+ * An efficiently packed array of bits
+ */
+class BitField {
+  private internal: Uint32Array
+
+  constructor(num: number) {
+    this.internal = new Uint32Array(Math.ceil(num / 32))
+  }
+
+  public get(i: number) {
+    const index = Math.floor(i / 32)
+    const bit = i % 32
+    return (this.internal[index] & (1 << bit)) !== 0
+  }
+
+  public set(i: number, val: boolean) {
+    const index = Math.floor(i / 32)
+    const bit = i % 32
+
+    if (val) {
+      this.internal[index] |= 1 << bit
+    } else {
+      this.internal[index] &= ~(1 << bit)
+    }
+  }
+}
+
+/**
+ * Simplifies a gpencil stroke using the Ramer–Douglas–Peucker algorithm
+ *
+ * https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm
+ */
+function simplify(points: GPencilStrokePoint[], tolerance: number) {
+  if (points.length <= 2) return points
+  if (tolerance === 0) return points
+
+  const closestPoint = new Vector3()
+  const start = new Vector3()
+  const end = new Vector3() // all the maths is done on these points to reduce allocations
+  const p = new Vector3()
+
+  const keep = new BitField(points.length)
+  const segment = new Line3()
+
+  let first = 0
+  let last = points.length - 1
+
+  // Index array
+  const stack: number[] = []
+
+  // Keep both ends
+  keep.set(first, true)
+  keep.set(last, true)
+
+  while (true) {
+    let distanceMax = -Infinity
+    let indexMax = 0
+
+    // Find the furthest away point
+    for (let i = first + 1; i < last; i++) {
+      start.set(points[first].co[0], points[first].co[1], points[first].co[2])
+      end.set(points[last].co[0], points[last].co[1], points[last].co[2])
+      p.set(points[i].co[0], points[i].co[1], points[i].co[2])
+
+      // Calculate distance to line segment
+      segment.set(start, end)
+
+      segment.closestPointToPoint(p, true, closestPoint)
+
+      const distance = closestPoint.distanceToSquared(p)
+
+      if (distance > distanceMax) {
+        indexMax = i
+        distanceMax = distance
+      }
+    }
+
+    // If it's bigger than the tolerance, keep it
+    if (distanceMax >= tolerance) {
+      keep.set(indexMax, true)
+      stack.push(first, indexMax, indexMax, last)
+    }
+
+    // Prepare for next iteration
+    const newLast = stack.pop()
+    const newFirst = stack.pop()
+
+    if (newLast === undefined || newFirst === undefined) {
+      break
+    }
+
+    last = newLast
+    first = newFirst
+  }
+
+  // Run through the array and pick out the points we want
+  const newPoints: GPencilStrokePoint[] = []
+  for (let index = 0; index < points.length; index++) {
+    const point = points[index]
+    if (keep.get(index)) {
+      newPoints.push(point)
+    }
+  }
+  return newPoints
 }
