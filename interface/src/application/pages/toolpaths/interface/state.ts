@@ -65,6 +65,9 @@ export const defaultSettings: Settings = {
     lineRunUp: 0,
     disableShapedTransitions: false,
   },
+
+  // Tools for debugging
+  lightFadeOffset: 0,
 }
 
 /**

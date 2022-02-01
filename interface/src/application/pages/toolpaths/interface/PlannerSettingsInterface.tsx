@@ -473,6 +473,38 @@ function TransitionMaxSpeedControl() {
     />
   )
 }
+
+function LightFadeOffsetControl() {
+  const [setting, set] = useState(
+    getSetting(state => state.settings.lightFadeOffset),
+  )
+
+  const update = useCallback(val => {
+    setSetting(state => {
+      state.settings.lightFadeOffset = val
+    })
+  }, [])
+
+  const setAndUpdate = useCallback(val => {
+    set(val)
+    update(val)
+  }, [])
+
+  return (
+    <NumericInput
+      fill
+      min={-1000}
+      max={1000}
+      stepSize={1}
+      majorStepSize={10}
+      value={setting}
+      onValueChange={setAndUpdate}
+      rightElement={<Tag>ms</Tag>}
+      style={{ width: '100%' }}
+    />
+  )
+}
+
 function CameraDurationControl() {
   const [setting, set] = useState(
     getSetting(state => state.cameraOverrideDuration),
@@ -760,6 +792,7 @@ function GeneralTab() {
       Max Speed <MaxSpeedControl />
       Max Transition <TransitionMaxSpeedControl />
       Wait before Start <WaitAtStartDurationControl />
+      LightFade Offset <LightFadeOffsetControl />
       Disable Shaped Transitions <DisableShapedTransitionsControl />
     </Composition>
   )

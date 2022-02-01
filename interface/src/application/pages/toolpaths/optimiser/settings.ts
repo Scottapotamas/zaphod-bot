@@ -28,6 +28,9 @@ export interface Settings {
 
   // Optimisation settings
   optimisation: OptimisationSettings
+
+  // Tools for debugging
+  lightFadeOffset: 0
 }
 
 export interface OptimisationSettings {
