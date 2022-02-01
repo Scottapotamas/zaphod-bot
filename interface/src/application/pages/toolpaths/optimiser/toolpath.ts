@@ -1,5 +1,11 @@
 import { DenseMovements } from './movements'
-import { LightMove, MovementMove } from '../../../../application/typedState'
+import {
+  LightMove,
+  LightMoveType,
+  MovementMove,
+  MovementMoveReference,
+  MovementMoveType,
+} from '../../../../application/typedState'
 import { Settings } from './settings'
 import { VisualisationSettings } from '../interface/state'
 import { Vector3 } from 'three'
@@ -71,6 +77,44 @@ export function toolpath(
 
     // Increment the timestamp
     movementTimestamp += move.duration
+  }
+
+  // Add our global offset
+  if (settings.lightFadeOffset !== 0) {
+    if (settings.lightFadeOffset > 0) {
+      const delay = settings.lightFadeOffset
+
+      // Delay all fades by this amount
+      for (const fade of lightMoves) {
+        fade.timestamp += delay
+      }
+
+      // Add a blank fade to the beginning
+      lightMoves.unshift({
+        timestamp: 0,
+        duration: delay,
+        type: LightMoveType.IMMEDIATE,
+        points: [[0, 0, 0]],
+        num_points: 1,
+      })
+    } else {
+      const delay = settings.lightFadeOffset * -1
+
+      // Delay all movements by this amount
+      for (const movement of movementMoves) {
+        movement.sync_offset += delay
+      }
+
+      // Add a blank move to the beginning
+      movementMoves.unshift({
+        sync_offset: 0,
+        duration: delay,
+        type: MovementMoveType.POINT_TRANSIT, // Despite being a point, draw a line
+        reference: MovementMoveReference.RELATIVE,
+        points: [[0, 0, 0]],
+        num_points: 1,
+      })
+    }
   }
 
   return {
