@@ -56,8 +56,8 @@ export const defaultSettings: Settings = {
   skippedObjects: {},
 
   optimisation: {
-    maxSpeed: 275,
-    transitionMaxSpeed: 275,
+    maxSpeed: 250,
+    transitionMaxSpeed: 250,
     waitAtStartDuration: 1000,
     interLineTransitionAngle: 50,
     interLineTransitionShaveDistance: 5,

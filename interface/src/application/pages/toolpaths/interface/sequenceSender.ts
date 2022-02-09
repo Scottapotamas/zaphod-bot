@@ -16,8 +16,8 @@ export class SequenceSender {
   private hardwareMovementQueueDepth = 0
   private hardwareLightMoveQueueDepth = 0
 
-  private movementQueueWatermark = 10
-  private lightMoveQueueWatermark = 10
+  private movementQueueWatermark = 70
+  private lightMoveQueueWatermark = 70
 
   private movementMoves: MovementMove[] = []
   private lightMoves: LightMove[] = []
