@@ -25,6 +25,9 @@ import {
   useSetting,
 } from './state'
 
+import { RenderableTree } from './RenderableTree'
+import { MaterialEditorInterface } from './MaterialEditorInterface'
+
 function DisableShapedTransitionsControl() {
   const [allowed, setAllow] = useState(
     getSetting(state => state.settings.optimisation.disableShapedTransitions),
@@ -784,6 +787,7 @@ const enum TABS {
   LINE = 'line',
   GPENCIL = 'gpencil',
   VISUALISATION = 'visualisation',
+  GEOMETRY = 'geometry',
 }
 
 function GeneralTab() {
@@ -900,6 +904,16 @@ export const PlannerSettingsInterface = () => {
         <Tab id={TABS.LIGHT} title="Lights" panel={<LightTab />} />
         <Tab id={TABS.LINE} title="Lines" panel={<LineTab />} />
         <Tabs.Expander />
+        <Tab
+        id={TABS.GEOMETRY}
+        title="Geometry"
+          panel={
+            <div>
+              <RenderableTree />
+              <MaterialEditorInterface />
+            </div>
+          }
+        />
         <Tab
           id={TABS.CAMERA_HELPERS}
           title="Camera"

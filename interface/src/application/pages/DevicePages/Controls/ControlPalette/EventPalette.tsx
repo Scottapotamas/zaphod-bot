@@ -27,8 +27,6 @@ import { Optimiser } from './../../../toolpaths/interface/Optimiser'
 import { PlannerSettingsInterface } from 'src/application/pages/toolpaths/interface/PlannerSettingsInterface'
 import { ThreeSettingsInterface } from 'src/application/pages/toolpaths/interface/ThreeSettingsInterface'
 import { RenderInterface } from './../../../toolpaths/interface/RenderInterface'
-import { RenderableTree } from './../../../toolpaths/interface/RenderableTree'
-import { MaterialEditorInterface } from '../../../toolpaths/interface/MaterialEditorInterface'
 
 export const EventPalette = () => {
   let [settingsExpanded, setSettingsExpanded] = useState(false)
@@ -46,13 +44,9 @@ export const EventPalette = () => {
 
       <Composition gap={10}>
         <Collapse isOpen={settingsExpanded}>
-          <Composition templateCols="1fr 1fr" gap={10}>
+          <Composition templateCols="1fr" gap={10}>
             <Card>
               <PlannerSettingsInterface />
-            </Card>
-            <Card>
-              <RenderableTree />
-              <MaterialEditorInterface />
             </Card>
           </Composition>
         </Collapse>
