@@ -65,7 +65,6 @@ export abstract class Material {
         rgbToHsi(startColor[0], startColor[1], startColor[2]),
         rgbToHsi(endColor[0], endColor[1], endColor[2]),
       ],
-      num_points: 2,
     }
 
     return [fade]
@@ -123,7 +122,7 @@ export abstract class Material {
         settings,
         visualisationSettings,
         cameraPosition,
-        fromT,
+        startT,
       )
       const endCol = this.calculateColor(
         movement,
