@@ -425,6 +425,8 @@ export class Camera {
   }
 
   public alignCamera = (camera: PerspectiveCamera) => {
+    if (!this.quaternion) return
+
     camera.filmGauge = this.sensorWidth
     camera.setFocalLength(this.focalLength)
 
