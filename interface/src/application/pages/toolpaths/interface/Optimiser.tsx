@@ -37,20 +37,25 @@ import { renderablesToSceneTree } from './RenderableTree'
 import os from 'os'
 
 function recalculateMovementsPerFrame() {
+  const settings = getSetting(state => state.settings)
   const renderablesByFrame = getSetting(state => state.renderablesByFrame)
 
+  const unorderedMovementsByFrame: {
+    [frameNumber: number]: Movement[]
+  } = {}
+
+  for (const fN of Object.keys(renderablesByFrame)) {
+    const frameNumber = Number(fN)
+
+    const renderables = renderablesByFrame[frameNumber]
+
+    const movements = renderablesToMovements(renderables, settings)
+
+    unorderedMovementsByFrame[frameNumber] = movements
+  }
+
   setSetting(state => {
-    state.unorderedMovementsByFrame = {}
-
-    for (const fN of Object.keys(renderablesByFrame)) {
-      const frameNumber = Number(fN)
-
-      const renderables = renderablesByFrame[frameNumber]
-
-      const movements = renderablesToMovements(renderables, state.settings)
-
-      state.unorderedMovementsByFrame[frameNumber] = movements
-    }
+    state.unorderedMovementsByFrame = unorderedMovementsByFrame
   })
 }
 
@@ -192,23 +197,24 @@ export function Optimiser() {
         importFolder(folder).then(imported => {
           // Reset the store when we import a new folder
 
+          const sceneTotalFrames = Object.keys(
+            imported.movementJSONByFrame,
+          ).length
+          const sceneTree = renderablesToSceneTree(imported.allRenderables)
+
           setSetting(state => {
             state.sceneMinFrame = imported.minFrame
             state.viewportFrame = imported.minFrame
             state.sceneMaxFrame = imported.maxFrame
             state.selectedMinFrame = imported.minFrame
             state.selectedMaxFrame = imported.maxFrame
-            state.sceneTotalFrames = Object.keys(
-              imported.movementJSONByFrame,
-            ).length
+            state.sceneTotalFrames = sceneTotalFrames
             state.currentlyOptimising = true
             state.allRenderables = imported.allRenderables
             state.renderablesByFrame = imported.renderablesByFrame
 
             state.treeStore.selectedItemID = null
-            state.treeStore.tree = renderablesToSceneTree(
-              imported.allRenderables,
-            )
+            state.treeStore.tree = sceneTree
             state.arbitrary = imported.frameData
 
             console.log(`injested ${state.sceneTotalFrames} frames`)
