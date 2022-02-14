@@ -146,10 +146,17 @@ export class GPencil {
         const material = importMaterial(layer.material)
 
         if (
-          settingsWithOverride.outputType === GPencilOutputType.CATMULL_CHAIN
+          settingsWithOverride.outputType === GPencilOutputType.CATMULL_CHAIN &&
+          simplified.length >= 4
         ) {
+          const points = [
+            simplified[0], // duplicate first
+            ...simplified,
+            simplified[simplified.length - 1], // and last points
+          ]
+
           const movement = new CatmullChain(
-            simplified.map(
+            points.map(
               gPencilPoint =>
                 new Vector3(
                   gPencilPoint.co[0],
