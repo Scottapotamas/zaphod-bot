@@ -105,10 +105,8 @@ export abstract class Movement {
 
   /**
    * Given a movement ID, generate the final movement for sending to hardware.
-   *
-   * At this stage it's one MovementMove per Movement, if more are required, have flatten produce more movements.
    */
-  abstract generateToolpath: () => PlannerMovementMove
+  abstract generateToolpath: () => PlannerMovementMove[]
 
   /**
    * Sample a point along this movement at time fraction t (0-1)
@@ -541,10 +539,9 @@ export class Line extends Movement {
       type: MovementMoveType.LINE,
       reference: MovementMoveReference.ABSOLUTE,
       points: [this.getStart().toArray(), this.getEnd().toArray()],
-      num_points: 2,
     }
 
-    return move
+    return [move]
   }
 
   public getApproximateCentroid = () => {
@@ -676,10 +673,9 @@ export class Point extends Movement {
       type: MovementMoveType.LINE, // Despite being a point, draw a line
       reference: MovementMoveReference.ABSOLUTE,
       points: [this.getStart().toArray(), this.getEnd().toArray()],
-      num_points: 2,
     }
 
-    return move
+    return [move]
   }
 
   public getApproximateCentroid = () => {
@@ -851,10 +847,9 @@ export class Transition extends Movement {
           .toArray(),
         this.getEnd().toArray(),
       ],
-      num_points: 4,
     }
 
-    return move
+    return [move]
   }
 
   public getApproximateCentroid = () => {
@@ -1080,10 +1075,9 @@ export class PointTransition extends Movement {
         this.getPointTo().getStart().toArray(),
         this.getPostPointMovement().getStart().toArray(),
       ],
-      num_points: 4,
     }
 
-    return move
+    return [move]
   }
 
   public getApproximateCentroid = () => {
@@ -1245,10 +1239,9 @@ export class InterLineTransition extends Movement {
         this.getTo().getFrom().toArray(),
         this.getTo().getStart().toArray(),
       ],
-      num_points: 4,
     }
 
-    return move
+    return [move]
   }
 
   public getApproximateCentroid = () => {
@@ -1346,10 +1339,9 @@ export class Transit extends Movement {
       type: MovementMoveType.POINT_TRANSIT,
       reference: MovementMoveReference.ABSOLUTE,
       points: [this.endPoint.toArray()],
-      num_points: 1,
     }
 
-    return move
+    return [move]
   }
 
   public getApproximateCentroid = () => {
@@ -1495,10 +1487,9 @@ export class CatmullChain extends Movement {
       type: MovementMoveType.CATMULL_SPLINE, // Despite being a point, draw a line
       reference: MovementMoveReference.ABSOLUTE,
       points: [],
-      num_points: 4,
     }
 
-    return move
+    return [move]
   }
 
   public getApproximateCentroid = () => {

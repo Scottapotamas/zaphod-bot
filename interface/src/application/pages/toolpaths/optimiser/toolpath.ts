@@ -27,37 +27,34 @@ export function toolpath(
   cameraPosition: Vector3,
 ): Toolpath {
   const movementMoves: MovementMove[] = []
-  const lightMoves: LightMove[] = []
+  const lightFades: LightMove[] = []
 
   let movementTimestamp = 0
   let lightFadeTimestamp = 0
   // each movement should have a generateToolpath method
   for (const movement of denseMovements) {
-    const move = movement.generateToolpath()
+    const moves = movement.generateToolpath()
 
-    if (move.duration === 0) {
-      // zero duration moves are dumped
-      continue
-    }
-
-    // Add the movement
-    movementMoves.push({
-      ...move,
-      sync_offset: movementTimestamp,
-    })
-
-    if (lightFadeTimestamp !== movementTimestamp) {
-      console.warn(
-        `The light and movement timestamps not adding up? They're ${Math.abs(
-          lightFadeTimestamp - movementTimestamp,
-        )}ms off at timestamp ${movementTimestamp}`,
-      )
-    }
-
-    // These should be the same anyway.
+    // The light fades start at the offset of the movement time stamp
     lightFadeTimestamp = movementTimestamp
 
-    // Build the light moves
+    // Accumulate the movement moves
+    for (const move of moves) {
+      if (move.duration === 0) {
+        // zero duration moves are dumped
+        continue
+      }
+
+      // Add the movement
+      movementMoves.push({
+        ...move,
+        sync_offset: movementTimestamp,
+      })
+
+      movementTimestamp += move.duration
+    }
+
+    // Accumulate the light fades
     for (const lightMove of movement.material.generateLightpath(
       movement,
       settings,
@@ -66,7 +63,12 @@ export function toolpath(
       0, // from start
       1, // to end
     )) {
-      lightMoves.push({
+      if (lightMove.duration === 0) {
+        // zero duration fades are dumped
+        continue
+      }
+
+      lightFades.push({
         ...lightMove,
         timestamp: lightFadeTimestamp,
       })
@@ -75,8 +77,13 @@ export function toolpath(
       lightFadeTimestamp += lightMove.duration
     }
 
-    // Increment the timestamp
-    movementTimestamp += move.duration
+    if (lightFadeTimestamp !== movementTimestamp) {
+      console.warn(
+        `The light and movement timestamps not adding up? They're ${Math.abs(
+          lightFadeTimestamp - movementTimestamp,
+        )}ms off at timestamp ${movementTimestamp}`,
+      )
+    }
   }
 
   // Add our global offset
@@ -85,12 +92,12 @@ export function toolpath(
       const delay = settings.lightFadeOffset
 
       // Delay all fades by this amount
-      for (const fade of lightMoves) {
+      for (const fade of lightFades) {
         fade.timestamp += delay
       }
 
       // Add a blank fade to the beginning
-      lightMoves.unshift({
+      lightFades.unshift({
         timestamp: 0,
         duration: delay,
         type: LightMoveType.IMMEDIATE,
@@ -119,6 +126,6 @@ export function toolpath(
 
   return {
     movementMoves,
-    lightMoves,
+    lightMoves: lightFades,
   }
 }
