@@ -833,7 +833,7 @@ export class Transition extends Movement {
   public generateToolpath = () => {
     const move: PlannerMovementMove = {
       duration: this.getDuration(),
-      type: MovementMoveType.BEZIER_CUBIC, // Despite being a point, draw a line
+      type: MovementMoveType.BEZIER_CUBIC,
       reference: MovementMoveReference.ABSOLUTE,
       points: [
         this.getStart().toArray(),
@@ -1061,7 +1061,7 @@ export class PointTransition extends Movement {
   public generateToolpath = () => {
     const move: PlannerMovementMove = {
       duration: this.getDuration(),
-      type: MovementMoveType.CATMULL_SPLINE, // Despite being a point, draw a line
+      type: MovementMoveType.CATMULL_SPLINE,
       reference: MovementMoveReference.ABSOLUTE,
       points: [
         // this.getPrePointMovement().getEnd().toArray(),
@@ -1231,7 +1231,7 @@ export class InterLineTransition extends Movement {
   public generateToolpath = () => {
     const move: PlannerMovementMove = {
       duration: this.getDuration(),
-      type: MovementMoveType.BEZIER_CUBIC, // Despite being a point, draw a line
+      type: MovementMoveType.BEZIER_CUBIC,
       reference: MovementMoveReference.ABSOLUTE,
       points: [
         this.getFrom().getEnd().toArray(),
@@ -1358,6 +1358,25 @@ export class Transit extends Movement {
   }
 }
 
+function pointsToControlPoints(
+  inputArray: Vector3[],
+): [Vector3, Vector3, Vector3, Vector3][] {
+  if (inputArray.length < 4) {
+    throw new Error(`Need at least 4 points to produce control points`)
+  }
+
+  return Array.from(
+    { length: inputArray.length - (4 - 1) }, // precompute length of array of windows, size 4
+    (_, index) => inputArray.slice(index, index + 4), // map over that to produce the windows
+  ) as [Vector3, Vector3, Vector3, Vector3][]
+}
+
+interface DeconstructedCatmullCurve {
+  threeCurve: CatmullRomCurve3
+  controlPoints: [Vector3, Vector3, Vector3, Vector3]
+  duration: number
+}
+
 /**
  * A transition is a move from one Point to another.
  *
@@ -1379,10 +1398,9 @@ export class CatmullChain extends Movement {
     super()
   }
 
-  private curvePoints: Vector3[] = []
   private curvelength: number | null = null
 
-  private curve: CatmullRomCurve3 | null = null
+  private curve: DeconstructedCatmullCurve[] | null = null
 
   private lazyGenerateCurve = () => {
     if (this.curve) return this.curve
@@ -1391,15 +1409,33 @@ export class CatmullChain extends Movement {
       ? this.points.slice().reverse()
       : this.points.slice()
 
-    /**
-     * v0 – The starting point.
-     * v1 – The first control point.
-     * v2 – The second control point.
-     * v3 – The ending point.
-     */
-    this.curve = new CatmullRomCurve3(points, false, 'catmullrom')
+    const controlPointsArr = pointsToControlPoints(points)
 
-    this.curve.arcLengthDivisions = this.points.length * 4
+    const deconstructed: DeconstructedCatmullCurve[] = []
+
+    for (const controlPoints of controlPointsArr) {
+      const threeCurve = new CatmullRomCurve3(
+        controlPoints,
+        false,
+        'catmullrom',
+      )
+      threeCurve.arcLengthDivisions = 20
+
+      const length = threeCurve.getLength()
+      const duration = Math.ceil(
+        (length / this.maxSpeed) * MILLISECONDS_IN_SECOND,
+      ) // duration in milliseconds
+
+      const decon: DeconstructedCatmullCurve = {
+        threeCurve,
+        controlPoints,
+        duration,
+      }
+
+      deconstructed.push(decon)
+    }
+
+    this.curve = deconstructed
 
     return this.curve
   }
@@ -1409,13 +1445,57 @@ export class CatmullChain extends Movement {
 
     const curve = this.lazyGenerateCurve()
 
-    return curve.getLength()
+    const length = curve.reduce(
+      (prev, curr) => prev + curr.threeCurve.getLength(),
+      0,
+    )
+
+    return length
   }
 
   public samplePoint = (t: number) => {
     const curve = this.lazyGenerateCurve()
+    const duration = this.getDuration()
 
-    return curve.getPoint(t)
+    const absoluteTimeAlongCurve = t * duration
+
+    let durationAccumulator = 0
+
+    for (let index = 0; index < curve.length; index++) {
+      const deconstructed = curve[index]
+
+      const movementStartTime = durationAccumulator
+      const movementEndTime = durationAccumulator + deconstructed.duration
+
+      if (
+        absoluteTimeAlongCurve >= movementStartTime &&
+        absoluteTimeAlongCurve <= movementEndTime
+      ) {
+        // the point in time T is in this part of the curve
+        const relT = MathUtils.mapLinear(
+          absoluteTimeAlongCurve,
+          movementStartTime,
+          movementEndTime,
+          1 / 3,
+          2 / 3,
+        )
+
+        let p
+        try {
+          p = deconstructed.threeCurve.getPoint(relT)
+        } catch (e) {
+          debugger
+          p = new Vector3(0, 0, 0)
+        }
+        return p
+      }
+
+      durationAccumulator = movementEndTime
+    }
+
+    // This should be unreachable
+
+    throw new Error('Unreachable')
   }
 
   // Swap the ordering of this transition movement
@@ -1450,9 +1530,11 @@ export class CatmullChain extends Movement {
   }
 
   public getDuration = () => {
-    return Math.ceil(
-      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
-    )
+    const curve = this.lazyGenerateCurve()
+
+    const duration = curve.reduce((prev, curr) => prev + curr.duration, 0)
+
+    return duration
   }
 
   public getStart = () => {
@@ -1480,16 +1562,22 @@ export class CatmullChain extends Movement {
   }
 
   public generateToolpath = () => {
-    // TODO
+    const curve = this.lazyGenerateCurve()
 
-    const move: PlannerMovementMove = {
-      duration: this.getDuration(),
-      type: MovementMoveType.CATMULL_SPLINE, // Despite being a point, draw a line
-      reference: MovementMoveReference.ABSOLUTE,
-      points: [],
+    const moves = []
+
+    for (const deconstructed of curve) {
+      const move: PlannerMovementMove = {
+        duration: deconstructed.duration,
+        type: MovementMoveType.CATMULL_SPLINE,
+        reference: MovementMoveReference.ABSOLUTE,
+        points: deconstructed.controlPoints.map(vecs => vecs.toArray()),
+      }
+
+      moves.push(move)
     }
 
-    return [move]
+    return moves
   }
 
   public getApproximateCentroid = () => {
