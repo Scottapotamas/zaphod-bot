@@ -18,7 +18,6 @@ export type PlannerMovementMove = {
   type: MovementMoveType
   reference: MovementMoveReference
   points: Array<MovementPoint>
-  num_points?: number
 }
 
 export enum LightMoveType {
@@ -36,5 +35,4 @@ export type PlannerLightMove = {
   duration: number
   type: LightMoveType
   points: Array<LightPoint>
-  num_points?: number
 }
