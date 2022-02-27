@@ -9,7 +9,7 @@
 
 #include "hal_delay.h"
 #include "hal_gpio.h"
-#include "hal_hard_ic.h"
+#include "hal_ic_hard.h"
 
 #include "app_signals.h"
 #include "app_times.h"
@@ -81,7 +81,7 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] = {
                        .pin_direction   = _SERVO_1_A,
                        .pin_step        = _SERVO_1_B,
                        .pin_feedback    = _SERVO_1_HLFB,
-                       .ic_feedback     = HAL_HARD_IC_HLFB_SERVO_1,
+                       .ic_feedback     = HAL_IC_HARD_HLFB_SERVO_1,
                        .adc_current     = HAL_ADC_INPUT_M1_CURRENT,
                        .pin_oc_fault    = _SERVO_1_CURRENT_FAULT,
                        .requires_homing = true },
@@ -90,7 +90,7 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] = {
                        .pin_direction   = _SERVO_2_A,
                        .pin_step        = _SERVO_2_B,
                        .pin_feedback    = _SERVO_2_HLFB,
-                       .ic_feedback     = HAL_HARD_IC_HLFB_SERVO_2,
+                       .ic_feedback     = HAL_IC_HARD_HLFB_SERVO_2,
                        .adc_current     = HAL_ADC_INPUT_M2_CURRENT,
                        .pin_oc_fault    = _SERVO_2_CURRENT_FAULT,
                        .requires_homing = true },
@@ -99,7 +99,7 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] = {
                        .pin_direction   = _SERVO_3_A,
                        .pin_step        = _SERVO_3_B,
                        .pin_feedback    = _SERVO_3_HLFB,
-                       .ic_feedback     = HAL_HARD_IC_HLFB_SERVO_3,
+                       .ic_feedback     = HAL_IC_HARD_HLFB_SERVO_3,
                        .adc_current     = HAL_ADC_INPUT_M3_CURRENT,
                        .pin_oc_fault    = _SERVO_3_CURRENT_FAULT,
                        .requires_homing = true },
@@ -109,7 +109,7 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] = {
                        .pin_direction = _SERVO_4_A,
                        .pin_step      = _SERVO_4_B,
                        .pin_feedback  = _SERVO_4_HLFB,
-                       .ic_feedback   = HAL_HARD_IC_HLFB_SERVO_4,
+                       .ic_feedback   = HAL_IC_HARD_HLFB_SERVO_4,
                        .adc_current   = HAL_ADC_INPUT_M4_CURRENT,
                        .pin_oc_fault  = _SERVO_4_CURRENT_FAULT,
                        .requires_homing = false },
@@ -231,7 +231,7 @@ servo_get_hlfb_percent( ClearpathServoInstance_t servo )
     // 65% DC => 1/3rd max torque in +ve direction
 
     // Get the HLFB duty, and scale to -100% to +100% range
-    percentage = hal_hard_ic_read_f( ServoHardwareMap[servo].ic_feedback ) * 2.05f - 100.0f;
+    percentage = hal_ic_hard_read_f( ServoHardwareMap[servo].ic_feedback ) * 2.05f - 100.0f;
     CLAMP( percentage, -100.0f, 100.0f );
 
     return percentage;

@@ -1,5 +1,5 @@
-#ifndef HAL_SOFT_IC_H
-#define HAL_SOFT_IC_H
+#ifndef HAL_IC_SOFT_H
+#define HAL_IC_SOFT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,52 +13,52 @@ extern "C" {
 
 typedef enum
 {
-    HAL_SOFT_IC_HALL = 0,
-    HAL_SOFT_IC_NUM
+    HAL_IC_SOFT_HALL = 0,
+    HAL_IC_SOFT_NUM
 } HalSoftICInput_t;
 
 /* ------------------------- Functions Prototypes --------------------------- */
 
 PUBLIC void
-hal_soft_ic_init( void );
+hal_ic_soft_init( void );
 
 /* -------------------------------------------------------------------------- */
 
 /** Return true when there are active samples in the averaging buffer */
 
 PUBLIC bool
-hal_soft_ic_valid( HalSoftICInput_t input );
+hal_ic_soft_valid( HalSoftICInput_t input );
 
 /* -------------------------------------------------------------------------- */
 
 /** Last converted read */
 
 PUBLIC uint32_t
-hal_soft_ic_read( HalSoftICInput_t input );
+hal_ic_soft_read( HalSoftICInput_t input );
 
 /* -------------------------------------------------------------------------- */
 
 /** Averaged read */
 
 PUBLIC uint32_t
-hal_soft_ic_read_avg( HalSoftICInput_t input );
+hal_ic_soft_read_avg( HalSoftICInput_t input );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-hal_soft_ic_start( HalSoftICInput_t input, uint16_t poll_rate_ms );
+hal_ic_soft_start( HalSoftICInput_t input, uint16_t poll_rate_ms );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-hal_soft_ic_stop( HalSoftICInput_t input );
+hal_ic_soft_stop( HalSoftICInput_t input );
 
 /* -------------------------------------------------------------------------- */
 
 /** Timer tick to trigger a sample */
 
 PUBLIC void
-hal_soft_ic_tick( void );
+hal_ic_soft_tick( void );
 
 /* ------------------------- End -------------------------------------------- */
 
@@ -66,4 +66,4 @@ hal_soft_ic_tick( void );
 }
 #endif
 
-#endif /* HAL_SOFT_IC_H */
+#endif /* HAL_IC_SOFT_H */

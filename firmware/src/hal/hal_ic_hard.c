@@ -10,7 +10,7 @@
 #include "stm32f4xx_ll_tim.h"
 
 #include "hal_gpio.h"
-#include "hal_hard_ic.h"
+#include "hal_ic_hard.h"
 #include "qassert.h"
 
 /* ----- Defines ------------------------------------------------------------ */
@@ -34,29 +34,29 @@ typedef struct
 } HalHardICIntermediate_t;
 
 PRIVATE HalHardICIntermediate_t fan_state;                     // holding values used to calculate edge durations
-PRIVATE uint32_t                ic_values[HAL_HARD_IC_NUM];    // Calculated duty cycle or frequency values, x100 for precision
+PRIVATE uint32_t                ic_values[HAL_IC_HARD_NUM];    // Calculated duty cycle or frequency values, x100 for precision
 
 /* ----- Private Functions -------------------------------------------------- */
 
 PRIVATE void
-hal_hard_ic_configure_pwm_input( TIM_TypeDef *TIMx );
+hal_ic_hard_configure_pwm_input( TIM_TypeDef *TIMx );
 
 PRIVATE void
-hal_hard_ic_pwmic_irq_handler( InputCaptureSignal_t input, TIM_TypeDef *TIMx );
+hal_ic_hard_pwmic_irq_handler( InputCaptureSignal_t input, TIM_TypeDef *TIMx );
 
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
-hal_hard_ic_init( void )
+hal_ic_hard_init( void )
 {
     memset( &fan_state, 0, sizeof( fan_state ) );
     memset( &ic_values, 0, sizeof( ic_values ) );
 
-    hal_setup_capture( HAL_HARD_IC_FAN_HALL );
-    hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_1 );
-    hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_2 );
-    hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_3 );
-    hal_setup_capture( HAL_HARD_IC_HLFB_SERVO_4 );
+    hal_setup_capture( HAL_IC_HARD_FAN_HALL );
+    hal_setup_capture( HAL_IC_HARD_HLFB_SERVO_1 );
+    hal_setup_capture( HAL_IC_HARD_HLFB_SERVO_2 );
+    hal_setup_capture( HAL_IC_HARD_HLFB_SERVO_3 );
+    hal_setup_capture( HAL_IC_HARD_HLFB_SERVO_4 );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -70,7 +70,7 @@ hal_setup_capture( uint8_t input )
 {
     switch( input )
     {
-        case HAL_HARD_IC_HLFB_SERVO_1:
+        case HAL_IC_HARD_HLFB_SERVO_1:
             // TIM3 or TIM8
 
 #ifdef HLFB_TIM_3
@@ -81,7 +81,7 @@ hal_setup_capture( uint8_t input )
             NVIC_SetPriority( TIM3_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 2 ) );
             NVIC_EnableIRQ( TIM3_IRQn );
 
-            hal_hard_ic_configure_pwm_input( TIM3 );
+            hal_ic_hard_configure_pwm_input( TIM3 );
 #else
             LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_TIM8 );
 
@@ -90,11 +90,11 @@ hal_setup_capture( uint8_t input )
             NVIC_SetPriority( TIM8_CC_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 2 ) );
             NVIC_EnableIRQ( TIM8_CC_IRQn );
 
-            hal_hard_ic_configure_pwm_input( TIM8 );
+            hal_ic_hard_configure_pwm_input( TIM8 );
 #endif
             break;
 
-        case HAL_HARD_IC_HLFB_SERVO_2:
+        case HAL_IC_HARD_HLFB_SERVO_2:
             // TIM4
             LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_TIM4 );
 
@@ -103,10 +103,10 @@ hal_setup_capture( uint8_t input )
             NVIC_SetPriority( TIM4_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 2 ) );
             NVIC_EnableIRQ( TIM4_IRQn );
 
-            hal_hard_ic_configure_pwm_input( TIM4 );
+            hal_ic_hard_configure_pwm_input( TIM4 );
             break;
 
-        case HAL_HARD_IC_HLFB_SERVO_3:
+        case HAL_IC_HARD_HLFB_SERVO_3:
             // TIM1
             LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_TIM1 );
 
@@ -115,10 +115,10 @@ hal_setup_capture( uint8_t input )
             NVIC_SetPriority( TIM1_CC_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 2 ) );
             NVIC_EnableIRQ( TIM1_CC_IRQn );
 
-            hal_hard_ic_configure_pwm_input( TIM1 );
+            hal_ic_hard_configure_pwm_input( TIM1 );
             break;
 
-        case HAL_HARD_IC_HLFB_SERVO_4:
+        case HAL_IC_HARD_HLFB_SERVO_4:
             // TIM5
             LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_TIM5 );
 
@@ -127,10 +127,10 @@ hal_setup_capture( uint8_t input )
             NVIC_SetPriority( TIM5_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 2 ) );
             NVIC_EnableIRQ( TIM5_IRQn );
 
-            hal_hard_ic_configure_pwm_input( TIM5 );
+            hal_ic_hard_configure_pwm_input( TIM5 );
             break;
 
-        case HAL_HARD_IC_FAN_HALL:
+        case HAL_IC_HARD_FAN_HALL:
             //TIM9;
             LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_TIM9 );
 
@@ -184,7 +184,7 @@ hal_setup_capture( uint8_t input )
 }
 
 PRIVATE void
-hal_hard_ic_configure_pwm_input( TIM_TypeDef *TIMx )
+hal_ic_hard_configure_pwm_input( TIM_TypeDef *TIMx )
 {
     // Timer Clock Configuration
     LL_TIM_SetClockDivision( TIMx, LL_TIM_CLOCKDIVISION_DIV4 );
@@ -233,13 +233,13 @@ hal_hard_ic_configure_pwm_input( TIM_TypeDef *TIMx )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC uint32_t
-hal_hard_ic_read( InputCaptureSignal_t input )
+hal_ic_hard_read( InputCaptureSignal_t input )
 {
     return ic_values[input] / 100;
 }
 
 PUBLIC float
-hal_hard_ic_read_f( InputCaptureSignal_t input )
+hal_ic_hard_read_f( InputCaptureSignal_t input )
 {
     return (float)ic_values[input] / 100;
 }
@@ -247,7 +247,7 @@ hal_hard_ic_read_f( InputCaptureSignal_t input )
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void
-hal_hard_ic_pwmic_irq_handler( InputCaptureSignal_t input, TIM_TypeDef *TIMx )
+hal_ic_hard_pwmic_irq_handler( InputCaptureSignal_t input, TIM_TypeDef *TIMx )
 {
     if( LL_TIM_IsActiveFlag_CC1( TIMx ) )
     {
@@ -279,30 +279,30 @@ hal_hard_ic_pwmic_irq_handler( InputCaptureSignal_t input, TIM_TypeDef *TIMx )
 // Servo 1 HLFB
 void TIM8_CC_IRQHandler( void )
 {
-    hal_hard_ic_pwmic_irq_handler( HAL_HARD_IC_HLFB_SERVO_1, TIM8 );
+    hal_ic_hard_pwmic_irq_handler( HAL_IC_HARD_HLFB_SERVO_1, TIM8 );
 }
 
 void TIM3_IRQHandler( void )
 {
-    hal_hard_ic_pwmic_irq_handler( HAL_HARD_IC_HLFB_SERVO_1, TIM3 );
+    hal_ic_hard_pwmic_irq_handler( HAL_IC_HARD_HLFB_SERVO_1, TIM3 );
 }
 
 // Servo 2 HLFB
 void TIM4_IRQHandler( void )
 {
-    hal_hard_ic_pwmic_irq_handler( HAL_HARD_IC_HLFB_SERVO_2, TIM4 );
+    hal_ic_hard_pwmic_irq_handler( HAL_IC_HARD_HLFB_SERVO_2, TIM4 );
 }
 
 // Servo 3 HLFB
 void TIM1_CC_IRQHandler( void )
 {
-    hal_hard_ic_pwmic_irq_handler( HAL_HARD_IC_HLFB_SERVO_3, TIM1 );
+    hal_ic_hard_pwmic_irq_handler( HAL_IC_HARD_HLFB_SERVO_3, TIM1 );
 }
 
 // Servo 4 HLFB
 void TIM5_IRQHandler( void )
 {
-    hal_hard_ic_pwmic_irq_handler( HAL_HARD_IC_HLFB_SERVO_4, TIM5 );
+    hal_ic_hard_pwmic_irq_handler( HAL_IC_HARD_HLFB_SERVO_4, TIM5 );
 }
 
 // Fan Hall sensor
@@ -338,7 +338,7 @@ void TIM1_BRK_TIM9_IRQHandler( void )
             }
 
             // Calculate the signal frequency
-            ic_values[HAL_HARD_IC_FAN_HALL] = ( FAN_TIM_CLOCK * FAN_IC_PRESCALE * 100 )
+            ic_values[HAL_IC_HARD_FAN_HALL] = ( FAN_TIM_CLOCK * FAN_IC_PRESCALE * 100 )
                                               / ( cnt_delta * ( FAN_TIM_PRESCALE + 1 ) * FAN_IC_EDGES_PER_PERIOD );
 
             fan_state.first_edge_done = false;
