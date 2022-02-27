@@ -5,7 +5,7 @@
 #include "hal_adc.h"
 #include "hal_flashmem.h"
 #include "hal_gpio.h"
-#include "hal_hard_ic.h"
+#include "hal_ic_hard.h"
 #include "hal_reset.h"
 #include "hal_system_speed.h"
 #include "hal_systick.h"
@@ -49,7 +49,7 @@ app_hardware_init( void )
     hal_flashmem_init();
 
     hal_adc_init();
-    hal_hard_ic_init();
+    hal_ic_hard_init();
 
     user_interface_init();
     configuration_init();

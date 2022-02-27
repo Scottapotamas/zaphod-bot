@@ -1,5 +1,5 @@
-#ifndef HAL_HARD_IC_H
-#define HAL_HARD_IC_H
+#ifndef HAL_IC_HARD_H
+#define HAL_IC_HARD_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,18 +15,18 @@ extern "C" {
 
 typedef enum
 {
-    HAL_HARD_IC_HLFB_SERVO_1,
-    HAL_HARD_IC_HLFB_SERVO_2,
-    HAL_HARD_IC_HLFB_SERVO_3,
-    HAL_HARD_IC_HLFB_SERVO_4,
-    HAL_HARD_IC_FAN_HALL,
-    HAL_HARD_IC_NUM
+    HAL_IC_HARD_HLFB_SERVO_1,
+    HAL_IC_HARD_HLFB_SERVO_2,
+    HAL_IC_HARD_HLFB_SERVO_3,
+    HAL_IC_HARD_HLFB_SERVO_4,
+    HAL_IC_HARD_FAN_HALL,
+    HAL_IC_HARD_NUM
 } InputCaptureSignal_t;
 
 /* ----- Public Functions -------------------------------------------------- */
 
 PUBLIC void
-hal_hard_ic_init( void );
+hal_ic_hard_init( void );
 
 /* -------------------------------------------------------------------------- */
 
@@ -36,12 +36,12 @@ hal_setup_capture( uint8_t input );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC uint32_t
-hal_hard_ic_read( InputCaptureSignal_t input );
+hal_ic_hard_read( InputCaptureSignal_t input );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC float
-hal_hard_ic_read_f( InputCaptureSignal_t input );
+hal_ic_hard_read_f( InputCaptureSignal_t input );
 
 /* -------------------------------------------------------------------------- */
 
@@ -58,4 +58,4 @@ void TIM1_BRK_TIM9_IRQHandler( void );
 }
 #endif
 
-#endif /* HAL_HARD_IC_H */
+#endif /* HAL_IC_HARD_H */

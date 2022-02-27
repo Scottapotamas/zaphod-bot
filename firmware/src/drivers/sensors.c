@@ -4,7 +4,7 @@
 #include "app_times.h"
 #include "configuration.h"
 #include "hal_adc.h"
-#include "hal_hard_ic.h"
+#include "hal_ic_hard.h"
 #include "hal_power.h"
 #include "hal_temperature.h"
 #include "user_interface.h"
@@ -140,7 +140,7 @@ sensors_fan_speed_RPM( void )
 {
     // 1hz = 60rpm
     // two hall pulses per revolution
-    float    hall_frequency = hal_hard_ic_read_f( HAL_HARD_IC_FAN_HALL );
+    float    hall_frequency = hal_ic_hard_read_f( HAL_IC_HARD_FAN_HALL );
     uint16_t rpm            = 60 * ( hall_frequency / 2 );
 
     user_interface_set_fan_rpm( rpm );
