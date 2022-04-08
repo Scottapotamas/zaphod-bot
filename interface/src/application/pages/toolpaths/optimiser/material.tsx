@@ -64,28 +64,43 @@ export const defaultTransitionMaterial = new InvisibleMaterial([
 ])
 
 export function importMaterial(json: MaterialJSON) {
-  switch (json.type) {
-    case MATERIALS.COLOR:
-      return importColorMaterial(json)
-    case MATERIALS.COLOR_RAMP:
-      return importColorRampMaterial(json)
-    case MATERIALS.VELOCITY:
-      return importVelocityMaterial(json)
-    case MATERIALS.INVISIBLE:
-      return importInvisibleMaterial(json)
-    case MATERIALS.RANDOM:
-      return importRandomColorMaterial(json)
-    case MATERIALS.FLICKER:
-      return importFlickerMaterial(json)
-    case MATERIALS.Z_GRADIENT:
-      return importZGradientMaterial(json)
-    case MATERIALS.Z_DEPTH:
-      return importZDepthMaterial(json)
-    case MATERIALS.BLEND:
-      return importBlendMaterial(json)
+  try {
+    if (!json.type) {
+      console.log(json)
+      throw new Error(`Error importing material, no material type defined`)
+    }
 
-    default:
-      throw new Error(`Error importing material, unknown type ${json['type']}`)
+    switch (json.type) {
+      case MATERIALS.COLOR:
+        return importColorMaterial(json)
+      case MATERIALS.COLOR_RAMP:
+        return importColorRampMaterial(json)
+      case MATERIALS.VELOCITY:
+        return importVelocityMaterial(json)
+      case MATERIALS.INVISIBLE:
+        return importInvisibleMaterial(json)
+      case MATERIALS.RANDOM:
+        return importRandomColorMaterial(json)
+      case MATERIALS.FLICKER:
+        return importFlickerMaterial(json)
+      case MATERIALS.Z_GRADIENT:
+        return importZGradientMaterial(json)
+      case MATERIALS.Z_DEPTH:
+        return importZDepthMaterial(json)
+      case MATERIALS.BLEND:
+        return importBlendMaterial(json)
+
+      default:
+        throw new Error(
+          `Error importing material, unknown type ${json['type']}`,
+        )
+    }
+  } catch (e) {
+    console.error(e)
+    return importInvisibleMaterial({
+      type: MATERIALS.INVISIBLE,
+      color: [0, 0, 0, 0],
+    })
   }
 }
 
