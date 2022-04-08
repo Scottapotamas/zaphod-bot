@@ -616,6 +616,29 @@ function HideLightIfBlackControl() {
   return <Checkbox checked={setting} onChange={handleClick} />
 }
 
+function HideParticleIfOccludedControl() {
+  const [setting, set] = useState(
+    getSetting(state => state.settings.objectSettings.particles.hideIfOccluded),
+  )
+
+  const updateSetting = useCallback(setting => {
+    setSetting(state => {
+      state.settings.objectSettings.particles.hideIfOccluded = setting
+    })
+  }, [])
+
+  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
+    event => {
+      const checked = (event.target as HTMLInputElement).checked
+      set(checked)
+      updateSetting(checked)
+    },
+    [],
+  )
+
+  return <Checkbox checked={setting} onChange={handleClick} />
+}
+
 function DrawFrustumAlignmentControl() {
   const [setting, set] = useState(
     getSetting(
@@ -830,6 +853,7 @@ function ParticlesTab() {
       On Duration <ParticleOnDurationControl />
       Post Wait <ParticlePostWaitDurationControl />
       Draw in Velocity Orientation <DrawParticlesInVelocityOrientationControl />
+      Hide if Occluded <HideParticleIfOccludedControl />
     </Composition>
   )
 }
@@ -905,8 +929,8 @@ export const PlannerSettingsInterface = () => {
         <Tab id={TABS.LINE} title="Lines" panel={<LineTab />} />
         <Tabs.Expander />
         <Tab
-        id={TABS.GEOMETRY}
-        title="Geometry"
+          id={TABS.GEOMETRY}
+          title="Geometry"
           panel={
             <div>
               <RenderableTree />

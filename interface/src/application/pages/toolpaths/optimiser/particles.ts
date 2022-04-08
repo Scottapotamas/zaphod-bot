@@ -19,6 +19,7 @@ export interface Particle {
   location: [number, number, number]
   quaternion: [number, number, number, number]
   velocity: [number, number, number]
+  occluded: boolean
 }
 
 export class ParticleSystem {
@@ -43,6 +44,13 @@ export interface ParticlesToMovementsSettings {
 
   // Pass through the point in the direction of its velocity, otherwise, stops at it from any direction.
   drawInVelocityOrientation?: boolean
+
+  /**
+   * If the particle is occluded, don't render it at all.
+   *
+   * Note this takes precidence even over material overrides, due to pipeline dependency requirements.
+   */
+  hideIfOccluded?: boolean
 }
 
 export class Particles {
@@ -107,6 +115,10 @@ export class Particles {
           [this.name, objectID],
         )
 
+        if (settings.objectSettings.particles.hideIfOccluded) {
+          continue
+        }
+
         // Convert the location to a Vector3
         const location = new Vector3(
           particle.location[0],
@@ -157,6 +169,7 @@ export interface ParticlesJSON {
       location: [number, number, number]
       quaternion: [number, number, number, number]
       velocity: [number, number, number]
+      occluded: boolean
     }[]
   }[]
 }
