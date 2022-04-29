@@ -722,6 +722,7 @@ export class Transition extends Movement {
     public from: Movement,
     public to: Movement,
     public material: Material,
+    private transitionSize: number,
   ) {
     super()
   }
@@ -741,10 +742,18 @@ export class Transition extends Movement {
       this.getStart(),
       this.getStart()
         .clone()
-        .add(this.getDesiredEntryVelocity().clone().multiplyScalar(0.1)),
+        .add(
+          this.getDesiredEntryVelocity()
+            .clone()
+            .multiplyScalar(this.transitionSize),
+        ),
       this.getEnd()
         .clone()
-        .sub(this.getExpectedExitVelocity().clone().multiplyScalar(0.1)),
+        .sub(
+          this.getExpectedExitVelocity()
+            .clone()
+            .multiplyScalar(this.transitionSize),
+        ),
       this.getEnd(),
     )
 
@@ -839,11 +848,19 @@ export class Transition extends Movement {
         this.getStart().toArray(),
         this.getStart()
           .clone()
-          .add(this.getDesiredEntryVelocity().clone().multiplyScalar(0.1))
+          .add(
+            this.getDesiredEntryVelocity()
+              .clone()
+              .multiplyScalar(this.transitionSize),
+          )
           .toArray(),
         this.getEnd()
           .clone()
-          .sub(this.getExpectedExitVelocity().clone().multiplyScalar(0.1))
+          .sub(
+            this.getExpectedExitVelocity()
+              .clone()
+              .multiplyScalar(this.transitionSize),
+          )
           .toArray(),
         this.getEnd().toArray(),
       ],
@@ -857,10 +874,18 @@ export class Transition extends Movement {
       this.getStart(),
       this.getStart()
         .clone()
-        .add(this.getDesiredEntryVelocity().clone().multiplyScalar(0.1)),
+        .add(
+          this.getDesiredEntryVelocity()
+            .clone()
+            .multiplyScalar(this.transitionSize),
+        ),
       this.getEnd()
         .clone()
-        .sub(this.getExpectedExitVelocity().clone().multiplyScalar(0.1)),
+        .sub(
+          this.getExpectedExitVelocity()
+            .clone()
+            .multiplyScalar(this.transitionSize),
+        ),
       this.getEnd(),
     ])
   }

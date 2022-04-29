@@ -64,6 +64,7 @@ export const defaultSettings: Settings = {
     smoothInterlineTransitions: false,
     lineRunUp: 0,
     disableShapedTransitions: false,
+    transitionSize: 0.01,
   },
 
   // Tools for debugging
