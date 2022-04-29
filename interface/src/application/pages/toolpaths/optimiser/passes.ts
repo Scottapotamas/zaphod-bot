@@ -264,6 +264,7 @@ export function sparseToDense(
         previousMovement,
         runUp,
         defaultTransitionMaterial,
+        settings.optimisation.transitionSize,
       )
       transition.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
 
@@ -306,6 +307,7 @@ export function sparseToDense(
       previousMovement,
       movement,
       defaultTransitionMaterial,
+      settings.optimisation.transitionSize,
     )
     transition.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
 

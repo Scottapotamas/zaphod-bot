@@ -61,6 +61,11 @@ export interface OptimisationSettings {
    */
   disableShapedTransitions: boolean
 
+  /**
+   * How long the transitions should go out from the lines
+   */
+  transitionSize: number
+
   maxSpeed: number // mm/s
   transitionMaxSpeed: number // mm/s
 }

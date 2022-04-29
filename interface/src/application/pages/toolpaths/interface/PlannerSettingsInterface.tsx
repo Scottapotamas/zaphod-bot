@@ -477,6 +477,41 @@ function TransitionMaxSpeedControl() {
   )
 }
 
+function TransitionSizeControl() {
+  const [localSpeed, setLocalSpeed] = useState(
+    getSetting(state => state.settings.optimisation.transitionSize),
+  )
+
+  const updateTransitionMaxSpeed = useCallback(newTransitionMaxSpeed => {
+    setSetting(state => {
+      state.settings.optimisation.transitionSize = Math.max(
+        newTransitionMaxSpeed,
+        0,
+      )
+    })
+  }, [])
+
+  const setAndUpdateTransitionMaxSpeed = useCallback(newTransitionMaxSpeed => {
+    setLocalSpeed(newTransitionMaxSpeed)
+    updateTransitionMaxSpeed(newTransitionMaxSpeed)
+  }, [])
+
+  return (
+    <NumericInput
+      fill
+      min={0}
+      max={0.5}
+      stepSize={0.01}
+      minorStepSize={0.001}
+      majorStepSize={0.1}
+      value={localSpeed}
+      onValueChange={setAndUpdateTransitionMaxSpeed}
+      rightElement={<Tag>mm</Tag>}
+      style={{ width: '100%' }}
+    />
+  )
+}
+
 function LightFadeOffsetControl() {
   const [setting, set] = useState(
     getSetting(state => state.settings.lightFadeOffset),
@@ -818,6 +853,7 @@ function GeneralTab() {
     <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
       Max Speed <MaxSpeedControl />
       Max Transition <TransitionMaxSpeedControl />
+      TransitionSize <TransitionSizeControl />
       Wait before Start <WaitAtStartDurationControl />
       LightFade Offset <LightFadeOffsetControl />
       Disable Shaped Transitions <DisableShapedTransitionsControl />
