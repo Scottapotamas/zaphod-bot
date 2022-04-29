@@ -1,7 +1,12 @@
 import { MathUtils, Vector3 } from 'three'
 import { NodeID } from '../../interface/RenderableTree'
 import { useStore, VisualisationSettings } from '../../interface/state'
-import { AddComponentCallback, Movement, MOVEMENT_TYPE } from '../movements'
+import {
+  AddComponentCallback,
+  Movement,
+  MOVEMENT_TYPE,
+  RGB,
+} from '../movements'
 import { Intent, Tag } from '@blueprintjs/core'
 import { Html } from '@react-three/drei'
 import React from 'react'
@@ -88,6 +93,8 @@ export function lerpRGB(
   b: [r: number, g: number, b: number],
   t: number,
 ) {
+  return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2] as RGB
+
   const tClamped = MathUtils.clamp(t, 0, 1)
   const [hA, sA, iA] = rgbToHsi(a[0], a[1], a[2])
   const [hB, sB, iB] = rgbToHsi(b[0], b[1], b[2])
@@ -199,7 +206,11 @@ export function generateHtmlTagFromAveragePosition(
   return component
 }
 
-function TagThatHidesWhenNotInList(props: { intent: Intent; text: string }) {
+function TagThatHidesWhenNotInList(props: {
+  objectID: NodeID
+  intent: Intent
+  text: string
+}) {
   const isHidden = useStore(state => {
     // If nothing is hovered, display everything
     if (state.treeStore.hoveredObjectIDs.length === 0) {
