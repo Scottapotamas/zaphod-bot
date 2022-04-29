@@ -269,9 +269,9 @@ export function SendToolpath() {
   const sendCapture = useCallback(
     async (duration: number) => {
       const cancellationToken = new CancellationToken()
-      const syncMessage = new Message(MSGID.CAPTURE, duration)
+      const captureMessage = new Message(MSGID.CAPTURE, duration)
       console.log(`Capturing for ${duration}ms`)
-      await sendMessage(syncMessage, cancellationToken)
+      await sendMessage(captureMessage, cancellationToken)
     },
     [sendMessage],
   )

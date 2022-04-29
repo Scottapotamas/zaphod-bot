@@ -53,7 +53,6 @@ export function invisibleLightFade(duration: number) {
     duration: duration,
     type: LightMoveType.IMMEDIATE,
     points: [[0, 0, 0]], // Set a light move of the LED being off
-    num_points: 1,
   }
   return fade
 }
@@ -103,7 +102,7 @@ export class InvisibleMaterial extends Material {
       movement.type === MOVEMENT_TYPE.LINE ||
       movement.type === MOVEMENT_TYPE.POINT
         ? 1
-        : Math.ceil(movement.getLength() / 5)
+        : Math.max(Math.ceil(movement.getLength() / 5), 6)
 
     // For the number of segments,
     for (let index = 0; index < numSegments; index++) {
