@@ -5,6 +5,7 @@ import {
   Quaternion,
   Euler,
   MathUtils,
+  Plane,
 } from 'three'
 import { NodeInfo, NodeTypes } from '../interface/RenderableTree'
 import { TreeNodeInfo } from '@blueprintjs/core'
@@ -145,29 +146,106 @@ export class Camera {
       const grey = new SimpleColorMaterial([0.4, 0.4, 0.4])
       const red = new SimpleColorMaterial([0.4, 0.0, 0.0])
       const green = new SimpleColorMaterial([0.0, 0.4, 0.0])
-      const blue = new SimpleColorMaterial([0.0, 0.0, 0.4])
+      const yellow = new SimpleColorMaterial([0.4, 0.4, 0.0])
       const black = new SimpleColorMaterial([0.0, 0.0, 0.0])
       const objectID = `${this.name}-alignment`
 
-      // A line toward camera
+      // From the center
+      const center = new Vector3(0, 0, 100)
 
+      // A line toward camera, from the center
       const directionOfCamera = new Vector3(
         this.position[0],
         this.position[1],
         this.position[2],
-      ).normalize()
+      )
+        .sub(center)
+        .normalize()
 
-      const center = new Vector3(0, 0, 100)
+      // Generate the quaternion of the rotation of the camera's position relative to the point
+      const directionEuler = new Euler(
+        directionOfCamera.x,
+        directionOfCamera.y,
+        directionOfCamera.z,
+      )
+
+      function align(index: number) {
+        const right = directionOfCamera
+          .clone()
+          .cross(new Vector3(0, 0, 1))
+          .normalize()
+
+        const up = directionOfCamera
+          .clone()
+          .cross(new Vector3(0, 1, 0))
+          .normalize()
+
+        switch (index) {
+          case 0:
+            return right.multiplyScalar(-squareSize).add(up.multiplyScalar(-squareSize)) // prettier-ignore
+          case 1:
+            return right.multiplyScalar(-squareSize).add(up.multiplyScalar(squareSize)) // prettier-ignore
+          case 2:
+            return right.multiplyScalar(squareSize).add(up.multiplyScalar(squareSize)) // prettier-ignore
+          case 3:
+            return right.multiplyScalar(squareSize).add(up.multiplyScalar(-squareSize)) // prettier-ignore
+        }
+
+        return new Vector3(0, 0, 0)
+      }
+
+      // Square points at center, aimed 'at' the camera
+      const squareSize = 25
+
+      const behindCamera50 = center.clone().add(directionOfCamera.clone().multiplyScalar(-50)) // prettier-ignore
+
+      const pointA = align(0).add(behindCamera50) // prettier-ignore
+      const pointB = align(1).add(behindCamera50) // prettier-ignore
+      const pointC = align(2).add(behindCamera50) // prettier-ignore
+      const pointD = align(3).add(behindCamera50) // prettier-ignore
+
+      // Square points at center
+      const pointE = align(0).add(center) // prettier-ignore
+      const pointF = align(1).add(center) // prettier-ignore
+      const pointG = align(2).add(center) // prettier-ignore
+      const pointH = align(3).add(center) // prettier-ignore
+
+      const towardCamera50 = center.clone().add(directionOfCamera.clone().multiplyScalar(50)) // prettier-ignore
+
+      // Cross 50mm toward camera, aimed at camera
+      const pointI = align(0).add(towardCamera50) // prettier-ignore
+      const pointJ = align(1).add(towardCamera50) // prettier-ignore
+      const pointK = align(2).add(towardCamera50) // prettier-ignore
+      const pointL = align(3).add(towardCamera50) // prettier-ignore
+
+      // Square at center
+      addMovement(new Line( pointA, pointB, red, objectID)) // prettier-ignore
+      addMovement(new Line( pointB, pointC, red, objectID)) // prettier-ignore
+      addMovement(new Line( pointC, pointD, red, objectID)) // prettier-ignore
+      addMovement(new Line( pointD, pointA, red, objectID)) // prettier-ignore
+
+      // Square at 50mm toward camera
+      addMovement(new Line( pointE, pointF, green, objectID)) // prettier-ignore
+      addMovement(new Line( pointF, pointG, green, objectID)) // prettier-ignore
+      addMovement(new Line( pointG, pointH, green, objectID)) // prettier-ignore
+      addMovement(new Line( pointH, pointE, green, objectID)) // prettier-ignore
+
+      // Cross 100mm toward camera
+      addMovement(new Line( pointI, pointK, yellow, objectID)) // prettier-ignore
+      addMovement(new Line( pointJ, pointL, yellow, objectID)) // prettier-ignore
+
+      // Dot at center
+      addMovement(new Line( center, center.clone().add(directionOfCamera.clone().multiplyScalar(1)), grey, objectID)) // prettier-ignore
 
       // A 50mm line from 100mm up (the center of the draw volume) aimed directly at the camera
-      addMovement(
-        new Line(
-          center.clone().add(directionOfCamera.clone().multiplyScalar(10)),
-          center.clone().add(directionOfCamera.clone().multiplyScalar(60)),
-          grey,
-          objectID,
-        ),
-      )
+      // addMovement(
+      //   new Line(
+      //     center.clone().add(directionOfCamera.clone().multiplyScalar(10)),
+      //     center.clone().add(directionOfCamera.clone().multiplyScalar(60)),
+      //     grey,
+      //     objectID,
+      //   ),
+      // )
 
       // Add a 10mm line in the direction of the camera's quaternion for debugging
       const blenderCameraOrientation = new Quaternion(
@@ -175,47 +253,6 @@ export class Camera {
         this.quaternion[1],
         this.quaternion[2],
         this.quaternion[3],
-      )
-      const xVec = new Vector3(1, 0, 0)
-      xVec.applyQuaternion(blenderCameraOrientation)
-      const yVec = new Vector3(0, 1, 0)
-      yVec.applyQuaternion(blenderCameraOrientation)
-      const zVec = new Vector3(0, 0, 1)
-      zVec.applyQuaternion(blenderCameraOrientation)
-
-      addMovement(
-        new Line(
-          center.clone().add(xVec.clone().multiplyScalar(0)),
-          center.clone().add(xVec.clone().multiplyScalar(10)),
-          red,
-          objectID,
-        ),
-      )
-      addMovement(
-        new Line(
-          center.clone().add(yVec.clone().multiplyScalar(0)),
-          center.clone().add(yVec.clone().multiplyScalar(10)),
-          green,
-          objectID,
-        ),
-      )
-      addMovement(
-        new Line(
-          center.clone().add(zVec.clone().multiplyScalar(0)),
-          center.clone().add(zVec.clone().multiplyScalar(10)),
-          blue,
-          objectID,
-        ),
-      )
-
-      // The camera should aim at the end point of this line
-      addMovement(
-        new Line(
-          center.clone().add(zVec.clone().multiplyScalar(0)),
-          center.clone().add(zVec.clone().multiplyScalar(-20)),
-          black,
-          objectID,
-        ),
       )
     }
 
