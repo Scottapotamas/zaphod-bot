@@ -99,7 +99,7 @@ export abstract class Material {
       movement.type === MOVEMENT_TYPE.LINE ||
       movement.type === MOVEMENT_TYPE.POINT
         ? 1
-        : Math.ceil(movement.getLength() / 2)
+        : Math.max(Math.ceil(movement.getLength() / 2), 10)
 
     // For the number of segments,
     for (let index = 0; index < numSegments; index++) {

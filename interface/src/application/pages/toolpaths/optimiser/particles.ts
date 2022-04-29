@@ -115,7 +115,10 @@ export class Particles {
           [this.name, objectID],
         )
 
-        if (settings.objectSettings.particles.hideIfOccluded) {
+        if (
+          settings.objectSettings.particles.hideIfOccluded &&
+          particle.occluded
+        ) {
           continue
         }
 
