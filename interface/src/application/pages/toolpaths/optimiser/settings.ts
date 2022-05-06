@@ -30,7 +30,7 @@ export interface Settings {
   optimisation: OptimisationSettings
 
   // Tools for debugging
-  lightFadeOffset: 0
+  lightFadeOffset: number
 }
 
 export interface OptimisationSettings {

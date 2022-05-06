@@ -93,33 +93,39 @@ export function lerpRGB(
   b: [r: number, g: number, b: number],
   t: number,
 ) {
-  return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2] as RGB
+  return [
+    MathUtils.lerp(a[0], b[0], t),
+    MathUtils.lerp(a[1], b[1], t),
+    MathUtils.lerp(a[2], b[2], t),
+  ] as RGB
 
-  const tClamped = MathUtils.clamp(t, 0, 1)
-  const [hA, sA, iA] = rgbToHsi(a[0], a[1], a[2])
-  const [hB, sB, iB] = rgbToHsi(b[0], b[1], b[2])
+  // return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2] as RGB
 
-  const distanceCCW = hA >= hB ? hA - hB : 1 + hA - hB
-  const distanceCW = hA >= hB ? 1 + hB - hA : hB - hA
+  // const tClamped = MathUtils.clamp(t, 0, 1)
+  // const [hA, sA, iA] = rgbToHsi(a[0], a[1], a[2])
+  // const [hB, sB, iB] = rgbToHsi(b[0], b[1], b[2])
 
-  let h =
-    distanceCW <= distanceCCW
-      ? hB + distanceCW * tClamped
-      : hB - distanceCCW * tClamped
+  // const distanceCCW = hA >= hB ? hA - hB : 1 + hA - hB
+  // const distanceCW = hA >= hB ? 1 + hB - hA : hB - hA
 
-  //handle wrapping around
-  if (h < 0) {
-    h += 1
-  }
+  // let h =
+  //   distanceCW <= distanceCCW
+  //     ? hB + distanceCW * tClamped
+  //     : hB - distanceCCW * tClamped
 
-  if (h > 1) {
-    h -= 1
-  }
+  // //handle wrapping around
+  // if (h < 0) {
+  //   h += 1
+  // }
 
-  const s = sA + tClamped * (sB - sA)
-  const i = iA + tClamped * (iB - iA)
+  // if (h > 1) {
+  //   h -= 1
+  // }
 
-  return hsiToRgb(h, s, i)
+  // const s = sA + tClamped * (sB - sA)
+  // const i = iA + tClamped * (iB - iA)
+
+  // return hsiToRgb(h, s, i)
 }
 
 export function movementTypeToLetter(movement: Movement) {
