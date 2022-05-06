@@ -56,19 +56,19 @@ export const defaultSettings: Settings = {
   skippedObjects: {},
 
   optimisation: {
-    maxSpeed: 250,
-    transitionMaxSpeed: 250,
+    maxSpeed: 150,
+    transitionMaxSpeed: 150,
     waitAtStartDuration: 1000,
     interLineTransitionAngle: 50,
     interLineTransitionShaveDistance: 5,
     smoothInterlineTransitions: false,
-    lineRunUp: 0,
+    lineRunUp: 0.25,
     disableShapedTransitions: false,
-    transitionSize: 0.01,
+    transitionSize: 0.04,
   },
 
   // Tools for debugging
-  lightFadeOffset: 0,
+  lightFadeOffset: 7,
 }
 
 /**
