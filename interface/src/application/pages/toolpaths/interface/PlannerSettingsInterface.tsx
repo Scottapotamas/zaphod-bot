@@ -747,6 +747,31 @@ function DrawCalibrationChartControl() {
   return <Checkbox checked={setting} onChange={handleClick} />
 }
 
+function DrawExtrinsicCalibrationHelpersControl() {
+  const [setting, set] = useState(
+    getSetting(
+      state => state.settings.objectSettings.camera.drawExtrinsicCalibrators,
+    ),
+  )
+
+  const updateSetting = useCallback(setting => {
+    setSetting(state => {
+      state.settings.objectSettings.camera.drawExtrinsicCalibrators = setting
+    })
+  }, [])
+
+  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
+    event => {
+      const checked = (event.target as HTMLInputElement).checked
+      set(checked)
+      updateSetting(checked)
+    },
+    [],
+  )
+
+  return <Checkbox checked={setting} onChange={handleClick} />
+}
+
 function DrawParticlesInVelocityOrientationControl() {
   const [setting, set] = useState(
     getSetting(
@@ -870,6 +895,7 @@ function CameraHelpersTab() {
     <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
       Draw Ruler <DrawRulersControl />
       Draw Frustum Alignment <DrawFrustumAlignmentControl />
+      Draw Extrinsic Calibrators <DrawExtrinsicCalibrationHelpersControl />
       Draw Calibration Chart <DrawCalibrationChartControl />
       Enable duration override <CameraDurationOverrideControl />
       {cameraDurationOverrideEnabled ? (
