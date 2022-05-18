@@ -45,6 +45,7 @@ export const defaultSettings: Settings = {
     },
     camera: {
       drawAlignmentHelpers: false,
+      drawExtrinsicCalibrators: false,
       drawRulers: false,
       drawColorCalibrationChart: false,
     },
@@ -62,7 +63,7 @@ export const defaultSettings: Settings = {
     interLineTransitionAngle: 50,
     interLineTransitionShaveDistance: 5,
     smoothInterlineTransitions: false,
-    lineRunUp: 0.25,
+    lineRunUp: 0,
     disableShapedTransitions: false,
     transitionSize: 0.04,
   },

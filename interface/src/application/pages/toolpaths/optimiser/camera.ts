@@ -22,6 +22,8 @@ import { optimalFlippingForTour } from './passes'
 export interface CameraToMovementsSettings {
   // Whether to draw alignment helpers in real space
   drawAlignmentHelpers?: boolean
+  // Whether to draw the extrinsic calibration rects
+  drawExtrinsicCalibrators?: boolean
   // Enable rulers for debugging
   drawRulers?: boolean
   // Enable coloured lines for debugging
@@ -140,6 +142,25 @@ export class Camera {
           ),
         )
       }
+    }
+
+    if (settings.objectSettings.camera.drawExtrinsicCalibrators) {
+      const red = new SimpleColorMaterial([0.4, 0.0, 0.0])
+      const green = new SimpleColorMaterial([0.0, 0.4, 0.0])
+
+      const objectID = `${this.name}-calibration`
+
+      // Red rect
+      addMovement(new Line( new Vector3(200, 0,  50),  new Vector3(10,  0,  50), red, objectID)) // prettier-ignore
+      addMovement(new Line( new Vector3(10,  0,  50),  new Vector3(10,  0, 150), red, objectID)) // prettier-ignore
+      addMovement(new Line( new Vector3(200, 0, 150),  new Vector3(10,  0, 150), red, objectID)) // prettier-ignore
+      addMovement(new Line( new Vector3(200, 0,  50),  new Vector3(200, 0, 150), red, objectID)) // prettier-ignore
+
+      // green rect
+      addMovement(new Line( new Vector3(0, 200,  50),  new Vector3(0, 10,   50), green, objectID)) // prettier-ignore
+      addMovement(new Line( new Vector3(0, 10,   50),  new Vector3(0, 10,  150), green, objectID)) // prettier-ignore
+      addMovement(new Line( new Vector3(0, 200, 150),  new Vector3(0, 10,  150), green, objectID)) // prettier-ignore
+      addMovement(new Line( new Vector3(0, 200,  50),  new Vector3(0, 200, 150), green, objectID)) // prettier-ignore
     }
 
     if (settings.objectSettings.camera.drawAlignmentHelpers) {
