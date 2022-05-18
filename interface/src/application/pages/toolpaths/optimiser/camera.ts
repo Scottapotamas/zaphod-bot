@@ -151,16 +151,16 @@ export class Camera {
       const objectID = `${this.name}-calibration`
 
       // Red rect
-      addMovement(new Line( new Vector3(200, 0,  50),  new Vector3(10,  0,  50), red, objectID)) // prettier-ignore
+      addMovement(new Line( new Vector3(150, 0,  50),  new Vector3(10,  0,  50), red, objectID)) // prettier-ignore
       addMovement(new Line( new Vector3(10,  0,  50),  new Vector3(10,  0, 150), red, objectID)) // prettier-ignore
-      addMovement(new Line( new Vector3(200, 0, 150),  new Vector3(10,  0, 150), red, objectID)) // prettier-ignore
-      addMovement(new Line( new Vector3(200, 0,  50),  new Vector3(200, 0, 150), red, objectID)) // prettier-ignore
+      addMovement(new Line( new Vector3(150, 0, 150),  new Vector3(10,  0, 150), red, objectID)) // prettier-ignore
+      addMovement(new Line( new Vector3(150, 0,  50),  new Vector3(150, 0, 150), red, objectID)) // prettier-ignore
 
       // green rect
-      addMovement(new Line( new Vector3(0, 200,  50),  new Vector3(0, 10,   50), green, objectID)) // prettier-ignore
+      addMovement(new Line( new Vector3(0, 150,  50),  new Vector3(0, 10,   50), green, objectID)) // prettier-ignore
       addMovement(new Line( new Vector3(0, 10,   50),  new Vector3(0, 10,  150), green, objectID)) // prettier-ignore
-      addMovement(new Line( new Vector3(0, 200, 150),  new Vector3(0, 10,  150), green, objectID)) // prettier-ignore
-      addMovement(new Line( new Vector3(0, 200,  50),  new Vector3(0, 200, 150), green, objectID)) // prettier-ignore
+      addMovement(new Line( new Vector3(0, 150, 150),  new Vector3(0, 10,  150), green, objectID)) // prettier-ignore
+      addMovement(new Line( new Vector3(0, 150,  50),  new Vector3(0, 150, 150), green, objectID)) // prettier-ignore
     }
 
     if (settings.objectSettings.camera.drawAlignmentHelpers) {
