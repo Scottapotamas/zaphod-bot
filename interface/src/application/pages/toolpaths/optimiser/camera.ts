@@ -147,20 +147,38 @@ export class Camera {
     if (settings.objectSettings.camera.drawExtrinsicCalibrators) {
       const red = new SimpleColorMaterial([0.4, 0.0, 0.0])
       const green = new SimpleColorMaterial([0.0, 0.4, 0.0])
+      const grey = new SimpleColorMaterial([0.4, 0.4, 0.4])
 
       const objectID = `${this.name}-calibration`
 
+      const moves = []
+
       // Red rect
-      addMovement(new Line( new Vector3(150, 0,  50),  new Vector3(10,  0,  50), red, objectID)) // prettier-ignore
-      addMovement(new Line( new Vector3(10,  0,  50),  new Vector3(10,  0, 150), red, objectID)) // prettier-ignore
-      addMovement(new Line( new Vector3(150, 0, 150),  new Vector3(10,  0, 150), red, objectID)) // prettier-ignore
-      addMovement(new Line( new Vector3(150, 0,  50),  new Vector3(150, 0, 150), red, objectID)) // prettier-ignore
+      moves.push(new Line( new Vector3(150, 0,  50),  new Vector3(10,  0,  50), red, objectID)) // prettier-ignore
+      moves.push(new Line( new Vector3(10,  0,  50),  new Vector3(10,  0, 150), red, objectID)) // prettier-ignore
+      moves.push(new Line( new Vector3(150, 0, 150),  new Vector3(10,  0, 150), red, objectID)) // prettier-ignore
+      moves.push(new Line( new Vector3(150, 0,  50),  new Vector3(150, 0, 150), red, objectID)) // prettier-ignore
 
       // green rect
-      addMovement(new Line( new Vector3(0, 150,  50),  new Vector3(0, 10,   50), green, objectID)) // prettier-ignore
-      addMovement(new Line( new Vector3(0, 10,   50),  new Vector3(0, 10,  150), green, objectID)) // prettier-ignore
-      addMovement(new Line( new Vector3(0, 150, 150),  new Vector3(0, 10,  150), green, objectID)) // prettier-ignore
-      addMovement(new Line( new Vector3(0, 150,  50),  new Vector3(0, 150, 150), green, objectID)) // prettier-ignore
+      moves.push(new Line( new Vector3(0, 150,  50),  new Vector3(0, 10,   50), green, objectID)) // prettier-ignore
+      moves.push(new Line( new Vector3(0, 10,   50),  new Vector3(0, 10,  150), green, objectID)) // prettier-ignore
+      moves.push(new Line( new Vector3(0, 150, 150),  new Vector3(0, 10,  150), green, objectID)) // prettier-ignore
+      moves.push(new Line( new Vector3(0, 150,  50),  new Vector3(0, 150, 150), green, objectID)) // prettier-ignore
+
+      moves.forEach(move => {
+        // We need slow, exact moves, no matter the settings
+        move.setMaxSpeed(75)
+        move.lockSpeed = true
+
+        // Add the movement to the list
+        addMovement(move)
+      })
+
+      // Do an extremely slow and careful move at the very bottom to mark the origin
+      const bottom = new Line( new Vector3(0, 0, 0),  new Vector3(0, 0, 10), grey, objectID) // prettier-ignore
+      bottom.setMaxSpeed(25)
+      bottom.lockSpeed = true
+      addMovement(bottom)
     }
 
     if (settings.objectSettings.camera.drawAlignmentHelpers) {
@@ -182,13 +200,6 @@ export class Camera {
       )
         .sub(center)
         .normalize()
-
-      // Generate the quaternion of the rotation of the camera's position relative to the point
-      const directionEuler = new Euler(
-        directionOfCamera.x,
-        directionOfCamera.y,
-        directionOfCamera.z,
-      )
 
       function align(index: number) {
         const right = directionOfCamera
@@ -257,24 +268,6 @@ export class Camera {
 
       // Dot at center
       addMovement(new Line( center, center.clone().add(directionOfCamera.clone().multiplyScalar(1)), grey, objectID)) // prettier-ignore
-
-      // A 50mm line from 100mm up (the center of the draw volume) aimed directly at the camera
-      // addMovement(
-      //   new Line(
-      //     center.clone().add(directionOfCamera.clone().multiplyScalar(10)),
-      //     center.clone().add(directionOfCamera.clone().multiplyScalar(60)),
-      //     grey,
-      //     objectID,
-      //   ),
-      // )
-
-      // Add a 10mm line in the direction of the camera's quaternion for debugging
-      const blenderCameraOrientation = new Quaternion(
-        this.quaternion[0],
-        this.quaternion[1],
-        this.quaternion[2],
-        this.quaternion[3],
-      )
     }
 
     if (settings.objectSettings.camera.drawColorCalibrationChart) {
