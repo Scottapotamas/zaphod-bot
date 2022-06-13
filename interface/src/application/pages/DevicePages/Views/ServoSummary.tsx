@@ -188,7 +188,7 @@ const ServoStats = (props: MotorData) => {
     <React.Fragment>
       <Composition
         areas={layoutDescription}
-        templateCols=" 1fr"
+        templateCols="1fr"
         gapCol={10}
         gapRow={5}
       >
@@ -214,19 +214,19 @@ const ServoStats = (props: MotorData) => {
 }
 
 export const ServoSummary = () => {
-  const motors = useHardwareState(state => state[MSGID.SERVO])
+  const motors = useHardwareState(state => state[MSGID.SERVO]).filter(obj => obj.enabled)
 
   if (!motors) {
     return <span>No motor telemetry available...</span>
   }
 
   return (
-    <Composition gap={10} >
+    <div style={{display: 'flex'}}>
       {motors.map((clearpath, index) => (
-        <Box key={index} style={{gridColumnStart: index+1}} width="1fr">
+        <div style={{width: '33%', marginLeft: 10}}>
           <ServoStats servo={clearpath} index={index} />
-        </Box>
+        </div>
       ))}
-    </Composition>
+    </div>
   )
 }
