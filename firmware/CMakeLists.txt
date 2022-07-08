@@ -33,6 +33,19 @@ SET(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl,-gc-sections,--print-memory-usage -T ${LINK
 PROJECT(delta-control C CXX ASM)
 set(CMAKE_CXX_STANDARD 11)
 
+# Automatically run the Git metadata embedding tool
+IF (WIN32)
+    add_custom_command(git_info BYPRODUCTS "${CMAKE_SOURCE_DIR}/src/app_state_machines/build-info.h"
+            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/CreateBuildInfo.bat
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            )
+ELSE()
+    add_custom_target(git_info BYPRODUCTS "${CMAKE_SOURCE_DIR}/src/app_state_machines/build-info.h"
+            COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/CreateBuildInfo.sh
+            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+            )
+ENDIF()
+
 #add_definitions(-DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -D__FPU_PRESENT=1 )
 add_definitions(-D__weak=__attribute__\(\(weak\)\) -D__packed=__attribute__\(\(__packed__\)\)  )
 
@@ -72,7 +85,7 @@ include_directories(src
 add_subdirectory(vendor/electricui-embedded)
 add_subdirectory(vendor/electricui-interval-sender)
 
-add_executable(${PROJECT_NAME}.elf ${SOURCES} ${LINKER_SCRIPT})
+add_executable(${PROJECT_NAME}.elf ${SOURCES} ${CMAKE_SOURCE_DIR}/src/app_state_machines/build-info.h ${LINKER_SCRIPT})
 target_link_libraries(${PROJECT_NAME}.elf m electricui electricui-interval-sender)
 
 set(CMAKE_EXE_LINKER_FLAGS
