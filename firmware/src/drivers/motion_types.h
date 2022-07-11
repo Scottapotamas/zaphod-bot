@@ -106,7 +106,7 @@ typedef uint32_t micron_per_millisecond_t;
 PUBLIC mm_per_second_t
 cartesian_move_speed( Movement_t *movement );
 
-PUBLIC int32_t
+PUBLIC uint32_t
 cartesian_move_distance( Movement_t *movement );
 
 PUBLIC void
@@ -115,7 +115,7 @@ cartesian_point_rotate_around_z( CartesianPoint_t *a, float degrees );
 PUBLIC void
 cartesian_find_point_on_line( CartesianPoint_t *a, CartesianPoint_t *b, CartesianPoint_t *p, float weight );
 
-PUBLIC int32_t
+PUBLIC uint32_t
 cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b );
 
 PUBLIC uint32_t
