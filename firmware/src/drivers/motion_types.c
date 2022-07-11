@@ -30,7 +30,7 @@ cartesian_move_speed( Movement_t *movement )
 PUBLIC uint32_t
 cartesian_duration_for_speed( CartesianPoint_t *a, CartesianPoint_t *b, mm_per_second_t target_speed )
 {
-    int32_t distance = cartesian_distance_between( a, b );    // in microns
+    uint32_t distance = cartesian_distance_between( a, b );    // in microns
 
     // 1 mm/second is 1 micron/millisecond
     return distance / target_speed;
@@ -63,10 +63,10 @@ cartesian_point_rotate_around_z( CartesianPoint_t *a, float degrees )
 /* -------------------------------------------------------------------------- */
 
 // Calculate the distance of a movement
-PUBLIC int32_t
+PUBLIC uint32_t
 cartesian_move_distance( Movement_t *movement )
 {
-    int32_t distance = 0;
+    uint32_t distance = 0;
 
     if( movement )
     {
@@ -115,7 +115,7 @@ cartesian_move_distance( Movement_t *movement )
                 }
 
                 // calculate distance between the previous sample and this sample
-                int32_t dist = cartesian_distance_between( &previous_point, &sample_point );
+                uint32_t dist = cartesian_distance_between( &previous_point, &sample_point );
 
                 // add to the running distance sum
                 distance_sum += dist;
@@ -130,7 +130,7 @@ cartesian_move_distance( Movement_t *movement )
 }
 /* -------------------------------------------------------------------------- */
 
-int32_t cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b )
+uint32_t cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b )
 {
     int32_t distance = 0;
 
