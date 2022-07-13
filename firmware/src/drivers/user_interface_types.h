@@ -104,11 +104,12 @@ typedef struct
 
 typedef struct
 {
-    uint8_t enabled;
-    uint8_t state;
-    int16_t feedback;
-    float   target_angle;
-    float   power;
+    uint8_t enabled;        // boolean
+    uint8_t state;          // enum state value
+    int16_t feedback;       // in % * 10 of max torque
+    float   target_angle;   // in degrees
+    float   power;          // in watts
+    float   speed;          // in degrees per second
 } MotorData_t;
 
 /* -------------------------------------------------------------------------- */

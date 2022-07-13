@@ -146,6 +146,9 @@ PUBLIC void
 user_interface_motor_power( uint8_t servo, float watts );
 
 PUBLIC void
+user_interface_motor_speed( uint8_t servo, float degrees_per_second );
+
+PUBLIC void
 user_interface_motor_target_angle( uint8_t servo, float angle );
 
 /* -------------------------------------------------------------------------- */

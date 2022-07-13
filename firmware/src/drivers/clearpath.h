@@ -46,6 +46,14 @@ servo_set_target_angle_raw( ClearpathServoInstance_t servo, float angle_degrees 
 PUBLIC float
 servo_get_current_angle( ClearpathServoInstance_t servo );
 
+PUBLIC uint16_t
+servo_get_steps_per_second( ClearpathServoInstance_t servo );
+
+PUBLIC float
+servo_get_degrees_per_second( ClearpathServoInstance_t servo );
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC bool
 servo_get_move_done( ClearpathServoInstance_t servo );
 
