@@ -176,11 +176,30 @@ const PowerTag = (props: ServoStatusBlockProps) => {
   )
 }
 
+const RotationRateTag = (props: ServoStatusBlockProps) => {
+
+  return (
+    <Tag
+      minimal
+      fill
+      intent={servoColor[props.motorIndex]}
+      style={{
+        fontWeight: 'bold',
+        minWidth: '50px',
+        textAlign: 'center',
+
+      }}
+    >
+      <Printer accessor={state => state[MSGID.SERVO][props.motorIndex].speed} precision={0}/> °/sec
+    </Tag>
+  )
+}
 const layoutDescription = `
   State 
   Angle
   Feedback 
   Power
+  RotationRate
 `
 
 const ServoStats = (props: MotorData) => {
@@ -206,6 +225,9 @@ const ServoStats = (props: MotorData) => {
             <Areas.Power>
               <PowerTag motorIndex={props.index} />
             </Areas.Power>
+            <Areas.RotationRate>
+              <RotationRateTag motorIndex={props.index} />
+            </Areas.RotationRate>
           </React.Fragment>
         )}
       </Composition>
@@ -214,7 +236,7 @@ const ServoStats = (props: MotorData) => {
 }
 
 export const ServoSummary = () => {
-  const motors = useHardwareState(state => state[MSGID.SERVO]).filter(obj => obj.enabled)
+  const motors = useHardwareState(state => state[MSGID.SERVO])//.filter(obj => obj.enabled)
 
   if (!motors) {
     return <span>No motor telemetry available...</span>

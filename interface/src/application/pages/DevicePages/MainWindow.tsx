@@ -27,6 +27,8 @@ import { SystemSummary } from './Views/SystemSummary'
 import { AngleChart } from './Views/AngleChart'
 import { LoadChart } from './Views/LoadChart'
 import { PowerChart } from './Views/PowerChart'
+import { RotationRateChart } from './Views/RotationRateChart'
+
 import { ControlBlock } from './Controls/ControlBlock'
 import { EStopButton } from './Controls/EStopButton'
 import { ModeSelection } from './Controls/ModeSelection'
@@ -144,6 +146,7 @@ const MainWindow = (props: RouteComponentProps) => {
           <AngleChart />
           <LoadChart />
           <PowerChart />
+          <RotationRateChart />
         </Composition>
       </div>
       </Only>
