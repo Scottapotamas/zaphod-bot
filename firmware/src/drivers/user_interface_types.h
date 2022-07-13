@@ -94,6 +94,9 @@ typedef struct
     uint8_t  profile_type;
     uint8_t  move_progress;
     uint32_t movement_identifier;
+
+    // TODO: reconsider if this goes into this packet or not
+    uint32_t effector_speed;  // microns/second
 } MotionData_t;
 
 typedef struct

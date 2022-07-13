@@ -43,6 +43,11 @@ path_interpolator_get_progress( void );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC uint32_t
+path_interpolator_get_effector_speed( void );
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC bool
 path_interpolator_get_move_done( void );
 

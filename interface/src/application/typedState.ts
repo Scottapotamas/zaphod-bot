@@ -157,6 +157,7 @@ export type MotionState = {
   profile_type: number
   move_progress: number
   movement_identifier: number
+  effector_speed: number  // mm/second
 }
 
 export enum SUPERVISOR_STATES {
