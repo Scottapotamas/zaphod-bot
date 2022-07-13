@@ -12,6 +12,7 @@
 #include "event_subscribe.h"
 #include "global.h"
 #include "simple_state_machine.h"
+#include "average_short.h"
 
 #include "clearpath.h"
 #include "kinematics.h"
@@ -45,6 +46,7 @@ typedef struct
     float      progress_percent;         // calculated progress
 
     CartesianPoint_t effector_position;    // position of the end effector (used for relative moves)
+    AverageShort_t movement_statistics;
 } MotionPlanner_t;
 
 /* ----- Private Variables -------------------------------------------------- */
@@ -64,6 +66,7 @@ PUBLIC void
 path_interpolator_init( void )
 {
     memset( &planner, 0, sizeof( planner ) );
+    average_short_init( &planner.movement_statistics, 50 );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -118,6 +121,18 @@ PUBLIC float
 path_interpolator_get_progress( void )
 {
     return planner.progress_percent;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC uint32_t
+path_interpolator_get_effector_speed( void )
+{
+    // Stats provide 50 ticks (milliseconds) worth of distances travelled
+    // therefore, the total microns travelled in 50ms * 20 = microns per second
+    uint32_t microns_per_second = average_short_get_sum( &planner.movement_statistics ) * 20;
+
+    return microns_per_second;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -366,6 +381,10 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
     // Calculate a motor angle solution for the cartesian position
     kinematics_point_to_angle( target, &angle_target );
 
+    // Calculate the effector's distance change for this tick
+    uint32_t proposed_distance = cartesian_distance_between( &target, &planner.effector_position );
+    average_short_update( &planner.movement_statistics, (uint16_t )proposed_distance );
+
     // Ask the motors to please move there
     servo_set_target_angle_limited( _CLEARPATH_1, angle_target.a1 );
     servo_set_target_angle_limited( _CLEARPATH_2, angle_target.a2 );
@@ -373,8 +392,11 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
 
     // Update the config/UI data based on these actions
     user_interface_set_position( target.x, target.y, target.z );
-    memcpy( &planner.effector_position, &target, sizeof( CartesianPoint_t ) );
+    user_interface_set_effector_speed( path_interpolator_get_effector_speed() );
     user_interface_set_movement_data( move->sync_offset, move->type, (uint8_t)( percentage * 100 ) );
+
+    // Update the current effector position (naively assumes that any requested move is achieved before the next tick)
+    memcpy( &planner.effector_position, &target, sizeof( CartesianPoint_t ) );
 }
 
 PRIVATE void
