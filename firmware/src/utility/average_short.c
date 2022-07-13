@@ -119,6 +119,16 @@ average_short_get_last( AverageShort_t *me )
 
 /* -------------------------------------------------------------------------- */
 
+/** Get the rolling sum the samples buffer */
+
+PUBLIC uint32_t
+average_short_get_sum( AverageShort_t *me )
+{
+    return me->sum;
+}
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC uint16_t
 average_short_get_deviation( AverageShort_t *me )
 {

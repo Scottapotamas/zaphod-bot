@@ -169,6 +169,7 @@ export class MotorDataCodec extends Codec {
         feedback: reader.readInt16LE() / 10,
         target_angle: reader.readFloatLE(),
         power: reader.readFloatLE(),
+        speed: reader.readFloatLE(),
       }
       servoStats.push(motor)
     }

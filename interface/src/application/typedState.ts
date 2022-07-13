@@ -144,10 +144,11 @@ export type QueueDepthInfo = {
 
 export type ServoInfo = {
   enabled: boolean
-  state: number
-  feedback: number
-  target_angle: number
-  power: number
+  state: number         //state machine enum value
+  feedback: number      // percentage of max torque
+  target_angle: number  //degrees
+  power: number         // watts
+  speed: number         // degrees per second
 }
 
 export type MotionState = {

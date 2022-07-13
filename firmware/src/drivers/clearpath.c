@@ -17,6 +17,7 @@
 #include "global.h"
 #include "qassert.h"
 #include "simple_state_machine.h"
+#include "average_short.h"
 #include "status.h"
 #include "timer_ms.h"
 #include "user_interface.h"
@@ -45,12 +46,15 @@ typedef struct
     ServoState_t currentState;
     ServoState_t nextState;
 
+    bool       enabled;
+
     float      ic_feedback_trim;
     float      homing_feedback;
     timer_ms_t timer;
     int16_t    angle_current_steps;
     int16_t    angle_target_steps;
-    bool       enabled;
+
+    AverageShort_t step_statistics;
 } Servo_t;
 
 typedef struct
@@ -129,6 +133,9 @@ PUBLIC void
 servo_init( ClearpathServoInstance_t servo )
 {
     memset( &clearpath[servo], 0, sizeof( Servo_t ) );
+
+    // Buffer commanded steps per tick for 50 ticks (50ms) to back velocity estimate
+    average_short_init( &clearpath[servo].step_statistics, 50 );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -186,6 +193,26 @@ servo_get_current_angle( ClearpathServoInstance_t servo )
     Servo_t *me = &clearpath[servo];
 
     return convert_steps_angle( me->angle_current_steps );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC uint16_t
+servo_get_steps_per_second( ClearpathServoInstance_t servo )
+{
+    Servo_t *me = &clearpath[servo];
+
+    // The scalar sum of steps commanded for a span covering 50ms
+    uint16_t step_sum = average_short_get_sum( &me->step_statistics );
+
+    // Report as 'steps per second'
+    return step_sum * 20;
+}
+
+PUBLIC float
+servo_get_degrees_per_second( ClearpathServoInstance_t servo )
+{
+    return convert_steps_angle( servo_get_steps_per_second( servo ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -576,9 +603,13 @@ servo_process( ClearpathServoInstance_t servo )
                     hal_delay_us( SERVO_PULSE_DURATION_US );
                     me->angle_current_steps = me->angle_current_steps + ( step_direction * -1 );
                 }
+
+                // Track movemement requests over time for velocity estimate
+                average_short_update( &me->step_statistics, pulses_needed );
             }
             else
             {
+                average_short_update( &me->step_statistics, 0 );
                 STATE_NEXT( SERVO_STATE_IDLE );
             }
 
@@ -592,10 +623,17 @@ servo_process( ClearpathServoInstance_t servo )
             break;
     }
 
+    // Continue updating count stats when not actively driving motor, to ensure velocity stats include stationary time
+    if( me->currentState != SERVO_STATE_ACTIVE )
+    {
+        average_short_update( &me->step_statistics, 0 );
+    }
+
     user_interface_motor_state( servo, me->currentState );
     user_interface_motor_enable( servo, me->enabled );
     user_interface_motor_feedback( servo, servo_feedback );
     user_interface_motor_power( servo, servo_power );
+    user_interface_motor_speed( servo, servo_get_degrees_per_second(servo) );
 }
 
 /* -------------------------------------------------------------------------- */
