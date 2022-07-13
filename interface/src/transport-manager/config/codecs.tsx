@@ -196,7 +196,7 @@ export class MotionDataCodec extends Codec {
       profile_type: reader.readUInt8(),
       move_progress: reader.readUInt8(),
 
-      movement_identifier: reader.readUInt16LE(),
+      movement_identifier: reader.readUInt32LE(),
 
       //microns per second is sent, convert to mm/second for UI use
       effector_speed: reader.readUInt32LE() / 1000, 
