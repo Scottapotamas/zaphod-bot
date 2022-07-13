@@ -135,7 +135,7 @@ const ManualJogPalette = () => {
   let [jog_speed, setJogSpeed] = useState(0)
   let [jog_distance, setJogDistance] = useState(5.0)
 
-  let jog_duration = 600 * (1 / (1 + jog_speed))
+  let jog_duration = 500 * (1 / (1 + jog_speed))
 
   return (
     <Composition
