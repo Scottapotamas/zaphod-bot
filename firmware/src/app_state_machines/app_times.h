@@ -26,7 +26,7 @@ enum SystemDefines
 {
     ADC_SAMPLE_RATE_MS         = 10U,    // 50Hz
     BACKGROUND_RATE_HARD_IC_MS = 5U,     //  100Hz
-
+    SPEED_ESTIMATOR_SPAN       = 50U,    // samples in rolling buffer
     BACKGROUND_RATE_BUTTON_MS  = 20U,     //  50Hz
     BACKGROUND_RATE_BUZZER_MS  = 10U,     // 100Hz
     BACKGROUND_ADC_AVG_POLL_MS = 100U,    //  10Hz
