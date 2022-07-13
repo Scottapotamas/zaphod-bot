@@ -135,7 +135,7 @@ servo_init( ClearpathServoInstance_t servo )
     memset( &clearpath[servo], 0, sizeof( Servo_t ) );
 
     // Buffer commanded steps per tick for 50 ticks (50ms) to back velocity estimate
-    average_short_init( &clearpath[servo].step_statistics, 50 );
+    average_short_init( &clearpath[servo].step_statistics, SPEED_ESTIMATOR_SPAN );
 }
 
 /* -------------------------------------------------------------------------- */

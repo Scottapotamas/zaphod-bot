@@ -18,8 +18,9 @@
 #include "kinematics.h"
 #include "motion_types.h"
 #include "user_interface.h"
-
+#include "app_times.h"
 #include "timer_ms.h"
+
 /* ----- Defines ------------------------------------------------------------ */
 
 typedef enum
@@ -66,7 +67,7 @@ PUBLIC void
 path_interpolator_init( void )
 {
     memset( &planner, 0, sizeof( planner ) );
-    average_short_init( &planner.movement_statistics, 50 );
+    average_short_init( &planner.movement_statistics, SPEED_ESTIMATOR_SPAN );
 }
 
 /* -------------------------------------------------------------------------- */
