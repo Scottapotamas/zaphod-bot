@@ -234,6 +234,8 @@ path_interpolator_process( void )
                     STATE_NEXT( PLANNER_WAIT_AND_EXECUTE );
                 }
             }
+
+            average_short_update( &planner.movement_statistics, 0 );
             STATE_EXIT_ACTION
             STATE_END
             break;
@@ -302,6 +304,11 @@ path_interpolator_process( void )
                     }
                 }
             }
+            else
+            {
+                // Just sitting stationary while waiting for the move's time to arrive
+                average_short_update( &planner.movement_statistics, 0 );
+            }
             STATE_EXIT_ACTION
             me->current_move     = 0;
             me->progress_percent = 0;
@@ -312,6 +319,8 @@ path_interpolator_process( void )
     }
 
     user_interface_set_pathing_status( me->currentState );
+    user_interface_set_position( planner.effector_position.x, planner.effector_position.y, planner.effector_position.z );
+    user_interface_set_effector_speed( path_interpolator_get_effector_speed() );
 }
 
 PRIVATE void
@@ -391,9 +400,7 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
     servo_set_target_angle_limited( _CLEARPATH_2, angle_target.a2 );
     servo_set_target_angle_limited( _CLEARPATH_3, angle_target.a3 );
 
-    // Update the config/UI data based on these actions
-    user_interface_set_position( target.x, target.y, target.z );
-    user_interface_set_effector_speed( path_interpolator_get_effector_speed() );
+    // Update the config/UI data based on this move
     user_interface_set_movement_data( move->sync_offset, move->type, (uint8_t)( percentage * 100 ) );
 
     // Update the current effector position (naively assumes that any requested move is achieved before the next tick)
