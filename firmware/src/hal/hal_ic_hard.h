@@ -45,6 +45,14 @@ hal_ic_hard_read_f( InputCaptureSignal_t input );
 
 /* -------------------------------------------------------------------------- */
 
+// Get milliseconds since last value was received
+// Quick hack to check for disconnected hardware
+
+PUBLIC uint32_t
+hal_ic_hard_ms_since_value( InputCaptureSignal_t input );
+
+/* -------------------------------------------------------------------------- */
+
 void TIM8_CC_IRQHandler( void );
 void TIM3_IRQHandler( void );
 void TIM4_IRQHandler( void );

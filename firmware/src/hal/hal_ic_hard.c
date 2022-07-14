@@ -11,6 +11,7 @@
 
 #include "hal_gpio.h"
 #include "hal_ic_hard.h"
+#include "hal_systick.h"
 #include "qassert.h"
 
 /* ----- Defines ------------------------------------------------------------ */
@@ -29,6 +30,7 @@ typedef struct
     uint32_t cnt_a;
     uint32_t cnt_b;
     uint32_t value;
+    uint32_t value_timestamp;
     bool first_edge_done;
 } HalHardICIntermediate_t;
 
@@ -241,6 +243,11 @@ hal_ic_hard_read_f( InputCaptureSignal_t input )
     return (float)ic_state[input].value / 100;
 }
 
+PUBLIC uint32_t
+hal_ic_hard_ms_since_value( InputCaptureSignal_t input )
+{
+    return hal_systick_get_ms() - ic_state[input].value_timestamp;
+}
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void
@@ -258,6 +265,7 @@ hal_ic_hard_pwmic_irq_handler( InputCaptureSignal_t input, TIM_TypeDef *TIMx )
             ic_state[input].cnt_b   = LL_TIM_IC_GetCaptureCH2( TIMx );
             ic_state[input].value = ( ic_state[input].cnt_b * 10000 ) / ( ic_state[input].cnt_a );
 
+            ic_state[input].value_timestamp = hal_systick_get_ms();
             // TODO optionally calculate frequency for this signal
             // uint32_t frequency = TimerClock  / (1*cnt_a);
         }
