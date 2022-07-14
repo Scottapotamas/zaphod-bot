@@ -296,6 +296,12 @@ servo_process( ClearpathServoInstance_t servo )
     // Check if the servo has provided HLFB signals as proxy for 'detection'
     me->presence_detected = servo_get_connected_estimate( servo );
 
+    // Servo feedback loss in any active triggers immediate error handling behaviour
+    if( !me->presence_detected && me->enabled )
+    {
+        STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+    }
+
     switch( me->currentState )
     {
         case SERVO_STATE_INACTIVE:
@@ -305,7 +311,7 @@ servo_process( ClearpathServoInstance_t servo )
             hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, false );
             me->enabled = SERVO_DISABLE;
             STATE_TRANSITION_TEST
-            if( me->enabled )
+            if( me->enabled && me->presence_detected )
             {
                 STATE_NEXT( SERVO_STATE_HOMING_CALIBRATE_TORQUE );
             }
