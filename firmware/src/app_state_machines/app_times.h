@@ -155,6 +155,7 @@ enum ServoDefines
 
     // Fault handling
     SERVO_FAULT_LINGER_MS = 500U,
+    SERVO_MISSING_HLFB_MS = 25U,    // ms since last HLFB input captures before declaring the servo missing
 
     // Clearpath input high = clockwise rotation. Alias against pin state
     SERVO_DIR_CCW = true,

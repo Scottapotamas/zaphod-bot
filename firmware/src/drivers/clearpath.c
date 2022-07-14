@@ -55,6 +55,7 @@ typedef struct
     int16_t    angle_target_steps;
 
     AverageShort_t step_statistics;
+    bool       presence_detected;
 } Servo_t;
 
 typedef struct
@@ -122,6 +123,8 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] = {
 PRIVATE float servo_get_hlfb_percent( ClearpathServoInstance_t servo );
 
 PRIVATE float servo_get_hlfb_percent_corrected( ClearpathServoInstance_t servo );
+
+PRIVATE bool servo_get_connected_estimate( ClearpathServoInstance_t servo );
 
 PRIVATE int16_t convert_angle_steps( float kinematics_shoulder_angle );
 
@@ -271,6 +274,15 @@ servo_get_hlfb_percent_corrected( ClearpathServoInstance_t servo )
     return servo_get_hlfb_percent( servo ) - clearpath[servo].ic_feedback_trim;
 }
 
+// By checking that HLFB pulses were caught by the input capture recently,
+// can assume that a servo is connected or disconnected
+PRIVATE bool
+servo_get_connected_estimate( ClearpathServoInstance_t servo )
+{
+    uint32_t ms_since_last = hal_ic_hard_ms_since_value( ServoHardwareMap[servo].ic_feedback );
+    return ( ms_since_last < SERVO_MISSING_HLFB_MS );
+}
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -280,6 +292,9 @@ servo_process( ClearpathServoInstance_t servo )
 
     float servo_power    = sensors_servo_W( ServoHardwareMap[servo].adc_current );
     float servo_feedback = servo_get_hlfb_percent_corrected( servo );
+
+    // Check if the servo has provided HLFB signals as proxy for 'detection'
+    me->presence_detected = servo_get_connected_estimate( servo );
 
     switch( me->currentState )
     {
@@ -665,4 +680,5 @@ convert_steps_angle( int16_t steps )
     float steps_to_angle = (float)steps / SERVO_STEPS_PER_DEGREE;
     return steps_to_angle;
 }
+
 /* ----- End ---------------------------------------------------------------- */
