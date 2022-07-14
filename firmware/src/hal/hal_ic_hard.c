@@ -28,13 +28,11 @@ typedef struct
 {
     uint32_t cnt_a;
     uint32_t cnt_b;
-
+    uint32_t value;
     bool first_edge_done;
-
 } HalHardICIntermediate_t;
 
-PRIVATE HalHardICIntermediate_t fan_state;                     // holding values used to calculate edge durations
-PRIVATE uint32_t                ic_values[HAL_IC_HARD_NUM];    // Calculated duty cycle or frequency values, x100 for precision
+PRIVATE HalHardICIntermediate_t ic_state[HAL_IC_HARD_NUM];  // holding values used to calculate edge durations -> duty/freq
 
 /* ----- Private Functions -------------------------------------------------- */
 
@@ -49,8 +47,7 @@ hal_ic_hard_pwmic_irq_handler( InputCaptureSignal_t input, TIM_TypeDef *TIMx );
 PUBLIC void
 hal_ic_hard_init( void )
 {
-    memset( &fan_state, 0, sizeof( fan_state ) );
-    memset( &ic_values, 0, sizeof( ic_values ) );
+    memset( &ic_state, 0, sizeof( ic_state ) );
 
     hal_setup_capture( HAL_IC_HARD_FAN_HALL );
     hal_setup_capture( HAL_IC_HARD_HLFB_SERVO_1 );
@@ -235,13 +232,13 @@ hal_ic_hard_configure_pwm_input( TIM_TypeDef *TIMx )
 PUBLIC uint32_t
 hal_ic_hard_read( InputCaptureSignal_t input )
 {
-    return ic_values[input] / 100;
+    return ic_state[input].value / 100;
 }
 
 PUBLIC float
 hal_ic_hard_read_f( InputCaptureSignal_t input )
 {
-    return (float)ic_values[input] / 100;
+    return (float)ic_state[input].value / 100;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -253,20 +250,20 @@ hal_ic_hard_pwmic_irq_handler( InputCaptureSignal_t input, TIM_TypeDef *TIMx )
     {
         LL_TIM_ClearFlag_CC1( TIMx );
 
-        static uint32_t cnt_a = 0;
-        cnt_a                 = LL_TIM_IC_GetCaptureCH1( TIMx );
+        ic_state[input].cnt_a = 0;
+        ic_state[input].cnt_a = LL_TIM_IC_GetCaptureCH1( TIMx );
 
-        if( cnt_a != 0 )
+        if( ic_state[input].cnt_a != 0 )
         {
-            uint32_t cnt_b   = LL_TIM_IC_GetCaptureCH2( TIMx );
-            ic_values[input] = ( cnt_b * 10000 ) / ( cnt_a );
+            ic_state[input].cnt_b   = LL_TIM_IC_GetCaptureCH2( TIMx );
+            ic_state[input].value = ( ic_state[input].cnt_b * 10000 ) / ( ic_state[input].cnt_a );
 
             // TODO optionally calculate frequency for this signal
             // uint32_t frequency = TimerClock  / (1*cnt_a);
         }
         else
         {
-            ic_values[input] = 0;
+            ic_state[input].value = 0;
         }
     }
 
@@ -314,23 +311,23 @@ void TIM1_BRK_TIM9_IRQHandler( void )
 
         static uint32_t cnt_delta;
 
-        if( !fan_state.first_edge_done )    // First edge timestamp
+        if( !ic_state[HAL_IC_HARD_FAN_HALL].first_edge_done )    // First edge timestamp
         {
-            fan_state.cnt_a           = LL_TIM_IC_GetCaptureCH1( TIM9 );
-            fan_state.first_edge_done = true;
+            ic_state[HAL_IC_HARD_FAN_HALL].cnt_a           = LL_TIM_IC_GetCaptureCH1( TIM9 );
+            ic_state[HAL_IC_HARD_FAN_HALL].first_edge_done = true;
         }
-        else if( fan_state.first_edge_done )    // Second edge
+        else if( ic_state[HAL_IC_HARD_FAN_HALL].first_edge_done )    // Second edge
         {
-            fan_state.cnt_b = LL_TIM_IC_GetCaptureCH1( TIM9 );
+            ic_state[HAL_IC_HARD_FAN_HALL].cnt_b = LL_TIM_IC_GetCaptureCH1( TIM9 );
 
             // Calculate the counts elapsed
-            if( fan_state.cnt_b > fan_state.cnt_a )
+            if( ic_state[HAL_IC_HARD_FAN_HALL].cnt_b > ic_state[HAL_IC_HARD_FAN_HALL].cnt_a )
             {
-                cnt_delta = ( fan_state.cnt_b - fan_state.cnt_a );
+                cnt_delta = ( ic_state[HAL_IC_HARD_FAN_HALL].cnt_b - ic_state[HAL_IC_HARD_FAN_HALL].cnt_a );
             }
-            else if( fan_state.cnt_b < fan_state.cnt_a )
+            else if( ic_state[HAL_IC_HARD_FAN_HALL].cnt_b < ic_state[HAL_IC_HARD_FAN_HALL].cnt_a )
             {
-                cnt_delta = ( ( 0xFFFFU - fan_state.cnt_a ) + fan_state.cnt_b ) + 1;
+                cnt_delta = ( ( 0xFFFFU - ic_state[HAL_IC_HARD_FAN_HALL].cnt_a ) + ic_state[HAL_IC_HARD_FAN_HALL].cnt_b ) + 1;
             }
             else    // overflowing capture - need to adjust timer prescale value
             {
@@ -338,10 +335,10 @@ void TIM1_BRK_TIM9_IRQHandler( void )
             }
 
             // Calculate the signal frequency
-            ic_values[HAL_IC_HARD_FAN_HALL] = ( FAN_TIM_CLOCK * FAN_IC_PRESCALE * 100 )
-                                              / ( cnt_delta * ( FAN_TIM_PRESCALE + 1 ) * FAN_IC_EDGES_PER_PERIOD );
+            ic_state[HAL_IC_HARD_FAN_HALL].value = ( FAN_TIM_CLOCK * FAN_IC_PRESCALE * 100 )
+                                                 / ( cnt_delta * ( FAN_TIM_PRESCALE + 1 ) * FAN_IC_EDGES_PER_PERIOD );
 
-            fan_state.first_edge_done = false;
+            ic_state[HAL_IC_HARD_FAN_HALL].first_edge_done = false;
         }
     }
 }
