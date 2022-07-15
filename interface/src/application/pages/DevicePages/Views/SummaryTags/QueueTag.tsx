@@ -37,12 +37,13 @@ import {
 } from '@electricui/components-desktop-charts'
 import { Printer } from '@electricui/components-desktop'
 import { useSetting } from 'src/application/pages/toolpaths/interface/state'
+import { MSGID } from 'src/application/typedState'
 
 export const QueueText = () => {
-  const queue_depth = useHardwareState(state => state.queue.movements)
-  const is_moving = useHardwareState(state => state.moStat.pathing_state) == 1
+  const queue_depth = useHardwareState(state => state[MSGID.QUEUE_INFO].movements)
+  const is_moving = useHardwareState(state => state[MSGID.MOTION].pathing_state) == 1
   const queue_depth_ui = useSetting(state => state.movementQueueUI)
-
+  
   let iconColour: Intent
 
   if (queue_depth === 0) {
@@ -76,7 +77,7 @@ export const QueueText = () => {
 }
 
 export const LEDQueueText = () => {
-  const queue_depth = useHardwareState(state => state.queue.lighting)
+  const queue_depth = useHardwareState(state => state[MSGID.QUEUE_INFO].lighting)
   const queue_depth_ui = useSetting(state => state.lightQueueUI)
 
   let iconColour: Intent
