@@ -5,6 +5,7 @@
 #include "configuration.h"
 #include "user_interface.h"
 #include "user_interface_msgid.h"
+#include "timer_ms.h"
 
 #include "app_task_ids.h"
 #include "app_tasks.h"
@@ -127,6 +128,10 @@ eui_message_t ui_variables[] = {
     //    EUI_CUSTOM( "pwr_cal", power_trims ),
 };
 
+#define HEARTBEAT_EXPECTED_MS 800	// Expect to see a heartbeat within this threshold
+timer_ms_t last_heartbeat = 0;
+uint8_t heartbeat_ok_count = 0;		// Running count of successful heartbeat messages
+
 enum
 {
     LINK_MODULE = 0,
@@ -179,6 +184,20 @@ user_interface_handle_data( void )
     }
 
     // TODO handle other communication link serial FIFO
+}
+
+PUBLIC bool
+user_interface_connection_ok( void )
+{
+    // Check if the most recent heartbeats have timed out
+    if( timer_ms_is_expired( &last_heartbeat ) )
+    {
+        heartbeat_ok_count = 0;
+    }
+
+    // Connection is considered OK if more than 3 heartbeats have arrived
+    // within the threshold duration
+    return ( heartbeat_ok_count > 3 );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -301,6 +320,15 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
                 trigger_camera_capture();
             }
 
+            if( strcmp( (char*)name_rx, EUI_INTERNAL_HEARTBEAT ) == 0 )
+            {
+                if( !timer_ms_is_expired( &last_heartbeat ) )
+                {
+                    heartbeat_ok_count++;
+                }
+
+                timer_ms_start( &last_heartbeat, HEARTBEAT_EXPECTED_MS );
+            }
             break;
         }
 
