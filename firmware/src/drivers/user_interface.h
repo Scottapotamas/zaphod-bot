@@ -26,6 +26,9 @@ user_interface_init( void );
 PUBLIC void
 user_interface_handle_data( void );
 
+PUBLIC bool
+user_interface_connection_ok( void );
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
