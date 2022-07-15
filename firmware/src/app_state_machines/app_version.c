@@ -15,7 +15,7 @@ extern "C" {
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC const char *ProgramName = "DeltaBot V1";
+PUBLIC const char *ProgramName = "Beeblebot V1";
 
 #ifndef NDEBUG
 PUBLIC const char *ProgramBuildType = "DEBUG";

@@ -20,21 +20,21 @@ class RequestName extends DiscoveryMetadataRequester {
   }
 
   requestMetadata(device: Device) {
-    const nameRequest = new Message(MSGID.NICKNAME, null)
+    const nameRequest = new Message(MSGID.FIRMWARE_INFO, null)
     nameRequest.metadata.query = true
     nameRequest.metadata.internal = false
 
     const cancellationToken = new CancellationToken(
-      'request name metadata',
+      'request firmware build info metadata',
     ).deadline(1_000)
 
     return device
       .write(nameRequest, cancellationToken)
       .then(res => {
-        console.log('Requested name, response:', res)
+        console.log('Requested fwb, response:', res)
       })
       .catch(err => {
-        console.log("Couldn't request name err:", err)
+        console.log("Couldn't request fwb err:", err)
       })
   }
 }
@@ -46,8 +46,8 @@ class ProcessName extends DiscoveryMetadataProcessor {
       return false
     }
 
-    // if it's a name packet, process it
-    if (message.messageID === MSGID.NICKNAME) {
+    // if it's a firmware version packet, process it
+    if (message.messageID === MSGID.FIRMWARE_INFO) {
       return true
     }
 
@@ -55,9 +55,9 @@ class ProcessName extends DiscoveryMetadataProcessor {
   }
 
   processMetadata(message: Message, device: Device, foundHint: FoundHint) {
-    if (message.messageID === MSGID.NICKNAME) {
+    if (message.messageID === MSGID.FIRMWARE_INFO) {
       device.addMetadata({
-        name: message.payload,
+        firmware_info: message.payload
       })
     }
   }
