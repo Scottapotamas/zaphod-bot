@@ -8,12 +8,17 @@ import { navigate } from '@electricui/utility-electron'
 import { useDeviceMetadataKey } from '@electricui/components-core'
 
 const CardInternals = () => {
-  const metadataName = useDeviceMetadataKey('name') || 'No name'
-
+  const metadataName = useDeviceMetadataKey('firmware_info') || 'No build info'
+  
   return (
     <React.Fragment>
-      <h3 className={Classes.HEADING}>{metadataName}</h3>
-      <p>Device information!</p>
+      <h3 className={Classes.HEADING}>{metadataName.name}</h3>
+        <div style={{opacity: '0.5', fontSize: 'small'}}>
+        <b>{metadataName.info}</b> on <b>{metadataName.branch}</b>
+        </div>
+        <div style={{opacity: '0.5', fontSize: 'smaller'}}>
+        {metadataName.date} {metadataName.time}
+        </div>
     </React.Fragment>
   )
 }

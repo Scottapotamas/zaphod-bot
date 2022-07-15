@@ -30,6 +30,8 @@ import { USBHintProducer } from '@electricui/transport-node-usb-discovery'
 import { customCodecs } from './codecs'
 import { defaultCodecList } from '@electricui/protocol-binary-codecs'
 
+import { MSGID } from '../../application/typedState'
+
 const typeCache = new TypeCache()
 
 const serialProducer = new SerialPortHintProducer({
@@ -65,7 +67,7 @@ const serialTransportFactory = new TransportFactory(
     // `name` is added because it is requested by the metadata requester before handshake.
     const undefinedMessageIDGuard = new UndefinedMessageIDGuardPipeline(
       typeCache,
-      ['name'],
+      [MSGID.FIRMWARE_INFO],
     )
 
     const codecPipeline = new CodecDuplexPipeline()
