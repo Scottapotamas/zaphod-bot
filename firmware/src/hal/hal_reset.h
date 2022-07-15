@@ -8,6 +8,7 @@ extern "C" {
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
+#include <stdarg.h>
 
 /* -------------------------------------------------------------------------- */
 
@@ -37,6 +38,17 @@ hal_reset_cause_description( HalPowerResetCause_t cause );
 
 PUBLIC void
 hal_reset_software( void );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+hal_reset_assert_cache( const char *file,
+                        unsigned    line,
+                        const char *fmt,
+                        va_list     args );
+
+PUBLIC char *
+hal_reset_assert_description( void );
 
 /* ----- End ---------------------------------------------------------------- */
 

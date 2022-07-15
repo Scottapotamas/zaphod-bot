@@ -52,6 +52,8 @@ PRIVATE void trigger_camera_capture( void );
 
 char             device_nickname[16] = "Zaphod Beeblebot";
 char             reset_cause[20]     = "No Reset Cause";
+char             assert_cause[32]    = "No Assert";
+
 KinematicsInfo_t mechanical_info;
 BuildInfo_t      fw_info;
 
@@ -84,6 +86,7 @@ eui_message_t ui_variables[] = {
     // Higher level system setup information
     EUI_CHAR_ARRAY_RO( MSGID_NICKNAME, device_nickname ),
     EUI_CHAR_ARRAY_RO( MSGID_RESET_CAUSE, reset_cause ),
+    EUI_CHAR_ARRAY_RO( MSGID_ASSERT_CAUSE, assert_cause ),
     EUI_CUSTOM( MSGID_FIRMWARE_INFO, fw_info ),
     //    EUI_CUSTOM_RO( MSGID_KINEMATICS, mechanical_info ),
 
@@ -326,6 +329,15 @@ user_interface_set_reset_cause( const char *reset_description )
 {
     memset( &reset_cause, 0, sizeof( reset_cause ) );
     strcpy( (char *)&reset_cause, reset_description );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+user_interface_set_assert_cause( const char *assert_description )
+{
+    memset( &assert_cause, 0, sizeof( assert_cause ) );
+    strcpy( (char *)&assert_cause, assert_description );
 }
 
 /* -------------------------------------------------------------------------- */

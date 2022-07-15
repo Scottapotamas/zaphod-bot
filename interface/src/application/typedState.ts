@@ -5,6 +5,7 @@
 export enum MSGID {
   NICKNAME = 'name',
   RESET_CAUSE = 'reset_type',
+  ASSERT_CAUSE ='assert_msg',
   SYSTEM = 'sys',
   SUPERVISOR = 'super',
   FIRMWARE_INFO = 'fwb',
@@ -49,6 +50,7 @@ declare global {
   interface ElectricUIDeveloperState {
     [MSGID.NICKNAME]: string
     [MSGID.RESET_CAUSE]: string
+    [MSGID.ASSERT_CAUSE]: string
     [MSGID.SYSTEM]: SystemStatus
     [MSGID.SUPERVISOR]: SupervisorState
     [MSGID.FIRMWARE_INFO]: FirmwareBuildInfo

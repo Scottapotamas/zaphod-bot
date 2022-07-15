@@ -11,15 +11,11 @@
 #include "app_tasks.h"
 #include "global.h"
 #include "hal_delay.h"
+#include "hal_reset.h"
 #include "hal_system_speed.h"
 #include "hal_watchdog.h"
 #include "qassert.h"
 #include "status.h"
-
-/* Assert printout requirements */
-#include <stdarg.h>
-#include <stdio.h>
-#include <string.h>
 
 /* Private variables ---------------------------------------------------------*/
 #if defined( NASSERT ) || defined( NDEBUG )
@@ -142,18 +138,12 @@ void onAssert__( const char *file,
                  const char *fmt,
                  ... )
 {
-    va_list args;
-    char    message[32];
-    int     len;
-    memset( message, 0, sizeof( message ) );
+    va_list  args;
 
-    // Format the printf part
-    if( fmt && ( strlen( fmt ) > 0 ) )
-    {
-        va_start( args, fmt );
-        len = vsnprintf( message, sizeof( message ), fmt, args );
-        va_end( args );
-    }
+    // Forward directly to the 'in-memory cache' handler function
+    va_start( args, fmt );
+    hal_reset_assert_cache( file, line, fmt, args );
+    va_end( args );
 
     // Blinking lights while we wait for the watch dog to bite
     status_red( true );
