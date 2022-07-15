@@ -137,7 +137,7 @@ uint32_t cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b )
         int32_t delta_x = a->x - b->x;
         int32_t delta_y = a->y - b->y;
         int32_t delta_z = a->z - b->z;
-        float   dist    = sqrtf( (float)( delta_x * delta_x ) + (float)( delta_y * delta_y ) + (float)( delta_z * delta_z ) );
+        float   dist    = sqrtf( ( (float)delta_x * delta_x ) + ( (float)delta_y * delta_y ) + ( (float)delta_z * delta_z ) );
         distance        = (int32_t)fabsf( dist );
     }
 
