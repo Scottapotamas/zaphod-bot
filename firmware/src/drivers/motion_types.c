@@ -2,7 +2,6 @@
 
 #include <float.h>
 #include <math.h>
-#include <stdlib.h>
 #include <string.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
@@ -70,7 +69,7 @@ cartesian_move_distance( Movement_t *movement )
 
     if( movement )
     {
-        if( movement->ref == _POINT_TRANSIT || movement->ref == _LINE )
+        if( movement->type == _POINT_TRANSIT || movement->type == _LINE )
         {
             // straight line 3D distance
             distance = cartesian_distance_between( &movement->points[0], &movement->points[1] );
@@ -93,11 +92,8 @@ cartesian_move_distance( Movement_t *movement )
                 // sample the position of the effector using the relevant interp processor
                 switch( movement->type )
                 {
-
                     case _BEZIER_QUADRATIC:
-                        cartesian_point_on_quadratic_bezier( movement->points, movement->num_pts, sample_t,
-                                                             &sample_point );
-
+                        cartesian_point_on_quadratic_bezier( movement->points, movement->num_pts, sample_t, &sample_point );
                         break;
 
                     case _BEZIER_CUBIC:
@@ -128,6 +124,7 @@ cartesian_move_distance( Movement_t *movement )
 
     return distance;
 }
+
 /* -------------------------------------------------------------------------- */
 
 uint32_t cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b )
