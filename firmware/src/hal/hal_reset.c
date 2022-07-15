@@ -134,6 +134,11 @@ hal_reset_assert_cache( const char *file,
 PUBLIC char *
 hal_reset_assert_description( void )
 {
+    if( assert_datagram->magic_flag != MAGIC_FLAG_ASSERT )
+    {
+        return "_";
+    }
+
     // Cache the data from SRAM magic location
     memcpy( &cached_assert_datagram,
             (void *)assert_datagram,
