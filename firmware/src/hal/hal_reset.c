@@ -6,6 +6,27 @@
 #include "hal_delay.h"
 #include "hal_watchdog.h"
 
+/* Assert printout requirements */
+#include <stdio.h>
+#include <string.h>
+
+/* -------------------------------------------------------------------------- */
+
+typedef struct
+{
+    uint32_t magic_flag;
+    uint32_t length;
+    char     message[32];
+} AssertMessageDatagram_t;
+
+#define MAGIC_FLAG_ASSERT 0xB000B000
+#define MAGIC_FLAG_ASSERT_CLEARED 0xFAFAFAFA
+
+// Hardcoded location in SRAM to cache assert message across a reboot
+PRIVATE volatile AssertMessageDatagram_t *const assert_datagram = (AssertMessageDatagram_t *)0x2000FFF0;
+
+PRIVATE AssertMessageDatagram_t cached_assert_datagram = { 0 };
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC HalPowerResetCause_t
@@ -82,6 +103,47 @@ hal_reset_software( void )
     hal_delay_ms( 10 );    // allow some time for serial buffers to flush etc
     hal_watchdog_refresh();
     NVIC_SystemReset();
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+hal_reset_assert_cache( const char *file,
+                        unsigned    line,
+                        const char *fmt,
+                        va_list     args )
+{
+    assert_datagram->magic_flag = MAGIC_FLAG_ASSERT;
+    assert_datagram->length     = 0;
+
+    memset( assert_datagram->message, 0, sizeof( assert_datagram->message ) );
+
+    // Format the printf part if user's assert includes a message
+    if( fmt && ( strlen( fmt ) > 0 ) )
+    {
+        assert_datagram->length = vsnprintf( assert_datagram->message, sizeof( assert_datagram->message ), fmt, args );
+    }
+    else    // print the filename and line number
+    {
+        // the *file arg is normally the whole path, we only care about the filename
+        char *filename = strrchr( file, '/');
+        assert_datagram->length = snprintf( assert_datagram->message, sizeof( assert_datagram->message ), "%s:%d", filename, line );
+    }
+}
+
+PUBLIC char *
+hal_reset_assert_description( void )
+{
+    // Cache the data from SRAM magic location
+    memcpy( &cached_assert_datagram,
+            (void *)assert_datagram,
+            sizeof( AssertMessageDatagram_t ) );
+
+    // Reset the 'assert string written' flag
+    assert_datagram->magic_flag = MAGIC_FLAG_ASSERT_CLEARED;
+
+    // Provide cached assert message to end-user pointer
+    return (char *)&cached_assert_datagram.message;
 }
 
 /* ----- End ---------------------------------------------------------------- */

@@ -34,6 +34,11 @@ user_interface_set_reset_cause( const char *reset_description );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
+user_interface_set_assert_cause( const char *assert_description );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
 user_interface_report_error( char *error_string );
 
 /* -------------------------------------------------------------------------- */

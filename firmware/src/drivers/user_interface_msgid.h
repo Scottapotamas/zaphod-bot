@@ -3,6 +3,7 @@
 
 #define MSGID_NICKNAME      "name"
 #define MSGID_RESET_CAUSE   "reset_type"
+#define MSGID_ASSERT_CAUSE  "assert_msg"
 #define MSGID_FIRMWARE_INFO "fwb"
 #define MSGID_KINEMATICS    "kinematics"
 #define MSGID_ERROR         "err"

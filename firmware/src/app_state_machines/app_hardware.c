@@ -56,6 +56,7 @@ app_hardware_init( void )
 
     // Check for the cause of the microcontroller booting (errors vs normal power up)
     user_interface_set_reset_cause( hal_reset_cause_description( hal_reset_cause() ) );
+    user_interface_set_assert_cause( hal_reset_assert_description() );
 
     buzzer_init();
     fan_init();
