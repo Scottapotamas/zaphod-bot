@@ -84,7 +84,7 @@ cartesian_move_distance( Movement_t *movement )
             memcpy( &previous_point, &movement->points[0], sizeof( CartesianPoint_t ) );
 
             // iteratively sum over a series of sampled positions
-            for( uint32_t i = 1; i < SPEED_SAMPLE_RESOLUTION; i++ )
+            for( uint32_t i = 1; i <= SPEED_SAMPLE_RESOLUTION; i++ )
             {
                 // convert the step into a 0-1 float for 'percentage across line' input
                 float sample_t = (float)i / SPEED_SAMPLE_RESOLUTION;
@@ -119,6 +119,8 @@ cartesian_move_distance( Movement_t *movement )
                 // this sample will be used as the previous point in the next loop
                 memcpy( &previous_point, &sample_point, sizeof( CartesianPoint_t ) );
             }
+
+            distance = distance_sum;
         }
     }
 
