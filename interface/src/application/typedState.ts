@@ -4,37 +4,38 @@
  */
 export enum MSGID {
   NICKNAME = 'name',
-  RESET_CAUSE = 'reset_type',
-  ASSERT_CAUSE ='assert_msg',
-  SYSTEM = 'sys',
-  SUPERVISOR = 'super',
+  RESET_CAUSE = 'rt',
+  ASSERT_CAUSE ='am',
   FIRMWARE_INFO = 'fwb',
+  ERROR = 'err',
 
-  FAN = 'fan',
+  SYSTEM = 'sx',
+  SUPERVISOR = 'ss',
+  FAN = 'sf',
+  MOTION = 'sm',
+  SERVO = 'sc',
+
   FAN_CURVE = 'curve',
+  MODE_REQUEST = 'mr',
 
-  MODE_REQUEST = 'req_mode',
-  MOTION = 'moStat',
-  SERVO = 'servo',
-
-  POSITION_TARGET = 'tpos',
-  POSITION_CURRENT = 'cpos',
+  POSITION_TARGET = 'pt',
+  POSITION_CURRENT = 'pc',
   POSITION_EXPANSION = 'exp_ang',
 
   LED = 'rgb',
   LED_MANUAL_REQUEST = 'manual_led',
 
-  QUEUE_INFO = 'queue',
-  QUEUE_SYNC = 'sync',
-  QUEUE_CLEAR = 'clmv',
-  QUEUE_ADD_MOVE = 'inmv',
-  QUEUE_ADD_FADE = 'inlt',
+  QUEUE_INFO = 'qi',
+  QUEUE_SYNC = 'qs',
+  QUEUE_CLEAR = 'qc',
+  QUEUE_ADD_MOVE = 'qm',
+  QUEUE_ADD_FADE = 'qf',
 
-  EMERGENCY_STOP = 'estop',
-  ARM = 'arm',
-  DISARM = 'disarm',
-  HOME = 'home',
-  CAPTURE = 'capture',
+  EMERGENCY_STOP = 'E',
+  ARM = 'A',
+  DISARM = 'D',
+  HOME = 'H',
+  CAPTURE = 'C',
 
   LED_CALIBRATION = 'calLED',
 }

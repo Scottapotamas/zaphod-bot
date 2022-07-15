@@ -50,9 +50,8 @@ PRIVATE void trigger_camera_capture( void );
 
 /* ----- Defines ----------------------------------------------------------- */
 
-char             device_nickname[16] = "Zaphod Beeblebot";
-char             reset_cause[20]     = "No Reset Cause";
-char             assert_cause[32]    = "No Assert";
+char reset_cause[20]  = "No Reset Cause";
+char assert_cause[32] = "No Assert";
 
 KinematicsInfo_t mechanical_info;
 BuildInfo_t      fw_info;
@@ -84,7 +83,6 @@ LedSettings_t led_calibration = { 0 };
 
 eui_message_t ui_variables[] = {
     // Higher level system setup information
-    EUI_CHAR_ARRAY_RO( MSGID_NICKNAME, device_nickname ),
     EUI_CHAR_ARRAY_RO( MSGID_RESET_CAUSE, reset_cause ),
     EUI_CHAR_ARRAY_RO( MSGID_ASSERT_CAUSE, assert_cause ),
     EUI_CUSTOM( MSGID_FIRMWARE_INFO, fw_info ),
