@@ -164,14 +164,17 @@ cartesian_move_distance( Movement_t *movement )
                 switch( movement->type )
                 {
                     case _BEZIER_QUADRATIC:
+                    case _BEZIER_QUADRATIC_LINEARISED:
                         cartesian_point_on_quadratic_bezier( movement->points, movement->num_pts, sample_t, &sample_point );
                         break;
 
                     case _BEZIER_CUBIC:
+                    case _BEZIER_CUBIC_LINEARISED:
                         cartesian_point_on_cubic_bezier( movement->points, movement->num_pts, sample_t, &sample_point );
                         break;
 
                     case _CATMULL_SPLINE:
+                    case _CATMULL_SPLINE_LINEARISED:
                         cartesian_point_on_catmull_spline( movement->points, movement->num_pts, sample_t, &sample_point );
                         break;
 
@@ -187,6 +190,7 @@ cartesian_move_distance( Movement_t *movement )
                 // add to the running distance sum
                 distance_sum += dist;
 
+                // Add to the movement lookup table used for speed linearisation
                 move_metadata.lut[i].progress = sample_t;
                 move_metadata.lut[i].distance = distance_sum;
 

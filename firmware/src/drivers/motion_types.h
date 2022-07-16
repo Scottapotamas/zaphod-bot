@@ -38,8 +38,11 @@ typedef enum
     _POINT_TRANSIT = 0,
     _LINE,
     _CATMULL_SPLINE,
+    _CATMULL_SPLINE_LINEARISED,
     _BEZIER_QUADRATIC,
+    _BEZIER_QUADRATIC_LINEARISED,
     _BEZIER_CUBIC,
+    _BEZIER_CUBIC_LINEARISED,
 } MotionAdjective_t;
 
 typedef enum
