@@ -266,6 +266,16 @@ path_interpolator_process( void )
 
                 path_interpolator_notify_pathing_started( me->current_move->sync_offset );
                 path_interpolator_premove_transforms( me->current_move );
+
+                mm_per_second_t speed = cartesian_move_speed( me->current_move );
+
+                if( speed > EFFECTOR_SPEED_LIMIT )
+                {
+                    // TODO do something other than just 'accept' the overspeed move
+                    //      consider firing event upstream to trigger queue clearing and graceful stop
+                    user_interface_report_error( "Requested illegal speed move" );
+                }
+
             }
 
             if( time_since_epoch_ms > me->current_move->sync_offset )

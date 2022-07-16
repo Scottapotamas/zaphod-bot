@@ -462,16 +462,7 @@ PRIVATE void AppTaskMotion_add_event_to_queue( AppTaskMotion *me, const StateEve
     uint8_t queue_usage = eventQueueUsed( &me->super.requestQueue );
     if( queue_usage <= MOVEMENT_QUEUE_DEPTH_MAX )
     {
-        mm_per_second_t speed = cartesian_move_speed( &mpe->move );
-
-        if( speed < EFFECTOR_SPEED_LIMIT )
-        {
-            eventQueuePutFIFO( &me->super.requestQueue, (StateEvent *)e );
-        }
-        else
-        {
-            user_interface_report_error( "Requested illegal speed move" );
-        }
+        eventQueuePutFIFO( &me->super.requestQueue, (StateEvent *)e );
     }
     else
     {
