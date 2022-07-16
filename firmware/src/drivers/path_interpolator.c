@@ -385,13 +385,29 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
             cartesian_point_on_catmull_spline( move->points, move->num_pts, percentage, &target );
             break;
 
+        case _CATMULL_SPLINE_LINEARISED:
+            percentage = cartesian_distance_linearisation_from_lut( move->sync_offset, percentage );
+            cartesian_point_on_catmull_spline( move->points, move->num_pts, percentage, &target );
+            break;
+
         case _BEZIER_QUADRATIC:
+            cartesian_point_on_quadratic_bezier( move->points, move->num_pts, percentage, &target );
+            break;
+
+        case _BEZIER_QUADRATIC_LINEARISED:
+            percentage = cartesian_distance_linearisation_from_lut( move->sync_offset, percentage );
             cartesian_point_on_quadratic_bezier( move->points, move->num_pts, percentage, &target );
             break;
 
         case _BEZIER_CUBIC:
             cartesian_point_on_cubic_bezier( move->points, move->num_pts, percentage, &target );
             break;
+
+        case _BEZIER_CUBIC_LINEARISED:
+            percentage = cartesian_distance_linearisation_from_lut( move->sync_offset, percentage );
+            cartesian_point_on_cubic_bezier( move->points, move->num_pts, percentage, &target );
+            break;
+
         default:
             // TODO this should be considered a motion error
 
