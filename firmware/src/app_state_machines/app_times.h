@@ -34,8 +34,8 @@ enum SystemDefines
     MOVEMENT_QUEUE_DEPTH_MAX = 150U,    // movement events in the queue
     LED_QUEUE_DEPTH_MAX      = 250U,    // LED animations in the queue
 
-    EFFECTOR_SPEED_LIMIT    = 350U,    // mm/second
-    SPEED_SAMPLE_RESOLUTION = 15U,     // number of samples to sum across line
+    EFFECTOR_SPEED_LIMIT    = 650U,    // mm/second
+    SPEED_SAMPLE_RESOLUTION = 20U,     // number of samples to sum across spline
 };
 
 /* -------------------------------------------------------------------------- */
