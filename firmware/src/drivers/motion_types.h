@@ -112,6 +112,9 @@ cartesian_move_distance( Movement_t *movement );
 PUBLIC void
 cartesian_point_rotate_around_z( CartesianPoint_t *a, float degrees );
 
+PUBLIC float
+cartesian_distance_linearisation_from_lut( uint32_t sync_offset, float progress );
+
 PUBLIC void
 cartesian_find_point_on_line( CartesianPoint_t *a, CartesianPoint_t *b, CartesianPoint_t *p, float weight );
 
