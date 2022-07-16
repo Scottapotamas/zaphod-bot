@@ -61,6 +61,74 @@ cartesian_point_rotate_around_z( CartesianPoint_t *a, float degrees )
 
 /* -------------------------------------------------------------------------- */
 
+typedef struct
+{
+    float progress;
+    uint32_t distance;
+} SplineDistanceMap_t;
+
+typedef struct
+{
+    uint32_t id;
+    SplineDistanceMap_t lut[SPEED_SAMPLE_RESOLUTION+1];
+} SplineMetadata;
+
+SplineMetadata move_metadata = { 0 };
+
+/* Apply calculations to find the 't' value to apply to a downstream pathing calculation
+ * which will result 'linear' distance changes over the input progress [0.0f to 1.0f] percent.
+ *
+ * This uses the distance [microns] vs t [0.0f to 1.0f] lookup table generated during speed checks, and interpolates
+ * between samples.
+ */
+
+PUBLIC float
+cartesian_distance_linearisation_from_lut( uint32_t sync_offset, float progress )
+{
+    SplineMetadata *metadata = &move_metadata;
+    float target_t = 0;
+
+    // TODO handle nulls/empties
+
+
+    if( metadata->id != sync_offset )
+    {
+        target_t = progress;
+        return target_t;
+    }
+
+    // TODO re-evaluate requirement for floating point calculations, performance impact
+
+    // Calculate the 'length' for this progress - between 0 and 'line length'
+    uint32_t target_distance = (float)metadata->lut[SPEED_SAMPLE_RESOLUTION].distance * progress;
+
+    // Walk through the lookup table until we find the pair of entries around our target length
+    for( uint32_t i = 0; i <= SPEED_SAMPLE_RESOLUTION; i++ )
+    {
+        // Is the sum of line segments larger than the target length
+        if( metadata->lut[i].distance >= target_distance )
+        {
+            SplineDistanceMap_t *lower = &metadata->lut[i - 1];
+            SplineDistanceMap_t *upper = &metadata->lut[i];
+
+            // Linearly interpolate with the previous entry to find the matching distance
+
+            // let x represent progress, y represents the distance
+            // 1 is 'lower', 2 is 'upper', 3 is 'interpolated
+            // x3 = ( (y2-y3)*x1 + (y3-y1)*x2 ) / ( y2 - y1 )
+            // x3 is therefore the value 't' we use when calculating positions on the spline
+            float lerp_progress = ( (float)(upper->distance-target_distance)*lower->progress
+                                    + (float)(target_distance-lower->distance)*upper->progress )
+                                  / (float)( upper->distance - lower->distance );
+
+            target_t = lerp_progress;
+            break;
+        }
+    }
+
+    return target_t;
+}
+
 // Calculate the distance of a movement
 PUBLIC uint32_t
 cartesian_move_distance( Movement_t *movement )
@@ -82,6 +150,9 @@ cartesian_move_distance( Movement_t *movement )
 
             // Copy the curve start point as the previous point, as first sample is non-zero
             memcpy( &previous_point, &movement->points[0], sizeof( CartesianPoint_t ) );
+
+            // Copy the movements ID (sync timestamp) alongside metadata
+            move_metadata.id = movement->sync_offset;
 
             // iteratively sum over a series of sampled positions
             for( uint32_t i = 1; i <= SPEED_SAMPLE_RESOLUTION; i++ )
@@ -115,6 +186,9 @@ cartesian_move_distance( Movement_t *movement )
 
                 // add to the running distance sum
                 distance_sum += dist;
+
+                move_metadata.lut[i].progress = sample_t;
+                move_metadata.lut[i].distance = distance_sum;
 
                 // this sample will be used as the previous point in the next loop
                 memcpy( &previous_point, &sample_point, sizeof( CartesianPoint_t ) );
