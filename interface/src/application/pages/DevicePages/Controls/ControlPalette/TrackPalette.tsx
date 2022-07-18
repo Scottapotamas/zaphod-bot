@@ -33,7 +33,7 @@ export const TrackPalette = () => {
                     state[MSGID.POSITION_TARGET] = {
                       x: values.target_x,
                       y: state[MSGID.POSITION_TARGET].y,
-                      z: state[MSGID.POSITION_TARGET].tpos.z,
+                      z: state[MSGID.POSITION_TARGET].z,
                     }
                   }}
                 >

@@ -79,7 +79,6 @@ export class VelocityMaterial extends Material {
       duration: movement.getDuration(),
       type: LightMoveType.IMMEDIATE,
       points: [rgbToHsi(1, 1, 1)],
-      num_points: 1,
     }
 
     return [fade]
