@@ -13,7 +13,7 @@ import { useHardwareState } from '@electricui/components-core'
 
 import { MessageDataSource } from '@electricui/core-timeseries'
 import { useDarkMode } from '@electricui/components-desktop'
-import { MSGID, ServoInfo } from '../../../typedState'
+import { MSGID, ServoInfo } from '../../../../typedState'
 
 const lightModeColours = [
   Colors.GREEN2,
@@ -39,7 +39,6 @@ export const PowerChart = () => {
         <LineChart
           dataSource={servoTelemetryDataSource}
           accessor={state => state[index].power}
-          maxItems={10000}
           color={servoColours[index]}
           key={`power_${index}`}
           // lineWidth={3}
@@ -47,7 +46,7 @@ export const PowerChart = () => {
       ))}
       <RealTimeDomain window={[10_000, 30_000]} yMin={0} yMax={50} delay={50} />
       <TimeAxis />
-      <VerticalAxis label="Servo Power W" />
+      <VerticalAxis label="POWER" tickFormat={(tick: number) => `${tick}W`} tickCount={2}/>
     </ChartContainer>
   )
 }

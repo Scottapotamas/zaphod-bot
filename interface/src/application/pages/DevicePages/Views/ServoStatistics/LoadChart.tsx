@@ -13,7 +13,7 @@ import { useHardwareState } from '@electricui/components-core'
 
 import { MessageDataSource } from '@electricui/core-timeseries'
 import { useDarkMode } from '@electricui/components-desktop'
-import { MSGID, ServoInfo } from '../../../typedState'
+import { MSGID, ServoInfo } from '../../../../typedState'
 
 const lightModeColours = [
   Colors.GREEN2,
@@ -39,7 +39,6 @@ export const LoadChart = () => {
         <LineChart
           dataSource={servoTelemetryDataSource}
           accessor={state => state[index].feedback}
-          maxItems={10000}
           color={servoColours[index]}
           key={`torque_${index}`}
           // lineWidth={3}
@@ -47,12 +46,12 @@ export const LoadChart = () => {
       ))}
       <RealTimeDomain
         window={[10_000, 30_000]}
-        yMin={-10}
-        yMax={10}
+        yMinSoft={-10}
+        yMaxSoft={10}
         delay={50}
       />
       <TimeAxis />
-      <VerticalAxis label="Servo Torque %" />
+      <VerticalAxis label="TORQUE" tickFormat={(tick: number) => `${tick}%`} tickCount={4}/>
     </ChartContainer>
   )
 }
