@@ -22,6 +22,9 @@ import { Store } from 'redux'
 import { WrapDeviceContextWithLocation } from './pages/WrapDeviceContextWithLocation'
 import { history } from '@electricui/utility-electron'
 
+import { FocusStyleManager } from "@blueprintjs/core";
+FocusStyleManager.onlyShowFocusOnTabs();
+
 interface RootProps {
   store: Store
 }
