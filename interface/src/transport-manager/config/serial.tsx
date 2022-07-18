@@ -6,7 +6,6 @@ import {
   UndefinedMessageIDGuardPipeline,
 } from '@electricui/protocol-binary'
 import {
-  CodecDuplexPipeline,
   ConnectionInterface,
   ConnectionStaticMetadataReporter,
   DiscoveryHintConsumer,
@@ -15,6 +14,8 @@ import {
   TypeCache,
 } from '@electricui/core'
 import {
+  SerialPortHintConfiguration,
+  SerialPortHintIdentification,
   SerialPortHintProducer,
   SerialPortUSBHintTransformer,
   SerialTransport,
@@ -24,12 +25,11 @@ import {
 import { BinaryLargePacketHandlerPipeline } from '@electricui/protocol-binary-large-packet-handler'
 import { COBSPipeline } from '@electricui/protocol-binary-cobs'
 import { HeartbeatConnectionMetadataReporter } from '@electricui/protocol-binary-heartbeats'
-import SerialPort from 'serialport'
-import USB from 'usb'
+import { SerialPort } from 'serialport'
+import { usb } from 'usb'
 import { USBHintProducer } from '@electricui/transport-node-usb-discovery'
 import { customCodecs } from './codecs'
-import { defaultCodecList } from '@electricui/protocol-binary-codecs'
-
+import { CodecDuplexPipelineWithDefaults } from '@electricui/protocol-binary-codecs'
 import { MSGID } from '../../application/typedState'
 
 const typeCache = new TypeCache()
@@ -40,7 +40,7 @@ const serialProducer = new SerialPortHintProducer({
 })
 
 const usbProducer = new USBHintProducer({
-  USB,
+  usb,
 })
 
 // Serial Ports
@@ -70,9 +70,8 @@ const serialTransportFactory = new TransportFactory(
       [MSGID.FIRMWARE_INFO],
     )
 
-    const codecPipeline = new CodecDuplexPipeline()
-    // Add the default codecs first so that queries are dealt with preferentially
-    codecPipeline.addCodecs(defaultCodecList)
+    const codecPipeline = new CodecDuplexPipelineWithDefaults()
+
     // Add custom codecs after the default ones.
     codecPipeline.addCodecs(customCodecs)
 
@@ -114,7 +113,9 @@ const serialTransportFactory = new TransportFactory(
 
 const serialConsumer = new DiscoveryHintConsumer({
   factory: serialTransportFactory,
-  canConsume: (hint: Hint) => {
+  canConsume: (
+    hint: Hint<SerialPortHintIdentification, SerialPortHintConfiguration>,
+  ) => {
     if (hint.getTransportKey() === 'serial') {
       // If you wanted to filter for specific serial devices, you would modify this section, removing the
       // return statement below and uncommenting the block below it, modifying it to your needs.
@@ -122,7 +123,7 @@ const serialConsumer = new DiscoveryHintConsumer({
       const identification = hint.getIdentification()
 
       // Filter out any /dev/ttyS____ comPaths since they're almost certainly terminals
-      if (identification.comPath.startsWith('/dev/ttyS')) {
+      if (identification.path.startsWith('/dev/ttyS')) {
         return false
       }
 
@@ -146,7 +147,7 @@ const serialConsumer = new DiscoveryHintConsumer({
 
     const options: SerialTransportOptions = {
       SerialPort,
-      comPath: identification.comPath,
+      path: identification.path,
       baudRate: configuration.baudRate,
       // if you have an Arduino that resets on connection, uncomment this line to delay the connection
       // attachmentDelay: 2500,
