@@ -31,7 +31,7 @@ export const HomeButton = (props: HomeButtonProps) => {
       intent={Intent.SUCCESS}
       icon={IconNames.HOME}
       callback={MSGID.HOME}
-      style={{height: '100%'}}
+      {...{ style: { height: '100%' } }}
     >
       {props.label}
     </Button>
