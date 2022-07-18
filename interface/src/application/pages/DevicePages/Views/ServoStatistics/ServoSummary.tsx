@@ -1,14 +1,19 @@
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 
 import { Composition, Box } from 'atomic-layout'
 
-import { Colors, Callout, Tag, Intent, IconName } from '@blueprintjs/core'
+import { Button, Colors, Collapse, Tag, Intent, IconName } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
 
 import { useHardwareState } from '@electricui/components-core'
 
 import { MSGID, SUPERVISOR_STATES, ServoInfo } from '../../../../typedState'
 import { Printer } from '@electricui/components-desktop'
+
+import { AngleChart } from './AngleChart'
+import { RotationRateChart } from './RotationRateChart'
+import { LoadChart } from './LoadChart'
+import { PowerChart } from './PowerChart'
 
 const servoColor: Intent[] = [
   Intent.SUCCESS,
@@ -240,13 +245,44 @@ export const ServoSummary = () => {
     return <span>No motor telemetry available...</span>
   }
 
+  let [chartsExpanded, setChartsExpanded] = useState(false)
+
+  const controlChartsExpansion = useCallback(_ => {
+    setChartsExpanded(enabled => !enabled)
+  }, [])
+
   return (
-    <div style={{display: 'flex'}}>
-      {motors.map((clearpath, index) => (
-        <div style={{width: '33%', margin: 5}}>
-          <ServoStats servo={clearpath} index={index} />
-        </div>
-      ))}
+    <div>
+      <div style={{display: 'flex'}}>
+        {motors.map((clearpath, index) => (
+          <div style={{width: '33%', padding: 5}}>
+            <ServoStats servo={clearpath} index={index} />
+          </div>
+        ))}
+      </div>
+
+      <Button
+        minimal
+        outlined
+        intent={Intent.NONE}
+        small
+        fill
+        onClick={controlChartsExpansion}
+        icon={
+          chartsExpanded ? IconNames.CHEVRON_UP: IconNames.CHEVRON_DOWN
+        }
+      >
+        {/* Consider a label here to explain the UX? */}
+      </Button>
+      <br/>
+      <Collapse isOpen={chartsExpanded}>
+        <Composition gap={0}>
+          <AngleChart />
+          <RotationRateChart />
+          <LoadChart />
+          <PowerChart />
+        </Composition>
+      </Collapse>
     </div>
   )
 }

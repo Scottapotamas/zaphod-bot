@@ -25,10 +25,6 @@ import { SystemSummary } from './Views/SystemSummary'
 import { RobotSummary } from './Views/RobotSummary'
 
 import { ServoSummary } from './Views/ServoStatistics/ServoSummary'
-import { AngleChart } from './Views/ServoStatistics/AngleChart'
-import { LoadChart } from './Views/ServoStatistics/LoadChart'
-import { PowerChart } from './Views/ServoStatistics/PowerChart'
-import { RotationRateChart } from './Views/ServoStatistics/RotationRateChart'
 
 import { ControlBlock } from './Controls/ControlBlock'
 import { EStopButton } from './Controls/EStopButton'
@@ -144,10 +140,6 @@ const MainWindow = (props: RouteComponentProps) => {
         <Composition gap={10}>
           <SystemSummary />
           <ServoSummary />
-          <AngleChart />
-          <RotationRateChart />
-          <LoadChart />
-          <PowerChart />
         </Composition>
       </div>
       </Only>
