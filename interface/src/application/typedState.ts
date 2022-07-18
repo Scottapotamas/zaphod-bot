@@ -86,6 +86,10 @@ declare global {
 
     [MSGID.LED_CALIBRATION]: LedSettings
   }
+
+  interface ElectricUIDeviceMetadataState {
+    firmware_info: FirmwareBuildInfo
+  }
 }
 
 export type SystemStatus = {
