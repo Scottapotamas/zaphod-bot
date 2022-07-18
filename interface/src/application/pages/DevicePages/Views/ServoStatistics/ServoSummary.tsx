@@ -7,7 +7,7 @@ import { IconNames } from '@blueprintjs/icons'
 
 import { useHardwareState } from '@electricui/components-core'
 
-import { MSGID, SUPERVISOR_STATES, ServoInfo } from '../../../typedState'
+import { MSGID, SUPERVISOR_STATES, ServoInfo } from '../../../../typedState'
 import { Printer } from '@electricui/components-desktop'
 
 const servoColor: Intent[] = [
@@ -171,7 +171,7 @@ const PowerTag = (props: ServoStatusBlockProps) => {
 
       }}
     >
-      <Printer accessor={state => state[MSGID.SERVO][props.motorIndex].power} precision={1}/> W
+      <Printer accessor={state => state[MSGID.SERVO][props.motorIndex].power} precision={0}/> W
     </Tag>
   )
 }
@@ -190,26 +190,24 @@ const RotationRateTag = (props: ServoStatusBlockProps) => {
 
       }}
     >
-      <Printer accessor={state => state[MSGID.SERVO][props.motorIndex].speed} precision={0}/> °/sec
+      <Printer accessor={state => state[MSGID.SERVO][props.motorIndex].speed} precision={0}/> °/s
     </Tag>
   )
 }
 const layoutDescription = `
-  State 
-  Angle
-  Feedback 
-  Power
-  RotationRate
+  State State
+  Angle RotationRate
+  Feedback Power
 `
 
 const ServoStats = (props: MotorData) => {
   return (
-    <React.Fragment>
+    <div key={props.index} style={{ borderStyle: 'solid', borderWidth: '1px', borderRadius: '3px', borderColor: Colors.GRAY1}}>
       <Composition
         areas={layoutDescription}
         templateCols="1fr"
-        gapCol={10}
-        gapRow={5}
+        gap={5}
+        padding={5}
       >
         {Areas => (
           <React.Fragment>
@@ -219,19 +217,19 @@ const ServoStats = (props: MotorData) => {
             <Areas.Angle>
               <TargetAngleTag motorIndex={props.index} />
             </Areas.Angle>
+            <Areas.RotationRate>
+              <RotationRateTag motorIndex={props.index} />
+            </Areas.RotationRate>
             <Areas.Feedback>
               <FeedbackTag motorIndex={props.index} />
             </Areas.Feedback>
             <Areas.Power>
               <PowerTag motorIndex={props.index} />
             </Areas.Power>
-            <Areas.RotationRate>
-              <RotationRateTag motorIndex={props.index} />
-            </Areas.RotationRate>
           </React.Fragment>
         )}
       </Composition>
-    </React.Fragment>
+    </div>
   )
 }
 
@@ -245,7 +243,7 @@ export const ServoSummary = () => {
   return (
     <div style={{display: 'flex'}}>
       {motors.map((clearpath, index) => (
-        <div style={{width: '33%', marginLeft: 10}}>
+        <div style={{width: '33%', margin: 5}}>
           <ServoStats servo={clearpath} index={index} />
         </div>
       ))}

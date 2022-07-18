@@ -13,7 +13,7 @@ import { useHardwareState } from '@electricui/components-core'
 
 import { MessageDataSource } from '@electricui/core-timeseries'
 import { useDarkMode } from '@electricui/components-desktop'
-import { ServoInfo, MSGID } from '../../../typedState'
+import { ServoInfo, MSGID } from '../../../../typedState'
 
 const lightModeColours = [
   Colors.GREEN2,
@@ -25,7 +25,7 @@ const darkModeColours = [Colors.GREEN5, Colors.RED5, Colors.BLUE5, Colors.GOLD5]
 
 const servoTelemetryDataSource = new MessageDataSource(MSGID.SERVO)
 
-export const RotationRateChart = () => {
+export const AngleChart = () => {
   const numMotors: number | null = useHardwareState(
     state => (state[MSGID.SERVO] || []).length,
   )
@@ -38,21 +38,21 @@ export const RotationRateChart = () => {
       {Array.from(new Array(numMotors)).map((_, index) => (
         <LineChart
           dataSource={servoTelemetryDataSource}
-          accessor={state => state[index].speed}
-          maxItems={10000}
+          accessor={state => state[index].target_angle}
           color={servoColours[index]}
-          key={`speed_${index}`}
+          key={`angle_${index}`}
           // lineWidth={3}
         />
       ))}
       <RealTimeDomain
         window={[10_000, 30_000]}
-        yMin={0}
-        yMax={200}
+        yMin={-45}
+        yMaxSoft={20}
         delay={50}
       />
       <TimeAxis />
-      <VerticalAxis label="Rotation Rate °/sec" />
+      <VerticalAxis tickFormat={(tick: number) => `${tick}°`} tickCount={4}/>
+
     </ChartContainer>
   )
 }

@@ -21,13 +21,14 @@ import {
 
 import { MSGID } from 'src/application/typedState'
 
-import { RobotSummary } from './Views/RobotSummary'
-import { ServoSummary } from './Views/ServoSummary'
 import { SystemSummary } from './Views/SystemSummary'
-import { AngleChart } from './Views/AngleChart'
-import { LoadChart } from './Views/LoadChart'
-import { PowerChart } from './Views/PowerChart'
-import { RotationRateChart } from './Views/RotationRateChart'
+import { RobotSummary } from './Views/RobotSummary'
+
+import { ServoSummary } from './Views/ServoStatistics/ServoSummary'
+import { AngleChart } from './Views/ServoStatistics/AngleChart'
+import { LoadChart } from './Views/ServoStatistics/LoadChart'
+import { PowerChart } from './Views/ServoStatistics/PowerChart'
+import { RotationRateChart } from './Views/ServoStatistics/RotationRateChart'
 
 import { ControlBlock } from './Controls/ControlBlock'
 import { EStopButton } from './Controls/EStopButton'
@@ -144,9 +145,9 @@ const MainWindow = (props: RouteComponentProps) => {
           <SystemSummary />
           <ServoSummary />
           <AngleChart />
+          <RotationRateChart />
           <LoadChart />
           <PowerChart />
-          <RotationRateChart />
         </Composition>
       </div>
       </Only>
