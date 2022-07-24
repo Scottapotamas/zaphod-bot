@@ -134,14 +134,16 @@ const MainWindow = (props: RouteComponentProps) => {
         <ControlBlock />
       </div>
 
+      {/* Centered status info */}
+      <div style={{ maxWidth: '400px', position: 'absolute', left: '0', right: '0', marginLeft: 'auto', marginRight: 'auto' }}>
+        <SystemSummary />
+      </div>
+
       {/* Left Sidebar for telemetry */}
       <Only from={{ minWidth: 1200 }}>
-      <div style={{ width: '30vw', right: '1em', position: 'absolute' }}>
-        <Composition gap={10}>
-          <SystemSummary />
+        <div style={{ width: '30vw', right: '1em', position: 'absolute' }}>
           <ServoSummary />
-        </Composition>
-      </div>
+        </div>
       </Only>
 
     </React.Fragment>

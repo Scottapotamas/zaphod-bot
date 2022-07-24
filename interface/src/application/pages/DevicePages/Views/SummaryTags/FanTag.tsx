@@ -41,13 +41,13 @@ import { MSGID, FanState } from '../../../../typedState'
 function fanModeAccessor(state: ElectricUIDeveloperState) {
   switch (state[MSGID.FAN].state) {
     case FanState.OFF:
-      return 'Off'
+      return 'OFF'
     case FanState.STALL:
-      return 'Stall'
+      return 'STALL'
     case FanState.STARTUP:
-      return 'Startup'
+      return 'STARTUP'
     case FanState.OK:
-      return 'Ok'
+      return 'OK'
 
     default:
       return 'unknown'
@@ -76,7 +76,7 @@ export const FanTag = () => {
           </div>
         </Tag>
         <Composition padding={30} gap={20} minWidth="500px">
-          <ChartContainer height={300}>
+          <ChartContainer height={200}>
             <LineChart
               dataSource={fanDataSource}
               accessor={event => event.rpm}
@@ -85,13 +85,13 @@ export const FanTag = () => {
             />
             {/* Plot a 10-minute window */}
             <RealTimeDomain
-              window={[5000, 10_000, 20_000, 60_000]}
+              window={[10_000, 30_000, 60_000]}
               delay={500}
               yMin={0}
-              yMax={1400}
+              yMaxSoft={1000}
             />
             <TimeAxis />
-            <VerticalAxis label="Fan RPM" />
+            <VerticalAxis/>
           </ChartContainer>
           <Statistics>
             <Statistic accessor={fanModeAccessor} label="operation" />
