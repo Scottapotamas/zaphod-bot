@@ -238,13 +238,25 @@ const ServoStats = (props: MotorData) => {
   )
 }
 
-export const ServoSummary = () => {
-  const motors = useHardwareState(state => state[MSGID.SERVO])//.filter(obj => obj.enabled)
+const ServoStatsBlock = () => {
+  const motors = useHardwareState((state) => state[MSGID.SERVO]); //.filter(obj => obj.enabled)
 
   if (!motors) {
-    return <span>No motor telemetry available...</span>
+    return <span>No motor telemetry available...</span>;
   }
 
+  return (
+    <div style={{ display: "flex" }}>
+      {motors.map((clearpath, index) => (
+        <div style={{ width: "33%", padding: 5 }}>
+          <ServoStats servo={clearpath} index={index} />
+        </div>
+      ))}
+    </div>
+  );
+};
+
+export const ServoSummary = () => {
   let [chartsExpanded, setChartsExpanded] = useState(false)
 
   const controlChartsExpansion = useCallback(_ => {
@@ -253,13 +265,7 @@ export const ServoSummary = () => {
 
   return (
     <div>
-      <div style={{display: 'flex'}}>
-        {motors.map((clearpath, index) => (
-          <div style={{width: '33%', padding: 5}}>
-            <ServoStats servo={clearpath} index={index} />
-          </div>
-        ))}
-      </div>
+      <ServoStatsBlock />
 
       <Button
         minimal
