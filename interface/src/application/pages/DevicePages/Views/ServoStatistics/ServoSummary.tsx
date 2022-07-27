@@ -261,7 +261,7 @@ export const ServoSummary = () => {
 
   const controlChartsExpansion = useCallback(_ => {
     setChartsExpanded(enabled => !enabled)
-  }, [])
+  }, [setChartsExpanded])
 
   return (
     <div>
