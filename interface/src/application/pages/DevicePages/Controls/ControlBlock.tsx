@@ -42,13 +42,11 @@ export const ControlBlock = () => {
     return <EventPalette />
   } else if (control_mode == CONTROL_MODES[CONTROL_MODES.DEMO]) {
     return (
-      <OutlineCard>
-        <div style={{padding: '1em'}}>
+      <OutlineCard padding="2em">
           <NonIdealState
             title="Demonstration Mode"
             description="Begins automatically once armed"
           />
-        </div>
       </OutlineCard>
     )
   } else if (control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]) {
@@ -56,8 +54,8 @@ export const ControlBlock = () => {
   }
 
   return (
-    <OutlineCard>
-      <NonIdealState title="Changing Mode" description="Please wait" />
+    <OutlineCard padding="2em">
+        <NonIdealState title="Changing Mode" description="Please wait" />
     </OutlineCard>
   )
 }
