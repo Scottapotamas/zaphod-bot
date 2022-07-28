@@ -20,26 +20,8 @@ export const EffectorSpeedTag = (props: TagProps) => {
         icon={IconNames.PIVOT}
       >
         <div style={{ textAlign: 'right' }}>
-          <Printer accessor={state => state[MSGID.MOTION].effector_speed} precision={1} /> mm/sec
+          <Printer accessor={state => state[MSGID.MOTION].effector_speed} precision={0} /> mm/s
         </div>
       </Tag>
   )
 }
-
-// TODO: consider making the chart available in a popover?
-{/* 
-
-const moveDataSource = new MessageDataSource(MSGID.MOTION)
-
-
-<ChartContainer height="8em">
-  <LineChart
-    dataSource={moveDataSource}
-    accessor={state => state.effector_speed}
-    color={Colors.BLUE4}
-  />
-  <RealTimeDomain window={20_000} />
-  <VerticalAxis />
-  <TimeAxis />
-</ChartContainer>  
-*/}

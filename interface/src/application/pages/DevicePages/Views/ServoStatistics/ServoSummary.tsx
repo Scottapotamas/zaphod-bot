@@ -248,7 +248,7 @@ const ServoStatsBlock = () => {
   return (
     <div style={{ display: "flex" }}>
       {motors.map((clearpath, index) => (
-        <div style={{ width: "33%", padding: 5 }}>
+        <div style={{  padding: 5 }}>
           <ServoStats servo={clearpath} index={index} />
         </div>
       ))}

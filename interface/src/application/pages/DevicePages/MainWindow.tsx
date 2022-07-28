@@ -77,7 +77,7 @@ const SideBar = () => {
           </Tooltip>
         </Composition>
 
-        <RobotSummary isLarge={true} />
+        <RobotSummary isLarge={false} />
       </Composition>
 
       <ModeSelection />
@@ -141,7 +141,7 @@ const MainWindow = (props: RouteComponentProps) => {
 
       {/* Left Sidebar for telemetry */}
       <Only from={{ minWidth: 1200 }}>
-        <div style={{ width: '30vw', right: '1em', position: 'absolute' }}>
+        <div style={{ maxWidth: '40vw', right: '1em', position: 'absolute' }}>
           <ServoSummary />
         </div>
       </Only>

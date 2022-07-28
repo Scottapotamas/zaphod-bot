@@ -18,6 +18,7 @@ import { Printer } from '@electricui/components-desktop'
 
 import { MSGID, CONTROL_MODES, SUPERVISOR_STATES } from '../../../typedState'
 import { PositionTag } from './SummaryTags/PositionTag'
+import { EffectorSpeedTag } from './SummaryTags/EffectorSpeedTag'
 import { HomeButton } from '../Controls/HomeButton'
 import { ArmControlTag } from '../Controls/ArmButton'
 
@@ -87,7 +88,10 @@ export const RobotSummary = (props: RobotSummaryProps) => {
             </Areas.Home>
 
             <Areas.Position>
-              <PositionTag isLarge={props.isLarge} />
+              <Composition templateCols="1fr" gap={props.isLarge ? 10 : 5}>
+                <PositionTag isLarge={props.isLarge} />
+                <EffectorSpeedTag isLarge={props.isLarge} />
+              </Composition>
             </Areas.Position>
           </React.Fragment>
         )}
