@@ -17,17 +17,20 @@ import { IconNames } from '@blueprintjs/icons'
 
 import { Composition, Box } from 'atomic-layout'
 
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 
 import {
   getSetting,
   incrementViewportFrameVersion,
   setSetting,
   useSetting,
+  useStore
 } from './state'
 
 import { RenderableTree } from './RenderableTree'
 import { MaterialEditorInterface } from './MaterialEditorInterface'
+
+import { isCamera } from '../optimiser/camera'
 
 function DisableShapedTransitionsControl() {
   const [allowed, setAllow] = useState(
@@ -880,6 +883,78 @@ function PreviewTimelineControl() {
   )
 }
 
+function setThreeJSCamera() {
+  const sceneCamera = getSetting(state => state.camera)
+  const renderablesForFrame =
+    getSetting(state => state.renderablesByFrame[state.viewportFrame]) ?? []
+
+  const blenderCamera = renderablesForFrame.find(isCamera)
+
+  if (sceneCamera && blenderCamera) {
+    blenderCamera.alignCamera(sceneCamera)
+  }
+}
+
+function OrbitCameraToggle() {
+  const [enabled, setEnabled] = useState(true)
+
+  const updateChecked: React.FormEventHandler<HTMLInputElement> = useCallback(
+    event => {
+      const checked = event.currentTarget.checked
+      setEnabled(checked)
+      const orbitControls = getSetting(state => state.orbitControls)
+
+      if (orbitControls) {
+        orbitControls.enabled = checked
+      }
+
+      // Search for the camera for this frame if we've disabled orbitControls
+      if (getSetting(state => state.matchCameraAnimation)) {
+        setThreeJSCamera()
+      }
+    },
+    [],
+  )
+
+  useEffect(() => {
+    return useStore.subscribe(
+      state => state.viewportFrame,
+      frameNumber => {
+        if (getSetting(state => state.matchCameraAnimation)) {
+          setThreeJSCamera()
+        }
+      },
+    )
+  })
+
+  return (
+    <Checkbox checked={enabled} onChange={updateChecked} />
+  )
+}
+
+function AnnotateOrderingToggle() {
+  const [enabled, setEnabled] = useState(
+    getSetting(state => state.visualisationSettings.annotateDrawOrder),
+  )
+
+  const updateChecked: React.FormEventHandler<HTMLInputElement> = useCallback(
+    event => {
+      const checked = event.currentTarget.checked
+      setEnabled(checked)
+
+      setSetting(state => {
+        state.visualisationSettings.annotateDrawOrder = checked
+        incrementViewportFrameVersion(state)
+      })
+    },
+    [],
+  )
+
+  return (
+    <Checkbox checked={enabled} onChange={updateChecked} />
+  )
+}
+
 const enum TABS {
   GENERAL = 'general',
   CAMERA_HELPERS = 'camera-helpers',
@@ -983,9 +1058,10 @@ function VisualisationTab() {
           Preview Timeline <PreviewTimelineControl />
         </>
       ) : null}
-      <p>Annotate Draw Order</p> <br />
-      <p>Curve Segments</p> <br />
-      <p>Orbit Camera</p> <br />
+      Annotate Draw Order <AnnotateOrderingToggle/>
+      Orbit Camera <OrbitCameraToggle/>
+      {/* <p>Curve Segments</p> <br /> */}
+
     </Composition>
   )
 }
