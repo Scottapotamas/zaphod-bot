@@ -1,8 +1,15 @@
 import React, { useCallback, useState } from 'react'
 
-import { Composition, Box } from 'atomic-layout'
+import { Composition, Box, Only } from 'atomic-layout'
 
-import { Button, Colors, Collapse, Tag, Intent, IconName } from '@blueprintjs/core'
+import {
+  Button,
+  Colors,
+  Collapse,
+  Tag,
+  Intent,
+  IconName,
+} from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
 
 import { useHardwareState } from '@electricui/components-core'
@@ -10,6 +17,7 @@ import { useHardwareState } from '@electricui/components-core'
 import { MSGID, SUPERVISOR_STATES, ServoInfo } from '../../../../typedState'
 import { Printer } from '@electricui/components-desktop'
 
+import { OutlineCard } from '../../../../components/OutlineCard'
 import { AngleChart } from './AngleChart'
 import { RotationRateChart } from './RotationRateChart'
 import { LoadChart } from './LoadChart'
@@ -126,7 +134,6 @@ const ServoStatusBlock = (props: ServoStatusBlockProps) => {
 }
 
 const TargetAngleTag = (props: ServoStatusBlockProps) => {
-
   return (
     <Tag
       minimal
@@ -145,7 +152,6 @@ const TargetAngleTag = (props: ServoStatusBlockProps) => {
 }
 
 const FeedbackTag = (props: ServoStatusBlockProps) => {
-
   return (
     <Tag
       minimal
@@ -163,7 +169,6 @@ const FeedbackTag = (props: ServoStatusBlockProps) => {
 }
 
 const PowerTag = (props: ServoStatusBlockProps) => {
-
   return (
     <Tag
       minimal
@@ -173,7 +178,6 @@ const PowerTag = (props: ServoStatusBlockProps) => {
         fontWeight: 'bold',
         minWidth: '50px',
         textAlign: 'center',
-
       }}
     >
       <Printer accessor={state => state[MSGID.SERVO][props.motorIndex].power} precision={0}/> W
@@ -182,7 +186,6 @@ const PowerTag = (props: ServoStatusBlockProps) => {
 }
 
 const RotationRateTag = (props: ServoStatusBlockProps) => {
-
   return (
     <Tag
       minimal
@@ -192,7 +195,6 @@ const RotationRateTag = (props: ServoStatusBlockProps) => {
         fontWeight: 'bold',
         minWidth: '50px',
         textAlign: 'center',
-
       }}
     >
       <Printer accessor={state => state[MSGID.SERVO][props.motorIndex].speed} precision={0}/> °/s
@@ -207,12 +209,11 @@ const layoutDescription = `
 
 const ServoStats = (props: MotorData) => {
   return (
-    <div key={props.index} style={{ borderStyle: 'solid', borderWidth: '1px', borderRadius: '3px', borderColor: Colors.GRAY1}}>
+    <OutlineCard key={props.index}>
       <Composition
         areas={layoutDescription}
-        templateCols="1fr"
+        // templateCols="1fr"
         gap={5}
-        padding={5}
       >
         {Areas => (
           <React.Fragment>
@@ -234,37 +235,38 @@ const ServoStats = (props: MotorData) => {
           </React.Fragment>
         )}
       </Composition>
-    </div>
+    </OutlineCard>
   )
 }
 
 const ServoStatsBlock = () => {
-  const motors = useHardwareState((state) => state[MSGID.SERVO]); //.filter(obj => obj.enabled)
+  const motors = useHardwareState(state => state[MSGID.SERVO]) //.filter(obj => obj.enabled)
 
   if (!motors) {
-    return <span>No motor telemetry available...</span>;
+    return <span>No motor telemetry available...</span>
   }
 
   return (
-    <div style={{ display: "flex" }}>
+    <Composition gap={5} templateCols="1fr 1fr 1fr 1fr">
       {motors.map((clearpath, index) => (
-        <div style={{  padding: 5 }}>
-          <ServoStats servo={clearpath} index={index} />
-        </div>
+        <ServoStats servo={clearpath} index={index} />
       ))}
-    </div>
-  );
-};
+    </Composition>
+  )
+}
 
 export const ServoSummary = () => {
   let [chartsExpanded, setChartsExpanded] = useState(false)
 
-  const controlChartsExpansion = useCallback(_ => {
-    setChartsExpanded(enabled => !enabled)
-  }, [setChartsExpanded])
+  const controlChartsExpansion = useCallback(
+    _ => {
+      setChartsExpanded(enabled => !enabled)
+    },
+    [setChartsExpanded],
+  )
 
   return (
-    <div>
+    <Composition gap={5}>
       <ServoStatsBlock />
 
       <Button
@@ -274,21 +276,29 @@ export const ServoSummary = () => {
         small
         fill
         onClick={controlChartsExpansion}
-        icon={
-          chartsExpanded ? IconNames.CHEVRON_UP: IconNames.CHEVRON_DOWN
-        }
+        icon={chartsExpanded ? IconNames.CHEVRON_UP : IconNames.CHEVRON_DOWN}
       >
         {/* Consider a label here to explain the UX? */}
       </Button>
-      <br/>
-      <Collapse isOpen={chartsExpanded}>
-        <Composition gap={0}>
-          <AngleChart />
-          <RotationRateChart />
-          <LoadChart />
-          <PowerChart />
+
+      <Collapse isOpen={chartsExpanded} transitionDuration={1500}>
+        <Composition gap={5}>
+          <OutlineCard>
+            <Composition padding={5}>
+              <AngleChart />
+              <RotationRateChart />
+            </Composition>
+          </OutlineCard>
+          <Only from={{ minHeight: 980 }}>
+            <OutlineCard>
+              <Composition padding={5}>
+                <LoadChart />
+                <PowerChart />
+              </Composition>
+            </OutlineCard>
+          </Only>
         </Composition>
       </Collapse>
-    </div>
+    </Composition>
   )
 }
