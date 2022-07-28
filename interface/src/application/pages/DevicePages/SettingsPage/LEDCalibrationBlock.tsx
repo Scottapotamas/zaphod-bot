@@ -7,6 +7,7 @@ import {
   Position,
   Tooltip,
   HTMLTable,
+  Intent,
 } from '@blueprintjs/core'
 import {
   IntervalRequester,
@@ -131,7 +132,7 @@ export const LEDCalibrationBlock = () => {
               </Button>
 
               <Button
-                intent="danger"
+                intent={Intent.DANGER}
                 writer={state => {
                   state[MSGID.LED_MANUAL_REQUEST] = {
                     red: 0.5,
@@ -144,7 +145,7 @@ export const LEDCalibrationBlock = () => {
                 Red
               </Button>
               <Button
-                intent="success"
+                intent={Intent.SUCCESS}
                 writer={state => {
                   state[MSGID.LED_MANUAL_REQUEST] = {
                     red: 0,
@@ -157,7 +158,7 @@ export const LEDCalibrationBlock = () => {
                 Green
               </Button>
               <Button
-                intent="primary"
+                intent={Intent.PRIMARY}
                 writer={state => {
                   state[MSGID.LED_MANUAL_REQUEST] = {
                     red: 0,

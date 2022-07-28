@@ -10,6 +10,8 @@ import {
 } from '@blueprintjs/core'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
+import { Composition, Box } from 'atomic-layout'
+
 import { sparseToDense } from '../optimiser/passes'
 import { toolpath } from '../optimiser/toolpath'
 
@@ -72,13 +74,13 @@ function SceneLengthSlider() {
         <MultiSlider.Handle
           type="start"
           value={localMinMax[0]}
-          intentBefore="warning"
+          intentBefore={Intent.WARNING}
         />
 
         <MultiSlider.Handle
           type="end"
           value={localMinMax[1]}
-          intentAfter="warning"
+          intentAfter={Intent.WARNING}
         />
       </MultiSlider>
     </div>
@@ -137,6 +139,7 @@ import { getOrderedMovementsForFrame } from './ToolpathVisualisation'
 import { FRAME_STATE } from '../optimiser/main'
 import { isCamera } from '../optimiser/camera'
 import { Vector3 } from 'three'
+import { IconNames } from '@blueprintjs/icons'
 
 async function getToolpathForFrame(frameNumber: number) {
   const persistentOptimiser = getSetting(state => state.persistentOptimiser)
@@ -206,8 +209,16 @@ function CopyToolpathToClipboard() {
   }, [])
 
   return (
-    <Button onClick={handleRender} loading={isLoading}>
-      Copy to clipboard
+    <Button
+      onClick={handleRender}
+      loading={isLoading}
+      icon={IconNames.CLIPBOARD}
+      intent={Intent.NONE}
+      fill
+      minimal
+      outlined
+    >
+      <b>COPY TO CLIPBOARD</b>
     </Button>
   )
 }
@@ -455,21 +466,40 @@ export function SendToolpath() {
   }, [])
 
   return (
-    <>
+    <Composition templateCols="2fr 2fr 1fr" gap={5}>
       <Button
         onClick={handleViewportFrameRender}
         loading={isLoading}
-        intent="primary"
+        icon={IconNames.LAB_TEST}
+        intent={Intent.NONE}
+        fill
+        minimal
+        outlined
       >
-        Render viewport frame
+        <b>RENDER FRAME</b>
       </Button>
-      <Button onClick={handleRangeRender} loading={isLoading} intent="success">
-        Render sequence
+      <Button
+        onClick={handleRangeRender}
+        loading={isLoading}
+        icon={IconNames.TEXT_HIGHLIGHT}
+        intent={Intent.PRIMARY}
+        fill
+        minimal
+        outlined
+      >
+        <b>RENDER TIMELINE</b>
       </Button>
-      <Button onClick={handleClear} intent="danger">
-        Clear
+      <Button
+        onClick={handleClear}
+        icon={IconNames.CROSS}
+        intent={Intent.DANGER}
+        fill
+        minimal
+        outlined
+      >
+        <b>CLEAR</b>
       </Button>
-    </>
+    </Composition>
   )
 }
 
@@ -533,20 +563,27 @@ export function CurrentFrameTime() {
   })
 
   return (
-    <>
-      <b>Estimated Time:</b> <span style={{ color }}>{niceDurationTime}s</span>
-      <br />
-      <b>Rendering frame</b>:{' '}
-      <span style={{ color: Colors.GRAY3 }}>
-        {currentlyRenderingFrame}/{maxFrame}
-      </span>
-      <br />
-      <b>Total duration</b>:{' '}
-      <span style={{ color: Colors.GRAY3 }}>
-        {Math.round((totalRendertime / 1000) * 10) / 10}s (
-        {Math.ceil(totalRendertime / 1000 / 60)} min)
-      </span>
-    </>
+    <Composition templateCols="2fr 2fr 1fr" gap={5} justifyItems="center">
+      <Box>
+        <span style={{ color: Colors.GRAY3 }}>FRAME:</span>{' '}
+        <b style={{ color }}>{niceDurationTime.toFixed(1)}s</b>
+      </Box>
+
+      <Box>
+        <span style={{ color: Colors.GRAY3 }}>TIMELINE:</span>{' '}
+        <b>
+          {/* {Math.round((totalRendertime / 1000) * 10) / 10}s */}
+          {Math.ceil(totalRendertime / 1000 / 60)} min
+        </b>
+      </Box>
+
+      <Box>
+        {/* <span style={{ color: Colors.GRAY3 }}>PROGRESS:</span>{' '} */}
+        <b>
+          {currentlyRenderingFrame}/{maxFrame}
+        </b>
+      </Box>
+    </Composition>
   )
 }
 
@@ -555,7 +592,7 @@ export const RenderInterface = () => {
 
   return (
     <div>
-      <FormGroup label="Frame Limits">
+      <FormGroup label="IN/OUT POINTS">
         {/* Re-render on total number of frames change */}
         {numFrames < 1 ? (
           <div style={{ textAlign: 'center' }}>Rendering all frames...</div>
@@ -563,7 +600,7 @@ export const RenderInterface = () => {
           <SceneLengthSlider key={numFrames} />
         )}
       </FormGroup>
-      <FormGroup label="Timeline">
+      <FormGroup label="TIMELINE">
         {/* Re-render on total number of frames change */}
         {numFrames < 1 ? null : <Timeline key={numFrames} />}
       </FormGroup>

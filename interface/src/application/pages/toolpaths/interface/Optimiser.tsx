@@ -304,11 +304,11 @@ export function Optimiser() {
         <BarChartDomain xMin={selectedMinFrame} xMax={selectedMaxFrame} />
 
         <VerticalAxis
-          label="Render time"
+          // label="Render time"
           tickFormat={tick => `${Math.round((tick / 1000) * 100) / 100}s`}
-          labelPadding={50}
+          labelPadding={20}
         />
-        <HorizontalAxis label="Frame number" />
+        <HorizontalAxis labelPadding={10}/>
       </ChartContainer>
     </>
   )
