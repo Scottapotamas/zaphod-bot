@@ -46,7 +46,10 @@ export const PowerChart = () => {
       ))}
       <RealTimeDomain window={[10_000, 30_000]} yMin={0} yMax={50} delay={50} />
       <TimeAxis />
-      <VerticalAxis label="POWER" tickFormat={(tick: number) => `${tick}W`} tickCount={2}/>
+      <VerticalAxis 
+      // label="POWER" 
+      tickFormat={(tick: number) => `${tick}W`} 
+      tickCount={2}/>
     </ChartContainer>
   )
 }

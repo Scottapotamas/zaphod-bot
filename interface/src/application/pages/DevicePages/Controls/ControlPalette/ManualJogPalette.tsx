@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 
 import { Icon, MultiSlider, NumericInput, Tag, Intent } from '@blueprintjs/core'
-import { Composition } from 'atomic-layout'
+import { Composition, Only } from 'atomic-layout'
 
 import { Button, NumberInput } from '@electricui/components-desktop-blueprint'
 import { MSGID } from 'src/application/typedState'
@@ -18,12 +18,16 @@ interface JogPaletteProps {
 
 const JogPalette = (props: JogPaletteProps) => {
   return (
+    // X axis is red, Y axis is green, z axis is blue
+    // This matches the Blender color associations
     <Composition areas={JogButtonAreas} gap={5} templateCols="auto auto 1fr">
       {({ XP, YP, ZP, XM, YM, ZM }) => (
         <React.Fragment>
           <XP>
             <Button
               large
+              outlined
+              intent={Intent.DANGER}
               writer={state => {
                 state[MSGID.QUEUE_ADD_MOVE] = {
                   type: 0,
@@ -40,6 +44,8 @@ const JogPalette = (props: JogPaletteProps) => {
           <YP>
             <Button
               large
+              outlined
+              intent={Intent.SUCCESS}
               writer={state => {
                 state[MSGID.QUEUE_ADD_MOVE] = {
                   type: 0,
@@ -56,6 +62,8 @@ const JogPalette = (props: JogPaletteProps) => {
           <XM>
             <Button
               large
+              outlined
+              intent={Intent.DANGER}
               writer={state => {
                 state[MSGID.QUEUE_ADD_MOVE] = {
                   type: 0,
@@ -72,6 +80,8 @@ const JogPalette = (props: JogPaletteProps) => {
           <YM>
             <Button
               large
+              outlined
+              intent={Intent.SUCCESS}
               writer={state => {
                 state[MSGID.QUEUE_ADD_MOVE] = {
                   type: 0,
@@ -89,6 +99,8 @@ const JogPalette = (props: JogPaletteProps) => {
             <Button
               large
               fill
+              outlined
+              intent={Intent.PRIMARY}
               writer={state => {
                 state[MSGID.QUEUE_ADD_MOVE] = {
                   type: 0,
@@ -106,6 +118,8 @@ const JogPalette = (props: JogPaletteProps) => {
             <Button
               large
               fill
+              outlined
+              intent={Intent.PRIMARY}
               writer={state => {
                 state[MSGID.QUEUE_ADD_MOVE] = {
                   type: 0,
@@ -140,31 +154,34 @@ const ManualJogPalette = () => {
   return (
     <Composition
       areas={controllerAreas}
-      gap={40}
+      gap={20}
+      padding={10}
       templateCols="1fr"
       alignItems="center"
     >
       {({ SpeedArea, DistanceArea, KeypadArea }) => (
         <React.Fragment>
           <SpeedArea>
-            <div style={{ padding: '1em' }}>
-              <MultiSlider
-                min={-0.75}
-                max={1}
-                stepSize={0.25}
-                labelRenderer={val => `${Math.round((val + 1) * 100)}%`}
-                labelStepSize={0.5}
-                showTrackFill={jog_speed !== 0}
-              >
-                <MultiSlider.Handle
-                  value={jog_speed}
-                  intentAfter={jog_speed < 0 ? Intent.WARNING : undefined}
-                  intentBefore={jog_speed > 0 ? Intent.WARNING : undefined}
-                  onChange={value => setJogSpeed(value)}
-                />
-                <MultiSlider.Handle value={0} interactionKind="none" />
-              </MultiSlider>
-            </div>
+            <Only from={{ minHeight: 980 }}>
+              <div style={{ padding: '1em' }}>
+                <MultiSlider
+                  min={-0.75}
+                  max={1}
+                  stepSize={0.25}
+                  labelRenderer={val => `${Math.round((val + 1) * 100)}%`}
+                  labelStepSize={0.5}
+                  showTrackFill={jog_speed !== 0}
+                >
+                  <MultiSlider.Handle
+                    value={jog_speed}
+                    intentAfter={jog_speed < 0 ? Intent.WARNING : undefined}
+                    intentBefore={jog_speed > 0 ? Intent.WARNING : undefined}
+                    onChange={value => setJogSpeed(value)}
+                  />
+                  <MultiSlider.Handle value={0} interactionKind="none" />
+                </MultiSlider>
+              </div>
+            </Only>
             <NumericInput
               value={jog_speed}
               onValueChange={value => setJogSpeed(value)}
@@ -181,21 +198,23 @@ const ManualJogPalette = () => {
             />
           </SpeedArea>
           <DistanceArea>
-            <div style={{ padding: '1em' }}>
-              <MultiSlider
-                onChange={values => setJogDistance(values[0])}
-                min={0}
-                max={25}
-                stepSize={1}
-                labelRenderer={val => `${val}mm`}
-                labelStepSize={5}
-              >
-                <MultiSlider.Handle
-                  value={jog_distance}
-                  intentBefore={Intent.SUCCESS}
-                />
-              </MultiSlider>
-            </div>
+            <Only from={{ minHeight: 980 }}>
+              <div style={{ padding: '1em' }}>
+                <MultiSlider
+                  onChange={values => setJogDistance(values[0])}
+                  min={0}
+                  max={25}
+                  stepSize={1}
+                  labelRenderer={val => `${val}mm`}
+                  labelStepSize={5}
+                >
+                  <MultiSlider.Handle
+                    value={jog_distance}
+                    intentBefore={Intent.SUCCESS}
+                  />
+                </MultiSlider>
+              </div>
+            </Only>
             <NumericInput
               value={jog_distance}
               onValueChange={value => setJogDistance(value)}
