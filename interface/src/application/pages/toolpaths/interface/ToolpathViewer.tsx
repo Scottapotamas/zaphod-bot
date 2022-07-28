@@ -11,7 +11,6 @@ import { FolderPathSelector } from './FolderSelector'
 import { Optimiser } from './Optimiser'
 
 import { PlannerSettingsInterface } from './PlannerSettingsInterface'
-import { ThreeSettingsInterface } from './ThreeSettingsInterface'
 import { RenderInterface } from './RenderInterface'
 import { ToolpathVisualisation } from './ToolpathVisualisation'
 import { RenderableTree } from './RenderableTree'
@@ -29,6 +28,7 @@ export const ToolpathViewer = (props: RouteComponentProps) => {
       >
         <ToolpathVisualisation />
       </div>
+
       <div style={{ width: 600, position: 'absolute' }}>
         <Button onClick={() => navigate(`/`)} style={{ margin: 10 }}>
           Back to connections screen
@@ -45,14 +45,6 @@ export const ToolpathViewer = (props: RouteComponentProps) => {
 
           <Optimiser />
         </Composition>
-        <br />
-        <br />
-        <br />
-        <br />
-        {/* TODO: Move these view controls to below the three area */}
-        {/* Consider adding button to hide/show the delta model */}
-        {/* Consider a 'reset view' button? */}
-        <ThreeSettingsInterface />
       </div>
     </React.Fragment>
   )
