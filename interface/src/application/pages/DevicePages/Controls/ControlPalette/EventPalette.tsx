@@ -18,15 +18,14 @@ import {
   Button,
 } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
+import { OutlineCard } from 'src/application/components/OutlineCard'
 
 import { MSGID } from 'src/application/typedState'
 
 import { FolderPathSelector } from './../../../toolpaths/interface/FolderSelector'
 import { Optimiser } from './../../../toolpaths/interface/Optimiser'
-
-import { PlannerSettingsInterface } from 'src/application/pages/toolpaths/interface/PlannerSettingsInterface'
-import { ThreeSettingsInterface } from 'src/application/pages/toolpaths/interface/ThreeSettingsInterface'
 import { RenderInterface } from './../../../toolpaths/interface/RenderInterface'
+import { PlannerSettingsInterface } from 'src/application/pages/toolpaths/interface/PlannerSettingsInterface'
 
 export const EventPalette = () => {
   let [settingsExpanded, setSettingsExpanded] = useState(false)
@@ -45,9 +44,9 @@ export const EventPalette = () => {
       <Composition gap={10}>
         <Collapse isOpen={settingsExpanded}>
           <Composition templateCols="1fr" gap={10}>
-            <Card>
+            <OutlineCard padding="1em">
               <PlannerSettingsInterface />
-            </Card>
+            </OutlineCard>
           </Composition>
         </Collapse>
 
@@ -64,18 +63,16 @@ export const EventPalette = () => {
           {/* Consider a label here to explain it's a settings expansion? */}
         </Button>
 
-        <Card>
-          <FolderPathSelector />
+        <OutlineCard>
+          <Composition templateCols="1fr" gap={10} padding={10}>
+            <FolderPathSelector />
 
-          <RenderInterface />
-        </Card>
+            <RenderInterface />
 
-        <Optimiser />
+            <Optimiser />
+          </Composition>
+        </OutlineCard>
       </Composition>
-
-      {/* <ThreeSettingsInterface /> */}
-
-      {/* <Printer accessor={state => JSON.stringify(state[MSGID.MOTION])} /> */}
     </>
   )
 }

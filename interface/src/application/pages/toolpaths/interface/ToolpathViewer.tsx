@@ -5,6 +5,8 @@ import { RouteComponentProps } from '@reach/router'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { navigate } from '@electricui/utility-electron'
 
+import { OutlineCard } from 'src/application/components/OutlineCard'
+
 import { FolderPathSelector } from './FolderSelector'
 import { Optimiser } from './Optimiser'
 
@@ -32,17 +34,14 @@ export const ToolpathViewer = (props: RouteComponentProps) => {
           Back to connections screen
         </Button>
         <Composition gap={10} padding={10}>
-          <Card>
+          <OutlineCard padding="2em">
             <PlannerSettingsInterface />
-          </Card>
+          </OutlineCard>
 
-          <Card>
-            <FolderPathSelector />
-            <RenderableTree />
-            <br />
-            <MaterialEditorInterface />
-            <RenderInterface />
-          </Card>
+          <OutlineCard padding="2em">
+              <FolderPathSelector />
+              <RenderInterface />
+          </OutlineCard>
 
           <Optimiser />
         </Composition>
