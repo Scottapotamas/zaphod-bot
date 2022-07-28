@@ -132,7 +132,7 @@ import { Material } from '../optimiser/materials/Base'
 import { GLOBAL_OVERRIDE_OBJECT_ID } from '../optimiser/movements'
 import { importMaterial } from '../optimiser/material'
 import { useDeviceID } from '@electricui/components-core'
-import { MSGID } from 'src/application/typedState'
+import { MSGID, QueueDepthInfo } from 'src/application/typedState'
 import { getOrderedMovementsForFrame } from './ToolpathVisualisation'
 import { FRAME_STATE } from '../optimiser/main'
 import { isCamera } from '../optimiser/camera'
@@ -313,8 +313,8 @@ export function SendToolpath() {
   }, [])
 
   useHardwareStateSubscription(
-    state => state.queue,
-    (queue: { movements: number; lighting: number }) => {
+    state => state[MSGID.QUEUE_INFO],
+    (queue: QueueDepthInfo) => {
       getSequenceSender().updateHardwareQueues(queue.movements, queue.lighting)
     },
   )
