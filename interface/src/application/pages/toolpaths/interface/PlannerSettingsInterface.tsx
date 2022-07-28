@@ -11,6 +11,7 @@ import {
   Tab,
   Tabs,
   TabId,
+  Intent,
 } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
 
@@ -96,6 +97,7 @@ function InterLineTransitionAngleControl() {
       onValueChange={setAndUpdateAngle}
       rightElement={<Tag>°</Tag>}
       style={{ width: '100%' }}
+      intent={Intent.PRIMARY}
     />
   )
 }
@@ -128,6 +130,7 @@ function InterLineTransitionDistanceControl() {
       onValueChange={setAndUpdateDistance}
       rightElement={<Tag>mm</Tag>}
       style={{ width: '100%' }}
+      intent={Intent.PRIMARY}
     />
   )
 }
@@ -159,6 +162,7 @@ function GPencilOutputType() {
       onValueChange={handleUpdate}
       rightElement={<Tag>type</Tag>}
       style={{ width: '100%' }}
+      intent={Intent.PRIMARY}
     />
   )
 }
@@ -191,6 +195,7 @@ function GPencilSimplificationControl() {
       value={distange}
       onValueChange={setAndUpdateDistance}
       style={{ width: '100%' }}
+      intent={Intent.PRIMARY}
     />
   )
 }
@@ -221,6 +226,7 @@ function LineRunUpDistanceControl() {
       onValueChange={setAndUpdateDistance}
       rightElement={<Tag>%</Tag>}
       style={{ width: '100%' }}
+      intent={Intent.PRIMARY}
     />
   )
 }
@@ -252,6 +258,7 @@ function ParticlePreWaitDurationControl() {
       onValueChange={handleUpdate}
       rightElement={<Tag>ms</Tag>}
       style={{ width: '100%' }}
+      intent={Intent.PRIMARY}
     />
   )
 }
@@ -283,6 +290,7 @@ function ParticlePostWaitDurationControl() {
       onValueChange={handleUpdate}
       rightElement={<Tag>ms</Tag>}
       style={{ width: '100%' }}
+      intent={Intent.PRIMARY}
     />
   )
 }
@@ -315,6 +323,7 @@ function ParticleOnDurationControl() {
       onValueChange={handleUpdate}
       rightElement={<Tag>ms</Tag>}
       style={{ width: '100%' }}
+      intent={Intent.PRIMARY}
     />
   )
 }
@@ -346,6 +355,7 @@ function LightPreWaitDurationControl() {
       onValueChange={handleUpdate}
       rightElement={<Tag>ms</Tag>}
       style={{ width: '100%' }}
+      intent={Intent.PRIMARY}
     />
   )
 }
@@ -377,6 +387,7 @@ function LightPostWaitDurationControl() {
       onValueChange={handleUpdate}
       rightElement={<Tag>ms</Tag>}
       style={{ width: '100%' }}
+      intent={Intent.PRIMARY}
     />
   )
 }
@@ -408,6 +419,7 @@ function LightOnDurationControl() {
       onValueChange={handleUpdate}
       rightElement={<Tag>ms</Tag>}
       style={{ width: '100%' }}
+      intent={Intent.PRIMARY}
     />
   )
 }
@@ -432,13 +444,14 @@ function MaxSpeedControl() {
     <NumericInput
       fill
       min={0}
-      max={300}
+      max={500}
       stepSize={25}
       majorStepSize={100}
       value={localSpeed}
       onValueChange={setAndUpdateMaxSpeed}
       rightElement={<Tag>mm/sec</Tag>}
       style={{ width: '100%' }}
+      intent={Intent.PRIMARY}
     />
   )
 }
@@ -473,6 +486,7 @@ function TransitionMaxSpeedControl() {
       onValueChange={setAndUpdateTransitionMaxSpeed}
       rightElement={<Tag>mm/sec</Tag>}
       style={{ width: '100%' }}
+      intent={Intent.PRIMARY}
     />
   )
 }
@@ -508,6 +522,7 @@ function TransitionSizeControl() {
       onValueChange={setAndUpdateTransitionMaxSpeed}
       rightElement={<Tag>mm</Tag>}
       style={{ width: '100%' }}
+      intent={Intent.PRIMARY}
     />
   )
 }
@@ -539,6 +554,7 @@ function LightFadeOffsetControl() {
       onValueChange={setAndUpdate}
       rightElement={<Tag>ms</Tag>}
       style={{ width: '100%' }}
+      intent={Intent.PRIMARY}
     />
   )
 }
@@ -570,6 +586,7 @@ function CameraDurationControl() {
       onValueChange={setAndUpdateTransitionMaxSpeed}
       rightElement={<Tag>ms</Tag>}
       style={{ width: '100%' }}
+      intent={Intent.PRIMARY}
     />
   )
 }
@@ -624,6 +641,7 @@ function WaitAtStartDurationControl() {
       onValueChange={setAndUpdateDuration}
       rightElement={<Tag>ms</Tag>}
       style={{ width: '100%' }}
+      intent={Intent.PRIMARY}
     />
   )
 }
@@ -875,7 +893,7 @@ const enum TABS {
 
 function GeneralTab() {
   return (
-    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+    <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
       Max Speed <MaxSpeedControl />
       Max Transition <TransitionMaxSpeedControl />
       TransitionSize <TransitionSizeControl />
@@ -892,7 +910,7 @@ function CameraHelpersTab() {
   )
 
   return (
-    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+    <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
       Draw Ruler <DrawRulersControl />
       Draw Frustum Alignment <DrawFrustumAlignmentControl />
       Draw Extrinsic Calibrators <DrawExtrinsicCalibrationHelpersControl />
@@ -910,7 +928,7 @@ function CameraHelpersTab() {
 
 function ParticlesTab() {
   return (
-    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+    <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
       Pre Wait <ParticlePreWaitDurationControl />
       On Duration <ParticleOnDurationControl />
       Post Wait <ParticlePostWaitDurationControl />
@@ -922,7 +940,7 @@ function ParticlesTab() {
 
 function LightTab() {
   return (
-    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+    <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
       Pre Wait <LightPreWaitDurationControl />
       On Duration <LightOnDurationControl />
       Post Wait <LightPostWaitDurationControl />
@@ -937,7 +955,7 @@ function LineTab() {
   )
 
   return (
-    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+    <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
       GPencil simplification <GPencilSimplificationControl />
       GPencil Output type <GPencilOutputType />
       Inter-line Optimisations Enabled <InterLineTransitionEnabledControl />
@@ -958,7 +976,7 @@ function VisualisationTab() {
   )
 
   return (
-    <Composition templateCols="1fr 2fr" gap="1em" alignItems="center">
+    <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
       Preview Progress <PreviewProgressControl />
       {previewEnabled ? (
         <>
@@ -985,14 +1003,14 @@ export const PlannerSettingsInterface = () => {
   return (
     <div>
       <Tabs onChange={handleTabChange} selectedTabId={selected}>
-        <Tab id={TABS.GENERAL} title="General" panel={<GeneralTab />} />
-        <Tab id={TABS.PARTICLES} title="Particles" panel={<ParticlesTab />} />
-        <Tab id={TABS.LIGHT} title="Lights" panel={<LightTab />} />
-        <Tab id={TABS.LINE} title="Lines" panel={<LineTab />} />
+        <Tab id={TABS.GENERAL} title="GENERAL" panel={<GeneralTab />} />
+        <Tab id={TABS.PARTICLES} title="PARTICLES" panel={<ParticlesTab />} />
+        <Tab id={TABS.LIGHT} title="LIGHTS" panel={<LightTab />} />
+        <Tab id={TABS.LINE} title="LINES" panel={<LineTab />} />
         <Tabs.Expander />
         <Tab
           id={TABS.GEOMETRY}
-          title="Geometry"
+          title="GEOMETRY"
           panel={
             <div>
               <RenderableTree />
@@ -1002,13 +1020,13 @@ export const PlannerSettingsInterface = () => {
         />
         <Tab
           id={TABS.CAMERA_HELPERS}
-          title="Camera"
+          title="CAM"
           panel={<CameraHelpersTab />}
         />
 
         <Tab
           id={TABS.VISUALISATION}
-          title="Visualisation"
+          title="VIS"
           panel={<VisualisationTab />}
         />
       </Tabs>
