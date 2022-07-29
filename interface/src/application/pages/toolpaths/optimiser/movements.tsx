@@ -842,7 +842,7 @@ export class Transition extends Movement {
   public generateToolpath = () => {
     const move: PlannerMovementMove = {
       duration: this.getDuration(),
-      type: MovementMoveType.BEZIER_CUBIC,
+      type: MovementMoveType.BEZIER_CUBIC_LINEARISED,
       reference: MovementMoveReference.ABSOLUTE,
       points: [
         this.getStart().toArray(),
@@ -1086,16 +1086,10 @@ export class PointTransition extends Movement {
   public generateToolpath = () => {
     const move: PlannerMovementMove = {
       duration: this.getDuration(),
-      type: MovementMoveType.CATMULL_SPLINE,
+      type: MovementMoveType.CATMULL_SPLINE_LINEARISED,
       reference: MovementMoveReference.ABSOLUTE,
       points: [
-        // this.getPrePointMovement().getEnd().toArray(),
-        // this.getPointFrom().getEnd().toArray(),
-        // this.getPointTo().getStart().toArray(),
-        // this.getPostPointMovement().getStart().toArray(),
-
         this.getPrePointMovement().getEnd().toArray(),
-
         this.getPointFrom().getEnd().toArray(),
         this.getPointTo().getStart().toArray(),
         this.getPostPointMovement().getStart().toArray(),
@@ -1256,7 +1250,7 @@ export class InterLineTransition extends Movement {
   public generateToolpath = () => {
     const move: PlannerMovementMove = {
       duration: this.getDuration(),
-      type: MovementMoveType.BEZIER_CUBIC,
+      type: MovementMoveType.BEZIER_CUBIC_LINEARISED,
       reference: MovementMoveReference.ABSOLUTE,
       points: [
         this.getFrom().getEnd().toArray(),
@@ -1594,7 +1588,7 @@ export class CatmullChain extends Movement {
     for (const deconstructed of curve) {
       const move: PlannerMovementMove = {
         duration: deconstructed.duration,
-        type: MovementMoveType.CATMULL_SPLINE,
+        type: MovementMoveType.CATMULL_SPLINE_LINEARISED,
         reference: MovementMoveReference.ABSOLUTE,
         points: deconstructed.controlPoints.map(vecs => vecs.toArray()),
       }
