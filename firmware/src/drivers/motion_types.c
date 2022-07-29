@@ -86,19 +86,22 @@ PUBLIC float
 cartesian_distance_linearisation_from_lut( uint32_t sync_offset, float progress )
 {
     SplineMetadata *metadata = &move_metadata;
-    float target_t = 0;
+    float target_t = 0.0f;
 
-    // TODO handle nulls/empties
-
-
-    if( metadata->id != sync_offset )
+    // Start or end positions don't need compensation
+    if( progress <= 0.0f + FLT_EPSILON || progress >= 1.0f - FLT_EPSILON )
     {
         target_t = progress;
         return target_t;
     }
 
-    // TODO re-evaluate requirement for floating point calculations, performance impact
-
+    // Don't attempt to compensate with mismatched LUT
+    if( metadata->id != sync_offset )
+    {
+        target_t = progress;
+        return target_t;
+    }
+    
     // Calculate the 'length' for this progress - between 0 and 'line length'
     uint32_t target_distance = (float)metadata->lut[SPEED_SAMPLE_RESOLUTION].distance * progress;
 
