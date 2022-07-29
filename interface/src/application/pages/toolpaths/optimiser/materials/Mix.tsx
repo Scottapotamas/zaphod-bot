@@ -39,8 +39,8 @@ export class MixMaterial extends Material {
   readonly type = MATERIALS.MIX
 
   constructor(
-    public start: Movement,
-    public end: Movement,
+    public start: Material,
+    public end: Material,
     private transitionT: number = 0.5,
   ) {
     super()
@@ -55,7 +55,7 @@ export class MixMaterial extends Material {
     toT: number,
   ) => {
     const fadesStart: PlannerLightMove[] =
-      this.start.material.generateLightpath(
+      this.start.generateLightpath(
         movement,
         settings,
         visualisationSettings,
@@ -63,7 +63,7 @@ export class MixMaterial extends Material {
         fromT,
         toT,
       )
-    const fadesEnd: PlannerLightMove[] = this.end.material.generateLightpath(
+    const fadesEnd: PlannerLightMove[] = this.end.generateLightpath(
       movement,
       settings,
       visualisationSettings,
@@ -107,7 +107,7 @@ export class MixMaterial extends Material {
     )
 
     // Render the start material to the half way point
-    this.start.material.generateThreeJSRepresentation(
+    this.start.generateThreeJSRepresentation(
       movementIndex,
       movement,
       settings,
@@ -121,7 +121,7 @@ export class MixMaterial extends Material {
     )
 
     // Render the end material from the half way point
-    this.end.material.generateThreeJSRepresentation(
+    this.end.generateThreeJSRepresentation(
       movementIndex,
       movement,
       settings,

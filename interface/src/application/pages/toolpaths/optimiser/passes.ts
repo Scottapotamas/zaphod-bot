@@ -167,7 +167,7 @@ export function sparseToDense(
         previousMovement,
         movement,
         movement.objectID, // Take the object ID of this movement, they're probably the same.
-        new MixMaterial(previousMovement, movement),
+        new MixMaterial(previousMovement.material, movement.material),
       )
 
       interLineTransition.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
@@ -219,21 +219,23 @@ export function sparseToDense(
       const movementNext = flattened[index + 1]
 
       // Build our transition movement from the old movement to the new
+      // At the end of this move the end effector will be at the point to draw
+      // Instead of stopping, we use a material to draw the pulse right at the last moment
+      // and continue with the chain of catmulls.
+      const blinkAtEnd = new MixMaterial(defaultTransitionMaterial, movement.material, 0.999)
+
       const transition = new PointTransition(
         movementPrevPrev,
         movementPrev,
         movementCurrent,
         movementNext,
-        defaultTransitionMaterial,
+        blinkAtEnd,
       )
 
       transition.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
 
-      // Add the transition to the dense bag
+      // Add the transition to the dense bag, it handles the point.
       denseMovements.push(transition)
-
-      // Add the movement to the dense bag
-      denseMovements.push(movement)
 
       // Update the last movement
       previousMovement = movement
