@@ -149,8 +149,29 @@ cartesian_move_distance( Movement_t *movement )
             CartesianPoint_t previous_point = { 0, 0, 0 };
 
             // Copy the curve start point as the previous point, as first sample is non-zero
-            memcpy( &previous_point, &movement->points[0], sizeof( CartesianPoint_t ) );
+            switch( movement->type )
+            {
+                case _BEZIER_QUADRATIC:
+                case _BEZIER_QUADRATIC_LINEARISED:
+                    memcpy( &previous_point, &movement->points[_QUADRATIC_START], sizeof( CartesianPoint_t ) );
+                    break;
 
+                case _BEZIER_CUBIC:
+                case _BEZIER_CUBIC_LINEARISED:
+                    memcpy( &previous_point, &movement->points[_CUBIC_START], sizeof( CartesianPoint_t ) );
+                    break;
+
+                case _CATMULL_SPLINE:
+                case _CATMULL_SPLINE_LINEARISED:
+                    memcpy( &previous_point, &movement->points[_CATMULL_START], sizeof( CartesianPoint_t ) );
+                    break;
+
+                case _POINT_TRANSIT:
+                case _LINE:
+                    // these shouldn't be solved by slice-summation
+                    break;
+            }
+            
             // Copy the movements ID (sync timestamp) alongside metadata
             move_metadata.id = movement->sync_offset;
 
