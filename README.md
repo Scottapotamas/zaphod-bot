@@ -55,7 +55,7 @@ It facilitates control and monitoring of the hardware, along with toolpath gener
 
 ## Toolpath Generation
 
-Toolpaths for lightpainting are created by exporting spline data from [Blender using a Python script](https://github.com/Mike-Dax/total-perspective-vortex/), and loading the output with the "Blender" tab in the UI.
+Toolpaths for lightpainting are created by exporting spline data from [Blender using a Python script](https://github.com/Mike-Dax/total-perspective-vortex/blob/main/blender/addons/total_perspective_vortex/tpv.py), and loading the output with the "Blender" tab in the UI.
 
 The frontend UI is responsible for parsing the Blender scene and performing a series of move planning and TSP optimisation steps to reduce render times.
 
