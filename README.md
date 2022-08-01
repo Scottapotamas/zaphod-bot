@@ -1,7 +1,12 @@
-# ZaphodBot
-ZaphodBot is a DIY, 'high-end' delta robot designed primarily for light painting. It's served as a personal project where the majority of mechanics, electronics, firmware and higher level software has been designed from scratch (because why not).
+# ZaphodBot Lightpainting Robot
 
-I've detailed the design and build in a more [longform post here](https://electricui.com/blog/delta-bot).
+![lightpainting-photo](docs/imgs/lightpainting-photo.jpg)
+
+ZaphodBot is a DIY, 'high-end' rotary delta robot designed primarily for high-fidelity light painting.
+
+It's served as a personal project where the majority of mechanics, electronics, firmware and higher level software has been designed from scratch (because why not).
+
+I've detailed the design motivation and build in a more [longform post here](https://electricui.com/blog/delta-bot).
 
 ## Mechanics
 
@@ -21,7 +26,7 @@ The PCB was designed using KiCAD 5, located in `electronics/zaphod-controller`. 
 
 ![Assembled PCB](docs/imgs/pcb_overview_top.jpg)
 
-It's based on a STM32F4 processor, provides regulation from the 75V system supply, and manages the servo's, internal IO and external IO.
+It's based on a STM32F4 processor, provides regulated 3/5/12V from the 75V system supply, and manages the servos, internal IO and external IO.
 
 - Power input (75V from Teknic IPC) through 2-pin MOLEX SABRE connector.
 - Clearpath servo motors connect with 8-pin MOLEX MicroFit for signalling, and 4-pin MicroFit for 75V supply.
@@ -42,9 +47,11 @@ Flashing the microcontroller is pretty standard as well, a 10-pin ARM CORTEX SWD
 
 
 
-## User Interface
+# User Interface
 
 The user interface is built with [Electric UI](https://electricui.com/install), and can be built and run by invoking `arc start` from `/interface`. 
+
+It facilitates control and monitoring of the hardware, along with toolpath generation, optimisation and visualisation pipelines.
 
 ![User interface](docs/imgs/new-ui.png)
 
@@ -52,13 +59,15 @@ The user interface is built with [Electric UI](https://electricui.com/install), 
 
 ## Toolpath Generation
 
-Toolpaths for lightpainting are created by exporting spline data from [Blender using a Python script](https://github.com/Mike-Dax/zaphod-tool-path), and running it through [the `total-perspective-vortex` program](https://github.com/Scottapotamas/total-perspective-vortex/).
+Toolpaths for lightpainting are created by exporting spline data from [Blender using a Python script](https://github.com/Mike-Dax/total-perspective-vortex/), and loading the output with the "Blender" tab in the UI.
 
-To execute movements from file, the user interface exposes file loading and control through the 'Event Mode' control tab. Open the `summary.json` file, select the frames to draw, and press start.
+The frontend UI is responsible for parsing the Blender scene and performing a series of move planning and TSP optimisation steps to reduce render times.
 
-## Accessories
 
-### Light Painting
+
+# Accessories
+
+## Light Painting
 
 ![Light-painted spiral sphere](docs/imgs/spiral-sphere.jpg)
 
@@ -70,7 +79,7 @@ The driver PCB is in `/electronics/rgb-led-board/` along with manufacturing file
 
 ![RGB LED driver](docs/imgs/rgb-led-driver.jpg)
 
-### External E-STOP + IO Breakout Box
+## External E-STOP + IO Breakout Box
 
 ![E-STOP Box](docs/imgs/e-stop-box.jpg)
 

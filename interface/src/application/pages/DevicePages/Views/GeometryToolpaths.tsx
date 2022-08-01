@@ -92,8 +92,8 @@ export const GeometryToolpathViewer = () => {
         <OrbitControls ref={setOrbitControlsRef} />
         {/* <AxisLines /> */}
 
-        <ambientLight intensity={0.2} />
-        <directionalLight position={[-100, 0, -50]} intensity={1} color="red" />
+        <ambientLight intensity={0.4} />
+        <directionalLight position={[-100, 0, -50]} intensity={1} color="#0c8cbf" />
         <directionalLight
           position={[-10, -20, -50]}
           intensity={0.3}

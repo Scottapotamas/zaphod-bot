@@ -136,7 +136,7 @@ const MainWindow = (props: RouteComponentProps) => {
 
       {/* Centered status info */}
       <div style={{ maxWidth: '400px', position: 'absolute', left: '0', right: '0', marginLeft: 'auto', marginRight: 'auto' }}>
-        <SystemSummary />
+        {/* <SystemSummary /> */}
       </div>
 
       {/* Left Sidebar for telemetry */}
