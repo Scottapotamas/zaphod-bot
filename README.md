@@ -45,8 +45,6 @@ I've used (and included config for) CLion as my main IDE, which is CMake based, 
 
 Flashing the microcontroller is pretty standard as well, a 10-pin ARM CORTEX SWD socket is on the PCB, which connects to a STLink, Blackmagic Probe, or JLink programmer (used all three at various stages of this project).
 
-
-
 # User Interface
 
 The user interface is built with [Electric UI](https://electricui.com/install), and can be built and run by invoking `arc start` from `/interface`. 
@@ -55,15 +53,15 @@ It facilitates control and monitoring of the hardware, along with toolpath gener
 
 ![User interface](docs/imgs/new-ui.png)
 
-
-
 ## Toolpath Generation
 
 Toolpaths for lightpainting are created by exporting spline data from [Blender using a Python script](https://github.com/Mike-Dax/total-perspective-vortex/), and loading the output with the "Blender" tab in the UI.
 
 The frontend UI is responsible for parsing the Blender scene and performing a series of move planning and TSP optimisation steps to reduce render times.
 
+https://user-images.githubusercontent.com/460325/182141536-1118c95f-b80b-4199-9833-aa961b41ea9a.mp4
 
+> This screencap shows a Blender animation being loaded: the 'fast' plan completes within a second, then the multi-threaded TSP solver iterates on each frame to refine the path taken to render the particles.
 
 # Accessories
 
