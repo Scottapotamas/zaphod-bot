@@ -301,7 +301,7 @@ function ParticlePostWaitDurationControl() {
 function ParticleOnDurationControl() {
   const [setting, set] = useState(
     getSetting(state => state.settings.objectSettings.particles.onDuration) ??
-      1,
+    1,
   )
 
   const update = useCallback(delay => {
@@ -902,14 +902,22 @@ function OrbitCameraToggle() {
     event => {
       const checked = event.currentTarget.checked
       setEnabled(checked)
-      const orbitControls = getSetting(state => state.orbitControls)
 
+      const matchCameraAnimation = !checked
+
+      setSetting((state) => {
+        // Orbit controls true means match camera animation false.
+        state.matchCameraAnimation = matchCameraAnimation
+      })
+
+      const orbitControls = getSetting(state => state.orbitControls)
       if (orbitControls) {
-        orbitControls.enabled = checked
+        orbitControls.enableRotate = !matchCameraAnimation
+        orbitControls.enableZoom = !matchCameraAnimation
       }
 
       // Search for the camera for this frame if we've disabled orbitControls
-      if (getSetting(state => state.matchCameraAnimation)) {
+      if (matchCameraAnimation) {
         setThreeJSCamera()
       }
     },
@@ -1058,8 +1066,8 @@ function VisualisationTab() {
           Preview Timeline <PreviewTimelineControl />
         </>
       ) : null}
-      Annotate Draw Order <AnnotateOrderingToggle/>
-      Orbit Camera <OrbitCameraToggle/>
+      Annotate Draw Order <AnnotateOrderingToggle />
+      Orbit Camera <OrbitCameraToggle />
       {/* <p>Curve Segments</p> <br /> */}
 
     </Composition>
