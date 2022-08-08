@@ -267,7 +267,7 @@ const initialState: Store = {
 
   camera: null,
   orbitControls: null,
-  matchCameraAnimation: true,
+  matchCameraAnimation: false,
 
   movementQueueUI: 0,
   lightQueueUI: 0,
