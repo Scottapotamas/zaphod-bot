@@ -62,6 +62,9 @@ export function FolderPathSelector() {
       setLabelText(`${frameDirectories.length} frames selected`)
       setError('')
 
+      // HACK: Set it to null, then the folder in case the user reloads the same folder in an attempt
+      // to reload it.
+      setFolder(null)
       setFolder(folder)
     } catch (e) {
       console.error(e)
