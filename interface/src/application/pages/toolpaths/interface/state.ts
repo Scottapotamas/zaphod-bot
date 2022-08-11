@@ -62,10 +62,10 @@ export const defaultSettings: Settings = {
     waitAtStartDuration: 1000,
     interLineTransitionAngle: 50,
     interLineTransitionShaveDistance: 5,
-    smoothInterlineTransitions: false,
+    smoothInterlineTransitions: true,
     lineRunUp: 0,
     disableShapedTransitions: false,
-    transitionSize: 0.04,
+    transitionSize: 0.1,
   },
 
   // Tools for debugging
