@@ -121,24 +121,24 @@ export class GPencil {
     const movements: Movement[] = []
 
     for (const layer of this.layers) {
+      const objectID = `${this.name}-${layer.info}`
+      const overrideKeys = [this.name, objectID]
+
+      if (getShouldSkip(settings, overrideKeys)) {
+        continue
+      }
+
+      const settingsWithOverride = getToMovementSettings(
+        settings,
+        'gpencil',
+        [this.name, objectID],
+      )
+
       for (const stroke of layer.strokes) {
-        const objectID = `${this.name}-${layer.info}`
-        const overrideKeys = [this.name, objectID]
-
-        if (getShouldSkip(settings, overrideKeys)) {
-          continue
-        }
-
         // A stroke needs at least two points to form a line
         if (stroke.points.length < 2) {
           continue
         }
-
-        const settingsWithOverride = getToMovementSettings(
-          settings,
-          'gpencil',
-          [this.name, objectID],
-        )
 
         const simplified = simplify(
           stroke.points,

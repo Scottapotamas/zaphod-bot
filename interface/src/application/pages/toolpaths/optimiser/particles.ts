@@ -23,7 +23,7 @@ export interface Particle {
 }
 
 export class ParticleSystem {
-  constructor(public name: string, public material: MaterialJSON) {}
+  constructor(public name: string, public material: MaterialJSON) { }
 
   public particles: Particle[] = []
 
@@ -56,7 +56,7 @@ export interface ParticlesToMovementsSettings {
 export class Particles {
   readonly type = 'particles'
 
-  constructor(public name: string) {}
+  constructor(public name: string) { }
 
   private systems: ParticleSystem[] = []
 
@@ -101,20 +101,20 @@ export class Particles {
     const movements: Movement[] = []
 
     for (const system of this.systems) {
+      const objectID = `${this.name}-${system.name}`
+      const overrideKeys = [this.name, objectID]
+
+      if (getShouldSkip(settings, overrideKeys)) {
+        continue
+      }
+
+      const settingsWithOverride = getToMovementSettings(
+        settings,
+        'particles',
+        [this.name, objectID],
+      )
+
       for (const particle of system.particles) {
-        const objectID = `${this.name}-${system.name}`
-        const overrideKeys = [this.name, objectID]
-
-        if (getShouldSkip(settings, overrideKeys)) {
-          continue
-        }
-
-        const settingsWithOverride = getToMovementSettings(
-          settings,
-          'particles',
-          [this.name, objectID],
-        )
-
         if (
           settings.objectSettings.particles.hideIfOccluded &&
           particle.occluded
