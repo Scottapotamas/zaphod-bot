@@ -6,7 +6,7 @@ import { ObjectNameTree } from './files'
 import { importMaterial, MaterialJSON } from './material'
 import { isSimpleColorMaterial, SimpleColorMaterial } from './materials/Color'
 import { ColorRampMaterial } from './materials/ColorRamp'
-import { lerpRGB } from './materials/utilities'
+import { lerpRGBA } from './materials/utilities'
 import {
   Point,
   Movement,
@@ -14,17 +14,19 @@ import {
   MovementGroup,
   RGB,
   CatmullChain,
+  RGBA,
 } from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
+import { InvisibleMaterialDefaultJSON } from './materials/Invisible'
 
 export class GPencilLayer {
   public strokes: GPencilStroke[] = []
   public material: MaterialJSON
   public info: string
 
-  constructor(info: string, material: MaterialJSON) {
+  constructor(info: string, material: MaterialJSON | null) {
     this.info = info
-    this.material = material
+    this.material = material ?? InvisibleMaterialDefaultJSON
   }
 
   public addStroke = (stroke: GPencilStroke) => {
@@ -73,7 +75,7 @@ export interface GPencilToMovementsSettings {
 export class GPencil {
   readonly type = 'gpencil'
 
-  constructor(public name: string) {}
+  constructor(public name: string) { }
 
   private layers: GPencilLayer[] = []
 
@@ -167,9 +169,8 @@ export class GPencil {
             material,
             objectID,
           )
-          movement.interFrameID = `${simplified[0].id}->${
-            simplified[simplified.length - 1].id
-          }`
+          movement.interFrameID = `${simplified[0].id}->${simplified[simplified.length - 1].id
+            }`
 
           movements.push(movement)
           continue
@@ -185,17 +186,18 @@ export class GPencil {
 
         let doVertexColoring = isSimpleColorMaterial(material)
 
-        let lastPointFinalColor = doVertexColoring
-          ? lerpRGB(
-              (material as SimpleColorMaterial).color,
-              [
-                simplified[0].vertexColor[0],
-                simplified[0].vertexColor[1],
-                simplified[0].vertexColor[2],
-              ],
-              simplified[0].vertexColor[3],
-            )
-          : ([0, 0, 0] as RGB)
+        let previousPointBlendedColor = doVertexColoring
+          ? lerpRGBA(
+            (material as SimpleColorMaterial).color,
+            [
+              simplified[0].vertexColor[0],
+              simplified[0].vertexColor[1],
+              simplified[0].vertexColor[2],
+              simplified[0].vertexColor[3] * simplified[0].strength,
+            ],
+            simplified[0].vertexColor[3],
+          )
+          : ([0, 0, 0, 0] as RGBA)
 
         // Start at the second point, the first is located above
         for (let index = 1; index < simplified.length; index++) {
@@ -207,23 +209,24 @@ export class GPencil {
           let vertexMat = material
 
           if (doVertexColoring) {
-            // TODO: Not sure what mix mode we should actually use, for now it's just a simple lerp based on alpha of the vertex color
-            const thisPointFinalColor = lerpRGB(
+            // Lerp the base color to the vertex colour based on the vertex color alpha. The vertex color alpha is multiplied by the strength
+            const currentPointBlendedColor = lerpRGBA(
               (material as SimpleColorMaterial).color,
               [
                 point.vertexColor[0],
                 point.vertexColor[1],
                 point.vertexColor[2],
+                point.vertexColor[3] * point.strength,
               ],
-              point.vertexColor[3],
+              point.vertexColor[3], // Multiply the vertex by the strength to get a transparency effect
             )
 
             vertexMat = new ColorRampMaterial(
-              lastPointFinalColor,
-              thisPointFinalColor,
+              previousPointBlendedColor,
+              currentPointBlendedColor,
             )
 
-            lastPointFinalColor = thisPointFinalColor
+            previousPointBlendedColor = currentPointBlendedColor
           }
 
           // Create a line from the lastPoint to the currentPoint
