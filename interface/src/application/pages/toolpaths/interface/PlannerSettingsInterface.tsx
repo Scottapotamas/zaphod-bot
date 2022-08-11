@@ -2,7 +2,7 @@ import {
   Alignment,
   Button,
   Card,
-  Checkbox,
+  Checkbox as BlueprintCheckbox,
   FormGroup,
   NumericInput,
   Slider,
@@ -23,6 +23,7 @@ import {
   getSetting,
   incrementViewportFrameVersion,
   setSetting,
+  Store,
   useSetting,
   useStore
 } from './state'
@@ -31,48 +32,47 @@ import { RenderableTree } from './RenderableTree'
 import { MaterialEditorInterface } from './MaterialEditorInterface'
 
 import { isCamera } from '../optimiser/camera'
+import { StateSelector } from 'zustand'
+import { WritableDraft } from 'immer/dist/internal'
 
-function DisableShapedTransitionsControl() {
-  const [allowed, setAllow] = useState(
-    getSetting(state => state.settings.optimisation.disableShapedTransitions),
-  )
-
-  const updateAllowed = useCallback(allowed => {
-    setSetting(state => {
-      state.settings.optimisation.disableShapedTransitions = allowed
-    })
-  }, [])
-
-  const setAndUpdateAngle: React.FormEventHandler<HTMLInputElement> =
-    useCallback(event => {
-      const checked = (event.target as HTMLInputElement).checked
-      setAllow(checked)
-      updateAllowed(checked)
-    }, [])
-
-  return <Checkbox checked={allowed} onChange={setAndUpdateAngle} />
+interface CheckboxProps {
+  selector: StateSelector<Store, boolean | undefined>
+  writer: (draft: WritableDraft<Store>, value: boolean) => void
 }
 
-function InterLineTransitionEnabledControl() {
-  const [allowed, setAllow] = useState(
-    getSetting(state => state.settings.optimisation.smoothInterlineTransitions),
-  )
+// function Checkbox(props: CheckboxProps) {
+//   const [localSetting, setLocalSetting] = useState(getSetting(props.selector))
 
-  const updateAllowed = useCallback(allowed => {
-    setSetting(state => {
-      state.settings.optimisation.smoothInterlineTransitions = allowed
-    })
-  }, [])
+//   const onChangeHandler: React.FormEventHandler<HTMLInputElement> =
+//     useCallback(event => {
+//       const checked = (event.target as HTMLInputElement).checked
+//       setLocalSetting(checked)
+//       setSetting(state => {
+//         props.writer(state, checked)
+//       })
+//     }, [props.writer, setLocalSetting])
 
-  const setAndUpdateAngle: React.FormEventHandler<HTMLInputElement> =
+//   return <BlueprintCheckbox checked={localSetting} onChange={onChangeHandler} />
+// }
+
+function Checkbox(props: CheckboxProps) {
+  // If the setting is undefined, explicitly start as false instead of undefined.
+  const setting = useSetting(props.selector) ?? false
+
+  const onChangeHandler: React.FormEventHandler<HTMLInputElement> =
     useCallback(event => {
       const checked = (event.target as HTMLInputElement).checked
-      setAllow(checked)
-      updateAllowed(checked)
-    }, [])
+      setSetting(state => {
+        props.writer(state, checked)
+      })
+    }, [props.writer])
 
-  return <Checkbox checked={allowed} onChange={setAndUpdateAngle} />
+  return <BlueprintCheckbox checked={setting} onChange={onChangeHandler} />
 }
+
+
+
+
 
 function InterLineTransitionAngleControl() {
   const [angle, setAngle] = useState(
@@ -594,28 +594,6 @@ function CameraDurationControl() {
   )
 }
 
-function CameraDurationOverrideControl() {
-  const [setting, set] = useState(
-    getSetting(state => state.cameraOverrideDuration > 0),
-  )
-
-  const updateSetting = useCallback(setting => {
-    setSetting(state => {
-      state.cameraOverrideDuration = setting ? 100 : 0
-    })
-  }, [])
-
-  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
-    event => {
-      const checked = (event.target as HTMLInputElement).checked
-      set(checked)
-      updateSetting(checked)
-    },
-    [],
-  )
-
-  return <Checkbox checked={setting} onChange={handleClick} />
-}
 
 function WaitAtStartDurationControl() {
   const [waitDuration, setWaitDuration] = useState(
@@ -647,200 +625,6 @@ function WaitAtStartDurationControl() {
       intent={Intent.PRIMARY}
     />
   )
-}
-
-function HideLightIfBlackControl() {
-  const [setting, set] = useState(
-    getSetting(state => state.settings.objectSettings.light.hideIfBlack),
-  )
-
-  const updateSetting = useCallback(setting => {
-    setSetting(state => {
-      state.settings.objectSettings.light.hideIfBlack = setting
-    })
-  }, [])
-
-  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
-    event => {
-      const checked = (event.target as HTMLInputElement).checked
-      set(checked)
-      updateSetting(checked)
-    },
-    [],
-  )
-
-  return <Checkbox checked={setting} onChange={handleClick} />
-}
-
-function HideParticleIfOccludedControl() {
-  const [setting, set] = useState(
-    getSetting(state => state.settings.objectSettings.particles.hideIfOccluded),
-  )
-
-  const updateSetting = useCallback(setting => {
-    setSetting(state => {
-      state.settings.objectSettings.particles.hideIfOccluded = setting
-    })
-  }, [])
-
-  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
-    event => {
-      const checked = (event.target as HTMLInputElement).checked
-      set(checked)
-      updateSetting(checked)
-    },
-    [],
-  )
-
-  return <Checkbox checked={setting} onChange={handleClick} />
-}
-
-function DrawFrustumAlignmentControl() {
-  const [setting, set] = useState(
-    getSetting(
-      state => state.settings.objectSettings.camera.drawAlignmentHelpers,
-    ),
-  )
-
-  const updateSetting = useCallback(setting => {
-    setSetting(state => {
-      state.settings.objectSettings.camera.drawAlignmentHelpers = setting
-    })
-  }, [])
-
-  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
-    event => {
-      const checked = (event.target as HTMLInputElement).checked
-      set(checked)
-      updateSetting(checked)
-    },
-    [],
-  )
-
-  return <Checkbox checked={setting} onChange={handleClick} />
-}
-
-function DrawRulersControl() {
-  const [setting, set] = useState(
-    getSetting(state => state.settings.objectSettings.camera.drawRulers),
-  )
-
-  const updateSetting = useCallback(setting => {
-    setSetting(state => {
-      state.settings.objectSettings.camera.drawRulers = setting
-    })
-  }, [])
-
-  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
-    event => {
-      const checked = (event.target as HTMLInputElement).checked
-      set(checked)
-      updateSetting(checked)
-    },
-    [],
-  )
-
-  return <Checkbox checked={setting} onChange={handleClick} />
-}
-
-function DrawCalibrationChartControl() {
-  const [setting, set] = useState(
-    getSetting(
-      state => state.settings.objectSettings.camera.drawColorCalibrationChart,
-    ),
-  )
-
-  const updateSetting = useCallback(setting => {
-    setSetting(state => {
-      state.settings.objectSettings.camera.drawColorCalibrationChart = setting
-    })
-  }, [])
-
-  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
-    event => {
-      const checked = (event.target as HTMLInputElement).checked
-      set(checked)
-      updateSetting(checked)
-    },
-    [],
-  )
-
-  return <Checkbox checked={setting} onChange={handleClick} />
-}
-
-function DrawExtrinsicCalibrationHelpersControl() {
-  const [setting, set] = useState(
-    getSetting(
-      state => state.settings.objectSettings.camera.drawExtrinsicCalibrators,
-    ),
-  )
-
-  const updateSetting = useCallback(setting => {
-    setSetting(state => {
-      state.settings.objectSettings.camera.drawExtrinsicCalibrators = setting
-    })
-  }, [])
-
-  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
-    event => {
-      const checked = (event.target as HTMLInputElement).checked
-      set(checked)
-      updateSetting(checked)
-    },
-    [],
-  )
-
-  return <Checkbox checked={setting} onChange={handleClick} />
-}
-
-function DrawParticlesInVelocityOrientationControl() {
-  const [setting, set] = useState(
-    getSetting(
-      state =>
-        state.settings.objectSettings.particles.drawInVelocityOrientation,
-    ),
-  )
-
-  const updateSetting = useCallback(setting => {
-    setSetting(state => {
-      state.settings.objectSettings.particles.drawInVelocityOrientation =
-        setting
-    })
-  }, [])
-
-  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
-    event => {
-      const checked = (event.target as HTMLInputElement).checked
-      set(checked)
-      updateSetting(checked)
-    },
-    [],
-  )
-
-  return <Checkbox checked={setting} onChange={handleClick} />
-}
-
-function PreviewProgressControl() {
-  const [setting, set] = useState(
-    getSetting(state => state.visualisationSettings.previewProgress),
-  )
-
-  const updateSetting = useCallback(setting => {
-    setSetting(state => {
-      state.visualisationSettings.previewProgress = setting
-    })
-  }, [])
-
-  const handleClick: React.FormEventHandler<HTMLInputElement> = useCallback(
-    event => {
-      const checked = (event.target as HTMLInputElement).checked
-      set(checked)
-      updateSetting(checked)
-    },
-    [],
-  )
-
-  return <Checkbox checked={setting} onChange={handleClick} />
 }
 
 function PreviewTimelineControl() {
@@ -936,7 +720,7 @@ function OrbitCameraToggle() {
   })
 
   return (
-    <Checkbox checked={enabled} onChange={updateChecked} />
+    <BlueprintCheckbox checked={enabled} onChange={updateChecked} />
   )
 }
 
@@ -959,7 +743,7 @@ function AnnotateOrderingToggle() {
   )
 
   return (
-    <Checkbox checked={enabled} onChange={updateChecked} />
+    <BlueprintCheckbox checked={enabled} onChange={updateChecked} />
   )
 }
 
@@ -982,7 +766,7 @@ function GeneralTab() {
       TransitionSize <TransitionSizeControl />
       Wait before Start <WaitAtStartDurationControl />
       LightFade Offset <LightFadeOffsetControl />
-      Disable Shaped Transitions <DisableShapedTransitionsControl />
+      Disable Shaped Transitions <Checkbox selector={state => state.settings.optimisation.disableShapedTransitions} writer={(state, value) => state.settings.optimisation.disableShapedTransitions = value} />
     </Composition>
   )
 }
@@ -994,11 +778,11 @@ function CameraHelpersTab() {
 
   return (
     <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
-      Draw Ruler <DrawRulersControl />
-      Draw Frustum Alignment <DrawFrustumAlignmentControl />
-      Draw Extrinsic Calibrators <DrawExtrinsicCalibrationHelpersControl />
-      Draw Calibration Chart <DrawCalibrationChartControl />
-      Enable duration override <CameraDurationOverrideControl />
+      Draw Ruler <Checkbox selector={state => state.settings.objectSettings.camera.drawRulers} writer={(state, value) => state.settings.objectSettings.camera.drawRulers = value} />
+      Draw Frustum Alignment <Checkbox selector={state => state.settings.objectSettings.camera.drawAlignmentHelpers} writer={(state, value) => state.settings.objectSettings.camera.drawAlignmentHelpers = value} />
+      Draw Extrinsic Calibrators <Checkbox selector={state => state.settings.objectSettings.camera.drawExtrinsicCalibrators} writer={(state, value) => state.settings.objectSettings.camera.drawExtrinsicCalibrators = value} />
+      Draw Col Calibration Chart <Checkbox selector={state => state.settings.objectSettings.camera.drawColorCalibrationChart} writer={(state, value) => state.settings.objectSettings.camera.drawColorCalibrationChart = value} />
+      Enable duration override  <Checkbox selector={state => state.cameraOverrideDuration > 0} writer={(state, value) => state.cameraOverrideDuration = value ? 100 : 0} />
       {cameraDurationOverrideEnabled ? (
         <>
           {' '}
@@ -1015,8 +799,8 @@ function ParticlesTab() {
       Pre Wait <ParticlePreWaitDurationControl />
       On Duration <ParticleOnDurationControl />
       Post Wait <ParticlePostWaitDurationControl />
-      Draw in Velocity Orientation <DrawParticlesInVelocityOrientationControl />
-      Hide if Occluded <HideParticleIfOccludedControl />
+      Draw in Velocity Orientation <Checkbox selector={state => state.settings.objectSettings.particles.drawInVelocityOrientation} writer={(state, value) => state.settings.objectSettings.particles.drawInVelocityOrientation = value} />
+      Hide if Occluded <Checkbox selector={state => state.settings.objectSettings.particles.hideIfOccluded} writer={(state, value) => state.settings.objectSettings.particles.hideIfOccluded = value} />
     </Composition>
   )
 }
@@ -1027,7 +811,7 @@ function LightTab() {
       Pre Wait <LightPreWaitDurationControl />
       On Duration <LightOnDurationControl />
       Post Wait <LightPostWaitDurationControl />
-      Hide if Black <HideLightIfBlackControl />
+      Hide if Black <Checkbox selector={state => state.settings.objectSettings.light.hideIfBlack} writer={(state, value) => state.settings.objectSettings.light.hideIfBlack = value} />
     </Composition>
   )
 }
@@ -1041,7 +825,7 @@ function LineTab() {
     <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
       GPencil simplification <GPencilSimplificationControl />
       GPencil Output type <GPencilOutputType />
-      Inter-line Optimisations Enabled <InterLineTransitionEnabledControl />
+      Inter-line Optimisations Enabled <Checkbox selector={state => state.settings.optimisation.smoothInterlineTransitions} writer={(state, value) => state.settings.optimisation.smoothInterlineTransitions = value} />
       {interlineOptimisationsEnabled ? (
         <>
           Inter-line Transition Angle <InterLineTransitionAngleControl />
@@ -1060,7 +844,7 @@ function VisualisationTab() {
 
   return (
     <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
-      Preview Progress <PreviewProgressControl />
+      Preview Progress <Checkbox selector={state => state.visualisationSettings.previewProgress} writer={(state, value) => state.visualisationSettings.previewProgress = value} />
       {previewEnabled ? (
         <>
           Preview Timeline <PreviewTimelineControl />
@@ -1094,7 +878,7 @@ export const PlannerSettingsInterface = () => {
         <Tabs.Expander />
         <Tab
           id={TABS.GEOMETRY}
-          title="GEOMETRY"
+          title="GEO"
           panel={
             <div>
               <RenderableTree />
