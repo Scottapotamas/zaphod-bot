@@ -74,7 +74,7 @@ export function Optimiser() {
     if (persistentOptimiser.current === null) {
       persistentOptimiser.current = new ToolpathGenerator(
         getCurrentSettings(),
-        Math.max(1, os.cpus().length / 2 - 1), // assume hyperthreading
+        Math.max(1, os.cpus().length - 1),
       )
     }
 
@@ -308,7 +308,7 @@ export function Optimiser() {
           tickFormat={tick => `${Math.round((tick / 1000) * 100) / 100}s`}
           labelPadding={20}
         />
-        <HorizontalAxis labelPadding={10}/>
+        <HorizontalAxis labelPadding={10} />
       </ChartContainer>
     </>
   )
