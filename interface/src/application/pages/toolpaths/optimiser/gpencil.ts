@@ -131,7 +131,7 @@ export class GPencil {
       const settingsWithOverride = getToMovementSettings(
         settings,
         'gpencil',
-        [this.name, objectID],
+        this.name, objectID,
       )
 
       for (const stroke of layer.strokes) {

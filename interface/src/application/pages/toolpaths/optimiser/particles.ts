@@ -111,7 +111,7 @@ export class Particles {
       const settingsWithOverride = getToMovementSettings(
         settings,
         'particles',
-        [this.name, objectID],
+        this.name, objectID,
       )
 
       for (const particle of system.particles) {

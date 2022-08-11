@@ -3,6 +3,10 @@ import { GPencilToMovementsSettings } from './gpencil'
 import { LightToMovementsSettings } from './light'
 import { ParticlesToMovementsSettings } from './particles'
 
+type DeepPartial<T> = T extends object ? {
+  [P in keyof T]?: DeepPartial<T[P]>;
+} : T;
+
 export interface Settings {
   // Global object type settings
   objectSettings: {
@@ -15,10 +19,10 @@ export interface Settings {
   // Per-object overrides
   objectOverrides: {
     [id: string]:
-      | Partial<GPencilToMovementsSettings>
-      | Partial<ParticlesToMovementsSettings>
-      | Partial<LightToMovementsSettings>
-      | Partial<CameraToMovementsSettings>
+    | Partial<GPencilToMovementsSettings>
+    | Partial<ParticlesToMovementsSettings>
+    | Partial<LightToMovementsSettings>
+    | Partial<CameraToMovementsSettings>
   }
 
   // For disabling the rendering of objects
@@ -67,55 +71,67 @@ export interface OptimisationSettings {
   transitionSize: number
 
   maxSpeed: number // mm/s
-  transitionMaxSpeed: number // mm/s
 }
 
 export function getToMovementSettings(
   settings: Settings,
   objType: 'gpencil',
-  overrideKeys: string[],
+  name: string,
+  objectID: string,
 ): GPencilToMovementsSettings
 
 export function getToMovementSettings(
   settings: Settings,
   objType: 'particles',
-  overrideKeys: string[],
+  name: string,
+  objectID: string,
 ): ParticlesToMovementsSettings
 
 export function getToMovementSettings(
   settings: Settings,
   objType: 'light',
-  overrideKeys: string[],
+  name: string,
+  objectID: string,
 ): LightToMovementsSettings
 
 export function getToMovementSettings(
   settings: Settings,
   objType: 'camera',
-  overrideKeys: string[],
+  name: string,
+  objectID: string,
 ): CameraToMovementsSettings
 
 export function getToMovementSettings<
   ReturnType =
-    | GPencilToMovementsSettings
-    | ParticlesToMovementsSettings
-    | LightToMovementsSettings
-    | CameraToMovementsSettings,
->(
-  settings: Settings,
-  objType: 'gpencil' | 'particles' | 'light' | 'camera',
-  overrideKeys: string[],
+  | GPencilToMovementsSettings
+  | ParticlesToMovementsSettings
+  | LightToMovementsSettings
+  | CameraToMovementsSettings,
+  >(
+    settings: Settings,
+    objType: 'gpencil' | 'particles' | 'light' | 'camera',
+    name: string,
+    objectID: string,
 ): ReturnType {
+
   let objSettings = settings.objectSettings[objType]
 
-  // Iterate over every override key, merging in the layers
-  for (const objName of overrideKeys) {
-    if (settings.objectOverrides[objName]) {
-      objSettings = Object.assign(
-        {},
-        objSettings,
-        settings.objectOverrides[objName],
-      )
-    }
+  // console.log(`objType ${objType} overrideKeys ${overrideKeys}`)
+
+  if (settings.objectOverrides[name]) {
+    return Object.assign(
+      {},
+      objSettings,
+      settings.objectOverrides[name],
+    ) as ReturnType
+  }
+
+  if (settings.objectOverrides[objectID]) {
+    return Object.assign(
+      {},
+      objSettings,
+      settings.objectOverrides[objectID],
+    ) as ReturnType
   }
 
   return objSettings as ReturnType

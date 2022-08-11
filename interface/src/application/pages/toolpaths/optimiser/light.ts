@@ -34,7 +34,7 @@ export class Light {
     public name: string,
     public material: MaterialJSON,
     public position: [number, number, number],
-  ) {}
+  ) { }
 
   public getObjectTree: () => TreeNodeInfo<NodeInfo> = () => {
     const node: TreeNodeInfo<NodeInfo> = {
@@ -79,10 +79,10 @@ export class Light {
       return movements
     }
 
-    const settingsWithOverride = getToMovementSettings(settings, 'light', [
+    const settingsWithOverride = getToMovementSettings(settings, 'light',
       this.name,
       objectID,
-    ])
+    )
 
     // Convert the position to a Vector3
     const position = new Vector3(

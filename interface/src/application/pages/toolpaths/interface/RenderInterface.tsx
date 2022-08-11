@@ -167,10 +167,10 @@ async function getToolpathForFrame(frameNumber: number) {
     GLOBAL_OVERRIDE_OBJECT_ID
   ]
     ? importMaterial(
-        visualisationSettings.objectMaterialOverrides[
-          GLOBAL_OVERRIDE_OBJECT_ID
-        ],
-      )
+      visualisationSettings.objectMaterialOverrides[
+      GLOBAL_OVERRIDE_OBJECT_ID
+      ],
+    )
     : null
 
   dense.map(movement => {
