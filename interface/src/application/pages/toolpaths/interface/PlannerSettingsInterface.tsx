@@ -4,7 +4,7 @@ import {
   Card,
   Checkbox as BlueprintCheckbox,
   FormGroup,
-  NumericInput,
+  NumericInput as BlueprintNumericInput,
   Slider,
   Switch,
   Tag,
@@ -35,27 +35,20 @@ import { isCamera } from '../optimiser/camera'
 import { StateSelector } from 'zustand'
 import { WritableDraft } from 'immer/dist/internal'
 
+// TODO: How do we get the defaults from here?
+// Bool defaults are false, number defaults are 0
+
 interface CheckboxProps {
   selector: StateSelector<Store, boolean | undefined>
   writer: (draft: WritableDraft<Store>, value: boolean) => void
+  label: string
 }
 
-// function Checkbox(props: CheckboxProps) {
-//   const [localSetting, setLocalSetting] = useState(getSetting(props.selector))
-
-//   const onChangeHandler: React.FormEventHandler<HTMLInputElement> =
-//     useCallback(event => {
-//       const checked = (event.target as HTMLInputElement).checked
-//       setLocalSetting(checked)
-//       setSetting(state => {
-//         props.writer(state, checked)
-//       })
-//     }, [props.writer, setLocalSetting])
-
-//   return <BlueprintCheckbox checked={localSetting} onChange={onChangeHandler} />
-// }
-
 function Checkbox(props: CheckboxProps) {
+  if (useSetting(props.selector) === undefined) {
+    console.warn(`Checkbox setting started undefined`, props.selector)
+  }
+
   // If the setting is undefined, explicitly start as false instead of undefined.
   const setting = useSetting(props.selector) ?? false
 
@@ -67,565 +60,93 @@ function Checkbox(props: CheckboxProps) {
       })
     }, [props.writer])
 
-  return <BlueprintCheckbox checked={setting} onChange={onChangeHandler} />
+  return <>
+    {props.label} <BlueprintCheckbox checked={setting} onChange={onChangeHandler} />
+  </>
 }
 
+interface NumericInputProps {
+  selector: StateSelector<Store, number | undefined>
+  writer: (draft: WritableDraft<Store>, value: number) => void
+  min: number
+  max: number
+  stepSize: number
+  minorStepSize?: number
+  majorStepSize?: number
+  rightText?: string
+  label: string
+}
+
+function NumericInput(props: NumericInputProps) {
+  if (useSetting(props.selector) === undefined) {
+    console.warn(`NumericInput setting started undefined`, props.selector)
+  }
+
+  // If the setting is undefined, explicitly start as 0 instead of undefined.
+  const setting = useSetting(props.selector) ?? 0
 
 
-
-
-function InterLineTransitionAngleControl() {
-  const [angle, setAngle] = useState(
-    getSetting(state => state.settings.optimisation.interLineTransitionAngle),
-  )
-
-  const updateAngle = useCallback(angle => {
+  const handleOnValueChange = useCallback(value => {
     setSetting(state => {
-      state.settings.optimisation.interLineTransitionAngle = angle
+      props.writer(state, value)
     })
-  }, [])
-
-  const setAndUpdateAngle = useCallback(angle => {
-    setAngle(angle)
-    updateAngle(angle)
-  }, [])
+  }, [props.writer])
 
   return (
-    <NumericInput
-      fill
-      min={0}
-      max={360}
-      stepSize={1}
-      value={angle}
-      onValueChange={setAndUpdateAngle}
-      rightElement={<Tag>°</Tag>}
-      style={{ width: '100%' }}
-      intent={Intent.PRIMARY}
-    />
-  )
-}
+    <>
+      {props.label} <BlueprintNumericInput
+        fill
+        min={props.min}
+        max={props.max}
+        stepSize={props.stepSize}
+        minorStepSize={props.minorStepSize}
+        majorStepSize={props.majorStepSize}
+        value={setting}
 
-function InterLineTransitionDistanceControl() {
-  const [distange, setDistance] = useState(
-    getSetting(
-      state => state.settings.optimisation.interLineTransitionShaveDistance,
-    ),
-  )
-
-  const updateDistance = useCallback(distance => {
-    setSetting(state => {
-      state.settings.optimisation.interLineTransitionShaveDistance = distance
-    })
-  }, [])
-
-  const setAndUpdateDistance = useCallback(distance => {
-    setDistance(distance)
-    updateDistance(distance)
-  }, [])
-
-  return (
-    <NumericInput
-      fill
-      min={1}
-      max={10}
-      stepSize={1}
-      value={distange}
-      onValueChange={setAndUpdateDistance}
-      rightElement={<Tag>mm</Tag>}
-      style={{ width: '100%' }}
-      intent={Intent.PRIMARY}
-    />
-  )
-}
-
-function GPencilOutputType() {
-  const [setting, set] = useState(
-    getSetting(state => state.settings.objectSettings.gpencil.outputType) ?? 0,
-  )
-
-  const update = useCallback(t => {
-    setSetting(state => {
-      state.settings.objectSettings.gpencil.outputType = t
-    })
-  }, [])
-
-  const handleUpdate = useCallback(t => {
-    set(t)
-    update(t)
-  }, [])
-
-  return (
-    <NumericInput
-      fill
-      min={0}
-      max={2}
-      stepSize={1}
-      majorStepSize={1}
-      value={setting}
-      onValueChange={handleUpdate}
-      rightElement={<Tag>type</Tag>}
-      style={{ width: '100%' }}
-      intent={Intent.PRIMARY}
-    />
-  )
-}
-
-function GPencilSimplificationControl() {
-  const [distange, setDistance] = useState(
-    getSetting(
-      state => state.settings.objectSettings.gpencil.simplificationTolerance,
-    ),
-  )
-
-  const updateDistance = useCallback(distance => {
-    setSetting(state => {
-      state.settings.objectSettings.gpencil.simplificationTolerance = distance
-    })
-  }, [])
-
-  const setAndUpdateDistance = useCallback(distance => {
-    setDistance(distance)
-    updateDistance(distance)
-  }, [])
-
-  return (
-    <NumericInput
-      fill
-      min={0}
-      max={10}
-      stepSize={0.5}
-      minorStepSize={0.1}
-      value={distange}
-      onValueChange={setAndUpdateDistance}
-      style={{ width: '100%' }}
-      intent={Intent.PRIMARY}
-    />
-  )
-}
-
-function LineRunUpDistanceControl() {
-  const [distange, setDistance] = useState(
-    getSetting(state => state.settings.optimisation.lineRunUp) * 100,
-  )
-
-  const updateDistance = useCallback(distance => {
-    setSetting(state => {
-      state.settings.optimisation.lineRunUp = distance
-    })
-  }, [])
-
-  const setAndUpdateDistance = useCallback(distance => {
-    setDistance(distance)
-    updateDistance(distance / 100)
-  }, [])
-
-  return (
-    <NumericInput
-      fill
-      min={0}
-      max={100}
-      stepSize={1}
-      value={distange}
-      onValueChange={setAndUpdateDistance}
-      rightElement={<Tag>%</Tag>}
-      style={{ width: '100%' }}
-      intent={Intent.PRIMARY}
-    />
-  )
-}
-
-function ParticlePreWaitDurationControl() {
-  const [setting, set] = useState(
-    getSetting(state => state.settings.objectSettings.particles.preWait) ?? 0,
-  )
-
-  const update = useCallback(delay => {
-    setSetting(state => {
-      state.settings.objectSettings.particles.preWait = delay
-    })
-  }, [])
-
-  const handleUpdate = useCallback(delay => {
-    set(delay)
-    update(delay)
-  }, [])
-
-  return (
-    <NumericInput
-      fill
-      min={0}
-      max={200}
-      stepSize={25}
-      majorStepSize={100}
-      value={setting}
-      onValueChange={handleUpdate}
-      rightElement={<Tag>ms</Tag>}
-      style={{ width: '100%' }}
-      intent={Intent.PRIMARY}
-    />
-  )
-}
-
-function ParticlePostWaitDurationControl() {
-  const [setting, set] = useState(
-    getSetting(state => state.settings.objectSettings.particles.postWait) ?? 0,
-  )
-
-  const update = useCallback(delay => {
-    setSetting(state => {
-      state.settings.objectSettings.particles.postWait = delay
-    })
-  }, [])
-
-  const handleUpdate = useCallback(delay => {
-    set(delay)
-    update(delay)
-  }, [])
-
-  return (
-    <NumericInput
-      fill
-      min={0}
-      max={200}
-      stepSize={25}
-      majorStepSize={100}
-      value={setting}
-      onValueChange={handleUpdate}
-      rightElement={<Tag>ms</Tag>}
-      style={{ width: '100%' }}
-      intent={Intent.PRIMARY}
-    />
-  )
-}
-
-function ParticleOnDurationControl() {
-  const [setting, set] = useState(
-    getSetting(state => state.settings.objectSettings.particles.onDuration) ??
-    1,
-  )
-
-  const update = useCallback(delay => {
-    setSetting(state => {
-      state.settings.objectSettings.particles.onDuration = delay
-    })
-  }, [])
-
-  const handleUpdate = useCallback(delay => {
-    set(delay)
-    update(delay)
-  }, [])
-
-  return (
-    <NumericInput
-      fill
-      min={1}
-      max={200}
-      stepSize={25}
-      majorStepSize={100}
-      value={setting}
-      onValueChange={handleUpdate}
-      rightElement={<Tag>ms</Tag>}
-      style={{ width: '100%' }}
-      intent={Intent.PRIMARY}
-    />
-  )
-}
-
-function LightPreWaitDurationControl() {
-  const [setting, set] = useState(
-    getSetting(state => state.settings.objectSettings.light.preWait) ?? 0,
-  )
-
-  const update = useCallback(delay => {
-    setSetting(state => {
-      state.settings.objectSettings.light.preWait = delay
-    })
-  }, [])
-
-  const handleUpdate = useCallback(delay => {
-    set(delay)
-    update(delay)
-  }, [])
-
-  return (
-    <NumericInput
-      fill
-      min={0}
-      max={200}
-      stepSize={25}
-      majorStepSize={100}
-      value={setting}
-      onValueChange={handleUpdate}
-      rightElement={<Tag>ms</Tag>}
-      style={{ width: '100%' }}
-      intent={Intent.PRIMARY}
-    />
-  )
-}
-
-function LightPostWaitDurationControl() {
-  const [setting, set] = useState(
-    getSetting(state => state.settings.objectSettings.light.postWait) ?? 0,
-  )
-
-  const update = useCallback(delay => {
-    setSetting(state => {
-      state.settings.objectSettings.light.postWait = delay
-    })
-  }, [])
-
-  const handleUpdate = useCallback(delay => {
-    set(delay)
-    update(delay)
-  }, [])
-
-  return (
-    <NumericInput
-      fill
-      min={0}
-      max={200}
-      stepSize={25}
-      majorStepSize={100}
-      value={setting}
-      onValueChange={handleUpdate}
-      rightElement={<Tag>ms</Tag>}
-      style={{ width: '100%' }}
-      intent={Intent.PRIMARY}
-    />
-  )
-}
-
-function LightOnDurationControl() {
-  const [setting, set] = useState(
-    getSetting(state => state.settings.objectSettings.light.onDuration) ?? 1,
-  )
-
-  const update = useCallback(delay => {
-    setSetting(state => {
-      state.settings.objectSettings.light.onDuration = delay
-    })
-  }, [])
-
-  const handleUpdate = useCallback(delay => {
-    set(delay)
-    update(delay)
-  }, [])
-
-  return (
-    <NumericInput
-      fill
-      min={1}
-      max={200}
-      stepSize={25}
-      majorStepSize={100}
-      value={setting}
-      onValueChange={handleUpdate}
-      rightElement={<Tag>ms</Tag>}
-      style={{ width: '100%' }}
-      intent={Intent.PRIMARY}
-    />
-  )
-}
-
-function MaxSpeedControl() {
-  const [localSpeed, setLocalSpeed] = useState(
-    getSetting(state => state.settings.optimisation.maxSpeed),
-  )
-
-  const updateMaxSpeed = useCallback(newMaxSpeed => {
-    setSetting(state => {
-      state.settings.optimisation.maxSpeed = Math.max(newMaxSpeed, 1)
-    })
-  }, [])
-
-  const setAndUpdateMaxSpeed = useCallback(newMaxSpeed => {
-    setLocalSpeed(newMaxSpeed)
-    updateMaxSpeed(newMaxSpeed)
-  }, [])
-
-  return (
-    <NumericInput
-      fill
-      min={0}
-      max={500}
-      stepSize={25}
-      majorStepSize={100}
-      value={localSpeed}
-      onValueChange={setAndUpdateMaxSpeed}
-      rightElement={<Tag>mm/sec</Tag>}
-      style={{ width: '100%' }}
-      intent={Intent.PRIMARY}
-    />
-  )
-}
-
-function TransitionMaxSpeedControl() {
-  const [localSpeed, setLocalSpeed] = useState(
-    getSetting(state => state.settings.optimisation.transitionMaxSpeed),
-  )
-
-  const updateTransitionMaxSpeed = useCallback(newTransitionMaxSpeed => {
-    setSetting(state => {
-      state.settings.optimisation.transitionMaxSpeed = Math.max(
-        newTransitionMaxSpeed,
-        1,
-      )
-    })
-  }, [])
-
-  const setAndUpdateTransitionMaxSpeed = useCallback(newTransitionMaxSpeed => {
-    setLocalSpeed(newTransitionMaxSpeed)
-    updateTransitionMaxSpeed(newTransitionMaxSpeed)
-  }, [])
-
-  return (
-    <NumericInput
-      fill
-      min={0}
-      max={300}
-      stepSize={25}
-      majorStepSize={100}
-      value={localSpeed}
-      onValueChange={setAndUpdateTransitionMaxSpeed}
-      rightElement={<Tag>mm/sec</Tag>}
-      style={{ width: '100%' }}
-      intent={Intent.PRIMARY}
-    />
-  )
-}
-
-function TransitionSizeControl() {
-  const [localSpeed, setLocalSpeed] = useState(
-    getSetting(state => state.settings.optimisation.transitionSize),
-  )
-
-  const updateTransitionMaxSpeed = useCallback(newTransitionMaxSpeed => {
-    setSetting(state => {
-      state.settings.optimisation.transitionSize = Math.max(
-        newTransitionMaxSpeed,
-        0,
-      )
-    })
-  }, [])
-
-  const setAndUpdateTransitionMaxSpeed = useCallback(newTransitionMaxSpeed => {
-    setLocalSpeed(newTransitionMaxSpeed)
-    updateTransitionMaxSpeed(newTransitionMaxSpeed)
-  }, [])
-
-  return (
-    <NumericInput
-      fill
-      min={0}
-      max={0.5}
-      stepSize={0.01}
-      minorStepSize={0.001}
-      majorStepSize={0.1}
-      value={localSpeed}
-      onValueChange={setAndUpdateTransitionMaxSpeed}
-      rightElement={<Tag>mm</Tag>}
-      style={{ width: '100%' }}
-      intent={Intent.PRIMARY}
-    />
-  )
-}
-
-function LightFadeOffsetControl() {
-  const [setting, set] = useState(
-    getSetting(state => state.settings.lightFadeOffset),
-  )
-
-  const update = useCallback(val => {
-    setSetting(state => {
-      state.settings.lightFadeOffset = val
-    })
-  }, [])
-
-  const setAndUpdate = useCallback(val => {
-    set(val)
-    update(val)
-  }, [])
-
-  return (
-    <NumericInput
-      fill
-      min={-1000}
-      max={1000}
-      stepSize={1}
-      majorStepSize={10}
-      value={setting}
-      onValueChange={setAndUpdate}
-      rightElement={<Tag>ms</Tag>}
-      style={{ width: '100%' }}
-      intent={Intent.PRIMARY}
-    />
-  )
-}
-
-function CameraDurationControl() {
-  const [setting, set] = useState(
-    getSetting(state => state.cameraOverrideDuration),
-  )
-
-  const update = useCallback(newTransitionMaxSpeed => {
-    setSetting(state => {
-      state.cameraOverrideDuration = Math.max(newTransitionMaxSpeed, 1)
-    })
-  }, [])
-
-  const setAndUpdateTransitionMaxSpeed = useCallback(newTransitionMaxSpeed => {
-    set(newTransitionMaxSpeed)
-    update(newTransitionMaxSpeed)
-  }, [])
-
-  return (
-    <NumericInput
-      fill
-      min={1}
-      max={30000}
-      stepSize={25}
-      majorStepSize={100}
-      value={setting}
-      onValueChange={setAndUpdateTransitionMaxSpeed}
-      rightElement={<Tag>ms</Tag>}
-      style={{ width: '100%' }}
-      intent={Intent.PRIMARY}
-    />
+        onValueChange={handleOnValueChange}
+        rightElement={props.rightText ? <Tag>{props.rightText}</Tag> : undefined}
+        style={{ width: '100%' }}
+        intent={Intent.PRIMARY}
+      />
+    </>
   )
 }
 
 
-function WaitAtStartDurationControl() {
-  const [waitDuration, setWaitDuration] = useState(
-    getSetting(state => state.settings.optimisation.waitAtStartDuration),
-  )
 
-  const updateWaitDuration = useCallback(waitDuration => {
-    setSetting(state => {
-      state.settings.optimisation.waitAtStartDuration = waitDuration
-    })
-  }, [])
+// TODO: Dropdown component for this
+// function GPencilOutputType() {
+//   const [setting, set] = useState(
+//     getSetting(state => state.settings.objectSettings.gpencil.outputType) ?? 0,
+//   )
 
-  const setAndUpdateDuration = useCallback(waitDuration => {
-    setWaitDuration(waitDuration)
-    updateWaitDuration(waitDuration)
-  }, [])
+//   const update = useCallback(t => {
+//     setSetting(state => {
+//       state.settings.objectSettings.gpencil.outputType = t
+//     })
+//   }, [])
 
-  return (
-    <NumericInput
-      fill
-      min={0}
-      max={5000}
-      stepSize={100}
-      majorStepSize={1000}
-      value={waitDuration}
-      onValueChange={setAndUpdateDuration}
-      rightElement={<Tag>ms</Tag>}
-      style={{ width: '100%' }}
-      intent={Intent.PRIMARY}
-    />
-  )
-}
+//   const handleUpdate = useCallback(t => {
+//     set(t)
+//     update(t)
+//   }, [])
+
+//   return (
+//     <BlueprintNumericInput
+//       fill
+//       min={0}
+//       max={2}
+//       stepSize={1}
+//       majorStepSize={1}
+//       value={setting}
+//       onValueChange={handleUpdate}
+//       rightElement={<Tag>type</Tag>}
+//       style={{ width: '100%' }}
+//       intent={Intent.PRIMARY}
+//     />
+//   )
+// }
+
 
 function PreviewTimelineControl() {
   const [setting, set] = useState(
@@ -761,12 +282,46 @@ const enum TABS {
 function GeneralTab() {
   return (
     <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
-      Max Speed <MaxSpeedControl />
-      Max Transition <TransitionMaxSpeedControl />
-      TransitionSize <TransitionSizeControl />
-      Wait before Start <WaitAtStartDurationControl />
-      LightFade Offset <LightFadeOffsetControl />
-      Disable Shaped Transitions <Checkbox selector={state => state.settings.optimisation.disableShapedTransitions} writer={(state, value) => state.settings.optimisation.disableShapedTransitions = value} />
+      <NumericInput
+        label="Max Speed"
+        min={0}
+        max={500}
+        stepSize={25}
+        majorStepSize={100}
+        rightText="mm/s"
+        selector={state => state.settings.optimisation.maxSpeed}
+        writer={(state, value) => state.settings.optimisation.maxSpeed = value}
+      />
+      <NumericInput
+        label="Transition Size"
+        min={0}
+        max={0.5}
+        stepSize={0.01}
+        minorStepSize={0.001}
+        majorStepSize={0.1}
+        selector={state => state.settings.optimisation.transitionSize}
+        writer={(state, value) => state.settings.optimisation.transitionSize = value}
+      />
+      <NumericInput
+        label="Wait before Start"
+        min={0}
+        max={5000}
+        stepSize={100}
+        majorStepSize={1000}
+        rightText="ms"
+        selector={state => state.settings.optimisation.waitAtStartDuration}
+        writer={(state, value) => state.settings.optimisation.waitAtStartDuration = value}
+      />
+      <NumericInput
+        label="LightFade Offset"
+        min={-1000}
+        max={1000}
+        stepSize={1}
+        majorStepSize={10}
+        selector={state => state.settings.lightFadeOffset}
+        writer={(state, value) => state.settings.lightFadeOffset = value}
+      />
+      <Checkbox label="Disable Shaped Transitions" selector={state => state.settings.optimisation.disableShapedTransitions} writer={(state, value) => state.settings.optimisation.disableShapedTransitions = value} />
     </Composition>
   )
 }
@@ -778,15 +333,23 @@ function CameraHelpersTab() {
 
   return (
     <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
-      Draw Ruler <Checkbox selector={state => state.settings.objectSettings.camera.drawRulers} writer={(state, value) => state.settings.objectSettings.camera.drawRulers = value} />
-      Draw Frustum Alignment <Checkbox selector={state => state.settings.objectSettings.camera.drawAlignmentHelpers} writer={(state, value) => state.settings.objectSettings.camera.drawAlignmentHelpers = value} />
-      Draw Extrinsic Calibrators <Checkbox selector={state => state.settings.objectSettings.camera.drawExtrinsicCalibrators} writer={(state, value) => state.settings.objectSettings.camera.drawExtrinsicCalibrators = value} />
-      Draw Col Calibration Chart <Checkbox selector={state => state.settings.objectSettings.camera.drawColorCalibrationChart} writer={(state, value) => state.settings.objectSettings.camera.drawColorCalibrationChart = value} />
-      Enable duration override  <Checkbox selector={state => state.cameraOverrideDuration > 0} writer={(state, value) => state.cameraOverrideDuration = value ? 100 : 0} />
+      <Checkbox label="Draw Ruler" selector={state => state.settings.objectSettings.camera.drawRulers} writer={(state, value) => state.settings.objectSettings.camera.drawRulers = value} />
+      <Checkbox label="Draw Frustum Alignment" selector={state => state.settings.objectSettings.camera.drawAlignmentHelpers} writer={(state, value) => state.settings.objectSettings.camera.drawAlignmentHelpers = value} />
+      <Checkbox label="Draw Extrinsic Calibrators" selector={state => state.settings.objectSettings.camera.drawExtrinsicCalibrators} writer={(state, value) => state.settings.objectSettings.camera.drawExtrinsicCalibrators = value} />
+      <Checkbox label="Draw Col Calibration Chart" selector={state => state.settings.objectSettings.camera.drawColorCalibrationChart} writer={(state, value) => state.settings.objectSettings.camera.drawColorCalibrationChart = value} />
+      <Checkbox label="Enable duration override " selector={state => state.cameraOverrideDuration > 0} writer={(state, value) => state.cameraOverrideDuration = value ? 100 : 0} />
       {cameraDurationOverrideEnabled ? (
         <>
-          {' '}
-          Camera duration <CameraDurationControl />
+          <NumericInput
+            label="Camera Duration"
+            min={1}
+            max={30000}
+            stepSize={25}
+            majorStepSize={100}
+            rightText="ms"
+            selector={state => state.cameraOverrideDuration}
+            writer={(state, value) => state.cameraOverrideDuration = value}
+          />
         </>
       ) : null}
     </Composition>
@@ -796,11 +359,38 @@ function CameraHelpersTab() {
 function ParticlesTab() {
   return (
     <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
-      Pre Wait <ParticlePreWaitDurationControl />
-      On Duration <ParticleOnDurationControl />
-      Post Wait <ParticlePostWaitDurationControl />
-      Draw in Velocity Orientation <Checkbox selector={state => state.settings.objectSettings.particles.drawInVelocityOrientation} writer={(state, value) => state.settings.objectSettings.particles.drawInVelocityOrientation = value} />
-      Hide if Occluded <Checkbox selector={state => state.settings.objectSettings.particles.hideIfOccluded} writer={(state, value) => state.settings.objectSettings.particles.hideIfOccluded = value} />
+      <NumericInput
+        label="Pre Wait"
+        min={0}
+        max={200}
+        stepSize={25}
+        majorStepSize={100}
+        rightText="ms"
+        selector={state => state.settings.objectSettings.particles.preWait}
+        writer={(state, value) => state.settings.objectSettings.particles.preWait = value}
+      />
+      <NumericInput
+        label="On Duration"
+        min={0}
+        max={200}
+        stepSize={25}
+        majorStepSize={100}
+        rightText="ms"
+        selector={state => state.settings.objectSettings.particles.onDuration}
+        writer={(state, value) => state.settings.objectSettings.particles.onDuration = value}
+      />
+      <NumericInput
+        label="Post Wait"
+        min={0}
+        max={200}
+        stepSize={25}
+        majorStepSize={100}
+        rightText="ms"
+        selector={state => state.settings.objectSettings.particles.postWait}
+        writer={(state, value) => state.settings.objectSettings.particles.postWait = value}
+      />
+      <Checkbox label="Draw in Velocity Orientation" selector={state => state.settings.objectSettings.particles.drawInVelocityOrientation} writer={(state, value) => state.settings.objectSettings.particles.drawInVelocityOrientation = value} />
+      <Checkbox label="Hide if Occluded" selector={state => state.settings.objectSettings.particles.hideIfOccluded} writer={(state, value) => state.settings.objectSettings.particles.hideIfOccluded = value} />
     </Composition>
   )
 }
@@ -808,10 +398,37 @@ function ParticlesTab() {
 function LightTab() {
   return (
     <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
-      Pre Wait <LightPreWaitDurationControl />
-      On Duration <LightOnDurationControl />
-      Post Wait <LightPostWaitDurationControl />
-      Hide if Black <Checkbox selector={state => state.settings.objectSettings.light.hideIfBlack} writer={(state, value) => state.settings.objectSettings.light.hideIfBlack = value} />
+      <NumericInput
+        label="Pre Wait"
+        min={0}
+        max={200}
+        stepSize={25}
+        majorStepSize={100}
+        rightText="ms"
+        selector={state => state.settings.objectSettings.light.preWait}
+        writer={(state, value) => state.settings.objectSettings.light.preWait = value}
+      />
+      <NumericInput
+        label="On Duration"
+        min={0}
+        max={200}
+        stepSize={25}
+        majorStepSize={100}
+        rightText="ms"
+        selector={state => state.settings.objectSettings.light.onDuration}
+        writer={(state, value) => state.settings.objectSettings.light.onDuration = value}
+      />
+      <NumericInput
+        label="Post Wait"
+        min={0}
+        max={200}
+        stepSize={25}
+        majorStepSize={100}
+        rightText="ms"
+        selector={state => state.settings.objectSettings.light.postWait}
+        writer={(state, value) => state.settings.objectSettings.light.postWait = value}
+      />
+      <Checkbox label="Hide if Black" selector={state => state.settings.objectSettings.light.hideIfBlack} writer={(state, value) => state.settings.objectSettings.light.hideIfBlack = value} />
     </Composition>
   )
 }
@@ -823,16 +440,52 @@ function LineTab() {
 
   return (
     <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
-      GPencil simplification <GPencilSimplificationControl />
-      GPencil Output type <GPencilOutputType />
-      Inter-line Optimisations Enabled <Checkbox selector={state => state.settings.optimisation.smoothInterlineTransitions} writer={(state, value) => state.settings.optimisation.smoothInterlineTransitions = value} />
+      <NumericInput
+        label="GPencil simplification tolerance"
+        min={0}
+        max={10}
+        stepSize={0.5}
+        minorStepSize={0.1}
+        selector={state => state.settings.objectSettings.gpencil.simplificationTolerance}
+        writer={(state, value) => state.settings.objectSettings.gpencil.simplificationTolerance = value}
+      />
+
+      {/* GPencil Output type <GPencilOutputType /> */}
+      <Checkbox label="Inter-line Optimisations Enabled" selector={state => state.settings.optimisation.smoothInterlineTransitions} writer={(state, value) => state.settings.optimisation.smoothInterlineTransitions = value} />
       {interlineOptimisationsEnabled ? (
         <>
-          Inter-line Transition Angle <InterLineTransitionAngleControl />
-          Inter-line Transition Distance <InterLineTransitionDistanceControl />
+          <NumericInput
+            label="Inter-line Transition Angle"
+            min={0}
+            max={360}
+            stepSize={1}
+            majorStepSize={36}
+            rightText="°"
+            selector={state => state.settings.optimisation.interLineTransitionAngle}
+            writer={(state, value) => state.settings.optimisation.interLineTransitionAngle = value}
+          />
+          <NumericInput
+            label="Inter-line Transition Distance"
+            min={1}
+            max={10}
+            stepSize={1}
+            majorStepSize={5}
+            rightText="mm"
+            selector={state => state.settings.optimisation.interLineTransitionShaveDistance}
+            writer={(state, value) => state.settings.optimisation.interLineTransitionShaveDistance = value}
+          />
         </>
       ) : null}
-      Line run up <LineRunUpDistanceControl />
+
+      <NumericInput
+        label="Line run up"
+        min={0}
+        max={100}
+        stepSize={1}
+        rightText="%"
+        selector={state => state.settings.optimisation.lineRunUp * 100}
+        writer={(state, value) => state.settings.optimisation.lineRunUp = value / 100}
+      />
     </Composition>
   )
 }
@@ -844,7 +497,7 @@ function VisualisationTab() {
 
   return (
     <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
-      Preview Progress <Checkbox selector={state => state.visualisationSettings.previewProgress} writer={(state, value) => state.visualisationSettings.previewProgress = value} />
+      <Checkbox label="Preview Progress" selector={state => state.visualisationSettings.previewProgress} writer={(state, value) => state.visualisationSettings.previewProgress = value} />
       {previewEnabled ? (
         <>
           Preview Timeline <PreviewTimelineControl />
