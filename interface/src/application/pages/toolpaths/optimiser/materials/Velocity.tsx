@@ -120,10 +120,7 @@ export class VelocityMaterial extends Material {
         : Math.ceil(movement.getLength() / 5)
 
     // Calculate the bounds of the colors used
-    const intendedSpeed = Math.max(
-      settings.optimisation.transitionMaxSpeed,
-      settings.optimisation.maxSpeed,
-    )
+    const intendedSpeed = settings.optimisation.maxSpeed
 
     const movementDuration = movement.getDuration()
 

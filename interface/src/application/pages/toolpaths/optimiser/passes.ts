@@ -119,9 +119,8 @@ export function sparseToDense(
           TRANSITION_OBJECT_ID, // Take the object ID of this movement, they're probably the same.
         )
 
-        // These should really be the same... TODO: unify speeds
         interLineTransition.setMaxSpeed(
-          settings.optimisation.transitionMaxSpeed,
+          settings.optimisation.maxSpeed
         )
 
         // Add the transition to the dense bag
@@ -170,7 +169,7 @@ export function sparseToDense(
         new MixMaterial(previousMovement.material, movement.material),
       )
 
-      interLineTransition.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
+      interLineTransition.setMaxSpeed(settings.optimisation.maxSpeed)
 
       // Add the transition to the dense bag
       denseMovements.push(interLineTransition)
@@ -192,7 +191,7 @@ export function sparseToDense(
         defaultTransitionMaterial,
         TRANSITION_OBJECT_ID,
       )
-      transit.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
+      transit.setMaxSpeed(settings.optimisation.maxSpeed)
 
       // Add the transition to the dense bag
       denseMovements.push(transit)
@@ -232,7 +231,7 @@ export function sparseToDense(
         blinkAtEnd,
       )
 
-      transition.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
+      transition.setMaxSpeed(settings.optimisation.maxSpeed)
 
       // Add the transition to the dense bag, it handles the point.
       denseMovements.push(transition)
@@ -268,7 +267,7 @@ export function sparseToDense(
         defaultTransitionMaterial,
         settings.optimisation.transitionSize,
       )
-      transition.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
+      transition.setMaxSpeed(settings.optimisation.maxSpeed)
 
       // Add the transition to the dense bag
       denseMovements.push(transition)
@@ -311,7 +310,7 @@ export function sparseToDense(
       defaultTransitionMaterial,
       settings.optimisation.transitionSize,
     )
-    transition.setMaxSpeed(settings.optimisation.transitionMaxSpeed)
+    transition.setMaxSpeed(settings.optimisation.maxSpeed)
 
     // Add the transition to the dense bag
     denseMovements.push(transition)
