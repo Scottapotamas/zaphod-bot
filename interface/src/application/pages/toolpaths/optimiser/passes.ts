@@ -621,7 +621,7 @@ export interface OptimiserResult {
  * Takes 5s for 10 movements
  * Takes 15s for 11 movements
  * Takes 112s for 12 movements
- * Don't bother after 12.
+ * Don't bother after 10.
  */
 
 export function* optimiseBruteForce(
@@ -1058,11 +1058,9 @@ export async function optimise(
 
     const shouldContinue = await updateProgress({
       duration: currentDuration,
-      text: `${hash.toString(16)}: ${
-        Math.round(iteration.best.cost * 10) / 10
-      } (${Math.round(calculatedCost * 10) / 10}): ${
-        Math.round(currentDuration * 100) / 100
-      }ms`,
+      text: `${hash.toString(16)}: ${Math.round(iteration.best.cost * 10) / 10
+        } (${Math.round(calculatedCost * 10) / 10}): ${Math.round(currentDuration * 100) / 100
+        }ms`,
       serialisedTour: iteration.best.tour,
       completed: done,
       minimaFound: done,
@@ -1114,8 +1112,8 @@ export function* smartOptimiser(
     }
   }
 
-  // Any subtour with under 12 elements, perform a brute force solve
-  if (sparseBag.length < 12) {
+  // Any subtour with under 10 elements, perform a brute force solve
+  if (sparseBag.length < 10) {
     for (const res of optimiseBruteForce(sparseBag, createHasher, stopAfter)) {
       if (res.completed) {
         yield res
@@ -1125,7 +1123,7 @@ export function* smartOptimiser(
     }
   }
 
-  // Any tours more complicated than 12 moves utilise 2-opt, seeded with a nearest neighbour search
+  // Any tours more complicated than 10 moves utilise 2-opt, seeded with a nearest neighbour search
   for (const res of optimise2Opt(
     deserialiseTour(sparseBag, nnRes.best.tour),
     createHasher,
