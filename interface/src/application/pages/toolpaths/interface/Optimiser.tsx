@@ -7,7 +7,7 @@ import {
   BarChart,
   BarChartDomain,
   VerticalAxis,
-  HorizontalAxis,
+  HorizontalAxis, HorizontalLineAnnotation
 } from '@electricui/components-desktop-charts'
 
 import { FrameProgressUpdate, ToolpathGenerator } from '../optimiser/main'
@@ -246,6 +246,9 @@ export function Optimiser() {
 
   const folder = useSetting(state => state.folder)
 
+  // Grab the camera override duration
+  const cameraOverrideDuration = useSetting(state => state.cameraOverrideDuration)
+
   if (folder === null) {
     return null
   }
@@ -308,7 +311,10 @@ export function Optimiser() {
           tickFormat={tick => `${Math.round((tick / 1000) * 100) / 100}s`}
           labelPadding={20}
         />
+
         <HorizontalAxis labelPadding={10} />
+
+        {cameraOverrideDuration > 0 ? <HorizontalLineAnnotation y={cameraOverrideDuration} color={Colors.RED5} lineWidth={2} affectBounds /> : null}
       </ChartContainer>
     </>
   )

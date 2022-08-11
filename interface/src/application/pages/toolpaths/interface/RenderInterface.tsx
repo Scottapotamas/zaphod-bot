@@ -552,14 +552,25 @@ export function CurrentFrameTime() {
   )
   const maxFrame = useSetting(state => state.selectedMaxFrame)
 
-  const totalRendertime = useSetting(state => {
+  const cameraDurationOverride = useSetting(state => state.cameraOverrideDuration)
+
+  const totalRenderTimeMinutes = useSetting(state => {
     let total = 0
 
-    for (const duration of Object.values(state.estimatedDurationByFrame)) {
-      total += duration + ESTIMATED_DURATION_OFFSET
+    for (const [frameNumber, duration] of Object.entries(state.estimatedDurationByFrame)) {
+      if (Number(frameNumber) >= state.selectedMinFrame && Number(frameNumber) <= state.selectedMaxFrame) {
+        let thisFrameDuration = duration
+
+        // Override it if we have to
+        if (state.cameraOverrideDuration > 0) {
+          thisFrameDuration = state.cameraOverrideDuration
+        }
+
+        total += thisFrameDuration + ESTIMATED_DURATION_OFFSET
+      }
     }
 
-    return total
+    return Math.ceil(total / 1000 / 60)
   })
 
   return (
@@ -571,9 +582,8 @@ export function CurrentFrameTime() {
 
       <Box>
         <span style={{ color: Colors.GRAY3 }}>TIMELINE:</span>{' '}
-        <b>
-          {/* {Math.round((totalRendertime / 1000) * 10) / 10}s */}
-          {Math.ceil(totalRendertime / 1000 / 60)} min
+        <b style={cameraDurationOverride > 0 ? { color: Colors.RED3 } : undefined}>
+          {totalRenderTimeMinutes} min
         </b>
       </Box>
 
