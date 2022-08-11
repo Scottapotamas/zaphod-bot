@@ -792,6 +792,7 @@ export function* optimise2Opt(
               `Solver cost post yield not maintained, note this file and frame`,
             )
             cost = costPostYield
+            break
           }
         }
 
