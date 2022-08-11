@@ -109,7 +109,7 @@ export class BlendMaterial extends Material {
     visualisationSettings: VisualisationSettings,
     cameraPosition: Vector3,
     t: number,
-  ): RGB => {
+  ): RGBA => {
     const backgroundColor = this.background.calculateColor(
       movement,
       settings,
@@ -137,7 +137,7 @@ export class BlendMaterial extends Material {
           multiplySeperable,
         )
       default:
-        return [1, 1, 1]
+        return [1, 1, 1, 1]
     }
   }
 }
@@ -155,7 +155,7 @@ export interface BlendMaterialEditorProps {
   mutateJson: (writer: (json: BlendMaterialJSON) => void) => void
 }
 
-interface MaterialSelectorProps {}
+interface MaterialSelectorProps { }
 
 const materialEditorStyle = {
   display: 'grid',

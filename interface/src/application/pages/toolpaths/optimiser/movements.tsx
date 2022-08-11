@@ -136,8 +136,8 @@ export type RGBA = [r: number, g: number, b: number, a: number]
 export type AddLineCallback = (
   start: Vector3,
   end: Vector3,
-  colorStart: RGB,
-  colorEnd: RGB,
+  colorStart: RGBA,
+  colorEnd: RGBA,
   objectID: string,
 ) => void
 
@@ -589,7 +589,7 @@ export class Point extends Movement {
   }
 
   // Flipping a Point does nothing
-  public flip = () => {}
+  public flip = () => { }
 
   public flatten = () => {
     return [this]
@@ -1302,7 +1302,7 @@ export class Transit extends Movement {
   }
 
   // Flipping a Transit does nothing
-  public flip = () => {}
+  public flip = () => { }
 
   public flatten = () => {
     return [this]

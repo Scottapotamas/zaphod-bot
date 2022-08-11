@@ -1,6 +1,6 @@
 import { VisualisationSettings } from '../../interface/state'
 import { Settings } from '../../optimiser/settings'
-import { Movement, RGB } from './../movements'
+import { Movement, RGBA } from './../movements'
 import { Material } from './Base'
 import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
@@ -30,7 +30,7 @@ export function importRandomColorMaterial(json: RandomColorMaterialJSON) {
   return mat
 }
 
-function hex2rgb(hex: string): RGB {
+function hex2rgba(hex: string): RGBA {
   if (/^#/.test(hex)) {
     hex = hex.slice(1)
   }
@@ -47,20 +47,20 @@ function hex2rgb(hex: string): RGB {
   let r = parseInt([digit[0], digit[1]].join(''), 16) / 255
   let g = parseInt([digit[4], digit[5]].join(''), 16) / 255
   let b = parseInt([digit[2], digit[3]].join(''), 16) / 255
-  return [r, g, b]
+  return [r, g, b, 1]
 }
 
 const colors = [
-  hex2rgb('#2965CC'),
-  hex2rgb('#29A634'),
-  hex2rgb('#D99E0B'),
-  hex2rgb('#D13913'),
-  // hex2rgb('#8F398F'),
-  hex2rgb('#00B3A4'),
-  // hex2rgb('#DB2C6F'),
-  hex2rgb('#9BBF30'),
-  hex2rgb('#7157D9'),
-  hex2rgb('#96622D'),
+  hex2rgba('#2965CC'),
+  hex2rgba('#29A634'),
+  hex2rgba('#D99E0B'),
+  hex2rgba('#D13913'),
+  // hex2rgba('#8F398F'),
+  hex2rgba('#00B3A4'),
+  // hex2rgba('#DB2C6F'),
+  hex2rgba('#9BBF30'),
+  hex2rgba('#7157D9'),
+  hex2rgba('#96622D'),
 ]
 
 let counter = 0
@@ -92,7 +92,7 @@ export class RandomColorMaterial extends Material {
     cameraPosition: Vector3,
 
     t: number,
-  ): RGB => {
+  ): RGBA => {
     return pickColor(movement.interFrameID)
   }
 }

@@ -7,7 +7,7 @@ import {
   AddLineCallback,
   Movement,
   MOVEMENT_TYPE,
-  RGB,
+  RGBA,
 } from './../movements'
 import { Material } from './Base'
 import { Tag } from '@blueprintjs/core'
@@ -15,7 +15,7 @@ import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
 import {
   generateHtmlTagFromAveragePosition,
-  lerpRGB,
+  lerpRGBA,
   MATERIALS,
   movementTypeToIntent,
   movementTypeToLetter,
@@ -61,7 +61,7 @@ export class VelocityMaterial extends Material {
   //   visualisationSettings: VisualisationSettings,
 
   //   t: number,
-  // ): RGB => {
+  // ): RGBA => {
   //   return [0, 0, 0]
   // }
 
@@ -104,10 +104,9 @@ export class VelocityMaterial extends Material {
           movementTypeToIntent(movement),
           `${movementTypeToLetter(
             movement,
-          )} #${movementIndex} (${movement.getDuration()}ms, ${
-            Math.round(
-              (movement.getLength() / movement.getDuration()) * 1000 * 10,
-            ) / 10
+          )} #${movementIndex} (${movement.getDuration()}ms, ${Math.round(
+            (movement.getLength() / movement.getDuration()) * 1000 * 10,
+          ) / 10
           }mm/s)`,
         ),
       )
@@ -116,7 +115,7 @@ export class VelocityMaterial extends Material {
     // A simple color material draws the line segment(s) from the start to the end with a single color
     const numSegments =
       movement.type === MOVEMENT_TYPE.LINE ||
-      movement.type === MOVEMENT_TYPE.POINT
+        movement.type === MOVEMENT_TYPE.POINT
         ? 1
         : Math.ceil(movement.getLength() / 5)
 
@@ -180,22 +179,22 @@ export class VelocityMaterial extends Material {
 
 const LIMIT_SPEED = 350 // mm/s, the hardware limit, don't go over this under any circumstances
 
-const BLACK: RGB = [0, 0, 0]
-const GREEN: RGB = [15 / 255, 153 / 255, 96 / 255] // #0F9960
-const ORANGE: RGB = [217 / 255, 130 / 255, 43 / 255] // #D9822B
-const RED: RGB = [219 / 255, 55 / 255, 55 / 255] // #DB3737
+const BLACK: RGBA = [0, 0, 0, 1]
+const GREEN: RGBA = [15 / 255, 153 / 255, 96 / 255, 1] // #0F9960
+const ORANGE: RGBA = [217 / 255, 130 / 255, 43 / 255, 1] // #D9822B
+const RED: RGBA = [219 / 255, 55 / 255, 55 / 255, 1] // #DB3737
 
 function calculateColorFromSpeed(speed: number, intendedSpeed: number) {
   if (speed < intendedSpeed) {
     // Speeds from 0 to the intended speed are varying degrees of green
-    return lerpRGB(
+    return lerpRGBA(
       BLACK,
       GREEN,
       MathUtils.mapLinear(speed, 0, intendedSpeed, 0, 1),
     )
   } else if (speed < LIMIT_SPEED) {
     // Speeds above the intended speed but below the hardware limit become more orange
-    return lerpRGB(
+    return lerpRGBA(
       GREEN,
       ORANGE,
       MathUtils.mapLinear(speed, intendedSpeed, LIMIT_SPEED, 0, 1),

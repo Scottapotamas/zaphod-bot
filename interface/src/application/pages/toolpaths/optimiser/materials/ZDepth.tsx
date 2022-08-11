@@ -5,7 +5,7 @@ import { Movement, RGB, RGBA } from './../movements'
 import { Material } from './Base'
 import { NodeID } from '../../interface/RenderableTree'
 import React, { useCallback, useState } from 'react'
-import { lerpRGB, MATERIALS } from './utilities'
+import { lerpRGBA, MATERIALS } from './utilities'
 import { ColorPicker } from '../../interface/ColorPicker'
 import { NumericInput, Tag } from '@blueprintjs/core'
 import { Composition, Box } from 'atomic-layout'
@@ -34,8 +34,8 @@ export function isZDepthMaterial(
 
 export function importZDepthMaterial(json: ZDepthMaterialJSON) {
   const mat = new ZDepthMaterial(
-    [json.color_from[0], json.color_from[1], json.color_from[2]],
-    [json.color_to[0], json.color_to[1], json.color_to[2]],
+    [json.color_from[0], json.color_from[1], json.color_from[2], json.color_from[3]],
+    [json.color_to[0], json.color_to[1], json.color_to[2], json.color_to[3]],
     json.depth_from,
     json.depth_to,
   )
@@ -47,8 +47,8 @@ export class ZDepthMaterial extends Material {
   readonly type = MATERIALS.Z_DEPTH
 
   constructor(
-    public start: RGB,
-    public end: RGB,
+    public start: RGBA,
+    public end: RGBA,
     public zFrom: number,
     public zTo: number,
   ) {
@@ -61,7 +61,7 @@ export class ZDepthMaterial extends Material {
     visualisationSettings: VisualisationSettings,
     cameraPosition: Vector3,
     t: number,
-  ): RGB => {
+  ): RGBA => {
     const depth = movement.samplePoint(t).distanceTo(cameraPosition)
 
     const clamped = MathUtils.clamp(
@@ -72,7 +72,7 @@ export class ZDepthMaterial extends Material {
 
     // console.log(`depth calc`, depth, this.zFrom, this.zTo, clamped)
 
-    return lerpRGB(this.start, this.end, clamped)
+    return lerpRGBA(this.start, this.end, clamped)
   }
 }
 

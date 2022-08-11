@@ -1,12 +1,10 @@
 import * as React from 'react'
 
-import { Vector2 } from 'three'
+import { Color, Vector2 } from 'three'
 
-import { RGB, XYZ } from '../optimiser/movements'
+import { RGB, RGBA, XYZ } from '../optimiser/movements'
 import { LineMaterial, LineSegmentsGeometry, Line2 } from 'three-stdlib'
-import { lerpRGB } from '../optimiser/materials/utilities'
-
-const BACKGROUND_COLOR: RGB = [25 / 255, 27 / 255, 28 / 255]
+import { lerpRGBA } from '../optimiser/materials/utilities'
 
 export class MutableLineSegmentGeometry {
   public line
@@ -46,7 +44,7 @@ export class MutableLineSegmentGeometry {
    *
    * If none are hovered over, all lines are displayed at full colour
    */
-  setHoveredIndices(lineIndices: number[], hideAll?: boolean) {
+  setHoveredIndices(lineIndices: number[], hideAll: boolean, backgroundCol: string) {
     if (lineIndices.length === 0 && !hideAll) {
       // Wipe it
       this.geometry.setColors(this.colors)
@@ -54,29 +52,34 @@ export class MutableLineSegmentGeometry {
     }
     const colors = this.colors.slice()
 
+    const backgroundColor = new Color(backgroundCol)
+    const backgroundColorAsRGBA: RGBA = [backgroundColor.r, backgroundColor.g, backgroundColor.b, 1]
+
     const darkeningFactor = 0.8
 
     for (let lineIndex = 0; lineIndex < colors.length / 6; lineIndex++) {
       // If it's in the list, or we're doing them all
       if (!lineIndices.includes(lineIndex) || hideAll) {
-        // Lerp the colours towards the background colour so we don't need to do transparency.
-        const colA = lerpRGB(
+        // Lerp the colours towards the background colour. In this array they've already been lerped by their alpha value
+        const colA = lerpRGBA(
           [
             colors[lineIndex * 6 + 0],
             colors[lineIndex * 6 + 1],
             colors[lineIndex * 6 + 2],
+            1,
           ],
-          BACKGROUND_COLOR,
+          backgroundColorAsRGBA,
           darkeningFactor,
         )
 
-        const colB = lerpRGB(
+        const colB = lerpRGBA(
           [
             colors[lineIndex * 6 + 3],
             colors[lineIndex * 6 + 4],
             colors[lineIndex * 6 + 5],
+            1,
           ],
-          BACKGROUND_COLOR,
+          backgroundColorAsRGBA,
           darkeningFactor,
         )
 
@@ -106,7 +109,7 @@ export class MutableLineSegmentGeometry {
           vertexColors={true}
           resolution={this.resolution}
           linewidth={this.lineWidth}
-          //   {...props}
+        //   {...props}
         />
       </primitive>
     )

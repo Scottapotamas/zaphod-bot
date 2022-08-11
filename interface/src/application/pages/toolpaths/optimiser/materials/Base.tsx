@@ -7,7 +7,7 @@ import {
   AddLineCallback,
   Movement,
   MOVEMENT_TYPE,
-  RGB,
+  RGBA,
 } from './../movements'
 import { annotateDrawOrder, rgbToHsi } from './utilities'
 
@@ -28,8 +28,8 @@ export abstract class Material {
     cameraPosition: Vector3,
 
     t: number,
-  ): RGB => {
-    return [0, 0, 0]
+  ): RGBA => {
+    return [0, 0, 0, 1]
   }
 
   /**
@@ -97,7 +97,7 @@ export abstract class Material {
     // A simple color material draws the line segment(s) from the start to the end with a single color
     const numSegments =
       movement.type === MOVEMENT_TYPE.LINE ||
-      movement.type === MOVEMENT_TYPE.POINT
+        movement.type === MOVEMENT_TYPE.POINT
         ? 1
         : Math.max(Math.ceil(movement.getLength() / 2), 10)
 

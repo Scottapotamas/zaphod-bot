@@ -46,6 +46,7 @@ import {
   GLOBAL_OVERRIDE_OBJECT_ID,
   Movement,
   RGB,
+  RGBA,
   XYZ,
 } from '../optimiser/movements'
 import { Line2 } from 'three/examples/jsm/lines/Line2'
@@ -56,6 +57,8 @@ import { importMaterial } from '../optimiser/material'
 import { Material } from '../optimiser/materials/Base'
 import { DeltaAssembly } from './../../../components/RiggedModel'
 import { isCamera } from '../optimiser/camera'
+import { useDarkMode } from '@electricui/components-desktop'
+import { lerpRGBA } from '../optimiser/materials/utilities'
 
 export function AxisLines() {
   return (
@@ -112,14 +115,18 @@ export function ToolpathMovements() {
     [objectID: string]: number[]
   }> = useRef({})
 
+  const backgroundCol = useDarkMode() ? '#191b1d' : '#f5f8fa'
+  const backgroundColor = new Color(backgroundCol)
+  const backgroundColorAsRGBA: RGBA = [backgroundColor.r, backgroundColor.g, backgroundColor.b, 1]
+
   useEffect(() => {
     let lineIndex = 0
 
     const addColouredLine = (
       start: Vector3,
       end: Vector3,
-      colorStart: RGB,
-      colorEnd: RGB,
+      colorStart: RGBA,
+      colorEnd: RGBA,
       objectID: string,
     ) => {
       // Do the Blender -> ThreeJS coordinate system transform inline
@@ -130,12 +137,34 @@ export function ToolpathMovements() {
       lines.positions[lineIndex * 6 + 4] = end.z
       lines.positions[lineIndex * 6 + 5] = -end.y
 
-      lines.colors[lineIndex * 6 + 0] = colorStart[0]
-      lines.colors[lineIndex * 6 + 1] = colorStart[1]
-      lines.colors[lineIndex * 6 + 2] = colorStart[2]
-      lines.colors[lineIndex * 6 + 3] = colorEnd[0]
-      lines.colors[lineIndex * 6 + 4] = colorEnd[1]
-      lines.colors[lineIndex * 6 + 5] = colorEnd[2]
+      // Move the colours toward the background colour based on their alpha 
+      const colStartBlended = lerpRGBA(
+        [
+          colorStart[0],
+          colorStart[1],
+          colorStart[2],
+          1, // 
+        ],
+        backgroundColorAsRGBA,
+        1 - colorStart[3], // merge with the background by (1 - alpha)
+      )
+      const colEndBlended = lerpRGBA(
+        [
+          colorEnd[0],
+          colorEnd[1],
+          colorEnd[2],
+          1, // 
+        ],
+        backgroundColorAsRGBA,
+        1 - colorEnd[3], // merge with the background by (1 - alpha)
+      )
+
+      lines.colors[lineIndex * 6 + 0] = colStartBlended[0]
+      lines.colors[lineIndex * 6 + 1] = colStartBlended[1]
+      lines.colors[lineIndex * 6 + 2] = colStartBlended[2]
+      lines.colors[lineIndex * 6 + 3] = colEndBlended[0]
+      lines.colors[lineIndex * 6 + 4] = colEndBlended[1]
+      lines.colors[lineIndex * 6 + 5] = colEndBlended[2]
 
       // Create the mapping for objectID -> coloured line index
       if (objectID) {
@@ -155,8 +184,8 @@ export function ToolpathMovements() {
     const addDottedLine = (
       start: Vector3,
       end: Vector3,
-      colorStart: RGB,
-      colorEnd: RGB,
+      colorStart: RGBA,
+      colorEnd: RGBA,
       objectID: string,
     ) => {
       // Do the Blender -> ThreeJS coordinate system transform inline
@@ -237,10 +266,10 @@ export function ToolpathMovements() {
         const globalMaterialOverride = visualisationSettings
           .objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
           ? importMaterial(
-              visualisationSettings.objectMaterialOverrides[
-                GLOBAL_OVERRIDE_OBJECT_ID
-              ],
-            )
+            visualisationSettings.objectMaterialOverrides[
+            GLOBAL_OVERRIDE_OBJECT_ID
+            ],
+          )
           : null
 
         let durationCounter = 0
@@ -368,8 +397,8 @@ export function ToolpathMovements() {
       hoveredObjectIDs => {
         if (hoveredObjectIDs.length === 0) {
           // If nothing is hovered, reset both
-          lines.setHoveredIndices([])
-          transitions.setHoveredIndices([])
+          lines.setHoveredIndices([], false, backgroundCol)
+          transitions.setHoveredIndices([], false, backgroundCol)
           return
         }
 
@@ -409,11 +438,11 @@ export function ToolpathMovements() {
         // If there are hovered objects, but no indices can be found, hide everything.
         lines.setHoveredIndices(
           colouredLineIndices,
-          colouredLineIndices.length === 0,
+          colouredLineIndices.length === 0, backgroundCol
         )
         transitions.setHoveredIndices(
           invisibleLineIndices,
-          invisibleLineIndices.length === 0,
+          invisibleLineIndices.length === 0, backgroundCol
         )
       },
     )
@@ -457,7 +486,7 @@ export const ToolpathVisualisation = () => {
   return (
     <Canvas
       linear
-      // shadows={true}
+    // shadows={true}
     >
       <PerspectiveCamera
         ref={setCameraRef}

@@ -43,6 +43,7 @@ export function importInvisibleMaterial(json: InvisibleMaterialJSON) {
     json.color[0],
     json.color[1],
     json.color[2],
+    json.color[3],
   ])
 
   return mat
@@ -60,7 +61,7 @@ export function invisibleLightFade(duration: number) {
 export class InvisibleMaterial extends Material {
   readonly type = MATERIALS.INVISIBLE
 
-  constructor(public color: RGB) {
+  constructor(public color: RGBA) {
     super()
   }
 
@@ -100,7 +101,7 @@ export class InvisibleMaterial extends Material {
     // Despite being invisible in hardware, we still want to draw this in the UI
     const numSegments =
       movement.type === MOVEMENT_TYPE.LINE ||
-      movement.type === MOVEMENT_TYPE.POINT
+        movement.type === MOVEMENT_TYPE.POINT
         ? 1
         : Math.max(Math.ceil(movement.getLength() / 5), 6)
 

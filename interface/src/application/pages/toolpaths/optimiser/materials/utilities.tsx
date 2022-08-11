@@ -5,7 +5,7 @@ import {
   AddComponentCallback,
   Movement,
   MOVEMENT_TYPE,
-  RGB,
+  RGBA,
 } from '../movements'
 import { Intent, Tag } from '@blueprintjs/core'
 import { Html } from '@react-three/drei'
@@ -88,16 +88,17 @@ export function hsiToRgb(
  *
  * TODO: this doesn't work if the saturation of one colour is 0, it'll lerp from 'red'
  */
-export function lerpRGB(
-  a: [r: number, g: number, b: number],
-  b: [r: number, g: number, b: number],
+export function lerpRGBA(
+  a: [r: number, g: number, b: number, a: number],
+  b: [r: number, g: number, b: number, a: number],
   t: number,
 ) {
   return [
     MathUtils.lerp(a[0], b[0], t),
     MathUtils.lerp(a[1], b[1], t),
     MathUtils.lerp(a[2], b[2], t),
-  ] as RGB
+    MathUtils.lerp(a[3], b[3], t),
+  ] as RGBA
 
   // return [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2, (a[2] + b[2]) / 2] as RGB
 

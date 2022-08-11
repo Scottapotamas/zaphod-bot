@@ -2,7 +2,7 @@ import { RGB, RGBA } from './../movements'
 import { Material } from './Base'
 import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
-import { lerpRGB, MATERIALS } from './utilities'
+import { lerpRGBA, MATERIALS } from './utilities'
 import { ColorPicker } from '../../interface/ColorPicker'
 import { Composition, Box } from 'atomic-layout'
 
@@ -26,8 +26,8 @@ export function isFlickerMaterial(
 
 export function importFlickerMaterial(json: FlickerMaterialJSON) {
   const mat = new FlickerMaterial(
-    [json.color_from[0], json.color_from[1], json.color_from[2]],
-    [json.color_to[0], json.color_to[1], json.color_to[2]],
+    [json.color_from[0], json.color_from[1], json.color_from[2], json.color_from[3]],
+    [json.color_to[0], json.color_to[1], json.color_to[2], json.color_to[3]],
   )
 
   return mat
@@ -36,12 +36,12 @@ export function importFlickerMaterial(json: FlickerMaterialJSON) {
 export class FlickerMaterial extends Material {
   readonly type = MATERIALS.FLICKER
 
-  constructor(public start: RGB, public end: RGB) {
+  constructor(public start: RGBA, public end: RGBA) {
     super()
   }
 
   public calculateColor = () => {
-    return lerpRGB(this.start, this.end, Math.random())
+    return lerpRGBA(this.start, this.end, Math.random())
   }
 }
 

@@ -148,7 +148,7 @@ export function sparseToDense(
         .clone()
         .normalize()
         .angleTo(movement.getDesiredEntryVelocity().clone().normalize()) <
-        MathUtils.degToRad(settings.optimisation.interLineTransitionAngle)
+      MathUtils.degToRad(settings.optimisation.interLineTransitionAngle)
     ) {
       // Shrink the end of the previousLine
       // Shrink the start of the current line

@@ -8,7 +8,7 @@ import { Movement, RGB, RGBA } from './../movements'
 import { Material } from './Base'
 import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
-import { lerpRGB, MATERIALS } from './utilities'
+import { lerpRGBA, MATERIALS } from './utilities'
 import { Vector3 } from 'three'
 import { ColorPicker } from '../../interface/ColorPicker'
 import { Composition, Box } from 'atomic-layout'
@@ -33,8 +33,8 @@ export function isColorRampMaterial(
 
 export function importColorRampMaterial(json: ColorRampMaterialJSON) {
   const mat = new ColorRampMaterial(
-    [json.color_from[0], json.color_from[1], json.color_from[2]],
-    [json.color_to[0], json.color_to[1], json.color_to[2]],
+    [json.color_from[0], json.color_from[1], json.color_from[2], json.color_from[3]],
+    [json.color_to[0], json.color_to[1], json.color_to[2], json.color_to[3]],
   )
 
   return mat
@@ -43,7 +43,7 @@ export function importColorRampMaterial(json: ColorRampMaterialJSON) {
 export class ColorRampMaterial extends Material {
   readonly type = MATERIALS.COLOR_RAMP
 
-  constructor(public start: RGB, public end: RGB) {
+  constructor(public fromCol: RGBA, public toCol: RGBA) {
     super()
   }
 
@@ -53,8 +53,8 @@ export class ColorRampMaterial extends Material {
     visualisationSettings: VisualisationSettings,
     cameraPosition: Vector3,
     t: number,
-  ): RGB => {
-    return lerpRGB(this.start, this.end, t)
+  ): RGBA => {
+    return lerpRGBA(this.fromCol, this.toCol, t)
   }
 }
 

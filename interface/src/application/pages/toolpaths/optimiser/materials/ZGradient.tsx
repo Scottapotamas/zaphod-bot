@@ -5,7 +5,7 @@ import { Movement, RGB, RGBA } from './../movements'
 import { Material } from './Base'
 import { NodeID } from '../../interface/RenderableTree'
 import React, { useCallback, useState } from 'react'
-import { lerpRGB, MATERIALS } from './utilities'
+import { lerpRGBA, MATERIALS } from './utilities'
 import { ColorPicker } from '../../interface/ColorPicker'
 import { NumericInput, Tag } from '@blueprintjs/core'
 import { Composition, Box } from 'atomic-layout'
@@ -34,8 +34,8 @@ export function isZGradientMaterial(
 
 export function importZGradientMaterial(json: ZGradientMaterialJSON) {
   const mat = new ZGradientMaterial(
-    [json.color_from[0], json.color_from[1], json.color_from[2]],
-    [json.color_to[0], json.color_to[1], json.color_to[2]],
+    [json.color_from[0], json.color_from[1], json.color_from[2], json.color_from[3]],
+    [json.color_to[0], json.color_to[1], json.color_to[2], json.color_to[3]],
     json.z_from,
     json.z_to,
   )
@@ -47,8 +47,8 @@ export class ZGradientMaterial extends Material {
   readonly type = MATERIALS.Z_GRADIENT
 
   constructor(
-    public start: RGB,
-    public end: RGB,
+    public start: RGBA,
+    public end: RGBA,
     public zFrom: number,
     public zTo: number,
   ) {
@@ -61,7 +61,7 @@ export class ZGradientMaterial extends Material {
     visualisationSettings: VisualisationSettings,
     cameraPosition: Vector3,
     t: number,
-  ): RGB => {
+  ): RGBA => {
     const z = movement.samplePoint(t).z
 
     const clamped = MathUtils.clamp(
@@ -70,7 +70,7 @@ export class ZGradientMaterial extends Material {
       1,
     )
 
-    return lerpRGB(this.start, this.end, clamped)
+    return lerpRGBA(this.start, this.end, clamped)
   }
 }
 

@@ -37,6 +37,7 @@ export function importColorMaterial(json: ColorMaterialJSON) {
     json.color[0],
     json.color[1],
     json.color[2],
+    json.color[3],
   ])
 
   return mat
@@ -45,7 +46,7 @@ export function importColorMaterial(json: ColorMaterialJSON) {
 export class SimpleColorMaterial extends Material {
   readonly type = MATERIALS.COLOR
 
-  constructor(public color: RGB) {
+  constructor(public color: RGBA) {
     super()
   }
 
@@ -55,7 +56,7 @@ export class SimpleColorMaterial extends Material {
     visualisationSettings: VisualisationSettings,
     cameraPosition: Vector3,
     t: number,
-  ): RGB => {
+  ): RGBA => {
     return this.color
   }
 }
