@@ -161,6 +161,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
                     // while catching the error and re-requesting the servo to home would be nice, we let the user do that
                     eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
                     STATE_TRAN( AppTaskMotion_recovery );
+                    break;
                 }
             }
 
