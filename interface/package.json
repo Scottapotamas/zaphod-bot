@@ -22,7 +22,7 @@
     }
   },
   "dependencies": {
-    "@blueprintjs/popover2": "^0.12.9",
+    "@blueprintjs/popover2": "^1.5.1",
     "@electricui/helpers": "0.9.2",
     "react-color-palette": "^6.2.0",
     "source-map-support": "0.5.16",

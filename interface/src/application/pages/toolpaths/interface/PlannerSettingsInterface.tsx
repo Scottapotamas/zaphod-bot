@@ -12,8 +12,11 @@ import {
   Tabs,
   TabId,
   Intent,
+  Keys,
 } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
+
+import { PlacementOptions, Tooltip2 } from '@blueprintjs/popover2'
 
 import { Composition, Box } from 'atomic-layout'
 
@@ -35,6 +38,8 @@ import { MaterialEditorInterface } from './MaterialEditorInterface'
 import { isCamera } from '../optimiser/camera'
 import { StateSelector } from 'zustand'
 import { WritableDraft } from 'immer/dist/internal'
+
+import './styles.css'
 
 // TODO: How do we get the defaults from here?
 // Bool defaults are false, number defaults are 0
@@ -82,39 +87,160 @@ interface NumericInputProps {
   label: string
 }
 
+function isValidNumber(num: number) {
+  return !isNaN(num)
+}
+
+function isNumberInRange(num: number, min: number, max: number) {
+  if (num < min) return false
+  if (num > max) return false
+  return true
+}
+
+function stringToNumber(str: string) {
+  const trimmed = str.trim()
+
+  if (trimmed === '') {
+    return NaN
+  }
+
+  return Number(trimmed)
+}
+
 function NumericInput(props: NumericInputProps) {
   if (useSetting(props.selector) === undefined) {
     console.warn(`NumericInput setting started undefined`, props.selector)
   }
 
-  // If the setting is undefined, explicitly start as 0 instead of undefined.
-  const setting = useSetting(props.selector) ?? 0
+  const [internalState, setInternalState] = useState(String(getSetting(props.selector) ?? 0))
+  const [isNumber, setIsNumber] = useState(true) // it's a valid number by default
+  const [inRange, setInRange] = useState(true) // in range by default
+  const [errorText, setErrorText] = useState('')
+  const [hasError, setHasError] = useState(false)
+
+  const validate = useCallback(
+    (valueAsString: string) => {
+      const value = stringToNumber(valueAsString)
+      const valid = isValidNumber(value)
+      const withinRange = valid ? isNumberInRange(value, props.min, props.max) : false
+
+      if (valid) {
+        if (!withinRange) {
+          setErrorText(`"${valueAsString}" is not within the range of ${props.min} to ${props.max}`)
+          setHasError(true)
+        } else {
+          // setErrorText('') // Don't remove the last error, it just animates away when we hide
+          setHasError(false)
+        }
+      } else {
+        if (valueAsString.trim() === '') {
+          // valid n
+          setErrorText(`Empty values are not allowed`)
+          setHasError(true)
+        } else {
+          setErrorText(`"${valueAsString}" is not a valid number`)
+          setHasError(true)
+        }
+      }
+
+      setIsNumber(valid)
+      setInRange(withinRange)
+
+      return valid && withinRange
+    },
+    [setErrorText, setHasError],
+  )
 
   const handleOnValueChange = useCallback(
-    value => {
-      setSetting(state => {
-        props.writer(state, value)
-      })
+    (value, valueAsString) => {
+      setInternalState(valueAsString)
+      validate(valueAsString)
     },
-    [props.writer],
+    [props.writer, setIsNumber, validate],
+  )
+
+  const handleConfirm = useCallback(
+    (valueAsString: string) => {
+      const validated = validate(valueAsString)
+
+      if (!validated) {
+        // Don't send if outside of valid range
+        return
+      }
+
+      setSetting(state => {
+        props.writer(state, stringToNumber(valueAsString))
+      })
+
+      // Trim the string if we're confirming
+      setInternalState(valueAsString.trim())
+    },
+    [props.writer, validate],
+  )
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+        handleConfirm((e.target as HTMLInputElement).value)
+      }
+    },
+    [handleConfirm],
+  )
+
+  const handleBlur = useCallback(
+    (e: React.FocusEvent<HTMLInputElement>) => {
+      handleConfirm((e.target as HTMLInputElement).value)
+    },
+    [handleConfirm],
+  )
+
+  const handleOnButtonClick = useCallback(
+    (valueAsNumber: number, valueAsString: string) => {
+      setInternalState(valueAsString)
+      handleConfirm(valueAsString)
+    },
+    [handleConfirm],
   )
 
   return (
     <>
-      {props.label}{' '}
-      <BlueprintNumericInput
-        fill
-        min={props.min}
-        max={props.max}
-        stepSize={props.stepSize}
-        minorStepSize={props.minorStepSize}
-        majorStepSize={props.majorStepSize}
-        value={setting}
-        onValueChange={handleOnValueChange}
-        rightElement={props.rightText ? <Tag>{props.rightText}</Tag> : undefined}
-        style={{ width: '100%' }}
-        intent={Intent.PRIMARY}
-      />
+      {props.label}
+      <div>
+        {/* We render a div here so the grid layout doesn't break when the tooltip is injected */}
+        <Tooltip2
+          content={errorText}
+          intent={isNumber ? (inRange ? Intent.PRIMARY : Intent.WARNING) : Intent.DANGER}
+          disabled={!hasError}
+          isOpen={hasError} // Stay open if there's an error, the hover event doesn't trigger if the error is made while focus is on, the user would have to defocus then refocus.
+          usePortal={false} // Force the rendering of the tooltip to be inline so focus bubbling works correctly
+          placement="right"
+          popoverClassName="maximise-content-width" // Use width: max-content to make sure the text expands rather than contracts to a couple words of width
+          renderTarget={({ ref, ...tooltipProps }) => (
+            <div {...tooltipProps} ref={ref}>
+              {/* Attach to a div surrounding the NumericInput, since the NumericInput is complex and screws with the refs*/}
+              <BlueprintNumericInput
+                fill
+                min={props.min}
+                max={props.max}
+                stepSize={props.stepSize}
+                minorStepSize={props.minorStepSize}
+                majorStepSize={props.majorStepSize}
+                value={String(internalState)}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+                onValueChange={handleOnValueChange}
+                onButtonClick={handleOnButtonClick}
+                onChange={console.log}
+                rightElement={props.rightText ? <Tag>{props.rightText}</Tag> : undefined}
+                style={{ width: '100%' }}
+                intent={isNumber ? (inRange ? Intent.PRIMARY : Intent.WARNING) : Intent.DANGER}
+                allowNumericCharactersOnly={false} // We want to allow the typing of 0.3
+                clampValueOnBlur={false}
+              />
+            </div>
+          )}
+        />
+      </div>
     </>
   )
 }
@@ -314,8 +440,9 @@ function GeneralTab() {
         max={1}
         stepSize={0.01}
         majorStepSize={0.1}
-        selector={state => state.settings.brightness}
-        writer={(state, value) => (state.settings.brightness = value)}
+        minorStepSize={0.01}
+        selector={state => state.visualisationSettings.brightness}
+        writer={(state, value) => (state.visualisationSettings.brightness = value)}
       />
       <Checkbox
         label="Disable Shaped Transitions"
