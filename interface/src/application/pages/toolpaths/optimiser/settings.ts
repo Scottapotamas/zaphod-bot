@@ -3,9 +3,13 @@ import { GPencilToMovementsSettings } from './gpencil'
 import { LightToMovementsSettings } from './light'
 import { ParticlesToMovementsSettings } from './particles'
 
-type DeepPartial<T> = T extends object ? {
-  [P in keyof T]?: DeepPartial<T[P]>;
-} : T;
+const overwriteMerge = (destinationArray: any[], sourceArray: any[]) => sourceArray
+
+type DeepPartial<T> = T extends object
+  ? {
+      [P in keyof T]?: DeepPartial<T[P]>
+    }
+  : T
 
 export interface Settings {
   // Global object type settings
@@ -19,10 +23,10 @@ export interface Settings {
   // Per-object overrides
   objectOverrides: {
     [id: string]:
-    | Partial<GPencilToMovementsSettings>
-    | Partial<ParticlesToMovementsSettings>
-    | Partial<LightToMovementsSettings>
-    | Partial<CameraToMovementsSettings>
+      | Partial<GPencilToMovementsSettings>
+      | Partial<ParticlesToMovementsSettings>
+      | Partial<LightToMovementsSettings>
+      | Partial<CameraToMovementsSettings>
   }
 
   // For disabling the rendering of objects
@@ -76,62 +80,59 @@ export interface OptimisationSettings {
 export function getToMovementSettings(
   settings: Settings,
   objType: 'gpencil',
-  name: string,
-  objectID: string,
+  overrideKeys: string[],
 ): GPencilToMovementsSettings
 
 export function getToMovementSettings(
   settings: Settings,
   objType: 'particles',
-  name: string,
-  objectID: string,
+  overrideKeys: string[],
 ): ParticlesToMovementsSettings
 
 export function getToMovementSettings(
   settings: Settings,
   objType: 'light',
-  name: string,
-  objectID: string,
+  overrideKeys: string[],
 ): LightToMovementsSettings
 
 export function getToMovementSettings(
   settings: Settings,
   objType: 'camera',
-  name: string,
-  objectID: string,
+  overrideKeys: string[],
 ): CameraToMovementsSettings
 
 export function getToMovementSettings<
   ReturnType =
-  | GPencilToMovementsSettings
-  | ParticlesToMovementsSettings
-  | LightToMovementsSettings
-  | CameraToMovementsSettings,
-  >(
-    settings: Settings,
-    objType: 'gpencil' | 'particles' | 'light' | 'camera',
-    name: string,
-    objectID: string,
-): ReturnType {
-
+    | GPencilToMovementsSettings
+    | ParticlesToMovementsSettings
+    | LightToMovementsSettings
+    | CameraToMovementsSettings,
+>(settings: Settings, objType: 'gpencil' | 'particles' | 'light' | 'camera', overrideKeys: string[]): ReturnType {
   let objSettings = settings.objectSettings[objType]
 
   // console.log(`objType ${objType} overrideKeys ${overrideKeys}`)
 
-  if (settings.objectOverrides[name]) {
-    return Object.assign(
-      {},
-      objSettings,
-      settings.objectOverrides[name],
-    ) as ReturnType
-  }
+  let lazilyGeneratedOverride = false
 
-  if (settings.objectOverrides[objectID]) {
-    return Object.assign(
-      {},
-      objSettings,
-      settings.objectOverrides[objectID],
-    ) as ReturnType
+  for (let index = 0; index < overrideKeys.length; index++) {
+    const overrideKey = overrideKeys[index]
+
+    // If this key matches
+    if (settings.objectOverrides[overrideKey]) {
+      // Lazily generate the override copy
+      if (!lazilyGeneratedOverride) {
+        lazilyGeneratedOverride = true
+
+        // Form a shallow copy
+        objSettings = Object.assign({}, objSettings, settings.objectOverrides[overrideKey]) as ReturnType
+        continue
+      }
+
+      // If we have more than one level of nesting, merge in the other keys
+      objSettings = deepmerge(objSettings, settings.objectOverrides[overrideKey], {
+        arrayMerge: overwriteMerge,
+      }) as ReturnType
+    }
   }
 
   return objSettings as ReturnType
@@ -139,8 +140,8 @@ export function getToMovementSettings<
 
 export function getShouldSkip(settings: Settings, keys: string[]) {
   // Iterate over every key, if any are marked as toggle off, skip
-  for (const objName of keys) {
-    if (settings.skippedObjects[objName]) {
+  for (const key of keys) {
+    if (settings.skippedObjects[key]) {
       return true
     }
   }

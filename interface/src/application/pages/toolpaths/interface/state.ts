@@ -5,6 +5,7 @@ import { Settings } from '../optimiser/settings'
 import { Quaternion, Vector3 } from 'three'
 
 import { importMaterial, MaterialJSON } from '../optimiser/material'
+import { Material } from '../optimiser/materials/Base'
 import { useCallback } from 'react'
 import { Renderable } from '../optimiser/import'
 import { GLOBAL_OVERRIDE_OBJECT_ID, Movement, SerialisedTour } from '../optimiser/movements'
@@ -95,32 +96,26 @@ export interface VisualisationSettings {
 
 export function getMaterialOverride(
   visualisationSettings: VisualisationSettings,
-  providedMaterial: MaterialJSON,
-  objectID: string,
+  providedMaterial: Material,
+  overrideKeys: string[],
 ) {
-  let mat = providedMaterial
+  let material = providedMaterial
 
-  // If there's an override key for this object ID, replace the material
-  if (visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]) {
-    mat = visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
+  // Check all override keys in precidence order
+  for (let index = 0; index < overrideKeys.length; index++) {
+    const overrideKey = overrideKeys[index]
+
+    const movementMaterialOverride = visualisationSettings.objectMaterialOverrides[overrideKey]
+
+    // Specific movement overrides take highest precidence
+    if (movementMaterialOverride) {
+      material = importMaterial(movementMaterialOverride)
+    }
   }
 
-  // If there's an override key for this object ID, replace the material
-  if (visualisationSettings.objectMaterialOverrides[objectID]) {
-    mat = visualisationSettings.objectMaterialOverrides[objectID]
-  }
+  // can probably cache this
 
-  // See if we've imported it before
-  // const key = JSON.stringify(mat)
-
-  // if (materialCache.has(key)) {
-  //   return materialCache.get(key)!
-  // }
-
-  // const material = importMaterial(mat)
-  // materialCache.set(key, material)
-
-  return importMaterial(mat)
+  return material
 }
 
 export interface Store {

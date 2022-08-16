@@ -1,11 +1,7 @@
 import { CatmullRomCurve3, CubicBezierCurve3, MathUtils, Vector3 } from 'three'
 import { defaultTransitionMaterial } from './material'
 import { Material } from '../optimiser/materials/Base'
-import {
-  PlannerMovementMove,
-  MovementMoveReference,
-  MovementMoveType,
-} from './hardware'
+import { PlannerMovementMove, MovementMoveReference, MovementMoveType } from './hardware'
 
 import React from 'react'
 
@@ -36,9 +32,14 @@ export abstract class Movement {
   abstract type: string
 
   /**
-   * The object ID, for propagating which movements are hidden
+   * The object ID, unique within a scene.
    */
   abstract objectID: string
+
+  /**
+   * The override keys for propagating overrides, hidden state, etc. Highest specificity at the end of the array
+   */
+  abstract overrideKeys: string[]
 
   /**
    * The 'persistent' ID across frames to effectively cache optimisation
@@ -133,13 +134,7 @@ export type XYZ = [x: number, y: number, z: number]
 export type RGB = [r: number, g: number, b: number]
 export type RGBA = [r: number, g: number, b: number, a: number]
 
-export type AddLineCallback = (
-  start: Vector3,
-  end: Vector3,
-  colorStart: RGBA,
-  colorEnd: RGBA,
-  objectID: string,
-) => void
+export type AddLineCallback = (start: Vector3, end: Vector3, colorStart: RGBA, colorEnd: RGBA, objectID: string) => void
 
 export type AddComponentCallback = (component: React.ReactNode) => void
 
@@ -182,10 +177,7 @@ export function serialiseTour(movements: Movement[]): SerialisedTour {
   return ordering
 }
 
-export function deserialiseTour(
-  sparseBag: Movement[],
-  serialised: SerialisedTour,
-) {
+export function deserialiseTour(sparseBag: Movement[], serialised: SerialisedTour) {
   const movements = sparseBag.slice()
   // Hydration sorts movement groups recursively
   for (let index = 0; index < movements.length; index++) {
@@ -221,14 +213,14 @@ export class MovementGroup extends Movement {
 
   public objectID = '___movement_group' // This should never match
 
+  public overrideKeys = [] // This is never matched on the actual MovementGroup keys, the children get matched on their own
+
   private movements: Movement[] = []
 
   public addMovement = (movement: Movement) => {
     this.movements.push(movement)
 
-    this.interFrameID = `[${this.movements
-      .map(movement => movement.interFrameID)
-      .join(',')}]`
+    this.interFrameID = `[${this.movements.map(movement => movement.interFrameID).join(',')}]`
   }
 
   public flip = () => {
@@ -272,10 +264,7 @@ export class MovementGroup extends Movement {
       return 0
     }
 
-    return this.getMovements().reduce(
-      (len, movement) => movement.getLength() + len,
-      0,
-    )
+    return this.getMovements().reduce((len, movement) => movement.getLength() + len, 0)
   }
 
   public getCost: () => number = () => {
@@ -283,10 +272,7 @@ export class MovementGroup extends Movement {
       return 0
     }
 
-    return this.getMovements().reduce(
-      (len, movement) => movement.getCost() + len,
-      0,
-    )
+    return this.getMovements().reduce((len, movement) => movement.getCost() + len, 0)
   }
 
   public setMaxSpeed = (speed: number) => {
@@ -305,10 +291,7 @@ export class MovementGroup extends Movement {
       return 0
     }
 
-    return this.getMovements().reduce(
-      (dur, movement) => movement.getDuration() + dur,
-      0,
-    )
+    return this.getMovements().reduce((dur, movement) => movement.getDuration() + dur, 0)
   }
 
   public getStart = () => {
@@ -329,9 +312,7 @@ export class MovementGroup extends Movement {
 
   public getDesiredEntryVelocity = () => {
     if (this.movements.length === 0) {
-      throw new Error(
-        'MovementGroup is empty, but getDesiredEntryVelocity was called',
-      )
+      throw new Error('MovementGroup is empty, but getDesiredEntryVelocity was called')
     }
 
     return this.getMovements()[0].getDesiredEntryVelocity()
@@ -339,27 +320,19 @@ export class MovementGroup extends Movement {
 
   public getExpectedExitVelocity = () => {
     if (this.movements.length === 0) {
-      throw new Error(
-        'MovementGroup is empty, but getExpectedExitVelocity was called',
-      )
+      throw new Error('MovementGroup is empty, but getExpectedExitVelocity was called')
     }
 
-    return this.getMovements()[
-      this.getMovements().length - 1
-    ].getExpectedExitVelocity()
+    return this.getMovements()[this.getMovements().length - 1].getExpectedExitVelocity()
   }
 
   public generateToolpath = () => {
-    throw new Error(
-      'generateToolpath called on MovementGroup, the movement bag should have been flattened',
-    )
+    throw new Error('generateToolpath called on MovementGroup, the movement bag should have been flattened')
   }
 
   public getApproximateCentroid = () => {
     if (this.movements.length === 0) {
-      throw new Error(
-        'MovementGroup is empty, but getApproximateCentroid was called',
-      )
+      throw new Error('MovementGroup is empty, but getApproximateCentroid was called')
     }
 
     const centers: Vector3[] = []
@@ -373,9 +346,7 @@ export class MovementGroup extends Movement {
   }
 
   public samplePoint = (t: number) => {
-    throw new Error(
-      'samplePoint called on MovementGroup, the movement bag should have been flattened',
-    )
+    throw new Error('samplePoint called on MovementGroup, the movement bag should have been flattened')
   }
 
   public resetOptimisationState = () => {
@@ -411,6 +382,7 @@ export class Line extends Movement {
     private to: Vector3,
     public material: Material,
     public objectID: string,
+    public overrideKeys: string[],
   ) {
     super()
   }
@@ -450,9 +422,7 @@ export class Line extends Movement {
   }
 
   public getDuration = () => {
-    return Math.ceil(
-      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
-    )
+    return Math.ceil((this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND)
   }
 
   private getDirection = () => {
@@ -518,19 +488,11 @@ export class Line extends Movement {
   }
 
   public getDesiredEntryVelocity = () => {
-    return this.getTo()
-      .clone()
-      .sub(this.getFrom())
-      .normalize()
-      .multiplyScalar(this.maxSpeed)
+    return this.getTo().clone().sub(this.getFrom()).normalize().multiplyScalar(this.maxSpeed)
   }
 
   public getExpectedExitVelocity = () => {
-    return this.getTo()
-      .clone()
-      .sub(this.getFrom())
-      .normalize()
-      .multiplyScalar(this.maxSpeed)
+    return this.getTo().clone().sub(this.getFrom()).normalize().multiplyScalar(this.maxSpeed)
   }
 
   public generateToolpath = () => {
@@ -584,12 +546,13 @@ export class Point extends Movement {
     public duration: number, // ms Can be 0, for a 'passthrough'
     public material: Material,
     public objectID: string,
+    public overrideKeys: string[],
   ) {
     super()
   }
 
   // Flipping a Point does nothing
-  public flip = () => { }
+  public flip = () => {}
 
   public flatten = () => {
     return [this]
@@ -717,13 +680,9 @@ export class Transition extends Movement {
   private numSegments = 20
 
   public objectID = TRANSITION_OBJECT_ID
+  public overrideKeys = []
 
-  constructor(
-    public from: Movement,
-    public to: Movement,
-    public material: Material,
-    private transitionSize: number,
-  ) {
+  constructor(public from: Movement, public to: Movement, public material: Material, private transitionSize: number) {
     super()
   }
 
@@ -740,20 +699,8 @@ export class Transition extends Movement {
      */
     this.curve = new CubicBezierCurve3(
       this.getStart(),
-      this.getStart()
-        .clone()
-        .add(
-          this.getDesiredEntryVelocity()
-            .clone()
-            .multiplyScalar(this.transitionSize),
-        ),
-      this.getEnd()
-        .clone()
-        .sub(
-          this.getExpectedExitVelocity()
-            .clone()
-            .multiplyScalar(this.transitionSize),
-        ),
+      this.getStart().clone().add(this.getDesiredEntryVelocity().clone().multiplyScalar(this.transitionSize)),
+      this.getEnd().clone().sub(this.getExpectedExitVelocity().clone().multiplyScalar(this.transitionSize)),
       this.getEnd(),
     )
 
@@ -818,9 +765,7 @@ export class Transition extends Movement {
   }
 
   public getDuration = () => {
-    return Math.ceil(
-      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
-    )
+    return Math.ceil((this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND)
   }
 
   public getStart = () => {
@@ -848,20 +793,9 @@ export class Transition extends Movement {
         this.getStart().toArray(),
         this.getStart()
           .clone()
-          .add(
-            this.getDesiredEntryVelocity()
-              .clone()
-              .multiplyScalar(this.transitionSize),
-          )
+          .add(this.getDesiredEntryVelocity().clone().multiplyScalar(this.transitionSize))
           .toArray(),
-        this.getEnd()
-          .clone()
-          .sub(
-            this.getExpectedExitVelocity()
-              .clone()
-              .multiplyScalar(this.transitionSize),
-          )
-          .toArray(),
+        this.getEnd().clone().sub(this.getExpectedExitVelocity().clone().multiplyScalar(this.transitionSize)).toArray(),
         this.getEnd().toArray(),
       ],
     }
@@ -872,20 +806,8 @@ export class Transition extends Movement {
   public getApproximateCentroid = () => {
     return getCentroid([
       this.getStart(),
-      this.getStart()
-        .clone()
-        .add(
-          this.getDesiredEntryVelocity()
-            .clone()
-            .multiplyScalar(this.transitionSize),
-        ),
-      this.getEnd()
-        .clone()
-        .sub(
-          this.getExpectedExitVelocity()
-            .clone()
-            .multiplyScalar(this.transitionSize),
-        ),
+      this.getStart().clone().add(this.getDesiredEntryVelocity().clone().multiplyScalar(this.transitionSize)),
+      this.getEnd().clone().sub(this.getExpectedExitVelocity().clone().multiplyScalar(this.transitionSize)),
       this.getEnd(),
     ])
   }
@@ -911,9 +833,7 @@ function getCentroid(points: Vector3[]) {
   return centroid
 }
 
-export function isPointTransition(
-  movement: Movement,
-): movement is PointTransition {
+export function isPointTransition(movement: Movement): movement is PointTransition {
   return movement.type === MOVEMENT_TYPE.POINT_TRANSITION
 }
 
@@ -926,6 +846,7 @@ export class PointTransition extends Movement {
   readonly type = MOVEMENT_TYPE.POINT_TRANSITION
   maxSpeed: number = defaultSpeed
   public objectID = TRANSITION_OBJECT_ID
+  public overrideKeys = []
 
   private numSegments = 20
 
@@ -1062,9 +983,7 @@ export class PointTransition extends Movement {
   }
 
   public getDuration = () => {
-    return Math.ceil(
-      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
-    )
+    return Math.ceil((this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND)
   }
 
   public getStart = () => {
@@ -1113,9 +1032,7 @@ export class PointTransition extends Movement {
   }
 }
 
-export function isInterLineTransition(
-  movement: Movement,
-): movement is InterLineTransition {
+export function isInterLineTransition(movement: Movement): movement is InterLineTransition {
   return movement.type === MOVEMENT_TYPE.INTER_LINE_TRANSITION
 }
 
@@ -1143,6 +1060,7 @@ export class InterLineTransition extends Movement {
     private from: Line,
     private to: Line,
     public objectID: string, // Takes the ObjectID of the first line
+    public overrideKeys: string[], // Takes the overrideKeys of the first line?
     public material: Material,
   ) {
     super()
@@ -1226,9 +1144,7 @@ export class InterLineTransition extends Movement {
   }
 
   public getDuration = () => {
-    return Math.ceil(
-      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
-    )
+    return Math.ceil((this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND)
   }
 
   public getStart = () => {
@@ -1293,6 +1209,7 @@ export class Transit extends Movement {
     public duration: number, // Must be above 0ms
     public material: Material,
     public objectID: string,
+    public overrideKeys: string[],
   ) {
     super()
 
@@ -1302,7 +1219,7 @@ export class Transit extends Movement {
   }
 
   // Flipping a Transit does nothing
-  public flip = () => { }
+  public flip = () => {}
 
   public flatten = () => {
     return [this]
@@ -1377,9 +1294,7 @@ export class Transit extends Movement {
   }
 }
 
-function pointsToControlPoints(
-  inputArray: Vector3[],
-): [Vector3, Vector3, Vector3, Vector3][] {
+function pointsToControlPoints(inputArray: Vector3[]): [Vector3, Vector3, Vector3, Vector3][] {
   if (inputArray.length < 4) {
     throw new Error(`Need at least 4 points to produce control points`)
   }
@@ -1413,6 +1328,7 @@ export class CatmullChain extends Movement {
     public points: Vector3[],
     public material: Material,
     public objectID: string,
+    public overrideKeys: string[],
   ) {
     super()
   }
@@ -1424,26 +1340,18 @@ export class CatmullChain extends Movement {
   private lazyGenerateCurve = () => {
     if (this.curve) return this.curve
 
-    const points = this.isFlipped
-      ? this.points.slice().reverse()
-      : this.points.slice()
+    const points = this.isFlipped ? this.points.slice().reverse() : this.points.slice()
 
     const controlPointsArr = pointsToControlPoints(points)
 
     const deconstructed: DeconstructedCatmullCurve[] = []
 
     for (const controlPoints of controlPointsArr) {
-      const threeCurve = new CatmullRomCurve3(
-        controlPoints,
-        false,
-        'catmullrom',
-      )
+      const threeCurve = new CatmullRomCurve3(controlPoints, false, 'catmullrom')
       threeCurve.arcLengthDivisions = 20
 
       const length = threeCurve.getLength()
-      const duration = Math.ceil(
-        (length / this.maxSpeed) * MILLISECONDS_IN_SECOND,
-      ) // duration in milliseconds
+      const duration = Math.ceil((length / this.maxSpeed) * MILLISECONDS_IN_SECOND) // duration in milliseconds
 
       const decon: DeconstructedCatmullCurve = {
         threeCurve,
@@ -1464,10 +1372,7 @@ export class CatmullChain extends Movement {
 
     const curve = this.lazyGenerateCurve()
 
-    const length = curve.reduce(
-      (prev, curr) => prev + curr.threeCurve.getLength(),
-      0,
-    )
+    const length = curve.reduce((prev, curr) => prev + curr.threeCurve.getLength(), 0)
 
     return length
   }
@@ -1486,18 +1391,9 @@ export class CatmullChain extends Movement {
       const movementStartTime = durationAccumulator
       const movementEndTime = durationAccumulator + deconstructed.duration
 
-      if (
-        absoluteTimeAlongCurve >= movementStartTime &&
-        absoluteTimeAlongCurve <= movementEndTime
-      ) {
+      if (absoluteTimeAlongCurve >= movementStartTime && absoluteTimeAlongCurve <= movementEndTime) {
         // the point in time T is in this part of the curve
-        const relT = MathUtils.mapLinear(
-          absoluteTimeAlongCurve,
-          movementStartTime,
-          movementEndTime,
-          1 / 3,
-          2 / 3,
-        )
+        const relT = MathUtils.mapLinear(absoluteTimeAlongCurve, movementStartTime, movementEndTime, 1 / 3, 2 / 3)
 
         let p
         try {
@@ -1565,19 +1461,11 @@ export class CatmullChain extends Movement {
   }
 
   public getDesiredEntryVelocity = () => {
-    return this.samplePoint(0.05)
-      .clone()
-      .sub(this.samplePoint(0))
-      .normalize()
-      .multiplyScalar(this.maxSpeed)
+    return this.samplePoint(0.05).clone().sub(this.samplePoint(0)).normalize().multiplyScalar(this.maxSpeed)
   }
 
   public getExpectedExitVelocity = () => {
-    return this.samplePoint(1)
-      .clone()
-      .sub(this.samplePoint(0.95))
-      .normalize()
-      .multiplyScalar(this.maxSpeed)
+    return this.samplePoint(1).clone().sub(this.samplePoint(0.95)).normalize().multiplyScalar(this.maxSpeed)
   }
 
   public generateToolpath = () => {

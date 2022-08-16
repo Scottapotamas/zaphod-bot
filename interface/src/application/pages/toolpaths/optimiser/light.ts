@@ -30,11 +30,7 @@ export interface LightToMovementsSettings {
 export class Light {
   readonly type = 'light'
 
-  constructor(
-    public name: string,
-    public material: MaterialJSON,
-    public position: [number, number, number],
-  ) { }
+  constructor(public name: string, public material: MaterialJSON, public position: [number, number, number]) {}
 
   public getObjectTree: () => TreeNodeInfo<NodeInfo> = () => {
     const node: TreeNodeInfo<NodeInfo> = {
@@ -61,7 +57,7 @@ export class Light {
     const movements: Movement[] = []
 
     const objectID = this.name
-    const overrideKeys = [this.name]
+    const overrideKeys = [this.name, objectID]
 
     if (getShouldSkip(settings, overrideKeys)) {
       return movements
@@ -79,17 +75,10 @@ export class Light {
       return movements
     }
 
-    const settingsWithOverride = getToMovementSettings(settings, 'light',
-      this.name,
-      objectID,
-    )
+    const settingsWithOverride = getToMovementSettings(settings, 'light', overrideKeys)
 
     // Convert the position to a Vector3
-    const position = new Vector3(
-      this.position[0],
-      this.position[1],
-      this.position[2],
-    )
+    const position = new Vector3(this.position[0], this.position[1], this.position[2])
 
     const duration =
       (settingsWithOverride.preWait ?? 0) +
@@ -106,6 +95,7 @@ export class Light {
         settingsWithOverride.postWait ?? 0,
       ),
       objectID,
+      overrideKeys,
     )
 
     // This ID is guaranteed to be stable

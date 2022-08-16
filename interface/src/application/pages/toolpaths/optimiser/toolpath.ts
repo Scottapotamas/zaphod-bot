@@ -1,4 +1,4 @@
-import { DenseMovements } from './movements'
+import { DenseMovements, GLOBAL_OVERRIDE_OBJECT_ID } from './movements'
 import {
   LightMove,
   LightMoveType,
@@ -7,8 +7,9 @@ import {
   MovementMoveType,
 } from '../../../../application/typedState'
 import { Settings } from './settings'
-import { VisualisationSettings } from '../interface/state'
+import { getMaterialOverride, VisualisationSettings } from '../interface/state'
 import { Vector3 } from 'three'
+import { importMaterial } from './material'
 
 export interface Toolpath {
   movementMoves: MovementMove[]
@@ -54,8 +55,16 @@ export function toolpath(
       movementTimestamp += move.duration
     }
 
+    // Get the material override
+    const globalMaterialOverride = visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
+      ? importMaterial(visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID])
+      : null
+
+    let material = globalMaterialOverride ? globalMaterialOverride : movement.material
+    material = getMaterialOverride(visualisationSettings, movement.material, movement.overrideKeys)
+
     // Accumulate the light fades
-    for (const lightMove of movement.material.generateLightpath(
+    for (const lightMove of material.generateLightpath(
       movement,
       settings,
       visualisationSettings,

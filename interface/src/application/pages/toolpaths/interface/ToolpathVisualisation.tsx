@@ -21,7 +21,7 @@ import { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 
 import { useFrame, useThree } from '@react-three/fiber'
 import { Mesh, Group, Color, Vector2, PerspectiveCamera as PerspectiveCameraImpl, MathUtils } from 'three'
-import { changeState, getSetting, setSetting, useSetting, useStore } from './state'
+import { changeState, getMaterialOverride, getSetting, setSetting, useSetting, useStore } from './state'
 import { MovementMoveType } from '../optimiser/hardware'
 import { sparseToDense } from '../optimiser/passes'
 import { CatmullRomLine } from './CatmullLine'
@@ -287,17 +287,13 @@ export function ToolpathMovements() {
 
           let material: Material = movement.material
 
-          const movementMaterialOverride = visualisationSettings.objectMaterialOverrides[movement.objectID]
-
           // Global overrides take least precidence
           if (globalMaterialOverride) {
             material = globalMaterialOverride
           }
 
-          // Specific movement overrides take highest precidence
-          if (movementMaterialOverride) {
-            material = importMaterial(movementMaterialOverride)
-          }
+          // Get the override if it has one
+          material = getMaterialOverride(visualisationSettings, material, movement.overrideKeys)
 
           // Generate using the
           material.generateThreeJSRepresentation(

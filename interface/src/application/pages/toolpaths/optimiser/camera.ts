@@ -1,19 +1,11 @@
-import {
-  Color,
-  PerspectiveCamera,
-  Vector3,
-  Quaternion,
-  Euler,
-  MathUtils,
-  Plane,
-} from 'three'
+import { Color, PerspectiveCamera, Vector3, Quaternion, Euler, MathUtils, Plane } from 'three'
 import { NodeInfo, NodeTypes } from '../interface/RenderableTree'
 import { TreeNodeInfo } from '@blueprintjs/core'
 import { ObjectNameTree } from './files'
 import { Renderable } from './import'
 import { importMaterial, MaterialJSON } from './material'
 import { Point, Line, Movement, MovementGroup } from './movements'
-import { getShouldSkip, getToMovementSettings, Settings } from './settings'
+import { Settings } from './settings'
 import { IconNames } from '@blueprintjs/icons'
 import { SimpleColorMaterial } from './materials/Color'
 import { DelayMaterial } from './materials/DelayMaterial'
@@ -33,9 +25,7 @@ export interface CameraToMovementsSettings {
 }
 
 const conversionQuaternion = new Quaternion()
-conversionQuaternion
-  .setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2)
-  .invert() // Invert the three -> blender transform
+conversionQuaternion.setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2).invert() // Invert the three -> blender transform
 
 export class Camera {
   readonly type = 'camera'
@@ -49,7 +39,7 @@ export class Camera {
     public quaternion: [number, number, number, number],
     public near: number,
     public far: number,
-  ) { }
+  ) {}
 
   public getObjectTree: () => TreeNodeInfo<NodeInfo> = () => {
     const node: TreeNodeInfo<NodeInfo> = {
@@ -100,9 +90,9 @@ export class Camera {
     } = {}
 
     function addMovement(movement: Movement) {
-      movement.interFrameID = `(${movement.getStart().x},${movement.getStart().y
-        },${movement.getStart().z}->${movement.getEnd().x},${movement.getEnd().y
-        },${movement.getEnd().z})`
+      movement.interFrameID = `(${movement.getStart().x},${movement.getStart().y},${movement.getStart().z}->${
+        movement.getEnd().x
+      },${movement.getEnd().y},${movement.getEnd().z})`
 
       const height = movement.getApproximateCentroid().z
 
@@ -118,16 +108,10 @@ export class Camera {
     if (settings.objectSettings.camera.drawRulers) {
       const grey = new SimpleColorMaterial([0.4, 0.4, 0.4, 1])
       const objectID = `${this.name}-ruler`
+      const overrideKeys = [this.name, objectID]
 
       // Horizontal line
-      addMovement(
-        new Line(
-          new Vector3(0, 0, 100),
-          new Vector3(100, 0, 100),
-          grey,
-          objectID,
-        ),
-      )
+      addMovement(new Line(new Vector3(0, 0, 100), new Vector3(100, 0, 100), grey, objectID, overrideKeys))
 
       // Vertical lines
       for (let index = 0; index <= 10; index++) {
@@ -137,6 +121,7 @@ export class Camera {
             new Vector3(index * 10, 0, index % 5 === 0 ? 120 : 110),
             grey,
             objectID,
+            overrideKeys,
           ),
         )
       }
@@ -148,20 +133,21 @@ export class Camera {
       const grey = new SimpleColorMaterial([0.4, 0.4, 0.4, 1])
 
       const objectID = `${this.name}-calibration`
+      const overrideKeys = [this.name, objectID]
 
       const moves = []
 
       // Red rect
-      moves.push(new Line(new Vector3(150, 0, 50), new Vector3(10, 0, 50), red, objectID)) // prettier-ignore
-      moves.push(new Line(new Vector3(10, 0, 50), new Vector3(10, 0, 150), red, objectID)) // prettier-ignore
-      moves.push(new Line(new Vector3(150, 0, 150), new Vector3(10, 0, 150), red, objectID)) // prettier-ignore
-      moves.push(new Line(new Vector3(150, 0, 50), new Vector3(150, 0, 150), red, objectID)) // prettier-ignore
+      moves.push(new Line(new Vector3(150, 0, 50), new Vector3(10, 0, 50), red, objectID, overrideKeys)) // prettier-ignore
+      moves.push(new Line(new Vector3(10, 0, 50), new Vector3(10, 0, 150), red, objectID, overrideKeys)) // prettier-ignore
+      moves.push(new Line(new Vector3(150, 0, 150), new Vector3(10, 0, 150), red, objectID, overrideKeys)) // prettier-ignore
+      moves.push(new Line(new Vector3(150, 0, 50), new Vector3(150, 0, 150), red, objectID, overrideKeys)) // prettier-ignore
 
       // green rect
-      moves.push(new Line(new Vector3(0, 150, 50), new Vector3(0, 10, 50), green, objectID)) // prettier-ignore
-      moves.push(new Line(new Vector3(0, 10, 50), new Vector3(0, 10, 150), green, objectID)) // prettier-ignore
-      moves.push(new Line(new Vector3(0, 150, 150), new Vector3(0, 10, 150), green, objectID)) // prettier-ignore
-      moves.push(new Line(new Vector3(0, 150, 50), new Vector3(0, 150, 150), green, objectID)) // prettier-ignore
+      moves.push(new Line(new Vector3(0, 150, 50), new Vector3(0, 10, 50), green, objectID, overrideKeys)) // prettier-ignore
+      moves.push(new Line(new Vector3(0, 10, 50), new Vector3(0, 10, 150), green, objectID, overrideKeys)) // prettier-ignore
+      moves.push(new Line(new Vector3(0, 150, 150), new Vector3(0, 10, 150), green, objectID, overrideKeys)) // prettier-ignore
+      moves.push(new Line(new Vector3(0, 150, 50), new Vector3(0, 150, 150), green, objectID, overrideKeys)) // prettier-ignore
 
       moves.forEach(move => {
         // We need slow, exact moves, no matter the settings
@@ -173,7 +159,7 @@ export class Camera {
       })
 
       // Do an extremely slow and careful move at the very bottom to mark the origin
-      const bottom = new Line(new Vector3(0, 0, 0), new Vector3(0, 0, 10), grey, objectID) // prettier-ignore
+      const bottom = new Line(new Vector3(0, 0, 0), new Vector3(0, 0, 10), grey, objectID, overrideKeys) // prettier-ignore
       bottom.setMaxSpeed(25)
       bottom.lockSpeed = true
       addMovement(bottom)
@@ -186,29 +172,20 @@ export class Camera {
       const yellow = new SimpleColorMaterial([0.4, 0.4, 0.0, 1])
       const black = new SimpleColorMaterial([0.0, 0.0, 0.0, 1])
       const objectID = `${this.name}-alignment`
+      const overrideKeys = [this.name, objectID]
 
       // From the center
       const center = new Vector3(0, 0, 100)
 
       // A line toward camera, from the center
-      const directionOfCamera = new Vector3(
-        this.position[0],
-        this.position[1],
-        this.position[2],
-      )
+      const directionOfCamera = new Vector3(this.position[0], this.position[1], this.position[2])
         .sub(center)
         .normalize()
 
       function align(index: number) {
-        const right = directionOfCamera
-          .clone()
-          .cross(new Vector3(0, 0, 1))
-          .normalize()
+        const right = directionOfCamera.clone().cross(new Vector3(0, 0, 1)).normalize()
 
-        const up = directionOfCamera
-          .clone()
-          .cross(new Vector3(0, 1, 0))
-          .normalize()
+        const up = directionOfCamera.clone().cross(new Vector3(0, 1, 0)).normalize()
 
         switch (index) {
           case 0:
@@ -249,27 +226,28 @@ export class Camera {
       const pointL = align(3).add(towardCamera50) // prettier-ignore
 
       // Square at center
-      addMovement(new Line(pointA, pointB, red, objectID)) // prettier-ignore
-      addMovement(new Line(pointB, pointC, red, objectID)) // prettier-ignore
-      addMovement(new Line(pointC, pointD, red, objectID)) // prettier-ignore
-      addMovement(new Line(pointD, pointA, red, objectID)) // prettier-ignore
+      addMovement(new Line(pointA, pointB, red, objectID, overrideKeys)) // prettier-ignore
+      addMovement(new Line(pointB, pointC, red, objectID, overrideKeys)) // prettier-ignore
+      addMovement(new Line(pointC, pointD, red, objectID, overrideKeys)) // prettier-ignore
+      addMovement(new Line(pointD, pointA, red, objectID, overrideKeys)) // prettier-ignore
 
       // Square at 50mm toward camera
-      addMovement(new Line(pointE, pointF, green, objectID)) // prettier-ignore
-      addMovement(new Line(pointF, pointG, green, objectID)) // prettier-ignore
-      addMovement(new Line(pointG, pointH, green, objectID)) // prettier-ignore
-      addMovement(new Line(pointH, pointE, green, objectID)) // prettier-ignore
+      addMovement(new Line(pointE, pointF, green, objectID, overrideKeys)) // prettier-ignore
+      addMovement(new Line(pointF, pointG, green, objectID, overrideKeys)) // prettier-ignore
+      addMovement(new Line(pointG, pointH, green, objectID, overrideKeys)) // prettier-ignore
+      addMovement(new Line(pointH, pointE, green, objectID, overrideKeys)) // prettier-ignore
 
       // Cross 100mm toward camera
-      addMovement(new Line(pointI, pointK, yellow, objectID)) // prettier-ignore
-      addMovement(new Line(pointJ, pointL, yellow, objectID)) // prettier-ignore
+      addMovement(new Line(pointI, pointK, yellow, objectID, overrideKeys)) // prettier-ignore
+      addMovement(new Line(pointJ, pointL, yellow, objectID, overrideKeys)) // prettier-ignore
 
       // Dot at center
-      addMovement(new Line(center, center.clone().add(directionOfCamera.clone().multiplyScalar(1)), grey, objectID)) // prettier-ignore
+      addMovement(new Line(center, center.clone().add(directionOfCamera.clone().multiplyScalar(1)), grey, objectID, overrideKeys)) // prettier-ignore
     }
 
     if (settings.objectSettings.camera.drawColorCalibrationChart) {
       const objectID = `${this.name}-color-lines`
+      const overrideKeys = [this.name, objectID]
 
       // Left side, 20 linear gradations of black to white
       for (let index = 0; index <= 20; index++) {
@@ -279,6 +257,7 @@ export class Camera {
             new Vector3(-40, 0, index * 5 + 50),
             new SimpleColorMaterial([index / 10, index / 10, index / 10, 1]),
             objectID,
+            overrideKeys,
           ),
         )
       }
@@ -291,6 +270,7 @@ export class Camera {
             new Vector3(-20, 0, index * 5 + 50),
             new SimpleColorMaterial([index / 10, 0, 0, 1]),
             objectID,
+            overrideKeys,
           ),
         )
       }
@@ -303,6 +283,7 @@ export class Camera {
             new Vector3(0, 0, index * 5 + 50),
             new SimpleColorMaterial([0, index / 10, 0, 1]),
             objectID,
+            overrideKeys,
           ),
         )
       }
@@ -315,6 +296,7 @@ export class Camera {
             new Vector3(20, 0, index * 5 + 50),
             new SimpleColorMaterial([0, 0, index / 10, 1]),
             objectID,
+            overrideKeys,
           ),
         )
       }
@@ -328,6 +310,7 @@ export class Camera {
           new Vector3(40, 0, index * 5 + 50),
           white,
           objectID,
+          overrideKeys,
         )
 
         movement.maxSpeed = (index + 1) * 10
@@ -345,6 +328,7 @@ export class Camera {
           new Vector3(60, 0, index * 5 + 50),
           grey,
           objectID,
+          overrideKeys,
         )
 
         movement.maxSpeed = (index + 1) * 10
@@ -356,6 +340,7 @@ export class Camera {
 
     if (settings.objectSettings.camera.drawMoveCalibrationChart) {
       const objectID = `${this.name}-moves-lines`
+      const overrideKeys = [this.name, objectID]
 
       // A point with two lines pointing at it in the bottom right
       addMovement(
@@ -364,6 +349,7 @@ export class Camera {
           new Vector3(40, 0, 70),
           new SimpleColorMaterial([0.5, 0.5, 0.5, 1]),
           objectID,
+          overrideKeys,
         ),
       )
 
@@ -383,6 +369,7 @@ export class Camera {
             settings.objectSettings.light.postWait ?? 0,
           ),
           objectID,
+          overrideKeys,
         ),
       )
 
@@ -392,6 +379,7 @@ export class Camera {
           new Vector3(50, 0, 60),
           new SimpleColorMaterial([0.5, 0.5, 0.5, 1]),
           objectID,
+          overrideKeys,
         ),
       )
 
@@ -410,6 +398,7 @@ export class Camera {
             new Vector3(40, 0, 80 + i * 5),
             new SimpleColorMaterial([1, 1, 0, 1]),
             objectID,
+            overrideKeys,
           ),
         )
         addMovement(
@@ -419,6 +408,7 @@ export class Camera {
             new Vector3(40, 0, 80 + i * 5).add(delta),
             new SimpleColorMaterial([1, 0, 1, 1]),
             objectID,
+            overrideKeys,
           ),
         )
         i++
@@ -437,6 +427,7 @@ export class Camera {
             new Vector3(50, 0, 110 + i * 10),
             new SimpleColorMaterial([1, 1, 0, 1]),
             objectID,
+            overrideKeys,
           ),
         )
         addMovement(
@@ -446,6 +437,7 @@ export class Camera {
             new Vector3(50, 0, 110 + i * 10).add(delta),
             new SimpleColorMaterial([1, 0, 1, 1]),
             objectID,
+            overrideKeys,
           ),
         )
         i++
@@ -482,12 +474,7 @@ export class Camera {
     // Do the blender -> threejs transform
     camera.position.set(this.position[0], this.position[2], -this.position[1])
 
-    camera.quaternion.set(
-      this.quaternion[0],
-      this.quaternion[1],
-      this.quaternion[2],
-      this.quaternion[3],
-    )
+    camera.quaternion.set(this.quaternion[0], this.quaternion[1], this.quaternion[2], this.quaternion[3])
 
     if (false) {
       const blenderCameraOrientation = new Quaternion(
@@ -500,11 +487,9 @@ export class Camera {
       const zVec = new Vector3(0, 0, 1)
       zVec.applyQuaternion(blenderCameraOrientation)
 
-      const toLook = new Vector3(
-        this.position[0],
-        this.position[2],
-        -this.position[1],
-      ).add(zVec.clone().multiplyScalar(-100))
+      const toLook = new Vector3(this.position[0], this.position[2], -this.position[1]).add(
+        zVec.clone().multiplyScalar(-100),
+      )
 
       camera.lookAt(toLook)
     }

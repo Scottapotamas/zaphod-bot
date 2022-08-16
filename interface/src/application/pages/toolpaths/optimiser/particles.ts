@@ -23,7 +23,7 @@ export interface Particle {
 }
 
 export class ParticleSystem {
-  constructor(public name: string, public material: MaterialJSON) { }
+  constructor(public name: string, public material: MaterialJSON) {}
 
   public particles: Particle[] = []
 
@@ -56,7 +56,7 @@ export interface ParticlesToMovementsSettings {
 export class Particles {
   readonly type = 'particles'
 
-  constructor(public name: string) { }
+  constructor(public name: string) {}
 
   private systems: ParticleSystem[] = []
 
@@ -108,48 +108,28 @@ export class Particles {
         continue
       }
 
-      const settingsWithOverride = getToMovementSettings(
-        settings,
-        'particles',
-        this.name, objectID,
-      )
+      const settingsWithOverride = getToMovementSettings(settings, 'particles', overrideKeys)
 
       for (const particle of system.particles) {
-        if (
-          settings.objectSettings.particles.hideIfOccluded &&
-          particle.occluded
-        ) {
+        if (settings.objectSettings.particles.hideIfOccluded && particle.occluded) {
           continue
         }
 
         // Convert the location to a Vector3
-        const location = new Vector3(
-          particle.location[0],
-          particle.location[1],
-          particle.location[2],
-        )
+        const location = new Vector3(particle.location[0], particle.location[1], particle.location[2])
 
         const duration =
           (settingsWithOverride.preWait ?? 0) +
           (settingsWithOverride.onDuration ?? 0) +
           (settingsWithOverride.postWait ?? 0)
 
-        const point = new Point(
-          location,
-          duration,
-          importMaterial(system.material),
-          objectID,
-        )
+        const point = new Point(location, duration, importMaterial(system.material), objectID, overrideKeys)
 
         // This ID is guaranteed to be stable
         point.interFrameID = particle.id
 
         if (settingsWithOverride.drawInVelocityOrientation) {
-          point.velocity.set(
-            particle.velocity[0],
-            particle.velocity[1],
-            particle.velocity[2],
-          )
+          point.velocity.set(particle.velocity[0], particle.velocity[1], particle.velocity[2])
         }
 
         movements.push(point)

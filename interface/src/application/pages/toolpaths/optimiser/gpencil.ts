@@ -7,15 +7,7 @@ import { importMaterial, MaterialJSON } from './material'
 import { isSimpleColorMaterial, SimpleColorMaterial } from './materials/Color'
 import { ColorRampMaterial } from './materials/ColorRamp'
 import { lerpRGBA } from './materials/utilities'
-import {
-  Point,
-  Movement,
-  Line,
-  MovementGroup,
-  RGB,
-  CatmullChain,
-  RGBA,
-} from './movements'
+import { Point, Movement, Line, MovementGroup, RGB, CatmullChain, RGBA } from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
 import { InvisibleMaterialDefaultJSON } from './materials/Invisible'
 
@@ -75,7 +67,7 @@ export interface GPencilToMovementsSettings {
 export class GPencil {
   readonly type = 'gpencil'
 
-  constructor(public name: string) { }
+  constructor(public name: string) {}
 
   private layers: GPencilLayer[] = []
 
@@ -128,11 +120,7 @@ export class GPencil {
         continue
       }
 
-      const settingsWithOverride = getToMovementSettings(
-        settings,
-        'gpencil',
-        this.name, objectID,
-      )
+      const settingsWithOverride = getToMovementSettings(settings, 'gpencil', overrideKeys)
 
       for (const stroke of layer.strokes) {
         // A stroke needs at least two points to form a line
@@ -140,17 +128,11 @@ export class GPencil {
           continue
         }
 
-        const simplified = simplify(
-          stroke.points,
-          settingsWithOverride.simplificationTolerance ?? 0,
-        )
+        const simplified = simplify(stroke.points, settingsWithOverride.simplificationTolerance ?? 0)
 
         const material = importMaterial(layer.material)
 
-        if (
-          settingsWithOverride.outputType === GPencilOutputType.CATMULL_CHAIN &&
-          simplified.length >= 4
-        ) {
+        if (settingsWithOverride.outputType === GPencilOutputType.CATMULL_CHAIN && simplified.length >= 4) {
           const points = [
             simplified[0], // duplicate first
             ...simplified,
@@ -158,29 +140,18 @@ export class GPencil {
           ]
 
           const movement = new CatmullChain(
-            points.map(
-              gPencilPoint =>
-                new Vector3(
-                  gPencilPoint.co[0],
-                  gPencilPoint.co[1],
-                  gPencilPoint.co[2],
-                ),
-            ),
+            points.map(gPencilPoint => new Vector3(gPencilPoint.co[0], gPencilPoint.co[1], gPencilPoint.co[2])),
             material,
             objectID,
+            overrideKeys,
           )
-          movement.interFrameID = `${simplified[0].id}->${simplified[simplified.length - 1].id
-            }`
+          movement.interFrameID = `${simplified[0].id}->${simplified[simplified.length - 1].id}`
 
           movements.push(movement)
           continue
         }
 
-        let lastPoint = new Vector3(
-          simplified[0].co[0],
-          simplified[0].co[1],
-          simplified[0].co[2],
-        )
+        let lastPoint = new Vector3(simplified[0].co[0], simplified[0].co[1], simplified[0].co[2])
 
         const orderedMovements = new MovementGroup()
 
@@ -188,15 +159,15 @@ export class GPencil {
 
         let previousPointBlendedColor = doVertexColoring
           ? lerpRGBA(
-            (material as SimpleColorMaterial).color,
-            [
-              simplified[0].vertexColor[0],
-              simplified[0].vertexColor[1],
-              simplified[0].vertexColor[2],
-              simplified[0].vertexColor[3] * simplified[0].strength,
-            ],
-            simplified[0].vertexColor[3],
-          )
+              (material as SimpleColorMaterial).color,
+              [
+                simplified[0].vertexColor[0],
+                simplified[0].vertexColor[1],
+                simplified[0].vertexColor[2],
+                simplified[0].vertexColor[3] * simplified[0].strength,
+              ],
+              simplified[0].vertexColor[3],
+            )
           : ([0, 0, 0, 0] as RGBA)
 
         // Start at the second point, the first is located above
@@ -212,30 +183,17 @@ export class GPencil {
             // Lerp the base color to the vertex colour based on the vertex color alpha. The vertex color alpha is multiplied by the strength
             const currentPointBlendedColor = lerpRGBA(
               (material as SimpleColorMaterial).color,
-              [
-                point.vertexColor[0],
-                point.vertexColor[1],
-                point.vertexColor[2],
-                point.vertexColor[3] * point.strength,
-              ],
+              [point.vertexColor[0], point.vertexColor[1], point.vertexColor[2], point.vertexColor[3] * point.strength],
               point.vertexColor[3], // Multiply the vertex by the strength to get a transparency effect
             )
 
-            vertexMat = new ColorRampMaterial(
-              previousPointBlendedColor,
-              currentPointBlendedColor,
-            )
+            vertexMat = new ColorRampMaterial(previousPointBlendedColor, currentPointBlendedColor)
 
             previousPointBlendedColor = currentPointBlendedColor
           }
 
           // Create a line from the lastPoint to the currentPoint
-          const line: Movement = new Line(
-            lastPoint,
-            currentPoint,
-            vertexMat,
-            objectID,
-          )
+          const line: Movement = new Line(lastPoint, currentPoint, vertexMat, objectID, overrideKeys)
 
           // This ID isn't guaranteed to be stable, but it'll probably be close at least some of the time
           line.interFrameID = point.id

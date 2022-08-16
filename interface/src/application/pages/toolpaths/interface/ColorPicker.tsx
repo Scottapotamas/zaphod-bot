@@ -1,20 +1,7 @@
-import {
-  incrementViewportFrameVersion,
-  setSetting,
-  VisualisationSettings,
-  Store,
-  getSetting,
-} from './state'
-
 import React, { useCallback } from 'react'
 
 import { Vector3 } from 'three'
-import {
-  ColorPicker as ReactColorPicker,
-  toColor,
-  Color,
-  useColor,
-} from 'react-color-palette'
+import { ColorPicker as ReactColorPicker, toColor, Color, useColor } from 'react-color-palette'
 import { Classes, Popover2 } from '@blueprintjs/popover2'
 import { Button } from '@blueprintjs/core'
 import { RGB, RGBA } from '../optimiser/movements'
@@ -35,12 +22,7 @@ export function ColorPicker(props: ColorPickerProps) {
 
   const updateColor = useCallback(
     (col: Color) => {
-      props.writer([
-        col.rgb.r / 255,
-        col.rgb.g / 255,
-        col.rgb.b / 255,
-        col.rgb.a ?? 1,
-      ])
+      props.writer([col.rgb.r / 255, col.rgb.g / 255, col.rgb.b / 255, col.rgb.a ?? 1])
     },
     [props.writer],
   )
