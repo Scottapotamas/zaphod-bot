@@ -8,10 +8,8 @@
 .planner-checkbox .bp3-control {
   /* Center the checkboxes within their field */
   margin-bottom: 0;
-}
 
-/* Make the checkboxes the same height as numeric inputs */
-.planner-checkbox {
-  padding-top: 6.5px;
+  /* Make the checkboxes the same height as numeric inputs */
   padding-bottom: 6.5px;
+  padding-top: 6.5px;
 }
