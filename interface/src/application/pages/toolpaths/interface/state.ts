@@ -36,6 +36,7 @@ export const defaultSettings: Settings = {
       preWait: 5,
       onDuration: 5,
       postWait: 5,
+      hideIfOccluded: false,
     },
     light: {
       preWait: 5,

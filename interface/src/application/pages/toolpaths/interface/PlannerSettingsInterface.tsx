@@ -337,15 +337,15 @@ function CameraHelpersTab() {
       <Checkbox label="Draw Frustum Alignment" selector={state => state.settings.objectSettings.camera.drawAlignmentHelpers} writer={(state, value) => state.settings.objectSettings.camera.drawAlignmentHelpers = value} />
       <Checkbox label="Draw Extrinsic Calibrators" selector={state => state.settings.objectSettings.camera.drawExtrinsicCalibrators} writer={(state, value) => state.settings.objectSettings.camera.drawExtrinsicCalibrators = value} />
       <Checkbox label="Draw Col Calibration Chart" selector={state => state.settings.objectSettings.camera.drawColorCalibrationChart} writer={(state, value) => state.settings.objectSettings.camera.drawColorCalibrationChart = value} />
-      <Checkbox label="Enable duration override " selector={state => state.cameraOverrideDuration > 0} writer={(state, value) => state.cameraOverrideDuration = value ? 100 : 0} />
+      <Checkbox label="Enable duration override " selector={state => state.cameraOverrideDuration > 0} writer={(state, value) => state.cameraOverrideDuration = value ? 10_000 : 0} />
       {cameraDurationOverrideEnabled ? (
         <>
           <NumericInput
             label="Camera Duration"
             min={1}
-            max={30000}
-            stepSize={25}
-            majorStepSize={100}
+            max={30_000}
+            stepSize={1_000}
+            majorStepSize={5_000}
             rightText="ms"
             selector={state => state.cameraOverrideDuration}
             writer={(state, value) => state.cameraOverrideDuration = value}
