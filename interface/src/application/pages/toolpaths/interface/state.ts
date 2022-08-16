@@ -92,6 +92,9 @@ export interface VisualisationSettings {
   // The virtualised timeline within a frame
   previewProgress: boolean
   frameProgress: number
+
+  // Global brightness modifier, 0-1 float
+  brightness: number
 }
 
 export function getMaterialOverride(
@@ -220,6 +223,7 @@ const initialState: Store = {
     hiddenObjects: {},
     previewProgress: false,
     frameProgress: 0,
+    brightness: 1,
   },
 
   settingsDirty: false,
