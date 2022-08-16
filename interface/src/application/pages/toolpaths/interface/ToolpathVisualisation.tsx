@@ -1,12 +1,5 @@
 import * as React from 'react'
-import {
-  useRef,
-  useMemo,
-  useState,
-  forwardRef,
-  useCallback,
-  useEffect,
-} from 'react'
+import { useRef, useMemo, useState, forwardRef, useCallback, useEffect } from 'react'
 
 // import // Environment,
 // // OrbitControls,
@@ -27,28 +20,14 @@ import {
 import { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 
 import { useFrame, useThree } from '@react-three/fiber'
-import {
-  Mesh,
-  Group,
-  Color,
-  Vector2,
-  PerspectiveCamera as PerspectiveCameraImpl,
-  MathUtils,
-} from 'three'
-import { getSetting, setSetting, useSetting, useStore } from './state'
+import { Mesh, Group, Color, Vector2, PerspectiveCamera as PerspectiveCameraImpl, MathUtils } from 'three'
+import { changeState, getSetting, setSetting, useSetting, useStore } from './state'
 import { MovementMoveType } from '../optimiser/hardware'
 import { sparseToDense } from '../optimiser/passes'
 import { CatmullRomLine } from './CatmullLine'
 import { MovementPoint } from 'src/application/typedState'
 import { Vector3 } from 'three'
-import {
-  deserialiseTour,
-  GLOBAL_OVERRIDE_OBJECT_ID,
-  Movement,
-  RGB,
-  RGBA,
-  XYZ,
-} from '../optimiser/movements'
+import { deserialiseTour, GLOBAL_OVERRIDE_OBJECT_ID, Movement, RGB, RGBA, XYZ } from '../optimiser/movements'
 import { Line2 } from 'three/examples/jsm/lines/Line2'
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial'
 import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry'
@@ -79,16 +58,12 @@ export function AxisLines() {
   )
 }
 
-function convertToThreeCoordinateSystem(
-  vector: [number, number, number],
-): [number, number, number] {
+function convertToThreeCoordinateSystem(vector: [number, number, number]): [number, number, number] {
   return [vector[0], vector[2], -vector[1]]
 }
 
 export function getOrderedMovementsForFrame(frameNumber: number): Movement[] {
-  const orderedMovementsByFrame = getSetting(
-    state => state.unorderedMovementsByFrame,
-  )
+  const orderedMovementsByFrame = getSetting(state => state.unorderedMovementsByFrame)
   const movementOrdering = getSetting(state => state.movementOrdering)
 
   const movements = orderedMovementsByFrame[frameNumber] ?? []
@@ -102,9 +77,7 @@ export function getOrderedMovementsForFrame(frameNumber: number): Movement[] {
  */
 export function ToolpathMovements() {
   const [lines] = useState(() => new MutableLineSegmentGeometry(false, 2.0))
-  const [transitions] = useState(
-    () => new MutableLineSegmentGeometry(true, 1.0),
-  )
+  const [transitions] = useState(() => new MutableLineSegmentGeometry(true, 1.0))
 
   const [customComponents, setComponents] = useState<React.ReactNode[]>([])
 
@@ -122,13 +95,7 @@ export function ToolpathMovements() {
   useEffect(() => {
     let lineIndex = 0
 
-    const addColouredLine = (
-      start: Vector3,
-      end: Vector3,
-      colorStart: RGBA,
-      colorEnd: RGBA,
-      objectID: string,
-    ) => {
+    const addColouredLine = (start: Vector3, end: Vector3, colorStart: RGBA, colorEnd: RGBA, objectID: string) => {
       // Do the Blender -> ThreeJS coordinate system transform inline
       lines.positions[lineIndex * 6 + 0] = start.x
       lines.positions[lineIndex * 6 + 1] = start.z
@@ -137,13 +104,13 @@ export function ToolpathMovements() {
       lines.positions[lineIndex * 6 + 4] = end.z
       lines.positions[lineIndex * 6 + 5] = -end.y
 
-      // Move the colours toward the background colour based on their alpha 
+      // Move the colours toward the background colour based on their alpha
       const colStartBlended = lerpRGBA(
         [
           colorStart[0],
           colorStart[1],
           colorStart[2],
-          1, // 
+          1, //
         ],
         backgroundColorAsRGBA,
         1 - colorStart[3], // merge with the background by (1 - alpha)
@@ -153,7 +120,7 @@ export function ToolpathMovements() {
           colorEnd[0],
           colorEnd[1],
           colorEnd[2],
-          1, // 
+          1, //
         ],
         backgroundColorAsRGBA,
         1 - colorEnd[3], // merge with the background by (1 - alpha)
@@ -181,13 +148,7 @@ export function ToolpathMovements() {
 
     let transitionIndex = 0
 
-    const addDottedLine = (
-      start: Vector3,
-      end: Vector3,
-      colorStart: RGBA,
-      colorEnd: RGBA,
-      objectID: string,
-    ) => {
+    const addDottedLine = (start: Vector3, end: Vector3, colorStart: RGBA, colorEnd: RGBA, objectID: string) => {
       // Do the Blender -> ThreeJS coordinate system transform inline
       transitions.positions[transitionIndex * 6 + 0] = start.x
       transitions.positions[transitionIndex * 6 + 1] = start.z
@@ -225,9 +186,7 @@ export function ToolpathMovements() {
         // On viewport frame change, or toolpath update, regenerate the ordering,
         // and update the lines
 
-        const renderablesForFrame =
-          getSetting(state => state.renderablesByFrame[state.viewportFrame]) ??
-          []
+        const renderablesForFrame = getSetting(state => state.renderablesByFrame[state.viewportFrame]) ?? []
 
         const blenderCamera = renderablesForFrame.find(isCamera)
 
@@ -253,30 +212,19 @@ export function ToolpathMovements() {
         lines.colors = []
         transitions.colors = []
 
-        const orderedMovements = getOrderedMovementsForFrame(
-          getSetting(state => state.viewportFrame),
-        )
+        const orderedMovements = getOrderedMovementsForFrame(getSetting(state => state.viewportFrame))
         const settings = getSetting(state => state.settings)
-        const visualisationSettings = getSetting(
-          state => state.visualisationSettings,
-        )
+        const visualisationSettings = getSetting(state => state.visualisationSettings)
         const denseMovements = sparseToDense(orderedMovements, settings)
 
         // Import the global material override if it exists
-        const globalMaterialOverride = visualisationSettings
-          .objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
-          ? importMaterial(
-            visualisationSettings.objectMaterialOverrides[
-            GLOBAL_OVERRIDE_OBJECT_ID
-            ],
-          )
+        const globalMaterialOverride = visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
+          ? importMaterial(visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID])
           : null
 
         let durationCounter = 0
 
-        const frameDuration = getSetting(
-          state => state.estimatedDurationByFrame[state.viewportFrame],
-        )
+        const frameDuration = getSetting(state => state.estimatedDurationByFrame[state.viewportFrame])
 
         for (let index = 0; index < denseMovements.length; index++) {
           const movement = denseMovements[index]
@@ -318,7 +266,7 @@ export function ToolpathMovements() {
               // Calculate the current position of the delta
               const deltaPos = movement.samplePoint(renderThisMovementUpTo)
 
-              setSetting(state => {
+              changeState(state => {
                 state.endEffector.x = deltaPos.x
                 state.endEffector.y = deltaPos.y
                 state.endEffector.z = deltaPos.z
@@ -339,8 +287,7 @@ export function ToolpathMovements() {
 
           let material: Material = movement.material
 
-          const movementMaterialOverride =
-            visualisationSettings.objectMaterialOverrides[movement.objectID]
+          const movementMaterialOverride = visualisationSettings.objectMaterialOverrides[movement.objectID]
 
           // Global overrides take least precidence
           if (globalMaterialOverride) {
@@ -436,14 +383,8 @@ export function ToolpathMovements() {
         }
 
         // If there are hovered objects, but no indices can be found, hide everything.
-        lines.setHoveredIndices(
-          colouredLineIndices,
-          colouredLineIndices.length === 0, backgroundCol
-        )
-        transitions.setHoveredIndices(
-          invisibleLineIndices,
-          invisibleLineIndices.length === 0, backgroundCol
-        )
+        lines.setHoveredIndices(colouredLineIndices, colouredLineIndices.length === 0, backgroundCol)
+        transitions.setHoveredIndices(invisibleLineIndices, invisibleLineIndices.length === 0, backgroundCol)
       },
     )
   }, [lines, transitions])
@@ -466,53 +407,34 @@ export const ToolpathVisualisation = () => {
     }
   }, [])
 
-  const setOrbitControlsRef = useCallback(
-    (orbitControls: OrbitControlsImpl) => {
-      if (orbitControls) {
-        setSetting(state => {
-          state.orbitControls = orbitControls as any
-        })
+  const setOrbitControlsRef = useCallback((orbitControls: OrbitControlsImpl) => {
+    if (orbitControls) {
+      setSetting(state => {
+        state.orbitControls = orbitControls as any
+      })
 
-        const cam = getSetting(state => state.camera)
-        // Set the camera
-        if (cam) {
-          orbitControls.object = cam
-        }
+      const cam = getSetting(state => state.camera)
+      // Set the camera
+      if (cam) {
+        orbitControls.object = cam
       }
-    },
-    [],
-  )
+    }
+  }, [])
 
   return (
     <Canvas
       linear
-    // shadows={true}
+      // shadows={true}
     >
-      <PerspectiveCamera
-        ref={setCameraRef}
-        makeDefault
-        position={[0, 150, 400]}
-        far={10000}
-      />
+      <PerspectiveCamera ref={setCameraRef} makeDefault position={[0, 150, 400]} far={10000} />
       <OrbitControls ref={setOrbitControlsRef} />
       <AxisLines />
 
       <ambientLight intensity={0.2} />
       <directionalLight position={[-100, 0, -50]} intensity={1} color="red" />
-      <directionalLight
-        position={[-10, -20, -50]}
-        intensity={0.3}
-        color="#0c8cbf"
-      />
+      <directionalLight position={[-10, -20, -50]} intensity={0.3} color="#0c8cbf" />
 
-      <spotLight
-        position={[400, 20, 400]}
-        intensity={2.5}
-        penumbra={1}
-        angle={0.3}
-        castShadow
-        color="#0c8cbf"
-      />
+      <spotLight position={[400, 20, 400]} intensity={2.5} penumbra={1} angle={0.3} castShadow color="#0c8cbf" />
 
       <ToolpathMovements />
       <DeltaAssembly />

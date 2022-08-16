@@ -1,8 +1,5 @@
 import create, { GetState, SetState, StateSelector } from 'zustand'
-import {
-  StoreApiWithSubscribeWithSelector,
-  subscribeWithSelector,
-} from 'zustand/middleware'
+import { StoreApiWithSubscribeWithSelector, subscribeWithSelector } from 'zustand/middleware'
 import produce, { Draft } from 'immer'
 import { Settings } from '../optimiser/settings'
 import { Quaternion, Vector3 } from 'three'
@@ -10,11 +7,7 @@ import { Quaternion, Vector3 } from 'three'
 import { importMaterial, MaterialJSON } from '../optimiser/material'
 import { useCallback } from 'react'
 import { Renderable } from '../optimiser/import'
-import {
-  GLOBAL_OVERRIDE_OBJECT_ID,
-  Movement,
-  SerialisedTour,
-} from '../optimiser/movements'
+import { GLOBAL_OVERRIDE_OBJECT_ID, Movement, SerialisedTour } from '../optimiser/movements'
 import shallow from 'zustand/shallow'
 import { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import { PerspectiveCamera as PerspectiveCameraImpl } from 'three'
@@ -108,11 +101,8 @@ export function getMaterialOverride(
   let mat = providedMaterial
 
   // If there's an override key for this object ID, replace the material
-  if (
-    visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
-  ) {
-    mat =
-      visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
+  if (visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]) {
+    mat = visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
   }
 
   // If there's an override key for this object ID, replace the material
@@ -218,11 +208,28 @@ export interface Store {
 
   // 0 means don't override, any number above is a time in milliseconds to trigger the camera for
   cameraOverrideDuration: number
+
+  // Whether the settings need to be saved. Don't bother with a deep calculation, just mark it as dirty after any change and unmark on save / reload.
+  settingsDirty: boolean
 }
 
 const initialState: Store = {
   folder: null,
+
+  // Serialised
   settings: defaultSettings,
+  visualisationSettings: {
+    annotateDrawOrder: false,
+    objectMaterialOverrides: {},
+    curveSegments: 20, // 20 segments per curve by default
+    hiddenObjects: {},
+    previewProgress: false,
+    frameProgress: 0,
+  },
+
+  settingsDirty: false,
+
+  // Local
   sceneMinFrame: 1,
   sceneMaxFrame: 1,
   sceneTotalFrames: 0,
@@ -233,14 +240,6 @@ const initialState: Store = {
   persistentOptimiser: null,
 
   viewportFrameVersion: 0,
-  visualisationSettings: {
-    annotateDrawOrder: false,
-    objectMaterialOverrides: {},
-    curveSegments: 20, // 20 segments per curve by default
-    hiddenObjects: {},
-    previewProgress: false,
-    frameProgress: 0,
-  },
 
   endEffector: {
     x: 0,
@@ -275,12 +274,9 @@ const initialState: Store = {
   cameraOverrideDuration: 0,
 }
 
-export const useStore = create<
-  Store,
-  SetState<Store>,
-  GetState<Store>,
-  StoreApiWithSubscribeWithSelector<Store>
->(subscribeWithSelector(() => initialState))
+export const useStore = create<Store, SetState<Store>, GetState<Store>, StoreApiWithSubscribeWithSelector<Store>>(
+  subscribeWithSelector(() => initialState),
+)
 
 export const resetStore = () => useStore.setState(initialState)
 
@@ -304,9 +300,31 @@ export const getSetting = <U>(selector: StateSelector<Store, U>) => {
   return setting
 }
 
-export const setSetting = (recipe: (draft: Draft<Store>) => void) => {
+// Changes a setting and marks the settings object as dirty
+export const setSetting = (recipe: (draft: WritableDraft<Store>) => void) => {
+  useStore.setState(state => {
+    return produce(state, (draft: WritableDraft<Store>) => {
+      // Apply the actual changes
+      recipe(draft)
+      // Mark it as dirty
+      draft.settingsDirty = true
+    })
+  })
+}
+
+// Just changes state, doesn't mutate the settings dirty flag
+export const changeState = (recipe: (draft: WritableDraft<Store>) => void) => {
   useStore.setState(state => {
     return produce(state, recipe)
+  })
+}
+
+export const markClean = () => {
+  useStore.setState(state => {
+    return produce(state, (draft: WritableDraft<Store>) => {
+      // Mark it as clean
+      draft.settingsDirty = false
+    })
   })
 }
 
@@ -320,13 +338,9 @@ export function incrementViewportFrameVersion(state: WritableDraft<Store>) {
 }
 
 export function useViewportFrameDuration() {
-  return useSetting(
-    state => state.estimatedDurationByFrame[state.viewportFrame] ?? 0,
-  )
+  return useSetting(state => state.estimatedDurationByFrame[state.viewportFrame] ?? 0)
 }
 
 export function useViewportFrameState() {
-  return useSetting(
-    state => state.frameOptimisationState[state.viewportFrame] ?? 2,
-  ) // UNOPTIMISED = 2, avoiding circular dependency
+  return useSetting(state => state.frameOptimisationState[state.viewportFrame] ?? 2) // UNOPTIMISED = 2, avoiding circular dependency
 }

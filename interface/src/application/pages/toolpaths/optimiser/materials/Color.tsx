@@ -1,8 +1,4 @@
-import {
-  incrementViewportFrameVersion,
-  setSetting,
-  VisualisationSettings,
-} from '../../interface/state'
+import { VisualisationSettings } from '../../interface/state'
 import { Settings } from '../../optimiser/settings'
 import { Movement, RGB, RGBA } from './../movements'
 import { Material } from './Base'
@@ -26,19 +22,12 @@ export const ColorMaterialDefaultJSON: ColorMaterialJSON = {
   color: [1, 1, 1, 1],
 }
 
-export function isSimpleColorMaterial(
-  material: Material,
-): material is SimpleColorMaterial {
+export function isSimpleColorMaterial(material: Material): material is SimpleColorMaterial {
   return material.type === MATERIALS.COLOR
 }
 
 export function importColorMaterial(json: ColorMaterialJSON) {
-  const mat = new SimpleColorMaterial([
-    json.color[0],
-    json.color[1],
-    json.color[2],
-    json.color[3],
-  ])
+  const mat = new SimpleColorMaterial([json.color[0], json.color[1], json.color[2], json.color[3]])
 
   return mat
 }

@@ -1,54 +1,22 @@
 import { Card, Icon, IconName } from '@blueprintjs/core'
 import React, { useCallback, useState } from 'react'
 import { findNodeWithID, NodeID, NodeTypes } from './RenderableTree'
-import {
-  getSetting,
-  incrementViewportFrameVersion,
-  setSetting,
-  useStore,
-} from './state'
+import { getSetting } from './state'
 import { Button, MenuItem } from '@blueprintjs/core'
 import { ItemRenderer, Select } from '@blueprintjs/select'
 import { MATERIALS } from '../optimiser/materials/utilities'
 import { getDefaultJSONForType, MaterialJSON } from '../optimiser/material'
 import { IconNames } from '@blueprintjs/icons'
 import { EmptyViewer } from './EmptyViewer'
-import {
-  ColorMaterialEditor,
-  ColorMaterialJSON,
-} from './../optimiser/materials/Color'
-import {
-  ColorRampMaterialEditor,
-  ColorRampMaterialJSON,
-} from './../optimiser/materials/ColorRamp'
-import {
-  InvisibleMaterialEditor,
-  InvisibleMaterialJSON,
-} from './../optimiser/materials/Invisible'
-import {
-  VelocityMaterialEditor,
-  VelocityMaterialJSON,
-} from './../optimiser/materials/Velocity'
-import {
-  RandomColorMaterialEditor,
-  RandomColorMaterialJSON,
-} from '../optimiser/materials/Random'
-import {
-  FlickerMaterialEditor,
-  FlickerMaterialJSON,
-} from '../optimiser/materials/Flicker'
-import {
-  ZDepthMaterialEditor,
-  ZDepthMaterialJSON,
-} from '../optimiser/materials/ZDepth'
-import {
-  ZGradientMaterialEditor,
-  ZGradientMaterialJSON,
-} from '../optimiser/materials/ZGradient'
-import {
-  BlendMaterialEditor,
-  BlendMaterialJSON,
-} from '../optimiser/materials/Blend'
+import { ColorMaterialEditor, ColorMaterialJSON } from './../optimiser/materials/Color'
+import { ColorRampMaterialEditor, ColorRampMaterialJSON } from './../optimiser/materials/ColorRamp'
+import { InvisibleMaterialEditor, InvisibleMaterialJSON } from './../optimiser/materials/Invisible'
+import { VelocityMaterialEditor, VelocityMaterialJSON } from './../optimiser/materials/Velocity'
+import { RandomColorMaterialEditor, RandomColorMaterialJSON } from '../optimiser/materials/Random'
+import { FlickerMaterialEditor, FlickerMaterialJSON } from '../optimiser/materials/Flicker'
+import { ZDepthMaterialEditor, ZDepthMaterialJSON } from '../optimiser/materials/ZDepth'
+import { ZGradientMaterialEditor, ZGradientMaterialJSON } from '../optimiser/materials/ZGradient'
+import { BlendMaterialEditor, BlendMaterialJSON } from '../optimiser/materials/Blend'
 
 export interface MaterialOption {
   materialType: MATERIALS
@@ -109,16 +77,11 @@ const materialOptions: MaterialOption[] = [
   },
 ]
 
-const materialOptionsNoDefault = materialOptions.filter(
-  option => option.materialType !== MATERIALS.DEFAULT,
-)
+const materialOptionsNoDefault = materialOptions.filter(option => option.materialType !== MATERIALS.DEFAULT)
 
 const MaterialSelectorSelect = Select.ofType<MaterialOption>()
 
-const renderMaterialOption: ItemRenderer<MaterialOption> = (
-  materialOption,
-  { handleClick, modifiers },
-) => {
+const renderMaterialOption: ItemRenderer<MaterialOption> = (materialOption, { handleClick, modifiers }) => {
   return (
     <MenuItem
       active={modifiers.active}
@@ -148,12 +111,9 @@ export interface MaterialSelectorProps {
 }
 
 export function MaterialSelector(props: MaterialSelectorProps) {
-  const selectedOpt =
-    materialOptions.find(opt => opt.materialType === props.selectedType) ?? null
+  const selectedOpt = materialOptions.find(opt => opt.materialType === props.selectedType) ?? null
 
-  const options = props.disallowDefault
-    ? materialOptionsNoDefault
-    : materialOptions
+  const options = props.disallowDefault ? materialOptionsNoDefault : materialOptions
 
   return (
     <MaterialSelectorSelect
@@ -271,19 +231,14 @@ export function MaterialEditor(props: MaterialEditorProps) {
       break
   }
 
-  return MaterialOverrideEditor === null ? null : (
-    <div style={{ marginTop: 10 }}>{MaterialOverrideEditor}</div>
-  )
+  return MaterialOverrideEditor === null ? null : <div style={{ marginTop: 10 }}>{MaterialOverrideEditor}</div>
 }
 
-export function calculateInitialMaterialJSON(
-  materialType: MATERIALS,
-  objectID: string | null,
-) {
+export function calculateInitialMaterialJSON(materialType: MATERIALS, objectID: string | null) {
   if (objectID) {
     const renderableOriginalJSON = getSetting(state => {
-      const renderable = state.renderablesByFrame[state.viewportFrame].find(
-        renderable => renderable.getOriginalMaterialJSON(objectID),
+      const renderable = state.renderablesByFrame[state.viewportFrame].find(renderable =>
+        renderable.getOriginalMaterialJSON(objectID),
       )
 
       if (renderable) return renderable.getOriginalMaterialJSON(objectID)
@@ -291,10 +246,7 @@ export function calculateInitialMaterialJSON(
       return null
     })
 
-    if (
-      renderableOriginalJSON &&
-      renderableOriginalJSON.type === materialType
-    ) {
+    if (renderableOriginalJSON && renderableOriginalJSON.type === materialType) {
       return renderableOriginalJSON
     }
   }

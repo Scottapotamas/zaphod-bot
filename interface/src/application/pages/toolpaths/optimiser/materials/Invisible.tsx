@@ -1,23 +1,12 @@
 import { MathUtils, Vector3 } from 'three'
 import { Settings } from '../../optimiser/settings'
 import { PlannerLightMove, LightMoveType } from './../hardware'
-import {
-  AddComponentCallback,
-  AddLineCallback,
-  Movement,
-  MOVEMENT_TYPE,
-  RGB,
-  RGBA,
-} from './../movements'
+import { AddComponentCallback, AddLineCallback, Movement, MOVEMENT_TYPE, RGB, RGBA } from './../movements'
 import { Material } from './Base'
 import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
 import { annotateDrawOrder, MATERIALS } from './utilities'
-import {
-  incrementViewportFrameVersion,
-  setSetting,
-  VisualisationSettings,
-} from '../../interface/state'
+import { VisualisationSettings } from '../../interface/state'
 import { Composition, Box } from 'atomic-layout'
 
 import { ColorPicker } from '../../interface/ColorPicker'
@@ -32,19 +21,12 @@ export const InvisibleMaterialDefaultJSON: InvisibleMaterialJSON = {
   color: [0.3, 0.3, 0.3, 1],
 }
 
-export function isInvisibleMaterial(
-  material: Material,
-): material is InvisibleMaterial {
+export function isInvisibleMaterial(material: Material): material is InvisibleMaterial {
   return material.type === MATERIALS.INVISIBLE
 }
 
 export function importInvisibleMaterial(json: InvisibleMaterialJSON) {
-  const mat = new InvisibleMaterial([
-    json.color[0],
-    json.color[1],
-    json.color[2],
-    json.color[3],
-  ])
+  const mat = new InvisibleMaterial([json.color[0], json.color[1], json.color[2], json.color[3]])
 
   return mat
 }
@@ -91,30 +73,18 @@ export class InvisibleMaterial extends Material {
     toT: number,
   ) => {
     // Annotate draw order
-    annotateDrawOrder(
-      movementIndex,
-      movement,
-      visualisationSettings,
-      addReactComponent,
-    )
+    annotateDrawOrder(movementIndex, movement, visualisationSettings, addReactComponent)
 
     // Despite being invisible in hardware, we still want to draw this in the UI
     const numSegments =
-      movement.type === MOVEMENT_TYPE.LINE ||
-        movement.type === MOVEMENT_TYPE.POINT
+      movement.type === MOVEMENT_TYPE.LINE || movement.type === MOVEMENT_TYPE.POINT
         ? 1
         : Math.max(Math.ceil(movement.getLength() / 5), 6)
 
     // For the number of segments,
     for (let index = 0; index < numSegments; index++) {
       const startT = MathUtils.mapLinear(index / numSegments, 0, 1, fromT, toT)
-      const endT = MathUtils.mapLinear(
-        (index + 1) / numSegments,
-        0,
-        1,
-        fromT,
-        toT,
-      )
+      const endT = MathUtils.mapLinear((index + 1) / numSegments, 0, 1, fromT, toT)
 
       // Sample points along the movement
       const start = movement.samplePoint(startT)

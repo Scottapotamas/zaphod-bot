@@ -1,4 +1,4 @@
-import { FormGroup } from '@blueprintjs/core'
+import { Button, Intent, ButtonGroup } from '@blueprintjs/core'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { OPEN_DIALOG_IPC_EVENT } from '@electricui/utility-electron'
@@ -14,7 +14,7 @@ interface OpenResult {
   filePaths: string[]
 }
 
-import { getSetting, setFolder } from './state'
+import { getSetting, markClean, setFolder, useSetting } from './state'
 
 export function FolderPathSelector() {
   const options: OpenDialogOptions = {
@@ -22,17 +22,12 @@ export function FolderPathSelector() {
     message: 'Open animation folder',
   }
 
-  const [selectedFolder, setSelectedFolder] = useState(
-    getSetting(state => state.folder) ?? '',
-  )
+  const [selectedFolder, setSelectedFolder] = useState(getSetting(state => state.folder) ?? '')
   const [labelText, setLabelText] = useState('Choose folder...')
   const [error, setError] = useState('')
 
   const retrieveFilePath = useCallback(async () => {
-    const result: OpenResult = await ipcRenderer.invoke(
-      OPEN_DIALOG_IPC_EVENT,
-      options,
-    )
+    const result: OpenResult = await ipcRenderer.invoke(OPEN_DIALOG_IPC_EVENT, options)
 
     if (result.canceled) return
 
@@ -75,19 +70,84 @@ export function FolderPathSelector() {
     }
   }, [setSelectedFolder])
 
+  const reload = useCallback(() => {
+    const folder = getSetting(state => state.folder)
+    setFolder(null)
+    setFolder(folder)
+  }, [setSelectedFolder])
+
+  const hasFolderSelected = useSetting(state => Boolean(state.folder))
+  const isDirty = useSetting(state => state.settingsDirty)
+
+  const [saving, setSaving] = useState(false)
+
+  const save = useCallback(async () => {
+    const folder = getSetting(state => state.folder)
+
+    if (!folder) {
+      console.error(`Save pressed with no folder selected`)
+      return
+    }
+
+    const settingsFilePath = path.join(folder, `settings.json`)
+
+    setSaving(true)
+
+    const serialised = {
+      type: `root-settings`,
+      version: 1,
+      settings: getSetting(state => state.settings),
+      visualisationSettings: getSetting(state => state.visualisationSettings),
+    }
+
+    console.log(`saving`, serialised)
+
+    await fs.promises.writeFile(settingsFilePath, JSON.stringify(serialised), { encoding: 'utf8' })
+
+    // Mark all settings as clean since we just saved them.
+    markClean()
+
+    setSaving(false)
+  }, [setSelectedFolder, setSaving])
+
   return (
-    <FormGroup helperText={error} intent={error === '' ? 'none' : 'danger'}>
-      <div className="bp3-file-input bp3-fill .modifier" onClick={retrieveFilePath}>
-        <input type="file" />
-        <span
-          className={classnames({
-            'bp3-file-input-has-selection': selectedFolder !== '',
-            'bp3-file-upload-input': true,
-          })}
-        >
-          {labelText}
-        </span>
+    <>
+      <div style={{ width: '66%', display: 'inline-block' }}>
+        <div className="bp3-file-input bp3-fill .modifier" onClick={retrieveFilePath}>
+          <input type="file" />
+          <span
+            className={classnames({
+              'bp3-file-input-has-selection': selectedFolder !== '',
+              'bp3-file-upload-input': true,
+            })}
+          >
+            {labelText}
+          </span>
+        </div>
       </div>
-    </FormGroup>
+
+      <div style={{ width: '33%', display: 'inline-block', verticalAlign: 'middle' }}>
+        <div style={{ paddingTop: 5 }}>
+          <Button
+            intent={Intent.WARNING}
+            disabled={!hasFolderSelected}
+            onClick={reload}
+            small
+            style={{ marginRight: 3 }}
+          >
+            Reload
+          </Button>
+          <Button
+            intent={Intent.SUCCESS}
+            disabled={!hasFolderSelected || !isDirty}
+            onClick={save}
+            loading={saving}
+            small
+          >
+            Save Settings
+          </Button>
+        </div>
+      </div>
+    </>
   )
 }

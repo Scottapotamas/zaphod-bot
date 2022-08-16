@@ -2,17 +2,11 @@ import { TreeNodeInfo, IconName, Tree, Card, Icon } from '@blueprintjs/core'
 import { Renderable } from '../optimiser/import'
 import create, { GetState, SetState, StateSelector } from 'zustand'
 import React, { useCallback, useState } from 'react'
-import {
-  StoreApiWithSubscribeWithSelector,
-  subscribeWithSelector,
-} from 'zustand/middleware'
+import { StoreApiWithSubscribeWithSelector, subscribeWithSelector } from 'zustand/middleware'
 import produce, { Draft } from 'immer'
 import { IconNames } from '@blueprintjs/icons'
-import { incrementViewportFrameVersion, setSetting, useStore } from './state'
-import {
-  GLOBAL_OVERRIDE_OBJECT_ID,
-  TRANSITION_OBJECT_ID,
-} from '../optimiser/movements'
+import { changeState, incrementViewportFrameVersion, useStore } from './state'
+import { GLOBAL_OVERRIDE_OBJECT_ID, TRANSITION_OBJECT_ID } from '../optimiser/movements'
 
 export enum NodeTypes {
   GLOBAL = 'global',
@@ -64,11 +58,7 @@ function SecondaryLabelFactory(props: SecondaryLabelProps) {
     }
 
     // If there's a global override in play, use the DOT
-    if (
-      state.visualisationSettings.objectMaterialOverrides[
-        GLOBAL_OVERRIDE_OBJECT_ID
-      ]
-    ) {
+    if (state.visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]) {
       return IconNames.DOT
     }
 
@@ -85,7 +75,7 @@ function SecondaryLabelFactory(props: SecondaryLabelProps) {
   })
 
   const hideOnClickHandler = useCallback(() => {
-    setSetting(state => {
+    changeState(state => {
       const skipped = state.settings.skippedObjects[props.id]
       const hidden = state.visualisationSettings.hiddenObjects[props.id]
 
@@ -116,7 +106,7 @@ function SecondaryLabelFactory(props: SecondaryLabelProps) {
   }, [props.id])
 
   const skipOnClickHandler = useCallback(() => {
-    setSetting(state => {
+    changeState(state => {
       const skipped = state.settings.skippedObjects[props.id]
 
       if (skipped) {
@@ -136,7 +126,7 @@ function SecondaryLabelFactory(props: SecondaryLabelProps) {
   // const selectDeepestMaterialOverride: React.MouseEventHandler<HTMLElement> =
   //   useCallback(
   //     event => {
-  //       setSetting(state => {
+  //       changeState(state => {
   //         // Select the deepest node with a material override
   //         forNodeWithIDAndChildren(state.treeStore.tree, props.id, node => {
   //           if (state.visualisationSettings.objectMaterialOverrides[node.id]) {
@@ -162,18 +152,11 @@ function SecondaryLabelFactory(props: SecondaryLabelProps) {
         />
       ) : null}
 
-      {props.id === TRANSITION_OBJECT_ID ||
-      props.id === GLOBAL_OVERRIDE_OBJECT_ID ? null : (
-        <Icon
-          icon={skippedIcon}
-          onClick={skipOnClickHandler}
-          style={marginRight}
-        />
+      {props.id === TRANSITION_OBJECT_ID || props.id === GLOBAL_OVERRIDE_OBJECT_ID ? null : (
+        <Icon icon={skippedIcon} onClick={skipOnClickHandler} style={marginRight} />
       )}
 
-      {props.id === GLOBAL_OVERRIDE_OBJECT_ID ? null : (
-        <Icon icon={hiddenIcon} onClick={hideOnClickHandler} />
-      )}
+      {props.id === GLOBAL_OVERRIDE_OBJECT_ID ? null : <Icon icon={hiddenIcon} onClick={hideOnClickHandler} />}
     </>
   )
 }
@@ -242,10 +225,7 @@ function forNodeAtPath(
 }
 
 // Walk the entire node tree
-function forEachNode(
-  nodes: TreeNodeInfo<NodeInfo>[] | undefined,
-  callback: (node: TreeNodeInfo<NodeInfo>) => void,
-) {
+function forEachNode(nodes: TreeNodeInfo<NodeInfo>[] | undefined, callback: (node: TreeNodeInfo<NodeInfo>) => void) {
   if (nodes === undefined) {
     return
   }
@@ -348,12 +328,8 @@ export function RenderableTree() {
   const tree = useStore(state => state.treeStore.tree)
 
   const handleNodeClick = useCallback(
-    (
-      _node: TreeNodeInfo<NodeInfo>,
-      nodePath: NodeID[],
-      e: React.MouseEvent<HTMLElement>,
-    ) => {
-      setSetting(state => {
+    (_node: TreeNodeInfo<NodeInfo>, nodePath: NodeID[], e: React.MouseEvent<HTMLElement>) => {
+      changeState(state => {
         // Deselect everything first
         forEachNode(state.treeStore.tree, node => {
           node.isSelected = false
@@ -372,12 +348,8 @@ export function RenderableTree() {
   )
 
   const handleNodeCollapse = useCallback(
-    (
-      _node: TreeNodeInfo<NodeInfo>,
-      nodePath: NodeID[],
-      e: React.MouseEvent<HTMLElement>,
-    ) => {
-      setSetting(state => {
+    (_node: TreeNodeInfo<NodeInfo>, nodePath: NodeID[], e: React.MouseEvent<HTMLElement>) => {
+      changeState(state => {
         const node = findNodeWithID(state.treeStore.tree, _node.id)
 
         if (node) {
@@ -402,12 +374,8 @@ export function RenderableTree() {
   )
 
   const handleNodeExpand = useCallback(
-    (
-      _node: TreeNodeInfo<NodeInfo>,
-      nodePath: NodeID[],
-      e: React.MouseEvent<HTMLElement>,
-    ) => {
-      setSetting(state => {
+    (_node: TreeNodeInfo<NodeInfo>, nodePath: NodeID[], e: React.MouseEvent<HTMLElement>) => {
+      changeState(state => {
         forNodeAtPath(state.treeStore.tree, nodePath, node => {
           node.isExpanded = true
         })
@@ -417,12 +385,8 @@ export function RenderableTree() {
   )
 
   const handleNodeMouseEnter = useCallback(
-    (
-      _node: TreeNodeInfo<NodeInfo>,
-      nodePath: NodeID[],
-      e: React.MouseEvent<HTMLElement>,
-    ) => {
-      setSetting(state => {
+    (_node: TreeNodeInfo<NodeInfo>, nodePath: NodeID[], e: React.MouseEvent<HTMLElement>) => {
+      changeState(state => {
         const hoveredIDs: NodeID[] = []
 
         // If we're hovering over the global override, select everything that doesn't have a material override
@@ -448,12 +412,8 @@ export function RenderableTree() {
   )
 
   const onNodeMouseLeave = useCallback(
-    (
-      node: TreeNodeInfo<NodeInfo>,
-      nodePath: NodeID[],
-      e: React.MouseEvent<HTMLElement>,
-    ) => {
-      setSetting(state => {
+    (node: TreeNodeInfo<NodeInfo>, nodePath: NodeID[], e: React.MouseEvent<HTMLElement>) => {
+      changeState(state => {
         state.treeStore.hoveredObjectIDs = []
       })
     },

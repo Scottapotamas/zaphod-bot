@@ -1,13 +1,4 @@
-import {
-  Card,
-  FormGroup,
-  Intent,
-  MultiSlider,
-  Slider,
-  Button,
-  ButtonProps,
-  Colors,
-} from '@blueprintjs/core'
+import { Card, FormGroup, Intent, MultiSlider, Slider, Button, ButtonProps, Colors } from '@blueprintjs/core'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Composition, Box } from 'atomic-layout'
@@ -19,17 +10,13 @@ import { SequenceSender } from './sequenceSender'
 
 import { PlannerLightMove, PlannerMovementMove } from './../optimiser/hardware'
 
-import {
-  useHardwareStateSubscription,
-  useQuery,
-  useSendMessage,
-} from '@electricui/components-core'
+import { useHardwareStateSubscription, useQuery, useSendMessage } from '@electricui/components-core'
 import { CancellationToken, Message } from '@electricui/core'
 
 import {
+  changeState,
   getSetting,
   incrementViewportFrameVersion,
-  setSetting,
   useSetting,
   useStore,
   useViewportFrameDuration,
@@ -47,7 +34,7 @@ function SceneLengthSlider() {
   ])
 
   const updateMinCurrentMax = useCallback(values => {
-    setSetting(state => {
+    changeState(state => {
       state.selectedMinFrame = values[0]
       state.selectedMaxFrame = values[1]
 
@@ -71,17 +58,9 @@ function SceneLengthSlider() {
         onChange={setLocalMinMax}
         stepSize={1}
       >
-        <MultiSlider.Handle
-          type="start"
-          value={localMinMax[0]}
-          intentBefore={Intent.WARNING}
-        />
+        <MultiSlider.Handle type="start" value={localMinMax[0]} intentBefore={Intent.WARNING} />
 
-        <MultiSlider.Handle
-          type="end"
-          value={localMinMax[1]}
-          intentAfter={Intent.WARNING}
-        />
+        <MultiSlider.Handle type="end" value={localMinMax[1]} intentAfter={Intent.WARNING} />
       </MultiSlider>
     </div>
   )
@@ -94,11 +73,8 @@ function Timeline() {
   const range = selectedMaxFrame - selectedMinFrame
 
   const updateViewportFrame = useCallback(frameNumber => {
-    setSetting(state => {
-      state.viewportFrame = Math.min(
-        selectedMaxFrame,
-        Math.max(selectedMinFrame, frameNumber),
-      )
+    changeState(state => {
+      state.viewportFrame = Math.min(selectedMaxFrame, Math.max(selectedMinFrame, frameNumber))
 
       // Trigger an update, wrap around
       incrementViewportFrameVersion(state)
@@ -106,11 +82,8 @@ function Timeline() {
   }, [])
 
   const updatePriorityFrame = useCallback(frameNumber => {
-    setSetting(state => {
-      state.priorityFrame = Math.min(
-        selectedMaxFrame,
-        Math.max(selectedMinFrame, frameNumber),
-      )
+    changeState(state => {
+      state.priorityFrame = Math.min(selectedMaxFrame, Math.max(selectedMinFrame, frameNumber))
     })
   }, [])
 
@@ -150,8 +123,7 @@ async function getToolpathForFrame(frameNumber: number) {
   const settings = getSetting(state => state.settings)
   const visualisationSettings = getSetting(state => state.visualisationSettings)
 
-  const renderablesForFrame =
-    getSetting(state => state.renderablesByFrame[state.viewportFrame]) ?? []
+  const renderablesForFrame = getSetting(state => state.renderablesByFrame[state.viewportFrame]) ?? []
 
   const blenderCamera = renderablesForFrame.find(isCamera)
 
@@ -163,20 +135,13 @@ async function getToolpathForFrame(frameNumber: number) {
 
   const dense = sparseToDense(orderedMovements, settings)
 
-  const globalMaterialOverride = visualisationSettings.objectMaterialOverrides[
-    GLOBAL_OVERRIDE_OBJECT_ID
-  ]
-    ? importMaterial(
-      visualisationSettings.objectMaterialOverrides[
-      GLOBAL_OVERRIDE_OBJECT_ID
-      ],
-    )
+  const globalMaterialOverride = visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
+    ? importMaterial(visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID])
     : null
 
   dense.map(movement => {
     // Find any material overrides
-    const movementMaterialOverride =
-      visualisationSettings.objectMaterialOverrides[movement.objectID]
+    const movementMaterialOverride = visualisationSettings.objectMaterialOverrides[movement.objectID]
 
     // Global overrides take least precidence
     if (globalMaterialOverride) {
@@ -226,8 +191,7 @@ function CopyToolpathToClipboard() {
 const ESTIMATED_DURATION_OFFSET = 2000
 
 export function SendToolpath() {
-  const sequenceSenderRef: React.MutableRefObject<SequenceSender | null> =
-    useRef(null)
+  const sequenceSenderRef: React.MutableRefObject<SequenceSender | null> = useRef(null)
 
   const sendMessage = useSendMessage()
   const query = useQuery()
@@ -293,15 +257,12 @@ export function SendToolpath() {
     await query(MSGID.MOTION, cancellationToken)
   }, [sendMessage])
 
-  const updateOptimisticQueueDepth = useCallback(
-    (movementDepth: number, lightQueueDepth: number) => {
-      setSetting(state => {
-        state.movementQueueUI = movementDepth
-        state.lightQueueUI = lightQueueDepth
-      })
-    },
-    [],
-  )
+  const updateOptimisticQueueDepth = useCallback((movementDepth: number, lightQueueDepth: number) => {
+    changeState(state => {
+      state.movementQueueUI = movementDepth
+      state.lightQueueUI = lightQueueDepth
+    })
+  }, [])
 
   function getSequenceSender() {
     if (!sequenceSenderRef.current) {
@@ -334,10 +295,7 @@ export function SendToolpath() {
     state => state[MSGID.MOTION],
     moStat => {
       if (moStat) {
-        getSequenceSender().updateHardwareProgress(
-          moStat.movement_identifier,
-          moStat.move_progress,
-        )
+        getSequenceSender().updateHardwareProgress(moStat.movement_identifier, moStat.move_progress)
       }
     },
   )
@@ -346,25 +304,17 @@ export function SendToolpath() {
   const cancellationTokenRef = useRef(new CancellationToken())
 
   const renderSequence = useCallback(
-    async (
-      minFrameNumber: number,
-      maxFrameNumber: number,
-      cancellationToken: CancellationToken,
-    ) => {
+    async (minFrameNumber: number, maxFrameNumber: number, cancellationToken: CancellationToken) => {
       getSequenceSender().clear()
 
       cancellationTokenRef.current = cancellationToken
 
       try {
-        for (
-          let frameNumber = minFrameNumber;
-          frameNumber <= maxFrameNumber;
-          frameNumber++
-        ) {
+        for (let frameNumber = minFrameNumber; frameNumber <= maxFrameNumber; frameNumber++) {
           console.log(`rendering frame ${frameNumber}`)
           cancellationToken.haltIfCancelled()
 
-          setSetting(state => {
+          changeState(state => {
             state.currentlyRenderingFrame = frameNumber
             state.viewportFrame = frameNumber
             incrementViewportFrameVersion(state)
@@ -378,10 +328,7 @@ export function SendToolpath() {
               return state.cameraOverrideDuration
             }
 
-            return (
-              state.estimatedDurationByFrame[frameNumber] +
-              ESTIMATED_DURATION_OFFSET
-            ) // two seconds of wiggle room because who knows
+            return state.estimatedDurationByFrame[frameNumber] + ESTIMATED_DURATION_OFFSET // two seconds of wiggle room because who knows
           })
 
           // Process the toolpath into final form
@@ -411,9 +358,7 @@ export function SendToolpath() {
 
           // Start the capture
           await sendCapture(captureDuration) // Start the camera capture
-          const captureCompleteTime = new Promise((resolve, reject) =>
-            setTimeout(resolve, captureDuration),
-          )
+          const captureCompleteTime = new Promise((resolve, reject) => setTimeout(resolve, captureDuration))
 
           console.log(`Sending sync`)
 
@@ -446,11 +391,7 @@ export function SendToolpath() {
     const maxFrameNumber = getSetting(state => state.selectedMaxFrame)
     cancellationTokenRef.current?.cancel()
 
-    return renderSequence(
-      minFrameNumber,
-      maxFrameNumber,
-      new CancellationToken(),
-    )
+    return renderSequence(minFrameNumber, maxFrameNumber, new CancellationToken())
   }, [renderSequence])
 
   const handleViewportFrameRender = useCallback(() => {
@@ -489,14 +430,7 @@ export function SendToolpath() {
       >
         <b>RENDER TIMELINE</b>
       </Button>
-      <Button
-        onClick={handleClear}
-        icon={IconNames.CROSS}
-        intent={Intent.DANGER}
-        fill
-        minimal
-        outlined
-      >
+      <Button onClick={handleClear} icon={IconNames.CROSS} intent={Intent.DANGER} fill minimal outlined>
         <b>CLEAR</b>
       </Button>
     </Composition>
@@ -506,11 +440,7 @@ export function SendToolpath() {
 export function SendToolpathToDeviceIfExists() {
   const deviceID = useDeviceID()
 
-  const toolpathComponent = deviceID ? (
-    <SendToolpath />
-  ) : (
-    <CopyToolpathToClipboard />
-  )
+  const toolpathComponent = deviceID ? <SendToolpath /> : <CopyToolpathToClipboard />
 
   return toolpathComponent
 }
@@ -547,9 +477,7 @@ export function CurrentFrameTime() {
       break
   }
 
-  const currentlyRenderingFrame = useSetting(
-    state => state.currentlyRenderingFrame,
-  )
+  const currentlyRenderingFrame = useSetting(state => state.currentlyRenderingFrame)
   const maxFrame = useSetting(state => state.selectedMaxFrame)
 
   const cameraDurationOverride = useSetting(state => state.cameraOverrideDuration)
@@ -576,15 +504,12 @@ export function CurrentFrameTime() {
   return (
     <Composition templateCols="2fr 2fr 1fr" gap={5} justifyItems="center">
       <Box>
-        <span style={{ color: Colors.GRAY3 }}>FRAME:</span>{' '}
-        <b style={{ color }}>{niceDurationTime.toFixed(1)}s</b>
+        <span style={{ color: Colors.GRAY3 }}>FRAME:</span> <b style={{ color }}>{niceDurationTime.toFixed(1)}s</b>
       </Box>
 
       <Box>
         <span style={{ color: Colors.GRAY3 }}>TIMELINE:</span>{' '}
-        <b style={cameraDurationOverride > 0 ? { color: Colors.RED3 } : undefined}>
-          {totalRenderTimeMinutes} min
-        </b>
+        <b style={cameraDurationOverride > 0 ? { color: Colors.RED3 } : undefined}>{totalRenderTimeMinutes} min</b>
       </Box>
 
       <Box>

@@ -1,8 +1,4 @@
-import {
-  incrementViewportFrameVersion,
-  setSetting,
-  VisualisationSettings,
-} from '../../interface/state'
+import { VisualisationSettings } from '../../interface/state'
 import { Settings } from '../../optimiser/settings'
 import { Movement, RGB, RGBA } from './../movements'
 import { Material } from './Base'
@@ -25,9 +21,7 @@ export const ColorRampMaterialDefaultJSON: ColorRampMaterialJSON = {
   color_to: [1, 1, 1, 1],
 }
 
-export function isColorRampMaterial(
-  material: Material,
-): material is ColorRampMaterial {
+export function isColorRampMaterial(material: Material): material is ColorRampMaterial {
   return material.type === MATERIALS.COLOR_RAMP
 }
 

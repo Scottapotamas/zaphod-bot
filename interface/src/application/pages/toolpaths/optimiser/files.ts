@@ -7,6 +7,7 @@ import { Camera } from './camera'
 import { Settings } from './settings'
 import { Movement } from './movements'
 import { isEmpty } from './empty'
+import { VisualisationSettings } from '../interface/state'
 
 async function* walkJSON(dir: string): AsyncGenerator<string> {
   for await (const d of await fs.promises.opendir(dir)) {
@@ -14,6 +15,13 @@ async function* walkJSON(dir: string): AsyncGenerator<string> {
     if (d.isDirectory()) yield* walkJSON(entry)
     else if (d.isFile() && path.extname(d.name) === '.json') yield entry
   }
+}
+
+export interface RootSettingsFile {
+  type: `root-settings`
+  version: 1
+  settings: Settings
+  visualisationSettings: VisualisationSettings
 }
 
 // Walk a folder path, extracting all renderables
@@ -36,10 +44,25 @@ export async function importFolder(folderPath: string) {
   let minFrame = Infinity
   let maxFrame = -Infinity
 
+  const potentialRootSettingsFile = path.join(folderPath, `settings.json`)
+
+  let settingsToMerge: Partial<Settings> = {}
+  let visualisationSettingsToMerge: Partial<VisualisationSettings> = {}
+
   // Walk the folder to find json files
   for await (const p of walkJSON(folderPath)) {
     const contents = await fs.promises.readFile(p)
-    const parsed: MovementJSON = JSON.parse(contents.toString())
+    let parsed: MovementJSON | RootSettingsFile = JSON.parse(contents.toString())
+
+    // Handle the special case of the root settings file
+    if (p === potentialRootSettingsFile && parsed.type === `root-settings`) {
+      settingsToMerge = parsed.settings ?? {}
+      visualisationSettingsToMerge = parsed.visualisationSettings ?? {}
+      continue
+    }
+
+    // Narrow the type
+    parsed = parsed as MovementJSON
 
     if (!parsed.type || !parsed.frame) {
       // unknown file
@@ -84,13 +107,12 @@ export async function importFolder(folderPath: string) {
     minFrame,
     maxFrame,
     frameData,
+    settingsToMerge,
+    visualisationSettingsToMerge,
   }
 }
 
-export function renderablesToMovements(
-  renderables: Renderable[],
-  settings: Settings,
-) {
+export function renderablesToMovements(renderables: Renderable[], settings: Settings) {
   const movements: Movement[] = []
 
   for (const renderable of renderables) {

@@ -7,17 +7,13 @@ import {
   BarChart,
   BarChartDomain,
   VerticalAxis,
-  HorizontalAxis, HorizontalLineAnnotation
+  HorizontalAxis,
+  HorizontalLineAnnotation,
 } from '@electricui/components-desktop-charts'
 
 import { FrameProgressUpdate, ToolpathGenerator } from '../optimiser/main'
 import { importFolder, renderablesToMovements } from '../optimiser/files'
-import {
-  DataSource,
-  Event,
-  EventBatch,
-  PersistenceEnginePassthrough,
-} from '@electricui/timeseries'
+import { DataSource, Event, EventBatch, PersistenceEnginePassthrough } from '@electricui/timeseries'
 import { timing } from '@electricui/timing'
 import { Settings } from '../optimiser/settings'
 
@@ -29,12 +25,18 @@ import {
   useSetting,
   useStore,
   incrementViewportFrameVersion,
+  markClean,
+  changeState,
 } from './state'
 import { Movement, SerialisedTour } from '../optimiser/movements'
 import { Renderable } from '../optimiser/import'
 import { renderablesToSceneTree } from './RenderableTree'
 
 import os from 'os'
+
+import deepmerge from 'deepmerge'
+
+const overwriteMerge = (destinationArray: any[], sourceArray: any[]) => sourceArray
 
 function recalculateMovementsPerFrame() {
   const settings = getSetting(state => state.settings)
@@ -54,7 +56,7 @@ function recalculateMovementsPerFrame() {
     unorderedMovementsByFrame[frameNumber] = movements
   }
 
-  setSetting(state => {
+  changeState(state => {
     state.unorderedMovementsByFrame = unorderedMovementsByFrame
   })
 }
@@ -72,10 +74,7 @@ export function Optimiser() {
    */
   function getPersistentOptimiser() {
     if (persistentOptimiser.current === null) {
-      persistentOptimiser.current = new ToolpathGenerator(
-        getCurrentSettings(),
-        Math.max(1, os.cpus().length - 1),
-      )
+      persistentOptimiser.current = new ToolpathGenerator(getCurrentSettings(), Math.max(1, os.cpus().length - 1))
     }
 
     return persistentOptimiser.current
@@ -123,7 +122,7 @@ export function Optimiser() {
   // On unmount, clean up the optimiser
   useEffect(() => {
     // Update the reference to the currently used optimiser in the state
-    setSetting(state => {
+    changeState(state => {
       state.persistentOptimiser = getPersistentOptimiser()
     })
 
@@ -149,9 +148,7 @@ export function Optimiser() {
     const dataSource = new DataSource<{
       [frameNumber: string]: FrameProgressUpdate
     }>()
-    dataSource.setPersistenceEngineFactory(
-      () => new PersistenceEnginePassthrough(),
-    )
+    dataSource.setPersistenceEngineFactory(() => new PersistenceEnginePassthrough())
     return dataSource
   }, [])
 
@@ -161,7 +158,7 @@ export function Optimiser() {
 
   const onProgress = useCallback(
     (progress: FrameProgressUpdate) => {
-      setSetting(state => {
+      changeState(state => {
         state.movementOrdering[progress.frameNumber] = progress.serialisedTour
         state.estimatedDurationByFrame[progress.frameNumber] = progress.duration
         state.frameOptimisationState[progress.frameNumber] = progress.frameState
@@ -197,9 +194,7 @@ export function Optimiser() {
         importFolder(folder).then(imported => {
           // Reset the store when we import a new folder
 
-          const sceneTotalFrames = Object.keys(
-            imported.movementJSONByFrame,
-          ).length
+          const sceneTotalFrames = Object.keys(imported.movementJSONByFrame).length
           const sceneTree = renderablesToSceneTree(imported.allRenderables)
 
           setSetting(state => {
@@ -219,8 +214,19 @@ export function Optimiser() {
 
             console.log(`injested ${state.sceneTotalFrames} frames`)
 
+            // Merge in the state from the settings file
+            state.settings = deepmerge(state.settings, imported.settingsToMerge, { arrayMerge: overwriteMerge })
+            state.visualisationSettings = deepmerge(
+              state.visualisationSettings,
+              imported.visualisationSettingsToMerge,
+              { arrayMerge: overwriteMerge },
+            )
+
             incrementViewportFrameVersion(state)
           })
+
+          // Mark all settings as clean
+          markClean()
 
           // Recalculate the movements for each frame
           recalculateMovementsPerFrame()
@@ -228,14 +234,10 @@ export function Optimiser() {
           const optimiser = getPersistentOptimiser()
 
           // Start optimising the frames
-          optimiser.ingest(
-            imported.movementJSONByFrame,
-            getCurrentSettings(),
-            onProgress,
-          )
+          optimiser.ingest(imported.movementJSONByFrame, getCurrentSettings(), onProgress)
           // When it's done, mark it as complete
           optimiser.onComplete().then(() => {
-            setSetting(state => {
+            changeState(state => {
               state.currentlyOptimising = false
             })
           })
@@ -269,9 +271,7 @@ export function Optimiser() {
 
             return arr
           }}
-          colorAccessor={(event: {
-            [frameNumber: string]: FrameProgressUpdate
-          }) => {
+          colorAccessor={(event: { [frameNumber: string]: FrameProgressUpdate }) => {
             const arr: string[] = new Array(totalFrames)
 
             for (let index = 0; index < totalFrames; index++) {
@@ -314,7 +314,9 @@ export function Optimiser() {
 
         <HorizontalAxis labelPadding={10} />
 
-        {cameraOverrideDuration > 0 ? <HorizontalLineAnnotation y={cameraOverrideDuration} color={Colors.RED5} lineWidth={2} affectBounds /> : null}
+        {cameraOverrideDuration > 0 ? (
+          <HorizontalLineAnnotation y={cameraOverrideDuration} color={Colors.RED5} lineWidth={2} affectBounds />
+        ) : null}
       </ChartContainer>
     </>
   )
