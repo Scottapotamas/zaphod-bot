@@ -70,9 +70,28 @@ function Checkbox(props: CheckboxProps) {
   )
 
   return (
-    <>
-      {props.label} <BlueprintCheckbox checked={setting} onChange={onChangeHandler} />
-    </>
+    // Override the column span since we handle our own label
+    <div style={{ gridColumn: 'span 2' }}>
+      <Tooltip2
+        content={props.description}
+        disabled={!Boolean(props.description)}
+        intent={Intent.PRIMARY}
+        usePortal={false} // Force the rendering of the tooltip to be inline so focus bubbling works correctly
+        placement="right"
+        popoverClassName="setting-tooltip" // Use width: max-content to make sure the text expands rather than contracts to a couple words of width
+        renderTarget={({ ref, ...tooltipProps }) => (
+          <div {...tooltipProps} ref={ref} className="planner-checkbox">
+            {/* Attach to a div surrounding the NumericInput, since the NumericInput is complex and screws with the refs */}
+            <BlueprintCheckbox
+              checked={setting}
+              onChange={onChangeHandler}
+              alignIndicator={Alignment.RIGHT}
+              label={props.label}
+            />
+          </div>
+        )}
+      />
+    </div>
   )
 }
 

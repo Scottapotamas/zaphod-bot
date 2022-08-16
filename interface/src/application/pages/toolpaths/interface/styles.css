@@ -1,4 +1,17 @@
 .setting-tooltip {
-    width: max-content;
-    max-width: 500px;
+  /* Stretch tooltips to their max size */
+  width: max-content;
+  /* But prevent them from going over 500px in width */
+  max-width: 500px;
+}
+
+.planner-checkbox .bp3-control {
+  /* Center the checkboxes within their field */
+  margin-bottom: 0;
+}
+
+/* Make the checkboxes the same height as numeric inputs */
+.planner-checkbox {
+  padding-top: 6.5px;
+  padding-bottom: 6.5px;
 }
