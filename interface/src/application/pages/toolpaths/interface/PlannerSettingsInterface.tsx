@@ -48,6 +48,7 @@ interface CheckboxProps {
   selector: StateSelector<Store, boolean | undefined>
   writer: (draft: WritableDraft<Store>, value: boolean) => void
   label: string
+  description?: string
 }
 
 function Checkbox(props: CheckboxProps) {
@@ -85,6 +86,7 @@ interface NumericInputProps {
   majorStepSize?: number
   rightText?: string
   label: string
+  description?: string
 }
 
 function isValidNumber(num: number) {
@@ -115,7 +117,7 @@ function NumericInput(props: NumericInputProps) {
   const [internalState, setInternalState] = useState(String(getSetting(props.selector) ?? 0))
   const [isNumber, setIsNumber] = useState(true) // it's a valid number by default
   const [inRange, setInRange] = useState(true) // in range by default
-  const [errorText, setErrorText] = useState('')
+  const [errorElement, setErrorElement] = useState(<></>)
   const [hasError, setHasError] = useState(false)
 
   const validate = useCallback(
@@ -126,7 +128,12 @@ function NumericInput(props: NumericInputProps) {
 
       if (valid) {
         if (!withinRange) {
-          setErrorText(`"${valueAsString}" is not within the range of ${props.min} to ${props.max}`)
+          setErrorElement(
+            <>
+              {valueAsString} is not within the range of (<b>{props.min}</b> to <b>{props.max}</b>
+              {props.rightText ? ` ${props.rightText}` : ''})
+            </>,
+          )
           setHasError(true)
         } else {
           // setErrorText('') // Don't remove the last error, it just animates away when we hide
@@ -135,10 +142,10 @@ function NumericInput(props: NumericInputProps) {
       } else {
         if (valueAsString.trim() === '') {
           // valid n
-          setErrorText(`Empty values are not allowed`)
+          setErrorElement(<>Empty values are not allowed</>)
           setHasError(true)
         } else {
-          setErrorText(`"${valueAsString}" is not a valid number`)
+          setErrorElement(<>"{valueAsString}" is not a valid number</>)
           setHasError(true)
         }
       }
@@ -148,7 +155,7 @@ function NumericInput(props: NumericInputProps) {
 
       return valid && withinRange
     },
-    [setErrorText, setHasError],
+    [setErrorElement, setHasError],
   )
 
   const handleOnValueChange = useCallback(
@@ -187,11 +194,21 @@ function NumericInput(props: NumericInputProps) {
     [handleConfirm],
   )
 
+  const [isFocused, setIsFocused] = useState(false)
+
+  const handleFocus = useCallback(
+    (e: React.FocusEvent<HTMLInputElement>) => {
+      setIsFocused(true)
+    },
+    [setIsFocused],
+  )
+
   const handleBlur = useCallback(
     (e: React.FocusEvent<HTMLInputElement>) => {
       handleConfirm((e.target as HTMLInputElement).value)
+      setIsFocused(false)
     },
-    [handleConfirm],
+    [handleConfirm, setIsFocused],
   )
 
   const handleOnButtonClick = useCallback(
@@ -208,16 +225,24 @@ function NumericInput(props: NumericInputProps) {
       <div>
         {/* We render a div here so the grid layout doesn't break when the tooltip is injected */}
         <Tooltip2
-          content={errorText}
+          content={
+            hasError ? (
+              errorElement
+            ) : (
+              <>
+                {props.description} (<b>{props.min}</b> to <b>{props.max}</b>
+                {props.rightText ? ` ${props.rightText}` : ''})
+              </>
+            )
+          }
           intent={isNumber ? (inRange ? Intent.PRIMARY : Intent.WARNING) : Intent.DANGER}
-          disabled={!hasError}
-          isOpen={hasError} // Stay open if there's an error, the hover event doesn't trigger if the error is made while focus is on, the user would have to defocus then refocus.
+          isOpen={hasError || (isFocused && Boolean(props.description))} // Open if there's a description and we're focused or there's an error
           usePortal={false} // Force the rendering of the tooltip to be inline so focus bubbling works correctly
           placement="right"
-          popoverClassName="maximise-content-width" // Use width: max-content to make sure the text expands rather than contracts to a couple words of width
+          popoverClassName="setting-tooltip" // Use width: max-content to make sure the text expands rather than contracts to a couple words of width
           renderTarget={({ ref, ...tooltipProps }) => (
             <div {...tooltipProps} ref={ref}>
-              {/* Attach to a div surrounding the NumericInput, since the NumericInput is complex and screws with the refs*/}
+              {/* Attach to a div surrounding the NumericInput, since the NumericInput is complex and screws with the refs */}
               <BlueprintNumericInput
                 fill
                 min={props.min}
@@ -226,6 +251,7 @@ function NumericInput(props: NumericInputProps) {
                 minorStepSize={props.minorStepSize}
                 majorStepSize={props.majorStepSize}
                 value={String(internalState)}
+                onFocus={handleFocus}
                 onBlur={handleBlur}
                 onKeyDown={handleKeyDown}
                 onValueChange={handleOnValueChange}
@@ -404,6 +430,7 @@ function GeneralTab() {
         rightText="mm/s"
         selector={state => state.settings.optimisation.maxSpeed}
         writer={(state, value) => (state.settings.optimisation.maxSpeed = value)}
+        description="The peak movement speed"
       />
       <NumericInput
         label="Transition Size"
@@ -414,6 +441,7 @@ function GeneralTab() {
         majorStepSize={0.1}
         selector={state => state.settings.optimisation.transitionSize}
         writer={(state, value) => (state.settings.optimisation.transitionSize = value)}
+        description="A scalar of the size of the transition bezier"
       />
       <NumericInput
         label="Wait before Start"
@@ -424,6 +452,7 @@ function GeneralTab() {
         rightText="ms"
         selector={state => state.settings.optimisation.waitAtStartDuration}
         writer={(state, value) => (state.settings.optimisation.waitAtStartDuration = value)}
+        description="How many milliseconds to wait per frame before drawing. The first transit move to a known location happens during this time."
       />
       <NumericInput
         label="LightFade Offset"
@@ -433,6 +462,7 @@ function GeneralTab() {
         majorStepSize={10}
         selector={state => state.settings.lightFadeOffset}
         writer={(state, value) => (state.settings.lightFadeOffset = value)}
+        description="The amount in milliseconds to offset the LED from the movements."
       />
       <NumericInput
         label="Global Brightness"
@@ -443,11 +473,13 @@ function GeneralTab() {
         minorStepSize={0.01}
         selector={state => state.visualisationSettings.brightness}
         writer={(state, value) => (state.visualisationSettings.brightness = value)}
+        description="A scalar to multiply the LED brightness"
       />
       <Checkbox
         label="Disable Shaped Transitions"
         selector={state => state.settings.optimisation.disableShapedTransitions}
         writer={(state, value) => (state.settings.optimisation.disableShapedTransitions = value)}
+        description="Disables shaped transitions, replacing them with simple transit moves"
       />
     </Composition>
   )

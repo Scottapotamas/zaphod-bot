@@ -1,3 +1,4 @@
-.maximise-content-width {
+.setting-tooltip {
     width: max-content;
+    max-width: 500px;
 }
