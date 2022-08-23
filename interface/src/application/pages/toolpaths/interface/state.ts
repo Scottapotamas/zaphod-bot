@@ -53,7 +53,7 @@ export const defaultSettings: Settings = {
 
   optimisation: {
     maxSpeed: 150,
-    waitAtStartDuration: 1000,
+    waitAtStartDuration: 3000,
     interLineTransitionAngle: 50,
     interLineTransitionShaveDistance: 5,
     smoothInterlineTransitions: true,

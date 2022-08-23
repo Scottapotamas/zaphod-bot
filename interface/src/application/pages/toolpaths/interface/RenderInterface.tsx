@@ -188,8 +188,6 @@ function CopyToolpathToClipboard() {
   )
 }
 
-const ESTIMATED_DURATION_OFFSET = 2000
-
 export function SendToolpath() {
   const sequenceSenderRef: React.MutableRefObject<SequenceSender | null> = useRef(null)
 
@@ -328,7 +326,8 @@ export function SendToolpath() {
               return state.cameraOverrideDuration
             }
 
-            return state.estimatedDurationByFrame[frameNumber] + ESTIMATED_DURATION_OFFSET // two seconds of wiggle room because who knows
+            // Round up the estimated duration to the nearest second
+            return Math.ceil(state.estimatedDurationByFrame[frameNumber] / 1000) * 1000
           })
 
           // Process the toolpath into final form
@@ -487,14 +486,15 @@ export function CurrentFrameTime() {
 
     for (const [frameNumber, duration] of Object.entries(state.estimatedDurationByFrame)) {
       if (Number(frameNumber) >= state.selectedMinFrame && Number(frameNumber) <= state.selectedMaxFrame) {
-        let thisFrameDuration = duration
+        // Round up the estimated duration to the nearest second
+        let thisFrameDuration = Math.ceil(duration / 1000) * 1000
 
         // Override it if we have to
         if (state.cameraOverrideDuration > 0) {
           thisFrameDuration = state.cameraOverrideDuration
         }
 
-        total += thisFrameDuration + ESTIMATED_DURATION_OFFSET
+        total += thisFrameDuration
       }
     }
 
