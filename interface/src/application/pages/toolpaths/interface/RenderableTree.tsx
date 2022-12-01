@@ -21,6 +21,7 @@ export enum NodeTypes {
   PARTICLE_SYSTEM = 'particle-system',
   LIGHT = 'light',
   EMPTY = 'empty',
+  EFFECTOR = 'effector',
 }
 
 export type NodeID = string | number

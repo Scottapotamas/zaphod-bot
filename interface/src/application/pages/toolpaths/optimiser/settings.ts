@@ -2,6 +2,7 @@ import { CameraToMovementsSettings } from './camera'
 import { GPencilToMovementsSettings } from './gpencil'
 import { LightToMovementsSettings } from './light'
 import { ParticlesToMovementsSettings } from './particles'
+import { EffectorToMovementSettings } from './effector'
 
 const overwriteMerge = (destinationArray: any[], sourceArray: any[]) => sourceArray
 
@@ -18,6 +19,7 @@ export interface Settings {
     particles: ParticlesToMovementsSettings
     light: LightToMovementsSettings
     camera: CameraToMovementsSettings
+    effector: EffectorToMovementSettings
   }
 
   // Per-object overrides
@@ -27,6 +29,7 @@ export interface Settings {
       | Partial<ParticlesToMovementsSettings>
       | Partial<LightToMovementsSettings>
       | Partial<CameraToMovementsSettings>
+      | Partial<EffectorToMovementSettings>
   }
 
   // For disabling the rendering of objects
@@ -101,13 +104,24 @@ export function getToMovementSettings(
   overrideKeys: string[],
 ): CameraToMovementsSettings
 
+export function getToMovementSettings(
+  settings: Settings,
+  objType: 'effector',
+  overrideKeys: string[],
+): EffectorToMovementSettings
+
 export function getToMovementSettings<
   ReturnType =
     | GPencilToMovementsSettings
     | ParticlesToMovementsSettings
     | LightToMovementsSettings
-    | CameraToMovementsSettings,
->(settings: Settings, objType: 'gpencil' | 'particles' | 'light' | 'camera', overrideKeys: string[]): ReturnType {
+    | CameraToMovementsSettings
+    | EffectorToMovementSettings
+>(
+  settings: Settings,
+  objType: 'gpencil' | 'particles' | 'light' | 'camera' | 'effector',
+  overrideKeys: string[],
+): ReturnType {
   let objSettings = settings.objectSettings[objType]
 
   // console.log(`objType ${objType} overrideKeys ${overrideKeys}`)

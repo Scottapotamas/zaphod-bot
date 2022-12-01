@@ -44,6 +44,10 @@ export const defaultSettings: Settings = {
       drawRulers: false,
       drawColorCalibrationChart: false,
     },
+    effector: {
+      preWait: 250,
+      postWait: 250,
+    },
   },
 
   // Do object level overrides here. Particle subsystems can be `object -> subsystem name`
