@@ -356,23 +356,46 @@ export function SendToolpath() {
           cancellationToken.haltIfCancelled()
 
           // Start the capture
+          const captureStart = Date.now()
+          let timedCaptureEnd = 0
+
           await sendCapture(captureDuration) // Start the camera capture
-          const captureCompleteTime = new Promise((resolve, reject) => setTimeout(resolve, captureDuration))
+
+          const captureCompleteTime = new Promise((resolve, reject) => {
+            setTimeout(resolve, captureDuration)
+            timedCaptureEnd = Date.now()
+          })
 
           console.log(`Sending sync`)
 
           await sendSync() // Begin rendering
+          // TODO: being lighting command
 
           console.log(`Waiting for frame to complete`)
 
           await getSequenceSender().waitForFrameToComplete()
+          const progressCaptureEnd = Date.now()
+
+          // TODO: stop lighting command
 
           console.log(`Frame finished rendering`)
 
           cancellationToken.haltIfCancelled()
           await captureCompleteTime // Wait for the capture duration to finish
 
-          console.log(`Capture finished`)
+          const progressDuration = progressCaptureEnd - captureStart
+          const timedDuration = timedCaptureEnd - captureStart
+          const expectedDuration = captureDuration
+
+          console.log(
+            `Capture finished`,
+            `progressDuration:`,
+            progressDuration,
+            `timedDuration:`,
+            timedDuration,
+            `expectedDuration:`,
+            expectedDuration,
+          )
         }
       } catch (e) {
         if (cancellationToken.caused(e)) {
