@@ -418,10 +418,7 @@ export const ToolpathVisualisation = () => {
   }, [])
 
   return (
-    <Canvas
-      linear
-      // shadows={true}
-    >
+    <Canvas linear dpr={[1, 2]} style={{ zIndex: 0 }}>
       <PerspectiveCamera ref={setCameraRef} makeDefault position={[0, 150, 400]} far={10000} />
       <OrbitControls ref={setOrbitControlsRef} />
       <AxisLines />

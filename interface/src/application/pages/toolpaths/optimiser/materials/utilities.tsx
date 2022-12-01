@@ -191,6 +191,9 @@ export function annotateDrawOrder(
   }
 }
 
+// Map them from near is 4096, far is 0, with the canvas div having a zIndex set, DOM precedence means it'll always be on top
+const TagZIndexRange = [4096, 0]
+
 export function generateHtmlTagFromAveragePosition(
   objectID: NodeID,
   centroid: Vector3,
@@ -200,8 +203,8 @@ export function generateHtmlTagFromAveragePosition(
   // Convert the centroid from Blender units to ThreeJS units
   const threeCentroid = new Vector3(centroid.x, centroid.z, -centroid.y)
 
-  const component = (
-    <Html position={threeCentroid} key={text}>
+  const component = ( 
+    <Html position={threeCentroid} key={text} zIndexRange={TagZIndexRange}>
       <TagThatHidesWhenNotInList
         objectID={objectID}
         intent={intent}

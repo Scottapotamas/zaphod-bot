@@ -54,11 +54,7 @@ export const GeometryToolpathViewer = () => {
   const ContextBridge = useContextBridge(...listOfContextsToBridge)
 
   return (
-    <Canvas
-      linear
-      dpr={[1, 2]}
-      // shadows={true}
-    >
+    <Canvas linear dpr={[1, 2]} style={{ zIndex: 0 }}>
       <ContextBridge>
         <PerspectiveCamera ref={setCameraRef} makeDefault position={[0, 150, 600]} />
         <OrbitControls ref={setOrbitControlsRef} />
