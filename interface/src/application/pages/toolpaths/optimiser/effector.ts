@@ -5,7 +5,7 @@ import { NodeInfo, NodeTypes } from '../interface/RenderableTree'
 import { importMaterial, MaterialJSON } from './material'
 import { InvisibleMaterialJSON } from './materials/Invisible'
 import { MATERIALS } from './materials/utilities'
-import { Point, Line, Movement, MovementGroup } from './movements'
+import { Point, Line, Movement, MovementGroup, MILLISECONDS_IN_SECOND } from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
 
 export interface EffectorToMovementSettings {
@@ -36,6 +36,7 @@ export class Effector {
     public display_size: number,
     public display_type: EffectorDisplayType,
     public align: EffectorAlign,
+    public duration_override: number,
   ) {}
 
   public getObjectTree: () => TreeNodeInfo<NodeInfo> = () => {
@@ -108,6 +109,25 @@ export class Effector {
     move.interFrameID = this.name
     orderedMovements.addMovement(move)
 
+    const distance = start.distanceTo(end)
+
+    if (this.duration_override && Number.isFinite(this.duration_override) && this.duration_override > 0) {
+      let proposedSpeed = distance / (this.duration_override / MILLISECONDS_IN_SECOND)
+
+      const OVERRIDE_SPEED_LIMIT = 500
+
+      // This is a sanity check at this level, the duration will never exceed the max speed anyway.
+      if (proposedSpeed > OVERRIDE_SPEED_LIMIT) {
+        console.warn(
+          `Effector movement suggested duration override of ${this.duration_override}ms, giving a speed of ${proposedSpeed} which is above the limit of OVERRIDE_SPEED_LIMIT`,
+        )
+        proposedSpeed = OVERRIDE_SPEED_LIMIT
+      }
+
+      // Lock the speed
+      move.lockSpeed = proposedSpeed
+    }
+
     // Add the trigger
 
     if (settingsWithOverride.postWait && settingsWithOverride.postWait > 0) {
@@ -131,6 +151,7 @@ export interface EffectorJSON {
   display_type: EffectorDisplayType
   align: EffectorAlign
   enabled: boolean
+  duration: number // ms
 }
 
 export function importEffector(json: EffectorJSON) {
@@ -142,6 +163,7 @@ export function importEffector(json: EffectorJSON) {
     json.display_size,
     json.display_type,
     json.align,
+    json.duration,
   )
 
   return particles

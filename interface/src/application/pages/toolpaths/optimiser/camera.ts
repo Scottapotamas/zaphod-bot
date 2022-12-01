@@ -150,9 +150,8 @@ export class Camera {
       moves.push(new Line(new Vector3(0, 150, 50), new Vector3(0, 150, 150), green, objectID, overrideKeys)) // prettier-ignore
 
       moves.forEach(move => {
-        // We need slow, exact moves, no matter the settings
-        move.setMaxSpeed(75)
-        move.lockSpeed = true
+        // We need slow, exact moves
+        move.lockSpeed = 75
 
         // Add the movement to the list
         addMovement(move)
@@ -160,8 +159,7 @@ export class Camera {
 
       // Do an extremely slow and careful move at the very bottom to mark the origin
       const bottom = new Line(new Vector3(0, 0, 0), new Vector3(0, 0, 10), grey, objectID, overrideKeys) // prettier-ignore
-      bottom.setMaxSpeed(25)
-      bottom.lockSpeed = true
+      bottom.lockSpeed = 25
       addMovement(bottom)
     }
 
@@ -313,8 +311,7 @@ export class Camera {
           overrideKeys,
         )
 
-        movement.maxSpeed = (index + 1) * 10
-        movement.lockSpeed = true
+        movement.lockSpeed = (index + 1) * 10
 
         addMovement(movement)
       }
@@ -331,8 +328,7 @@ export class Camera {
           overrideKeys,
         )
 
-        movement.maxSpeed = (index + 1) * 10
-        movement.lockSpeed = true
+        movement.lockSpeed = (index + 1) * 10
 
         addMovement(movement)
       }

@@ -377,8 +377,9 @@ export class Line extends Movement {
   private maxStartShrinkFactor = 0
   private maxEndShrinkFactor = 0
 
-  // If we want to lock the speed regardless of the optimiser
-  public lockSpeed = false
+  // If we want to lock the speed regardless of the optimiser, set this to a non-zero number
+  // If it's below the max speed, it will be used instead
+  public lockSpeed: number = 0
 
   constructor(
     private from: Vector3,
@@ -420,12 +421,21 @@ export class Line extends Movement {
   }
 
   public setMaxSpeed = (maxSpeed: number) => {
-    if (this.lockSpeed) return
     this.maxSpeed = maxSpeed
   }
 
+  private calculateSpeed = () => {
+    let speedUsed = this.maxSpeed
+
+    if (this.lockSpeed !== 0 && this.lockSpeed < this.maxSpeed ) {
+      speedUsed = this.lockSpeed
+    }
+
+    return speedUsed
+  }
+
   public getDuration = () => {
-    return Math.ceil((this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND)
+    return Math.ceil((this.getLength() / this.calculateSpeed()) * MILLISECONDS_IN_SECOND)
   }
 
   private getDirection = () => {
@@ -491,11 +501,11 @@ export class Line extends Movement {
   }
 
   public getDesiredEntryVelocity = () => {
-    return this.getTo().clone().sub(this.getFrom()).normalize().multiplyScalar(this.maxSpeed)
+    return this.getTo().clone().sub(this.getFrom()).normalize().multiplyScalar( this.calculateSpeed())
   }
 
   public getExpectedExitVelocity = () => {
-    return this.getTo().clone().sub(this.getFrom()).normalize().multiplyScalar(this.maxSpeed)
+    return this.getTo().clone().sub(this.getFrom()).normalize().multiplyScalar( this.calculateSpeed())
   }
 
   public generateToolpath = () => {
