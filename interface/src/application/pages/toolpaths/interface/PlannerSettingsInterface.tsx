@@ -13,10 +13,11 @@ import {
   TabId,
   Intent,
   Keys,
+  Icon,
 } from '@blueprintjs/core'
-import { IconNames } from '@blueprintjs/icons'
+import { IconName, IconNames } from '@blueprintjs/icons'
 
-import { PlacementOptions, Tooltip2 } from '@blueprintjs/popover2'
+import { PlacementOptions, Popover2, Tooltip2 } from '@blueprintjs/popover2'
 
 import { Composition, Box } from 'atomic-layout'
 
@@ -734,15 +735,20 @@ export const PlannerSettingsInterface = () => {
 
   return (
     <div>
-      <Tabs onChange={handleTabChange} selectedTabId={selected}>
-        <Tab id={TABS.GENERAL} title="GENERAL" panel={<GeneralTab />} />
-        <Tab id={TABS.PARTICLES} title="PARTICLES" panel={<ParticlesTab />} />
-        <Tab id={TABS.LIGHT} title="LIGHTS" panel={<LightTab />} />
-        <Tab id={TABS.LINE} title="LINES" panel={<LineTab />} />
+      <Tabs onChange={handleTabChange} selectedTabId={selected} renderActiveTabPanelOnly>
+        <Tab id={TABS.GENERAL} title={<TabTitle title="General" icon={IconNames.COG} />} panel={<GeneralTab />} />
+        <Tab
+          id={TABS.PARTICLES}
+          title={<TabTitle title="Particles" icon={IconNames.LAYOUT_SKEW_GRID} />}
+          panel={<ParticlesTab />}
+        />
+        <Tab id={TABS.LIGHT} title={<TabTitle title="Light" icon={IconNames.LIGHTBULB} />} panel={<LightTab />} />
+        <Tab id={TABS.LINE} title={<TabTitle title="Grease Pencil" icon={IconNames.DRAW} />} panel={<LineTab />} />
+
         <Tabs.Expander />
         <Tab
           id={TABS.GEOMETRY}
-          title="GEO"
+          title={<TabTitle title="Geometry" icon={IconNames.POLYGON_FILTER} />}
           panel={
             <div>
               <RenderableTree />
@@ -750,10 +756,39 @@ export const PlannerSettingsInterface = () => {
             </div>
           }
         />
-        <Tab id={TABS.CAMERA_HELPERS} title="CAM" panel={<CameraHelpersTab />} />
+        <Tab
+          id={TABS.CAMERA_HELPERS}
+          title={<TabTitle title="Camera Helpers" icon={IconNames.CAMERA} />}
+          panel={<CameraHelpersTab />}
+        />
 
-        <Tab id={TABS.VISUALISATION} title="VIS" panel={<VisualisationTab />} />
+        <Tab
+          id={TABS.VISUALISATION}
+          title={<TabTitle title="Visualisation" icon={IconNames.NUMBERED_LIST} />}
+          panel={<VisualisationTab />}
+        />
       </Tabs>
     </div>
+  )
+}
+
+/**
+ * Render an icon with a tooltip
+ */
+function TabTitle(props: { icon: IconName; title: string }) {
+  return (
+    <Tooltip2
+      content={props.title}
+      intent={Intent.NONE}
+      usePortal={true} // Force the rendering of the tooltip to be inline so focus bubbling works correctly
+      placement="top"
+      renderTarget={({ ref, ...tooltipProps }) => (
+        <div {...tooltipProps} ref={ref} className="planner-checkbox">
+          {/* Attach to a div surrounding the NumericInput, since the NumericInput is complex and screws with the refs */}
+
+          <Icon icon={props.icon} />
+        </div>
+      )}
+    />
   )
 }
