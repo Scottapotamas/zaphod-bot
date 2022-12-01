@@ -217,6 +217,9 @@ export class MovementGroup extends Movement {
 
   private movements: Movement[] = []
 
+  // Whether the internal ordering is frozen or can be mutated.
+  public frozen = false
+
   public addMovement = (movement: Movement) => {
     this.movements.push(movement)
 

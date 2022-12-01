@@ -1026,7 +1026,8 @@ export function* smartOptimiser(
   for (let index = 0; index < sparseBag.length; index++) {
     const movement = sparseBag[index]
 
-    if (isMovementGroup(movement)) {
+    // Only optimise non-frozen movement groups
+    if (isMovementGroup(movement) && !movement.frozen) {
       for (const subRes of smartOptimiser(movement.getMovements(), createHasher, stopAfter)) {
         if (subRes.completed) {
           movement.hydrate(subRes.best.tour)
