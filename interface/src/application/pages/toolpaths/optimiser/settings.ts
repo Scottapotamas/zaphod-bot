@@ -78,6 +78,15 @@ export interface OptimisationSettings {
   transitionSize: number
 
   maxSpeed: number // mm/s
+
+  /**
+   * Which optimisation passes are enabled
+   */
+  passes: {
+    nearestNeighbour: boolean
+    bruteForceSmall: boolean
+    twoOpt: boolean
+  }
 }
 
 export function getToMovementSettings(

@@ -135,8 +135,12 @@ export function sparseToDense(sparseBag: Movement[], settings: Settings): DenseM
         .getExpectedExitVelocity()
         .clone()
         .normalize()
-        .angleTo(movement.getDesiredEntryVelocity().clone().normalize()) <
-        MathUtils.degToRad(settings.optimisation.interLineTransitionAngle)
+        .angleTo(
+          movement
+            .getDesiredEntryVelocity()
+            .clone()
+            .normalize(),
+        ) < MathUtils.degToRad(settings.optimisation.interLineTransitionAngle)
     ) {
       // Shrink the end of the previousLine
       // Shrink the start of the current line
@@ -224,7 +228,10 @@ export function sparseToDense(sparseBag: Movement[], settings: Settings): DenseM
 
     if (settings.optimisation.lineRunUp > 0 && isLine(movement)) {
       const endPoint = movement.getStart()
-      const backwardDirection = movement.getDesiredEntryVelocity().normalize().multiplyScalar(-1)
+      const backwardDirection = movement
+        .getDesiredEntryVelocity()
+        .normalize()
+        .multiplyScalar(-1)
       const startPoint = backwardDirection
         .multiplyScalar(settings.optimisation.lineRunUp * movement.getLength())
         .add(endPoint)
@@ -440,6 +447,28 @@ export type Continue = boolean
 
 function optimiseByCache(sparseBag: Movement[], serialisedTour: SerialisedTour) {
   return deserialiseTour(sparseBag, serialisedTour)
+}
+
+export function* optimiseNoop(
+  sparseBag: Movement[],
+  createHasher: (seed?: number) => XXHash<number>,
+): Generator<OptimiserResult> {
+  const start = performance.now()
+
+  const best = {
+    tour: serialiseTour(sparseBag),
+    hash: hashTour(sparseBag, createHasher),
+    cost: sparseToCost(sparseBag),
+  }
+
+  yield {
+    iterations: 0,
+    completed: false,
+    time: performance.now() - start,
+    best,
+  }
+
+  return
 }
 
 // Search happens so fast we don't bother having it be cancellable
@@ -671,6 +700,17 @@ export function* optimise2Opt(
     cost: sparseToCost(sparseBag),
   }
 
+  // Need at least 4 items to do our 2opt
+  if (sparseBag.length < 4) {
+    yield {
+      iterations: 0,
+      completed: true,
+      time: 0,
+      best,
+    }
+    return
+  }
+
   // The alternate candidates list
   const queue: Map<number, SerialisedTour> = new Map()
   const enqueued: Set<number> = new Set()
@@ -852,6 +892,11 @@ export function* optimise2Opt(
         for (let index = 0; index < currentOrdering.length; index++) {
           const prev = currentOrdering[index]
           const current = currentOrdering[(index + 1) % currentOrdering.length]
+
+          if (!prev || !current) {
+            debugger
+          }
+
           const distance = prev.getEnd().distanceTo(current.getStart())
 
           if (distance > longestLinkDistance) {
@@ -875,6 +920,10 @@ export function* optimise2Opt(
         // Test flipping the start
         const A = currentOrdering[0]
         const B = currentOrdering[1]
+
+        if (!A || !B) {
+          debugger
+        }
 
         const dAnB = A.getEnd().distanceTo(B.getStart())
         const dAfB = A.getStart().distanceTo(B.getStart())
@@ -949,20 +998,23 @@ export async function optimise(
   const startingCost = sparseToCost(sparseBag)
 
   // Partial updates just run a beam search
+  let currentOptimisationLevel: OptimiserResult = optimiseNoop(sparseBag, createHasher).next().value
 
   if (partialUpdate) {
     const stopAfter = { current: startedOptimisation + OPTIMISATION_TIME }
 
-    const beamSearched = optimiseBySearch(sparseBag, createHasher, stopAfter).next().value
+    if (settings.optimisation.passes.nearestNeighbour) {
+      currentOptimisationLevel = optimiseBySearch(sparseBag, createHasher, stopAfter).next().value
+    }
 
-    const currentDense = sparseToDense(deserialiseTour(sparseBag, beamSearched.best.tour), settings)
+    const currentDense = sparseToDense(deserialiseTour(sparseBag, currentOptimisationLevel.best.tour), settings)
     const curentDuration = getTotalDuration(currentDense)
 
     // Final status update
     await updateProgress({
       duration: getTotalDuration(currentDense),
       text: `Optimised to ${Math.round(curentDuration * 100) / 100}ms`,
-      serialisedTour: beamSearched.best.tour,
+      serialisedTour: currentOptimisationLevel.best.tour,
       completed: true,
       minimaFound: false,
       timeSpent: performance.now() - startedOptimisation,
@@ -977,7 +1029,7 @@ export async function optimise(
 
   const stopAfter = { current: performance.now() + OPTIMISATION_TIME }
 
-  for (const iteration of smartOptimiser(sparseBag, createHasher, stopAfter)) {
+  for (const iteration of smartOptimiser(sparseBag, settings, createHasher, stopAfter)) {
     iterations += iteration.iterations
 
     const deserialised = deserialiseTour(sparseBag, iteration.best.tour)
@@ -993,9 +1045,8 @@ export async function optimise(
 
     const shouldContinue = await updateProgress({
       duration: currentDuration,
-      text: `${hash.toString(16)}: ${Math.round(iteration.best.cost * 10) / 10} (${
-        Math.round(calculatedCost * 10) / 10
-      }): ${Math.round(currentDuration * 100) / 100}ms`,
+      text: `${hash.toString(16)}: ${Math.round(iteration.best.cost * 10) / 10} (${Math.round(calculatedCost * 10) /
+        10}): ${Math.round(currentDuration * 100) / 100}ms`,
       serialisedTour: iteration.best.tour,
       completed: done,
       minimaFound: done,
@@ -1007,20 +1058,53 @@ export async function optimise(
     // Update the allowed time to iterate
     stopAfter.current = performance.now() + OPTIMISATION_TIME
 
+    currentOptimisationLevel = iteration
+
     // If we've reached a minima, or should stop, or we've taken longer than the length of the tour to optimise, exit
     if (done || !shouldContinue) {
       return
     }
   }
+
+  const deserialised = deserialiseTour(sparseBag, currentOptimisationLevel.best.tour)
+  const currentDense = sparseToDense(deserialised, settings)
+  const currentDuration = getTotalDuration(currentDense)
+
+  const calculatedCost = sparseToCost(deserialised)
+  const hash = hashTour(deserialised, createHasher)
+
+  // final update
+  await updateProgress({
+    duration: currentDuration,
+    text: `${hash.toString(16)}: ${Math.round(currentOptimisationLevel.best.cost * 10) / 10} (${Math.round(
+      calculatedCost * 10,
+    ) / 10}): ${Math.round(currentDuration * 100) / 100}ms`,
+    serialisedTour: currentOptimisationLevel.best.tour,
+    completed: true,
+    minimaFound: currentOptimisationLevel.completed || performance.now() - startedOptimisation > currentDuration,
+    timeSpent: performance.now() - startedOptimisation,
+    startingCost,
+    currentCost: sparseToCost(sparseBag),
+  })
 }
 
 export function* smartOptimiser(
   sparseBag: Movement[],
+  settings: Settings,
   createHasher: (seed?: number) => XXHash<number>,
   stopAfter: { current: number },
 ): Generator<OptimiserResult> {
+  // Todo have this be switchable
+
   // Generate initial NN optimisation
-  const nnRes: OptimiserResult = optimiseBySearch(sparseBag, createHasher, stopAfter).next().value
+
+  let initialOptimisation: OptimiserResult = optimiseNoop(sparseBag, createHasher).next().value
+
+  if (settings.optimisation.passes.nearestNeighbour) {
+    initialOptimisation = optimiseBySearch(sparseBag, createHasher, stopAfter).next().value
+
+    yield initialOptimisation
+  }
 
   // Optimise all MovementGroups as sub-tours
   for (let index = 0; index < sparseBag.length; index++) {
@@ -1028,20 +1112,20 @@ export function* smartOptimiser(
 
     // Only optimise non-frozen movement groups
     if (isMovementGroup(movement) && !movement.frozen) {
-      for (const subRes of smartOptimiser(movement.getMovements(), createHasher, stopAfter)) {
+      for (const subRes of smartOptimiser(movement.getMovements(), settings, createHasher, stopAfter)) {
         if (subRes.completed) {
           movement.hydrate(subRes.best.tour)
         } else {
           // During hierarchial optimisation, yield the original NN tour until we have a solve on a sub-tour
           // Once a sub-tour is optimised, the MovementGroup will be hydrated and the overall Tour will update
-          yield nnRes
+          yield initialOptimisation
         }
       }
     }
   }
 
   // Any subtour with under 10 elements, perform a brute force solve
-  if (sparseBag.length < 10) {
+  if (sparseBag.length < 10 && settings.optimisation.passes.bruteForceSmall) {
     for (const res of optimiseBruteForce(sparseBag, createHasher, stopAfter)) {
       if (res.completed) {
         yield res
@@ -1052,15 +1136,23 @@ export function* smartOptimiser(
   }
 
   // Any tours more complicated than 10 moves utilise 2-opt, seeded with a nearest neighbour search
-  for (const res of optimise2Opt(deserialiseTour(sparseBag, nnRes.best.tour), createHasher, stopAfter)) {
-    if (res.completed) {
+  if (settings.optimisation.passes.twoOpt) {
+    for (const res of optimise2Opt(
+      deserialiseTour(sparseBag, initialOptimisation.best.tour),
+      createHasher,
+      stopAfter,
+    )) {
+      if (res.completed) {
+        yield res
+        return
+      }
       yield res
-      return
     }
-    yield res
   }
 
-  throw new Error(`unreachable`)
+  // should be unreachable if we did any extra optimisations, otherwise just return the initial one
+  initialOptimisation.completed = true
+  yield initialOptimisation
 }
 
 function debuggerIfCostOut(currentOrdering: Movement[], cost: number) {

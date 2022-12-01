@@ -436,6 +436,7 @@ const enum TABS {
   GPENCIL = 'gpencil',
   VISUALISATION = 'visualisation',
   GEOMETRY = 'geometry',
+  OPTIMISATION = 'optimisation',
 }
 
 function GeneralTab() {
@@ -723,6 +724,28 @@ function VisualisationTab() {
   )
 }
 
+function OptimisationPassesTab() {
+  return (
+    <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
+      <Checkbox
+        label="Seed with greedy search"
+        selector={state => state.settings.optimisation.passes.nearestNeighbour}
+        writer={(state, value) => (state.settings.optimisation.passes.nearestNeighbour = value)}
+      />
+      <Checkbox
+        label="Brute force groups < 10"
+        selector={state => state.settings.optimisation.passes.bruteForceSmall}
+        writer={(state, value) => (state.settings.optimisation.passes.bruteForceSmall = value)}
+      />
+      <Checkbox
+        label="2-opt pass"
+        selector={state => state.settings.optimisation.passes.twoOpt}
+        writer={(state, value) => (state.settings.optimisation.passes.twoOpt = value)}
+      />
+    </Composition>
+  )
+}
+
 export const PlannerSettingsInterface = () => {
   const [selected, setSelected] = useState(TABS.GENERAL)
 
@@ -744,6 +767,11 @@ export const PlannerSettingsInterface = () => {
         />
         <Tab id={TABS.LIGHT} title={<TabTitle title="Light" icon={IconNames.LIGHTBULB} />} panel={<LightTab />} />
         <Tab id={TABS.LINE} title={<TabTitle title="Grease Pencil" icon={IconNames.DRAW} />} panel={<LineTab />} />
+        <Tab
+          id={TABS.OPTIMISATION}
+          title={<TabTitle title="Optimisation Passes" icon={IconNames.DASHBOARD} />}
+          panel={<OptimisationPassesTab />}
+        />
 
         <Tabs.Expander />
         <Tab

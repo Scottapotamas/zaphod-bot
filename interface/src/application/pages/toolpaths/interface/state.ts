@@ -64,6 +64,11 @@ export const defaultSettings: Settings = {
     lineRunUp: 0,
     disableShapedTransitions: false,
     transitionSize: 0.1,
+    passes: {
+      nearestNeighbour: true,
+      bruteForceSmall: true,
+      twoOpt: true,
+    },
   },
 
   // Tools for debugging
