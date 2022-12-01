@@ -17,7 +17,7 @@ export interface EffectorToMovementSettings {
 }
 
 export type EffectorDisplayType = 'SINGLE_ARROW'
-export type EffectorCenter = 'center' | 'start' | 'end'
+export type EffectorAlign = 'center' | 'start' | 'end'
 
 export class Effector {
   readonly type = 'effector'
@@ -35,14 +35,14 @@ export class Effector {
     public quaternion: [number, number, number, number],
     public display_size: number,
     public display_type: EffectorDisplayType,
-    public center: EffectorCenter,
+    public align: EffectorAlign,
   ) {}
 
   public getObjectTree: () => TreeNodeInfo<NodeInfo> = () => {
     const node: TreeNodeInfo<NodeInfo> = {
       id: this.name,
       label: this.name,
-      icon: IconNames.DRAW,
+      icon: IconNames.DOT,
       nodeData: {
         type: NodeTypes.EFFECTOR,
       },
@@ -78,17 +78,17 @@ export class Effector {
     // Depending on the 'center' value, calculate the start and the end
     let start = new Vector3(this.position[0], this.position[1], this.position[2])
     let end = new Vector3(this.position[0], this.position[1], this.position[2])
-    const directionVector = new Vector3(0, 1, 0).applyQuaternion(
+    const directionVector = new Vector3(0, 0, 1).applyQuaternion(
       new Quaternion(this.quaternion[0], this.quaternion[1], this.quaternion[2], this.quaternion[3]),
     )
 
-    if (this.center === 'start') {
+    if (this.align === 'start') {
       // the position is the start, move 'size' amount in the direction for the end
       end = end.add(directionVector.clone().multiplyScalar(this.display_size))
-    } else if (this.center === 'end') {
+    } else if (this.align === 'end') {
       // the position is the end, move 'size' amount in the negative direction for the end
       start = start.add(directionVector.clone().multiplyScalar(-this.display_size))
-    } else if (this.center === 'center') {
+    } else if (this.align === 'center') {
       // the position is the center, move 1/2 'size' amount forward for start, 1/2 'size' amount backward for the end
       start = start.add(directionVector.clone().multiplyScalar(this.display_size / 2))
       end = end.add(directionVector.clone().multiplyScalar(-this.display_size / 2))
@@ -129,7 +129,7 @@ export interface EffectorJSON {
   quaternion: [number, number, number, number]
   display_size: number // mm
   display_type: EffectorDisplayType
-  center: EffectorCenter
+  align: EffectorAlign
   enabled: boolean
 }
 
@@ -141,7 +141,7 @@ export function importEffector(json: EffectorJSON) {
     json.quaternion,
     json.display_size,
     json.display_type,
-    json.center,
+    json.align,
   )
 
   return particles
