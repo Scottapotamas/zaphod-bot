@@ -107,7 +107,6 @@ const layoutDescription = `
 const MainWindow = (props: RouteComponentProps) => {
   return (
     <React.Fragment>
-      <IntervalRequester interval={16} variables={[MSGID.POSITION_CURRENT]} />
       <IntervalRequester interval={100} variables={[MSGID.SERVO]} />
 
       {/* 3D Model view and toolpath planning */}

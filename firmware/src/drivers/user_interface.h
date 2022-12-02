@@ -178,6 +178,10 @@ user_interface_set_led_queue_depth( uint8_t utilisation );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC void
+user_interface_push_position( void );
+
+
 /* -------------------------------------------------------------------------- */
 
 #ifdef __cplusplus

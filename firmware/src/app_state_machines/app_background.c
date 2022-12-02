@@ -50,6 +50,7 @@ app_background( void )
         button_process();
         status_external_resume();
 
+        user_interface_push_position();
         timer_ms_start( &button_timer, BACKGROUND_RATE_BUTTON_MS );
     }
 

@@ -762,4 +762,13 @@ trigger_camera_capture( void )
     }
 }
 
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+user_interface_push_position( void )
+{
+    eui_send_tracked( MSGID_POSITION_CURRENT );
+}
+
 /* ----- End ---------------------------------------------------------------- */
