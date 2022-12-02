@@ -370,48 +370,50 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
 {
     CartesianPoint_t target       = { 0, 0, 0 };    // target position in cartesian space
     JointAngles_t    angle_target = { 0, 0, 0 };    // target motor shaft angle in degrees
+    KinematicsSolution_t solve_ok = false;
 
     switch( move->type )
     {
         case _POINT_TRANSIT:
-            cartesian_point_on_line( move->points, move->num_pts, percentage, &target );
+            solve_ok = cartesian_point_on_line( move->points, move->num_pts, percentage, &target );
             break;
 
         case _LINE:
-            cartesian_point_on_line( move->points, move->num_pts, percentage, &target );
+            solve_ok = cartesian_point_on_line( move->points, move->num_pts, percentage, &target );
             break;
 
         case _CATMULL_SPLINE:
-            cartesian_point_on_catmull_spline( move->points, move->num_pts, percentage, &target );
+            solve_ok = cartesian_point_on_catmull_spline( move->points, move->num_pts, percentage, &target );
             break;
 
         case _CATMULL_SPLINE_LINEARISED:
             percentage = cartesian_distance_linearisation_from_lut( move->sync_offset, percentage );
-            cartesian_point_on_catmull_spline( move->points, move->num_pts, percentage, &target );
+            solve_ok = cartesian_point_on_catmull_spline( move->points, move->num_pts, percentage, &target );
             break;
 
         case _BEZIER_QUADRATIC:
-            cartesian_point_on_quadratic_bezier( move->points, move->num_pts, percentage, &target );
+            solve_ok = cartesian_point_on_quadratic_bezier( move->points, move->num_pts, percentage, &target );
             break;
 
         case _BEZIER_QUADRATIC_LINEARISED:
             percentage = cartesian_distance_linearisation_from_lut( move->sync_offset, percentage );
-            cartesian_point_on_quadratic_bezier( move->points, move->num_pts, percentage, &target );
+            solve_ok = cartesian_point_on_quadratic_bezier( move->points, move->num_pts, percentage, &target );
             break;
 
         case _BEZIER_CUBIC:
-            cartesian_point_on_cubic_bezier( move->points, move->num_pts, percentage, &target );
+            solve_ok = cartesian_point_on_cubic_bezier( move->points, move->num_pts, percentage, &target );
             break;
 
         case _BEZIER_CUBIC_LINEARISED:
             percentage = cartesian_distance_linearisation_from_lut( move->sync_offset, percentage );
-            cartesian_point_on_cubic_bezier( move->points, move->num_pts, percentage, &target );
+            solve_ok = cartesian_point_on_cubic_bezier( move->points, move->num_pts, percentage, &target );
             break;
 
         default:
             // TODO this should be considered a motion error
-
             break;
+    }
+
     }
 
     // Calculate a motor angle solution for the cartesian position
