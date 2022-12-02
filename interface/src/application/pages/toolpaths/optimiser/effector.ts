@@ -7,6 +7,7 @@ import { InvisibleMaterialJSON } from './materials/Invisible'
 import { MATERIALS } from './materials/utilities'
 import { Point, Line, Movement, MovementGroup, MILLISECONDS_IN_SECOND } from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
+import { TriggerAlignment, TriggerCall, TriggerCallDMX, TriggerType } from './triggers'
 
 export interface EffectorToMovementSettings {
   // How long to wait at the effector's position before executing the movement.
@@ -14,6 +15,9 @@ export interface EffectorToMovementSettings {
 
   // How long to wait at the effector's position after executing the movement.
   postWait?: number
+
+  // A scaler for the DMX lighting value
+  dmxValueScaler?: number
 }
 
 export type EffectorDisplayType = 'SINGLE_ARROW'
@@ -37,6 +41,7 @@ export class Effector {
     public display_type: EffectorDisplayType,
     public align: EffectorAlign,
     public duration_override: number,
+    public dmx_val: number,
   ) {}
 
   public getObjectTree: () => TreeNodeInfo<NodeInfo> = () => {
@@ -109,6 +114,26 @@ export class Effector {
     move.interFrameID = this.name
     orderedMovements.addMovement(move)
 
+    const scalingFactor = settings.objectSettings.effector.dmxValueScaler ?? 1
+
+    const preLightLevels: TriggerCallDMX = {
+      type: TriggerType.DMX,
+      align: TriggerAlignment.START,
+      args: {
+        level: this.dmx_val * scalingFactor,
+      },
+    }
+    const postLightLevels: TriggerCallDMX = {
+      type: TriggerType.DMX,
+      align: TriggerAlignment.END,
+      args: {
+        level: 0,
+      },
+    }
+
+    move.triggers.push(preLightLevels)
+    move.triggers.push(postLightLevels)
+
     const distance = start.distanceTo(end)
 
     if (this.duration_override && Number.isFinite(this.duration_override) && this.duration_override > 0) {
@@ -127,8 +152,6 @@ export class Effector {
       // Lock the speed
       move.lockSpeed = proposedSpeed
     }
-
-    // Add the trigger
 
     if (settingsWithOverride.postWait && settingsWithOverride.postWait > 0) {
       const endMovement = new Point(end, settingsWithOverride.postWait ?? 0, mat, objectID, overrideKeys)
@@ -152,6 +175,7 @@ export interface EffectorJSON {
   align: EffectorAlign
   enabled: boolean
   duration: number // ms
+  dmx_val: number // 0 - 100 DMX lighting value
 }
 
 export function importEffector(json: EffectorJSON) {
@@ -164,6 +188,7 @@ export function importEffector(json: EffectorJSON) {
     json.display_type,
     json.align,
     json.duration,
+    json.dmx_val,
   )
 
   return particles

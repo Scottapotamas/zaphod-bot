@@ -437,6 +437,7 @@ const enum TABS {
   VISUALISATION = 'visualisation',
   GEOMETRY = 'geometry',
   OPTIMISATION = 'optimisation',
+  EFFECTOR = 'effector',
 }
 
 function GeneralTab() {
@@ -724,6 +725,47 @@ function VisualisationTab() {
   )
 }
 
+function EffectorTab() {
+  return (
+    <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
+      <NumericInput
+        label="Pre Wait"
+        min={0}
+        max={1000}
+        stepSize={25}
+        majorStepSize={100}
+        rightText="ms"
+        selector={state => state.settings.objectSettings.effector.preWait}
+        writer={(state, value) => (state.settings.objectSettings.effector.preWait = value)}
+        description="The time to wait stationary before an effector move"
+      />
+
+      <NumericInput
+        label="Post Wait"
+        min={0}
+        max={1000}
+        stepSize={25}
+        majorStepSize={100}
+        rightText="ms"
+        selector={state => state.settings.objectSettings.effector.postWait}
+        writer={(state, value) => (state.settings.objectSettings.effector.postWait = value)}
+        description="The time to wait stationary after an effector move"
+      />
+
+      <NumericInput
+        label="DMX Light Intensity Modifier"
+        min={0}
+        max={500}
+        stepSize={1}
+        rightText="%"
+        selector={state => (state.settings.objectSettings.effector.dmxValueScaler ?? 1) * 100}
+        writer={(state, value) => (state.settings.objectSettings.effector.dmxValueScaler = value / 100)}
+        description="A scalar to multiply the DMX brightness"
+      />
+    </Composition>
+  )
+}
+
 function OptimisationPassesTab() {
   return (
     <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
@@ -767,6 +809,7 @@ export const PlannerSettingsInterface = () => {
         />
         <Tab id={TABS.LIGHT} title={<TabTitle title="Light" icon={IconNames.LIGHTBULB} />} panel={<LightTab />} />
         <Tab id={TABS.LINE} title={<TabTitle title="Grease Pencil" icon={IconNames.DRAW} />} panel={<LineTab />} />
+        <Tab id={TABS.EFFECTOR} title={<TabTitle title="Effector" icon={IconNames.TORCH} />} panel={<EffectorTab />} />
         <Tab
           id={TABS.OPTIMISATION}
           title={<TabTitle title="Optimisation Passes" icon={IconNames.DASHBOARD} />}
