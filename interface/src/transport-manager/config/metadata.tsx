@@ -10,10 +10,10 @@ import {
 
 import { MSGID } from '../../application/typedState'
 
-// Request and Process a 'name' for every device
+// Request and process firmware from the delta, and the fixture ID from the DMX utility
 
-class RequestName extends DiscoveryMetadataRequester {
-  name = 'request-name'
+class RequestFirmwareMetadata extends DiscoveryMetadataRequester {
+  name = 'request-metadata'
 
   canRequestMetadata(device: Device) {
     return true
@@ -24,9 +24,7 @@ class RequestName extends DiscoveryMetadataRequester {
     nameRequest.metadata.query = true
     nameRequest.metadata.internal = false
 
-    const cancellationToken = new CancellationToken(
-      'request firmware build info metadata',
-    ).deadline(1_000)
+    const cancellationToken = new CancellationToken('request firmware build info metadata').deadline(1_000)
 
     return device
       .write(nameRequest, cancellationToken)
@@ -39,7 +37,32 @@ class RequestName extends DiscoveryMetadataRequester {
   }
 }
 
-class ProcessName extends DiscoveryMetadataProcessor {
+class RequestDMXMetadata extends DiscoveryMetadataRequester {
+  name = 'request-dmx-metadata'
+
+  canRequestMetadata(device: Device) {
+    return true
+  }
+
+  requestMetadata(device: Device) {
+    const nameRequest = new Message("fixture", null)
+    nameRequest.metadata.query = true
+    nameRequest.metadata.internal = false
+
+    const cancellationToken = new CancellationToken('request dmx data').deadline(1_000)
+
+    return device
+      .write(nameRequest, cancellationToken)
+      .then(res => {
+        console.log('Requested dmx fixture data, response:', res)
+      })
+      .catch(err => {
+        console.log("Couldn't request dmx fixture data err:", err)
+      })
+  }
+}
+
+class ProcessFirmwareInfo extends DiscoveryMetadataProcessor {
   isRelevantMessage(message: Message, device: Device) {
     // if this is an ack packet, ignore it
     if (message.metadata.ackNum > 0 && message.payload === null) {
@@ -57,10 +80,35 @@ class ProcessName extends DiscoveryMetadataProcessor {
   processMetadata(message: Message, device: Device, foundHint: FoundHint) {
     if (message.messageID === MSGID.FIRMWARE_INFO) {
       device.addMetadata({
-        firmware_info: message.payload
+        firmware_info: message.payload,
+        device_type: 'delta',
       })
     }
   }
 }
 
-export { RequestName, ProcessName }
+class ProcessDMXDeviceType extends DiscoveryMetadataProcessor {
+  isRelevantMessage(message: Message, device: Device) {
+    // if this is an ack packet, ignore it
+    if (message.metadata.ackNum > 0 && message.payload === null) {
+      return false
+    }
+
+    // if it's a fixtures packet, it must be the DMX thing
+    if (message.messageID === "fixture") {
+      return true
+    }
+
+    return false
+  }
+
+  processMetadata(message: Message, device: Device, foundHint: FoundHint) {
+    if (message.messageID === "fixture") {
+      device.addMetadata({
+        device_type: 'dmx',
+      })
+    }
+  }
+}
+
+export { RequestFirmwareMetadata, ProcessFirmwareInfo, ProcessDMXDeviceType, RequestDMXMetadata }

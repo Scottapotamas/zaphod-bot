@@ -9,7 +9,7 @@ import {
   MessageRouterLogRatioMetadata,
   hotReloadDeviceManager,
 } from '@electricui/core'
-import { ProcessName, RequestName } from './metadata'
+import { ProcessFirmwareInfo, RequestFirmwareMetadata, ProcessDMXDeviceType, RequestDMXMetadata } from './metadata'
 import {
   serialConsumer,
   serialProducer,
@@ -103,15 +103,18 @@ function createHandshakes(
   return [connectionHandshakeReadWrite]
 }
 
-const requestName = new RequestName()
-const processName = new ProcessName()
+const requestDMXMetadata = new RequestDMXMetadata()
+const processDMXDeviceType = new ProcessDMXDeviceType()
+
+const requestFirmwareMetadata = new RequestFirmwareMetadata()
+const processFirmwareInfo = new ProcessFirmwareInfo()
 
 deviceManager.setCreateHintValidatorsCallback(hintValidators)
 deviceManager.addHintProducers([serialProducer, usbProducer])
 deviceManager.addHintConsumers([serialConsumer])
 deviceManager.addHintTransformers([usbToSerialTransformer])
-deviceManager.addDeviceMetadataRequesters([requestName])
-deviceManager.addDiscoveryMetadataProcessors([processName])
+deviceManager.addDeviceMetadataRequesters([requestFirmwareMetadata, requestDMXMetadata])
+deviceManager.addDiscoveryMetadataProcessors([processFirmwareInfo, processDMXDeviceType])
 deviceManager.setCreateRouterCallback(createRouter)
 deviceManager.setCreateQueueCallback(createQueue)
 deviceManager.setCreateHandshakesCallback(createHandshakes)
