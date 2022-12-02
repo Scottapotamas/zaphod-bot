@@ -196,7 +196,7 @@
     "build": "electricui-build-tools app && electron-builder",
     "dev": "electricui-build-tools dev",
     "setup": "arc install-electron && yarn sdks vscode",
-    "start": "electricui-build-tools dev",
+    "start": "electricui-build-tools dev"
   },
   "templateChannel": "latest",
   "templateName": "electron",
