@@ -10,7 +10,13 @@ import { SequenceSender } from './sequenceSender'
 
 import { PlannerLightMove, PlannerMovementMove } from './../optimiser/hardware'
 
-import { useHardwareStateSubscription, useQuery, useSendMessage } from '@electricui/components-core'
+import {
+  useDeviceIDByMetadata,
+  useDeviceManager,
+  useHardwareStateSubscription,
+  useQuery,
+  useSendMessage,
+} from '@electricui/components-core'
 import { CancellationToken, Message } from '@electricui/core'
 
 import {
@@ -113,6 +119,7 @@ import { FRAME_STATE } from '../optimiser/main'
 import { isCamera } from '../optimiser/camera'
 import { Vector3 } from 'three'
 import { IconNames } from '@blueprintjs/icons'
+import { callTrigger } from '../optimiser/triggers'
 
 async function getToolpathForFrame(frameNumber: number) {
   const persistentOptimiser = getSetting(state => state.persistentOptimiser)
@@ -192,6 +199,9 @@ export function SendToolpath() {
   const sequenceSenderRef: React.MutableRefObject<SequenceSender | null> = useRef(null)
 
   const sendMessage = useSendMessage()
+  const deviceManager = useDeviceManager()
+  const deltaDeviceID = useDeviceIDByMetadata({ device_type: 'delta' } as any) // TODO: Check after update to latest template
+  const dmxDeviceID = useDeviceIDByMetadata({ device_type: 'dmx' } as any)
   const query = useQuery()
 
   const sendMovement = useCallback(
@@ -366,6 +376,21 @@ export function SendToolpath() {
             timedCaptureEnd = Date.now()
           })
 
+          // Set up all the triggers
+          for (const trigger of toolpath.triggers) {
+            setTimeout(() => {
+              const diff = Date.now() - captureStart
+
+              console.log(`trigger ${trigger.type} activating at ${diff}, predicted to go off at ${trigger.timestamp}`)
+
+              if (deviceManager) {
+                callTrigger(trigger, deviceManager, deltaDeviceID, dmxDeviceID)
+              }
+
+              // TODO: do the trigger
+            }, trigger.timestamp)
+          }
+
           console.log(`Sending sync`)
 
           await sendSync() // Begin rendering
@@ -405,7 +430,7 @@ export function SendToolpath() {
         }
       }
     },
-    [setIsLoading, sendSync],
+    [setIsLoading, sendSync, deviceManager, deltaDeviceID, dmxDeviceID],
   )
 
   const handleRangeRender = useCallback(() => {

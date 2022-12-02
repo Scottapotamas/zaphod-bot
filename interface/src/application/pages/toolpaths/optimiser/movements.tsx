@@ -2,6 +2,7 @@ import { CatmullRomCurve3, CubicBezierCurve3, MathUtils, Vector3 } from 'three'
 import { defaultTransitionMaterial } from './material'
 import { Material } from '../optimiser/materials/Base'
 import { PlannerMovementMove, MovementMoveReference, MovementMoveType } from './hardware'
+import { TriggerCall, TriggerType } from './triggers'
 
 import React from 'react'
 
@@ -125,6 +126,13 @@ export abstract class Movement {
   abstract resetOptimisationState: () => void
 
   /**
+   * Get any triggers this movement should trip
+   */
+  abstract getTriggers: () => TriggerCall[]
+
+  public triggers: TriggerCall[] = []
+
+  /**
    * Every movement needs a material to generate the light moves, and generate the ThreeJS representation
    */
   abstract material: Material
@@ -240,8 +248,9 @@ export class MovementGroup extends Movement {
 
   public flatten = () => {
     const movements = []
-    for (let index = 0; index < this.getMovements().length; index++) {
-      const movement = this.getMovements()[index]
+    const thisMovements = this.getMovements()
+    for (let index = 0; index < thisMovements.length; index++) {
+      const movement = thisMovements[index]
       movements.push(...movement.flatten())
     }
     return movements
@@ -358,6 +367,16 @@ export class MovementGroup extends Movement {
       const movement = this.getMovements()[index]
       movement.resetOptimisationState()
     }
+  }
+
+  public getTriggers = () => {
+    const triggers = []
+    const thisMovements = this.getMovements()
+    for (let index = 0; index < thisMovements.length; index++) {
+      const movement = thisMovements[index]
+      triggers.push(...movement.getTriggers())
+    }
+    return triggers
   }
 }
 
@@ -536,6 +555,10 @@ export class Line extends Movement {
     this.maxStartShrinkFactor = 0
     this.maxEndShrinkFactor = 0
   }
+
+  public getTriggers = () => {
+    return this.triggers
+  }
 }
 
 export function isPoint(movement: Movement): movement is Point {
@@ -665,6 +688,10 @@ export class Point extends Movement {
 
   public resetOptimisationState = () => {
     // noop
+  }
+
+  public getTriggers = () => {
+    return this.triggers
   }
 }
 
@@ -833,6 +860,10 @@ export class Transition extends Movement {
 
   public resetOptimisationState = () => {
     // noop
+  }
+
+  public getTriggers = () => {
+    return this.triggers
   }
 }
 
@@ -1043,6 +1074,10 @@ export class PointTransition extends Movement {
   public resetOptimisationState = () => {
     // noop
   }
+
+  public getTriggers = () => {
+    return this.triggers
+  }
 }
 
 export function isInterLineTransition(movement: Movement): movement is InterLineTransition {
@@ -1205,6 +1240,10 @@ export class InterLineTransition extends Movement {
   public resetOptimisationState = () => {
     // noop
   }
+
+  public getTriggers = () => {
+    return this.triggers
+  }
 }
 
 export function isTransit(movement: Movement): movement is Transit {
@@ -1304,6 +1343,10 @@ export class Transit extends Movement {
 
   public resetOptimisationState = () => {
     // noop
+  }
+
+  public getTriggers = () => {
+    return this.triggers
   }
 }
 
@@ -1513,5 +1556,9 @@ export class CatmullChain extends Movement {
 
   public resetOptimisationState = () => {
     // noop
+  }
+
+  public getTriggers = () => {
+    return this.triggers
   }
 }

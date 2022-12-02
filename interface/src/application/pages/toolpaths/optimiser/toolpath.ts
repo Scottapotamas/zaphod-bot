@@ -10,10 +10,12 @@ import { Settings } from './settings'
 import { getMaterialOverride, VisualisationSettings } from '../interface/state'
 import { Vector3 } from 'three'
 import { importMaterial } from './material'
+import { TimedTrigger, TriggerAlignment } from './triggers'
 
 export interface Toolpath {
   movementMoves: MovementMove[]
   lightMoves: LightMove[]
+  triggers: TimedTrigger[]
 }
 
 /**
@@ -29,6 +31,7 @@ export function toolpath(
 ): Toolpath {
   const movementMoves: MovementMove[] = []
   const lightFades: LightMove[] = []
+  const triggers: TimedTrigger[] = []
 
   let movementTimestamp = 0
   let lightFadeTimestamp = 0
@@ -38,6 +41,20 @@ export function toolpath(
 
     // The light fades start at the offset of the movement time stamp
     lightFadeTimestamp = movementTimestamp
+
+    // Grab the triggers
+    const movementTriggers = movement.getTriggers()
+    const movementStartTime = movementTimestamp
+
+    // Accumulate 'start' triggers
+    const movementTriggersOnStart = movementTriggers.filter(trigger => trigger.align === TriggerAlignment.START)
+
+    for (const trigger of movementTriggersOnStart) {
+      triggers.push({
+        ...trigger,
+        timestamp: movementTimestamp,
+      })
+    }
 
     // Accumulate the movement moves
     for (const move of moves) {
@@ -53,6 +70,25 @@ export function toolpath(
       })
 
       movementTimestamp += move.duration
+    }
+
+    // Accumulate middle and end triggers, apply timestamp
+    const movementTriggersOnMiddle = movementTriggers.filter(trigger => trigger.align === TriggerAlignment.MIDDLE)
+
+    for (const trigger of movementTriggersOnMiddle) {
+      triggers.push({
+        ...trigger,
+        timestamp: (movementStartTime + movementTimestamp) / 2, // this is the middle
+      })
+    }
+
+    const movementTriggersOnEnd = movementTriggers.filter(trigger => trigger.align === TriggerAlignment.END)
+
+    for (const trigger of movementTriggersOnEnd) {
+      triggers.push({
+        ...trigger,
+        timestamp: movementTimestamp, // now the end
+      })
     }
 
     // Get the material override
@@ -136,5 +172,6 @@ export function toolpath(
   return {
     movementMoves,
     lightMoves: lightFades,
+    triggers,
   }
 }
