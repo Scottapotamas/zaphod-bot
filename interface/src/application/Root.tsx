@@ -1,64 +1,55 @@
 import './styles.css'
 
-import {
-  DarkModeWrapper,
-  NoIPCModal,
-} from '@electricui/components-desktop-blueprint'
+import { DarkModeWrapper, NoIPCModal } from '@electricui/components-desktop-blueprint'
 import { LocationProvider, Router } from '@reach/router'
 
-import { ConnectionPage } from './pages/ConnectionPage'
-import { DarkModeChartThemeProvider } from '@electricui/components-desktop-charts'
+import { DarkModeChartThemeProvider, AcceptableDeviceContinuityProvider } from '@electricui/components-desktop-charts'
 import { DeviceIDBridgeContext } from '@electricui/components-desktop-charts'
-import { DeviceLoadingPage } from './pages/DeviceLoadingPage'
 import { DeviceManagerProxy } from '@electricui/core-device-manager-proxy'
-import { DevicePages } from './pages/DevicePages'
-import { ToolpathViewer } from './pages/toolpaths/interface/ToolpathViewer'
-
-import { Provider } from 'react-redux'
-import React from 'react'
-import { ReactReduxContext } from '@electricui/core-redux-state'
+import React, { Suspense } from 'react'
 import { RefreshIndicator } from '@electricui/components-desktop-blueprint'
-import { Store } from 'redux'
 import { WrapDeviceContextWithLocation } from './pages/WrapDeviceContextWithLocation'
 import { history } from '@electricui/utility-electron'
+import { StateProvider } from '@electricui/components-core'
 
-import { FocusStyleManager } from "@blueprintjs/core";
-FocusStyleManager.onlyShowFocusOnTabs();
+import { FocusStyleManager } from '@blueprintjs/core'
+FocusStyleManager.onlyShowFocusOnTabs()
 
-interface RootProps {
-  store: Store
-}
+import { DeviceLoadingPage } from './pages/DeviceLoadingPage'
+import { DevicePages } from './pages/DevicePages'
+import { ToolpathViewer } from './pages/toolpaths/interface/ToolpathViewer'
+import { ConnectionPage } from './pages/ConnectionPage'
 
-export class Root extends React.Component<RootProps> {
-  render() {
-    const { store } = this.props
-
-    return (
-      <RefreshIndicator>
-        <Provider store={store} context={ReactReduxContext}>
-          <DeviceManagerProxy renderIfNoIPC={<NoIPCModal />}>
-            <DarkModeWrapper>
-              <DeviceIDBridgeContext>
-                <DarkModeChartThemeProvider>
+export function Root() {
+  return (
+    <RefreshIndicator>
+      <StateProvider>
+        <DeviceManagerProxy renderIfNoIPC={<NoIPCModal />}>
+          <DarkModeWrapper>
+            <DeviceIDBridgeContext>
+              <DarkModeChartThemeProvider>
+                <AcceptableDeviceContinuityProvider>
                   <LocationProvider history={history}>
-                    <Router>
-                      <ConnectionPage path="/" />
-                      <ToolpathViewer path="/toolpaths/" />
+                    <Suspense fallback={<div>Loading...</div>}>
+                      <Router>
+                        <ConnectionPage path="/" />
+                        <ToolpathViewer path="/toolpaths/" />
 
-                      <WrapDeviceContextWithLocation path="device_loading/:deviceID/">
-                        <DeviceLoadingPage path="/" />
-                      </WrapDeviceContextWithLocation>
-                      <WrapDeviceContextWithLocation path="devices/:deviceID/">
-                        <DevicePages path="*" />
-                      </WrapDeviceContextWithLocation>
-                    </Router>
+                        <WrapDeviceContextWithLocation path="device_loading/:deviceID/">
+                          <DeviceLoadingPage path="/" />
+                        </WrapDeviceContextWithLocation>
+                        <WrapDeviceContextWithLocation path="devices/:deviceID/">
+                          <DevicePages path="*" />
+                        </WrapDeviceContextWithLocation>
+                      </Router>
+                    </Suspense>
                   </LocationProvider>
-                </DarkModeChartThemeProvider>
-              </DeviceIDBridgeContext>
-            </DarkModeWrapper>
-          </DeviceManagerProxy>
-        </Provider>
-      </RefreshIndicator>
-    )
-  }
+                </AcceptableDeviceContinuityProvider>
+              </DarkModeChartThemeProvider>
+            </DeviceIDBridgeContext>
+          </DarkModeWrapper>
+        </DeviceManagerProxy>
+      </StateProvider>
+    </RefreshIndicator>
+  )
 }
