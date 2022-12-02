@@ -53,6 +53,8 @@ export class SystemDataCodec extends Codec {
   }
 }
 
+const build_info_bytes: number = 12
+
 export function splitBufferByLength(toSplit: Buffer, splitLength: number) {
   const chunks = []
   const n = toSplit.length
@@ -80,7 +82,7 @@ export class FirmwareInfoCodec extends Codec {
   }
 
   decode(payload: Buffer): FirmwareBuildInfo {
-    const chunks = splitBufferByLength(payload, 12)
+    const chunks = splitBufferByLength(payload, build_info_bytes)
     const strings = chunks.map(chunk =>
       SmartBuffer.fromBuffer(chunk).readStringNT(),
     )
