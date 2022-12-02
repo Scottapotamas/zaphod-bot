@@ -108,6 +108,10 @@ const MainWindow = (props: RouteComponentProps) => {
   return (
     <React.Fragment>
       <IntervalRequester interval={100} variables={[MSGID.SERVO]} />
+      <IntervalRequester
+        variables={[MSGID.MOTION, MSGID.QUEUE_INFO]}
+        interval={50}
+      />
 
       {/* 3D Model view and toolpath planning */}
       <div
