@@ -86,6 +86,8 @@ typedef enum
     /* --- USB --- */
     _USB_PWR_EN,
     _USB_ID_SPARE,
+    _USB_DP,
+    _USB_DM,
 
     /* --- SERVO IO --- */
     _SERVO_1_A,

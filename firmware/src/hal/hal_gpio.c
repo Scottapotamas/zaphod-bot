@@ -125,6 +125,8 @@ const HalGpioDef_t HalGpioHardwareMap[] = {
     /* --- USB --- */
     [_USB_PWR_EN]   = { .mode = MODE_INPUT, .port = PORT_A, .pin = PIN_9, .initial = 0 },
     [_USB_ID_SPARE] = { .mode = MODE_INPUT, .port = PORT_A, .pin = PIN_10, .initial = 0 },
+    [_USB_DP]       = { .mode = MODE_OUT_PP, .port = PORT_A, .pin = PIN_12, .initial = 0 },
+    [_USB_DM]       = { .mode = MODE_OUT_PP, .port = PORT_A, .pin = PIN_11, .initial = 0 },
 
     /* --- SERVO IO --- */
     [_SERVO_1_A]             = { .mode = MODE_OUT_PP, .port = PORT_C, .pin = PIN_8, .initial = 0 },
