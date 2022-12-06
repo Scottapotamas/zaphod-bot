@@ -41,6 +41,7 @@ import { StateSelector } from 'zustand'
 import { WritableDraft } from 'immer/dist/internal'
 
 import './styles.css'
+import { DMXControlTab } from './DMXControl'
 
 // TODO: How do we get the defaults from here?
 // Bool defaults are false, number defaults are 0
@@ -727,42 +728,43 @@ function VisualisationTab() {
 
 function EffectorTab() {
   return (
-    <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
-      <NumericInput
-        label="Pre Wait"
-        min={0}
-        max={1000}
-        stepSize={25}
-        majorStepSize={100}
-        rightText="ms"
-        selector={state => state.settings.objectSettings.effector.preWait}
-        writer={(state, value) => (state.settings.objectSettings.effector.preWait = value)}
-        description="The time to wait stationary before an effector move"
-      />
-
-      <NumericInput
-        label="Post Wait"
-        min={0}
-        max={1000}
-        stepSize={25}
-        majorStepSize={100}
-        rightText="ms"
-        selector={state => state.settings.objectSettings.effector.postWait}
-        writer={(state, value) => (state.settings.objectSettings.effector.postWait = value)}
-        description="The time to wait stationary after an effector move"
-      />
-
-      <NumericInput
-        label="DMX Light Intensity Modifier"
-        min={0}
-        max={500}
-        stepSize={1}
-        rightText="%"
-        selector={state => (state.settings.objectSettings.effector.dmxValueScaler ?? 1) * 100}
-        writer={(state, value) => (state.settings.objectSettings.effector.dmxValueScaler = value / 100)}
-        description="A scalar to multiply the DMX brightness"
-      />
-    </Composition>
+    <>
+      <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
+        <NumericInput
+          label="Pre Wait"
+          min={0}
+          max={1000}
+          stepSize={25}
+          majorStepSize={100}
+          rightText="ms"
+          selector={state => state.settings.objectSettings.effector.preWait}
+          writer={(state, value) => (state.settings.objectSettings.effector.preWait = value)}
+          description="The time to wait stationary before an effector move"
+        />
+        <NumericInput
+          label="Post Wait"
+          min={0}
+          max={1000}
+          stepSize={25}
+          majorStepSize={100}
+          rightText="ms"
+          selector={state => state.settings.objectSettings.effector.postWait}
+          writer={(state, value) => (state.settings.objectSettings.effector.postWait = value)}
+          description="The time to wait stationary after an effector move"
+        />
+        <NumericInput
+          label="DMX Light Intensity Modifier"
+          min={0}
+          max={500}
+          stepSize={1}
+          rightText="%"
+          selector={state => (state.settings.objectSettings.effector.dmxValueScaler ?? 1) * 100}
+          writer={(state, value) => (state.settings.objectSettings.effector.dmxValueScaler = value / 100)}
+          description="A scalar to multiply the DMX brightness"
+        />
+        <DMXControlTab />
+      </Composition>
+    </>
   )
 }
 

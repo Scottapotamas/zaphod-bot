@@ -85,6 +85,9 @@ declare global {
     [MSGID.CAPTURE]: number // uint32 ms
 
     [MSGID.LED_CALIBRATION]: LedSettings
+
+    // DMX control
+    fixture: AputureLS
   }
 
   interface ElectricUIDeviceMetadataState {
@@ -303,7 +306,7 @@ export enum FXEXPLOSIONMODE {
 }
 
 export type AputureLS = {
-  intensity: number
+  intensity: number // 0 - 255
   mode: MODE_SELECT
   fxSelect: FXMODE
   fxFrequency: number
