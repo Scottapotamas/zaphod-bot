@@ -71,7 +71,9 @@ export function DMXControlTab() {
 
   const { poll, polling } = usePollForDevices()
 
-  const hasAcceptableConnection = useDeviceHasAcceptableConnection(dmxDeviceID ?? 'iwishwehadoptionalhooks' as DeviceID)
+  const hasAcceptableConnection = useDeviceHasAcceptableConnection(
+    dmxDeviceID ?? ('iwishwehadoptionalhooks' as DeviceID),
+  )
 
   if (!dmxDeviceID) {
     return (
@@ -114,7 +116,6 @@ export function DMXControlTab() {
             state.fixture[0].fxFrequency = 0
             state.fixture[0].fxTrigger = 0
           }}
-
         />
       </TimeSeriesProvider>
     </DeviceIDContextProvider>

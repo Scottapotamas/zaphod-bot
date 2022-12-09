@@ -381,7 +381,9 @@ export function SendToolpath() {
 
               const absDiff = Math.abs(diff - trigger.timestamp)
 
-              console.log(`trigger ${trigger.type} activating at ${diff}, predicted to go off at ${trigger.timestamp}, ${absDiff}ms off`)
+              console.log(
+                `trigger ${trigger.type} activating at ${diff}, predicted to go off at ${trigger.timestamp}, ${absDiff}ms off`,
+              )
 
               if (deviceManager) {
                 callTrigger(trigger, deviceManager, deltaDeviceID, dmxDeviceID)
@@ -401,13 +403,13 @@ export function SendToolpath() {
           await getSequenceSender().waitForFrameToComplete()
 
           console.log(`Frame finished rendering`)
-          const timedSyncDuration =  Date.now() - syncStart
+          const timedSyncDuration = Date.now() - syncStart
           const progressDuration = Date.now() - captureStart
 
           cancellationToken.haltIfCancelled()
           await captureCompleteTime // Wait for the capture duration to finish
 
-          const timedCaptureDuration =  Date.now() - captureStart
+          const timedCaptureDuration = Date.now() - captureStart
           const expectedDuration = captureDuration
 
           console.log(

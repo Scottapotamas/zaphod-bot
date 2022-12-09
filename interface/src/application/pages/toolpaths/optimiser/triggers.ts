@@ -54,21 +54,22 @@ export function callTrigger(
 
         const intensity = Math.min(Math.max((args.level / 100) * 255, 0), 255)
 
-        const payload: AputureLS[] = [{
-          intensity: intensity, // 0 - 255, direct from blender
-          mode: MODE_SELECT.MODE_MANUAL,
-          fxSelect: FXMODE.FX_UNDEFINED,
-          fxFrequency: 0,
-          fxTrigger: 0,
-        },
-        {
-          intensity: 0, // 
-          mode: MODE_SELECT.MODE_MANUAL,
-          fxSelect: FXMODE.FX_UNDEFINED,
-          fxFrequency: 0,
-          fxTrigger: 0,
-        },
-      ]
+        const payload: AputureLS[] = [
+          {
+            intensity: intensity, // 0 - 255, direct from blender
+            mode: MODE_SELECT.MODE_MANUAL,
+            fxSelect: FXMODE.FX_UNDEFINED,
+            fxFrequency: 0,
+            fxTrigger: 0,
+          },
+          {
+            intensity: 0, //
+            mode: MODE_SELECT.MODE_MANUAL,
+            fxSelect: FXMODE.FX_UNDEFINED,
+            fxFrequency: 0,
+            fxTrigger: 0,
+          },
+        ]
 
         if (!dmxDeviceID) {
           console.log(`would trigger DMX event`, payload, `but there doesn't appear to be one connected`)
@@ -80,14 +81,14 @@ export function callTrigger(
 
         console.log(`sending dmx packet`)
 
-
-        deviceManager.write(message, cancellationToken).then(() => {
-          console.log(`successfully sent dmx packet`)
-        }).catch(err => {
-          console.error("Error triggering DMX event", err)
-        })
-
-
+        deviceManager
+          .write(message, cancellationToken)
+          .then(() => {
+            console.log(`successfully sent dmx packet`)
+          })
+          .catch(err => {
+            console.error('Error triggering DMX event', err)
+          })
       }
 
       return
