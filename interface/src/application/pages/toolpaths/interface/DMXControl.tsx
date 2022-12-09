@@ -66,13 +66,12 @@ function ConnectDisconnectButton(props: { deviceID: DeviceID }) {
 export function DMXControlTab() {
   let dmxDeviceID = useDeviceIDByMetadata({ device_type: 'dmx' } as any) // TODO: Check after update to latest template
 
-  const backupID = useDeviceIDByTransportKey('serial')
-
-  dmxDeviceID = backupID!
+  // const backupID = useDeviceIDByTransportKey('serial') // just grab any ol' eUI device and check if it has a good ID
+  // dmxDeviceID = backupID!
 
   const { poll, polling } = usePollForDevices()
 
-  const hasAcceptableConnection = useDeviceHasAcceptableConnection(dmxDeviceID)
+  const hasAcceptableConnection = useDeviceHasAcceptableConnection(dmxDeviceID ?? 'iwishwehadoptionalhooks' as DeviceID)
 
   if (!dmxDeviceID) {
     return (
@@ -100,7 +99,7 @@ export function DMXControlTab() {
           rightElement={<Tag>{'%'}</Tag>}
           accessor={state =>
             typeof state.fixture !== 'undefined'
-              ? Math.round((state.fixture?.intensity ?? 0 / 255) * 100)
+              ? Math.round(((state.fixture[0]?.intensity ?? 0) / 255) * 100)
               : 'disconnected'
           }
           writer={(state, val) => {
@@ -109,11 +108,11 @@ export function DMXControlTab() {
               return
             }
 
-            state.fixture.intensity = Math.round((val / 100) * 255)
-            state.fixture.mode = MODE_SELECT.MODE_MANUAL
-            state.fixture.fxSelect = FXMODE.FX_UNDEFINED
-            state.fixture.fxFrequency = 0
-            state.fixture.fxTrigger = 0
+            state.fixture[0].intensity = Math.round((val / 100) * 255)
+            state.fixture[0].mode = MODE_SELECT.MODE_MANUAL
+            state.fixture[0].fxSelect = FXMODE.FX_UNDEFINED
+            state.fixture[0].fxFrequency = 0
+            state.fixture[0].fxTrigger = 0
           }}
 
         />

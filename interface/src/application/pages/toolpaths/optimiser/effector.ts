@@ -144,7 +144,7 @@ export class Effector {
       // This is a sanity check at this level, the duration will never exceed the max speed anyway.
       if (proposedSpeed > OVERRIDE_SPEED_LIMIT) {
         console.warn(
-          `Effector movement suggested duration override of ${this.duration_override}ms, giving a speed of ${proposedSpeed} which is above the limit of OVERRIDE_SPEED_LIMIT`,
+          `Effector movement suggested duration override of ${this.duration_override}ms and a distance of ${distance}mm, giving a speed of ${proposedSpeed}mm/s which is above the limit of OVERRIDE_SPEED_LIMIT`,
         )
         proposedSpeed = OVERRIDE_SPEED_LIMIT
       }

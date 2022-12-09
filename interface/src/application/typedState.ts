@@ -87,7 +87,7 @@ declare global {
     [MSGID.LED_CALIBRATION]: LedSettings
 
     // DMX control
-    fixture: AputureLS
+    fixture: [AputureLS, AputureLS]
   }
 
   interface ElectricUIDeviceMetadataState {

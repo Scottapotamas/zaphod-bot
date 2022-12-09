@@ -367,13 +367,11 @@ export function SendToolpath() {
 
           // Start the capture
           const captureStart = Date.now()
-          let timedCaptureEnd = 0
 
           await sendCapture(captureDuration) // Start the camera capture
 
           const captureCompleteTime = new Promise((resolve, reject) => {
             setTimeout(resolve, captureDuration)
-            timedCaptureEnd = Date.now()
           })
 
           // Set up all the triggers
@@ -381,7 +379,9 @@ export function SendToolpath() {
             setTimeout(() => {
               const diff = Date.now() - captureStart
 
-              console.log(`trigger ${trigger.type} activating at ${diff}, predicted to go off at ${trigger.timestamp}`)
+              const absDiff = Math.abs(diff - trigger.timestamp)
+
+              console.log(`trigger ${trigger.type} activating at ${diff}, predicted to go off at ${trigger.timestamp}, ${absDiff}ms off`)
 
               if (deviceManager) {
                 callTrigger(trigger, deviceManager, deltaDeviceID, dmxDeviceID)
@@ -392,32 +392,32 @@ export function SendToolpath() {
           }
 
           console.log(`Sending sync`)
+          const syncStart = Date.now()
 
           await sendSync() // Begin rendering
-          // TODO: being lighting command
 
           console.log(`Waiting for frame to complete`)
 
           await getSequenceSender().waitForFrameToComplete()
-          const progressCaptureEnd = Date.now()
-
-          // TODO: stop lighting command
 
           console.log(`Frame finished rendering`)
+          const timedSyncDuration =  Date.now() - syncStart
+          const progressDuration = Date.now() - captureStart
 
           cancellationToken.haltIfCancelled()
           await captureCompleteTime // Wait for the capture duration to finish
 
-          const progressDuration = progressCaptureEnd - captureStart
-          const timedDuration = timedCaptureEnd - captureStart
+          const timedCaptureDuration =  Date.now() - captureStart
           const expectedDuration = captureDuration
 
           console.log(
             `Capture finished`,
             `progressDuration:`,
             progressDuration,
-            `timedDuration:`,
-            timedDuration,
+            `timedCaptureDuration:`,
+            timedCaptureDuration,
+            `timedSyncDuration:`,
+            timedSyncDuration,
             `expectedDuration:`,
             expectedDuration,
           )
