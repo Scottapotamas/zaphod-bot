@@ -253,7 +253,13 @@ export function SendToolpath() {
     async (duration: number) => {
       const cancellationToken = new CancellationToken()
       const captureMessage = new Message(MSGID.CAPTURE, duration)
-      console.log(`Capturing for ${duration}ms`)
+
+      if (duration === 0) {
+        console.log(`Clearing current capture`)
+      } else {
+        console.log(`Capturing for ${duration}ms`)
+      }
+
       await sendMessage(captureMessage, cancellationToken)
     },
     [sendMessage],
