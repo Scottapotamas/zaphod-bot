@@ -225,7 +225,7 @@ export class MovementGroup extends Movement {
 
   private movements: Movement[] = []
 
-  // Whether the internal ordering is frozen or can be mutated.
+  // Whether the internal ordering is frozen or can be mutated. Also prevents flipping
   public frozen = false
 
   public addMovement = (movement: Movement) => {
@@ -235,6 +235,12 @@ export class MovementGroup extends Movement {
   }
 
   public flip = () => {
+    // Frozen movement groups can't be flipped
+    if (this.frozen) {
+      return
+    }
+
+    // Otherwise flip all internal movements
     for (let index = 0; index < this.movements.length; index++) {
       const movement = this.movements[index]
       movement.flip()
@@ -446,7 +452,7 @@ export class Line extends Movement {
   private calculateSpeed = () => {
     let speedUsed = this.maxSpeed
 
-    if (this.lockSpeed !== 0 && this.lockSpeed < this.maxSpeed ) {
+    if (this.lockSpeed !== 0 && this.lockSpeed < this.maxSpeed) {
       speedUsed = this.lockSpeed
     }
 
@@ -520,11 +526,11 @@ export class Line extends Movement {
   }
 
   public getDesiredEntryVelocity = () => {
-    return this.getTo().clone().sub(this.getFrom()).normalize().multiplyScalar( this.calculateSpeed())
+    return this.getTo().clone().sub(this.getFrom()).normalize().multiplyScalar(this.calculateSpeed())
   }
 
   public getExpectedExitVelocity = () => {
-    return this.getTo().clone().sub(this.getFrom()).normalize().multiplyScalar( this.calculateSpeed())
+    return this.getTo().clone().sub(this.getFrom()).normalize().multiplyScalar(this.calculateSpeed())
   }
 
   public generateToolpath = () => {
