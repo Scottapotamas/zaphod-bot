@@ -31,6 +31,8 @@ export const defaultSettings: Settings = {
       onDuration: 5,
       postWait: 5,
       hideIfOccluded: false,
+      fullBrightnessBy: 0.1, // 10% ramp up time
+      fullBrightnessUntil: 0.9, // 10% ramp down time
     },
     light: {
       preWait: 5,

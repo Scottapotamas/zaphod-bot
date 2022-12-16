@@ -4,14 +4,12 @@ import { Color, Vector3 } from 'three'
 import { NodeInfo, NodeTypes } from '../interface/RenderableTree'
 import { ObjectNameTree } from './files'
 import { importMaterial, MaterialJSON } from './material'
+import { isSimpleColorMaterial, SimpleColorMaterial } from './materials/Color'
 import { Point, Line, Movement, MovementGroup } from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
 
-export interface ParticlesStrokePoint {
-  co: [number, number, number] // position
-  pressure: number // Pressure of tablet at point when drawing it
-  strength: number // Color intensity (alpha factor)
-  vertexColor: [number, number, number, number] // Vertex color
+export function map(num: number, in_min: number, in_max: number, out_min: number, out_max: number) {
+  return ((num - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min
 }
 
 export interface Particle {
@@ -20,6 +18,7 @@ export interface Particle {
   quaternion: [number, number, number, number]
   velocity: [number, number, number]
   occluded: boolean
+  lifecycle: number // Float 0-1, 0 is just born, 1 is just dead.
 }
 
 export class ParticleSystem {
@@ -51,6 +50,12 @@ export interface ParticlesToMovementsSettings {
    * Note this takes precidence even over material overrides, due to pipeline dependency requirements.
    */
   hideIfOccluded?: boolean
+
+  // Ramp up time, a percentage of time spent going from 0 to full opacity.
+  fullBrightnessBy?: number // 0 - 1
+
+  // Ramp down time, a percentage of time spent going from 0 to full opacity.
+  fullBrightnessUntil?: number // 0 - 1
 }
 
 export class Particles {
@@ -123,7 +128,26 @@ export class Particles {
           (settingsWithOverride.onDuration ?? 0) +
           (settingsWithOverride.postWait ?? 0)
 
-        const point = new Point(location, duration, importMaterial(system.material), objectID, overrideKeys)
+        let mat = importMaterial(system.material)
+
+        if (isSimpleColorMaterial(mat)) {
+          const fullBrightnessBy = settingsWithOverride.fullBrightnessBy ?? 0
+          const fullBrightnessTill = settingsWithOverride.fullBrightnessUntil ?? 1
+
+          let brightness = 1
+
+          // during ramp up
+          if (particle.lifecycle < fullBrightnessBy) {
+            brightness = map(particle.lifecycle, 0, fullBrightnessBy, 0, 1)
+          } else if (particle.lifecycle > fullBrightnessTill) {
+            brightness = map(particle.lifecycle, fullBrightnessTill, 1, 1, 0)
+          }
+
+          // mutate opacity
+          mat.color[3] *= brightness
+        }
+
+        const point = new Point(location, duration, mat, objectID, overrideKeys)
 
         // This ID is guaranteed to be stable
         point.interFrameID = particle.id
@@ -153,6 +177,7 @@ export interface ParticlesJSON {
       quaternion: [number, number, number, number]
       velocity: [number, number, number]
       occluded: boolean
+      lifecycle: number // float 0-1 representing the lifecycle of the particle
     }[]
   }[]
 }

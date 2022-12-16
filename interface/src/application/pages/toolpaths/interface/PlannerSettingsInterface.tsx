@@ -599,6 +599,26 @@ function ParticlesTab() {
         selector={state => state.settings.objectSettings.particles.hideIfOccluded}
         writer={(state, value) => (state.settings.objectSettings.particles.hideIfOccluded = value)}
       />
+      <NumericInput
+        label="Full Brightness By"
+        min={0}
+        max={100}
+        stepSize={1}
+        majorStepSize={10}
+        rightText="%"
+        selector={state => (state.settings.objectSettings.particles.fullBrightnessBy ?? 1) * 100}
+        writer={(state, value) => (state.settings.objectSettings.particles.fullBrightnessBy = value / 100)}
+      />
+      <NumericInput
+        label="Full Brightness Until"
+        min={0}
+        max={100}
+        stepSize={1}
+        majorStepSize={10}
+        rightText="%"
+        selector={state => (state.settings.objectSettings.particles.fullBrightnessUntil ?? 1) * 100}
+        writer={(state, value) => (state.settings.objectSettings.particles.fullBrightnessUntil = value / 100)}
+      />
     </Composition>
   )
 }
