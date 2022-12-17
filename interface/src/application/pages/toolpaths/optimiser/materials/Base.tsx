@@ -2,13 +2,7 @@ import { MathUtils, Vector3 } from 'three'
 import { VisualisationSettings } from '../../interface/state'
 import { Settings } from '../../optimiser/settings'
 import { LightMoveType, PlannerLightMove } from './../hardware'
-import {
-  AddComponentCallback,
-  AddLineCallback,
-  Movement,
-  MOVEMENT_TYPE,
-  RGBA,
-} from './../movements'
+import { AddComponentCallback, AddLineCallback, Movement, MOVEMENT_TYPE, RGBA } from './../movements'
 import { annotateDrawOrder, rgbToHsi } from './utilities'
 
 /**
@@ -43,27 +37,25 @@ export abstract class Material {
     fromT: number,
     toT: number,
   ): PlannerLightMove[] => {
-    const startColor = this.calculateColor(
-      movement,
-      settings,
-      visualisationSettings,
-      cameraPosition,
-      fromT,
-    )
-    const endColor = this.calculateColor(
-      movement,
-      settings,
-      visualisationSettings,
-      cameraPosition,
-      toT,
-    )
+    const startColor = this.calculateColor(movement, settings, visualisationSettings, cameraPosition, fromT)
+    const endColor = this.calculateColor(movement, settings, visualisationSettings, cameraPosition, toT)
+
+    const startHSI = rgbToHsi(startColor[0], startColor[1], startColor[2])
+    const endHSI = rgbToHsi(endColor[0], endColor[1], endColor[2])
+
+    const preI = startHSI[2]
+
+    // Use the alpha value to multiply out the intensity??
+    // TODO: do a better colour model
+    startHSI[2] = startHSI[2] * startColor[3]
+    endHSI[2] = endHSI[2] * endColor[3]
 
     const fade: PlannerLightMove = {
       duration: movement.getDuration(),
       type: LightMoveType.RAMP,
       points: [
-        rgbToHsi(startColor[0], startColor[1], startColor[2]),
-        rgbToHsi(endColor[0], endColor[1], endColor[2]),
+        startHSI,
+        endHSI, //
       ],
     }
 
@@ -87,50 +79,26 @@ export abstract class Material {
     toT: number,
   ) => {
     // Annotate draw order
-    annotateDrawOrder(
-      movementIndex,
-      movement,
-      visualisationSettings,
-      addReactComponent,
-    )
+    annotateDrawOrder(movementIndex, movement, visualisationSettings, addReactComponent)
 
     // A simple color material draws the line segment(s) from the start to the end with a single color
     const numSegments =
-      movement.type === MOVEMENT_TYPE.LINE ||
-        movement.type === MOVEMENT_TYPE.POINT
+      movement.type === MOVEMENT_TYPE.LINE || movement.type === MOVEMENT_TYPE.POINT
         ? 1
         : Math.max(Math.ceil(movement.getLength() / 2), 10)
 
     // For the number of segments,
     for (let index = 0; index < numSegments; index++) {
       const startT = MathUtils.mapLinear(index / numSegments, 0, 1, fromT, toT)
-      const endT = MathUtils.mapLinear(
-        (index + 1) / numSegments,
-        0,
-        1,
-        fromT,
-        toT,
-      )
+      const endT = MathUtils.mapLinear((index + 1) / numSegments, 0, 1, fromT, toT)
 
       // Sample points along the movement
       const start = movement.samplePoint(startT)
       const end = movement.samplePoint(endT)
 
       // Sample along the gradient between the two colours
-      const startCol = this.calculateColor(
-        movement,
-        settings,
-        visualisationSettings,
-        cameraPosition,
-        startT,
-      )
-      const endCol = this.calculateColor(
-        movement,
-        settings,
-        visualisationSettings,
-        cameraPosition,
-        endT,
-      )
+      const startCol = this.calculateColor(movement, settings, visualisationSettings, cameraPosition, startT)
+      const endCol = this.calculateColor(movement, settings, visualisationSettings, cameraPosition, endT)
 
       // Add the line
       addColouredLine(start, end, startCol, endCol, movement.objectID)

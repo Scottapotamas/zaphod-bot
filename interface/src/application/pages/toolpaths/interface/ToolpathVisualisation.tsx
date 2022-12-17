@@ -110,7 +110,7 @@ export function ToolpathMovements() {
           colorStart[0],
           colorStart[1],
           colorStart[2],
-          1, //
+          colorStart[3], //
         ],
         backgroundColorAsRGBA,
         1 - colorStart[3], // merge with the background by (1 - alpha)
@@ -120,7 +120,7 @@ export function ToolpathMovements() {
           colorEnd[0],
           colorEnd[1],
           colorEnd[2],
-          1, //
+          colorEnd[3], //
         ],
         backgroundColorAsRGBA,
         1 - colorEnd[3], // merge with the background by (1 - alpha)
