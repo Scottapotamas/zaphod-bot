@@ -414,8 +414,6 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
             break;
     }
 
-    }
-
     // Calculate a motor angle solution for the cartesian position
     kinematics_point_to_angle( target, &angle_target );
 
