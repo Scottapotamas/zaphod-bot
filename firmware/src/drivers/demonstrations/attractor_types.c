@@ -13,49 +13,49 @@
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE float lorenz_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float lorenz_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float lorenz_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float lorenz_x( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float lorenz_y( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float lorenz_z( const float speed, const float parameters[], const float x, const float y, const float z );
 
-PRIVATE float thomas_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float thomas_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float thomas_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float thomas_x( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float thomas_y( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float thomas_z( const float speed, const float parameters[], const float x, const float y, const float z );
 
-PRIVATE float aizawa_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float aizawa_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float aizawa_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float aizawa_x( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float aizawa_y( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float aizawa_z( const float speed, const float parameters[], const float x, const float y, const float z );
 
-PRIVATE float dadras_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float dadras_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float dadras_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float dadras_x( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float dadras_y( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float dadras_z( const float speed, const float parameters[], const float x, const float y, const float z );
 
-PRIVATE float chen_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float chen_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float chen_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float chen_x( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float chen_y( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float chen_z( const float speed, const float parameters[], const float x, const float y, const float z );
 
-PRIVATE float rossler_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float rossler_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float rossler_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float rossler_x( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float rossler_y( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float rossler_z( const float speed, const float parameters[], const float x, const float y, const float z );
 
-PRIVATE float halvorsen_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float halvorsen_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float halvorsen_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float halvorsen_x( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float halvorsen_y( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float halvorsen_z( const float speed, const float parameters[], const float x, const float y, const float z );
 
-PRIVATE float rabinovich_fabrikant_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float rabinovich_fabrikant_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float rabinovich_fabrikant_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float rabinovich_fabrikant_x( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float rabinovich_fabrikant_y( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float rabinovich_fabrikant_z( const float speed, const float parameters[], const float x, const float y, const float z );
 
-PRIVATE float three_scroll_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float three_scroll_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float three_scroll_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float three_scroll_x( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float three_scroll_y( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float three_scroll_z( const float speed, const float parameters[], const float x, const float y, const float z );
 
-PRIVATE float sprott_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float sprott_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float sprott_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float sprott_x( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float sprott_y( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float sprott_z( const float speed, const float parameters[], const float x, const float y, const float z );
 
-PRIVATE float four_wing_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float four_wing_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
-PRIVATE float four_wing_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float four_wing_x( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float four_wing_y( const float speed, const float parameters[], const float x, const float y, const float z );
+PRIVATE float four_wing_z( const float speed, const float parameters[], const float x, const float y, const float z );
 
 /* -------------------------------------------------------------------------- */
 
@@ -217,51 +217,51 @@ PRIVATE void attractor_runge_kutta( const float time, const AttractorSystem_t *s
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE float lorenz_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float lorenz_x( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return 0.5f * speed * ( parameters[PARAM_C] * ( -1.0f*x + y) );
 }
 
-PRIVATE float lorenz_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float lorenz_y( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return 0.5f * speed * ( -x * z + parameters[PARAM_A] * x - y );
 }
 
-PRIVATE float lorenz_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float lorenz_z( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return 0.5f * speed * ( x * y - parameters[PARAM_B] * z );
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE float thomas_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float thomas_x( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * sinf( y ) - parameters[PARAM_B] * x;
 }
 
-PRIVATE float thomas_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float thomas_y( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * sinf( z ) - parameters[PARAM_B] * y;
 }
 
-PRIVATE float thomas_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float thomas_z( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * sinf( y ) - parameters[PARAM_B] * z;
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE float aizawa_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float aizawa_x( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( (z - parameters[PARAM_B]) * x - parameters[PARAM_D] * y );
 }
 
-PRIVATE float aizawa_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float aizawa_y( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( parameters[PARAM_D] * x + (z - parameters[PARAM_B]) * y );
 }
 
-PRIVATE float aizawa_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float aizawa_z( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( parameters[PARAM_C] + parameters[PARAM_A] * z - ( z*z*z / 3.0f )
                      - ( x * x + y * y ) * ( 1.0f + parameters[PARAM_E] * z)
@@ -270,86 +270,86 @@ PRIVATE float aizawa_z( const float time, const float speed, const float paramet
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE float dadras_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float dadras_x( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( y - parameters[PARAM_A] * x + parameters[PARAM_B] * y * z );
 }
 
-PRIVATE float dadras_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float dadras_y( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( parameters[PARAM_C] * y - x * z + z );
 }
 
-PRIVATE float dadras_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float dadras_z( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( parameters[PARAM_D] * x * y - parameters[PARAM_E] * z );
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE float chen_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float chen_x( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( parameters[PARAM_A] * x - y * z );
 }
 
-PRIVATE float chen_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float chen_y( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( parameters[PARAM_B] * y + x * z );
 }
 
-PRIVATE float chen_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float chen_z( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( parameters[PARAM_D] * z + x * y/3.0f );
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE float rossler_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float rossler_x( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( -1.0f * ( y + z ) );
 }
 
-PRIVATE float rossler_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float rossler_y( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( x + parameters[PARAM_A] * y );
 }
 
-PRIVATE float rossler_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float rossler_z( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( parameters[PARAM_B] + z * ( x - parameters[PARAM_C] ) );
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE float halvorsen_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float halvorsen_x( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return 0.3f * speed * ( -1.0f * parameters[PARAM_A] * x - 4.0f * y - 4.0f * z - y * y );
 }
 
-PRIVATE float halvorsen_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float halvorsen_y( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return 0.3f * speed * ( -1.0f * parameters[PARAM_A] * y - 4.0f * z - 4.0f * x - z * z );
 }
 
-PRIVATE float halvorsen_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float halvorsen_z( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return 0.3f * speed * ( -1.0f * parameters[PARAM_A] * z - 4.0f * x - 4.0f * y - x * x );
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE float rabinovich_fabrikant_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float rabinovich_fabrikant_x( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     // check gamma is c?
     return 0.2f * speed * ( y * ( z - 1.0f + x * x ) + parameters[PARAM_C] * x );
 }
 
-PRIVATE float rabinovich_fabrikant_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float rabinovich_fabrikant_y( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return 0.2f * speed * ( x * ( 3.0f * z + 1 - x * x ) + parameters[PARAM_C] * y );
 }
 
-PRIVATE float rabinovich_fabrikant_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float rabinovich_fabrikant_z( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return 0.2f * speed * ( -2.0f * z * ( parameters[PARAM_A] + x * y ) );
 }
@@ -357,34 +357,34 @@ PRIVATE float rabinovich_fabrikant_z( const float time, const float speed, const
 /* -------------------------------------------------------------------------- */
 
 // Tscus
-PRIVATE float three_scroll_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float three_scroll_x( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return 1.1f * speed * ( parameters[PARAM_A] * (x - y) + parameters[PARAM_D] * x * z );
 }
 
-PRIVATE float three_scroll_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float three_scroll_y( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return 1.1f * speed * ( parameters[PARAM_B] * x - x * z + parameters[PARAM_F] * y );
 }
 
-PRIVATE float three_scroll_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float three_scroll_z( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return 1.1f * speed * ( parameters[PARAM_C] * z + x * y - parameters[PARAM_E] * x * x );
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE float sprott_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float sprott_x( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( y + parameters[PARAM_A] * x * y + x * z );
 }
 
-PRIVATE float sprott_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float sprott_y( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( 1.0f - parameters[PARAM_B] * x * x + y * z );
 }
 
-PRIVATE float sprott_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float sprott_z( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( x - x * x - y * y );
 }
@@ -393,17 +393,17 @@ PRIVATE float sprott_z( const float time, const float speed, const float paramet
 
 // Wang-Sun
 
-PRIVATE float four_wing_x( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float four_wing_x( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( parameters[PARAM_A] * x + y * z );
 }
 
-PRIVATE float four_wing_y( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float four_wing_y( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( parameters[PARAM_B] * x + parameters[PARAM_C] * y - x * z );
 }
 
-PRIVATE float four_wing_z( const float time, const float speed, const float parameters[], const float x, const float y, const float z )
+PRIVATE float four_wing_z( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( -1.0f * z - x * y );
 }

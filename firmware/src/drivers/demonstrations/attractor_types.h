@@ -49,7 +49,7 @@ typedef struct
     float z;
 } AttractorPosition_t;
 
-typedef float (*fn_strange_eval)(const float, const float, const float[], const float, const float, const float);
+typedef float (*fn_strange_eval)( const float, const float[], const float, const float, const float);
 
 typedef struct
 {
