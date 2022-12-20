@@ -20,6 +20,7 @@ import {
   useHardwareState,
 } from '@electricui/components-core'
 
+import { GeneralSettings } from './GeneralSettings'
 import { InfoBlock } from './InfoBlock'
 import { LEDCalibrationBlock } from './LEDCalibrationBlock'
 
@@ -27,12 +28,8 @@ export const SettingsPage = () => {
   return (
     <div style={{ margin: '1em' }}>
       <Tabs animate vertical large renderActiveTabPanelOnly>
-        <Tab id="info" title="Info" panel={
-        // <InfoBlock />
-        <div style={{backgroundColor: 'blue'}}>
-          blah blah
-        </div>
-        } style={{width: "100%"}}/>
+        <Tab id="general" title="General" panel={<GeneralSettings />} />
+        <Tab id="info" title="Info" panel={<InfoBlock />} />
         <Tab id="led" title="LED Calibration" panel={<LEDCalibrationBlock />} />
         <Tab
           id="power"
