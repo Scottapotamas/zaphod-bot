@@ -22,7 +22,6 @@ import {
 
 import { InfoBlock } from './InfoBlock'
 import { LEDCalibrationBlock } from './LEDCalibrationBlock'
-import { KinematicsBlock } from './KinematicsBlock'
 
 export const SettingsPage = () => {
   return (
@@ -34,7 +33,6 @@ export const SettingsPage = () => {
           blah blah
         </div>
         } style={{width: "100%"}}/>
-        <Tab id="kinematics" title="Kinematics" panel={<KinematicsBlock />} />
         <Tab id="led" title="LED Calibration" panel={<LEDCalibrationBlock />} />
         <Tab
           id="power"
