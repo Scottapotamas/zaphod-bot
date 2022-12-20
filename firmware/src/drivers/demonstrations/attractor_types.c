@@ -169,13 +169,27 @@ attractor_init( void )
 
 /* -------------------------------------------------------------------------- */
 
+PRIVATE void attractor_step( const AttractorSystem_t *state, AttractorPosition_t *current, AttractorPosition_t *result )
+{
+
+
+    float nx = state->fn_x( state->speed, state->parameters, current->x, current->y, current->z );
+    float ny = state->fn_y( state->speed, state->parameters, current->x, current->y, current->z );
+    float nz = state->fn_z( state->speed, state->parameters, current->x, current->y, current->z );
+
+    result->x = current->x + ( state->step * nx );
+    result->y = current->y + ( state->step * ny );
+    result->z = current->z + ( state->step * nz );
+
+}
+
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void attractor_runge_kutta( const float time, const AttractorSystem_t *state, AttractorPosition_t *result_pos )
 {
     // Common values
-    float h2 = 0.5f * state->height;
-    float h6 = state->height / 6.0f;
+    float h2 = 0.5f * state->step;
+    float h6 = state->step / 6.0f;
     float h2_time = time + h2;
 
     float height = 0.1f;
@@ -201,13 +215,13 @@ PRIVATE void attractor_runge_kutta( const float time, const AttractorSystem_t *s
     float j3 = state->fn_y( h2_time, height, state->parameters, state->position.x + h2_k2, state->position.y + h2_j2, state->position.z + h2_i2 );
     float i3 = state->fn_z( h2_time, height, state->parameters, state->position.x + h2_k2, state->position.y + h2_j2, state->position.z + h2_i2 );
 
-    float h_k3 = state->height * k3;
-    float h_j3 = state->height * j3;
-    float h_i3 = state->height * i3;
+    float h_k3 = state->step * k3;
+    float h_j3 = state->step * j3;
+    float h_i3 = state->step * i3;
 
-    float k4 = state->fn_x( time + state->height, height, state->parameters, state->position.x + h_k3, state->position.y + h_j3, state->position.z + h_i3 );
-    float j4 = state->fn_y( time + state->height, height, state->parameters, state->position.x + h_k3, state->position.y + h_j3, state->position.z + h_i3 );
-    float i4 = state->fn_z( time + state->height, height, state->parameters, state->position.x + h_k3, state->position.y + h_j3, state->position.z + h_i3 );
+    float k4 = state->fn_x( time + state->step, height, state->parameters, state->position.x + h_k3, state->position.y + h_j3, state->position.z + h_i3 );
+    float j4 = state->fn_y( time + state->step, height, state->parameters, state->position.x + h_k3, state->position.y + h_j3, state->position.z + h_i3 );
+    float i4 = state->fn_z( time + state->step, height, state->parameters, state->position.x + h_k3, state->position.y + h_j3, state->position.z + h_i3 );
 
     // Output
     result_pos->x = state->position.x + h6 * (k1 + 2.0f * k2 + 2.0f * k3 + k4);
@@ -216,6 +230,10 @@ PRIVATE void attractor_runge_kutta( const float time, const AttractorSystem_t *s
 }
 
 /* -------------------------------------------------------------------------- */
+
+// Lorenz E. N. (1963).
+// Deterministic Nonperiodic Flow.
+// Journal of the Atmospheric Sciences. 20(2): 130–141.
 
 PRIVATE float lorenz_x( const float speed, const float parameters[], const float x, const float y, const float z )
 {
@@ -270,6 +288,10 @@ PRIVATE float aizawa_z( const float speed, const float parameters[], const float
 
 /* -------------------------------------------------------------------------- */
 
+// Dadras, S., Momeni, H.R. (2009).
+// A novel three-dimensional autonomous chaotic system generating two, three and four-scroll attractors.
+// Physics Letters A. Volume 373, Issue 40. pp. 3637-3642.
+
 PRIVATE float dadras_x( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( y - parameters[PARAM_A] * x + parameters[PARAM_B] * y * z );
@@ -287,6 +309,10 @@ PRIVATE float dadras_z( const float speed, const float parameters[], const float
 
 /* -------------------------------------------------------------------------- */
 
+// Tam L., Chen J., Chen H., Tou W. (2008).
+// Generation of hyperchaos from the Chen–Lee system via sinusoidal perturbation.
+// Chaos, Solitons and Fractals. Vol. 38, 826-839
+
 PRIVATE float chen_x( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( parameters[PARAM_A] * x - y * z );
@@ -303,6 +329,10 @@ PRIVATE float chen_z( const float speed, const float parameters[], const float x
 }
 
 /* -------------------------------------------------------------------------- */
+
+// Rössler, O. E. (1976).
+// An Equation for Continuous Chaos.
+// Physics Letters, 57A (5): 397–398.
 
 PRIVATE float rossler_x( const float speed, const float parameters[], const float x, const float y, const float z )
 {
@@ -374,6 +404,10 @@ PRIVATE float three_scroll_z( const float speed, const float parameters[], const
 
 /* -------------------------------------------------------------------------- */
 
+// Sprott. J. C. (2014).
+// A dynamical system with a strange attractor and invariant tori
+// Physic Letters A, 378 1361-1363.
+
 PRIVATE float sprott_x( const float speed, const float parameters[], const float x, const float y, const float z )
 {
     return speed * ( y + parameters[PARAM_A] * x * y + x * z );
@@ -391,7 +425,9 @@ PRIVATE float sprott_z( const float speed, const float parameters[], const float
 
 /* -------------------------------------------------------------------------- */
 
-// Wang-Sun
+// Wang, Z., Sun, Y., van Wyk, J. B, Qi, G, van Wyk, M. A. (2009).
+// A 3-D four-wing attractor and its analysis.
+// Brazilian Journal of Physics, vol. 39, no. 3. pp.547-553
 
 PRIVATE float four_wing_x( const float speed, const float parameters[], const float x, const float y, const float z )
 {

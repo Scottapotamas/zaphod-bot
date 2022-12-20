@@ -54,16 +54,15 @@ typedef float (*fn_strange_eval)( const float, const float[], const float, const
 typedef struct
 {
     AttractorPosition_t position;
-    float height;
-    float speed;
-    float parameters[MAX_PARAMETERS];
+    float               step;
+    float               speed;
+    float               parameters[MAX_PARAMETERS];
 
     // Function pointers to attractor specific systems of equations
     fn_strange_eval fn_x;
     fn_strange_eval fn_y;
     fn_strange_eval fn_z;
 } AttractorSystem_t;
-
 
 /* -------------------------------------------------------------------------- */
 
