@@ -13,12 +13,10 @@ import { InvisibleMaterialDefaultJSON } from './materials/Invisible'
 
 export class GPencilLayer {
   public strokes: GPencilStroke[] = []
-  public material: MaterialJSON
   public info: string
 
-  constructor(info: string, material: MaterialJSON | null) {
+  constructor(info: string) {
     this.info = info
-    this.material = material ?? InvisibleMaterialDefaultJSON
   }
 
   public addStroke = (stroke: GPencilStroke) => {
@@ -27,10 +25,14 @@ export class GPencilLayer {
 }
 
 export class GPencilStroke {
+  public material: MaterialJSON
   public useCyclic: boolean
   public points: GPencilStrokePoint[] = []
+  public id: string
 
-  constructor(useCyclic: boolean) {
+  constructor(id: string, material: MaterialJSON | null, useCyclic: boolean) {
+    this.id = id
+    this.material = material ?? InvisibleMaterialDefaultJSON
     this.useCyclic = useCyclic
   }
 
@@ -101,8 +103,12 @@ export class GPencil {
     for (const layer of this.layers) {
       const layerID = `${this.name}-${layer.info}`
 
-      if (layerID === objectID) {
-        return layer.material
+      if (objectID.startsWith(layerID)) {
+        for (const stroke of layer.strokes) {
+          if (stroke.id === objectID) {
+            return stroke.material
+          }
+        }
       }
     }
 
@@ -130,7 +136,7 @@ export class GPencil {
 
         const simplified = simplify(stroke.points, settingsWithOverride.simplificationTolerance ?? 0)
 
-        const material = importMaterial(layer.material)
+        const material = importMaterial(stroke.material)
 
         if (settingsWithOverride.outputType === GPencilOutputType.CATMULL_CHAIN && simplified.length >= 4) {
           const points = [
@@ -221,8 +227,9 @@ export interface GPencilJSON {
   name: string
   layers: {
     info: string
-    material: MaterialJSON
     strokes: {
+      id: string
+      material: MaterialJSON
       useCyclic: boolean
       points: {
         id: string
@@ -238,11 +245,11 @@ export function importGPencil(json: GPencilJSON) {
   const gPencil = new GPencil(json.name)
 
   for (const jLayer of json.layers) {
-    let layer = new GPencilLayer(jLayer.info, jLayer.material)
+    let layer = new GPencilLayer(jLayer.info)
     gPencil.addLayer(layer)
 
     for (const jStroke of jLayer.strokes) {
-      const stroke = new GPencilStroke(jStroke.useCyclic)
+      const stroke = new GPencilStroke(jStroke.id, jStroke.material, jStroke.useCyclic)
       layer.addStroke(stroke)
 
       for (const jPoint of jStroke.points) {
