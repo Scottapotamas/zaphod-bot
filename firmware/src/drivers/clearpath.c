@@ -262,7 +262,7 @@ servo_get_hlfb_percent( ClearpathServoInstance_t servo )
 
     // Get the HLFB duty, and scale to -100% to +100% range
     percentage = hal_ic_hard_read_f( ServoHardwareMap[servo].ic_feedback ) * 2.05f - 100.0f;
-    CLAMP( percentage, -100.0f, 100.0f );
+    percentage = CLAMP( percentage, -100.0f, 100.0f );
 
     return percentage;
 }
