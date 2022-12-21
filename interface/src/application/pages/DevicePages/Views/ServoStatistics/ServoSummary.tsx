@@ -209,7 +209,7 @@ const layoutDescription = `
 
 const ServoStats = (props: MotorData) => {
   return (
-    <OutlineCard key={props.index}>
+    <OutlineCard>
       <Composition
         areas={layoutDescription}
         // templateCols="1fr"
@@ -249,7 +249,7 @@ const ServoStatsBlock = () => {
   return (
     <Composition gap={5} templateCols="1fr 1fr 1fr 1fr">
       {motors.map((clearpath, index) => (
-        <ServoStats servo={clearpath} index={index} />
+        <ServoStats servo={clearpath} index={index} key={index}/>
       ))}
     </Composition>
   )
