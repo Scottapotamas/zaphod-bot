@@ -302,6 +302,12 @@ servo_process( ClearpathServoInstance_t servo )
         STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
     }
 
+    // If disabled (by supervisor etc) then immediately start disable process
+    if( !me->enabled && me->currentState > SERVO_STATE_INACTIVE )
+    {
+        STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+    }
+
     switch( me->currentState )
     {
         case SERVO_STATE_INACTIVE:
@@ -397,7 +403,6 @@ servo_process( ClearpathServoInstance_t servo )
             STATE_TRANSITION_TEST
             // We expect the torque to be positive while the arm transits towards the endstop
             // When it goes under 0% HLFB, the torque has changed direction and we've likely just contacted the endstop
-            // TODO consider how this homing behaviour works when delta is suspended?
             if( servo_feedback < -1.0f )
             {
                 // After this point, we'd expect the torque to increase (in -ve direction) until foldback kicks in
@@ -530,11 +535,6 @@ servo_process( ClearpathServoInstance_t servo )
                     STATE_NEXT( SERVO_STATE_IDLE_HIGH_LOAD );
                 }
             }
-
-            if( !me->enabled )
-            {
-                STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-            }
             STATE_EXIT_ACTION
 
             STATE_END
@@ -634,7 +634,7 @@ servo_process( ClearpathServoInstance_t servo )
                 STATE_NEXT( SERVO_STATE_IDLE );
             }
 
-            if( !me->enabled || hal_gpio_read_pin( ServoHardwareMap[servo].pin_oc_fault ) == SERVO_OC_FAULT )
+            if( hal_gpio_read_pin( ServoHardwareMap[servo].pin_oc_fault ) == SERVO_OC_FAULT )
             {
                 STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
             }
