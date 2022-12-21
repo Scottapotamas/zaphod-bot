@@ -63,10 +63,11 @@ export const EventPalette = () => {
           {/* Consider a label here to explain it's a settings expansion? */}
         </Button>
 
-        <OutlineCard>
-          <Composition templateCols="1fr" gap={10} padding={10}>
+        <OutlineCard >
+          <Composition gap={10} padding={10}>
+            <div style={{paddingBottom: "1em"}}>
             <FolderPathSelector />
-
+            </div>
             <RenderInterface />
 
             <Optimiser />

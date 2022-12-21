@@ -30,7 +30,7 @@ export const ToolpathViewer = (props: RouteComponentProps) => {
       </div>
 
       <div style={{ width: 600, position: 'absolute' }}>
-        <Button onClick={() => navigate(`/`)} style={{ margin: 10 }}>
+        <Button onClick={() => navigate(`/`)} style={{ margin: 10 }} outlined>
           Back to connections screen
         </Button>
         <Composition gap={10} padding={10}>

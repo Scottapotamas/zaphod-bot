@@ -15,6 +15,7 @@ interface OpenResult {
 }
 
 import { getSetting, markClean, setFolder, useSetting } from './state'
+import { IconNames } from '@blueprintjs/icons'
 
 export function FolderPathSelector() {
   const options: OpenDialogOptions = {
@@ -133,9 +134,11 @@ export function FolderPathSelector() {
             disabled={!hasFolderSelected}
             onClick={reload}
             small
+            outlined
             style={{ marginRight: 3 }}
+            icon={IconNames.REFRESH}
           >
-            Reload
+            {/* Reload */}
           </Button>
           <Button
             intent={Intent.SUCCESS}
@@ -143,8 +146,10 @@ export function FolderPathSelector() {
             onClick={save}
             loading={saving}
             small
+            outlined
+            icon={IconNames.FLOPPY_DISK}
           >
-            Save Settings
+            {/* Save Settings */}
           </Button>
         </div>
       </div>
