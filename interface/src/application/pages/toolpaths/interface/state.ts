@@ -169,6 +169,14 @@ export interface Store {
     z: number
   }
 
+  targetPosition: {
+    x: number
+    y: number
+    z: number
+  }
+
+  hardwareMode: string
+  
   // Tree view store
   treeStore: {
     tree: TreeNodeInfo<NodeInfo>[]
@@ -252,6 +260,12 @@ const initialState: Store = {
   viewportFrameVersion: 0,
 
   endEffector: {
+    x: 0,
+    y: 0,
+    z: 0,
+  },
+
+  targetPosition: {
     x: 0,
     y: 0,
     z: 0,

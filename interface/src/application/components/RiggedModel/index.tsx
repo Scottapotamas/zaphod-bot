@@ -191,16 +191,48 @@ function EndEffector() {
           position={[-43.25, -3, -0.25]}
           rotation={[0, Math.PI / -2, 0]}
         />
-        {/* <mesh position={[0, -LIGHT_OFFSET, 0]}>
-          <sphereBufferGeometry attach="geometry" args={[3, 20, 20]} />
-          <meshStandardMaterial
-            attach="material"
-            color="orange"
-            roughness={0.6}
-          />
-        </mesh> */}
+        
       </group>
     </>
+  )
+}
+
+function TargetPositionVisualiser() {
+
+  const ref = useRef<Group>(null)
+
+  useEffect(() => {
+    if (ref && ref.current) {
+      const initialTpos = getSetting(state => state.targetPosition)
+
+      ref.current.position.set(
+        initialTpos.x,
+        initialTpos.z + LIGHT_OFFSET, // Delta -> ThreeJS transform
+        -initialTpos.y,
+      )
+    }
+
+    return useStore.subscribe(
+      state => state.targetPosition,
+      tpos => {
+        if (ref && ref.current) {
+          ref.current.position.set(tpos.x, tpos.z + LIGHT_OFFSET, -tpos.y) // Delta -> ThreeJS transform
+        }
+      },
+    )
+  }, [])
+
+  return (
+    <group ref={ref} >
+      <mesh>
+        <sphereBufferGeometry attach="geometry" args={[3, 20, 20]} />
+        <meshStandardMaterial
+          attach="material"
+          color="orange"
+          roughness={0.6}
+        />
+      </mesh>
+    </group>
   )
 }
 
@@ -221,6 +253,39 @@ function HardwareConnector() {
       }
     },
   )
+
+  useHardwareStateSubscription(
+    state => state[MSGID.POSITION_TARGET],
+    tpos => {
+      // On hardware position updates
+      if (
+        tpos &&
+        !getSetting(state => state.visualisationSettings.previewProgress)
+      ) {
+        setSetting(state => {
+          state.targetPosition.x = tpos.x
+          state.targetPosition.y = tpos.y
+          state.targetPosition.z = tpos.z
+        })
+      }
+    },
+  )
+
+  useHardwareStateSubscription(
+    state => state[MSGID.SUPERVISOR].mode,
+    mode => {
+      // On hardware position updates
+      if (
+        mode &&
+        !getSetting(state => state.visualisationSettings.previewProgress)
+      ) {
+        setSetting(state => {
+          state.hardwareMode = mode
+        })
+      }
+    },
+  )
+
   return null
 }
 
@@ -231,6 +296,8 @@ export const DeltaAssembly = () => {
     <>
       {/* End effector */}
       <EndEffector />
+
+      <TargetPositionVisualiser/>
 
       <group position={[0, -190, 0]} castShadow receiveShadow>
         {/* Base positioned such that threeJS '[0,0,0' is aligned line with the servo shaft center */}
