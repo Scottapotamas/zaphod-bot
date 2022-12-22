@@ -6,6 +6,8 @@
 #define MSGID_FIRMWARE_INFO "fwb"
 #define MSGID_ERROR         "err"
 
+#define MSGID_CONFIG         "config"
+
 #define MSGID_KINEMATICS "kinematics"
 #define MSGID_SYSTEM     "sx"
 #define MSGID_SUPERVISOR "ss"

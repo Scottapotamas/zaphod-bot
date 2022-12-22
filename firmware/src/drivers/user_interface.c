@@ -81,6 +81,7 @@ uint32_t camera_shutter_duration_ms = 0;
 
 // Configuration controlled variables are done with raw pointer sharing - yuck
 LedSettings_t led_calibration = { 0 };
+UserConfig_t user_configuration = { 0 };
 
 eui_message_t ui_variables[] = {
     // Higher level system setup information
@@ -123,8 +124,8 @@ eui_message_t ui_variables[] = {
     EUI_UINT32( MSGID_CAPTURE, camera_shutter_duration_ms ),
 
     EUI_CUSTOM( MSGID_LED_CALIBRATION, led_calibration ),
+    EUI_CUSTOM( MSGID_CONFIG, user_configuration ),
 
-    //    EUI_FLOAT( "rotZ", z_rotation ),
     //    EUI_CUSTOM( "pwr_cal", power_trims ),
 };
 

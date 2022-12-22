@@ -23,6 +23,10 @@ import {
   LedStatus,
   LedSettings,
   PowerCalibration,
+  BOUNDARY_VIOLATION_MODES,
+  UserConfigFlags,
+  UserConfigFields,
+  UserConfig,
   AputureLS
 } from '../../application/typedState'
 import { SmartBuffer } from 'smart-buffer'
@@ -503,6 +507,70 @@ export class PowerCalibrationCodec extends Codec {
   }
 }
 
+export class UserConfigCodec extends Codec {
+  filter(message: Message): boolean {
+    return message.messageID === MSGID.USER_CONFIG
+  }
+
+  encode(payload: UserConfig) {
+    const packet = new SmartBuffer()
+
+    let bitfield1 = 0;
+    let bitfield2 = 0xAA;  // currently reserved
+
+    bitfield1 |= (0 << (payload.flags.buzzer_mute ? 1 : 0) )
+    bitfield1 |= (1 << (payload.flags.effector_as_status_led ? 1 : 0) )
+    bitfield1 |= (2 << (payload.flags.pendant_optional ? 1 : 0) )
+    bitfield1 |= (3 << (payload.flags.pendant_verify_on_arm ? 1 : 0) )
+    bitfield1 |= (4 << (payload.flags.pendant_light_enabled ? 1 : 0) )
+    bitfield1 |= (5 << (payload.flags.inverted ? 1 : 0) )
+    bitfield1 |= (6 << payload.flags.boundary_violation_mode )
+
+    packet.writeUInt8(bitfield1)
+    packet.writeUInt8(bitfield2)
+
+    packet.writeUInt8(payload.values.z_rotation)
+    packet.writeUInt8(payload.values.speed_limit)
+    packet.writeUInt8(payload.values.volume_x)
+    packet.writeUInt8(payload.values.volume_y)
+    packet.writeUInt8(payload.values.volume_z)
+
+    return packet.toBuffer()
+  }
+
+  decode(payload: Buffer): UserConfig {
+    const reader = SmartBuffer.fromBuffer(payload)
+
+    let b1 = reader.readUInt8()
+    let b2 = reader.readUInt8() // reserved byte
+
+    let flags:UserConfigFlags = {
+      buzzer_mute: (b1 & 0x01) == 1,
+      effector_as_status_led: ((b1 >> 1) & 0x01) == 1,
+      pendant_optional: ((b1 >> 2) & 0x01) == 1,
+      pendant_verify_on_arm: ((b1 >> 3) & 0x01) == 1,
+      pendant_light_enabled: ((b1 >> 4) & 0x01) == 1,
+      inverted: ((b1 >> 5) & 0x01) == 1,
+      boundary_violation_mode: (b1 >> 6) & 0x03  //BOUNDARY_VIOLATION_MODES
+    }
+
+    let fields:UserConfigFields = {
+      z_rotation: reader.readUInt8(),
+      speed_limit: reader.readUInt8(),
+      volume_x: reader.readUInt8(),
+      volume_y: reader.readUInt8(),
+      volume_z: reader.readUInt8(),
+    }
+
+    return {
+      flags: flags,
+      values: fields
+    }
+  }
+}
+
+
+
 export class AputureFixtureCodec extends Codec {
   filter(message: Message): boolean {
     return message.messageID === 'fixture'
@@ -558,5 +626,6 @@ export const customCodecs = [
   new LEDCodec(),
   new RGBSettingsCodec(),
   new PowerCalibrationCodec(),
+  new UserConfigCodec(),
   new AputureFixtureCodec(),
 ]

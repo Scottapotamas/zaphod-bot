@@ -127,6 +127,35 @@ typedef struct
 
 /* -------------------------------------------------------------------------- */
 
+typedef struct
+{
+    uint8_t buzzer_mute : 1;
+    uint8_t effector_as_status_led : 1;
+    uint8_t pendant_optional : 1;
+    uint8_t pendant_verify_on_arm : 1;
+    uint8_t pendant_light_enabled : 1;
+    uint8_t inverted : 1;
+    uint8_t boundary_violation_mode : 2;
+    uint8_t reserved: 8;
+} SettingsBitfieldRenameMe_t;
+
+typedef struct
+{
+    uint8_t z_rotation;
+    uint8_t speed_limit;
+    uint8_t volume_x;
+    uint8_t volume_y;
+    uint8_t volume_z;
+} SettingsValuesRenameMe_t;
+
+typedef struct
+{
+    SettingsBitfieldRenameMe_t flags;
+    SettingsValuesRenameMe_t values;
+} UserConfig_t;
+
+/* -------------------------------------------------------------------------- */
+
 #ifdef __cplusplus
 }
 #endif

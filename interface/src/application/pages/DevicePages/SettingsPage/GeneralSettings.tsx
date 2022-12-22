@@ -42,9 +42,9 @@ export const GeneralSettings = () => {
         <Checkbox
           checked={true}
           unchecked={false}
-          accessor={state => state[MSGID.USER_CONFIG].mute_buzzer}
+          accessor={state => state[MSGID.USER_CONFIG].flags.inverted}
           writer={(state, value) => {
-            state[MSGID.USER_CONFIG].mute_buzzer = value
+            state[MSGID.USER_CONFIG].flags.inverted = value
           }}
         >
           Aerial mounting
@@ -52,9 +52,9 @@ export const GeneralSettings = () => {
 
         {/* Dropdown for geometry warning behaviours */}
         <Dropdown
-          accessor={state => state[MSGID.USER_CONFIG].mute_buzzer}
+          accessor={state => state[MSGID.USER_CONFIG].flags.boundary_violation_mode}
           writer={(state, value) => {
-            state[MSGID.USER_CONFIG].mute_buzzer = value
+            state[MSGID.USER_CONFIG].flags.boundary_violation_mode = value
           }}
           placeholder={() => 'Boundary Checks'}
         >
@@ -85,9 +85,9 @@ export const GeneralSettings = () => {
         <Checkbox
           checked={true}
           unchecked={false}
-          accessor={state => state[MSGID.USER_CONFIG].mute_buzzer}
+          accessor={state => state[MSGID.USER_CONFIG].flags.pendant_optional}
           writer={(state, value) => {
-            state[MSGID.USER_CONFIG].mute_buzzer = value
+            state[MSGID.USER_CONFIG].flags.pendant_optional = value
           }}
         >
           E-STOP Pendant Optional
@@ -95,9 +95,9 @@ export const GeneralSettings = () => {
         <Checkbox
           checked={true}
           unchecked={false}
-          accessor={state => state[MSGID.USER_CONFIG].mute_buzzer}
+          accessor={state => state[MSGID.USER_CONFIG].flags.pendant_verify_on_arm}
           writer={(state, value) => {
-            state[MSGID.USER_CONFIG].mute_buzzer = value
+            state[MSGID.USER_CONFIG].flags.pendant_verify_on_arm = value
           }}
         >
           Require E-STOP verification during arming
@@ -105,9 +105,9 @@ export const GeneralSettings = () => {
         <Checkbox
           checked={true}
           unchecked={false}
-          accessor={state => state[MSGID.USER_CONFIG].mute_buzzer}
+          accessor={state => state[MSGID.USER_CONFIG].flags.pendant_light_enabled}
           writer={(state, value) => {
-            state[MSGID.USER_CONFIG].mute_buzzer = value
+            state[MSGID.USER_CONFIG].flags.pendant_light_enabled = value
           }}
         >
           E-STOP armed status light
@@ -117,9 +117,9 @@ export const GeneralSettings = () => {
         <Checkbox
           checked={true}
           unchecked={false}
-          accessor={state => state[MSGID.USER_CONFIG].mute_buzzer}
+          accessor={state => state[MSGID.USER_CONFIG].flags.effector_as_status_led}
           writer={(state, value) => {
-            state[MSGID.USER_CONFIG].mute_buzzer = value
+            state[MSGID.USER_CONFIG].flags.effector_as_status_led = value
           }}
         >
           Use effector light for notifications
@@ -128,9 +128,9 @@ export const GeneralSettings = () => {
         <Checkbox
           checked={true}
           unchecked={false}
-          accessor={state => state[MSGID.USER_CONFIG].mute_buzzer}
+          accessor={state => state[MSGID.USER_CONFIG].flags.buzzer_mute}
           writer={(state, value) => {
-            state[MSGID.USER_CONFIG].mute_buzzer = value
+            state[MSGID.USER_CONFIG].flags.buzzer_mute = value
           }}
         >
           Mute Buzzer
@@ -142,9 +142,9 @@ export const GeneralSettings = () => {
         <h2>Speed Limits</h2>
 
       <NumberInput
-            accessor={state => state[MSGID.USER_CONFIG].restrict.y}
+            accessor={state => state[MSGID.USER_CONFIG].values.speed_limit}
             writer={(state, value) => {
-              state[MSGID.USER_CONFIG].restrict.y = value
+              state[MSGID.USER_CONFIG].values.speed_limit = value
             }}
             min={0}
             max={300}
@@ -178,9 +178,9 @@ export const GeneralSettings = () => {
         <h2>Restrict Volume</h2>
         <Composition templateCols="1fr" gap={5}>
           <NumberInput
-            accessor={state => state[MSGID.USER_CONFIG].restrict.x}
+            accessor={state => state[MSGID.USER_CONFIG].values.volume_x}
             writer={(state, value) => {
-              state[MSGID.USER_CONFIG].restrict.x = value
+              state[MSGID.USER_CONFIG].values.volume_x = value
             }}
             min={0}
             max={300}
@@ -193,9 +193,9 @@ export const GeneralSettings = () => {
           />
 
           <NumberInput
-            accessor={state => state[MSGID.USER_CONFIG].restrict.y}
+            accessor={state => state[MSGID.USER_CONFIG].values.volume_y}
             writer={(state, value) => {
-              state[MSGID.USER_CONFIG].restrict.y = value
+              state[MSGID.USER_CONFIG].values.volume_y = value
             }}
             min={0}
             max={300}
@@ -208,9 +208,9 @@ export const GeneralSettings = () => {
           />
           <Box>
             <NumberInput
-              accessor={state => state[MSGID.USER_CONFIG].restrict.z}
+              accessor={state => state[MSGID.USER_CONFIG].values.volume_z}
               writer={(state, value) => {
-                state[MSGID.USER_CONFIG].restrict.z = value
+                state[MSGID.USER_CONFIG].values.volume_z = value
               }}
               min={0}
               max={300}

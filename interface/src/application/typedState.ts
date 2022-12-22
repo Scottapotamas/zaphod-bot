@@ -38,6 +38,7 @@ export enum MSGID {
   CAPTURE = 'C',
 
   LED_CALIBRATION = 'calLED',
+  USER_CONFIG = 'config',
 }
 
 /**
@@ -85,6 +86,8 @@ declare global {
     [MSGID.CAPTURE]: number // uint32 ms
 
     [MSGID.LED_CALIBRATION]: LedSettings
+    [MSGID.USER_CONFIG] : UserConfig
+
 
     // DMX control
     fixture: [AputureLS, AputureLS]
@@ -273,6 +276,38 @@ export type PowerCalibration = {
   current_servo_3: number
   current_servo_4: number
 }
+
+export enum BOUNDARY_VIOLATION_MODES {
+  MODE_NONE = 0,
+  MODE_NOTIFY = 1,
+  MODE_HALT = 2,
+  MODE_DISARM = 3,
+}
+
+export type UserConfigFlags = {
+  buzzer_mute: boolean;
+  effector_as_status_led: boolean;
+  pendant_optional: boolean;
+  pendant_verify_on_arm: boolean;
+  pendant_light_enabled: boolean;
+  inverted: boolean;
+  boundary_violation_mode: BOUNDARY_VIOLATION_MODES;
+}
+
+export type UserConfigFields = {
+  z_rotation: number;
+  speed_limit: number;
+  volume_x: number;
+  volume_y: number;
+  volume_z: number;
+
+}
+
+export type UserConfig = {
+    flags: UserConfigFlags;
+    values: UserConfigFields;
+}
+
 
 // DMX stuff
 
