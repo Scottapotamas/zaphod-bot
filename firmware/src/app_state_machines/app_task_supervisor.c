@@ -17,6 +17,7 @@
 #include "buzzer.h"
 #include "demonstration.h"
 #include "path_interpolator.h"
+#include "effector.h"
 #include "sensors.h"
 #include "shutter_release.h"
 #include "status.h"
@@ -673,6 +674,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
             return 0;
 
         case MECHANISM_REHOME:
+            // TODO: consider how this should be handled?
             AppTaskSupervisorPublishRehomeEvent();
             user_interface_reset_tracking_target();
             return 0;
@@ -792,7 +794,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
             return 0;
 
         case STATE_STEP1_SIGNAL: {
-            CartesianPoint_t position = path_interpolator_get_global_position();
+            CartesianPoint_t position = effector_get_position();
 
             // Check to make sure the mechanism is near the home position before changing mode
             if( position.x < MM_TO_MICRONS( 0.1 )
@@ -847,7 +849,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
         }
 
         case STATE_TIMEOUT1_SIGNAL: {
-            CartesianPoint_t position = path_interpolator_get_global_position();
+            CartesianPoint_t position = effector_get_position();
 
             // Check to make sure the mechanism is near the home position before changing mode
             if( position.x < MM_TO_MICRONS( 0.1 )
@@ -997,7 +999,7 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
 
         case STATE_TIMEOUT1_SIGNAL: {
             // get global position
-            CartesianPoint_t position = path_interpolator_get_global_position();
+            CartesianPoint_t position = effector_get_position();
 
             // Check to make sure the mechanism is at the home position before disabling servo power
             // Allow a few microns error on position in check

@@ -13,9 +13,9 @@
 #include "app_task_motion.h"
 
 #include "clearpath.h"
-#include "kinematics.h"
 #include "motion_types.h"
 #include "path_interpolator.h"
+#include "effector.h"
 
 #include "user_interface.h"
 
@@ -91,7 +91,7 @@ PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __att
 
     eventSubscribe( (StateTask *)me, PATHING_COMPLETE );
 
-    kinematics_init();
+
     path_interpolator_init();
     user_interface_set_motion_state( TASKSTATE_MOTION_INITIAL );
 
@@ -168,7 +168,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
             if( me->counter == SERVO_COUNT )
             {
                 eventPublish( EVENT_NEW( StateEvent, MOTION_HOMED ) );
-                path_interpolator_set_home();
+                effector_set_home();
                 STATE_TRAN( AppTaskMotion_inactive );
             }
             else

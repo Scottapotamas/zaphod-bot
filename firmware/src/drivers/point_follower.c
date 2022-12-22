@@ -13,10 +13,8 @@
 #include "event_subscribe.h"
 #include "global.h"
 #include "simple_state_machine.h"
-#include "average_short.h"
 
-#include "clearpath.h"
-#include "kinematics.h"
+#include "effector.h"
 #include "motion_types.h"
 #include "user_interface.h"
 #include "app_times.h"
@@ -36,12 +34,10 @@ typedef struct
     FollowerState_t currentState;
     FollowerState_t nextState;
 
-    CartesianPoint_t requested;             // Store the most recent target position
-    CartesianPoint_t effector_position;    // position of the end effector (used for relative moves)
+    CartesianPoint_t requested;         // Store the most recent target position
     CartesianPoint_t previous_march;    // Velocity cache
 
-    bool       enable;             // The follower is enabled
-
+    bool enable; // The follower is enabled
 } PointFollower_t;
 
 int32_t calculate_distance_this_tick( int32_t current, int32_t target, int32_t velocity );
@@ -78,18 +74,6 @@ point_follower_set_target( CartesianPoint_t *target )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC uint32_t
-point_follower_get_effector_speed( void )
-{
-    // Stats provide 50 ticks (milliseconds) worth of distances travelled
-    // therefore, the total microns travelled in 50ms * 20 = microns per second
-//    uint32_t microns_per_second = average_short_get_sum( &follower.movement_statistics ) * 20;
-
-    return 0;
-}
-
-/* -------------------------------------------------------------------------- */
-
 PUBLIC bool
 point_follower_get_move_done( void )
 {
@@ -120,7 +104,6 @@ point_follower_stop( void )
 
     // Request that the state-machine return to "OFF"
     me->enable = false;
-
 }
 
 /* -------------------------------------------------------------------------- */
@@ -165,34 +148,24 @@ point_follower_process( void )
             STATE_ENTRY_ACTION
 
             STATE_TRANSITION_TEST
-
-            CartesianPoint_t target       = { 0, 0, 0 };    // target position in cartesian space
-            CartesianPoint_t march        = { 0, 0, 0 };    // quantity of positional error
-            JointAngles_t    angle_target = { 0, 0, 0 }; // target motor shaft angle in degrees
+            CartesianPoint_t effector     = effector_get_position();     // End-effector position
+            CartesianPoint_t march        = { 0, 0, 0 };    // Quantity of positional cartesian error
+            CartesianPoint_t target       = { 0, 0, 0 };    // Follower's target position for this tick
 
             // How far do we move for this tick (includes linear accelerations with velocity limiter)
-            march.x = calculate_distance_this_tick( me->effector_position.x, me->requested.x, me->previous_march.x );
-            march.y = calculate_distance_this_tick( me->effector_position.y, me->requested.y, me->previous_march.y );
-            march.z = calculate_distance_this_tick( me->effector_position.z, me->requested.z, me->previous_march.z );
+            march.x = calculate_distance_this_tick( effector.x, me->requested.x, me->previous_march.x );
+            march.y = calculate_distance_this_tick( effector.y, me->requested.y, me->previous_march.y );
+            march.z = calculate_distance_this_tick( effector.z, me->requested.z, me->previous_march.z );
 
             // Cache it for next step, used as part of acceleration calculations
             memcpy( &me->previous_march, &march, sizeof(CartesianPoint_t) );
 
             // Apply it as our new target for this step
-            target.x = me->effector_position.x + march.x;
-            target.y = me->effector_position.y + march.y;
-            target.z = me->effector_position.z + march.z;
+            target.x = effector.x + march.x;
+            target.y = effector.y + march.y;
+            target.z = effector.z + march.z;
 
-            // Calculate a motor angle solution for the cartesian position
-            kinematics_point_to_angle( target, &angle_target );
-
-            // Update the current effector position (naively assumes that any requested move is achieved before the next tick)
-            memcpy( &me->effector_position, &target, sizeof( CartesianPoint_t ) );
-
-            // Ask the motors to please move there
-            servo_set_target_angle_limited( _CLEARPATH_1, angle_target.a1 );
-            servo_set_target_angle_limited( _CLEARPATH_2, angle_target.a2 );
-            servo_set_target_angle_limited( _CLEARPATH_3, angle_target.a3 );
+            effector_request_target( &target );
 
             STATE_EXIT_ACTION
 
@@ -200,9 +173,8 @@ point_follower_process( void )
             break;
     }
 
-    user_interface_set_position( me->effector_position.x, me->effector_position.y, me->effector_position.z );
+    // TODO report status to UI?
 //    user_interface_set_pathing_status( me->currentState );
-//    user_interface_set_effector_speed( point_follower_get_effector_speed() );
 }
 
 int8_t acceleration = 1;

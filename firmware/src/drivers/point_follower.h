@@ -28,11 +28,6 @@ point_follower_set_target( CartesianPoint_t *target );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC uint32_t
-point_follower_get_effector_speed( void );
-
-/* -------------------------------------------------------------------------- */
-
 PUBLIC bool
 point_follower_get_move_done( void );
 

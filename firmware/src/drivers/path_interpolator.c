@@ -12,10 +12,8 @@
 #include "event_subscribe.h"
 #include "global.h"
 #include "simple_state_machine.h"
-#include "average_short.h"
 
-#include "clearpath.h"
-#include "kinematics.h"
+#include "effector.h"
 #include "motion_types.h"
 #include "user_interface.h"
 #include "app_times.h"
@@ -46,8 +44,6 @@ typedef struct
     timer_ms_t movement_est_complete;    // timestamp the predicted end point
     float      progress_percent;         // calculated progress
 
-    CartesianPoint_t effector_position;    // position of the end effector (used for relative moves)
-    AverageShort_t movement_statistics;
 } MotionPlanner_t;
 
 /* ----- Private Variables -------------------------------------------------- */
@@ -67,7 +63,6 @@ PUBLIC void
 path_interpolator_init( void )
 {
     memset( &planner, 0, sizeof( planner ) );
-    average_short_init( &planner.movement_statistics, SPEED_ESTIMATOR_SPAN );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -126,18 +121,6 @@ path_interpolator_get_progress( void )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC uint32_t
-path_interpolator_get_effector_speed( void )
-{
-    // Stats provide 50 ticks (milliseconds) worth of distances travelled
-    // therefore, the total microns travelled in 50ms * 20 = microns per second
-    uint32_t microns_per_second = average_short_get_sum( &planner.movement_statistics ) * 20;
-
-    return microns_per_second;
-}
-
-/* -------------------------------------------------------------------------- */
-
 PUBLIC bool
 path_interpolator_get_move_done( void )
 {
@@ -167,14 +150,6 @@ path_interpolator_calculate_percentage( uint16_t move_duration )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC CartesianPoint_t
-path_interpolator_get_global_position( void )
-{
-    return planner.effector_position;
-}
-
-/* -------------------------------------------------------------------------- */
-
 PUBLIC void
 path_interpolator_start( void )
 {
@@ -195,17 +170,6 @@ path_interpolator_stop( void )
     // Wipe out the moves currently loaded into the queue
     memset( &me->move_a, 0, sizeof( Movement_t ) );
     memset( &me->move_b, 0, sizeof( Movement_t ) );
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-path_interpolator_set_home( void )
-{
-    planner.effector_position.x = 0;
-    planner.effector_position.y = 0;
-    planner.effector_position.z = 0;
-    user_interface_set_position( planner.effector_position.x, planner.effector_position.y, planner.effector_position.z );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -234,8 +198,6 @@ path_interpolator_process( void )
                     STATE_NEXT( PLANNER_WAIT_AND_EXECUTE );
                 }
             }
-
-            average_short_update( &planner.movement_statistics, 0 );
             STATE_EXIT_ACTION
             STATE_END
             break;
@@ -314,11 +276,6 @@ path_interpolator_process( void )
                     }
                 }
             }
-            else
-            {
-                // Just sitting stationary while waiting for the move's time to arrive
-                average_short_update( &planner.movement_statistics, 0 );
-            }
             STATE_EXIT_ACTION
             me->current_move     = 0;
             me->progress_percent = 0;
@@ -329,21 +286,21 @@ path_interpolator_process( void )
     }
 
     user_interface_set_pathing_status( me->currentState );
-    user_interface_set_position( planner.effector_position.x, planner.effector_position.y, planner.effector_position.z );
-    user_interface_set_effector_speed( path_interpolator_get_effector_speed() );
 }
 
 PRIVATE void
 path_interpolator_premove_transforms( Movement_t *move )
 {
+    CartesianPoint_t effector_position = effector_get_position();
+
     // apply current position to a relative movement
     if( move->ref == _POS_RELATIVE )
     {
         for( uint8_t i = 0; i < move->num_pts; i++ )
         {
-            move->points[i].x += planner.effector_position.x;
-            move->points[i].y += planner.effector_position.y;
-            move->points[i].z += planner.effector_position.z;
+            move->points[i].x += effector_position.x;
+            move->points[i].y += effector_position.y;
+            move->points[i].z += effector_position.z;
         }
     }
 
@@ -359,9 +316,9 @@ path_interpolator_premove_transforms( Movement_t *move )
             move->num_pts     = 2;
         }
 
-        move->points[0].x = planner.effector_position.x;
-        move->points[0].y = planner.effector_position.y;
-        move->points[0].z = planner.effector_position.z;
+        move->points[0].x = effector_position.x;
+        move->points[0].y = effector_position.y;
+        move->points[0].z = effector_position.z;
     }
 }
 
@@ -414,23 +371,10 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
             break;
     }
 
-    // Calculate a motor angle solution for the cartesian position
-    kinematics_point_to_angle( target, &angle_target );
-
-    // Calculate the effector's distance change for this tick
-    uint32_t proposed_distance = cartesian_distance_between( &target, &planner.effector_position );
-    average_short_update( &planner.movement_statistics, (uint16_t )proposed_distance );
-
-    // Ask the motors to please move there
-    servo_set_target_angle_limited( _CLEARPATH_1, angle_target.a1 );
-    servo_set_target_angle_limited( _CLEARPATH_2, angle_target.a2 );
-    servo_set_target_angle_limited( _CLEARPATH_3, angle_target.a3 );
+    effector_request_target( &target );
 
     // Update the config/UI data based on this move
     user_interface_set_movement_data( move->sync_offset, move->type, (uint8_t)( percentage * 100 ) );
-
-    // Update the current effector position (naively assumes that any requested move is achieved before the next tick)
-    memcpy( &planner.effector_position, &target, sizeof( CartesianPoint_t ) );
 }
 
 PRIVATE void

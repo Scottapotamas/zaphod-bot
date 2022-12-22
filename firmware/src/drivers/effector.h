@@ -1,10 +1,9 @@
-#ifndef PATH_INTERPOLATOR_H
-#define PATH_INTERPOLATOR_H
+#ifndef EFFECTOR_H
+#define EFFECTOR_H
 
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
-#include "timer_ms.h"
 #include <motion_types.h>
 
 /* ----- Defines ------------------------------------------------------------ */
@@ -14,48 +13,33 @@
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_init( void );
+effector_init( void );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC uint32_t
+effector_get_speed( void );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_process( void );
+effector_request_target( CartesianPoint_t *position );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_set_epoch_reference( timer_ms_t sync_timer );
+effector_set_home( void );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC CartesianPoint_t
+effector_get_position( void );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_set_next( Movement_t *movement_to_process );
+effector_process( void );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC bool
-path_interpolator_is_ready_for_next( void );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC float
-path_interpolator_get_progress( void );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC bool
-path_interpolator_get_move_done( void );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-path_interpolator_start( void );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-path_interpolator_stop( void );
-
-/* -------------------------------------------------------------------------- */
-
-#endif /* PATH_INTERPOLATOR_H */
+#endif /* EFFECTOR_H */
