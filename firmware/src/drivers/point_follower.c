@@ -2,6 +2,7 @@
 
 #include <float.h>
 #include <string.h>
+#include <math.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 
@@ -35,12 +36,15 @@ typedef struct
     FollowerState_t currentState;
     FollowerState_t nextState;
 
-    CartesianPoint_t requested;    // Store the most recent target position
+    CartesianPoint_t requested;             // Store the most recent target position
     CartesianPoint_t effector_position;    // position of the end effector (used for relative moves)
+    CartesianPoint_t previous_march;    // Velocity cache
 
     bool       enable;             // The follower is enabled
 
 } PointFollower_t;
+
+int32_t calculate_distance_this_tick( int32_t current, int32_t target, int32_t velocity );
 
 /* ----- Private Variables -------------------------------------------------- */
 
@@ -163,28 +167,21 @@ point_follower_process( void )
             STATE_TRANSITION_TEST
 
             CartesianPoint_t target       = { 0, 0, 0 };    // target position in cartesian space
-            CartesianPoint_t error        = { 0, 0, 0 };    // quantity of positional error
+            CartesianPoint_t march        = { 0, 0, 0 };    // quantity of positional error
             JointAngles_t    angle_target = { 0, 0, 0 }; // target motor shaft angle in degrees
 
-            // Calculate error between the current position and requested position
-            error.x = me->requested.x - me->effector_position.x;
-            error.y = me->requested.y - me->effector_position.y;
-            error.z = me->requested.z - me->effector_position.z;
+            // How far do we move for this tick (includes linear accelerations with velocity limiter)
+            march.x = calculate_distance_this_tick( me->effector_position.x, me->requested.x, me->previous_march.x );
+            march.y = calculate_distance_this_tick( me->effector_position.y, me->requested.y, me->previous_march.y );
+            march.z = calculate_distance_this_tick( me->effector_position.z, me->requested.z, me->previous_march.z );
 
-            // Limit the error-per-step as a crude velocity limit
-            // TODO calculate acceleration/deceleration properly
-
-            // todo use EFFECTOR_SPEED_LIMIT or similar define
-            uint16_t velocity_via_error_limit = 80U; // mm/second converts to microns/millisecond without transformation
-
-            error.x = CLAMP( error.x, -1.0f * velocity_via_error_limit, velocity_via_error_limit );
-            error.y = CLAMP( error.y, -1.0f * velocity_via_error_limit, velocity_via_error_limit );
-            error.z = CLAMP( error.z, -1.0f * velocity_via_error_limit, velocity_via_error_limit );
+            // Cache it for next step, used as part of acceleration calculations
+            memcpy( &me->previous_march, &march, sizeof(CartesianPoint_t) );
 
             // Apply it as our new target for this step
-            target.x = me->effector_position.x + error.x;
-            target.y = me->effector_position.y + error.y;
-            target.z = me->effector_position.z + error.z;
+            target.x = me->effector_position.x + march.x;
+            target.y = me->effector_position.y + march.y;
+            target.z = me->effector_position.z + march.z;
 
             // Calculate a motor angle solution for the cartesian position
             kinematics_point_to_angle( target, &angle_target );
@@ -193,9 +190,9 @@ point_follower_process( void )
             memcpy( &me->effector_position, &target, sizeof( CartesianPoint_t ) );
 
             // Ask the motors to please move there
-//            servo_set_target_angle_limited( _CLEARPATH_1, angle_target.a1 );
-//            servo_set_target_angle_limited( _CLEARPATH_2, angle_target.a2 );
-//            servo_set_target_angle_limited( _CLEARPATH_3, angle_target.a3 );
+            servo_set_target_angle_limited( _CLEARPATH_1, angle_target.a1 );
+            servo_set_target_angle_limited( _CLEARPATH_2, angle_target.a2 );
+            servo_set_target_angle_limited( _CLEARPATH_3, angle_target.a3 );
 
             STATE_EXIT_ACTION
 
@@ -206,6 +203,46 @@ point_follower_process( void )
     user_interface_set_position( me->effector_position.x, me->effector_position.y, me->effector_position.z );
 //    user_interface_set_pathing_status( me->currentState );
 //    user_interface_set_effector_speed( point_follower_get_effector_speed() );
+}
+
+int8_t acceleration = 1;
+int32_t velocity_max = 200;
+
+int32_t calculate_distance_this_tick( int32_t current, int32_t target, int32_t velocity )
+{
+    int32_t error = target - current;
+
+    if( !error )
+    {
+        return 0;
+    }
+
+    // Determine direction of error
+    int8_t direction = ( error < 0 )? -1 : 1;
+
+    // Calculate how many acceleration steps are in our velocity
+    uint32_t ticks = abs(velocity) / acceleration;
+    uint32_t deceleration_distance = (abs(velocity) * ticks) + (0.5 * acceleration * ticks*ticks);
+
+    if( abs(error) <= deceleration_distance )
+    {
+        // Start decelerating as we're approaching the target
+        velocity -= direction * acceleration;
+
+        // Handle remainder caused by positions finer than the acceleration step, etc
+        if( !velocity )
+        {
+            velocity = error;
+        }
+    }
+    else
+    {
+        // Ramp the velocity in the direction of our target
+        velocity += direction * acceleration;
+    }
+
+    velocity = CLAMP(velocity, - 1 * velocity_max, velocity_max);
+    return velocity;
 }
 
 /* ----- End ---------------------------------------------------------------- */
