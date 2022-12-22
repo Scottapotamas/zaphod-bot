@@ -326,7 +326,6 @@ PRIVATE void
 path_interpolator_execute_move( Movement_t *move, float percentage )
 {
     CartesianPoint_t target       = { 0, 0, 0 };    // target position in cartesian space
-    JointAngles_t    angle_target = { 0, 0, 0 };    // target motor shaft angle in degrees
     MotionSolution_t solve_ok = false;
 
     switch( move->type )

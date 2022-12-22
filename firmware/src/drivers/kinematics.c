@@ -151,7 +151,7 @@ kinematics_point_to_angle( CartesianPoint_t input, JointAngles_t *output )
     input.z = ( input.z + offset_position.z ) * flip_z;
 
     // Perform kinematics calculations
-    uint8_t status = delta_angle_plane_calc( input.x, input.y, input.z, &output->a1 );
+    KinematicsSolution_t status = delta_angle_plane_calc( input.x, input.y, input.z, &output->a1 );
 
     if( status == KINEMATICS_SOLVE_OK )
     {

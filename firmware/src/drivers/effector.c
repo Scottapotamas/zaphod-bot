@@ -91,14 +91,14 @@ effector_process( void )
 {
     if( new_target )
     {
-        JointAngles_t    angle_target = { 0, 0, 0 }; // target motor shaft angle in degrees
+        JointAngles_t angle_target = { 0.0f, 0.0f, 0.0f }; // target motor shaft angle in degrees
 
         // Calculate a motor angle solution for the cartesian position
         kinematics_point_to_angle( requested_position, &angle_target );
 
         // Calculate the effector's distance change for this tick
         uint32_t proposed_distance = cartesian_distance_between( &requested_position, &effector_position );
-        average_short_update( &movement_statistics, (uint16_t )proposed_distance );
+        average_short_update( &movement_statistics, (uint16_t)proposed_distance );
 
         // Ask the motors to please move there
         servo_set_target_angle_limited( _CLEARPATH_1, angle_target.a1 );

@@ -91,7 +91,7 @@ PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __att
 
     eventSubscribe( (StateTask *)me, PATHING_COMPLETE );
 
-
+    effector_init();
     path_interpolator_init();
     user_interface_set_motion_state( TASKSTATE_MOTION_INITIAL );
 
