@@ -18,6 +18,7 @@
 #include "demonstration.h"
 #include "path_interpolator.h"
 #include "effector.h"
+#include "point_follower.h"
 #include "sensors.h"
 #include "shutter_release.h"
 #include "status.h"
@@ -94,6 +95,9 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask *)me, QUEUE_SYNC_START );
 
     eventSubscribe( (StateTask *)me, CAMERA_CAPTURE );
+
+    // Put this somewhere more suitable
+    point_follower_init();
 
     STATE_INIT( &AppTaskSupervisor_main );
 }
@@ -567,9 +571,15 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
         case STATE_ENTRY_SIGNAL:
             user_interface_set_main_state( SUPERVISOR_ARMED );
             user_interface_set_control_mode( CONTROL_TRACK );
+
             eventPublish( EVENT_NEW( StateEvent, LED_ALLOW_MANUAL_CONTROL ) );
+
+            // TODO: pushing 0,0,0 like this is dirty
             user_interface_reset_tracking_target();    // entering track mode should always reset position
 
+            // TODO: this needs refactoring as the motion task normally interacts with the path interpolator
+            path_interpolator_stop();
+            point_follower_start();
             return 0;
 
         case TRACKED_TARGET_REQUEST: {
@@ -578,71 +588,11 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
 
             if( &tpre->target )
             {
-                CartesianPoint_t current = path_interpolator_get_global_position();
                 CartesianPoint_t target;
                 memcpy( &target, &tpre->target, sizeof( CartesianPoint_t ) );
 
-                uint16_t required_duration = cartesian_duration_for_speed( &current, &tpre->target, 100 ) + 1;
-
-                // Only attempt to move when the requested position is different from the current position
-                bool x_deadband = IS_IN_DEADBAND( current.x, target.x, 10 );
-                bool y_deadband = IS_IN_DEADBAND( current.y, target.y, 10 );
-                bool z_deadband = IS_IN_DEADBAND( current.z, target.z, 10 );
-
-                if( !x_deadband || !y_deadband || !z_deadband )
-                {
-                    bool was_moving = false;
-
-                    // We don't want to move while the effector is currently moving
-                    // Tell the pathing engine to stop/reset before pushing a new move
-                    if( !path_interpolator_get_move_done() )
-                    {
-                        path_interpolator_stop();
-                        eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
-                        was_moving = true;
-                    }
-
-                    // Create the line which will get us to the target
-                    MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
-                    motev->move.type          = _LINE;
-                    motev->move.ref           = _POS_ABSOLUTE;
-                    motev->move.duration      = required_duration;
-                    motev->move.num_pts       = 2;
-                    motev->move.sync_offset   = 0;
-
-                    motev->move.points[0].x = current.x;
-                    motev->move.points[0].y = current.y;
-                    motev->move.points[0].z = current.z;
-
-                    motev->move.points[1].x = target.x;
-                    motev->move.points[1].y = target.y;
-                    motev->move.points[1].z = target.z;
-
-                    KinematicsSolution_t shaping = SOLUTION_ERROR;
-
-                    // Don't ease-in if we were already in motion
-                    if( was_moving )
-                    {
-                        shaping = cartesian_plan_smoothed_line( &motev->move, 0.0f, 0.001f );
-                    }
-                    else
-                    {
-                        shaping = cartesian_plan_smoothed_line( &motev->move, 0.001f, 0.001f );
-                    }
-
-                    // Convert the line to an acceleration-damped line, and send it to the planner
-                    if( shaping == SOLUTION_VALID )
-                    {
-                        eventPublish( (StateEvent *)motev );
-                        SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
-                        timer_ms_stopwatch_start( &motor_sync->epoch );
-                        eventPublish( (StateEvent *)motor_sync );
-                    }
-                }
-                else
-                {
-                    user_interface_report_error( "deadband" );
-                }
+                // TODO: Do we need to start the point follower first/now?
+                point_follower_set_target( &target );
             }
         }
             return 0;
@@ -699,9 +649,11 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
             return 0;
 
         case STATE_EXIT_SIGNAL:
+            point_follower_stop();
+            user_interface_reset_tracking_target();
+
             eventTimerStopIfActive( &me->timer1 );
             eventPublish( EVENT_NEW( StateEvent, LED_RESTRICT_MANUAL_CONTROL ) );
-            user_interface_reset_tracking_target();
             return 0;
     }
     return (STATE)AppTaskSupervisor_main;

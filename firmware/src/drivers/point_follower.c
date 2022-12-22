@@ -91,6 +91,9 @@ point_follower_start( void )
 {
     PointFollower_t *me = &follower;
 
+    memset( &me->requested, 0, sizeof(CartesianPoint_t) );
+    memset( &me->previous_march, 0, sizeof(CartesianPoint_t) );
+
     // Request that the state-machine transitions to "ON"
     me->enable = true;
 }
@@ -133,7 +136,6 @@ point_follower_process( void )
             {
                 STATE_NEXT( FOLLOWER_RUN );
             }
-
             STATE_EXIT_ACTION
             STATE_END
             break;
@@ -160,7 +162,6 @@ point_follower_process( void )
             target.z = effector.z + march.z;
 
             effector_request_target( &target );
-
             STATE_EXIT_ACTION
 
             STATE_END

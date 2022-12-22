@@ -9,7 +9,6 @@
 
 #include "button.h"
 #include "buzzer.h"
-#include "effector.h"
 #include "clearpath.h"
 #include "fan.h"
 #include "hal_adc.h"
@@ -84,7 +83,6 @@ app_background( void )
     }
 
     shutter_process();
-    effector_process();
 
     for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
     {
