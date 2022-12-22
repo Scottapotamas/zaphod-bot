@@ -153,7 +153,7 @@ kinematics_point_to_angle( CartesianPoint_t input, JointAngles_t *output )
     // Perform kinematics calculations
     uint8_t status = delta_angle_plane_calc( input.x, input.y, input.z, &output->a1 );
 
-    if( status == SOLUTION_VALID )
+    if( status == KINEMATICS_SOLVE_OK )
     {
         // Rotate +120 degrees
         status = delta_angle_plane_calc( input.x * cos120 + input.y * sin120,
@@ -162,7 +162,7 @@ kinematics_point_to_angle( CartesianPoint_t input, JointAngles_t *output )
                                          &output->a2 );
     }
 
-    if( status == SOLUTION_VALID )
+    if( status == KINEMATICS_SOLVE_OK )
     {
         // Rotate -120 degrees
         status = delta_angle_plane_calc( input.x * cos120 - input.y * sin120,
@@ -256,7 +256,7 @@ delta_angle_plane_calc( float x0, float y0, float z0, float *theta )
 
     if( d < 0 )
     {
-        return SOLUTION_ERROR;
+        return KINEMATICS_SOLVE_ERROR;
     }
 
     float yj = ( y1 - a * b - sqrtf( d ) ) / ( b * b + 1 );    // choose the outer point
@@ -264,7 +264,7 @@ delta_angle_plane_calc( float x0, float y0, float z0, float *theta )
 
     *theta = 180.0f * atanf( -zj / ( y1 - yj ) ) / M_PI + ( ( yj > y1 ) ? 180.0f : 0.0f );
 
-    return SOLUTION_VALID;
+    return KINEMATICS_SOLVE_OK;
 }
 
 /* ----- End ---------------------------------------------------------------- */

@@ -109,15 +109,9 @@ point_follower_stop( void )
 /* -------------------------------------------------------------------------- */
 
 // If there's a difference between the current and target positions
-//      (simple) calculate the position difference for this timestep given a velocity
-//      This position is passed through IK and then to motors
-//      (advanced) position difference has acceleration shaping in each x/y/z axis and predictive slowing prior to hitting target
+//      Calculate the change for this tick, taking acceleration shaping in each x/y/z axis
+//      and predicatively start slowing prior to hitting target
 //      This should help reduce jerk when changing direction too quickly
-
-// If any specific move is planned, fall out of this mode and back into queue execution
-// If easing is supported, just stop accepting targets and wait for it to stop.
-// Then reset any velocity estimates, targets etc
-
 
 PUBLIC void
 point_follower_process( void )

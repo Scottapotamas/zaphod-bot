@@ -31,7 +31,7 @@ typedef enum
 {
     SOLUTION_VALID,
     SOLUTION_ERROR,
-} KinematicsSolution_t;
+} MotionSolution_t;
 
 typedef enum
 {
@@ -127,22 +127,22 @@ cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b );
 PUBLIC uint32_t
 cartesian_duration_for_speed( CartesianPoint_t *a, CartesianPoint_t *b, mm_per_second_t target_speed );
 
-PUBLIC KinematicsSolution_t
+PUBLIC MotionSolution_t
 cartesian_plan_smoothed_line( Movement_t *movement, float start_weight, float end_weight );
 
-PUBLIC KinematicsSolution_t
+PUBLIC MotionSolution_t
 cartesian_point_on_line( CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output );
 
-PUBLIC KinematicsSolution_t
+PUBLIC MotionSolution_t
 cartesian_point_on_catmull_spline( CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output );
 
-PUBLIC KinematicsSolution_t
+PUBLIC MotionSolution_t
 cartesian_point_on_quadratic_bezier( CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output );
 
-PUBLIC KinematicsSolution_t
+PUBLIC MotionSolution_t
 cartesian_point_on_cubic_bezier( CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output );
 
-PUBLIC KinematicsSolution_t
+PUBLIC MotionSolution_t
 cartesian_point_on_spiral( CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output );
 
 /* -------------------------------------------------------------------------- */

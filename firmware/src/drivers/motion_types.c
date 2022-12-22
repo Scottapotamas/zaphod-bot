@@ -253,7 +253,7 @@ uint32_t cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b )
 // Calculate the control points for a cubic Bézier curve which allows for acceleration shaping of a linear move
 // Accepts a line based movement, and mutates it into a cubic bezier
 // Should be called BEFORE sending the movement to the queue
-PUBLIC KinematicsSolution_t
+PUBLIC MotionSolution_t
 cartesian_plan_smoothed_line( Movement_t *movement, float start_weight, float end_weight )
 {
     // Error checks - only accept lines with 2 points
@@ -285,7 +285,7 @@ cartesian_plan_smoothed_line( Movement_t *movement, float start_weight, float en
 // rel_weight is the 0.0-1.0 percentage position on the line
 // the output pointer is the interpolated position on the line
 
-PUBLIC KinematicsSolution_t
+PUBLIC MotionSolution_t
 cartesian_point_on_line( CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output )
 {
     if( points < 2 )
@@ -321,7 +321,7 @@ cartesian_point_on_line( CartesianPoint_t *p, size_t points, float pos_weight, C
 // rel_weight is the 0.0-1.0 percentage position on the curve between p1 and p2
 // the output pointer is the interpolated position on the curve between p1 and p2
 
-PUBLIC KinematicsSolution_t
+PUBLIC MotionSolution_t
 cartesian_point_on_catmull_spline( CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output )
 {
     if( points < 4 )
@@ -371,7 +371,7 @@ cartesian_point_on_catmull_spline( CartesianPoint_t *p, size_t points, float pos
 // rel_weight is the 0.0-1.0 percentage position on the curve between p0 and p2
 // the output pointer is the interpolated position on the curve between p0 and p2
 
-PUBLIC KinematicsSolution_t
+PUBLIC MotionSolution_t
 cartesian_point_on_quadratic_bezier( CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output )
 {
     if( points < 3 )
@@ -417,7 +417,7 @@ cartesian_point_on_quadratic_bezier( CartesianPoint_t *p, size_t points, float p
 // rel_weight is the 0.0-1.0 percentage position on the curve between p0 and p2
 // the output pointer is the interpolated position on the curve between p0 and p2
 
-PUBLIC KinematicsSolution_t
+PUBLIC MotionSolution_t
 cartesian_point_on_cubic_bezier( CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output )
 {
     if( points < 4 )
@@ -466,7 +466,7 @@ cartesian_point_on_cubic_bezier( CartesianPoint_t *p, size_t points, float pos_w
 // the output pointer is the interpolated position on the curve between p0 and p1
 // https://blender.stackexchange.com/questions/42131/modelling-a-spiral-around-a-sphere/42159
 
-PUBLIC KinematicsSolution_t
+PUBLIC MotionSolution_t
 cartesian_point_on_spiral( CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output )
 {
     if( points < 1 )
@@ -499,12 +499,12 @@ cartesian_point_on_spiral( CartesianPoint_t *p, size_t points, float pos_weight,
 
     // cache oft-used values to improve read-ability
     float t           = pos_weight;
-    float a           = 1 / numSpirals;
-    float denominator = sqrtf( 1 + a * a * t * t );
+    float a           = 1.0f / numSpirals;
+    float denominator = sqrtf( 1.0f + a * a * t * t );
 
     output->x = cosf( t ) / denominator;
     output->y = sinf( t ) / denominator;
-    output->z = ( -1 * a * t ) / denominator;
+    output->z = ( -1.0f * a * t ) / denominator;
 
     return SOLUTION_VALID;
 }

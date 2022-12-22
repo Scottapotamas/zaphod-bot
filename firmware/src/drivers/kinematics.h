@@ -10,6 +10,12 @@
 
 /* ----- Types ------------------------------------------------------------- */
 
+typedef enum
+{
+    KINEMATICS_SOLVE_OK,
+    KINEMATICS_SOLVE_ERROR,
+} KinematicsSolution_t;
+
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void

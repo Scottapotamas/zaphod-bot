@@ -59,7 +59,7 @@ enum AppSignals
     PATHING_COMPLETE,    // Finished moving along a provided profile path
 
     /* LED Handler Signals */
-    LED_OFF,    // Turn off led immediately, clear the queue
+    LED_OFF,            // Turn off led immediately, clear the queue
     LED_QUEUE_START,
     LED_QUEUE_ADD,      // Provide led animation object to queue
     LED_QUEUE_CLEAR,    // Empty pending animations
