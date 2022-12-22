@@ -101,9 +101,9 @@ effector_process( void )
         average_short_update( &movement_statistics, (uint16_t )proposed_distance );
 
         // Ask the motors to please move there
-        //    servo_set_target_angle_limited( _CLEARPATH_1, angle_target.a1 );
-        //    servo_set_target_angle_limited( _CLEARPATH_2, angle_target.a2 );
-        //    servo_set_target_angle_limited( _CLEARPATH_3, angle_target.a3 );
+        servo_set_target_angle_limited( _CLEARPATH_1, angle_target.a1 );
+        servo_set_target_angle_limited( _CLEARPATH_2, angle_target.a2 );
+        servo_set_target_angle_limited( _CLEARPATH_3, angle_target.a3 );
 
         memcpy( &effector_position, &requested_position, sizeof(CartesianPoint_t) );
         memset( &requested_position, 0, sizeof(CartesianPoint_t));
