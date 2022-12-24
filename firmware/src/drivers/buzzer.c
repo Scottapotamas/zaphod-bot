@@ -26,6 +26,7 @@ typedef struct
     uint16_t      duration;
     uint16_t      frequency;
     timer_ms_t    timer;
+    bool          muted;
 } Buzzer_t;
 
 /* ----- Private Variables -------------------------------------------------- */
@@ -47,13 +48,25 @@ buzzer_sound( uint8_t count, uint16_t frequency, uint16_t duration_ms )
 {
     Buzzer_t *me = &buzzer;
 
-    me->count     = count;
-    me->duration  = duration_ms;
-    me->frequency = frequency;
+    if( !me->muted )
+    {
+        me->count     = count;
+        me->duration  = duration_ms;
+        me->frequency = frequency;
 
-    hal_pwm_generation( _PWM_TIM_BUZZER, buzzer.frequency );
+        hal_pwm_generation( _PWM_TIM_BUZZER, buzzer.frequency );
 
-    STATE_INIT_INITIAL( BUZZER_STATE_ON );
+        STATE_INIT_INITIAL( BUZZER_STATE_ON );
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+buzzer_mute( bool muted )
+{
+    Buzzer_t *me = &buzzer;
+    me->muted = muted;
 }
 
 /* -------------------------------------------------------------------------- */
