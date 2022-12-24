@@ -5,7 +5,6 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "app_times.h"
-#include "configuration.h"
 #include "fan.h"
 #include "hal_pwm.h"
 #include "sensors.h"
@@ -24,6 +23,17 @@ typedef struct
     timer_ms_t startup_timer;    // amount of time to 'blip' the fan for reliable starts
 } Fan_t;
 
+FanCurve_t default_curve[NUM_FAN_CURVE_POINTS] = {
+    { .temperature = 0, .percentage = 20 },
+    { .temperature = 20, .percentage = 20 },
+    { .temperature = 35, .percentage = 45 },
+    { .temperature = 45, .percentage = 90 },
+    { .temperature = 60, .percentage = 100 },
+};
+
+FanCurve_t user_curve[NUM_FAN_CURVE_POINTS] = { 0 };
+
+
 /* ----- Private Variables -------------------------------------------------- */
 
 PRIVATE Fan_t fan;
@@ -39,10 +49,31 @@ PUBLIC void
 fan_init( void )
 {
     memset( &fan, 0, sizeof( fan ) );
+    fan_curve = (FanCurve_t *)&default_curve;
 
-    // Get a pointer to the fan curve configuration table
-    fan_curve = configuration_get_fan_curve_ptr();
     hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+fan_set_curve( FanCurve_t *curve, uint8_t num_points )
+{
+    if( !curve || num_points > NUM_FAN_CURVE_POINTS )
+    {
+        fan_curve = (FanCurve_t *)&default_curve;
+    }
+    else
+    {
+        // Copy the points into the user curve bank (with some basic range handling
+        for( uint8_t point = 0; point <= num_points; point++ )
+        {
+            user_curve[point].temperature = CLAMP(curve->temperature, 0, 100);
+            user_curve[point].percentage = CLAMP(curve->percentage, 0, 100);
+        }
+
+        fan_curve = (FanCurve_t *)&user_curve;
+    }
 }
 
 /* -------------------------------------------------------------------------- */

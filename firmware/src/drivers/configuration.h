@@ -33,6 +33,9 @@ configuration_save( void );
 PUBLIC FanCurve_t *
 configuration_get_fan_curve_ptr( void );
 
+PUBLIC void
+configuration_notify_fan_curve( void );
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC UserConfig_t *

@@ -12,17 +12,10 @@
 
 /* ----- Defines ------------------------------------------------------------ */
 
-PowerCalibration_t power_trims          = { 0 };
-LedSettings_t led_calibration = { 0 };
-UserConfig_t user_configuration = { 0 };
-
-FanCurve_t fan_curve[NUM_FAN_CURVE_POINTS] = {
-    { .temperature = 0, .percentage = 20 },
-    { .temperature = 20, .percentage = 20 },
-    { .temperature = 35, .percentage = 45 },
-    { .temperature = 45, .percentage = 90 },
-    { .temperature = 60, .percentage = 100 },
-};
+PowerCalibration_t power_trims        = { 0 };
+LedSettings_t      led_calibration    = { 0 };
+UserConfig_t       user_configuration = { 0 };
+FanCurve_t         fan_curve[NUM_FAN_CURVE_POINTS] = { 0 };
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -61,7 +54,7 @@ configuration_load( void )
     // Load the data from non-volatile storage
     hal_flashmem_retrieve( PERSIST_ID_CAL_POWER, &power_trims, sizeof( PowerCalibration_t ) );
     hal_flashmem_retrieve( PERSIST_ID_CAL_LED, &led_calibration, sizeof( LedSettings_t ) );
-//    hal_flashmem_retrieve( PERSIST_ID_FAN_CURVE, &aaa, sizeof( FanCurve_t ) );
+    hal_flashmem_retrieve( PERSIST_ID_FAN_CURVE, &fan_curve, sizeof( fan_curve ) );
     hal_flashmem_retrieve( PERSIST_ID_CONFIG, &user_configuration, sizeof( UserConfig_t ) );
 
 }
@@ -74,7 +67,7 @@ configuration_save( void )
     // save settings to memory
     hal_flashmem_store( PERSIST_ID_CAL_POWER, &power_trims, sizeof( PowerCalibration_t ) );
     hal_flashmem_store( PERSIST_ID_CAL_LED, &led_calibration, sizeof( LedSettings_t ) );
-//    hal_flashmem_store( PERSIST_ID_FAN_CURVE, &aaa, sizeof( FanCurve_t ) );
+    hal_flashmem_store( PERSIST_ID_FAN_CURVE, &fan_curve, sizeof( fan_curve ) );
     hal_flashmem_store( PERSIST_ID_CONFIG, &user_configuration, sizeof( UserConfig_t ) );
 
     buzzer_sound( 2, 4000, 50 );
@@ -93,12 +86,13 @@ PRIVATE void configuration_wipe( void )
 PUBLIC FanCurve_t *
 configuration_get_fan_curve_ptr( void )
 {
-    if( DIM( fan_curve ) == NUM_FAN_CURVE_POINTS )
-    {
-        return &fan_curve[0];
-    }
+    return &fan_curve[0];
+}
 
-    return 0;
+PUBLIC void
+configuration_notify_fan_curve( void )
+{
+    fan_set_curve( &fan_curve[0], DIM(fan_curve) );
 }
 
 /* -------------------------------------------------------------------------- */

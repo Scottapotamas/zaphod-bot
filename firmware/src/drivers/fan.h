@@ -21,10 +21,22 @@ typedef enum
     FAN_STATE_ON,
 } FanState_t;
 
+
+typedef struct
+{
+    uint8_t temperature;
+    uint8_t percentage;
+} FanCurve_t;
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
 fan_init( void );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+fan_set_curve( FanCurve_t *curve, uint8_t num_points );
 
 /* -------------------------------------------------------------------------- */
 

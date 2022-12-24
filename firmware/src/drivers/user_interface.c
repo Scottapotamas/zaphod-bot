@@ -94,7 +94,6 @@ eui_message_t ui_variables[] = {
 
     // UI requests a change of operating mode
     EUI_UINT8( MSGID_MODE_REQUEST, mode_request ),
-    //    EUI_CUSTOM( MSGID_FAN_CURVE, fan_curve ),
 
     // Current and target positions in cartesian space
     EUI_CUSTOM( MSGID_POSITION_TARGET, target_position ),
@@ -121,6 +120,7 @@ eui_message_t ui_variables[] = {
 
     { .id = MSGID_LED_CALIBRATION, .type = TYPE_CUSTOM, .size = sizeof(LedSettings_t), {.data = 0} },
     //    EUI_CUSTOM( "pwr_cal", power_trims ),
+    { .id = MSGID_FAN_CURVE, .type = TYPE_CUSTOM, .size = sizeof(FanCurve_t)*NUM_FAN_CURVE_POINTS, {.data = 0} },
     { .id = MSGID_CONFIG, .type = TYPE_CUSTOM, .size = sizeof(UserConfig_t), {.data = 0} }
 };
 
@@ -171,6 +171,9 @@ user_interface_init( void )
     // Find MSGID_CONFIG and set the pointer to the configuration handler's struct data
     eui_message_t *tracked_config = find_tracked_object( MSGID_CONFIG );
     tracked_config->ptr.data = configuration_get_user_config_ptr();
+
+    tracked_config = find_tracked_object( MSGID_FAN_CURVE );
+    tracked_config->ptr.data = configuration_get_fan_curve_ptr();
 
     tracked_config = find_tracked_object( MSGID_LED_CALIBRATION );
     tracked_config->ptr.data = configuration_get_led_calibration_ptr();
@@ -325,6 +328,11 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
             if( strcmp( (char *)name_rx, MSGID_CONFIG ) == 0 && has_payload )
             {
                 configuration_notify_config();
+            }
+
+            if( strcmp( (char *)name_rx, MSGID_FAN_CURVE ) == 0 && has_payload )
+            {
+                configuration_notify_fan_curve();
             }
 
             if( strcmp( (char*)name_rx, EUI_INTERNAL_HEARTBEAT ) == 0 )

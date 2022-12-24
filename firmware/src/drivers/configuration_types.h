@@ -5,6 +5,10 @@
 
 #include "global.h"
 
+// TODO: work out how to alias/copy the FanCurve_t from fan
+//       without making all of fan.h available downstream
+#include "fan.h"
+
 /* ----- Defines ------------------------------------------------------------ */
 
 typedef struct
@@ -57,11 +61,6 @@ typedef struct
 
 /* -------------------------------------------------------------------------- */
 
-typedef struct
-{
-    uint8_t temperature;
-    uint8_t percentage;
-} FanCurve_t;
 
 /* -------------------------------------------------------------------------- */
 
