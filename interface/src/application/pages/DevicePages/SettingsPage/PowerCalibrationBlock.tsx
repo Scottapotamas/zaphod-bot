@@ -9,6 +9,7 @@ import {
   HTMLTable,
   Intent,
   Tag,
+  Colors,
 } from '@blueprintjs/core'
 import {
   IntervalRequester,
@@ -30,6 +31,75 @@ import {
 } from '@electricui/components-desktop-blueprint'
 import { Printer } from '@electricui/components-desktop'
 import { MSGID, ServoInfo } from 'src/application/typedState'
+import { ChartContainer, LineChart, RealTimeDomain } from '@electricui/charts'
+import { MessageDataSource } from '@electricui/core-timeseries'
+
+const voltageDataSource = new MessageDataSource(MSGID.SYSTEM)
+const servoDataSource = new MessageDataSource(MSGID.SERVO)
+
+interface ServoRowProps {
+  index: number
+}
+
+const ServoTableRow = (props: ServoRowProps) => {
+  let servo_number_readable: number = props.index + 1
+
+  let color: string = Colors.WHITE
+  switch (props.index) {
+    case 0:
+      color = Colors.GREEN3
+      break
+    case 1:
+      color = Colors.RED3
+      break
+    case 2:
+      color = Colors.BLUE3
+      break
+    case 3:
+      color = Colors.GOLD3
+      break
+  }
+
+  return (
+    <tr>
+      <td>
+        <b>Servo {servo_number_readable}</b>
+      </td>
+      <td>
+        <ChartContainer height={50} width={200}>
+          <LineChart
+            dataSource={servoDataSource}
+            accessor={event => event[props.index].power}
+            lineWidth={3}
+            color={color}
+          />
+          <RealTimeDomain
+            window={10_000}
+            delay={50}
+            yMinSoft={0}
+            yMaxSoft={10}
+          />
+        </ChartContainer>
+      </td>
+      <td>
+        <Printer accessor={state => state[MSGID.SERVO][props.index].power} /> W
+      </td>
+      <td>
+        <NumberInput
+          accessor={state => state[MSGID.POWER_CALIBRATION].current_servo_1}
+          writer={(state, value) => {
+            state[MSGID.POWER_CALIBRATION].current_servo_1 = value
+          }}
+          rightElement={<Tag minimal>mA</Tag>}
+          minorStepSize={1}
+          stepSize={10}
+          majorStepSize={100}
+          style={{ maxWidth: '120px' }}
+        />
+      </td>
+    </tr>
+  )
+}
 
 export const PowerCalibrationBlock = () => {
   const expansion_servo = useHardwareState(state => !!state[MSGID.SERVO][3])
@@ -48,6 +118,7 @@ export const PowerCalibrationBlock = () => {
           <thead>
             <tr>
               <th>Sensor</th>
+              <th>Trend</th>
               <th>Current Value</th>
               <th>Calibration Offset</th>
             </tr>
@@ -56,6 +127,20 @@ export const PowerCalibrationBlock = () => {
             <tr>
               <td>
                 <b>Input Voltage</b>
+              </td>
+              <td>
+                <ChartContainer height={50} width={200}>
+                  <LineChart
+                    dataSource={voltageDataSource}
+                    accessor={event => event.input_voltage}
+                    lineWidth={3}
+                    color={Colors.INDIGO3}
+                  />
+                  <RealTimeDomain
+                    window={10_000}
+                    delay={50}
+                  />
+                </ChartContainer>
               </td>
               <td>
                 <Printer
@@ -70,95 +155,19 @@ export const PowerCalibrationBlock = () => {
                     state[MSGID.POWER_CALIBRATION].voltage = value
                   }}
                   rightElement={<Tag minimal>mV</Tag>}
-                  // style={{ maxWidth: '150px' }}
-                />
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <b>Servo 1</b>
-              </td>
-              <td>
-                <Printer accessor={state => state[MSGID.SERVO][0].power} /> W
-              </td>
-              <td>
-                <NumberInput
-                  accessor={state =>
-                    state[MSGID.POWER_CALIBRATION].current_servo_1
-                  }
-                  writer={(state, value) => {
-                    state[MSGID.POWER_CALIBRATION].current_servo_1 = value
-                  }}
-                  rightElement={<Tag minimal>mA</Tag>}
-                  // style={{ maxWidth: '150px' }}
-                />
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <b>Servo 2</b>
-              </td>
-              <td>
-                <Printer accessor={state => state[MSGID.SERVO][1].power} /> W
-              </td>
-              <td>
-                <NumberInput
-                  accessor={state =>
-                    state[MSGID.POWER_CALIBRATION].current_servo_2
-                  }
-                  writer={(state, value) => {
-                    state[MSGID.POWER_CALIBRATION].current_servo_2 = value
-                  }}
-                  rightElement={<Tag minimal>mA</Tag>}
-                  // style={{ maxWidth: '150px' }}
-                />
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <b>Servo 3</b>
-              </td>
-              <td>
-                <Printer accessor={state => state[MSGID.SERVO][2].power} /> W
-              </td>
-              <td>
-                <NumberInput
-                  accessor={state =>
-                    state[MSGID.POWER_CALIBRATION].current_servo_3
-                  }
-                  writer={(state, value) => {
-                    state[MSGID.POWER_CALIBRATION].current_servo_3 = value
-                  }}
-                  rightElement={<Tag minimal>mA</Tag>}
-                  // style={{ maxWidth: '150px' }}
+                  minorStepSize={1}
+                  stepSize={50}
+                  majorStepSize={500}
+                  style={{ maxWidth: '120px' }}
                 />
               </td>
             </tr>
 
-            {expansion_servo ? (
-              <></>
-            ) : (
-              <tr>
-                <td>
-                  <b>Servo 4</b>
-                </td>
-                <td>
-                  <Printer accessor={state => state[MSGID.SERVO][3]?.power} /> W
-                </td>
-                <td>
-                  <NumberInput
-                    accessor={state =>
-                      state[MSGID.POWER_CALIBRATION].current_servo_4
-                    }
-                    writer={(state, value) => {
-                        state[MSGID.POWER_CALIBRATION].current_servo_4 = value
-                      }}
-                    rightElement={<Tag minimal>mA</Tag>}
-                    // style={{ maxWidth: '150px' }}
-                  />
-                </td>
-              </tr>
-            )}
+            {[0, 1, 2].map(servoIndex => (
+              <ServoTableRow index={servoIndex} />
+            ))}
+
+            {expansion_servo ? <></> : <ServoTableRow index={3} />}
           </tbody>
         </HTMLTable>
       </Box>
