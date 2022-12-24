@@ -294,6 +294,9 @@ export type UserConfigFlags = {
   boundary_violation_mode: BOUNDARY_VIOLATION_MODES;
 }
 
+// Only 8-bit rotation correction value is transmitted
+export const Z_ROTATION_SCALE_FACTOR: number = (255/360)
+
 export type UserConfigFields = {
   z_rotation: number;
   speed_limit: number;

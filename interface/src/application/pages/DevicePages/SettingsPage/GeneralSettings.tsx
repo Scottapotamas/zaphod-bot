@@ -161,6 +161,10 @@ export const GeneralSettings = () => {
       <Box>
         <h2>Z-axis rotation offset</h2>
         <Slider
+          writer={(state, values) => {
+            state[MSGID.USER_CONFIG].values.z_rotation =
+              values.slider_handle_z_offset
+          }}
           min={0}
           max={360}
           labelStepSize={90}
@@ -168,7 +172,10 @@ export const GeneralSettings = () => {
           sendOnlyOnRelease
           labelRenderer={val => `${val}º`}
         >
-          <Slider.Handle accessor="rotZ" />
+          <Slider.Handle
+            name="slider_handle_z_offset"
+            accessor={state => state[MSGID.USER_CONFIG].values.z_rotation}
+          />
         </Slider>
       </Box>
 
