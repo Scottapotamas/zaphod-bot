@@ -118,8 +118,9 @@ eui_message_t ui_variables[] = {
     EUI_FUNC( MSGID_HOME, home_mech_cb ),
     EUI_UINT32( MSGID_CAPTURE, camera_shutter_duration_ms ),
 
+    // Configuration fields are stored in configuration.c, we access them directly via pointer manipulation
     { .id = MSGID_LED_CALIBRATION, .type = TYPE_CUSTOM, .size = sizeof(LedSettings_t), {.data = 0} },
-    //    EUI_CUSTOM( "pwr_cal", power_trims ),
+    { .id = MSGID_POWER_CALIBRATION, .type = TYPE_CUSTOM, .size = sizeof(PowerCalibration_t), {.data = 0} },
     { .id = MSGID_FAN_CURVE, .type = TYPE_CUSTOM, .size = sizeof(FanCurve_t)*NUM_FAN_CURVE_POINTS, {.data = 0} },
     { .id = MSGID_CONFIG, .type = TYPE_CUSTOM, .size = sizeof(UserConfig_t), {.data = 0} }
 };
@@ -177,6 +178,9 @@ user_interface_init( void )
 
     tracked_config = find_tracked_object( MSGID_LED_CALIBRATION );
     tracked_config->ptr.data = configuration_get_led_calibration_ptr();
+
+    tracked_config = find_tracked_object( MSGID_POWER_CALIBRATION );
+    tracked_config->ptr.data = configuration_get_power_calibration_ptr();
 
 }
 

@@ -46,6 +46,9 @@ configuration_notify_config( void );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC PowerCalibration_t *
+configuration_get_power_calibration_ptr( void );
+
 PUBLIC int16_t
 configuration_get_voltage_trim_mV( void );
 

@@ -38,6 +38,7 @@
 #define MSGID_CAPTURE        "C"
 
 #define MSGID_LED_CALIBRATION "calLED"
+#define MSGID_POWER_CALIBRATION "calPWR"
 
 // TODO: reimplement configuration messages
 //        EUI_FLOAT( "rotZ", z_rotation ),
