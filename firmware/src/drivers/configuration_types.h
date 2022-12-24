@@ -13,14 +13,14 @@
 
 typedef struct
 {
-    uint8_t buzzer_mute : 1;
-    uint8_t effector_as_status_led : 1;
-    uint8_t pendant_optional : 1;
-    uint8_t pendant_verify_on_arm : 1;
-    uint8_t pendant_light_enabled : 1;
-    uint8_t inverted : 1;
-    uint8_t boundary_violation_mode : 2;
-    uint8_t reserved: 8;
+    unsigned buzzer_mute : 1;
+    unsigned effector_as_status_led : 1;
+    unsigned pendant_optional : 1;
+    unsigned pendant_verify_on_arm : 1;
+    unsigned pendant_light_enabled : 1;
+    unsigned inverted : 1;
+    unsigned boundary_violation_mode : 2;
+    unsigned reserved: 8;
 } SettingsBitfieldRenameMe_t;
 
 typedef struct

@@ -515,16 +515,16 @@ export class UserConfigCodec extends Codec {
   encode(payload: UserConfig) {
     const packet = new SmartBuffer()
 
-    let bitfield1 = 0;
+    let bitfield1 = 0x00;
     let bitfield2 = 0xAA;  // currently reserved
 
-    bitfield1 |= (0 << (payload.flags.buzzer_mute ? 1 : 0) )
-    bitfield1 |= (1 << (payload.flags.effector_as_status_led ? 1 : 0) )
-    bitfield1 |= (2 << (payload.flags.pendant_optional ? 1 : 0) )
-    bitfield1 |= (3 << (payload.flags.pendant_verify_on_arm ? 1 : 0) )
-    bitfield1 |= (4 << (payload.flags.pendant_light_enabled ? 1 : 0) )
-    bitfield1 |= (5 << (payload.flags.inverted ? 1 : 0) )
-    bitfield1 |= (6 << payload.flags.boundary_violation_mode )
+    bitfield1 |= (payload.flags.buzzer_mute ? 1 : 0) 
+    bitfield1 |= ((payload.flags.effector_as_status_led ? 1 : 0) << 1 )
+    bitfield1 |= ((payload.flags.pendant_optional ? 1 : 0) << 2 )
+    bitfield1 |= ((payload.flags.pendant_verify_on_arm ? 1 : 0) << 3 )
+    bitfield1 |= ((payload.flags.pendant_light_enabled ? 1 : 0) << 4 )
+    bitfield1 |= ((payload.flags.inverted ? 1 : 0) << 5 )
+    bitfield1 |= (payload.flags.boundary_violation_mode << 6 )
 
     packet.writeUInt8(bitfield1)
     packet.writeUInt8(bitfield2)
