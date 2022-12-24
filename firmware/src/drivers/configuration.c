@@ -13,9 +13,8 @@
 /* ----- Defines ------------------------------------------------------------ */
 
 PowerCalibration_t power_trims          = { 0 };
-LedSettings_t     *rgb_led_settings_ptr = 0;
-
-float z_rotation = 0;
+LedSettings_t led_calibration = { 0 };
+UserConfig_t user_configuration = { 0 };
 
 FanCurve_t fan_curve[NUM_FAN_CURVE_POINTS] = {
     { .temperature = 0, .percentage = 20 },
@@ -42,11 +41,11 @@ configuration_init( void )
 PUBLIC void
 configuration_set_defaults( void )
 {
-    rgb_led_settings_ptr->correct_gamma = false;
-    rgb_led_settings_ptr->correct_wb    = true;
-    rgb_led_settings_ptr->balance_red   = 0xFFFFU * 0.3f;
-    rgb_led_settings_ptr->balance_green = 0;
-    rgb_led_settings_ptr->balance_blue  = 0xFFFF * 0.79f;
+    led_calibration.correct_gamma = false;
+    led_calibration.correct_wb    = true;
+    led_calibration.balance_red   = 0xFFFFU * 0.3f;
+    led_calibration.balance_green = 0;
+    led_calibration.balance_blue  = 0xFFFF * 0.79f;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -54,13 +53,17 @@ configuration_set_defaults( void )
 #define PERSIST_ID_CAL_POWER 1
 #define PERSIST_ID_CAL_LED   2
 #define PERSIST_ID_FAN_CURVE 3
+#define PERSIST_ID_CONFIG 4
 
 PUBLIC void
 configuration_load( void )
 {
     // Load the data from non-volatile storage
     hal_flashmem_retrieve( PERSIST_ID_CAL_POWER, &power_trims, sizeof( PowerCalibration_t ) );
-    hal_flashmem_retrieve( PERSIST_ID_CAL_LED, rgb_led_settings_ptr, sizeof( LedSettings_t ) );
+    hal_flashmem_retrieve( PERSIST_ID_CAL_LED, &led_calibration, sizeof( LedSettings_t ) );
+//    hal_flashmem_retrieve( PERSIST_ID_FAN_CURVE, &aaa, sizeof( FanCurve_t ) );
+    hal_flashmem_retrieve( PERSIST_ID_CONFIG, &user_configuration, sizeof( UserConfig_t ) );
+
 }
 
 /* -------------------------------------------------------------------------- */
@@ -70,7 +73,9 @@ configuration_save( void )
 {
     // save settings to memory
     hal_flashmem_store( PERSIST_ID_CAL_POWER, &power_trims, sizeof( PowerCalibration_t ) );
-    hal_flashmem_store( PERSIST_ID_CAL_LED, rgb_led_settings_ptr, sizeof( LedSettings_t ) );
+    hal_flashmem_store( PERSIST_ID_CAL_LED, &led_calibration, sizeof( LedSettings_t ) );
+//    hal_flashmem_store( PERSIST_ID_FAN_CURVE, &aaa, sizeof( FanCurve_t ) );
+    hal_flashmem_store( PERSIST_ID_CONFIG, &user_configuration, sizeof( UserConfig_t ) );
 
     buzzer_sound( 2, 4000, 50 );
 }
@@ -96,6 +101,28 @@ configuration_get_fan_curve_ptr( void )
     return 0;
 }
 
+/* -------------------------------------------------------------------------- */
+
+PUBLIC UserConfig_t *
+configuration_get_user_config_ptr( void )
+{
+    return &user_configuration;
+}
+
+PUBLIC void
+configuration_notify_config( void )
+{
+    // Notify relevant modules of new configuration
+    buzzer_mute( user_configuration.flags.buzzer_mute );
+
+
+    // TODO: consider doing damage tracking to only set relevant members?
+
+
+}
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC int16_t configuration_get_voltage_trim_mV( void )
 {
     return power_trims.voltage;
@@ -120,50 +147,40 @@ PUBLIC int16_t configuration_get_servo_trim_mA( uint8_t servo )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void *
-configuration_set_led_correction_ptr( LedSettings_t *ptr )
+PUBLIC LedSettings_t *
+configuration_get_led_calibration_ptr( void )
 {
-    if( ptr )
-    {
-        rgb_led_settings_ptr = ptr;
-    }
-
-    return 0;
+    return &led_calibration;
 }
 
 PUBLIC void
 configuration_get_led_whitebalance( uint16_t *red_offset, uint16_t *green_offset, uint16_t *blue_offset )
 {
-    *red_offset   = rgb_led_settings_ptr->balance_red;
-    *green_offset = rgb_led_settings_ptr->balance_green;
-    *blue_offset  = rgb_led_settings_ptr->balance_blue;
+    *red_offset   = led_calibration.balance_red;
+    *green_offset = led_calibration.balance_green;
+    *blue_offset  = led_calibration.balance_blue;
 }
 
 PUBLIC void
 configuration_get_led_bias( uint16_t *offset )
 {
-    *offset = rgb_led_settings_ptr->balance_total;
+    *offset = led_calibration.balance_total;
 }
 
 PUBLIC bool
 configuration_get_led_luma_correction_enabled( void )
 {
-    return rgb_led_settings_ptr->correct_gamma;
+    return led_calibration.correct_gamma;
 }
 
 PUBLIC bool
 configuration_get_led_wb_correction_enabled( void )
 {
-    return rgb_led_settings_ptr->correct_wb;
+    return led_calibration.correct_wb;
 }
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC float
-configuration_get_rotation_z()
-{
-    float angle = CLAMP( z_rotation, 0.0f, 360.0f );
-    return angle;
-}
+
 
 /* ----- End ---------------------------------------------------------------- */

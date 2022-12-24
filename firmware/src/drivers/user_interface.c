@@ -79,10 +79,6 @@ Fade_t        light_fade_inbound;
 
 uint32_t camera_shutter_duration_ms = 0;
 
-// Configuration controlled variables are done with raw pointer sharing - yuck
-LedSettings_t led_calibration = { 0 };
-UserConfig_t user_configuration = { 0 };
-
 eui_message_t ui_variables[] = {
     // Higher level system setup information
     EUI_CHAR_ARRAY_RO( MSGID_RESET_CAUSE, reset_cause ),
@@ -123,10 +119,9 @@ eui_message_t ui_variables[] = {
     EUI_FUNC( MSGID_HOME, home_mech_cb ),
     EUI_UINT32( MSGID_CAPTURE, camera_shutter_duration_ms ),
 
-    EUI_CUSTOM( MSGID_LED_CALIBRATION, led_calibration ),
-    EUI_CUSTOM( MSGID_CONFIG, user_configuration ),
-
+    { .id = MSGID_LED_CALIBRATION, .type = TYPE_CUSTOM, .size = sizeof(LedSettings_t), {.data = 0} },
     //    EUI_CUSTOM( "pwr_cal", power_trims ),
+    { .id = MSGID_CONFIG, .type = TYPE_CUSTOM, .size = sizeof(UserConfig_t), {.data = 0} }
 };
 
 #define HEARTBEAT_EXPECTED_MS 800	// Expect to see a heartbeat within this threshold
@@ -173,7 +168,13 @@ user_interface_init( void )
     strcpy( (char *)&fw_info.build_type, ProgramBuildType );
     strcpy( (char *)&fw_info.build_name, ProgramName );
 
-    configuration_set_led_correction_ptr( &led_calibration );
+    // Find MSGID_CONFIG and set the pointer to the configuration handler's struct data
+    eui_message_t *tracked_config = find_tracked_object( MSGID_CONFIG );
+    tracked_config->ptr.data = configuration_get_user_config_ptr();
+
+    tracked_config = find_tracked_object( MSGID_LED_CALIBRATION );
+    tracked_config->ptr.data = configuration_get_led_calibration_ptr();
+
 }
 
 PUBLIC void
@@ -319,6 +320,11 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
             if( strcmp( (char *)name_rx, MSGID_CAPTURE ) == 0 && has_payload )
             {
                 trigger_camera_capture();
+            }
+
+            if( strcmp( (char *)name_rx, MSGID_CONFIG ) == 0 && has_payload )
+            {
+                configuration_notify_config();
             }
 
             if( strcmp( (char*)name_rx, EUI_INTERNAL_HEARTBEAT ) == 0 )

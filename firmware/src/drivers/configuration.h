@@ -35,6 +35,14 @@ configuration_get_fan_curve_ptr( void );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC UserConfig_t *
+configuration_get_user_config_ptr( void );
+
+PUBLIC void
+configuration_notify_config( void );
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC int16_t
 configuration_get_voltage_trim_mV( void );
 
@@ -43,8 +51,8 @@ configuration_get_servo_trim_mA( uint8_t servo );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void *
-configuration_set_led_correction_ptr( LedSettings_t *ptr );
+PUBLIC LedSettings_t *
+configuration_get_led_calibration_ptr( void );
 
 PUBLIC void
 configuration_get_led_whitebalance( uint16_t *red_offset, uint16_t *green_offset, uint16_t *blue_offset );
@@ -59,9 +67,6 @@ PUBLIC bool
 configuration_get_led_wb_correction_enabled( void );
 
 /* -------------------------------------------------------------------------- */
-
-PUBLIC float
-configuration_get_rotation_z();
 
 /* ----- End ---------------------------------------------------------------- */
 

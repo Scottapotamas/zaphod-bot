@@ -140,7 +140,8 @@ PUBLIC KinematicsSolution_t
 kinematics_point_to_angle( CartesianPoint_t input, JointAngles_t *output )
 {
     // Apply an optional rotation around the Z axis
-    cartesian_point_rotate_around_z( &input, configuration_get_rotation_z() );
+    // TODO: this shouldn't be done at the kinematics level, but as part of movement handling
+//    cartesian_point_rotate_around_z( &input, configuration_get_rotation_z() );
 
     // Limit attempts at out-of-bounds positions
     kinematics_clamp_volume( &input );
