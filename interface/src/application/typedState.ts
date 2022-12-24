@@ -38,6 +38,7 @@ export enum MSGID {
   CAPTURE = 'C',
 
   LED_CALIBRATION = 'calLED',
+  POWER_CALIBRATION = 'calPWR',
   USER_CONFIG = 'config',
 }
 
@@ -86,6 +87,7 @@ declare global {
     [MSGID.CAPTURE]: number // uint32 ms
 
     [MSGID.LED_CALIBRATION]: LedSettings
+    [MSGID.POWER_CALIBRATION]: PowerCalibration
     [MSGID.USER_CONFIG] : UserConfig
 
 
@@ -295,7 +297,7 @@ export type UserConfigFlags = {
 }
 
 // Only 8-bit rotation correction value is transmitted
-export const Z_ROTATION_SCALE_FACTOR: number = (255/360)
+export const Z_ROTATION_SCALE_FACTOR: number = 1.44
 
 export type UserConfigFields = {
   z_rotation: number;

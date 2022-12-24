@@ -479,7 +479,7 @@ export class RGBSettingsCodec extends Codec {
 
 export class PowerCalibrationCodec extends Codec {
   filter(message: Message): boolean {
-    return message.messageID === 'pwr_cal'
+    return message.messageID === MSGID.POWER_CALIBRATION
   }
 
   encode(payload: PowerCalibration) {

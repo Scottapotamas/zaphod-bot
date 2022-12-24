@@ -135,27 +135,26 @@ export const GeneralSettings = () => {
         >
           Mute Buzzer
         </Checkbox>
-
       </Box>
-      
+
       <Box>
         <h2>Speed Limits</h2>
 
-      <NumberInput
-            accessor={state => state[MSGID.USER_CONFIG].values.speed_limit}
-            writer={(state, value) => {
-              state[MSGID.USER_CONFIG].values.speed_limit = value
-            }}
-            min={0}
-            max={300}
-            intent={Intent.NONE}
-            rightElement={
-              <Tag minimal>
-                <b>mm/sec</b>
-              </Tag>
-            }
-            style={{ width: '150px' }}
-          />
+        <NumberInput
+          accessor={state => state[MSGID.USER_CONFIG].values.speed_limit}
+          writer={(state, value) => {
+            state[MSGID.USER_CONFIG].values.speed_limit = value
+          }}
+          min={0}
+          max={300}
+          intent={Intent.NONE}
+          rightElement={
+            <Tag minimal>
+              <b>mm/sec</b>
+            </Tag>
+          }
+          style={{ width: '150px' }}
+        />
       </Box>
 
       <Box>
@@ -178,8 +177,6 @@ export const GeneralSettings = () => {
           />
         </Slider>
       </Box>
-
-     
 
       <Box>
         <h2>Restrict Volume</h2>
@@ -229,14 +226,8 @@ export const GeneralSettings = () => {
               }
             />
           </Box>
-
         </Composition>
       </Box>
-
-
-
-
-      
     </Composition>
   )
 }

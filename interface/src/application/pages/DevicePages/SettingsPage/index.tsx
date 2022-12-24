@@ -23,6 +23,7 @@ import {
 import { GeneralSettings } from './GeneralSettings'
 import { InfoBlock } from './InfoBlock'
 import { LEDCalibrationBlock } from './LEDCalibrationBlock'
+import { PowerCalibrationBlock } from './PowerCalibrationBlock'
 
 export const SettingsPage = () => {
   return (
@@ -31,12 +32,7 @@ export const SettingsPage = () => {
         <Tab id="general" title="General" panel={<GeneralSettings />} />
         <Tab id="info" title="Info" panel={<InfoBlock />} />
         <Tab id="led" title="LED Calibration" panel={<LEDCalibrationBlock />} />
-        <Tab
-          id="power"
-          title="Power Calibration"
-          panel={<div>Power Cal</div>}
-        />
-
+        <Tab id="power" title="Power Calibration"panel={<PowerCalibrationBlock/>} />
         <Tabs.Expander />
       </Tabs>
     </div>
