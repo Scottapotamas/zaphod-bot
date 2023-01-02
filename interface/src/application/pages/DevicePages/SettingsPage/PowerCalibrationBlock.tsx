@@ -61,7 +61,7 @@ const ServoTableRow = (props: ServoRowProps) => {
   }
 
   return (
-    <tr>
+    <tr key={servo_number_readable}>
       <td>
         <b>Servo {servo_number_readable}</b>
       </td>
