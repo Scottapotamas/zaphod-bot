@@ -122,7 +122,8 @@ configuration_notify_config( void )
 PUBLIC uint16_t
 configuration_get_effector_speed_limit( void )
 {
-    return user_configuration.values.speed_limit * 10;
+    // Don't allow user values greater than the default
+    return MIN( user_configuration.values.speed_limit * 10, EFFECTOR_SPEED_LIMIT );
 }
 
 PUBLIC float
