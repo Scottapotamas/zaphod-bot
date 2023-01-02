@@ -42,6 +42,8 @@ configuration_set_defaults( void )
 
     user_configuration.values.z_rotation = 0;
     user_configuration.values.speed_limit = EFFECTOR_SPEED_LIMIT / 10;
+    user_configuration.values.volume_radius = KINEMATICS_RADIUS_MAX_MM;
+    user_configuration.values.volume_z = KINEMATICS_Z_MAX_MM;
 
 }
 
@@ -130,6 +132,18 @@ PUBLIC float
 configuration_get_z_rotation( void )
 {
     return (float)user_configuration.values.z_rotation * 2.0f;
+}
+
+PUBLIC uint32_t
+configuration_get_volume_restriction_radius_mm( void )
+{
+    return MIN( user_configuration.values.volume_radius, KINEMATICS_RADIUS_MAX_MM );
+}
+
+PUBLIC uint32_t
+configuration_get_volume_restriction_height_mm( void )
+{
+    return MIN( user_configuration.values.volume_z, KINEMATICS_Z_MAX_MM );
 }
 
 /* -------------------------------------------------------------------------- */

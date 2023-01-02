@@ -182,34 +182,21 @@ export const GeneralSettings = () => {
         <h2>Restrict Volume</h2>
         <Composition templateCols="1fr" gap={5}>
           <NumberInput
-            accessor={state => state[MSGID.USER_CONFIG].values.volume_x}
+            accessor={state => state[MSGID.USER_CONFIG].values.volume_radius}
             writer={(state, value) => {
-              state[MSGID.USER_CONFIG].values.volume_x = value
+              state[MSGID.USER_CONFIG].values.volume_radius = value
             }}
             min={0}
             max={300}
-            intent={Intent.DANGER}
+            intent={Intent.WARNING}
             rightElement={
               <Tag minimal>
-                <b>X</b>
+                <b>RADIUS</b>
               </Tag>
             }
+            style={{ width: '150px' }}
           />
 
-          <NumberInput
-            accessor={state => state[MSGID.USER_CONFIG].values.volume_y}
-            writer={(state, value) => {
-              state[MSGID.USER_CONFIG].values.volume_y = value
-            }}
-            min={0}
-            max={300}
-            intent={Intent.SUCCESS}
-            rightElement={
-              <Tag minimal>
-                <b>Y</b>
-              </Tag>
-            }
-          />
           <Box>
             <NumberInput
               accessor={state => state[MSGID.USER_CONFIG].values.volume_z}
@@ -221,9 +208,11 @@ export const GeneralSettings = () => {
               intent={Intent.PRIMARY}
               rightElement={
                 <Tag minimal>
-                  <b>Z</b>
+                  <b>HEIGHT</b>
                 </Tag>
               }
+              style={{ width: '150px' }}
+
             />
           </Box>
         </Composition>

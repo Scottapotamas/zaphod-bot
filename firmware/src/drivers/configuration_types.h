@@ -29,12 +29,12 @@ typedef struct
 {
     uint8_t z_rotation;
     uint8_t speed_limit;
-    uint8_t volume_x;
-    uint8_t volume_y;
+    uint8_t volume_radius;
     uint8_t volume_z;
     uint8_t reserved_v1;
     uint8_t reserved_v2;
     uint8_t reserved_v3;
+    uint8_t reserved_v4;
 } SettingsValuesRenameMe_t;
 
 typedef struct

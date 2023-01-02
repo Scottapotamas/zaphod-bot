@@ -6,6 +6,7 @@
 #include "global.h"
 #include "kinematics.h"
 
+#include "app_times.h"
 #include "configuration.h"
 #include "motion_types.h"
 #include "user_interface.h"
@@ -16,14 +17,14 @@
 CartesianPoint_t offset_position = {
     .x = 0,
     .y = 0,
-    .z = MM_TO_MICRONS( 190 )
+    .z = MM_TO_MICRONS( KINEMATICS_Z_OFFSET_MM )
 };
 
 // Constrain motion to the practical parts of the movement volume
-int32_t z_max = MM_TO_MICRONS( 200 );
-int32_t z_min = MM_TO_MICRONS( 0 );
+int32_t z_max = MM_TO_MICRONS( KINEMATICS_Z_MAX_MM );
+int32_t z_min = MM_TO_MICRONS( KINEMATICS_Z_MIN_MM );
 
-int32_t radius = MM_TO_MICRONS( 225 );
+int32_t radius = MM_TO_MICRONS( KINEMATICS_RADIUS_MAX_MM );
 
 // Rotate the cartesian co-ordinate space
 int8_t flip_x = 1;
@@ -99,12 +100,14 @@ PRIVATE void
 kinematics_clamp_volume( CartesianPoint_t *point )
 {
     // Check 'height' is within the bounds
+    // TODO: check for user-configured height
     point->z = CLAMP( point->z, z_min, z_max );
 
     uint32_t dx = abs( point->x );    // if using off-center circle, use abs(x - center_x)
     uint32_t dy = abs( point->y );
 
     // Quickly check if the point is outside the radius-sized diamond area inside the circle
+    // TODO: check for user-configured radius limit
     if( ( dx + dy ) >= radius )
     {
         // Calculate and compare the distance properly
@@ -139,10 +142,6 @@ kinematics_clamp_volume( CartesianPoint_t *point )
 PUBLIC KinematicsSolution_t
 kinematics_point_to_angle( CartesianPoint_t input, JointAngles_t *output )
 {
-    // Apply an optional rotation around the Z axis
-    // TODO: this shouldn't be done at the kinematics level, but as part of movement handling
-//    cartesian_point_rotate_around_z( &input, configuration_get_rotation_z() );
-
     // Limit attempts at out-of-bounds positions
     kinematics_clamp_volume( &input );
 

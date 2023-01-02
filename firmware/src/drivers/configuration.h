@@ -50,6 +50,12 @@ configuration_get_effector_speed_limit( void );
 PUBLIC float
 configuration_get_z_rotation( void );
 
+PUBLIC uint32_t
+configuration_get_volume_restriction_radius_mm( void );
+
+PUBLIC uint32_t
+configuration_get_volume_restriction_height_mm( void );
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC PowerCalibration_t *

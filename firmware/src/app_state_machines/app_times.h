@@ -34,8 +34,6 @@ enum SystemDefines
     MOVEMENT_QUEUE_DEPTH_MAX = 150U,    // movement events in the queue
     LED_QUEUE_DEPTH_MAX      = 250U,    // LED animations in the queue
 
-    EFFECTOR_SPEED_LIMIT    = 650U,    // mm/second
-    SPEED_SAMPLE_RESOLUTION = 20U,     // number of samples to sum across spline
 };
 
 /* -------------------------------------------------------------------------- */
@@ -99,9 +97,27 @@ enum LedDefines
 
 /* -------------------------------------------------------------------------- */
 
+enum KinematicsDefines
+{
+    KINEMATICS_Z_MAX_MM = 200U,
+    KINEMATICS_Z_MIN_MM = 0U,
+    KINEMATICS_RADIUS_MAX_MM = 225U,
+
+    KINEMATICS_Z_OFFSET_MM = 190U,
+};
+
+/* -------------------------------------------------------------------------- */
+
+enum PathingDefines
+{
+    EFFECTOR_SPEED_LIMIT    = 650U,    // mm/second
+    SPEED_SAMPLE_RESOLUTION = 20U,     // number of samples to sum across spline
+};
+
+/* -------------------------------------------------------------------------- */
+
 enum ServoDefines
 {
-
     SERVO_COUNT = 4U,
 
     // Clearpath motion range allowed by mechanism

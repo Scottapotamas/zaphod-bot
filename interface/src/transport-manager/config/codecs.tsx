@@ -537,14 +537,14 @@ export class UserConfigCodec extends Codec {
 
     packet.writeUInt8(payload.values.z_rotation/Z_ROTATION_SCALE_FACTOR)
     packet.writeUInt8(payload.values.speed_limit/SPEED_LIMIT_SCALE_FACTOR)
-    packet.writeUInt8(payload.values.volume_x)
-    packet.writeUInt8(payload.values.volume_y)
+    packet.writeUInt8(payload.values.volume_radius)
     packet.writeUInt8(payload.values.volume_z)
 
      // currently reserved values
     packet.writeUInt8(0xAA)
     packet.writeUInt8(0xBB)
     packet.writeUInt8(0xCC)
+    packet.writeUInt8(0xDD)
 
     return packet.toBuffer()
   }
@@ -571,14 +571,14 @@ export class UserConfigCodec extends Codec {
     let fields:UserConfigFields = {
       z_rotation: reader.readUInt8()*Z_ROTATION_SCALE_FACTOR,
       speed_limit: reader.readUInt8()*SPEED_LIMIT_SCALE_FACTOR,
-      volume_x: reader.readUInt8(),
-      volume_y: reader.readUInt8(),
+      volume_radius: reader.readUInt8(),
       volume_z: reader.readUInt8(),
     }
 
     let v1 = reader.readUInt8() // reserved value
     let v2 = reader.readUInt8() // reserved value
     let v3 = reader.readUInt8() // reserved value
+    let v4 = reader.readUInt8() // reserved value
 
     return {
       flags: flags,

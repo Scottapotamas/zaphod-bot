@@ -302,8 +302,7 @@ export const SPEED_LIMIT_SCALE_FACTOR: number = 10
 export type UserConfigFields = {
   z_rotation: number;
   speed_limit: number;
-  volume_x: number;
-  volume_y: number;
+  volume_radius: number;
   volume_z: number;
 }
 
