@@ -1,5 +1,5 @@
-#ifndef DEMONSTRATION_H
-#define DEMONSTRATION_H
+#ifndef ATTRACTOR_TYPES_H
+#define ATTRACTOR_TYPES_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -73,4 +73,4 @@ typedef struct
 }
 #endif
 
-#endif /* DEMONSTRATION_H */
+#endif /* ATTRACTOR_TYPES_H */

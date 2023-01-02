@@ -172,7 +172,6 @@ attractor_init( void )
 PRIVATE void attractor_step( const AttractorSystem_t *state, AttractorPosition_t *current, AttractorPosition_t *result )
 {
 
-
     float nx = state->fn_x( state->speed, state->parameters, current->x, current->y, current->z );
     float ny = state->fn_y( state->speed, state->parameters, current->x, current->y, current->z );
     float nz = state->fn_z( state->speed, state->parameters, current->x, current->y, current->z );
@@ -192,36 +191,36 @@ PRIVATE void attractor_runge_kutta( const float time, const AttractorSystem_t *s
     float h6 = state->step / 6.0f;
     float h2_time = time + h2;
 
-    float height = 0.1f;
+    float step = 0.1f;
 
     // First pass
-    float k1 = state->fn_x( time, height, state->parameters, state->position.x, state->position.y, state->position.z );
-    float j1 = state->fn_y( time, height, state->parameters, state->position.x, state->position.y, state->position.z );
-    float i1 = state->fn_z( time, height, state->parameters, state->position.x, state->position.y, state->position.z );
+    float k1 = state->fn_x( step, state->parameters, state->position.x, state->position.y, state->position.z );
+    float j1 = state->fn_y( step, state->parameters, state->position.x, state->position.y, state->position.z );
+    float i1 = state->fn_z( step, state->parameters, state->position.x, state->position.y, state->position.z );
 
     float h2_k1 = h2 * k1;
     float h2_j1 = h2 * j1;
     float h2_i1 = h2 * i1;
 
-    float k2 = state->fn_x( h2_time, height, state->parameters, state->position.x + h2_k1, state->position.y + h2_j1, state->position.z + h2_i1 );
-    float j2 = state->fn_y( h2_time, height, state->parameters, state->position.x + h2_k1, state->position.y + h2_j1, state->position.z + h2_i1 );
-    float i2 = state->fn_z( h2_time, height, state->parameters, state->position.x + h2_k1, state->position.y + h2_j1, state->position.z + h2_i1 );
+    float k2 = state->fn_x( step, state->parameters, state->position.x + h2_k1, state->position.y + h2_j1, state->position.z + h2_i1 );
+    float j2 = state->fn_y( step, state->parameters, state->position.x + h2_k1, state->position.y + h2_j1, state->position.z + h2_i1 );
+    float i2 = state->fn_z( step, state->parameters, state->position.x + h2_k1, state->position.y + h2_j1, state->position.z + h2_i1 );
 
-    float h2_k2 = h2 * k1;
-    float h2_j2 = h2 * j1;
-    float h2_i2 = h2 * i1;
+    float h2_k2 = h2 * k2;
+    float h2_j2 = h2 * j2;
+    float h2_i2 = h2 * i2;
 
-    float k3 = state->fn_x( h2_time, height, state->parameters, state->position.x + h2_k2, state->position.y + h2_j2, state->position.z + h2_i2 );
-    float j3 = state->fn_y( h2_time, height, state->parameters, state->position.x + h2_k2, state->position.y + h2_j2, state->position.z + h2_i2 );
-    float i3 = state->fn_z( h2_time, height, state->parameters, state->position.x + h2_k2, state->position.y + h2_j2, state->position.z + h2_i2 );
+    float k3 = state->fn_x( step, state->parameters, state->position.x + h2_k2, state->position.y + h2_j2, state->position.z + h2_i2 );
+    float j3 = state->fn_y( step, state->parameters, state->position.x + h2_k2, state->position.y + h2_j2, state->position.z + h2_i2 );
+    float i3 = state->fn_z( step, state->parameters, state->position.x + h2_k2, state->position.y + h2_j2, state->position.z + h2_i2 );
 
     float h_k3 = state->step * k3;
     float h_j3 = state->step * j3;
     float h_i3 = state->step * i3;
 
-    float k4 = state->fn_x( time + state->step, height, state->parameters, state->position.x + h_k3, state->position.y + h_j3, state->position.z + h_i3 );
-    float j4 = state->fn_y( time + state->step, height, state->parameters, state->position.x + h_k3, state->position.y + h_j3, state->position.z + h_i3 );
-    float i4 = state->fn_z( time + state->step, height, state->parameters, state->position.x + h_k3, state->position.y + h_j3, state->position.z + h_i3 );
+    float k4 = state->fn_x( step, state->parameters, state->position.x + h_k3, state->position.y + h_j3, state->position.z + h_i3 );
+    float j4 = state->fn_y( step, state->parameters, state->position.x + h_k3, state->position.y + h_j3, state->position.z + h_i3 );
+    float i4 = state->fn_z( step, state->parameters, state->position.x + h_k3, state->position.y + h_j3, state->position.z + h_i3 );
 
     // Output
     result_pos->x = state->position.x + h6 * (k1 + 2.0f * k2 + 2.0f * k3 + k4);

@@ -76,6 +76,7 @@ include_directories(src
                     src/app_state_machines
                     src/hal
                     src/drivers
+                    src/drivers/demonstrations
                     src/utility
                     vendor/STM32F4xx_HAL_Driver/Inc
                     vendor/CMSIS/Device/ST/STM32F4xx/Include
