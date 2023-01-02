@@ -110,7 +110,8 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL: {
-            user_interface_set_main_state( SUPERVISOR_MAIN );
+            me->armed = SUPERVISOR_NONE;
+            user_interface_set_main_state( me->armed );
 
             // start the board hardware sensors
             sensors_enable();
@@ -125,7 +126,7 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
             switch( ( (ButtonPressedEvent *)e )->id )
             {
                 case BUTTON_0:
-                    me->selected_control_mode = CONTROL_DEMO;
+                    me->requested_control_mode = CONTROL_DEMO;
                     eventPublish( EVENT_NEW( StateEvent, MECHANISM_START ) );
                     return 0;
 
@@ -150,6 +151,26 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
             }
             break;
 
+        case MODE_MANUAL:
+            me->requested_control_mode = CONTROL_MANUAL;
+            AppTaskSupervisorProcessModeRequest( me );
+            return 0;
+
+        case MODE_TRACK:
+            me->requested_control_mode = CONTROL_TRACK;
+            AppTaskSupervisorProcessModeRequest( me );
+            return 0;
+
+        case MODE_DEMO:
+            me->requested_control_mode = CONTROL_DEMO;
+            AppTaskSupervisorProcessModeRequest( me );
+            return 0;
+
+        case MODE_EVENT:
+            me->requested_control_mode = CONTROL_EVENT;
+            AppTaskSupervisorProcessModeRequest( me );
+            return 0;
+
         case STATE_INIT_SIGNAL:
             STATE_INIT( &AppTaskSupervisor_disarmed );
             return 0;
@@ -167,8 +188,8 @@ PRIVATE STATE AppTaskSupervisor_disarmed( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            user_interface_set_main_state( SUPERVISOR_IDLE );
-            user_interface_set_control_mode( me->selected_control_mode );
+            me->armed = SUPERVISOR_IDLE;
+            user_interface_set_main_state( me->armed );
 
             status_green( false );
             status_yellow( false );
@@ -180,28 +201,7 @@ PRIVATE STATE AppTaskSupervisor_disarmed( AppTaskSupervisor *me,
             STATE_TRAN( AppTaskSupervisor_arm_start );
             return 0;
 
-        case MODE_TRACK:
-            me->selected_control_mode = CONTROL_TRACK;
-            user_interface_set_control_mode( me->selected_control_mode );
-            return 0;
-
-        case MODE_EVENT:
-            me->selected_control_mode = CONTROL_EVENT;
-            user_interface_set_control_mode( me->selected_control_mode );
-            return 0;
-
-        case MODE_MANUAL:
-            me->selected_control_mode = CONTROL_MANUAL;
-            user_interface_set_control_mode( me->selected_control_mode );
-            return 0;
-
-        case MODE_DEMO:
-            me->selected_control_mode = CONTROL_DEMO;
-            user_interface_set_control_mode( me->selected_control_mode );
-            return 0;
-
         case STATE_EXIT_SIGNAL:
-            user_interface_set_control_mode( me->selected_control_mode );
             return 0;
     }
     return (STATE)AppTaskSupervisor_main;
@@ -217,7 +217,8 @@ PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            user_interface_set_main_state( SUPERVISOR_ARMING );
+            me->armed = SUPERVISOR_ARMING;
+            user_interface_set_main_state( me->armed );
 
             status_yellow( true );
             status_external( true );
@@ -245,26 +246,6 @@ PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
             STATE_TRAN( AppTaskSupervisor_arm_success );
             return 0;
 
-        case MODE_TRACK:
-            me->selected_control_mode = CONTROL_TRACK;
-            user_interface_set_control_mode( me->selected_control_mode );
-            return 0;
-
-        case MODE_EVENT:
-            me->selected_control_mode = CONTROL_EVENT;
-            user_interface_set_control_mode( me->selected_control_mode );
-            return 0;
-
-        case MODE_MANUAL:
-            me->selected_control_mode = CONTROL_MANUAL;
-            user_interface_set_control_mode( me->selected_control_mode );
-            return 0;
-
-        case MODE_DEMO:
-            me->selected_control_mode = CONTROL_DEMO;
-            user_interface_set_control_mode( me->selected_control_mode );
-            return 0;
-
         case MOTION_DISABLED:
             STATE_TRAN( AppTaskSupervisor_disarmed );
             return 0;
@@ -286,8 +267,8 @@ PRIVATE STATE AppTaskSupervisor_arm_error( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            user_interface_set_main_state( SUPERVISOR_ERROR );
-            user_interface_set_control_mode( CONTROL_NONE );
+            me->armed = SUPERVISOR_ERROR;
+            user_interface_set_main_state( me->armed );
 
             // We only get here when another state thinks the mechanism isn't responding properly
             // so treat it as a high severity error, and trigger e-stop behaviour
@@ -322,7 +303,8 @@ PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
     {
         case STATE_ENTRY_SIGNAL:
             // update state for UI
-            user_interface_set_main_state( SUPERVISOR_SUCCESS );
+            me->armed = SUPERVISOR_ARMED;
+            user_interface_set_main_state( me->armed );
 
             status_yellow( false );
             status_green( true );
@@ -337,21 +319,22 @@ PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
 
         case STATE_STEP1_SIGNAL:
 
-            switch( me->selected_control_mode )
+            switch( me->requested_control_mode )
             {
-                case CONTROL_DEMO:
-                    STATE_TRAN( AppTaskSupervisor_armed_demo );
+                case CONTROL_MANUAL:
+                    STATE_TRAN( AppTaskSupervisor_armed_manual );
                     break;
+
                 case CONTROL_TRACK:
                     STATE_TRAN( AppTaskSupervisor_armed_track );
                     break;
 
-                case CONTROL_EVENT:
-                    STATE_TRAN( AppTaskSupervisor_armed_event );
+                case CONTROL_DEMO:
+                    STATE_TRAN( AppTaskSupervisor_armed_demo );
                     break;
 
-                case CONTROL_MANUAL:
-                    STATE_TRAN( AppTaskSupervisor_armed_manual );
+                case CONTROL_EVENT:
+                    STATE_TRAN( AppTaskSupervisor_armed_event );
                     break;
 
                 default:
@@ -374,7 +357,6 @@ PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
             return 0;
 
         case STATE_EXIT_SIGNAL:
-            user_interface_set_control_mode( me->selected_control_mode );
             return 0;
     }
     return (STATE)AppTaskSupervisor_main;
@@ -390,8 +372,8 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            user_interface_set_main_state( SUPERVISOR_ARMED );
-            user_interface_set_control_mode( CONTROL_EVENT );
+            me->active_control_mode = CONTROL_EVENT;
+            user_interface_set_control_mode( me->active_control_mode );
 
             // set up any recurring monitoring processes
 
@@ -465,21 +447,6 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
             return 0;
         }
 
-        case MODE_TRACK:
-            me->selected_control_mode = CONTROL_TRACK;
-            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
-            return 0;
-
-        case MODE_MANUAL:
-            me->selected_control_mode = CONTROL_MANUAL;
-            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
-            return 0;
-
-        case MODE_DEMO:
-            me->selected_control_mode = CONTROL_DEMO;
-            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
-            return 0;
-
         case MOTION_DISABLED:
             STATE_TRAN( AppTaskSupervisor_disarmed );
             return 0;
@@ -497,10 +464,10 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            user_interface_set_main_state( SUPERVISOR_ARMED );
-            user_interface_set_control_mode( CONTROL_MANUAL );
-            eventPublish( EVENT_NEW( StateEvent, LED_ALLOW_MANUAL_CONTROL ) );
+            me->active_control_mode = CONTROL_MANUAL;
+            user_interface_set_control_mode( me->active_control_mode );
 
+            eventPublish( EVENT_NEW( StateEvent, LED_ALLOW_MANUAL_CONTROL ) );
             return 0;
 
         case MECHANISM_STOP:
@@ -536,21 +503,6 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
             return 0;
         }
 
-        case MODE_TRACK:
-            me->selected_control_mode = CONTROL_TRACK;
-            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
-            return 0;
-
-        case MODE_EVENT:
-            me->selected_control_mode = CONTROL_EVENT;
-            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
-            return 0;
-
-        case MODE_DEMO:
-            me->selected_control_mode = CONTROL_DEMO;
-            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
-            return 0;
-
         case MOTION_DISABLED:
             STATE_TRAN( AppTaskSupervisor_disarmed );
             return 0;
@@ -569,8 +521,8 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            user_interface_set_main_state( SUPERVISOR_ARMED );
-            user_interface_set_control_mode( CONTROL_TRACK );
+            me->active_control_mode = CONTROL_TRACK;
+            user_interface_set_control_mode( me->active_control_mode );
 
             eventPublish( EVENT_NEW( StateEvent, LED_ALLOW_MANUAL_CONTROL ) );
 
@@ -629,21 +581,6 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
             user_interface_reset_tracking_target();
             return 0;
 
-        case MODE_DEMO:
-            me->selected_control_mode = CONTROL_DEMO;
-            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
-            return 0;
-
-        case MODE_EVENT:
-            me->selected_control_mode = CONTROL_EVENT;
-            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
-            return 0;
-
-        case MODE_MANUAL:
-            me->selected_control_mode = CONTROL_MANUAL;
-            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
-            return 0;
-
         case MOTION_DISABLED:
             STATE_TRAN( AppTaskSupervisor_disarmed );
             return 0;
@@ -665,8 +602,8 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            user_interface_set_main_state( SUPERVISOR_ARMED );
-            user_interface_set_control_mode( CONTROL_DEMO );
+            me->active_control_mode = CONTROL_DEMO;
+            user_interface_set_control_mode( me->active_control_mode );
 
             demonstration_init();
 
@@ -696,21 +633,6 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
             STATE_TRAN( AppTaskSupervisor_arm_error );
             return 0;
 
-        case MODE_TRACK:
-            me->selected_control_mode = CONTROL_TRACK;
-            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
-            return 0;
-
-        case MODE_MANUAL:
-            me->selected_control_mode = CONTROL_MANUAL;
-            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
-            return 0;
-
-        case MODE_EVENT:
-            me->selected_control_mode = CONTROL_EVENT;
-            STATE_TRAN( AppTaskSupervisor_armed_change_mode );
-            return 0;
-
         case MOTION_DISABLED:
             STATE_TRAN( AppTaskSupervisor_disarmed );
             return 0;
@@ -728,8 +650,8 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            user_interface_set_main_state( SUPERVISOR_ARMED );
-            user_interface_set_control_mode( CONTROL_CHANGING );
+            me->active_control_mode = CONTROL_CHANGING;
+            user_interface_set_control_mode( me->active_control_mode );
 
             // empty out the queues
             eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
@@ -754,7 +676,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
                 && position.z < MM_TO_MICRONS( 0.1 )
                 && path_interpolator_get_move_done() )
             {
-                switch( me->selected_control_mode )
+                switch( me->requested_control_mode )
                 {
                     case CONTROL_DEMO:
                         STATE_TRAN( AppTaskSupervisor_armed_demo );
@@ -809,7 +731,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
                 && position.z < MM_TO_MICRONS( 0.1 )
                 && path_interpolator_get_move_done() )
             {
-                switch( me->selected_control_mode )
+                switch( me->requested_control_mode )
                 {
                     case CONTROL_DEMO:
                         STATE_TRAN( AppTaskSupervisor_armed_demo );
@@ -857,22 +779,6 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
             return 0;
         }
 
-        case MODE_TRACK:
-            me->selected_control_mode = CONTROL_TRACK;
-            return 0;
-
-        case MODE_EVENT:
-            me->selected_control_mode = CONTROL_EVENT;
-            return 0;
-
-        case MODE_MANUAL:
-            me->selected_control_mode = CONTROL_MANUAL;
-            return 0;
-
-        case MODE_DEMO:
-            me->selected_control_mode = CONTROL_DEMO;
-            return 0;
-
         case MECHANISM_STOP:
             STATE_TRAN( AppTaskSupervisor_disarm_graceful );
             return 0;
@@ -886,7 +792,6 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
             return 0;
 
         case STATE_EXIT_SIGNAL:
-            user_interface_set_control_mode( me->selected_control_mode );
             eventTimerStopIfActive( &me->timer1 );
 
             buzzer_sound( BUZZER_MODE_CHANGED_NUM, BUZZER_MODE_CHANGED_TONE, BUZZER_MODE_CHANGED_DURATION );
@@ -905,8 +810,8 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            user_interface_set_main_state( SUPERVISOR_DISARMING );
-            user_interface_set_control_mode( me->selected_control_mode );
+            me->armed = SUPERVISOR_DISARMING;
+            user_interface_set_main_state( me->armed );
 
             // empty out the queues
             eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
@@ -986,6 +891,30 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
 
 /* -------------------------------------------------------------------------- */
 
+// In normal operation, asks the supervisor to change into the new mode.
+// If we're disarmed or pre-arm, update the target mode directly
+PRIVATE void AppTaskSupervisorProcessModeRequest( AppTaskSupervisor *me )
+{
+    // Don't transition states if already there
+    if( me->requested_control_mode == me->active_control_mode )
+    {
+        return;
+    }
+
+    // When disarmed, full state transitions aren't needed
+    if( me->armed != SUPERVISOR_ARMED )
+    {
+        me->active_control_mode = me->requested_control_mode;
+        user_interface_set_control_mode( me->active_control_mode );
+        return;
+    }
+
+    STATE_TRAN( AppTaskSupervisor_armed_change_mode );
+
+}
+
+/* -------------------------------------------------------------------------- */
+
 // Tell the motion handler to clear queue, queue a new move to home, and start the move
 PRIVATE void AppTaskSupervisorPublishRehomeEvent( void )
 {
@@ -1040,4 +969,5 @@ PRIVATE void AppTaskSupervisorButtonEvent( ButtonId_t        button,
         }
     }
 }
+
 /* ----- End ---------------------------------------------------------------- */

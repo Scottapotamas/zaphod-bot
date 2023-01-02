@@ -14,7 +14,7 @@ import { IconNames } from '@blueprintjs/icons'
 
 import { useHardwareState } from '@electricui/components-core'
 
-import { MSGID, SUPERVISOR_STATES, ServoInfo } from '../../../../typedState'
+import { MSGID, ServoInfo } from '../../../../typedState'
 import { Printer } from '@electricui/components-desktop'
 
 import { OutlineCard } from '../../../../components/OutlineCard'

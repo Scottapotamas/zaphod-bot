@@ -18,11 +18,9 @@ extern "C" {
 typedef enum
 {
     SUPERVISOR_NONE = 0,
-    SUPERVISOR_MAIN,
     SUPERVISOR_IDLE,
     SUPERVISOR_ARMING,
     SUPERVISOR_ERROR,
-    SUPERVISOR_SUCCESS,
     SUPERVISOR_ARMED,
     SUPERVISOR_DISARMING,
     SUPERVISOR_INVALID,
@@ -42,7 +40,9 @@ struct AppTaskSupervisor
     EventTimer timer2;    ///< Local state timer 2
 
     // ~~~ Task Variables ~~~
-    uint8_t selected_control_mode;    // mode of end effector control
+    SupervisorStates_t armed;
+    uint8_t active_control_mode;    // mode of end effector control
+    uint8_t requested_control_mode;    // mode of end effector control
 };
 
 /* ----- Public Functions --------------------------------------------------- */
