@@ -25,6 +25,7 @@ import {
   PowerCalibration,
   BOUNDARY_VIOLATION_MODES,
   Z_ROTATION_SCALE_FACTOR,
+  SPEED_LIMIT_SCALE_FACTOR,
   UserConfigFlags,
   UserConfigFields,
   UserConfig,
@@ -531,7 +532,7 @@ export class UserConfigCodec extends Codec {
     packet.writeUInt8(bitfield2)
 
     packet.writeUInt8(payload.values.z_rotation/Z_ROTATION_SCALE_FACTOR)
-    packet.writeUInt8(payload.values.speed_limit)
+    packet.writeUInt8(payload.values.speed_limit/SPEED_LIMIT_SCALE_FACTOR)
     packet.writeUInt8(payload.values.volume_x)
     packet.writeUInt8(payload.values.volume_y)
     packet.writeUInt8(payload.values.volume_z)
@@ -557,7 +558,7 @@ export class UserConfigCodec extends Codec {
 
     let fields:UserConfigFields = {
       z_rotation: reader.readUInt8()*Z_ROTATION_SCALE_FACTOR,
-      speed_limit: reader.readUInt8(),
+      speed_limit: reader.readUInt8()*SPEED_LIMIT_SCALE_FACTOR,
       volume_x: reader.readUInt8(),
       volume_y: reader.readUInt8(),
       volume_z: reader.readUInt8(),
