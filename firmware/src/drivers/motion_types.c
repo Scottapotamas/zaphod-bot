@@ -50,8 +50,10 @@ cartesian_find_point_on_line( CartesianPoint_t *a, CartesianPoint_t *b, Cartesia
 PUBLIC void
 cartesian_point_rotate_around_z( CartesianPoint_t *a, float degrees )
 {
+    // TODO assert if null pointer is provided
+
     // Early exit if no rotation is required
-    if( ( degrees <= 0.0f + FLT_EPSILON ) || ( degrees >= 0.0f - FLT_EPSILON ) )
+    if( ( degrees <= 0.0f + FLT_EPSILON ) || ( degrees >= 360.0f - FLT_EPSILON ) )
     {
         return;
     }
@@ -60,9 +62,14 @@ cartesian_point_rotate_around_z( CartesianPoint_t *a, float degrees )
     float cos_w   = cosf( radians );
     float sin_w   = sinf( radians );
 
-    a->x = a->x * cos_w - a->y * sin_w;
-    a->y = a->x * sin_w + a->y * cos_w;
+    CartesianPoint_t rotated = { 0 };
+
+    rotated.x = a->x * cos_w - a->y * sin_w;
+    rotated.y = a->x * sin_w + a->y * cos_w;
     // a->z = a->z;     // we are rotating around z, so not needed
+
+    a->x = rotated.x;
+    a->y = rotated.y;
 }
 
 /* -------------------------------------------------------------------------- */
