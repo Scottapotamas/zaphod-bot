@@ -519,6 +519,8 @@ export class UserConfigCodec extends Codec {
 
     let bitfield1 = 0x00;
     let bitfield2 = 0xAA;  // currently reserved
+    let bitfield3 = 0x55;  // currently reserved
+    let bitfield4 = 0xEE;  // currently reserved
 
     bitfield1 |= (payload.flags.buzzer_mute ? 1 : 0) 
     bitfield1 |= ((payload.flags.effector_as_status_led ? 1 : 0) << 1 )
@@ -530,6 +532,8 @@ export class UserConfigCodec extends Codec {
 
     packet.writeUInt8(bitfield1)
     packet.writeUInt8(bitfield2)
+    packet.writeUInt8(bitfield3)
+    packet.writeUInt8(bitfield4)
 
     packet.writeUInt8(payload.values.z_rotation/Z_ROTATION_SCALE_FACTOR)
     packet.writeUInt8(payload.values.speed_limit/SPEED_LIMIT_SCALE_FACTOR)
@@ -537,14 +541,22 @@ export class UserConfigCodec extends Codec {
     packet.writeUInt8(payload.values.volume_y)
     packet.writeUInt8(payload.values.volume_z)
 
+     // currently reserved values
+    packet.writeUInt8(0xAA)
+    packet.writeUInt8(0xBB)
+    packet.writeUInt8(0xCC)
+
     return packet.toBuffer()
   }
 
   decode(payload: Buffer): UserConfig {
     const reader = SmartBuffer.fromBuffer(payload)
+    console.log(reader.length)
 
     let b1 = reader.readUInt8()
     let b2 = reader.readUInt8() // reserved byte
+    let b3 = reader.readUInt8() // reserved byte
+    let b4 = reader.readUInt8() // reserved byte
 
     let flags:UserConfigFlags = {
       buzzer_mute: (b1 & 0x01) == 1,
@@ -563,6 +575,10 @@ export class UserConfigCodec extends Codec {
       volume_y: reader.readUInt8(),
       volume_z: reader.readUInt8(),
     }
+
+    let v1 = reader.readUInt8() // reserved value
+    let v2 = reader.readUInt8() // reserved value
+    let v3 = reader.readUInt8() // reserved value
 
     return {
       flags: flags,

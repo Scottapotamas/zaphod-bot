@@ -307,7 +307,6 @@ export type UserConfigFields = {
   volume_x: number;
   volume_y: number;
   volume_z: number;
-
 }
 
 export type UserConfig = {

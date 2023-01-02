@@ -21,6 +21,8 @@ typedef struct
     unsigned inverted : 1;
     unsigned boundary_violation_mode : 2;
     unsigned reserved: 8;
+    unsigned reserved_b2: 8;
+    unsigned reserved_b3: 8;
 } SettingsBitfieldRenameMe_t;
 
 typedef struct
@@ -30,6 +32,9 @@ typedef struct
     uint8_t volume_x;
     uint8_t volume_y;
     uint8_t volume_z;
+    uint8_t reserved_v1;
+    uint8_t reserved_v2;
+    uint8_t reserved_v3;
 } SettingsValuesRenameMe_t;
 
 typedef struct
