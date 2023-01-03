@@ -1,15 +1,16 @@
 /* ----- System Includes ---------------------------------------------------- */
 
-#include <event_subscribe.h>
 #include <string.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
+
 #include "app_config.h"
 #include "app_events.h"
 #include "app_signals.h"
 #include "app_times.h"
 #include "global.h"
 #include "qassert.h"
+#include "event_subscribe.h"
 
 #include "app_task_supervisor.h"
 #include "app_task_supervisor_private.h"
@@ -93,6 +94,7 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask *)me, MODE_MANUAL );
 
     eventSubscribe( (StateTask *)me, QUEUE_SYNC_START );
+    eventSubscribe( (StateTask *)me, MOTION_QUEUE_LOW );
 
     eventSubscribe( (StateTask *)me, CAMERA_CAPTURE );
 
@@ -608,18 +610,18 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
             // Cleanup any prior demo state
             demonstration_init();
 
-            // Request the demo system start filling the movement queue
-            eventTimerStartOnce( &me->timer1,
-                                 (StateTask *)me,
-                                 (StateEvent *)&stateEventReserved[STATE_TIMEOUT2_SIGNAL],
-                                 MS_TO_TICKS( 50 ) );
+            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
 
-
+            // Wait before starting the demo?
             eventTimerStartOnce( &me->timer1,
                                  (StateTask *)me,
                                  (StateEvent *)&stateEventReserved[STATE_TIMEOUT1_SIGNAL],
                                  MS_TO_TICKS( 2000 ) );
+            return 0;
 
+        case STATE_STEP1_SIGNAL:
+            // Feed the movement queue a larger batch of initial moves
+            demonstration_enqueue_moves( 6 );
             return 0;
 
         case STATE_TIMEOUT1_SIGNAL: {
@@ -630,14 +632,9 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
         }
             return 0;
 
-        case STATE_TIMEOUT2_SIGNAL:
-
-            // Check queue utilisation
-            // TODO: work out how to query queue depth?
-
+        case MOTION_QUEUE_LOW:
             // Generate/load some events and add them to the motion queue
             demonstration_enqueue_moves( 4 );
-
             return 0;
 
         case MECHANISM_STOP:

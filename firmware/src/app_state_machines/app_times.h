@@ -32,6 +32,8 @@ enum SystemDefines
     BACKGROUND_ADC_AVG_POLL_MS = 100U,    //  10Hz
 
     MOVEMENT_QUEUE_DEPTH_MAX = 150U,    // movement events in the queue
+    MOVEMENT_QUEUE_LOW_WATERMARK = 3U,  // the queue is nearly empty
+
     LED_QUEUE_DEPTH_MAX      = 250U,    // LED animations in the queue
 
 };

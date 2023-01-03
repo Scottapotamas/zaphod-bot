@@ -54,6 +54,7 @@ enum AppSignals
     MOTION_QUEUE_START,
     MOTION_QUEUE_ADD,      // Provide movement information for queue processing
     MOTION_QUEUE_CLEAR,    // Empty out pending movements
+    MOTION_QUEUE_LOW,      // Notification that the queue is under a 'nearly drained' watermark
 
     PATHING_STARTED,     // Started executing a move
     PATHING_COMPLETE,    // Finished moving along a provided profile path

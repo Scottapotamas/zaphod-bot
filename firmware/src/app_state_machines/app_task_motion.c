@@ -1,6 +1,5 @@
 /* ----- System Includes ---------------------------------------------------- */
 
-#include <event_subscribe.h>
 #include <string.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
@@ -8,6 +7,7 @@
 #include "app_events.h"
 #include "app_signals.h"
 #include "app_times.h"
+#include "event_subscribe.h"
 #include "qassert.h"
 
 #include "app_task_motion.h"
@@ -287,9 +287,16 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
         // TODO: add motion handler watching on PATHING_STARTED?
         //      possibly not needed...
         case PATHING_COMPLETE: {
+            uint8_t queue_used = eventQueueUsed( &me->super.requestQueue );
+
+            if( queue_used < MOVEMENT_QUEUE_LOW_WATERMARK )
+            {
+                eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_LOW ) );
+            }
+
             // The pathing engine completed movement execution,
             // run another event, or go back to inactive and wait for new instructions
-            if( eventQueueUsed( &me->super.requestQueue ) )
+            if( queue_used )
             {
                 StateEvent *next = eventQueuePeek( &me->super.requestQueue );
                 ASSERT( next );
