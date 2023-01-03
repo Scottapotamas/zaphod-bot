@@ -56,6 +56,12 @@ demonstration_enqueue_moves( uint8_t max_moves_emitted )
             attractor_sequence_init();
         }
 
+        // Check if a new move was provided
+        if( !next_move.num_pts )
+        {
+            break;
+        }
+
         // Generate the event
         MotionPlannerEvent *motion_request = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
 
