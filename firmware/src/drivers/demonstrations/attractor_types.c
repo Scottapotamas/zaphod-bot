@@ -1,15 +1,15 @@
 /* ----- System Includes ---------------------------------------------------- */
 
-#include <string.h>
 #include <math.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "attractor_types.h"
 
-#include "app_events.h"
-#include "app_signals.h"
-#include "event_subscribe.h"
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void attractor_single_step( const AttractorSystem_t *state, AttractorPosition_t *current, AttractorPosition_t *result );
+PRIVATE void attractor_runge_kutta( float time, const AttractorSystem_t *state, AttractorPosition_t *result_pos );
 
 /* -------------------------------------------------------------------------- */
 
@@ -155,8 +155,6 @@ AttractorSystem_t defaults[MAX_VARIANTS] = {
 
 /* -------------------------------------------------------------------------- */
 
-/* -------------------------------------------------------------------------- */
-
 PUBLIC void
 attractor_init( void )
 {
@@ -165,12 +163,24 @@ attractor_init( void )
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC void
+attractor_calc_point_at_t( float time, uint8_t variant, AttractorPosition_t *result_pos )
+{
+    // TODO: ensure the variant is valid
+//        ENSURE( variant < MAX_VARIANTS )
 
+    AttractorSystem_t *attractor = &defaults[variant];
+
+    attractor_runge_kutta( time, attractor, result_pos );
+}
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void attractor_step( const AttractorSystem_t *state, AttractorPosition_t *current, AttractorPosition_t *result )
+PRIVATE void
+attractor_single_step( const AttractorSystem_t *state, AttractorPosition_t *current, AttractorPosition_t *result )
 {
+    // TODO: check for valid state
+    // Check current and result aren't null ptrs
 
     float nx = state->fn_x( state->speed, state->parameters, current->x, current->y, current->z );
     float ny = state->fn_y( state->speed, state->parameters, current->x, current->y, current->z );
@@ -179,13 +189,16 @@ PRIVATE void attractor_step( const AttractorSystem_t *state, AttractorPosition_t
     result->x = current->x + ( state->step * nx );
     result->y = current->y + ( state->step * ny );
     result->z = current->z + ( state->step * nz );
-
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void attractor_runge_kutta( const float time, const AttractorSystem_t *state, AttractorPosition_t *result_pos )
+PRIVATE void
+attractor_runge_kutta( const float time, const AttractorSystem_t *state, AttractorPosition_t *result_pos )
 {
+    // TODO: check for valid state
+    // Check current and result aren't null ptrs
+
     // Common values
     float h2 = 0.5f * state->step;
     float h6 = state->step / 6.0f;

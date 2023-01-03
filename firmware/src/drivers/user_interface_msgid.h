@@ -40,9 +40,6 @@
 #define MSGID_LED_CALIBRATION "calLED"
 #define MSGID_POWER_CALIBRATION "calPWR"
 
-// TODO: reimplement configuration messages
-//        EUI_FLOAT( "rotZ", z_rotation ),
-//        EUI_CUSTOM( "ledset", rgb_led_settings ),
-//        EUI_CUSTOM( "pwr_cal", power_trims ),
+#define MSGID_ATTRACTOR_SPECIES "attractor"
 
 #endif    // USER_INTERFACE_MSGID_H

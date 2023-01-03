@@ -1,5 +1,5 @@
-#ifndef DEMONSTRATION_H
-#define DEMONSTRATION_H
+#ifndef ATTRACTOR_SEQUENCE_H
+#define ATTRACTOR_SEQUENCE_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -13,13 +13,14 @@ extern "C" {
 
 /* -------------------------------------------------------------------------- */
 
+/* -------------------------------------------------------------------------- */
+
 PUBLIC void
-demonstration_init( void );
+attractor_sequence_init( void );
+
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC uint8_t
-demonstration_enqueue_moves( uint8_t max_moves_emitted );
 
 /* ----- End ---------------------------------------------------------------- */
 
@@ -27,4 +28,4 @@ demonstration_enqueue_moves( uint8_t max_moves_emitted );
 }
 #endif
 
-#endif /* DEMONSTRATION_H */
+#endif /* ATTRACTOR_SEQUENCE_H */

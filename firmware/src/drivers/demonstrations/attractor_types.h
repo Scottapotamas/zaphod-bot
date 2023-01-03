@@ -66,6 +66,13 @@ typedef struct
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC void
+attractor_init( void );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+attractor_calc_point_at_t( float time, uint8_t variant, AttractorPosition_t *result_pos );
 
 /* ----- End ---------------------------------------------------------------- */
 

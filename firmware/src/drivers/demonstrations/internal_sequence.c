@@ -229,61 +229,37 @@ static const Movement_t demo_one[] = {
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void internal_sequence_emit_event( uint8_t sequence );
+PRIVATE uint32_t previous_sync_offset = 0;
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
 internal_sequence_init( void )
 {
+    previous_sync_offset = 0;
 }
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-internal_sequence_prepare_demo_move( uint8_t demo_index )
-{
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-internal_sequence_prepare_sequence( void )
-{
-    for( uint32_t i = 0; i < DIM( demo_one ); i++ )
-    {
-        internal_sequence_emit_event( i );
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE uint32_t previous_sync_offset = 0;
-
-PRIVATE void
-internal_sequence_emit_event( uint8_t sequence )
+internal_sequence_get_move( uint8_t sequence_index, Movement_t *move )
 {
     // TODO Validate that the effector is at the starting point for the event
+    // TODO assert if the move pointer is null
 
-    if( sequence <= DIM( demo_one ) )
+    if( sequence_index <= DIM( demo_one ) )
     {
-        // Generate the event
-        MotionPlannerEvent *motion_request = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
+        // Copy the move out of the sequence
+        memcpy( move, &demo_one[sequence_index], sizeof( Movement_t ) );
 
-        if( motion_request )
+        // Set the timestamp offset for the movement now
+        if( sequence_index > 0 )
         {
-            memcpy( &motion_request->move, &demo_one[sequence], sizeof( Movement_t ) );
-
-            // set the timestamp offset for the move dynamically
-            if( sequence > 0 )
-            {
-                uint32_t previous_move_duration = demo_one[sequence - 1].duration;
-                motion_request->move.sync_offset = previous_sync_offset + previous_move_duration + 1;
-            }
-
-            previous_sync_offset = motion_request->move.sync_offset;
-            eventPublish( (StateEvent *)motion_request );
+            uint32_t previous_move_duration = demo_one[sequence_index - 1].duration;
+            move->sync_offset = previous_sync_offset + previous_move_duration + 1;
         }
+
+        previous_sync_offset = move->sync_offset;
     }
 }
 

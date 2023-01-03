@@ -79,6 +79,8 @@ Fade_t        light_fade_inbound;
 
 uint32_t camera_shutter_duration_ms = 0;
 
+uint32_t attractor_species = 0;
+
 eui_message_t ui_variables[] = {
     // Higher level system setup information
     EUI_CHAR_ARRAY_RO( MSGID_RESET_CAUSE, reset_cause ),
@@ -117,6 +119,8 @@ eui_message_t ui_variables[] = {
     EUI_FUNC( MSGID_DISARM, stop_mech_cb ),
     EUI_FUNC( MSGID_HOME, home_mech_cb ),
     EUI_UINT32( MSGID_CAPTURE, camera_shutter_duration_ms ),
+
+    EUI_UINT8( MSGID_ATTRACTOR_SPECIES, attractor_species ),
 
     // Configuration fields are stored in configuration.c, we access them directly via pointer manipulation
     { .id = MSGID_LED_CALIBRATION, .type = TYPE_CUSTOM, .size = sizeof(LedSettings_t), {.data = 0} },
@@ -789,5 +793,14 @@ user_interface_push_position( void )
 {
     eui_send_tracked( MSGID_POSITION_CURRENT );
 }
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC uint8_t
+user_interface_get_attractor_species( void )
+{
+    return attractor_species;
+}
+
 
 /* ----- End ---------------------------------------------------------------- */

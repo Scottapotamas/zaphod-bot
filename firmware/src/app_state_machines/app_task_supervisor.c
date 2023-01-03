@@ -605,10 +605,15 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
             me->active_control_mode = CONTROL_DEMO;
             user_interface_set_control_mode( me->active_control_mode );
 
+            // Cleanup any prior demo state
             demonstration_init();
 
-            // Load up a queue of events
-            demonstration_prepare_sequence();
+            // Request the demo system start filling the movement queue
+            eventTimerStartOnce( &me->timer1,
+                                 (StateTask *)me,
+                                 (StateEvent *)&stateEventReserved[STATE_TIMEOUT2_SIGNAL],
+                                 MS_TO_TICKS( 50 ) );
+
 
             eventTimerStartOnce( &me->timer1,
                                  (StateTask *)me,
@@ -623,6 +628,16 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
             timer_ms_stopwatch_start( &motor_sync->epoch );
             eventPublish( (StateEvent *)motor_sync );
         }
+            return 0;
+
+        case STATE_TIMEOUT2_SIGNAL:
+
+            // Check queue utilisation
+            // TODO: work out how to query queue depth?
+
+            // Generate/load some events and add them to the motion queue
+            demonstration_enqueue_moves( 4 );
+
             return 0;
 
         case MECHANISM_STOP:

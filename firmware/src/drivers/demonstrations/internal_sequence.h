@@ -10,6 +10,7 @@ extern "C" {
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
+#include "motion_types.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -19,12 +20,7 @@ internal_sequence_init( void );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-internal_sequence_prepare_demo_move( uint8_t demo_index );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-internal_sequence_prepare_sequence( void );
+internal_sequence_get_move( uint8_t sequence_index, Movement_t *move );
 
 /* ----- End ---------------------------------------------------------------- */
 

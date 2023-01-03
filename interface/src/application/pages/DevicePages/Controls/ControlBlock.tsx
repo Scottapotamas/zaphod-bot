@@ -9,6 +9,7 @@ import ManualJogPalette from './ControlPalette/ManualJogPalette'
 import ManualLEDPalette from './ControlPalette/ManualLEDPalette'
 import { TrackPalette } from './ControlPalette/TrackPalette'
 import { EventPalette } from './ControlPalette/EventPalette'
+import { DemoPalette } from './ControlPalette/DemoPalette'
 
 import { OutlineCard } from 'src/application/components/OutlineCard'
 import { MSGID } from '../../../typedState'
@@ -41,14 +42,7 @@ export const ControlBlock = () => {
   } else if (control_mode == CONTROL_MODES[CONTROL_MODES.EVENT]) {
     return <EventPalette />
   } else if (control_mode == CONTROL_MODES[CONTROL_MODES.DEMO]) {
-    return (
-      <OutlineCard padding="2em">
-          <NonIdealState
-            title="Demonstration Mode"
-            description="Begins automatically once armed"
-          />
-      </OutlineCard>
-    )
+    return <DemoPalette />
   } else if (control_mode == CONTROL_MODES[CONTROL_MODES.TRACK]) {
     return <TrackPalette />
   }

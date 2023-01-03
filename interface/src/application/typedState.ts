@@ -40,6 +40,8 @@ export enum MSGID {
   LED_CALIBRATION = 'calLED',
   POWER_CALIBRATION = 'calPWR',
   USER_CONFIG = 'config',
+
+  ATTRACTOR_SPECIES = 'attractor'
 }
 
 /**
@@ -90,6 +92,7 @@ declare global {
     [MSGID.POWER_CALIBRATION]: PowerCalibration
     [MSGID.USER_CONFIG] : UserConfig
 
+    [MSGID.ATTRACTOR_SPECIES] : number
 
     // DMX control
     fixture: [AputureLS, AputureLS]

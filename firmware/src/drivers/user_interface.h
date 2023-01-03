@@ -184,6 +184,12 @@ user_interface_push_position( void );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC uint8_t
+user_interface_get_attractor_species( void );
+
+
+/* -------------------------------------------------------------------------- */
+
 #ifdef __cplusplus
 }
 #endif
