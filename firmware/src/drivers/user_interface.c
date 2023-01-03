@@ -48,6 +48,7 @@ PRIVATE void movement_generate_event( void );
 PRIVATE void lighting_generate_event( void );
 PRIVATE void sync_begin_queues( void );
 PRIVATE void trigger_camera_capture( void );
+PRIVATE void request_demo_configuration( void );
 
 /* ----- Defines ----------------------------------------------------------- */
 
@@ -79,7 +80,7 @@ Fade_t        light_fade_inbound;
 
 uint32_t camera_shutter_duration_ms = 0;
 
-uint32_t attractor_species = 0;
+uint8_t demo_mode_configuration = 0;
 
 eui_message_t ui_variables[] = {
     // Higher level system setup information
@@ -120,7 +121,7 @@ eui_message_t ui_variables[] = {
     EUI_FUNC( MSGID_HOME, home_mech_cb ),
     EUI_UINT32( MSGID_CAPTURE, camera_shutter_duration_ms ),
 
-    EUI_UINT8( MSGID_ATTRACTOR_SPECIES, attractor_species ),
+    EUI_UINT8( MSGID_DEMO_CONFIGURATION, demo_mode_configuration ),
 
     // Configuration fields are stored in configuration.c, we access them directly via pointer manipulation
     { .id = MSGID_LED_CALIBRATION, .type = TYPE_CUSTOM, .size = sizeof(LedSettings_t), {.data = 0} },
@@ -326,6 +327,11 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
                 || strcmp( (char *)name_rx, MSGID_LED_CALIBRATION ) == 0 && has_payload )
             {
                 rgb_manual_led_event();
+            }
+
+            if( strcmp( (char *)name_rx, MSGID_DEMO_CONFIGURATION ) == 0 && has_payload )
+            {
+                request_demo_configuration();
             }
 
             if( strcmp( (char *)name_rx, MSGID_CAPTURE ) == 0 && has_payload )
@@ -797,11 +803,16 @@ user_interface_push_position( void )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC uint8_t
-user_interface_get_attractor_species( void )
+PRIVATE void
+request_demo_configuration( void )
 {
-    return attractor_species;
-}
+    DemoModeConfigurationEvent *request = EVENT_NEW( DemoModeConfigurationEvent, DEMO_MODE_CONFIGURATION );
 
+    if( request )
+    {
+        memcpy( &request->program_index, &demo_mode_configuration, sizeof( demo_mode_configuration ) );
+        eventPublish( (StateEvent *)request );
+    }
+}
 
 /* ----- End ---------------------------------------------------------------- */

@@ -107,6 +107,14 @@ typedef struct CameraShutterEvent__
     uint32_t   exposure_time;
 } CameraShutterEvent;
 
+/* -------------------------------------------------------------------------- */
+
+typedef struct DemoModeConfigurationEvent__
+{
+    StateEvent super;    // Encapsulated event reference
+    uint8_t    program_index;
+} DemoModeConfigurationEvent;
+
 /* ----- End ---------------------------------------------------------------- */
 
 #ifdef __cplusplus

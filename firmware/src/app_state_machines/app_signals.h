@@ -77,6 +77,8 @@ enum AppSignals
 
     CAMERA_CAPTURE,
 
+    DEMO_MODE_CONFIGURATION,
+
     /* Last Available Signal - Don't Remove This */
     STATE_MAX_SIGNAL
 };

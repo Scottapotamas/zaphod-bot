@@ -97,6 +97,7 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask *)me, MOTION_QUEUE_LOW );
 
     eventSubscribe( (StateTask *)me, CAMERA_CAPTURE );
+    eventSubscribe( (StateTask *)me, DEMO_MODE_CONFIGURATION );
 
     // Put this somewhere more suitable
     point_follower_init();
@@ -171,6 +172,17 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
         case MODE_EVENT:
             me->requested_control_mode = CONTROL_EVENT;
             AppTaskSupervisorProcessModeRequest( me );
+            return 0;
+
+        case DEMO_MODE_CONFIGURATION:
+        {
+            DemoModeConfigurationEvent *config = (DemoModeConfigurationEvent *)e;
+
+            if( config )
+            {
+                me->requested_demo_program = config->program_index;
+            }
+        }
             return 0;
 
         case STATE_INIT_SIGNAL:
@@ -620,7 +632,7 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
 
         case STATE_STEP1_SIGNAL:
             // Cleanup any prior demo state, specify which program to run
-            demonstration_init( user_interface_get_attractor_species() );
+            demonstration_init( me->requested_demo_program );
 
             // Feed the movement queue a larger batch of initial moves
             demonstration_enqueue_moves( 6 );
@@ -639,9 +651,17 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
         }
             return 0;
 
-        // TODO catch change of demo program setting, handle re-init etc
-        //   -> fire stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
-        //   -> buzzer notification of change
+        case DEMO_MODE_CONFIGURATION: {
+            DemoModeConfigurationEvent *config = (DemoModeConfigurationEvent *)e;
+
+            if( config )
+            {
+                me->requested_demo_program = config->program_index;
+            }
+
+            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+        }
+            return 0;
 
         case MECHANISM_STOP:
             STATE_TRAN( AppTaskSupervisor_disarm_graceful );

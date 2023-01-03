@@ -43,6 +43,8 @@ struct AppTaskSupervisor
     SupervisorStates_t armed;
     uint8_t active_control_mode;    // mode of end effector control
     uint8_t requested_control_mode;    // mode of end effector control
+
+    uint8_t requested_demo_program;    // Demonstration sub-program to run
 };
 
 /* ----- Public Functions --------------------------------------------------- */

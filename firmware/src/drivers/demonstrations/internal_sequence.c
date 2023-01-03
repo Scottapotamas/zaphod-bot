@@ -31,6 +31,7 @@
 
 static const Movement_t demo_one[] = {
     // Move from the home point to our normal height
+    MOVE_TO(1200, POINT_MM( 0, 0, 0 ) ),
     MOVE_BETWEEN_SMOOTH( 1000, 0.005f, 0, 0, 0, 0, 0, 50 ),
 
     //        MOVE_BETWEEN( 1000, POINT_MM(0,0,50), POINT_MM(-60,0,50)),

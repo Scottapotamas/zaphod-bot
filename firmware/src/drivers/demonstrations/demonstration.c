@@ -73,7 +73,7 @@ demonstration_enqueue_moves( uint8_t max_moves_emitted )
                     transit->move.type          = _POINT_TRANSIT;
                     transit->move.ref           = _POS_ABSOLUTE;
                     transit->move.sync_offset   = 0;
-                    transit->move.duration      = 800;
+                    transit->move.duration      = 1000;
                     transit->move.num_pts       = 1;
                     transit->move.points[0].x   = next_move.points[_CATMULL_START].x;
                     transit->move.points[0].y   = next_move.points[_CATMULL_START].y;

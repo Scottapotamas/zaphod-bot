@@ -40,6 +40,6 @@
 #define MSGID_LED_CALIBRATION "calLED"
 #define MSGID_POWER_CALIBRATION "calPWR"
 
-#define MSGID_ATTRACTOR_SPECIES "attractor"
+#define MSGID_DEMO_CONFIGURATION "attractor"
 
 #endif    // USER_INTERFACE_MSGID_H

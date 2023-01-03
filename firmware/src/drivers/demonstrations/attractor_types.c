@@ -100,7 +100,7 @@ AttractorSystem_t defaults[MAX_VARIANTS] = {
         .fn_z = &dadras_z,
     },
     [CHEN] = {
-        .step = 0.01f,
+        .step = 0.05f,
         .speed = 1.0f,
         .parameters[PARAM_A] = 5.0f,
         .parameters[PARAM_B] = -10.0f,
