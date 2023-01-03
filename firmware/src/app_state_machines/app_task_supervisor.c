@@ -607,21 +607,28 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
             me->active_control_mode = CONTROL_DEMO;
             user_interface_set_control_mode( me->active_control_mode );
 
-            // Cleanup any prior demo state
-            demonstration_init();
-
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
 
-            // Wait before starting the demo?
+            // Wait before starting the demo for the first time?
             eventTimerStartOnce( &me->timer1,
                                  (StateTask *)me,
                                  (StateEvent *)&stateEventReserved[STATE_TIMEOUT1_SIGNAL],
                                  MS_TO_TICKS( 2000 ) );
+
+            // TODO buzzer notification?
             return 0;
 
         case STATE_STEP1_SIGNAL:
+            // Cleanup any prior demo state, specify which program to run
+            demonstration_init( user_interface_get_attractor_species() );
+
             // Feed the movement queue a larger batch of initial moves
             demonstration_enqueue_moves( 6 );
+            return 0;
+
+        case MOTION_QUEUE_LOW:
+            // Generate/load some events and add them to the motion queue
+            demonstration_enqueue_moves( 4 );
             return 0;
 
         case STATE_TIMEOUT1_SIGNAL: {
@@ -632,10 +639,9 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
         }
             return 0;
 
-        case MOTION_QUEUE_LOW:
-            // Generate/load some events and add them to the motion queue
-            demonstration_enqueue_moves( 4 );
-            return 0;
+        // TODO catch change of demo program setting, handle re-init etc
+        //   -> fire stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+        //   -> buzzer notification of change
 
         case MECHANISM_STOP:
             STATE_TRAN( AppTaskSupervisor_disarm_graceful );

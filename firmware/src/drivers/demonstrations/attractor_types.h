@@ -65,13 +65,22 @@ typedef struct
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-attractor_init( void );
+PUBLIC AttractorSystem_t *
+attractor_get_settings_ptr( uint8_t variant );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-attractor_calc_next_point( uint8_t variant, AttractorPosition_t previous_pos, AttractorPosition_t *result_pos );
+attractor_single_step( const AttractorSystem_t *state,
+                       AttractorPosition_t *current,
+                       AttractorPosition_t *result );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+attractor_runge_kutta( const AttractorSystem_t *state,
+                       AttractorPosition_t current,
+                       AttractorPosition_t *result );
 
 /* ----- End ---------------------------------------------------------------- */
 

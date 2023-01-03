@@ -11,32 +11,26 @@
 
 /* -------------------------------------------------------------------------- */
 
+PRIVATE void
+attractor_sequence_randomise_start( AttractorPosition_t *output );
+
 /* -------------------------------------------------------------------------- */
 
+PRIVATE AttractorPosition_t cache[4] = { 0 };
+PRIVATE bool cache_ok = false;
+PRIVATE uint8_t selected_attractor = 0;
 
-AttractorPosition_t cache[4] = { 0 };
-bool cache_ok = false;
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-attractor_sequence_init( void )
+attractor_sequence_init( uint8_t species )
 {
-
+    selected_attractor = species;
     memset( &cache, 0, sizeof(AttractorPosition_t) * 4 );
     cache_ok = false;
 }
 
 /* -------------------------------------------------------------------------- */
-
-/*
- * Move creation process
- *
- * If we're not at home,
- *  Grab the current position
- * Otherwise
- *  Generate a random position to start from
- *
- * */
 
 PUBLIC void
 attractor_sequence_get_move( uint8_t index, Movement_t *move )
@@ -44,24 +38,28 @@ attractor_sequence_get_move( uint8_t index, Movement_t *move )
     AttractorPosition_t candidates[4] = { 0 };
     CartesianPoint_t    points[4]     = { 0 };
 
+    AttractorSystem_t *settings = attractor_get_settings_ptr( selected_attractor );
+
     if( cache_ok )
     {
         // Slide the cache into the new positions for this section, and generate a new final part
         AttractorPosition_t new_point = { 0 };
-        attractor_calc_next_point( LORENZ, cache[_CATMULL_CONTROL_B], &new_point );
+        attractor_runge_kutta( settings, cache[_CATMULL_CONTROL_B], &new_point );
 
         memcpy( &candidates[_CATMULL_CONTROL_A], &cache[_CATMULL_START],     sizeof(AttractorPosition_t) );
         memcpy( &candidates[_CATMULL_START],     &cache[_CATMULL_END],       sizeof(AttractorPosition_t) );
         memcpy( &candidates[_CATMULL_END],       &cache[_CATMULL_CONTROL_B], sizeof(AttractorPosition_t) );
         memcpy( &candidates[_CATMULL_CONTROL_B], &new_point,                 sizeof(AttractorPosition_t) );
     }
-    else
+    else // Generate fresh points
     {
-        // Generate fresh points
-        attractor_calc_next_point( LORENZ, seed_pos,                       &candidates[_CATMULL_CONTROL_A] );
-        attractor_calc_next_point( LORENZ, candidates[_CATMULL_CONTROL_A], &candidates[_CATMULL_START] );
-        attractor_calc_next_point( LORENZ, candidates[_CATMULL_START],     &candidates[_CATMULL_END] );
-        attractor_calc_next_point( LORENZ, candidates[_CATMULL_END],       &candidates[_CATMULL_CONTROL_B] );
+        AttractorPosition_t random_start = { 0 };
+        attractor_sequence_randomise_start( &random_start );
+
+        attractor_runge_kutta( settings, random_start,                   &candidates[_CATMULL_CONTROL_A] );
+        attractor_runge_kutta( settings, candidates[_CATMULL_CONTROL_A], &candidates[_CATMULL_START] );
+        attractor_runge_kutta( settings, candidates[_CATMULL_START],     &candidates[_CATMULL_END] );
+        attractor_runge_kutta( settings, candidates[_CATMULL_END],       &candidates[_CATMULL_CONTROL_B] );
     }
 
     // Copy the results into the cache for next iteration
@@ -106,7 +104,24 @@ attractor_sequence_get_move( uint8_t index, Movement_t *move )
 
 /* -------------------------------------------------------------------------- */
 
+// Not intended to actually be random, it's used for a starting position only
+PRIVATE float dirty_random_float( void )
+{
+    float normalised = (float)rand() / (float)RAND_MAX; // between 0.0 and 1.0
+    return ( normalised - 0.5f ) * 10.0f;
+}
 
+// Generate a random position for the strange attractor to start at
+PRIVATE void
+attractor_sequence_randomise_start( AttractorPosition_t *output )
+{
+    if( output )
+    {
+        output->x = dirty_random_float();
+        output->y = dirty_random_float();
+        output->z = dirty_random_float();
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 

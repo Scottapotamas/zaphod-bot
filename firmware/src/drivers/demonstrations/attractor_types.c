@@ -8,16 +8,6 @@
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void attractor_single_step( const AttractorSystem_t *state,
-                                    AttractorPosition_t *current,
-                                    AttractorPosition_t *result );
-
-PRIVATE void attractor_runge_kutta( const AttractorSystem_t *state,
-                                    AttractorPosition_t current_pos,
-                                    AttractorPosition_t *result_pos );
-
-/* -------------------------------------------------------------------------- */
-
 PRIVATE float lorenz_x( const float speed, const float parameters[], const float x, const float y, const float z );
 PRIVATE float lorenz_y( const float speed, const float parameters[], const float x, const float y, const float z );
 PRIVATE float lorenz_z( const float speed, const float parameters[], const float x, const float y, const float z );
@@ -85,6 +75,8 @@ AttractorSystem_t defaults[MAX_VARIANTS] = {
         .fn_z = &thomas_z,
     },
     [AIZAWA] = {
+        .step = 0.01f,
+        .speed = 2.0f,
         .parameters[PARAM_A] = 0.95f,
         .parameters[PARAM_B] = 0.7f,
         .parameters[PARAM_C] = 0.6f,
@@ -96,6 +88,8 @@ AttractorSystem_t defaults[MAX_VARIANTS] = {
         .fn_z = &aizawa_z,
     },
     [DADRAS] = {
+        .step = 0.01f,
+        .speed = 1.0f,
         .parameters[PARAM_A] = 3.0f,
         .parameters[PARAM_B] = 2.7f,
         .parameters[PARAM_C] = 1.7f,
@@ -106,6 +100,8 @@ AttractorSystem_t defaults[MAX_VARIANTS] = {
         .fn_z = &dadras_z,
     },
     [CHEN] = {
+        .step = 0.01f,
+        .speed = 1.0f,
         .parameters[PARAM_A] = 5.0f,
         .parameters[PARAM_B] = -10.0f,
         .parameters[PARAM_D] = -0.38f,
@@ -114,6 +110,8 @@ AttractorSystem_t defaults[MAX_VARIANTS] = {
         .fn_z = &chen_z,
     },
     [ROSSLER] = {
+        .step = 0.01f,
+        .speed = 1.0f,
         .parameters[PARAM_A] = 0.2f,
         .parameters[PARAM_B] = 0.2f,
         .parameters[PARAM_C] = 5.7f,
@@ -122,12 +120,16 @@ AttractorSystem_t defaults[MAX_VARIANTS] = {
         .fn_z = &rossler_z,
     },
     [HALVORSEN] = {
+        .step = 0.01f,
+        .speed = 1.0f,
         .parameters[PARAM_A] = 1.89f,
         .fn_x = &halvorsen_x,
         .fn_y = &halvorsen_y,
         .fn_z = &halvorsen_z,
     },
     [RABINOVICHFABRIKANT] = {
+        .step = 0.05f,
+        .speed = 1.0f,
         .parameters[PARAM_A] = 0.14f,
         .parameters[PARAM_C] = 0.1f, // gamma
         .fn_x = &rabinovich_fabrikant_x,
@@ -135,6 +137,8 @@ AttractorSystem_t defaults[MAX_VARIANTS] = {
         .fn_z = &rabinovich_fabrikant_z,
     },
     [THREESCROLL] = {
+        .step = 0.0007f,
+        .speed = 1.0f,
         .parameters[PARAM_A] = 32.48f,
         .parameters[PARAM_B] = 45.84f,
         .parameters[PARAM_C] = 1.18f,
@@ -146,6 +150,8 @@ AttractorSystem_t defaults[MAX_VARIANTS] = {
         .fn_z = &three_scroll_z,
     },
     [SPROTT] = {
+        .step = 0.01f,
+        .speed = 3.0f,
         .parameters[PARAM_A] = 2.07f,
         .parameters[PARAM_B] = 1.79f,
         .fn_x = &sprott_x,
@@ -153,6 +159,8 @@ AttractorSystem_t defaults[MAX_VARIANTS] = {
         .fn_z = &sprott_z,
     },
     [FOURWING] = {
+        .step = 0.02f,
+        .speed = 3.0f,
         .parameters[PARAM_A] = 0.2f,
         .parameters[PARAM_B] = 0.01f,
         .parameters[PARAM_C] = -0.4f,
@@ -164,28 +172,18 @@ AttractorSystem_t defaults[MAX_VARIANTS] = {
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-attractor_init( void )
-{
-
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-attractor_calc_next_point( uint8_t variant, AttractorPosition_t previous_pos, AttractorPosition_t *result_pos )
+PUBLIC AttractorSystem_t *
+attractor_get_settings_ptr( uint8_t variant )
 {
     // TODO: ensure the variant is valid
-//        ENSURE( variant < MAX_VARIANTS )
+    //       ENSURE( variant < MAX_VARIANTS )
 
-    AttractorSystem_t *attractor = &defaults[variant];
-
-    attractor_runge_kutta( attractor, previous_pos, result_pos );
+    return &defaults[variant];
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void
+PUBLIC void
 attractor_single_step( const AttractorSystem_t *state, AttractorPosition_t *current, AttractorPosition_t *result )
 {
     // TODO: check for valid state
@@ -202,8 +200,8 @@ attractor_single_step( const AttractorSystem_t *state, AttractorPosition_t *curr
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void
-attractor_runge_kutta( const AttractorSystem_t *state, AttractorPosition_t current_pos, AttractorPosition_t *result_pos )
+PUBLIC void
+attractor_runge_kutta( const AttractorSystem_t *state, AttractorPosition_t current, AttractorPosition_t *result )
 {
     // TODO: check for valid state
     // Check current and result aren't null ptrs
@@ -216,38 +214,38 @@ attractor_runge_kutta( const AttractorSystem_t *state, AttractorPosition_t curre
     float speed = state->speed;
 
     // First pass
-    float k1 = state->fn_x( speed, state->parameters, current_pos.x, current_pos.y, current_pos.z );
-    float j1 = state->fn_y( speed, state->parameters, current_pos.x, current_pos.y, current_pos.z );
-    float i1 = state->fn_z( speed, state->parameters, current_pos.x, current_pos.y, current_pos.z );
+    float k1 = state->fn_x( speed, state->parameters, current.x, current.y, current.z );
+    float j1 = state->fn_y( speed, state->parameters, current.x, current.y, current.z );
+    float i1 = state->fn_z( speed, state->parameters, current.x, current.y, current.z );
 
     float h2_k1 = h2 * k1;
     float h2_j1 = h2 * j1;
     float h2_i1 = h2 * i1;
 
-    float k2 = state->fn_x( speed, state->parameters, current_pos.x + h2_k1, current_pos.y + h2_j1, current_pos.z + h2_i1 );
-    float j2 = state->fn_y( speed, state->parameters, current_pos.x + h2_k1, current_pos.y + h2_j1, current_pos.z + h2_i1 );
-    float i2 = state->fn_z( speed, state->parameters, current_pos.x + h2_k1, current_pos.y + h2_j1, current_pos.z + h2_i1 );
+    float k2 = state->fn_x( speed, state->parameters, current.x + h2_k1, current.y + h2_j1, current.z + h2_i1 );
+    float j2 = state->fn_y( speed, state->parameters, current.x + h2_k1, current.y + h2_j1, current.z + h2_i1 );
+    float i2 = state->fn_z( speed, state->parameters, current.x + h2_k1, current.y + h2_j1, current.z + h2_i1 );
 
     float h2_k2 = h2 * k2;
     float h2_j2 = h2 * j2;
     float h2_i2 = h2 * i2;
 
-    float k3 = state->fn_x( speed, state->parameters, current_pos.x + h2_k2, current_pos.y + h2_j2, current_pos.z + h2_i2 );
-    float j3 = state->fn_y( speed, state->parameters, current_pos.x + h2_k2, current_pos.y + h2_j2, current_pos.z + h2_i2 );
-    float i3 = state->fn_z( speed, state->parameters, current_pos.x + h2_k2, current_pos.y + h2_j2, current_pos.z + h2_i2 );
+    float k3 = state->fn_x( speed, state->parameters, current.x + h2_k2, current.y + h2_j2, current.z + h2_i2 );
+    float j3 = state->fn_y( speed, state->parameters, current.x + h2_k2, current.y + h2_j2, current.z + h2_i2 );
+    float i3 = state->fn_z( speed, state->parameters, current.x + h2_k2, current.y + h2_j2, current.z + h2_i2 );
 
     float h_k3 = state->step * k3;
     float h_j3 = state->step * j3;
     float h_i3 = state->step * i3;
 
-    float k4 = state->fn_x( speed, state->parameters, current_pos.x + h_k3, current_pos.y + h_j3, current_pos.z + h_i3 );
-    float j4 = state->fn_y( speed, state->parameters, current_pos.x + h_k3, current_pos.y + h_j3, current_pos.z + h_i3 );
-    float i4 = state->fn_z( speed, state->parameters, current_pos.x + h_k3, current_pos.y + h_j3, current_pos.z + h_i3 );
+    float k4 = state->fn_x( speed, state->parameters, current.x + h_k3, current.y + h_j3, current.z + h_i3 );
+    float j4 = state->fn_y( speed, state->parameters, current.x + h_k3, current.y + h_j3, current.z + h_i3 );
+    float i4 = state->fn_z( speed, state->parameters, current.x + h_k3, current.y + h_j3, current.z + h_i3 );
 
     // Output
-    result_pos->x = current_pos.x + h6 * (k1 + 2.0f * k2 + 2.0f * k3 + k4);
-    result_pos->y = current_pos.y + h6 * (j1 + 2.0f * j2 + 2.0f * j3 + j4);
-    result_pos->z = current_pos.z + h6 * (i1 + 2.0f * i2 + 2.0f * i3 + i4);
+    result->x = current.x + h6 * (k1 + 2.0f * k2 + 2.0f * k3 + k4);
+    result->y = current.y + h6 * (j1 + 2.0f * j2 + 2.0f * j3 + j4);
+    result->z = current.z + h6 * (i1 + 2.0f * i2 + 2.0f * i3 + i4);
 }
 
 /* -------------------------------------------------------------------------- */
