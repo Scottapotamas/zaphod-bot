@@ -53,7 +53,6 @@ typedef float (*fn_strange_eval)( const float, const float[], const float, const
 
 typedef struct
 {
-    AttractorPosition_t position;
     float               step;
     float               speed;
     float               parameters[MAX_PARAMETERS];
@@ -72,7 +71,7 @@ attractor_init( void );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-attractor_calc_point_at_t( float time, uint8_t variant, AttractorPosition_t *result_pos );
+attractor_calc_next_point( uint8_t variant, AttractorPosition_t previous_pos, AttractorPosition_t *result_pos );
 
 /* ----- End ---------------------------------------------------------------- */
 

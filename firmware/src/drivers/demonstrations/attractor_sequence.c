@@ -13,12 +13,17 @@
 
 /* -------------------------------------------------------------------------- */
 
+
+AttractorPosition_t cache[4] = { 0 };
+bool cache_ok = false;
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
 attractor_sequence_init( void )
 {
 
+    memset( &cache, 0, sizeof(AttractorPosition_t) * 4 );
+    cache_ok = false;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -33,22 +38,44 @@ attractor_sequence_init( void )
  *
  * */
 
-PRIVATE float simulation_time = 0.0f;
-
 PUBLIC void
 attractor_sequence_get_move( uint8_t index, Movement_t *move )
 {
-    AttractorPosition_t samples[4] = { 0 };
+    AttractorPosition_t candidates[4] = { 0 };
+    CartesianPoint_t    points[4]     = { 0 };
 
-    // Sample the strange attractor for positions
-    // TODO: cache previous ones so subsequent moves don't recalculate the ones used by the sliding window
-    for( uint8_t sample = 0; sample < 4; sample++ )
+    if( cache_ok )
     {
-        attractor_calc_point_at_t( simulation_time + ((float)sample * 0.1f), LORENZ, &samples[sample] );
+        // Slide the cache into the new positions for this section, and generate a new final part
+        AttractorPosition_t new_point = { 0 };
+        attractor_calc_next_point( LORENZ, cache[_CATMULL_CONTROL_B], &new_point );
+
+        memcpy( &candidates[_CATMULL_CONTROL_A], &cache[_CATMULL_START],     sizeof(AttractorPosition_t) );
+        memcpy( &candidates[_CATMULL_START],     &cache[_CATMULL_END],       sizeof(AttractorPosition_t) );
+        memcpy( &candidates[_CATMULL_END],       &cache[_CATMULL_CONTROL_B], sizeof(AttractorPosition_t) );
+        memcpy( &candidates[_CATMULL_CONTROL_B], &new_point,                 sizeof(AttractorPosition_t) );
+    }
+    else
+    {
+        // Generate fresh points
+        attractor_calc_next_point( LORENZ, seed_pos,                       &candidates[_CATMULL_CONTROL_A] );
+        attractor_calc_next_point( LORENZ, candidates[_CATMULL_CONTROL_A], &candidates[_CATMULL_START] );
+        attractor_calc_next_point( LORENZ, candidates[_CATMULL_START],     &candidates[_CATMULL_END] );
+        attractor_calc_next_point( LORENZ, candidates[_CATMULL_END],       &candidates[_CATMULL_CONTROL_B] );
     }
 
-    // TODO time shift should be handled more elegantly than this
-    simulation_time += 0.5f;
+    // Copy the results into the cache for next iteration
+    memcpy( &cache, &candidates, sizeof(AttractorPosition_t) * 4 );
+    cache_ok = true;
+
+    // Convert floating point positions into natural cartesian space (integer microns)
+    // Also offset z as the attractors generally orbit z = 0
+    for( uint8_t sample = 0; sample < 4; sample++ )
+    {
+        points[sample].x = MM_TO_MICRONS( candidates[sample].x );
+        points[sample].y = MM_TO_MICRONS( candidates[sample].y );
+        points[sample].z = MM_TO_MICRONS( candidates[sample].z ) + MM_TO_MICRONS(100);
+    }
 
     // Create a sliding catmull rom spline out of the sampled points
     Movement_t sliding_catmull = { 0 };
@@ -56,10 +83,10 @@ attractor_sequence_get_move( uint8_t index, Movement_t *move )
     sliding_catmull.type = _CATMULL_SPLINE_LINEARISED;
     sliding_catmull.ref = _POS_ABSOLUTE;
 
-    memcpy( &sliding_catmull.points[_CATMULL_CONTROL_A], &samples[0], sizeof(CartesianPoint_t) );
-    memcpy( &sliding_catmull.points[_CATMULL_START],     &samples[1], sizeof(CartesianPoint_t) );
-    memcpy( &sliding_catmull.points[_CATMULL_END],       &samples[2], sizeof(CartesianPoint_t) );
-    memcpy( &sliding_catmull.points[_CATMULL_CONTROL_B], &samples[3], sizeof(CartesianPoint_t) );
+    memcpy( &sliding_catmull.points[_CATMULL_CONTROL_A], &points[0], sizeof(CartesianPoint_t) );
+    memcpy( &sliding_catmull.points[_CATMULL_START],     &points[1], sizeof(CartesianPoint_t) );
+    memcpy( &sliding_catmull.points[_CATMULL_END],       &points[2], sizeof(CartesianPoint_t) );
+    memcpy( &sliding_catmull.points[_CATMULL_CONTROL_B], &points[3], sizeof(CartesianPoint_t) );
 
     sliding_catmull.num_pts = 4;
 

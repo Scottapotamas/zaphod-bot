@@ -8,8 +8,13 @@
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void attractor_single_step( const AttractorSystem_t *state, AttractorPosition_t *current, AttractorPosition_t *result );
-PRIVATE void attractor_runge_kutta( float time, const AttractorSystem_t *state, AttractorPosition_t *result_pos );
+PRIVATE void attractor_single_step( const AttractorSystem_t *state,
+                                    AttractorPosition_t *current,
+                                    AttractorPosition_t *result );
+
+PRIVATE void attractor_runge_kutta( const AttractorSystem_t *state,
+                                    AttractorPosition_t current_pos,
+                                    AttractorPosition_t *result_pos );
 
 /* -------------------------------------------------------------------------- */
 
@@ -62,6 +67,8 @@ PRIVATE float four_wing_z( const float speed, const float parameters[], const fl
 // Based on https://www.dynamicmath.xyz/strange-attractors
 AttractorSystem_t defaults[MAX_VARIANTS] = {
     [LORENZ] = {
+        .step = 0.009f,
+        .speed = 1.0f,
         .parameters[PARAM_A] = 10.0f, // sigma
         .parameters[PARAM_B] = 2.6666666f, // beta 8/3 approx
         .parameters[PARAM_C] = 28.0f, // rho
@@ -70,6 +77,8 @@ AttractorSystem_t defaults[MAX_VARIANTS] = {
         .fn_z = &lorenz_z,
     },
     [THOMAS] = {
+        .step = 0.027f,
+        .speed = 4.0f,
         .parameters[PARAM_B] = 0.208186f,
         .fn_x = &thomas_x,
         .fn_y = &thomas_y,
@@ -164,18 +173,14 @@ attractor_init( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-attractor_calc_point_at_t( float time, uint8_t variant, AttractorPosition_t *result_pos )
+attractor_calc_next_point( uint8_t variant, AttractorPosition_t previous_pos, AttractorPosition_t *result_pos )
 {
     // TODO: ensure the variant is valid
 //        ENSURE( variant < MAX_VARIANTS )
 
-    // TODO: we need a default starting position to seed this with
-    //       consider how that position can be set/provided externally?
-
-
     AttractorSystem_t *attractor = &defaults[variant];
 
-    attractor_runge_kutta( time, attractor, result_pos );
+    attractor_runge_kutta( attractor, previous_pos, result_pos );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -198,7 +203,7 @@ attractor_single_step( const AttractorSystem_t *state, AttractorPosition_t *curr
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void
-attractor_runge_kutta( const float time, const AttractorSystem_t *state, AttractorPosition_t *result_pos )
+attractor_runge_kutta( const AttractorSystem_t *state, AttractorPosition_t current_pos, AttractorPosition_t *result_pos )
 {
     // TODO: check for valid state
     // Check current and result aren't null ptrs
@@ -206,43 +211,43 @@ attractor_runge_kutta( const float time, const AttractorSystem_t *state, Attract
     // Common values
     float h2 = 0.5f * state->step;
     float h6 = state->step / 6.0f;
-    float h2_time = time + h2;
+//    float h2_time = time + h2;
 
-    float step = 0.1f;
+    float speed = state->speed;
 
     // First pass
-    float k1 = state->fn_x( step, state->parameters, state->position.x, state->position.y, state->position.z );
-    float j1 = state->fn_y( step, state->parameters, state->position.x, state->position.y, state->position.z );
-    float i1 = state->fn_z( step, state->parameters, state->position.x, state->position.y, state->position.z );
+    float k1 = state->fn_x( speed, state->parameters, current_pos.x, current_pos.y, current_pos.z );
+    float j1 = state->fn_y( speed, state->parameters, current_pos.x, current_pos.y, current_pos.z );
+    float i1 = state->fn_z( speed, state->parameters, current_pos.x, current_pos.y, current_pos.z );
 
     float h2_k1 = h2 * k1;
     float h2_j1 = h2 * j1;
     float h2_i1 = h2 * i1;
 
-    float k2 = state->fn_x( step, state->parameters, state->position.x + h2_k1, state->position.y + h2_j1, state->position.z + h2_i1 );
-    float j2 = state->fn_y( step, state->parameters, state->position.x + h2_k1, state->position.y + h2_j1, state->position.z + h2_i1 );
-    float i2 = state->fn_z( step, state->parameters, state->position.x + h2_k1, state->position.y + h2_j1, state->position.z + h2_i1 );
+    float k2 = state->fn_x( speed, state->parameters, current_pos.x + h2_k1, current_pos.y + h2_j1, current_pos.z + h2_i1 );
+    float j2 = state->fn_y( speed, state->parameters, current_pos.x + h2_k1, current_pos.y + h2_j1, current_pos.z + h2_i1 );
+    float i2 = state->fn_z( speed, state->parameters, current_pos.x + h2_k1, current_pos.y + h2_j1, current_pos.z + h2_i1 );
 
     float h2_k2 = h2 * k2;
     float h2_j2 = h2 * j2;
     float h2_i2 = h2 * i2;
 
-    float k3 = state->fn_x( step, state->parameters, state->position.x + h2_k2, state->position.y + h2_j2, state->position.z + h2_i2 );
-    float j3 = state->fn_y( step, state->parameters, state->position.x + h2_k2, state->position.y + h2_j2, state->position.z + h2_i2 );
-    float i3 = state->fn_z( step, state->parameters, state->position.x + h2_k2, state->position.y + h2_j2, state->position.z + h2_i2 );
+    float k3 = state->fn_x( speed, state->parameters, current_pos.x + h2_k2, current_pos.y + h2_j2, current_pos.z + h2_i2 );
+    float j3 = state->fn_y( speed, state->parameters, current_pos.x + h2_k2, current_pos.y + h2_j2, current_pos.z + h2_i2 );
+    float i3 = state->fn_z( speed, state->parameters, current_pos.x + h2_k2, current_pos.y + h2_j2, current_pos.z + h2_i2 );
 
     float h_k3 = state->step * k3;
     float h_j3 = state->step * j3;
     float h_i3 = state->step * i3;
 
-    float k4 = state->fn_x( step, state->parameters, state->position.x + h_k3, state->position.y + h_j3, state->position.z + h_i3 );
-    float j4 = state->fn_y( step, state->parameters, state->position.x + h_k3, state->position.y + h_j3, state->position.z + h_i3 );
-    float i4 = state->fn_z( step, state->parameters, state->position.x + h_k3, state->position.y + h_j3, state->position.z + h_i3 );
+    float k4 = state->fn_x( speed, state->parameters, current_pos.x + h_k3, current_pos.y + h_j3, current_pos.z + h_i3 );
+    float j4 = state->fn_y( speed, state->parameters, current_pos.x + h_k3, current_pos.y + h_j3, current_pos.z + h_i3 );
+    float i4 = state->fn_z( speed, state->parameters, current_pos.x + h_k3, current_pos.y + h_j3, current_pos.z + h_i3 );
 
     // Output
-    result_pos->x = state->position.x + h6 * (k1 + 2.0f * k2 + 2.0f * k3 + k4);
-    result_pos->y = state->position.y + h6 * (j1 + 2.0f * j2 + 2.0f * j3 + j4);
-    result_pos->z = state->position.z + h6 * (i1 + 2.0f * i2 + 2.0f * i3 + i4);
+    result_pos->x = current_pos.x + h6 * (k1 + 2.0f * k2 + 2.0f * k3 + k4);
+    result_pos->y = current_pos.y + h6 * (j1 + 2.0f * j2 + 2.0f * j3 + j4);
+    result_pos->z = current_pos.z + h6 * (i1 + 2.0f * i2 + 2.0f * i3 + i4);
 }
 
 /* -------------------------------------------------------------------------- */
