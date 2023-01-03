@@ -169,6 +169,10 @@ attractor_calc_point_at_t( float time, uint8_t variant, AttractorPosition_t *res
     // TODO: ensure the variant is valid
 //        ENSURE( variant < MAX_VARIANTS )
 
+    // TODO: we need a default starting position to seed this with
+    //       consider how that position can be set/provided externally?
+
+
     AttractorSystem_t *attractor = &defaults[variant];
 
     attractor_runge_kutta( time, attractor, result_pos );

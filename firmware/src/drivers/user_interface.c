@@ -544,6 +544,7 @@ user_interface_set_effector_speed( uint32_t microns_per_second )
     motion_global.effector_speed = microns_per_second;
 }
 
+// TODO: obsolete
 PUBLIC CartesianPoint_t
 user_interface_get_tracking_target()
 {

@@ -114,6 +114,9 @@ enum PathingDefines
 {
     EFFECTOR_SPEED_LIMIT    = 650U,    // mm/second
     SPEED_SAMPLE_RESOLUTION = 20U,     // number of samples to sum across spline
+
+    ATTRACTOR_DEFAULT_SPEED = 100U,         // mm/second
+    ATTRACTOR_MINIMUM_DURATION_MS = 10U,    // milliseconds in the 'fastest' strange-attractor movements
 };
 
 /* -------------------------------------------------------------------------- */

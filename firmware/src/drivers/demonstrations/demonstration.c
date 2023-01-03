@@ -46,14 +46,14 @@ demonstration_enqueue_moves( uint8_t max_moves_emitted )
         {
             // Ask the sequencer for the next move
             internal_sequence_get_move( move_index_progress, &next_move );
-
             move_index_progress += 1;
         }
 
         // Strange Effector
         if( demo_to_run > 1 )
         {
-            attractor_sequence_init();
+            attractor_sequence_get_move( move_index_progress, &next_move );
+            move_index_progress += 1;
         }
 
         // Check if a new move was provided

@@ -10,6 +10,7 @@ extern "C" {
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
+#include "motion_types.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -18,9 +19,10 @@ extern "C" {
 PUBLIC void
 attractor_sequence_init( void );
 
-
 /* -------------------------------------------------------------------------- */
 
+PUBLIC void
+attractor_sequence_get_move( uint8_t index, Movement_t *move );
 
 /* ----- End ---------------------------------------------------------------- */
 

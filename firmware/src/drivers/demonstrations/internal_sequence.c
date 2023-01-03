@@ -5,11 +5,6 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "internal_sequence.h"
-#include "motion_types.h"
-
-#include "app_events.h"
-#include "app_signals.h"
-#include "event_subscribe.h"
 
 /* -------------------------------------------------------------------------- */
 
