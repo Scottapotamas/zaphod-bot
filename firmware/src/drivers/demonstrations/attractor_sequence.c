@@ -80,7 +80,7 @@ attractor_sequence_get_move( uint8_t index, Movement_t *move )
     // Create a sliding catmull rom spline out of the sampled points
     Movement_t sliding_catmull = { 0 };
 
-    sliding_catmull.type = _CATMULL_SPLINE_LINEARISED;
+    sliding_catmull.type = _CATMULL_SPLINE;
     sliding_catmull.ref = _POS_ABSOLUTE;
 
     memcpy( &sliding_catmull.points[_CATMULL_CONTROL_A], &points[0], sizeof(CartesianPoint_t) );
