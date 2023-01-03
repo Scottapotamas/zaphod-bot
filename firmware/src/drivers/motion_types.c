@@ -118,6 +118,13 @@ cartesian_distance_linearisation_from_lut( uint32_t sync_offset, float progress 
     // Calculate the 'length' for this progress - between 0 and 'line length'
     uint32_t target_distance = (float)metadata->lut[SPEED_SAMPLE_RESOLUTION].distance * progress;
 
+    // Zero distance moves don't need compensation
+    if( target_distance <= 1 )
+    {
+        target_t = progress;
+        return target_t;
+    }
+
     // Walk through the lookup table until we find the pair of entries around our target length
     for( uint32_t i = 0; i <= SPEED_SAMPLE_RESOLUTION; i++ )
     {
