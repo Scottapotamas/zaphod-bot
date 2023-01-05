@@ -147,102 +147,46 @@ const JogPalette = (props: JogPaletteProps) => {
   )
 }
 
-const controllerAreas = `
-SpeedArea
-DistanceArea
-KeypadArea
-`
-
 const ManualJogPalette = () => {
-  let [jog_speed, setJogSpeed] = useState(0)
-  let [jog_distance, setJogDistance] = useState(5.0)
+  let [jog_speed, setJogSpeed] = useState(100) // mm/second
+  let [jog_distance, setJogDistance] = useState(10.0) // mm
 
-  let jog_duration = 500 * (1 / (1 + jog_speed))
+  let jog_duration = (jog_distance * 1000) / jog_speed // milliseconds
 
   return (
-    <Composition
-      areas={controllerAreas}
-      gap={20}
-      padding={10}
-      templateCols="1fr"
-      alignItems="center"
-    >
-      {({ SpeedArea, DistanceArea, KeypadArea }) => (
-        <React.Fragment>
-          <SpeedArea>
-            <Only from={{ minHeight: 980 }}>
-              <div style={{ padding: '1em' }}>
-                <MultiSlider
-                  min={-0.75}
-                  max={1}
-                  stepSize={0.25}
-                  labelRenderer={val => `${Math.round((val + 1) * 100)}%`}
-                  labelStepSize={0.5}
-                  showTrackFill={jog_speed !== 0}
-                >
-                  <MultiSlider.Handle
-                    value={jog_speed}
-                    intentAfter={jog_speed < 0 ? Intent.WARNING : undefined}
-                    intentBefore={jog_speed > 0 ? Intent.WARNING : undefined}
-                    onChange={value => setJogSpeed(value)}
-                  />
-                  <MultiSlider.Handle value={0} interactionKind="none" />
-                </MultiSlider>
-              </div>
-            </Only>
-            <NumericInput
-              value={jog_speed}
-              onValueChange={value => setJogSpeed(value)}
-              fill
-              intent={Intent.WARNING}
-              min={-1}
-              max={1}
-              stepSize={0.25}
-              rightElement={
-                <Tag minimal intent={Intent.WARNING}>
-                  SPEED MODIFIER
-                </Tag>
-              }
-            />
-          </SpeedArea>
-          <DistanceArea>
-            <Only from={{ minHeight: 980 }}>
-              <div style={{ padding: '1em' }}>
-                <MultiSlider
-                  onChange={values => setJogDistance(values[0])}
-                  min={0}
-                  max={25}
-                  stepSize={1}
-                  labelRenderer={val => `${val}mm`}
-                  labelStepSize={5}
-                >
-                  <MultiSlider.Handle
-                    value={jog_distance}
-                    intentBefore={Intent.SUCCESS}
-                  />
-                </MultiSlider>
-              </div>
-            </Only>
-            <NumericInput
-              value={jog_distance}
-              onValueChange={value => setJogDistance(value)}
-              fill
-              intent={Intent.SUCCESS}
-              min={0}
-              max={25}
-              stepSize={1}
-              rightElement={
-                <Tag minimal intent={Intent.SUCCESS}>
-                  JOG DISTANCE
-                </Tag>
-              }
-            />
-          </DistanceArea>
-          <KeypadArea>
-            <JogPalette distance={jog_distance} time={jog_duration} />
-          </KeypadArea>
-        </React.Fragment>
-      )}
+    <Composition gap={20} padding={10} alignItems="center">
+      <Composition templateCols="200px 200px" gap={20}>
+        <NumericInput
+          value={jog_speed}
+          onValueChange={value => setJogSpeed(value)}
+          fill
+          intent={Intent.WARNING}
+          min={0}
+          max={300}
+          stepSize={25}
+          rightElement={
+            <Tag minimal intent={Intent.WARNING}>
+              SPEED
+            </Tag>
+          }
+        />
+        <NumericInput
+          value={jog_distance}
+          onValueChange={value => setJogDistance(value)}
+          fill
+          intent={Intent.SUCCESS}
+          min={0}
+          max={25}
+          stepSize={5}
+          rightElement={
+            <Tag minimal intent={Intent.SUCCESS}>
+              JOG DISTANCE
+            </Tag>
+          }
+        />
+      </Composition>
+
+      <JogPalette distance={jog_distance} time={jog_duration} />
     </Composition>
   )
 }
