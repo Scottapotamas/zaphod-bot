@@ -11,6 +11,7 @@ import {
   Intent,
   Position,
   Button as BlueprintButton,
+  Colors,
 } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
 
@@ -88,9 +89,19 @@ const SideBar = () => {
         isOpen={configOpen}
         onClose={closeConfig}
         autoFocus
-        title="System Configuration"
-        icon={IconNames.WRENCH}
-        style={{ minWidth: '800px', minHeight: '400px' }}
+        transitionDuration={150}
+        backdropClassName="settingsBackgroundBlur"
+        style={{
+          minWidth: '800px',
+          minHeight: '400px',
+          borderStyle: 'solid',
+          background: 'unset',
+          borderWidth: '2px',
+          borderRadius: '6px',
+          borderColor: `${Colors.BLUE1}`,
+          backdropFilter: `blur(15px) brightness(0.5)`,
+          padding: `0.25em`,
+        }}
       >
         <SettingsPage />
       </Dialog>
@@ -148,7 +159,6 @@ const MainWindow = (props: RouteComponentProps) => {
           <ServoSummary />
         </div>
       </Only>
-
     </React.Fragment>
   )
 }

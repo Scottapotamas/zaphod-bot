@@ -66,3 +66,9 @@ body {
 .bp3-dark .device-header {
   background: #232b31;
 }
+
+/* Used to complement the .bp3-overlay-backdrop */
+.settingsBackgroundBlur {
+  backdrop-filter: blur(5px);
+   /* brightness(0.8); */
+}
