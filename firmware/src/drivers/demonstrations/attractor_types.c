@@ -5,6 +5,9 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "attractor_types.h"
+#include "qassert.h"
+
+DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 /* -------------------------------------------------------------------------- */
 
@@ -175,8 +178,7 @@ AttractorSystem_t defaults[MAX_VARIANTS] = {
 PUBLIC AttractorSystem_t *
 attractor_get_settings_ptr( uint8_t variant )
 {
-    // TODO: ensure the variant is valid
-    //       ENSURE( variant < MAX_VARIANTS )
+    REQUIRE( variant < MAX_VARIANTS);
 
     return &defaults[variant];
 }
@@ -186,8 +188,9 @@ attractor_get_settings_ptr( uint8_t variant )
 PUBLIC void
 attractor_single_step( const AttractorSystem_t *state, AttractorPosition_t *current, AttractorPosition_t *result )
 {
-    // TODO: check for valid state
-    // Check current and result aren't null ptrs
+    REQUIRE( state );
+    REQUIRE( current );
+    REQUIRE( result );
 
     float nx = state->fn_x( state->speed, state->parameters, current->x, current->y, current->z );
     float ny = state->fn_y( state->speed, state->parameters, current->x, current->y, current->z );
@@ -203,8 +206,9 @@ attractor_single_step( const AttractorSystem_t *state, AttractorPosition_t *curr
 PUBLIC void
 attractor_runge_kutta( const AttractorSystem_t *state, AttractorPosition_t current, AttractorPosition_t *result )
 {
-    // TODO: check for valid state
-    // Check current and result aren't null ptrs
+    REQUIRE( state );
+    // TODO pass the current position in via ptr and assert if invalid?
+    REQUIRE( result );
 
     // Common values
     float h2 = 0.5f * state->step;

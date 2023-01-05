@@ -8,6 +8,7 @@
 #include "attractor_sequence.h"
 #include "attractor_types.h"
 #include "app_times.h"
+#include "qassert.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -15,6 +16,8 @@ PRIVATE void
 attractor_sequence_randomise_start( AttractorPosition_t *output );
 
 /* -------------------------------------------------------------------------- */
+
+DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 PRIVATE AttractorPosition_t cache[4] = { 0 };
 PRIVATE bool cache_ok = false;
@@ -115,12 +118,11 @@ PRIVATE float dirty_random_float( void )
 PRIVATE void
 attractor_sequence_randomise_start( AttractorPosition_t *output )
 {
-    if( output )
-    {
-        output->x = dirty_random_float();
-        output->y = dirty_random_float();
-        output->z = dirty_random_float();
-    }
+    REQUIRE( output );
+
+    output->x = dirty_random_float();
+    output->y = dirty_random_float();
+    output->z = dirty_random_float();
 }
 
 /* -------------------------------------------------------------------------- */

@@ -12,13 +12,16 @@
 #include "app_times.h"
 #include "event_subscribe.h"
 #include "simple_state_machine.h"
-
+#include "qassert.h"
 #include "app_events.h"
 #include "global.h"
+
 #include "led.h"
 #include "led_types.h"
 #include "timer_ms.h"
 #include "user_interface.h"
+
+DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -103,6 +106,8 @@ led_interpolator_set_epoch_reference( timer_ms_t timestamp_ms )
 PUBLIC void
 led_interpolator_set_objective( Fade_t *fade_to_process )
 {
+    REQUIRE( fade_to_process );
+
     LEDPlanner_t *me               = &planner;
     Fade_t       *fade_insert_slot = { 0 };    // Allows us to put the new fade into whichever slot is available
 
@@ -370,6 +375,8 @@ led_interpolator_calculate_percentage( uint16_t fade_duration )
 PRIVATE void
 led_interpolator_execute_fade( Fade_t *fade, float percentage )
 {
+    REQUIRE( fade );
+
     HSIColour_t     fade_target   = { 0.0f, 0.0f, 0.0f };
     GenericColour_t output_values = { 0.0f, 0.0f, 0.0f };
 
@@ -398,11 +405,8 @@ led_interpolator_execute_fade( Fade_t *fade, float percentage )
 FadeSolution_t
 hsi_lerp_linear( HSIColour_t p[], size_t points, float pos_weight, HSIColour_t *output )
 {
-    if( points < 2 )
-    {
-        // need 2 points for a line
-        return FADE_ERROR;
-    }
+    REQUIRE( p );
+    REQUIRE( points == 2);  // need 2 points for a line
 
     if( pos_weight <= 0.0f + FLT_EPSILON )
     {
@@ -425,14 +429,14 @@ hsi_lerp_linear( HSIColour_t p[], size_t points, float pos_weight, HSIColour_t *
     output->hue = ( distance_cw <= distance_ccw ) ? p[1].hue + ( distance_cw * pos_weight ) : p[1].hue - ( distance_ccw * pos_weight );
 
     // handle wrapping around
-    if( output->hue < 0 )
+    if( output->hue < 0.0f )
     {
-        output->hue += 1;
+        output->hue += 1.0f;
     }
 
-    if( output->hue > 1 )
+    if( output->hue > 1.0f )
     {
-        output->hue -= 1;
+        output->hue -= 1.0f;
     }
 
     output->saturation = p[0].saturation + pos_weight * ( p[1].saturation - p[0].saturation );
@@ -449,11 +453,15 @@ hsi_lerp_linear( HSIColour_t p[], size_t points, float pos_weight, HSIColour_t *
  */
 void hsi_to_rgb( float h, float s, float i, float *r, float *g, float *b )
 {
+    REQUIRE( r );
+    REQUIRE( g );
+    REQUIRE( b );
+
     float q;
     float p;
 
     // no saturation --> white/achromatic at the given intensity level
-    if( s <= 0 )
+    if( s <= 0.0f )
     {
         *r = i;
         *g = i;
@@ -463,7 +471,7 @@ void hsi_to_rgb( float h, float s, float i, float *r, float *g, float *b )
     {
         if( i < 0.5 )
         {
-            q = i * ( 1 + s );
+            q = i * ( 1.0f + s );
         }
         else
         {
@@ -481,27 +489,27 @@ void hsi_to_rgb( float h, float s, float i, float *r, float *g, float *b )
 // Helper for HSI/RGB conversions
 float hue_to_channel( float p, float q, float t )
 {
-    if( t < 0 )
+    if( t < 0.0f )
     {
-        t += 1;
+        t += 1.0f;
     }
 
-    if( t > 1 )
+    if( t > 1.0f )
     {
-        t -= 1;
+        t -= 1.0f;
     }
 
-    if( t < 1 / 6.0f )
+    if( t < 1.0f / 6.0f )
     {
-        return p + ( q - p ) * 6 * t;
+        return p + ( q - p ) * 6.0f * t;
     }
 
-    if( t < 1 / 2.0f )
+    if( t < 1.0f / 2.0f )
     {
         return q;
     }
 
-    if( t < 2 / 3.0f )
+    if( t < 2.0f / 3.0f )
     {
         return p + ( q - p ) * ( 2.0f / 3.0f - t ) * 6.0f;
     }
@@ -528,4 +536,5 @@ led_interpolator_notify_animation_complete( uint32_t fade_id )
     memcpy( &barrier_ev->epoch, &publish_id, sizeof( fade_id ) );
     eventPublish( (StateEvent *)barrier_ev );
 }
+
 /* ----- End ---------------------------------------------------------------- */

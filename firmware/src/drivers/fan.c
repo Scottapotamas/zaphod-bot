@@ -10,6 +10,9 @@
 #include "sensors.h"
 #include "simple_state_machine.h"
 #include "timer_ms.h"
+#include "qassert.h"
+
+DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 /* ----- Private Types ------------------------------------------------------ */
 
@@ -225,29 +228,27 @@ fan_process( void )
 PRIVATE uint8_t
 fan_speed_at_temp( float temperature )
 {
-    // Ensure the pointer is set (or default to a high fan speed)
-    if( fan_curve )
-    {
-        // Protect against out-of-bounds temperature inputs
-        if( (uint8_t)temperature < fan_curve[0].temperature )
-        {
-            // Temperature is lower than the lowest point in LUT
-            return fan_curve[0].percentage;
-        }
-        else if( (uint8_t)temperature > fan_curve[NUM_FAN_CURVE_POINTS - 1].temperature )
-        {
-            // Temperature exceeds max LUT value
-            return 100.0f;
-        }
+    REQUIRE( fan_curve );
 
-        for( uint32_t i = 0; i < NUM_FAN_CURVE_POINTS - 1; i++ )
+    // Protect against out-of-bounds temperature inputs
+    if( (uint8_t)temperature < fan_curve[0].temperature )
+    {
+        // Temperature is lower than the lowest point in LUT
+        return fan_curve[0].percentage;
+    }
+    else if( (uint8_t)temperature > fan_curve[NUM_FAN_CURVE_POINTS - 1].temperature )
+    {
+        // Temperature exceeds max LUT value
+        return 100.0f;
+    }
+
+    for( uint32_t i = 0; i < NUM_FAN_CURVE_POINTS - 1; i++ )
+    {
+        // Within range between two rows of the LUT
+        if( (uint8_t)temperature > fan_curve[i].temperature && (uint8_t)temperature <= fan_curve[i + 1].temperature )
         {
-            // Within range between two rows of the LUT
-            if( (uint8_t)temperature > fan_curve[i].temperature && (uint8_t)temperature <= fan_curve[i + 1].temperature )
-            {
-                // Linear interpolation for fan speed between the surrounding rows in LUT
-                return fan_curve[i].percentage + ( ( ( temperature - fan_curve[i].temperature ) / ( fan_curve[i + 1].temperature - fan_curve[i].temperature ) ) * ( fan_curve[i + 1].percentage - fan_curve[i].percentage ) );
-            }
+            // Linear interpolation for fan speed between the surrounding rows in LUT
+            return fan_curve[i].percentage + ( ( ( temperature - fan_curve[i].temperature ) / ( fan_curve[i + 1].temperature - fan_curve[i].temperature ) ) * ( fan_curve[i + 1].percentage - fan_curve[i].percentage ) );
         }
     }
 

@@ -5,6 +5,9 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "internal_sequence.h"
+#include "qassert.h"
+
+DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 /* -------------------------------------------------------------------------- */
 
@@ -240,8 +243,7 @@ internal_sequence_init( void )
 PUBLIC void
 internal_sequence_get_move( uint8_t sequence_index, Movement_t *move )
 {
-    // TODO Validate that the effector is at the starting point for the event
-    // TODO assert if the move pointer is null
+    REQUIRE( move );
 
     if( sequence_index <= DIM( demo_one ) )
     {

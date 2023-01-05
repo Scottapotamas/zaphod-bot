@@ -224,7 +224,7 @@ kinematics_angle_to_point( JointAngles_t input, CartesianPoint_t *output )
     // discriminant
     float d = b * b - (float)4.0f * a * c;
 
-    if( d < 0 )
+    if( d < 0.0f )
     {
         return SOLUTION_ERROR;
     }
@@ -254,7 +254,7 @@ delta_angle_plane_calc( float x0, float y0, float z0, float *theta )
     // Discriminant
     float d = -( a + b * y1 ) * ( a + b * y1 ) + rf * ( b * b * rf + rf );
 
-    if( d < 0 )
+    if( d < 0.0f )
     {
         return KINEMATICS_SOLVE_ERROR;
     }
