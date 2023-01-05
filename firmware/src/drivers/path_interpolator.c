@@ -236,8 +236,9 @@ path_interpolator_process( void )
 
                 if( speed > configuration_get_effector_speed_limit() )
                 {
-                    // TODO do something other than just 'accept' the overspeed move
-                    //      consider firing event upstream to trigger queue clearing and graceful stop
+                    // TODO do something other than just E-STOP on the overspeed move
+                    eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
+
                     user_interface_report_error( "Requested illegal speed move" );
                 }
 
