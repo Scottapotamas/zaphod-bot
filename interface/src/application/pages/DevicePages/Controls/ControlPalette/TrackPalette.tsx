@@ -1,103 +1,59 @@
-import React, { useState } from 'react'
-
-import { Button, Slider } from '@electricui/components-desktop-blueprint'
-import { Icon, MultiSlider, NumericInput, Callout } from '@blueprintjs/core'
+import React from 'react'
 
 import { Composition } from 'atomic-layout'
 import { MSGID } from 'src/application/typedState'
-
-const SliderAreas = `
-HorizontalXArea VerticalZArea
-HorizontalYArea VerticalZArea
-`
+import { OutlineCard } from 'src/application/components/OutlineCard'
+import { TwoAxisPad } from 'src/application/components/TwoAxisPad'
 
 export const TrackPalette = () => {
   return (
-    <div>
-      <Composition
-        areas={SliderAreas}
-        gap={20}
-        templateCols="auto auto"
-      >
-        {({ HorizontalXArea, HorizontalYArea, VerticalZArea }) => (
-          <React.Fragment>
-            <HorizontalXArea>
-              <Callout title="X" style={{minWidth: '400px', padding: '2em'}}>
-                <Slider
-                  min={-100}
-                  max={100}
-                  stepSize={0.1}
-                  labelStepSize={50}
-                  throttleDuration={10}
-                  writer={(state, values) => {
-                    state[MSGID.POSITION_TARGET] = {
-                      x: values.target_x,
-                      y: state[MSGID.POSITION_TARGET].y,
-                      z: state[MSGID.POSITION_TARGET].z,
-                    }
-                  }}
-                >
-                  <Slider.Handle
-                    accessor={state => state[MSGID.POSITION_TARGET].x}
-                    name="target_x"
-                  />
-                </Slider>
-              </Callout>
-            </HorizontalXArea>
-            <HorizontalYArea>
-            <Callout title="Y" style={{minWidth: '400px', padding: '2em'}}>
-            <Slider
-                min={-100}
-                max={100}
-                stepSize={0.1}
-                labelStepSize={25}
-                throttleDuration={10}
-                writer={(state, values) => {
-                  state[MSGID.POSITION_TARGET] = {
-                    x: state[MSGID.POSITION_TARGET].x,
-                    y: values.target_y,
-                    z: state[MSGID.POSITION_TARGET].z,
-                  }
-                }}
-              >
-                <Slider.Handle
-                  accessor={state => state[MSGID.POSITION_TARGET].y}
-                  name="target_y"
-                />
-              </Slider>
-</Callout>
+    <div style={{ maxWidth: 'fit-content' }}>
+      <OutlineCard padding="1rem">
+        <Composition gap={10} templateCols="auto 1fr">
+          <TwoAxisPad
+            // TODO: will using actual current position for handle xy make it feel better or worse?
+            x={state => state[MSGID.POSITION_TARGET].x}
+            y={state => state[MSGID.POSITION_TARGET].y}
+            writer={(state, position) => {
+              state[MSGID.POSITION_TARGET].x = position.horizontal
+              state[MSGID.POSITION_TARGET].y = position.vertical
+            }}
+            throttleDuration={10}
+            padCenterColor="rgba(19, 124, 189, 0.25)"
+            padEdgeColor="rgba(19, 124, 189, 0.25)"
+            handleColor="rgba(72, 175, 240, 0.6)" // Blue3 + opacity
+            // handleSize={10}
 
-            </HorizontalYArea>
-            <VerticalZArea>
-            <Callout title="Z" style={{minWidth: '100px', padding: '2em'}}>
-            <Slider
-                vertical
-                min={0}
-                max={100}
-                stepSize={0.1}
-                labelStepSize={25}
-                throttleDuration={10}
-                writer={(state, values) => {
-                  state[MSGID.POSITION_TARGET] = {
-                    x: state[MSGID.POSITION_TARGET].x,
-                    y: state[MSGID.POSITION_TARGET].y,
-                    z: values.target_z,
-                  }
-                }}
-              >
-                <Slider.Handle
-                  accessor={state => state[MSGID.POSITION_TARGET].z}
-                  name="target_z"
-                />
-              </Slider>
+            width={200}
+            height={200}
+            xMin={-100}
+            xMax={100}
+            yMin={-100}
+            yMax={100}
+          />
 
-              </Callout>
+          <TwoAxisPad
+            // TODO: will using actual current position for handle xy make it feel better or worse?
+            x={state => 0}
+            y={state => state[MSGID.POSITION_TARGET].z}
+            writer={(state, position) => {
+              state[MSGID.POSITION_TARGET].z = position.vertical
+            }}
+            throttleDuration={10}
+            padCenterColor="rgba(19, 124, 189, 0.25)"
+            padEdgeColor="rgba(19, 124, 189, 0.25)"
+            handleColor="rgba(72, 175, 240, 0.6)" // Blue3 + opacity
+            // handleSize={10}
 
-
-            </VerticalZArea>
-          </React.Fragment>
-        )}
-      </Composition>
+            width={50}
+            height={200}
+            xMin={-1}
+            xMax={1}
+            yMin={0}
+            yMax={100}
+          />
+        </Composition>
+      </OutlineCard>
     </div>
   )
 }
