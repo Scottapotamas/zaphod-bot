@@ -161,6 +161,19 @@ servo_stop( ClearpathServoInstance_t servo )
 
 /* -------------------------------------------------------------------------- */
 
+// Immediately disable all servo's enable pins
+//   Intended for ASSERT style 'disable the servos' end-of-the-world style use, not general disable
+PUBLIC void
+servo_disable_all_hard( void )
+{
+    hal_gpio_write_pin( ServoHardwareMap[_CLEARPATH_1].pin_enable, SERVO_DISABLE );
+    hal_gpio_write_pin( ServoHardwareMap[_CLEARPATH_2].pin_enable, SERVO_DISABLE );
+    hal_gpio_write_pin( ServoHardwareMap[_CLEARPATH_3].pin_enable, SERVO_DISABLE );
+    hal_gpio_write_pin( ServoHardwareMap[_CLEARPATH_4].pin_enable, SERVO_DISABLE );
+}
+
+/* -------------------------------------------------------------------------- */
+
 // Calculates and sets target position, constrains input to legal angles only
 PUBLIC void
 servo_set_target_angle_limited( ClearpathServoInstance_t servo, float angle_degrees )

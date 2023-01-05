@@ -17,6 +17,10 @@
 #include "qassert.h"
 #include "status.h"
 
+#ifdef DISABLE_MOTORS_ON_ASSERT
+#include "clearpath.h"
+#endif
+
 /* Private variables ---------------------------------------------------------*/
 #if defined( NASSERT ) || defined( NDEBUG )
 #if defined( USE_FULL_ASSERT ) || ( USE_FULL_ASSERT > 0 )
@@ -144,6 +148,10 @@ void onAssert__( const char *file,
     va_start( args, fmt );
     hal_reset_assert_cache( file, line, fmt, args );
     va_end( args );
+
+#ifdef DISABLE_MOTORS_ON_ASSERT
+    servo_disable_all_hard();
+#endif
 
     // Blinking lights while we wait for the watch dog to bite
     status_red( true );

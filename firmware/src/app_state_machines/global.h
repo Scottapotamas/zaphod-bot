@@ -50,6 +50,11 @@ typedef union    ///< Allow mapping int16 to uint16
 
 /* -------------------------------------------------------------------------- */
 
+/** Allow the assert handler to set all servo enable pins to disabled */
+#define DISABLE_MOTORS_ON_ASSERT (true)
+
+/* -------------------------------------------------------------------------- */
+
 //! \def _BV(bit)
 /// Basic bitvalue macro (suitable for up to 32 bits)
 #ifndef _BV
