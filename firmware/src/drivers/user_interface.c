@@ -101,8 +101,7 @@ eui_message_t ui_variables[] = {
     // Current and target positions in cartesian space
     EUI_CUSTOM( MSGID_POSITION_TARGET, target_position ),
     EUI_CUSTOM_RO( MSGID_POSITION_CURRENT, current_position ),
-
-        EUI_FLOAT( MSGID_POSITION_EXPANSION, external_servo_angle_target),
+    EUI_FLOAT( MSGID_POSITION_EXPANSION, external_servo_angle_target),
 
     EUI_CUSTOM_RO( MSGID_LED, rgb_led_drive ),
     EUI_CUSTOM( MSGID_LED_MANUAL_REQUEST, rgb_manual_control ),
@@ -142,9 +141,9 @@ enum
 } EUI_LINK_NAMES;
 
 eui_interface_t communication_interface[] = {
-    EUI_INTERFACE_CB( &user_interface_tx_put_module, &user_interface_eui_callback_module ),
-    EUI_INTERFACE_CB( &user_interface_tx_put_internal, &user_interface_eui_callback_internal ),
-    EUI_INTERFACE_CB( &user_interface_tx_put_external, &user_interface_eui_callback_external ),
+    [LINK_MODULE]   = EUI_INTERFACE_CB( &user_interface_tx_put_module, &user_interface_eui_callback_module ),
+    [LINK_INTERNAL] = EUI_INTERFACE_CB( &user_interface_tx_put_internal, &user_interface_eui_callback_internal ),
+    [LINK_EXTERNAL] = EUI_INTERFACE_CB( &user_interface_tx_put_external, &user_interface_eui_callback_external ),
 };
 
 /* ----- Public Functions --------------------------------------------------- */
@@ -548,13 +547,6 @@ PUBLIC void
 user_interface_set_effector_speed( uint32_t microns_per_second )
 {
     motion_global.effector_speed = microns_per_second;
-}
-
-// TODO: obsolete
-PUBLIC CartesianPoint_t
-user_interface_get_tracking_target()
-{
-    return target_position;
 }
 
 PUBLIC void

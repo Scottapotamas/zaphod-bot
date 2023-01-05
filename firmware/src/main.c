@@ -176,6 +176,6 @@ void _Error_Handler( char *file, int line )
 #ifdef USE_FULL_ASSERT
 void assert_failed( uint8_t *file, uint32_t line )
 {
-    // TODO: implement full assert handler
+    onAssert__( file, line, 0 );
 }
 #endif /* USE_FULL_ASSERT */

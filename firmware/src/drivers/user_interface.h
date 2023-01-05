@@ -124,9 +124,6 @@ user_interface_set_position( int32_t x, int32_t y, int32_t z );
 PUBLIC void
 user_interface_set_effector_speed( uint32_t microns_per_second );
 
-PUBLIC CartesianPoint_t
-user_interface_get_tracking_target();
-
 PUBLIC void
 user_interface_reset_tracking_target();
 
