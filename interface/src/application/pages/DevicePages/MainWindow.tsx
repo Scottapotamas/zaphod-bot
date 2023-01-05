@@ -30,7 +30,7 @@ import { ServoSummary } from './Views/ServoStatistics/ServoSummary'
 import { ControlBlock } from './Controls/ControlBlock'
 import { EStopButton } from './Controls/EStopButton'
 import { ModeSelection } from './Controls/ModeSelection'
-import { SettingsPage } from './SettingsPage'
+import { SettingsPage } from './SettingsMenu'
 
 import { GeometryToolpathViewer } from './Views/GeometryToolpaths'
 

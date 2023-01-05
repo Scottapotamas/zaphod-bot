@@ -13,8 +13,8 @@ import {
   Tabs,
 } from '@blueprintjs/core'
 
-import { GeneralSettings } from './GeneralSettings'
-import { InfoBlock } from './InfoBlock'
+import { GeneralSettings } from './General'
+import { InfoBlock } from './Info'
 import { LEDCalibrationBlock } from './LEDCalibrationBlock'
 import { PowerCalibrationBlock } from './PowerCalibrationBlock'
 

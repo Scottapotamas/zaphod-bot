@@ -107,14 +107,11 @@ export const PowerCalibrationBlock = () => {
   return (
     <Composition justifyItems="center">
       <Box>
-        <h2>Power Calibration</h2>
-      </Box>
-      <Box>
         <IntervalRequester
           variables={[MSGID.SYSTEM, MSGID.SERVO]}
           interval={50}
         />
-        <HTMLTable striped style={{ minWidth: '100%' }}>
+        <HTMLTable style={{ minWidth: '100%' }}>
           <thead>
             <tr>
               <th>Sensor</th>

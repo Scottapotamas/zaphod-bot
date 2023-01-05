@@ -10,6 +10,8 @@ import { Statistic } from '@electricui/components-desktop-blueprint'
 import { Printer } from '@electricui/components-desktop'
 import { MSGID } from 'src/application/typedState'
 
+import { SectionHeading } from '../SectionHeading'
+
 const SensorsActive = () => {
   const sensorEnabledState =
     useHardwareState<number>(state => state[MSGID.SYSTEM].sensors_enable) === 1
@@ -42,10 +44,10 @@ const LastResetReason = () => {
 
 const LastAssertReason = () => {
   const last_assert_reason = useHardwareState(
-    state => state[MSGID.ASSERT_CAUSE]
+    state => state[MSGID.ASSERT_CAUSE],
   )
 
-  if (last_assert_reason == "_") {
+  if (last_assert_reason == '_') {
     return <div>Last assert: N/A</div>
   }
 
@@ -78,7 +80,12 @@ const CPULoadText = () => {
 
 const BuildInfoTable = () => {
   return (
-    <HTMLTable condensed interactive striped style={{ minWidth: '100%', width: '300px' }}>
+    <HTMLTable
+      condensed
+      interactive
+      striped
+      style={{ minWidth: '100%', width: '300px' }}
+    >
       <tbody>
         <tr>
           <td>
@@ -139,37 +146,38 @@ export const InfoBlock = () => {
   )
 
   return (
-    <Composition templateCols="1fr 1fr" justifyItems="start">
+    <Composition templateCols="1fr 1fr" justifyItems="center" gap={20}>
       <Box>
         <IntervalRequester interval={200} variables={[MSGID.SYSTEM]} />
-        <h2>System Configuration</h2>
+        <SectionHeading text="Status" />
         <SensorsActive />
         <ModuleActive />
         <br />
-        <IntervalRequester interval={1000} variables={[[MSGID.ASSERT_CAUSE], [MSGID.RESET_CAUSE]]} />
-
+        <IntervalRequester
+          interval={1000}
+          variables={[[MSGID.ASSERT_CAUSE], [MSGID.RESET_CAUSE]]}
+        />
         <LastResetReason />
         <LastAssertReason />
         <br />
-        <CPUClockText /> <CPULoadText /> 
+        <CPUClockText /> <CPULoadText />
       </Box>
       <Box>
-        <h2>Firmware Build</h2>
+        <SectionHeading text="Firmware Build" />
         <BuildInfoTable />
       </Box>
       <Box>
-        <h2>Thermals</h2>
+        <SectionHeading text="Thermals" />
         Temperature sensors here
-        <br/>
+        <br />
         Fan speed/duty here
       </Box>
       <Box>
-        <h2>Manual Update</h2>
+        <SectionHeading text="Manual Update" />
         Load a valid update file for flashing:
-        <br/>
+        <br />
         File selector here
       </Box>
-
     </Composition>
   )
 }
