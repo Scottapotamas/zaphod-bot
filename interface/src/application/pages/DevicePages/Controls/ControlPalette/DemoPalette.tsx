@@ -16,46 +16,104 @@ import {
 } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
 
-import { Composition } from 'atomic-layout'
+import { Composition, Box } from 'atomic-layout'
 import { MSGID } from 'src/application/typedState'
 import { OutlineCard } from 'src/application/components/OutlineCard'
+import { useHardwareState } from '@electricui/components-core'
+
+type AttractorProps = {
+  name: string
+  seqNum: number
+}
+
+const strangeAttractors: AttractorProps[] = [
+  { name: 'Lorenz', seqNum: 10 },
+  { name: 'Thomas', seqNum: 11 },
+  { name: 'Aizawa', seqNum: 12 },
+  { name: 'Dadras', seqNum: 13 },
+  { name: 'Chen', seqNum: 14 },
+  { name: 'Rossler', seqNum: 15 },
+  { name: 'Halvorsen', seqNum: 16 },
+  { name: 'Three Scroll', seqNum: 18 },
+  { name: 'Sprott', seqNum: 19 },
+  { name: 'FourWing', seqNum: 20 },
+  { name: 'Rabinovich-Fabrikant', seqNum: 17 },
+]
 
 export const DemoPalette = () => {
+  const selected_demo = useHardwareState(
+    state => state[MSGID.ATTRACTOR_SPECIES],
+  )
+
   return (
     <div>
       <OutlineCard padding="2em">
-        <NonIdealState
-          title="Demonstration Mode"
-        >
-          <Dropdown
-            fill
-            accessor={state => state[MSGID.ATTRACTOR_SPECIES]}
-            writer={(state, value) => {
-              state[MSGID.ATTRACTOR_SPECIES] = value
-            }}
-            placeholder={selectedOption =>
-              selectedOption
-                ? `Mode: ${selectedOption.text}`
-                : 'Select a demo sequence'
-            }
+        <Composition gap={20} justifyItems="center">
+          <p style={{ marginBottom: '0', opacity: '0.6' }}>
+            DEMONSTRATION PROGRAMS
+          </p>
+          <Composition
+            templateCols="1fr 1fr"
+            gap={10}
+            style={{ width: '100%' }}
           >
-            <Dropdown.Option value={0} text="Basic Moves" icon={IconNames.SHAPES} />
-            <Dropdown.Option value={1} text="Random Points" icon={IconNames.PIVOT} />
+            <Button
+              active={selected_demo == 0}
+              outlined
+              large
+              fill
+              intent={selected_demo == 0 ? Intent.WARNING : Intent.NONE}
+              writer={state => {
+                state[MSGID.ATTRACTOR_SPECIES] = 0
+              }}
+              icon={IconNames.SHAPES}
+            >
+              BASIC MOVES
+            </Button>
 
-            {/* TODO: add a dividier and menu here for "Strange Attractors" */}
-            <Dropdown.Option value={10} text="Lorenz" icon={IconNames.DOT} />
-            <Dropdown.Option value={11} text="Thomas" icon={IconNames.DOT} />
-            <Dropdown.Option value={12} text="Aizawa" icon={IconNames.DOT} />
-            <Dropdown.Option value={13} text="Dadras" icon={IconNames.DOT} />
-            <Dropdown.Option value={14} text="Chen" icon={IconNames.DOT} />
-            <Dropdown.Option value={15} text="Rossler" icon={IconNames.DOT} />
-            <Dropdown.Option value={16} text="Halvorsen" icon={IconNames.DOT} />
-            <Dropdown.Option value={17} text="Rabinovich-Fabrikant" icon={IconNames.DOT} />
-            <Dropdown.Option value={18} text="Three Scroll" icon={IconNames.DOT} />
-            <Dropdown.Option value={19} text="Sprott" icon={IconNames.DOT} />
-            <Dropdown.Option value={20} text="FourWing" icon={IconNames.DOT} />
-          </Dropdown>
-        </NonIdealState>
+            <Button
+              active={selected_demo == 1}
+              outlined
+              disabled
+              large
+              fill
+              intent={selected_demo == 1 ? Intent.WARNING : Intent.NONE}
+              writer={state => {
+                state[MSGID.ATTRACTOR_SPECIES] = 1
+              }}
+              icon={IconNames.PIVOT}
+            >
+              RANDOM POINTS
+            </Button>
+          </Composition>
+
+          <p style={{ marginBottom: '0', opacity: '0.6' }}>
+            STRANGE ATTRACTORS
+          </p>
+          <Composition templateCols="1fr 1fr 1fr" gap={10} style={{ width: '100%' }}>
+            {strangeAttractors.map((attractor, index )=> (
+              <Button
+                key={index}
+                active={selected_demo == attractor.seqNum}
+                outlined
+                fill
+                intent={
+                  selected_demo == attractor.seqNum
+                    ? Intent.WARNING
+                    : Intent.NONE
+                }
+                writer={state => {
+                  state[MSGID.ATTRACTOR_SPECIES] = attractor.seqNum
+                }}
+                style={{ 
+                  gridColumnEnd: attractor.seqNum == 17 ? 'span 2' : '',
+                }}
+              >
+                {attractor.name.toLocaleUpperCase()}
+              </Button>
+            ))}
+          </Composition>
+        </Composition>
       </OutlineCard>
     </div>
   )

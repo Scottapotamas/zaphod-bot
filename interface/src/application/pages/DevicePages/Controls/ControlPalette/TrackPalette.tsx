@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { Composition } from 'atomic-layout'
+import { Composition, Box } from 'atomic-layout'
 import { MSGID } from 'src/application/typedState'
 import { OutlineCard } from 'src/application/components/OutlineCard'
 import { TwoAxisPad } from 'src/application/components/TwoAxisPad'
@@ -10,6 +10,10 @@ export const TrackPalette = () => {
     <div style={{ maxWidth: 'fit-content' }}>
       <OutlineCard padding="1rem">
         <Composition gap={10} templateCols="auto 1fr">
+          <Box>
+          <p style={{ textAlign: 'center', opacity: '0.6' }}>
+            XY
+          </p>
           <TwoAxisPad
             // TODO: will using actual current position for handle xy make it feel better or worse?
             x={state => state[MSGID.POSITION_TARGET].x}
@@ -31,7 +35,11 @@ export const TrackPalette = () => {
             yMin={-100}
             yMax={100}
           />
-
+          </Box>
+          <Box>
+          <p style={{ textAlign: 'center', opacity: '0.6' }}>
+            Z
+          </p>
           <TwoAxisPad
             // TODO: will using actual current position for handle xy make it feel better or worse?
             x={state => 0}
@@ -52,6 +60,7 @@ export const TrackPalette = () => {
             yMin={0}
             yMax={100}
           />
+          </Box>
         </Composition>
       </OutlineCard>
     </div>
