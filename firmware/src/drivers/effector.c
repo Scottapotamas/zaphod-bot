@@ -4,9 +4,12 @@
 #include <string.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
+
 #include "global.h"
 #include "average_short.h"
 #include "app_times.h"
+#include "app_signals.h"
+#include "event_subscribe.h"
 
 #include "kinematics.h"
 #include "clearpath.h"
@@ -93,21 +96,34 @@ effector_process( void )
     {
         JointAngles_t angle_target = { 0.0f, 0.0f, 0.0f }; // target motor shaft angle in degrees
 
-        // Calculate a motor angle solution for the cartesian position
-        kinematics_point_to_angle( requested_position, &angle_target );
-
         // Calculate the effector's distance change for this tick
-        uint32_t proposed_distance = cartesian_distance_between( &requested_position, &effector_position );
-        average_short_update( &movement_statistics, (uint16_t)proposed_distance );
+        uint32_t proposed_distance_um = cartesian_distance_between( &requested_position, &effector_position );
 
-        // Ask the motors to please move there
-        servo_set_target_angle_limited( _CLEARPATH_1, angle_target.a1 );
-        servo_set_target_angle_limited( _CLEARPATH_2, angle_target.a2 );
-        servo_set_target_angle_limited( _CLEARPATH_3, angle_target.a3 );
+        // Check the instantaneous (1ms) distance request won't exceed effector limits
+        // As microns/millisecond = millimeters/second, we can use take the mm/sec limit
+        if( proposed_distance_um > EFFECTOR_SPEED_LIMIT )
+        {
+            // Violations shouldn't reach the effector kinematics, so E-STOP immediately
+            //   motion requests from path planning shouldn't queue/plan over-speed moves!
+            eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
+        }
+        else    // under the speed limit
+        {
+            // Keep track of the distance change over time for speed stats
+            average_short_update( &movement_statistics, (uint16_t)proposed_distance_um );
 
-        memcpy( &effector_position, &requested_position, sizeof(CartesianPoint_t) );
-        memset( &requested_position, 0, sizeof(CartesianPoint_t));
-        new_target = false;
+            // Calculate a motor angle solution for the cartesian position
+            kinematics_point_to_angle( requested_position, &angle_target );
+
+            // Ask the motors to please move there
+            servo_set_target_angle_limited( _CLEARPATH_1, angle_target.a1 );
+            servo_set_target_angle_limited( _CLEARPATH_2, angle_target.a2 );
+            servo_set_target_angle_limited( _CLEARPATH_3, angle_target.a3 );
+
+            memcpy( &effector_position, &requested_position, sizeof(CartesianPoint_t) );
+            memset( &requested_position, 0, sizeof(CartesianPoint_t));
+            new_target = false;
+        }
     }
     else
     {
