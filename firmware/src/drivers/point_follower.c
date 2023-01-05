@@ -19,8 +19,11 @@
 #include "user_interface.h"
 #include "app_times.h"
 #include "timer_ms.h"
+#include "qassert.h"
 
 /* ----- Defines ------------------------------------------------------------ */
+
+DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 typedef enum
 {
@@ -59,17 +62,10 @@ point_follower_init( void )
 PUBLIC void
 point_follower_set_target( CartesianPoint_t *target )
 {
+    REQUIRE( target );
+
     PointFollower_t *me = &follower;
-
-    if( target )
-    {
-        memcpy( &me->requested, target, sizeof( CartesianPoint_t ) );
-    }
-    else
-    {
-        // TODO Assert on invalid input pointer?
-    }
-
+    memcpy( &me->requested, target, sizeof( CartesianPoint_t ) );
 }
 
 /* -------------------------------------------------------------------------- */

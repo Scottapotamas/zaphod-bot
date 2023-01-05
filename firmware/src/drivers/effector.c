@@ -10,6 +10,7 @@
 #include "app_times.h"
 #include "app_signals.h"
 #include "event_subscribe.h"
+#include "qassert.h"
 
 #include "kinematics.h"
 #include "clearpath.h"
@@ -20,13 +21,15 @@
 
 /* ----- Defines ------------------------------------------------------------ */
 
+DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
+
 /* ----- Private Variables -------------------------------------------------- */
 
-CartesianPoint_t effector_position;    // position of the end effector
-CartesianPoint_t requested_position;   // position we should try to reach in this tick
-bool new_target = false;
+PRIVATE CartesianPoint_t effector_position;    // position of the end effector
+PRIVATE CartesianPoint_t requested_position;   // position we should try to reach in this tick
+PRIVATE bool new_target = false;
 
-AverageShort_t movement_statistics;
+PRIVATE AverageShort_t movement_statistics;
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -56,17 +59,10 @@ effector_get_speed( void )
 PUBLIC void
 effector_request_target( CartesianPoint_t *position )
 {
-    // Copy it in with some dirty flag?
-    if( position )
-    {
-        memcpy( &requested_position, position, sizeof( CartesianPoint_t ) );
-        new_target = true;
-    }
-    else
-    {
-        // TODO Assert on invalid input pointer?
-    }
+    REQUIRE( position );
 
+    memcpy( &requested_position, position, sizeof( CartesianPoint_t ) );
+    new_target = true;
 }
 
 /* -------------------------------------------------------------------------- */

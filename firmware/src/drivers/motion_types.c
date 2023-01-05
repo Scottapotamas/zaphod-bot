@@ -8,8 +8,10 @@
 
 #include "app_times.h"
 #include "motion_types.h"
-
+#include "qassert.h"
 /* ----- Defines ------------------------------------------------------------ */
+
+DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 /* -------------------------------------------------------------------------- */
 
@@ -18,6 +20,8 @@
 PUBLIC mm_per_second_t
 cartesian_move_speed( Movement_t *movement )
 {
+    REQUIRE( movement );
+
     // microns-per-millisecond converts to millimeters-per-second with no numeric conversion
     // long live the metric system
     return cartesian_move_distance( movement ) / movement->duration;
@@ -29,6 +33,9 @@ cartesian_move_speed( Movement_t *movement )
 PUBLIC uint32_t
 cartesian_duration_for_speed( CartesianPoint_t *a, CartesianPoint_t *b, mm_per_second_t target_speed )
 {
+    REQUIRE( a );
+    REQUIRE( b );
+
     uint32_t distance = cartesian_distance_between( a, b );    // in microns
 
     // 1 mm/second is 1 micron/millisecond
@@ -40,6 +47,9 @@ cartesian_duration_for_speed( CartesianPoint_t *a, CartesianPoint_t *b, mm_per_s
 PUBLIC void
 cartesian_find_point_on_line( CartesianPoint_t *a, CartesianPoint_t *b, CartesianPoint_t *p, float weight )
 {
+    REQUIRE( a );
+    REQUIRE( b );
+
     p->x = a->x + ( ( b->x - a->x ) * weight );
     p->y = a->y + ( ( b->y - a->y ) * weight );
     p->z = a->z + ( ( b->z - a->z ) * weight );
@@ -50,7 +60,7 @@ cartesian_find_point_on_line( CartesianPoint_t *a, CartesianPoint_t *b, Cartesia
 PUBLIC void
 cartesian_point_rotate_around_z( CartesianPoint_t *a, float degrees )
 {
-    // TODO assert if null pointer is provided
+    REQUIRE( a );
 
     // Early exit if no rotation is required
     if( ( degrees <= 0.0f + FLT_EPSILON ) || ( degrees >= 360.0f - FLT_EPSILON ) )
@@ -156,37 +166,70 @@ cartesian_distance_linearisation_from_lut( uint32_t sync_offset, float progress 
 PUBLIC uint32_t
 cartesian_move_distance( Movement_t *movement )
 {
+    REQUIRE( movement );
+
     uint32_t distance = 0;
 
-    if( movement )
+    if( movement->type == _POINT_TRANSIT || movement->type == _LINE )
     {
-        if( movement->type == _POINT_TRANSIT || movement->type == _LINE )
-        {
-            // straight line 3D distance
-            distance = cartesian_distance_between( &movement->points[0], &movement->points[1] );
-        }
-        else
-        {
-            uint32_t         distance_sum   = 0;
-            CartesianPoint_t sample_point   = { 0, 0, 0 };
-            CartesianPoint_t previous_point = { 0, 0, 0 };
+        // straight line 3D distance
+        distance = cartesian_distance_between( &movement->points[0], &movement->points[1] );
+    }
+    else
+    {
+        uint32_t         distance_sum   = 0;
+        CartesianPoint_t sample_point   = { 0, 0, 0 };
+        CartesianPoint_t previous_point = { 0, 0, 0 };
 
-            // Copy the curve start point as the previous point, as first sample is non-zero
+        // Copy the curve start point as the previous point, as first sample is non-zero
+        switch( movement->type )
+        {
+            case _BEZIER_QUADRATIC:
+            case _BEZIER_QUADRATIC_LINEARISED:
+                memcpy( &previous_point, &movement->points[_QUADRATIC_START], sizeof( CartesianPoint_t ) );
+                break;
+
+            case _BEZIER_CUBIC:
+            case _BEZIER_CUBIC_LINEARISED:
+                memcpy( &previous_point, &movement->points[_CUBIC_START], sizeof( CartesianPoint_t ) );
+                break;
+
+            case _CATMULL_SPLINE:
+            case _CATMULL_SPLINE_LINEARISED:
+                memcpy( &previous_point, &movement->points[_CATMULL_START], sizeof( CartesianPoint_t ) );
+                break;
+
+            case _POINT_TRANSIT:
+            case _LINE:
+                // these shouldn't be solved by slice-summation
+                break;
+        }
+
+        // Copy the movements ID (sync timestamp) alongside metadata
+        move_metadata.id = movement->sync_offset;
+
+        // iteratively sum over a series of sampled positions
+        for( uint32_t i = 1; i <= SPEED_SAMPLE_RESOLUTION; i++ )
+        {
+            // convert the step into a 0-1 float for 'percentage across line' input
+            float sample_t = (float)i / SPEED_SAMPLE_RESOLUTION;
+
+            // sample the position of the effector using the relevant interp processor
             switch( movement->type )
             {
                 case _BEZIER_QUADRATIC:
                 case _BEZIER_QUADRATIC_LINEARISED:
-                    memcpy( &previous_point, &movement->points[_QUADRATIC_START], sizeof( CartesianPoint_t ) );
+                    cartesian_point_on_quadratic_bezier( movement->points, movement->num_pts, sample_t, &sample_point );
                     break;
 
                 case _BEZIER_CUBIC:
                 case _BEZIER_CUBIC_LINEARISED:
-                    memcpy( &previous_point, &movement->points[_CUBIC_START], sizeof( CartesianPoint_t ) );
+                    cartesian_point_on_cubic_bezier( movement->points, movement->num_pts, sample_t, &sample_point );
                     break;
 
                 case _CATMULL_SPLINE:
                 case _CATMULL_SPLINE_LINEARISED:
-                    memcpy( &previous_point, &movement->points[_CATMULL_START], sizeof( CartesianPoint_t ) );
+                    cartesian_point_on_catmull_spline( movement->points, movement->num_pts, sample_t, &sample_point );
                     break;
 
                 case _POINT_TRANSIT:
@@ -194,57 +237,24 @@ cartesian_move_distance( Movement_t *movement )
                     // these shouldn't be solved by slice-summation
                     break;
             }
-            
-            // Copy the movements ID (sync timestamp) alongside metadata
-            move_metadata.id = movement->sync_offset;
 
-            // iteratively sum over a series of sampled positions
-            for( uint32_t i = 1; i <= SPEED_SAMPLE_RESOLUTION; i++ )
-            {
-                // convert the step into a 0-1 float for 'percentage across line' input
-                float sample_t = (float)i / SPEED_SAMPLE_RESOLUTION;
+            // calculate distance between the previous sample and this sample
+            uint32_t dist = cartesian_distance_between( &previous_point, &sample_point );
 
-                // sample the position of the effector using the relevant interp processor
-                switch( movement->type )
-                {
-                    case _BEZIER_QUADRATIC:
-                    case _BEZIER_QUADRATIC_LINEARISED:
-                        cartesian_point_on_quadratic_bezier( movement->points, movement->num_pts, sample_t, &sample_point );
-                        break;
+            // add to the running distance sum
+            distance_sum += dist;
 
-                    case _BEZIER_CUBIC:
-                    case _BEZIER_CUBIC_LINEARISED:
-                        cartesian_point_on_cubic_bezier( movement->points, movement->num_pts, sample_t, &sample_point );
-                        break;
+            // Add to the movement lookup table used for speed linearisation
+            move_metadata.lut[i].progress = sample_t;
+            move_metadata.lut[i].distance = distance_sum;
 
-                    case _CATMULL_SPLINE:
-                    case _CATMULL_SPLINE_LINEARISED:
-                        cartesian_point_on_catmull_spline( movement->points, movement->num_pts, sample_t, &sample_point );
-                        break;
-
-                    case _POINT_TRANSIT:
-                    case _LINE:
-                        // these shouldn't be solved by slice-summation
-                        break;
-                }
-
-                // calculate distance between the previous sample and this sample
-                uint32_t dist = cartesian_distance_between( &previous_point, &sample_point );
-
-                // add to the running distance sum
-                distance_sum += dist;
-
-                // Add to the movement lookup table used for speed linearisation
-                move_metadata.lut[i].progress = sample_t;
-                move_metadata.lut[i].distance = distance_sum;
-
-                // this sample will be used as the previous point in the next loop
-                memcpy( &previous_point, &sample_point, sizeof( CartesianPoint_t ) );
-            }
-
-            distance = distance_sum;
+            // this sample will be used as the previous point in the next loop
+            memcpy( &previous_point, &sample_point, sizeof( CartesianPoint_t ) );
         }
+
+        distance = distance_sum;
     }
+
 
     return distance;
 }
@@ -253,17 +263,16 @@ cartesian_move_distance( Movement_t *movement )
 
 uint32_t cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b )
 {
+    REQUIRE( a );
+    REQUIRE( b );
+
     int32_t distance = 0;
 
-    // pointer null checks
-    if( a && b )
-    {
-        int32_t delta_x = a->x - b->x;
-        int32_t delta_y = a->y - b->y;
-        int32_t delta_z = a->z - b->z;
-        float   dist    = sqrtf( ( (float)delta_x * delta_x ) + ( (float)delta_y * delta_y ) + ( (float)delta_z * delta_z ) );
-        distance        = (int32_t)fabsf( dist );
-    }
+    int32_t delta_x = a->x - b->x;
+    int32_t delta_y = a->y - b->y;
+    int32_t delta_z = a->z - b->z;
+    float   dist    = sqrtf( ( (float)delta_x * delta_x ) + ( (float)delta_y * delta_y ) + ( (float)delta_z * delta_z ) );
+    distance        = (int32_t)fabsf( dist );
 
     return distance;
 }
@@ -276,6 +285,8 @@ uint32_t cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b )
 PUBLIC MotionSolution_t
 cartesian_plan_smoothed_line( Movement_t *movement, float start_weight, float end_weight )
 {
+    REQUIRE( movement );
+
     // Error checks - only accept lines with 2 points
     if( movement->type != _LINE || movement->num_pts != 2 )
     {
@@ -308,11 +319,8 @@ cartesian_plan_smoothed_line( Movement_t *movement, float start_weight, float en
 PUBLIC MotionSolution_t
 cartesian_point_on_line( CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output )
 {
-    if( points < 2 )
-    {
-        // need 2 points for a line
-        return SOLUTION_ERROR;
-    }
+    REQUIRE( p );
+    REQUIRE( points == 2 );
 
     // start and end of splines don't need calculation
     if( pos_weight <= 0.0f + FLT_EPSILON )
@@ -344,11 +352,8 @@ cartesian_point_on_line( CartesianPoint_t *p, size_t points, float pos_weight, C
 PUBLIC MotionSolution_t
 cartesian_point_on_catmull_spline( CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output )
 {
-    if( points < 4 )
-    {
-        // need 4 points for solution
-        return SOLUTION_ERROR;
-    }
+    REQUIRE( p );
+    REQUIRE( points == 4 );
 
     // start and end of splines don't need calculation as catmull curves _will_ pass through all points
     if( pos_weight <= 0.0f + FLT_EPSILON )
@@ -394,11 +399,8 @@ cartesian_point_on_catmull_spline( CartesianPoint_t *p, size_t points, float pos
 PUBLIC MotionSolution_t
 cartesian_point_on_quadratic_bezier( CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output )
 {
-    if( points < 3 )
-    {
-        // need 3 points for quadratic solution
-        return SOLUTION_ERROR;
-    }
+    REQUIRE( p );
+    REQUIRE( points == 3 );
 
     // start and end of bezier
     if( pos_weight <= 0.0f + FLT_EPSILON )
@@ -440,11 +442,8 @@ cartesian_point_on_quadratic_bezier( CartesianPoint_t *p, size_t points, float p
 PUBLIC MotionSolution_t
 cartesian_point_on_cubic_bezier( CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output )
 {
-    if( points < 4 )
-    {
-        // need 4 points for cubic solution
-        return SOLUTION_ERROR;
-    }
+    REQUIRE( p );
+    REQUIRE( points == 4 );
 
     // start and end of bezier
     if( pos_weight <= 0.0f + FLT_EPSILON )
@@ -489,11 +488,8 @@ cartesian_point_on_cubic_bezier( CartesianPoint_t *p, size_t points, float pos_w
 PUBLIC MotionSolution_t
 cartesian_point_on_spiral( CartesianPoint_t *p, size_t points, float pos_weight, CartesianPoint_t *output )
 {
-    if( points < 1 )
-    {
-        // need 2 points for quadratic solution
-        return SOLUTION_ERROR;
-    }
+    REQUIRE( p );
+    REQUIRE( points == 2 ); // need 2 points for quadratic solution?
 
     // start and end of the helix
     if( pos_weight <= 0.0f + FLT_EPSILON )
@@ -519,7 +515,7 @@ cartesian_point_on_spiral( CartesianPoint_t *p, size_t points, float pos_weight,
 
     // cache oft-used values to improve read-ability
     float t           = pos_weight;
-    float a           = 1.0f / numSpirals;
+    float a           = 1.0f / (float)numSpirals;
     float denominator = sqrtf( 1.0f + a * a * t * t );
 
     output->x = cosf( t ) / denominator;
