@@ -22,6 +22,7 @@ export enum NodeTypes {
   LIGHT = 'light',
   EMPTY = 'empty',
   EFFECTOR = 'effector',
+  GNODES_MESH = 'gnodes-mesh',
 }
 
 export type NodeID = string | number

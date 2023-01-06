@@ -3,6 +3,7 @@ import { GPencilToMovementsSettings } from './gpencil'
 import { LightToMovementsSettings } from './light'
 import { ParticlesToMovementsSettings } from './particles'
 import { EffectorToMovementSettings } from './effector'
+import { GNodesMeshToMovementsSettings } from './gnodes_mesh'
 
 const overwriteMerge = (destinationArray: any[], sourceArray: any[]) => sourceArray
 
@@ -20,6 +21,7 @@ export interface Settings {
     light: LightToMovementsSettings
     camera: CameraToMovementsSettings
     effector: EffectorToMovementSettings
+    gnodesMesh: GNodesMeshToMovementsSettings
   }
 
   // Per-object overrides
@@ -119,6 +121,12 @@ export function getToMovementSettings(
   overrideKeys: string[],
 ): EffectorToMovementSettings
 
+export function getToMovementSettings(
+  settings: Settings,
+  objType: 'gnodesMesh',
+  overrideKeys: string[],
+): GNodesMeshToMovementsSettings
+
 export function getToMovementSettings<
   ReturnType =
     | GPencilToMovementsSettings
@@ -126,9 +134,10 @@ export function getToMovementSettings<
     | LightToMovementsSettings
     | CameraToMovementsSettings
     | EffectorToMovementSettings
+    | GNodesMeshToMovementsSettings,
 >(
   settings: Settings,
-  objType: 'gpencil' | 'particles' | 'light' | 'camera' | 'effector',
+  objType: 'gpencil' | 'particles' | 'light' | 'camera' | 'effector' | 'gnodesMesh',
   overrideKeys: string[],
 ): ReturnType {
   let objSettings = settings.objectSettings[objType]

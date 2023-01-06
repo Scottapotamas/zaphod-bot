@@ -4,9 +4,17 @@ import { importParticles, Particles, ParticlesJSON } from './particles'
 import { importLight, Light, LightJSON } from './light'
 import { importEmpty, Empty, EmptyJSON } from './empty'
 import { Effector, EffectorJSON, importEffector } from './effector'
+import { GNodesMeshJSON, importGNodesMesh, GNodesMesh } from './gnodes_mesh'
 
-export type MovementJSON = GPencilJSON | ParticlesJSON | CameraJSON | LightJSON | EmptyJSON | EffectorJSON
-export type Renderable = GPencil | Particles | Camera | Light | Empty | Effector
+export type MovementJSON =
+  | GPencilJSON
+  | ParticlesJSON
+  | CameraJSON
+  | LightJSON
+  | EmptyJSON
+  | EffectorJSON
+  | GNodesMeshJSON
+export type Renderable = GPencil | Particles | Camera | Light | Empty | Effector | GNodesMesh
 
 export function importJson(json: MovementJSON): Renderable {
   switch (json.type) {
@@ -27,6 +35,9 @@ export function importJson(json: MovementJSON): Renderable {
 
     case 'effector':
       return importEffector(json)
+
+    case 'gn_mesh':
+      return importGNodesMesh(json)
 
     default:
       throw new Error(`Error importing movement, unknown type ${json['type']}`)

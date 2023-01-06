@@ -18,6 +18,7 @@ import { TreeNodeInfo } from '@blueprintjs/core'
 import { NodeID, NodeInfo } from './RenderableTree'
 import type { FRAME_STATE, ToolpathGenerator } from './../optimiser/main'
 import { GPencilOutputType } from '../optimiser/gpencil'
+import { GNodesMeshOutputType } from '../optimiser/gnodes_mesh'
 
 export const defaultSettings: Settings = {
   objectSettings: {
@@ -49,6 +50,9 @@ export const defaultSettings: Settings = {
     effector: {
       preWait: 250,
       postWait: 250,
+    },
+    gnodesMesh: {
+      outputType: GNodesMeshOutputType.LINE_GROUP,
     },
   },
 
