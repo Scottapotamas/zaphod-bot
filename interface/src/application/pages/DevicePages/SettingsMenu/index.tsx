@@ -17,6 +17,7 @@ import { GeneralSettings } from './General'
 import { InfoBlock } from './Info'
 import { LEDCalibrationBlock } from './LEDCalibrationBlock'
 import { PowerCalibrationBlock } from './PowerCalibrationBlock'
+import { ExpansionServoSettings } from './ExpansionServo'
 
 export const SettingsPage = () => {
   return (
@@ -26,6 +27,7 @@ export const SettingsPage = () => {
         <Tabs renderActiveTabPanelOnly>
           <Tabs.Expander />
           <Tab id="general" title="GENERAL" panel={<GeneralSettings />} />
+          <Tab id="expansion" title="EXPANSION" panel={<ExpansionServoSettings />} />
           <Tab id="info" title="INFO" panel={<InfoBlock />} />
           <Tab id="led" title="LED CALIBRATION" panel={<LEDCalibrationBlock />} />
           <Tab id="power" title="POWER CALIBRATION" panel={<PowerCalibrationBlock />} />
