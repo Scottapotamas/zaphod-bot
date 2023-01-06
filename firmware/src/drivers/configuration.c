@@ -212,6 +212,67 @@ configuration_get_led_wb_correction_enabled( void )
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC bool
+configuration_get_expansion_enabled( void )
+{
+    return user_configuration.flags.expansion_enabled;
+}
 
+PUBLIC uint8_t
+configuration_get_expansion_motion_type( void )
+{
+    return user_configuration.flags.expansion_type;
+}
+
+PUBLIC uint8_t
+configuration_get_expansion_feedback_mode( void )
+{
+    return user_configuration.flags.expansion_feedback;
+}
+
+PUBLIC bool
+configuration_get_expansion_homing_required( void )
+{
+    return user_configuration.flags.expansion_requires_homing;
+}
+
+PUBLIC bool
+configuration_get_expansion_reversed( void )
+{
+    return user_configuration.flags.expansion_reverse;
+}
+
+PUBLIC uint16_t
+configuration_get_expansion_servo_resolution( void )
+{
+    return user_configuration.values.expansion_resolution;
+}
+
+PUBLIC float
+configuration_get_expansion_output_ratio( void )
+{
+    return user_configuration.values.expansion_ratio;
+}
+
+PUBLIC int32_t
+configuration_get_expansion_limit_min( void )
+{
+    // TODO: What precision/ is needed here?
+    return 0;
+}
+
+PUBLIC int32_t
+configuration_get_expansion_limit_max( void )
+{
+    // TODO: What precision/ is needed here?
+    // TODO: How is non-symetrical points around homing handled?
+    return 0;
+}
+
+PUBLIC uint16_t
+configuration_get_expansion_speed_limit( void )
+{
+    return user_configuration.values.expansion_speed_limit;
+}
 
 /* ----- End ---------------------------------------------------------------- */

@@ -86,6 +86,47 @@ configuration_get_led_wb_correction_enabled( void );
 
 /* -------------------------------------------------------------------------- */
 
+///* Is the expansion servo functionality turned on (not actual servo status)
+PUBLIC bool
+configuration_get_expansion_enabled( void );
+
+///* Is the output a limited rotary, unlimited rotary or (implicitly limited) linear stage
+PUBLIC uint8_t
+configuration_get_expansion_motion_type( void );
+
+///* What kind of feedback signal will the expansion servo provide?
+PUBLIC uint8_t
+configuration_get_expansion_feedback_mode( void );
+
+///* Does the expansion servo require homing before use?
+PUBLIC bool
+configuration_get_expansion_homing_required( void );
+
+///* Should the expansion servo invert the direction of motion
+PUBLIC bool
+configuration_get_expansion_reversed( void );
+
+///* Returns the expansion servo's rotary resolution in steps/rotation
+PUBLIC uint16_t
+configuration_get_expansion_servo_resolution( void );
+
+///* Returns the gearing ration between the servo's shaft and the ultimate output stage
+PUBLIC float
+configuration_get_expansion_output_ratio( void );
+
+///* Returns the minimum position/angle limit
+PUBLIC int32_t
+configuration_get_expansion_limit_min( void );
+
+///* Returns the maximum position/angle limit
+PUBLIC int32_t
+configuration_get_expansion_limit_max( void );
+
+///* Returns the output velocity limit
+PUBLIC uint16_t
+configuration_get_expansion_speed_limit( void );
+
+
 /* ----- End ---------------------------------------------------------------- */
 
 #ifdef __cplusplus

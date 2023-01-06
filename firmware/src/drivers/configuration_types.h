@@ -21,7 +21,12 @@ typedef struct
     unsigned inverted : 1;
     unsigned boundary_violation_mode : 2;
     unsigned reserved: 8;
-    unsigned reserved_b2: 8;
+    unsigned expansion_enabled : 1;
+    unsigned expansion_type : 2;
+    unsigned expansion_feedback : 2;
+    unsigned expansion_requires_homing : 1;
+    unsigned expansion_reverse : 1;
+    unsigned expansion_reserved : 1;
     unsigned reserved_b3: 8;
 } SettingsBitfieldRenameMe_t;
 
@@ -31,9 +36,9 @@ typedef struct
     uint8_t speed_limit;
     uint8_t volume_radius;
     uint8_t volume_z;
-    uint8_t reserved_v1;
-    uint8_t reserved_v2;
-    uint8_t reserved_v3;
+    uint8_t expansion_resolution;
+    uint8_t expansion_ratio;
+    uint8_t expansion_speed_limit;
     uint8_t reserved_v4;
 } SettingsValuesRenameMe_t;
 

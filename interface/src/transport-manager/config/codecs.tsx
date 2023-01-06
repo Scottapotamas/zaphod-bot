@@ -519,7 +519,7 @@ export class UserConfigCodec extends Codec {
 
     let bitfield1 = 0x00;
     let bitfield2 = 0xAA;  // currently reserved
-    let bitfield3 = 0x55;  // currently reserved
+    let bitfield3 = 0x00;  // currently reserved
     let bitfield4 = 0xEE;  // currently reserved
 
     bitfield1 |= (payload.flags.buzzer_mute ? 1 : 0) 
@@ -529,6 +529,12 @@ export class UserConfigCodec extends Codec {
     bitfield1 |= ((payload.flags.pendant_light_enabled ? 1 : 0) << 4 )
     bitfield1 |= ((payload.flags.inverted ? 1 : 0) << 5 )
     bitfield1 |= (payload.flags.boundary_violation_mode << 6 )
+
+    bitfield3 |= (payload.flags.expansion_enabled ? 1 : 0) 
+    bitfield3 |= (payload.flags.expansion_type << 1 )
+    bitfield3 |= (payload.flags.expansion_feedback << 3 )
+    bitfield3 |= ((payload.flags.expansion_requires_homing ? 1 : 0) << 5 )
+    bitfield3 |= ((payload.flags.expansion_reverse ? 1 : 0) << 6 )
 
     packet.writeUInt8(bitfield1)
     packet.writeUInt8(bitfield2)
@@ -540,10 +546,11 @@ export class UserConfigCodec extends Codec {
     packet.writeUInt8(payload.values.volume_radius)
     packet.writeUInt8(payload.values.volume_z)
 
-     // currently reserved values
-    packet.writeUInt8(0xAA)
-    packet.writeUInt8(0xBB)
-    packet.writeUInt8(0xCC)
+    packet.writeUInt8(payload.values.expansion_resolution)
+    packet.writeUInt8(payload.values.expansion_ratio)
+    packet.writeUInt8(payload.values.expansion_speed_limit)
+
+    // currently reserved values
     packet.writeUInt8(0xDD)
 
     return packet.toBuffer()
@@ -565,7 +572,17 @@ export class UserConfigCodec extends Codec {
       pendant_verify_on_arm: ((b1 >> 3) & 0x01) == 1,
       pendant_light_enabled: ((b1 >> 4) & 0x01) == 1,
       inverted: ((b1 >> 5) & 0x01) == 1,
-      boundary_violation_mode: (b1 >> 6) & 0x03  //BOUNDARY_VIOLATION_MODES
+      boundary_violation_mode: (b1 >> 6) & 0x03,  //BOUNDARY_VIOLATION_MODES
+
+      // byte 2 left reserved
+
+      expansion_enabled: (b3 & 0x01) == 1,
+      expansion_type: ((b3 >> 1) & 0x03),       // EXPANSION_MOTION_TYPES;
+      expansion_feedback: ((b3 >> 3) & 0x03),   //EXPANSION_FEEDBACK_SIGNAL;
+      expansion_requires_homing: ((b3 >> 5) & 0x01) == 1,
+      expansion_reverse: ((b3 >> 6) & 0x01) == 1,
+
+      // byte 4 left reserved
     }
 
     let fields:UserConfigFields = {
@@ -573,11 +590,11 @@ export class UserConfigCodec extends Codec {
       speed_limit: reader.readUInt8()*SPEED_LIMIT_SCALE_FACTOR,
       volume_radius: reader.readUInt8(),
       volume_z: reader.readUInt8(),
+      expansion_resolution: reader.readUInt8(),
+      expansion_ratio: reader.readUInt8(),
+      expansion_speed_limit: reader.readUInt8(),
     }
 
-    let v1 = reader.readUInt8() // reserved value
-    let v2 = reader.readUInt8() // reserved value
-    let v3 = reader.readUInt8() // reserved value
     let v4 = reader.readUInt8() // reserved value
 
     return {

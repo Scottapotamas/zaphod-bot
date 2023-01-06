@@ -287,6 +287,20 @@ export enum BOUNDARY_VIOLATION_MODES {
   MODE_DISARM = 3,
 }
 
+export enum EXPANSION_MOTION_TYPES {
+  ROTARY_LIMITED = 0,
+  ROTARY_UNLIMITED = 1,
+  LINEAR = 2,
+  RESERVED = 3,
+}
+
+export enum EXPANSION_FEEDBACK_SIGNAL {
+  FEEDBACK_NONE = 0,
+  FEEDBACK_ALL_GOOD = 1,
+  FEEDBACK_TORQUE = 2,
+  RESERVED = 3,
+}
+
 export type UserConfigFlags = {
   buzzer_mute: boolean;
   effector_as_status_led: boolean;
@@ -295,6 +309,11 @@ export type UserConfigFlags = {
   pendant_light_enabled: boolean;
   inverted: boolean;
   boundary_violation_mode: BOUNDARY_VIOLATION_MODES;
+  expansion_enabled: boolean;
+  expansion_type: EXPANSION_MOTION_TYPES;
+  expansion_feedback: EXPANSION_FEEDBACK_SIGNAL;
+  expansion_requires_homing: boolean;
+  expansion_reverse: boolean;
 }
 
 // Only 8-bit rotation correction value is transmitted
@@ -307,6 +326,9 @@ export type UserConfigFields = {
   speed_limit: number;
   volume_radius: number;
   volume_z: number;
+  expansion_resolution: number;
+  expansion_ratio: number;
+  expansion_speed_limit: number;
 }
 
 export type UserConfig = {
