@@ -8,6 +8,7 @@ import React from 'react'
 import { navigate } from '@electricui/utility-electron'
 
 import MainWindow from './MainWindow'
+import { IconNames } from '@blueprintjs/icons'
 
 interface InjectDeviceIDFromLocation {
   deviceID?: string
@@ -24,13 +25,21 @@ export const DevicePages = (
     <React.Fragment>
       <DisconnectionModal
         intent={Intent.WARNING}
-        icon="satellite"
+        icon={IconNames.WARNING_SIGN}
         navigateToConnectionsScreen={() => navigate('/')}
+        disconnectText="DISCONNECT"
+        backText=""
       >
-        <p>
-          The communications link isn't stable. Attempting to recover the
-          connection...
-        </p>
+        <h2
+          style={{
+            textAlign: 'center',
+            fontWeight: 'initial',
+            opacity: '0.8',
+            marginTop: '0.25em',
+          }}
+        >
+          UNSTABLE COMMUNICATIONS
+        </h2>
       </DisconnectionModal>
 
       <div className="device-pages">

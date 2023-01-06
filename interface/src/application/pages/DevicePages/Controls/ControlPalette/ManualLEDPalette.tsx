@@ -91,7 +91,7 @@ const ManualLEDPalette = () => {
         }}
       >
         <HueSlider
-          height={30}
+          height={35}
           width={325}
           red={state => state[MSGID.LED_MANUAL_REQUEST].red * 255}
           green={state => state[MSGID.LED_MANUAL_REQUEST].green * 255}

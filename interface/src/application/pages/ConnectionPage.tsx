@@ -16,9 +16,9 @@ const CardInternals = () => {
 
   return (
     <React.Fragment>
-      <h3 className={Classes.HEADING}>{firmwareInfo.name}</h3>
+      <h3 className={Classes.HEADING}>{firmwareInfo.name.toUpperCase()}</h3>
       <div style={{ opacity: '0.5', fontSize: 'small' }}>
-        <b>{firmwareInfo.info}</b> on <b>{firmwareInfo.branch}</b>
+        <b>{firmwareInfo.info.toUpperCase()}</b> on <b>{firmwareInfo.branch.toUpperCase()}</b>
       </div>
       <div style={{ opacity: '0.5', fontSize: 'smaller' }}>
         {firmwareInfo.date} {firmwareInfo.time}
@@ -50,13 +50,14 @@ export const ConnectionPage = (props: RouteComponentProps) => {
         />
 
         <Button
+          outlined
           fill
           onClick={() => navigate(`/toolpaths/`)}
           style={{
             marginTop: '2em',
           }}
         >
-          Standalone Toolpath Viewer
+          STANDALONE TOOLPATH VIEWER
         </Button>
       </div>
     </Landing>

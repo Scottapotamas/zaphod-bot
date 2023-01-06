@@ -163,7 +163,7 @@ const ManualJogPalette = () => {
           intent={Intent.WARNING}
           min={0}
           max={300}
-          stepSize={25}
+          majorStepSize={25}
           rightElement={
             <Tag minimal intent={Intent.WARNING}>
               SPEED
@@ -177,7 +177,7 @@ const ManualJogPalette = () => {
           intent={Intent.SUCCESS}
           min={0}
           max={25}
-          stepSize={5}
+          majorStepSize={5}
           rightElement={
             <Tag minimal intent={Intent.SUCCESS}>
               JOG DISTANCE

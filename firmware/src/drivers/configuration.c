@@ -36,9 +36,9 @@ configuration_set_defaults( void )
 {
     led_calibration.correct_gamma = false;
     led_calibration.correct_wb    = true;
-    led_calibration.balance_red   = 0xFFFFU * 0.3f;
+    led_calibration.balance_red   = 0xFFFFU * 0.48f;
     led_calibration.balance_green = 0;
-    led_calibration.balance_blue  = 0xFFFF * 0.79f;
+    led_calibration.balance_blue  = 0xFFFF * 0.65f;
 
     user_configuration.values.z_rotation = 0;
     user_configuration.values.speed_limit = EFFECTOR_SPEED_LIMIT / 10;
