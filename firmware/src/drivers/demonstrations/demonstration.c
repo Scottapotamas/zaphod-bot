@@ -7,6 +7,7 @@
 #include "demonstration.h"
 #include "internal_sequence.h"
 #include "attractor_sequence.h"
+#include "random_points.h"
 
 #include "app_events.h"
 #include "app_signals.h"
@@ -97,9 +98,8 @@ demonstration_enqueue_moves( uint8_t max_moves_emitted )
             break;
 
             case 1:
-                // TODO: implement a random point-transit demo
-                //       pick a random valid point, generate a transit move with randomised velocity
-                //       generate a randomised delay before the next transit move
+                random_points_get_move( move_index_progress, &next_move );
+                move_index_progress += 1;
                 break;
 
             default:
