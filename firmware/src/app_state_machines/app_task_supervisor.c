@@ -589,12 +589,13 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
             STATE_TRAN( AppTaskSupervisor_arm_error );
             return 0;
 
-        case MECHANISM_REHOME:
-            // TODO: consider how this should be handled?
-            AppTaskSupervisorPublishRehomeEvent();
+        case MECHANISM_REHOME: {
+            CartesianPoint_t home = { 0, 0, 0 };
+            point_follower_set_target( &home );
+
             user_interface_reset_tracking_target();
             return 0;
-
+        }
         case MOTION_DISABLED:
             STATE_TRAN( AppTaskSupervisor_disarmed );
             return 0;
@@ -697,76 +698,25 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
 
             buzzer_sound( BUZZER_MODE_CHANGE_NUM, BUZZER_MODE_CHANGE_TONE, BUZZER_MODE_CHANGE_DURATION );
 
-            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
-
             eventTimerStartEvery( &me->timer1,
                                   (StateTask *)me,
                                   (StateEvent *)&stateEventReserved[STATE_TIMEOUT1_SIGNAL],
                                   MS_TO_TICKS( 50 ) );
-            return 0;
 
-        case STATE_STEP1_SIGNAL: {
-            CartesianPoint_t position = effector_get_position();
-
-            // Check to make sure the mechanism is near the home position before changing mode
-            if( position.x < MM_TO_MICRONS( 0.1 )
-                && position.y < MM_TO_MICRONS( 0.1 )
-                && position.z < MM_TO_MICRONS( 0.1 )
-                && path_interpolator_get_move_done() )
-            {
-                switch( me->requested_control_mode )
-                {
-                    case CONTROL_DEMO:
-                        STATE_TRAN( AppTaskSupervisor_armed_demo );
-                        break;
-
-                    case CONTROL_TRACK:
-                        STATE_TRAN( AppTaskSupervisor_armed_track );
-                        break;
-
-                    case CONTROL_EVENT:
-                        STATE_TRAN( AppTaskSupervisor_armed_event );
-                        break;
-
-                    case CONTROL_MANUAL:
-                        STATE_TRAN( AppTaskSupervisor_armed_manual );
-                        break;
-
-                    default:
-                        STATE_TRAN( AppTaskSupervisor_disarm_graceful );
-                        break;
-                }
-            }
-            else
-            {
-                // request a move to 0,0,0
-                MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
-                motev->move.type          = _POINT_TRANSIT;
-                motev->move.ref           = _POS_ABSOLUTE;
-                motev->move.sync_offset   = 0;
-                motev->move.duration      = 800;
-                motev->move.num_pts       = 1;
-                motev->move.points[0].x   = 0;
-                motev->move.points[0].y   = 0;
-                motev->move.points[0].z   = 0;
-
-                eventPublish( (StateEvent *)motev );
-
-                SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
-                timer_ms_stopwatch_start( &motor_sync->epoch );
-                eventPublish( (StateEvent *)motor_sync );
-            }
+            eventTimerStartOnce( &me->timer2,
+                                 (StateTask *)me,
+                                 (StateEvent *)&stateEventReserved[STATE_TIMEOUT2_SIGNAL],
+                                 MS_TO_TICKS( 5000 ) );
 
             return 0;
-        }
 
         case STATE_TIMEOUT1_SIGNAL: {
             CartesianPoint_t position = effector_get_position();
 
             // Check to make sure the mechanism is near the home position before changing mode
-            if( position.x < MM_TO_MICRONS( 0.1 )
-                && position.y < MM_TO_MICRONS( 0.1 )
-                && position.z < MM_TO_MICRONS( 0.1 )
+            if(    IS_IN_DEADBAND( position.x, 0, MM_TO_MICRONS( 0.1 ) )
+                && IS_IN_DEADBAND( position.y, 0, MM_TO_MICRONS( 0.1 ) )
+                && IS_IN_DEADBAND( position.z, 0, MM_TO_MICRONS( 0.1 ) )
                 && path_interpolator_get_move_done() )
             {
                 switch( me->requested_control_mode )
@@ -797,25 +747,16 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
                 // if the effector isn't moving, and isn't home, then issue another homing move
                 if( path_interpolator_get_move_done() )
                 {
-                    // request a move to 0,0,0
-                    MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
-                    motev->move.type          = _POINT_TRANSIT;
-                    motev->move.ref           = _POS_ABSOLUTE;
-                    motev->move.sync_offset   = 0;
-                    motev->move.duration      = 800;
-                    motev->move.num_pts       = 1;
-                    motev->move.points[0].x   = 0;
-                    motev->move.points[0].y   = 0;
-                    motev->move.points[0].z   = 0;
-
-                    eventPublish( (StateEvent *)motev );
-                    SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
-                    timer_ms_stopwatch_start( &motor_sync->epoch );
-                    eventPublish( (StateEvent *)motor_sync );
+                    AppTaskSupervisorPublishRehomeEvent();
                 }
             }
             return 0;
         }
+
+        case STATE_TIMEOUT2_SIGNAL:
+            // Didn't see valid behaviour after 5 seconds, something must be wrong
+            STATE_TRAN( AppTaskSupervisor_arm_error );
+            return 0;
 
         case MECHANISM_STOP:
             STATE_TRAN( AppTaskSupervisor_disarm_graceful );
@@ -831,6 +772,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
 
         case STATE_EXIT_SIGNAL:
             eventTimerStopIfActive( &me->timer1 );
+            eventTimerStopIfActive( &me->timer2 );
 
             buzzer_sound( BUZZER_MODE_CHANGED_NUM, BUZZER_MODE_CHANGED_TONE, BUZZER_MODE_CHANGED_DURATION );
             return 0;
@@ -869,28 +811,9 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
                                  MS_TO_TICKS( 5000 ) );
             return 0;
 
-        case STATE_STEP1_SIGNAL: {
-            // request a move to 0,0,0
-            MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
-
-            // transit to starting position
-            motev->move.type        = _POINT_TRANSIT;
-            motev->move.ref         = _POS_ABSOLUTE;
-            motev->move.duration    = 1500;
-            motev->move.num_pts     = 1;
-            motev->move.sync_offset = 0;
-
-            motev->move.points[0].x = 0;
-            motev->move.points[0].y = 0;
-            motev->move.points[0].z = 0;
-
-            eventPublish( (StateEvent *)motev );
-            SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
-            timer_ms_stopwatch_start( &motor_sync->epoch );
-            eventPublish( (StateEvent *)motor_sync );
-
+        case STATE_STEP1_SIGNAL:
+            AppTaskSupervisorPublishRehomeEvent();
             return 0;
-        }
 
         case STATE_TIMEOUT1_SIGNAL: {
             // get global position
@@ -898,9 +821,10 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
 
             // Check to make sure the mechanism is at the home position before disabling servo power
             // Allow a few microns error on position in check
-            if( position.x < MM_TO_MICRONS( 0.15 )
-                && position.y < MM_TO_MICRONS( 0.15 )
-                && position.z < MM_TO_MICRONS( 0.15 ) )
+            if(    IS_IN_DEADBAND( position.x, 0, MM_TO_MICRONS( 0.15 ) )
+                && IS_IN_DEADBAND( position.y, 0, MM_TO_MICRONS( 0.15 ) )
+                && IS_IN_DEADBAND( position.z, 0, MM_TO_MICRONS( 0.15 ) )
+                )
             {
                 // Todo use a 'quiet' disarm here rather than the hard emergency shutdown
                 eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
@@ -909,11 +833,10 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
             return 0;
         }
 
-        case STATE_TIMEOUT2_SIGNAL: {
+        case STATE_TIMEOUT2_SIGNAL:
             // Didn't see a full disarm within 5 seconds of starting the process, should have homed by now
             STATE_TRAN( AppTaskSupervisor_arm_error );
             return 0;
-        }
 
         case MOTION_DISABLED:
             STATE_TRAN( AppTaskSupervisor_disarmed );
@@ -962,7 +885,7 @@ PRIVATE void AppTaskSupervisorPublishRehomeEvent( void )
     MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
     motev->move.type          = _POINT_TRANSIT;
     motev->move.ref           = _POS_ABSOLUTE;
-    motev->move.duration      = 1500;
+    motev->move.duration      = 800;
     motev->move.sync_offset   = 0;
     motev->move.num_pts       = 1;
 
