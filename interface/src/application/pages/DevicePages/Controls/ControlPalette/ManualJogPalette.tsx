@@ -148,7 +148,7 @@ const JogPalette = (props: JogPaletteProps) => {
 }
 
 const ManualJogPalette = () => {
-  let [jog_speed, setJogSpeed] = useState(100) // mm/second
+  let [jog_speed, setJogSpeed] = useState(50) // mm/second
   let [jog_distance, setJogDistance] = useState(10.0) // mm
 
   let jog_duration = (jog_distance * 1000) / jog_speed // milliseconds
