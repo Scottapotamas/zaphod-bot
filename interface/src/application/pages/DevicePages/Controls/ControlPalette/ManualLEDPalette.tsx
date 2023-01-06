@@ -130,11 +130,12 @@ const ManualLEDPalette = () => {
               enable: true,
             }
           }}
-          style={{
+          {...
+          {style:{
             borderColor: swatch.hex ? `${swatch.hex}` : '',
             color: swatch.hex ? `${swatch.hex}` : '',
             // background: (swatch.hex)?`${swatch.hex}`:"",
-          }}
+          }}}
         >
           <b>{swatch.name.toUpperCase()}</b>
         </Button>

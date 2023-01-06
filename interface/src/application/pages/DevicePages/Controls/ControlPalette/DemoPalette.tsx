@@ -105,8 +105,10 @@ export const DemoPalette = () => {
                 writer={state => {
                   state[MSGID.ATTRACTOR_SPECIES] = attractor.seqNum
                 }}
-                style={{ 
-                  gridColumnEnd: attractor.seqNum == 17 ? 'span 2' : '',
+                {...{
+                  style: {
+                    gridColumnEnd: attractor.seqNum == 17 ? 'span 2' : '',
+                  },
                 }}
               >
                 {attractor.name.toLocaleUpperCase()}

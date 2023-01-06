@@ -23,7 +23,6 @@ export const ModeSelection = () => {
           writer={state => {
             state[MSGID.MODE_REQUEST] = 1
           }}
-          
         >
           JOG
         </Button>
