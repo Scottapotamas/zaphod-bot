@@ -73,23 +73,27 @@ typedef struct
     HalAdcInput_t    adc_current;
     HalGpioPortPin_t pin_oc_fault;
 
+} ServoHardware_t;
+
+typedef struct
+{
+
     bool requires_homing;
 
-} ServoHardware_t;
+} ServoConfiguration_t;
 
 /* ----- Private Variables -------------------------------------------------- */
 
 PRIVATE Servo_t clearpath[_NUMBER_CLEARPATH_SERVOS];
 
-PRIVATE const ServoHardware_t ServoHardwareMap[] = {
+PRIVATE const ServoHardware_t ServoHardwareMap[_NUMBER_CLEARPATH_SERVOS] = {
     [_CLEARPATH_1] = { .pin_enable      = _SERVO_1_ENABLE,
                        .pin_direction   = _SERVO_1_A,
                        .pin_step        = _SERVO_1_B,
                        .pin_feedback    = _SERVO_1_HLFB,
                        .ic_feedback     = HAL_IC_HARD_HLFB_SERVO_1,
                        .adc_current     = HAL_ADC_INPUT_M1_CURRENT,
-                       .pin_oc_fault    = _SERVO_1_CURRENT_FAULT,
-                       .requires_homing = true },
+                       .pin_oc_fault    = _SERVO_1_CURRENT_FAULT },
 
     [_CLEARPATH_2] = { .pin_enable      = _SERVO_2_ENABLE,
                        .pin_direction   = _SERVO_2_A,
@@ -97,8 +101,7 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] = {
                        .pin_feedback    = _SERVO_2_HLFB,
                        .ic_feedback     = HAL_IC_HARD_HLFB_SERVO_2,
                        .adc_current     = HAL_ADC_INPUT_M2_CURRENT,
-                       .pin_oc_fault    = _SERVO_2_CURRENT_FAULT,
-                       .requires_homing = true },
+                       .pin_oc_fault    = _SERVO_2_CURRENT_FAULT },
 
     [_CLEARPATH_3] = { .pin_enable      = _SERVO_3_ENABLE,
                        .pin_direction   = _SERVO_3_A,
@@ -106,8 +109,7 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] = {
                        .pin_feedback    = _SERVO_3_HLFB,
                        .ic_feedback     = HAL_IC_HARD_HLFB_SERVO_3,
                        .adc_current     = HAL_ADC_INPUT_M3_CURRENT,
-                       .pin_oc_fault    = _SERVO_3_CURRENT_FAULT,
-                       .requires_homing = true },
+                       .pin_oc_fault    = _SERVO_3_CURRENT_FAULT },
 
 
     [_CLEARPATH_4] = { .pin_enable    = _SERVO_4_ENABLE,
@@ -116,8 +118,15 @@ PRIVATE const ServoHardware_t ServoHardwareMap[] = {
                        .pin_feedback  = _SERVO_4_HLFB,
                        .ic_feedback   = HAL_IC_HARD_HLFB_SERVO_4,
                        .adc_current   = HAL_ADC_INPUT_M4_CURRENT,
-                       .pin_oc_fault  = _SERVO_4_CURRENT_FAULT,
-                       .requires_homing = false },
+                       .pin_oc_fault  = _SERVO_4_CURRENT_FAULT },
+};
+
+PRIVATE const ServoConfiguration_t ServoConfig[_NUMBER_CLEARPATH_SERVOS] = {
+
+    [_CLEARPATH_1] = { .requires_homing = true, },
+    [_CLEARPATH_2] = { .requires_homing = true, },
+    [_CLEARPATH_3] = { .requires_homing = true, },
+    [_CLEARPATH_4] = { .requires_homing = true, },
 };
 
 PRIVATE float servo_get_hlfb_percent( ClearpathServoInstance_t servo );
@@ -376,7 +385,7 @@ servo_process( ClearpathServoInstance_t servo )
                 // Check that the corrected feedback value with our trim is pretty close to zero
                 if( -0.5f < servo_feedback && servo_feedback < 0.5f )
                 {
-                    if( ServoHardwareMap[servo].requires_homing )
+                    if( ServoConfig[servo].requires_homing )
                     {
                         STATE_NEXT( SERVO_STATE_HOMING_FIND_ENDSTOP );
                     }
