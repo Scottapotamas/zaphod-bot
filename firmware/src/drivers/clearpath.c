@@ -161,9 +161,9 @@ PRIVATE float servo_get_hlfb_percent_corrected( ClearpathServoInstance_t servo )
 
 PRIVATE bool servo_get_connected_estimate( ClearpathServoInstance_t servo );
 
-PRIVATE int16_t convert_angle_steps( float kinematics_shoulder_angle );
+PRIVATE int16_t convert_angle_steps( ClearpathServoInstance_t servo, float angle );
 
-PRIVATE float convert_steps_angle( int16_t steps );
+PRIVATE float convert_steps_angle( ClearpathServoInstance_t servo, int16_t steps );
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -219,7 +219,7 @@ servo_set_target_angle_limited( ClearpathServoInstance_t servo, float angle_degr
 
     if( angle_degrees > ServoConfig[servo].angle_min && angle_degrees < ServoConfig[servo].angle_max )
     {
-        me->angle_target_steps = convert_angle_steps( angle_degrees );
+        me->angle_target_steps = convert_angle_steps( servo, angle_degrees );
     }
 }
 
@@ -232,6 +232,7 @@ servo_set_target_angle_raw( ClearpathServoInstance_t servo, float angle_degrees 
     Servo_t *me = &clearpath[servo];
     user_interface_motor_target_angle( servo, angle_degrees );
 
+    // TODO fix/rework obsolete
     const uint32_t steps_per_degree = ( 400 / SERVO_ANGLE_PER_REV );
     me->angle_target_steps          = steps_per_degree * angle_degrees;
 }
@@ -243,7 +244,7 @@ servo_get_current_angle( ClearpathServoInstance_t servo )
 {
     Servo_t *me = &clearpath[servo];
 
-    return convert_steps_angle( me->angle_current_steps );
+    return convert_steps_angle( servo, me->angle_current_steps );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -263,7 +264,7 @@ servo_get_steps_per_second( ClearpathServoInstance_t servo )
 PUBLIC float
 servo_get_degrees_per_second( ClearpathServoInstance_t servo )
 {
-    return convert_steps_angle( servo_get_steps_per_second( servo ) );
+    return convert_steps_angle( servo, servo_get_steps_per_second( servo ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -542,7 +543,7 @@ servo_process( ClearpathServoInstance_t servo )
                     // The servo's internal homing procedure can be configured to move to a position after homing
                     // This angle is what this system would interpret that position as
                     float home_angle = ServoConfig[servo].angle_at_home;
-                    me->angle_current_steps = convert_angle_steps( home_angle );
+                    me->angle_current_steps = convert_angle_steps( servo, home_angle );
                     user_interface_motor_target_angle( servo, home_angle );    // update UI with angles before a target is sent in
 
                     // Goal position needs to be the current position at init, or a large commanded move would occur
@@ -722,9 +723,10 @@ servo_process( ClearpathServoInstance_t servo )
  * The servo's range is approx 2300 counts.
  */
 PRIVATE int16_t
-convert_angle_steps( float kinematics_shoulder_angle )
+convert_angle_steps( ClearpathServoInstance_t servo, float angle )
 {
-    float  converted_angle = ( kinematics_shoulder_angle + SERVO_MIN_ANGLE ) * SERVO_STEPS_PER_DEGREE;
+    float steps_per_degree = (float)ServoConfig[servo].steps_per_revolution / SERVO_ANGLE_PER_REV;
+    float converted_angle  = ( angle + ServoConfig[servo].angle_min ) * steps_per_degree;
     return (int16_t)converted_angle;
 }
 
@@ -734,9 +736,10 @@ convert_angle_steps( float kinematics_shoulder_angle )
  * Convert a motor position in steps to an angle in the motor reference frame (not kinematics shoulder angle)
  */
 PRIVATE float
-convert_steps_angle( int16_t steps )
+convert_steps_angle( ClearpathServoInstance_t servo, int16_t steps )
 {
-    float steps_to_angle = (float)steps / SERVO_STEPS_PER_DEGREE;
+    float steps_per_degree = (float)ServoConfig[servo].steps_per_revolution / SERVO_ANGLE_PER_REV;
+    float steps_to_angle = (float)steps / steps_per_degree;
     return steps_to_angle;
 }
 
