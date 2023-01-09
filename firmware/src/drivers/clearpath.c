@@ -77,8 +77,12 @@ typedef struct
 
 typedef struct
 {
-
     bool requires_homing;
+    uint32_t steps_per_revolution;
+    float ratio;
+    float angle_min;
+    float angle_max;
+    float angle_at_home;
 
 } ServoConfiguration_t;
 
@@ -122,11 +126,33 @@ PRIVATE const ServoHardware_t ServoHardwareMap[_NUMBER_CLEARPATH_SERVOS] = {
 };
 
 PRIVATE const ServoConfiguration_t ServoConfig[_NUMBER_CLEARPATH_SERVOS] = {
+    [_CLEARPATH_1] = {  .requires_homing      = true,
+                        .steps_per_revolution = SERVO_STEPS_PER_REV,
+                        .ratio                = 1,
+                        .angle_min            = SERVO_MIN_ANGLE,
+                        .angle_max            = SERVO_MAX_ANGLE,
+                        .angle_at_home        = -42.0f },
 
-    [_CLEARPATH_1] = { .requires_homing = true, },
-    [_CLEARPATH_2] = { .requires_homing = true, },
-    [_CLEARPATH_3] = { .requires_homing = true, },
-    [_CLEARPATH_4] = { .requires_homing = true, },
+    [_CLEARPATH_2] = {  .requires_homing      = true,
+                       .steps_per_revolution = SERVO_STEPS_PER_REV,
+                       .ratio                = 1,
+                       .angle_min            = SERVO_MIN_ANGLE,
+                       .angle_max            = SERVO_MAX_ANGLE,
+                       .angle_at_home        = -42.0f },
+
+    [_CLEARPATH_3] = {  .requires_homing      = true,
+                       .steps_per_revolution = SERVO_STEPS_PER_REV,
+                       .ratio                = 1,
+                       .angle_min            = SERVO_MIN_ANGLE,
+                       .angle_max            = SERVO_MAX_ANGLE,
+                       .angle_at_home        = -42.0f },
+
+    [_CLEARPATH_4] = {  .requires_homing      = false,
+                       .steps_per_revolution = 0,
+                       .ratio                = 0,
+                       .angle_min            = 0,
+                       .angle_max            = 0,
+                       .angle_at_home        = 0 },
 };
 
 PRIVATE float servo_get_hlfb_percent( ClearpathServoInstance_t servo );
@@ -191,7 +217,7 @@ servo_set_target_angle_limited( ClearpathServoInstance_t servo, float angle_degr
 
     user_interface_motor_target_angle( servo, angle_degrees );
 
-    if( angle_degrees > ( SERVO_MIN_ANGLE * -1 ) && angle_degrees < SERVO_MAX_ANGLE )
+    if( angle_degrees > ServoConfig[servo].angle_min && angle_degrees < ServoConfig[servo].angle_max )
     {
         me->angle_target_steps = convert_angle_steps( angle_degrees );
     }
@@ -513,10 +539,15 @@ servo_process( ClearpathServoInstance_t servo )
                 // Check we've maintained this level for a minimum amount of time
                 if( timer_ms_stopwatch_lap( &me->timer ) > SERVO_HOMING_SIMILARITY_MS )
                 {
-                    me->angle_current_steps = convert_angle_steps( -42.0f );
-                    user_interface_motor_target_angle( servo, -42.0f );    // update UI with angles before a target is sent in
+                    // The servo's internal homing procedure can be configured to move to a position after homing
+                    // This angle is what this system would interpret that position as
+                    float home_angle = ServoConfig[servo].angle_at_home;
+                    me->angle_current_steps = convert_angle_steps( home_angle );
+                    user_interface_motor_target_angle( servo, home_angle );    // update UI with angles before a target is sent in
 
+                    // Goal position needs to be the current position at init, or a large commanded move would occur
                     me->angle_target_steps = me->angle_current_steps;
+
                     STATE_NEXT( SERVO_STATE_IDLE );
                 }
             }
