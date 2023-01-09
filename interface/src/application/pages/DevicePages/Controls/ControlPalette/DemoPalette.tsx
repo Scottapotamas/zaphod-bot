@@ -74,7 +74,6 @@ export const DemoPalette = () => {
             <Button
               active={selected_demo == 1}
               outlined
-              disabled
               large
               fill
               intent={selected_demo == 1 ? Intent.WARNING : Intent.NONE}
