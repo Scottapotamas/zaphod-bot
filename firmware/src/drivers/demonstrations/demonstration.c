@@ -38,7 +38,16 @@ demonstration_init( uint8_t selected_demo )
     }
     else
     {
-        internal_sequence_init();
+        switch( demo_to_run )
+        {
+            case 0:
+                internal_sequence_init();
+                break;
+            case 1:
+                random_points_init();
+                break;
+
+        }
     }
 }
 
