@@ -1,9 +1,11 @@
 import React, { useCallback } from 'react'
 
-import { Vector3 } from 'three'
-import { ColorPicker as ReactColorPicker, toColor, Color, useColor } from 'react-color-palette'
-import { Classes, Popover2 } from '@blueprintjs/popover2'
-import { Button } from '@blueprintjs/core'
+import {
+  ColorPicker as ReactColorPicker,
+  Color,
+  useColor,
+} from 'react-color-palette'
+import { Popover2 } from '@blueprintjs/popover2'
 import { RGB, RGBA } from '../optimiser/movements'
 
 interface ColorPickerProps {

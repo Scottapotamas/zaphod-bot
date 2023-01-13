@@ -1,17 +1,16 @@
 import { MathUtils, Vector3 } from 'three'
-import { VisualisationSettings } from '../../interface/state'
-import { Settings } from '../../optimiser/settings'
+import type { VisualisationSettings } from '../../interface/state'
+import type { Settings } from '../../optimiser/settings'
 import { PlannerLightMove, LightMoveType } from './../hardware'
-import {
+import type {
   AddComponentCallback,
   AddLineCallback,
   Movement,
-  MOVEMENT_TYPE,
   RGBA,
 } from './../movements'
+import { MOVEMENT_TYPE } from './../movement_types'
 import { Material } from './Base'
 import { Tag } from '@blueprintjs/core'
-import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
 import {
   generateHtmlTagFromAveragePosition,

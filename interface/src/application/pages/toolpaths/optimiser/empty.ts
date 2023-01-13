@@ -1,7 +1,7 @@
 import { NodeInfo, NodeTypes } from '../interface/RenderableTree'
-import { TreeNodeInfo } from '@blueprintjs/core'
-import { Renderable } from './import'
-import { Settings } from './settings'
+import type { TreeNodeInfo } from '@blueprintjs/core'
+import type { Renderable } from './import'
+import type { Settings } from './settings'
 import { IconNames } from '@blueprintjs/icons'
 
 export interface EmptyToMovementsSettings {}

@@ -1,5 +1,5 @@
-import { VisualisationSettings } from '../../interface/state'
-import { Settings } from '../../optimiser/settings'
+import type { VisualisationSettings } from '../../interface/state'
+import type { Settings } from '../../optimiser/settings'
 import { PlannerLightMove } from './../hardware'
 import { AddComponentCallback, AddLineCallback, Movement } from './../movements'
 import { Material } from './Base'

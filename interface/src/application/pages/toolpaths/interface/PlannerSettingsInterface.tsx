@@ -1,25 +1,19 @@
 import {
   Alignment,
-  Button,
-  Card,
   Checkbox as BlueprintCheckbox,
-  FormGroup,
   NumericInput as BlueprintNumericInput,
   Slider,
-  Switch,
   Tag,
   Tab,
   Tabs,
-  TabId,
   Intent,
-  Keys,
   Icon,
 } from '@blueprintjs/core'
 import { IconName, IconNames } from '@blueprintjs/icons'
 
-import { PlacementOptions, Popover2, Tooltip2 } from '@blueprintjs/popover2'
+import { Tooltip2 } from '@blueprintjs/popover2'
 
-import { Composition, Box } from 'atomic-layout'
+import { Composition } from 'atomic-layout'
 
 import React, { useCallback, useState, useEffect } from 'react'
 

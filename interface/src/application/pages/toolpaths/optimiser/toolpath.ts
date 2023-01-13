@@ -6,7 +6,7 @@ import {
   MovementMoveReference,
   MovementMoveType,
 } from '../../../../application/typedState'
-import { Settings } from './settings'
+import type { Settings } from './settings'
 import { getMaterialOverride, VisualisationSettings } from '../interface/state'
 import { Vector3 } from 'three'
 import { importMaterial } from './material'

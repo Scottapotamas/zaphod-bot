@@ -1,6 +1,6 @@
 import { Colors } from '@blueprintjs/core'
 
-import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react'
+import React, { useCallback, useEffect, useRef, useMemo } from 'react'
 
 import {
   ChartContainer,
@@ -15,7 +15,6 @@ import { FrameProgressUpdate, ToolpathGenerator } from '../optimiser/main'
 import { importFolder, renderablesToMovements } from '../optimiser/files'
 import { DataSource, Event, EventBatch, PersistenceEnginePassthrough } from '@electricui/timeseries'
 import { timing } from '@electricui/timing'
-import { Settings } from '../optimiser/settings'
 
 import {
   getCurrentSettings,
@@ -28,7 +27,7 @@ import {
   markClean,
   changeState,
 } from './state'
-import { Movement, SerialisedTour } from '../optimiser/movements'
+import { Movement } from '../optimiser/movements'
 import { Renderable } from '../optimiser/import'
 import { renderablesToSceneTree } from './RenderableTree'
 

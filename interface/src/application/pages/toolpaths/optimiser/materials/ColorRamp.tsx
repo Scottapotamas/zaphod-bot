@@ -1,13 +1,12 @@
-import { VisualisationSettings } from '../../interface/state'
-import { Settings } from '../../optimiser/settings'
-import { Movement, RGB, RGBA } from './../movements'
+import type { VisualisationSettings } from '../../interface/state'
+import type { Settings } from '../../optimiser/settings'
+import type { Movement, RGBA } from './../movements'
 import { Material } from './Base'
-import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
 import { lerpRGBA, MATERIALS } from './utilities'
 import { Vector3 } from 'three'
 import { ColorPicker } from '../../interface/ColorPicker'
-import { Composition, Box } from 'atomic-layout'
+import { Composition } from 'atomic-layout'
 
 export interface ColorRampMaterialJSON {
   type: MATERIALS.COLOR_RAMP

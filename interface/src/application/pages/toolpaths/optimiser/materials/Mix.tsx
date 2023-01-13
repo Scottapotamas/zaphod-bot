@@ -1,12 +1,12 @@
 import { MathUtils, Vector3 } from 'three'
-import { VisualisationSettings } from '../../interface/state'
-import { Settings } from '../settings'
+import type { VisualisationSettings } from '../../interface/state'
+import type { Settings } from '../settings'
 import { PlannerLightMove } from '../hardware'
 import { AddComponentCallback, AddLineCallback, Movement } from '../movements'
 import { Material } from './Base'
 
 import { annotateDrawOrder, MATERIALS } from './utilities'
-import { importMaterial, MaterialJSON } from '../material'
+import { MaterialJSON } from '../material'
 
 export interface MixMaterialJSON {
   type: MATERIALS.MIX

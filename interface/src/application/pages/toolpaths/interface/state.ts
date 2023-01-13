@@ -1,29 +1,26 @@
 import create, { GetState, SetState, StateSelector } from 'zustand'
 import { StoreApiWithSubscribeWithSelector, subscribeWithSelector } from 'zustand/middleware'
-import produce, { Draft } from 'immer'
-import { Settings } from '../optimiser/settings'
-import { Quaternion, Vector3 } from 'three'
+import produce from 'immer'
+import type { Settings } from '../optimiser/settings'
 
 import { importMaterial, MaterialJSON } from '../optimiser/material'
-import { Material } from '../optimiser/materials/Base'
+import type { Material } from '../optimiser/materials/Base'
 import { useCallback } from 'react'
-import { Renderable } from '../optimiser/import'
-import { GLOBAL_OVERRIDE_OBJECT_ID, Movement, SerialisedTour } from '../optimiser/movements'
-import shallow from 'zustand/shallow'
-import { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
-import { PerspectiveCamera as PerspectiveCameraImpl } from 'three'
-import { ObjectNameTree } from '../optimiser/files'
-import { WritableDraft } from 'immer/dist/internal'
-import { TreeNodeInfo } from '@blueprintjs/core'
-import { NodeID, NodeInfo } from './RenderableTree'
+import type { Renderable } from '../optimiser/import'
+import type { Movement, SerialisedTour } from '../optimiser/movements'
+import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
+import type { PerspectiveCamera as PerspectiveCameraImpl } from 'three'
+import type { WritableDraft } from 'immer/dist/internal'
+import type { TreeNodeInfo } from '@blueprintjs/core'
+import type { NodeID, NodeInfo } from './RenderableTree'
 import type { FRAME_STATE, ToolpathGenerator } from './../optimiser/main'
-import { GPencilOutputType } from '../optimiser/gpencil'
-import { GNodesMeshOutputType } from '../optimiser/gnodes_mesh'
+import type { GPencilOutputType } from '../optimiser/gpencil'
+import type { GNodesMeshOutputType } from '../optimiser/gnodes_mesh'
 
 export const defaultSettings: Settings = {
   objectSettings: {
     gpencil: {
-      outputType: GPencilOutputType.LINE_GROUP,
+      outputType: 1 as GPencilOutputType.LINE_GROUP, // circular dep
       simplificationTolerance: 0,
     },
     particles: {
@@ -52,7 +49,7 @@ export const defaultSettings: Settings = {
       postWait: 250,
     },
     gnodesMesh: {
-      outputType: GNodesMeshOutputType.LINE_GROUP,
+      outputType: 1 as GNodesMeshOutputType.LINE_GROUP, // circular dep
     },
   },
 
@@ -180,7 +177,7 @@ export interface Store {
   }
 
   hardwareMode: string
-  
+
   // Tree view store
   treeStore: {
     tree: TreeNodeInfo<NodeInfo>[]
@@ -234,7 +231,7 @@ export interface Store {
   settingsDirty: boolean
 }
 
-const initialState: Store = {
+export const initialState: Store = {
   folder: null,
 
   // Serialised

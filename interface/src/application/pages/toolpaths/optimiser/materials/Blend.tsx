@@ -1,36 +1,15 @@
-import { Card, Icon, IconName } from '@blueprintjs/core'
-import React, { useCallback, useState } from 'react'
-import {
-  findNodeWithID,
-  NodeID,
-  NodeTypes,
-} from './../../interface/RenderableTree'
+import React, { useCallback } from 'react'
 
-import { Button, MenuItem } from '@blueprintjs/core'
-import { ItemRenderer, Select } from '@blueprintjs/select'
 import { MATERIALS } from './utilities'
-import { getDefaultJSONForType, MaterialJSON } from '../material'
-import { IconNames } from '@blueprintjs/icons'
-import { ColorMaterialEditor, ColorMaterialJSON } from './Color'
-import { ColorRampMaterialEditor, ColorRampMaterialJSON } from './ColorRamp'
-import { InvisibleMaterialEditor, InvisibleMaterialJSON } from './Invisible'
-import { VelocityMaterialEditor, VelocityMaterialJSON } from './Velocity'
-import { RandomColorMaterialEditor, RandomColorMaterialJSON } from './Random'
-import { FlickerMaterialEditor, FlickerMaterialJSON } from './Flicker'
-import { ZDepthMaterialEditor, ZDepthMaterialJSON } from './ZDepth'
-import { ZGradientMaterialEditor, ZGradientMaterialJSON } from './ZGradient'
+import { MaterialJSON } from '../material'
 
 import { MathUtils, Vector3 } from 'three'
-import { Settings } from '../../optimiser/settings'
+import type { Settings } from '../../optimiser/settings'
 import { importMaterial } from '../material'
-import { PlannerLightMove } from './../hardware'
 import { Movement, RGB, RGBA } from './../movements'
 import { Material } from './Base'
 
-import { VisualisationSettings } from '../../interface/state'
-import { ColorPicker } from '../../interface/ColorPicker'
-
-import { annotateDrawOrder } from './utilities'
+import type { VisualisationSettings } from '../../interface/state'
 import {
   MaterialSelector,
   MaterialEditor,
@@ -38,7 +17,7 @@ import {
   calculateInitialMaterialJSON,
   Spacer,
 } from '../../interface/MaterialSelector'
-import { Composition, Box } from 'atomic-layout'
+import { Composition } from 'atomic-layout'
 
 export enum BlendMode {
   NORMAL = 'normal',
@@ -155,7 +134,7 @@ export interface BlendMaterialEditorProps {
   mutateJson: (writer: (json: BlendMaterialJSON) => void) => void
 }
 
-interface MaterialSelectorProps { }
+interface MaterialSelectorProps {}
 
 const materialEditorStyle = {
   display: 'grid',

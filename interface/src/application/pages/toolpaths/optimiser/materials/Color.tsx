@@ -1,16 +1,12 @@
-import { VisualisationSettings } from '../../interface/state'
-import { Settings } from '../../optimiser/settings'
-import { Movement, RGB, RGBA } from './../movements'
+import type { VisualisationSettings } from '../../interface/state'
+import type { Settings } from '../../optimiser/settings'
+import type { Movement, RGBA } from './../movements'
 import { Material } from './Base'
-import { NodeID } from '../../interface/RenderableTree'
-import React, { useCallback } from 'react'
+import React from 'react'
 import { MATERIALS } from './utilities'
 import { Vector3 } from 'three'
-import { Classes, Popover2 } from '@blueprintjs/popover2'
-import { Button } from '@blueprintjs/core'
-import { Store } from '../../interface/state'
 import { ColorPicker } from '../../interface/ColorPicker'
-import { Composition, Box } from 'atomic-layout'
+import { Composition } from 'atomic-layout'
 
 export interface ColorMaterialJSON {
   type: MATERIALS.COLOR

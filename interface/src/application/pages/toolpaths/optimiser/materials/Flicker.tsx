@@ -1,10 +1,9 @@
-import { RGB, RGBA } from './../movements'
+import { RGBA } from './../movements'
 import { Material } from './Base'
-import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
 import { lerpRGBA, MATERIALS } from './utilities'
 import { ColorPicker } from '../../interface/ColorPicker'
-import { Composition, Box } from 'atomic-layout'
+import { Composition } from 'atomic-layout'
 
 export interface FlickerMaterialJSON {
   type: MATERIALS.FLICKER

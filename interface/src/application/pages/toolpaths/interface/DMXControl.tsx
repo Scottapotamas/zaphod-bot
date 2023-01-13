@@ -2,7 +2,6 @@ import React from 'react'
 import {
   useDeviceIDByMetadata,
   DeviceIDContextProvider,
-  useDeviceIDByTransportKey,
   usePollForDevices,
   useDeviceDisconnect,
   useDeviceConnect,

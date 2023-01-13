@@ -1,7 +1,7 @@
 import { MovementJSON } from './import'
 import { Progress } from './passes'
 import { SerialisedTour } from './movements'
-import { Settings } from './settings'
+import type { Settings } from './settings'
 import { spawn, Pool, Worker, ModuleThread } from 'threads'
 import type { OptimisationWorker } from './workers/worker'
 

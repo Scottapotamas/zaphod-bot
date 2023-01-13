@@ -7,8 +7,17 @@ import { importMaterial, MaterialJSON } from './material'
 import { isSimpleColorMaterial, SimpleColorMaterial } from './materials/Color'
 import { ColorRampMaterial } from './materials/ColorRamp'
 import { lerpRGBA } from './materials/utilities'
-import { Point, Movement, Line, MovementGroup, RGB, CatmullChain, RGBA } from './movements'
-import { getShouldSkip, getToMovementSettings, Settings } from './settings'
+import {
+  Point,
+  Movement,
+  Line,
+  MovementGroup,
+  RGB,
+  CatmullChain,
+  RGBA,
+} from './movements'
+import { getShouldSkip, getToMovementSettings } from './settings'
+import type { Settings } from './settings'
 import { InvisibleMaterialDefaultJSON } from './materials/Invisible'
 
 export class GPencilLayer {

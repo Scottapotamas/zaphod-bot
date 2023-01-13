@@ -1,15 +1,17 @@
 import { TreeNodeInfo } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
-import { Line3, Vector3 } from 'three'
+import { Vector3 } from 'three'
 import { NodeInfo, NodeTypes } from '../interface/RenderableTree'
-import { ObjectNameTree } from './files'
-import { importMaterial, MaterialJSON } from './material'
-import { isSimpleColorMaterial, SimpleColorMaterial } from './materials/Color'
 import { ColorRampMaterial } from './materials/ColorRamp'
-import { lerpRGBA } from './materials/utilities'
-import { Point, Movement, Line, MovementGroup, RGB, CatmullChain, RGBA } from './movements'
+import {
+  Movement,
+  Line,
+  MovementGroup,
+  RGB,
+  CatmullChain,
+  RGBA,
+} from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
-import { InvisibleMaterialDefaultJSON } from './materials/Invisible'
 
 export interface GNodesMeshVertex {
   id: string

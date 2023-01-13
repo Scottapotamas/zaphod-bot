@@ -19,13 +19,13 @@ import {
   TRANSITION_OBJECT_ID,
 } from './movements'
 
-import { Settings } from './settings'
+import type { Settings } from './settings'
 import { Line3, MathUtils, Vector3 } from 'three'
 import { defaultTransitionMaterial } from './material'
 import { MixMaterial } from './materials/Mix'
 import xxhash, { XXHash } from 'xxhash-wasm'
 import { Permutor } from './permutor'
-import assert from 'assert'
+import { RemapMaterial } from './materials/Remap'
 
 /**
  * Flatten any grouped movements into simple movements

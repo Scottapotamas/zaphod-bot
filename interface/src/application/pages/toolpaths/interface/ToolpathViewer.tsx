@@ -1,8 +1,8 @@
-import { Button, Card } from '@blueprintjs/core'
+import { Button } from '@blueprintjs/core'
 import { Composition } from 'atomic-layout'
 import { RouteComponentProps } from '@reach/router'
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React from 'react'
 import { navigate } from '@electricui/utility-electron'
 
 import { OutlineCard } from 'src/application/components/OutlineCard'
@@ -13,8 +13,6 @@ import { Optimiser } from './Optimiser'
 import { PlannerSettingsInterface } from './PlannerSettingsInterface'
 import { RenderInterface } from './RenderInterface'
 import { ToolpathVisualisation } from './ToolpathVisualisation'
-import { RenderableTree } from './RenderableTree'
-import { MaterialEditorInterface } from './MaterialEditorInterface'
 
 export const ToolpathViewer = (props: RouteComponentProps) => {
   return (

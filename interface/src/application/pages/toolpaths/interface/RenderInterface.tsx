@@ -1,4 +1,4 @@
-import { Card, FormGroup, Intent, MultiSlider, Slider, Button, ButtonProps, Colors } from '@blueprintjs/core'
+import { FormGroup, Intent, MultiSlider, Slider, Button, ButtonProps, Colors } from '@blueprintjs/core'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Composition, Box } from 'atomic-layout'

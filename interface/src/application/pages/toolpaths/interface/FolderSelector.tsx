@@ -1,6 +1,6 @@
-import { Button, Intent, ButtonGroup } from '@blueprintjs/core'
+import { Button, Intent } from '@blueprintjs/core'
 
-import React, { useCallback, useEffect, useRef, useState } from 'react'
+import React, { useCallback, useState } from 'react'
 import { OPEN_DIALOG_IPC_EVENT } from '@electricui/utility-electron'
 import { ipcRenderer, OpenDialogOptions } from 'electron'
 

@@ -1,8 +1,14 @@
 import { MathUtils, Vector3 } from 'three'
-import { VisualisationSettings } from '../../interface/state'
-import { Settings } from '../../optimiser/settings'
+import type { VisualisationSettings } from '../../interface/state'
+import type { Settings } from '../../optimiser/settings'
 import { LightMoveType, PlannerLightMove } from './../hardware'
-import { AddComponentCallback, AddLineCallback, Movement, MOVEMENT_TYPE, RGBA } from './../movements'
+import { MOVEMENT_TYPE } from './../movement_types'
+import type {
+  AddComponentCallback,
+  AddLineCallback,
+  Movement,
+  RGBA,
+} from './../movements'
 import { annotateDrawOrder, rgbToHsi } from './utilities'
 
 /**

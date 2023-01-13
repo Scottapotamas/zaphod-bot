@@ -1,9 +1,9 @@
-import { CameraToMovementsSettings } from './camera'
-import { GPencilToMovementsSettings } from './gpencil'
-import { LightToMovementsSettings } from './light'
-import { ParticlesToMovementsSettings } from './particles'
-import { EffectorToMovementSettings } from './effector'
-import { GNodesMeshToMovementsSettings } from './gnodes_mesh'
+import type { CameraToMovementsSettings } from './camera'
+import type { GPencilToMovementsSettings } from './gpencil'
+import type { LightToMovementsSettings } from './light'
+import type { ParticlesToMovementsSettings } from './particles'
+import type { EffectorToMovementSettings } from './effector'
+import type { GNodesMeshToMovementsSettings } from './gnodes_mesh'
 
 const overwriteMerge = (destinationArray: any[], sourceArray: any[]) => sourceArray
 

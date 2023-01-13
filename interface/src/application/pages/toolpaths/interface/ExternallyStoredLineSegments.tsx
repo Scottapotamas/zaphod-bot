@@ -2,7 +2,7 @@ import * as React from 'react'
 
 import { Color, Vector2 } from 'three'
 
-import { RGB, RGBA, XYZ } from '../optimiser/movements'
+import { RGBA } from '../optimiser/movements'
 import { LineMaterial, LineSegmentsGeometry, Line2 } from 'three-stdlib'
 import { lerpRGBA } from '../optimiser/materials/utilities'
 

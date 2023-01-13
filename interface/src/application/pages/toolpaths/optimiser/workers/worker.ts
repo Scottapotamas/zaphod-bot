@@ -10,7 +10,7 @@ import {
   Progress,
   sparseToDense,
 } from '../passes'
-import { Settings } from '../settings'
+import type { Settings } from '../settings'
 
 let progressUpdates = new Subject<Progress>()
 

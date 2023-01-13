@@ -1,24 +1,18 @@
 import { CatmullRomCurve3, CubicBezierCurve3, MathUtils, Vector3 } from 'three'
 import { defaultTransitionMaterial } from './material'
 import { Material } from '../optimiser/materials/Base'
-import { PlannerMovementMove, MovementMoveReference, MovementMoveType } from './hardware'
+import {
+  PlannerMovementMove,
+  MovementMoveReference,
+  MovementMoveType,
+} from './hardware'
 import { TriggerCall, TriggerType } from './triggers'
+import { MOVEMENT_TYPE } from './movement_types'
 
 import React from 'react'
 
 export const TRANSITION_OBJECT_ID = '__transition'
 export const GLOBAL_OVERRIDE_OBJECT_ID = '__all'
-
-export enum MOVEMENT_TYPE {
-  GROUP = 'movementgroup',
-  LINE = 'line',
-  POINT = 'point',
-  TRANSITION = 'transition',
-  POINT_TRANSITION = 'point_transition',
-  INTER_LINE_TRANSITION = 'inter_line_transition',
-  TRANSIT = 'transit',
-  CATMULL_CHAIN = 'catmull_chain',
-}
 
 const defaultSpeed = 30 // mm/s
 export const MILLISECONDS_IN_SECOND = 1000

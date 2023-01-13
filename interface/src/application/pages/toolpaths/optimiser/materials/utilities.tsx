@@ -1,17 +1,15 @@
 import { MathUtils, Vector3 } from 'three'
 import { NodeID } from '../../interface/RenderableTree'
 import { useStore, VisualisationSettings } from '../../interface/state'
-import {
-  AddComponentCallback,
-  Movement,
-  MOVEMENT_TYPE,
-  RGBA,
-} from '../movements'
+import type { AddComponentCallback, Movement, RGBA } from '../movements'
+
+import { MOVEMENT_TYPE } from './../movement_types'
+
 import { Intent, Tag } from '@blueprintjs/core'
 import { Html } from '@react-three/drei'
 import React from 'react'
 
-export enum MATERIALS {
+export const enum MATERIALS {
   DEFAULT = 'default', // used for overrides to indicate no override
   COLOR = 'color',
   COLOR_RAMP = 'color_ramp',

@@ -1,12 +1,6 @@
-import { Card, Icon, IconName } from '@blueprintjs/core'
-import React, { useCallback, useState } from 'react'
-import { findNodeWithID, NodeID, NodeTypes } from './RenderableTree'
-import {
-  getSetting,
-  incrementViewportFrameVersion,
-  setSetting,
-  useStore,
-} from './state'
+import React, { useCallback } from 'react'
+import { findNodeWithID, NodeTypes } from './RenderableTree'
+import { incrementViewportFrameVersion, setSetting, useStore } from './state'
 import { MaterialJSON } from '../optimiser/material'
 import { EmptyViewer } from './EmptyViewer'
 

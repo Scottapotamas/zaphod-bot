@@ -1,13 +1,18 @@
 import { MathUtils, Vector3 } from 'three'
-import { Settings } from '../../optimiser/settings'
+import type { Settings } from '../../optimiser/settings'
 import { PlannerLightMove, LightMoveType } from './../hardware'
-import { AddComponentCallback, AddLineCallback, Movement, MOVEMENT_TYPE, RGB, RGBA } from './../movements'
+import type {
+  AddComponentCallback,
+  AddLineCallback,
+  Movement,
+  RGBA,
+} from './../movements'
+import { MOVEMENT_TYPE } from './../movement_types'
 import { Material } from './Base'
-import { NodeID } from '../../interface/RenderableTree'
 import React from 'react'
 import { annotateDrawOrder, MATERIALS } from './utilities'
-import { VisualisationSettings } from '../../interface/state'
-import { Composition, Box } from 'atomic-layout'
+import type { VisualisationSettings } from '../../interface/state'
+import { Composition } from 'atomic-layout'
 
 import { ColorPicker } from '../../interface/ColorPicker'
 export interface InvisibleMaterialJSON {
