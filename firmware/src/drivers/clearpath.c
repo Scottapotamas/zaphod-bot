@@ -53,8 +53,8 @@ typedef struct
     float      ic_feedback_trim;
     float      homing_feedback;
     timer_ms_t timer;
-    int16_t    angle_current_steps;
-    int16_t    angle_target_steps;
+    int32_t    angle_current_steps;
+    int32_t    angle_target_steps;
 
     AverageShort_t step_statistics;
     bool       presence_detected;
@@ -163,9 +163,9 @@ PRIVATE float servo_get_hlfb_percent_corrected( ClearpathServoInstance_t servo )
 
 PRIVATE bool servo_get_connected_estimate( ClearpathServoInstance_t servo );
 
-PRIVATE int16_t convert_angle_steps( ClearpathServoInstance_t servo, float angle );
+PRIVATE int32_t convert_angle_steps( ClearpathServoInstance_t servo, float angle );
 
-PRIVATE float convert_steps_angle( ClearpathServoInstance_t servo, int16_t steps );
+PRIVATE float convert_steps_angle( ClearpathServoInstance_t servo, int32_t steps );
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -662,7 +662,7 @@ servo_process( ClearpathServoInstance_t servo )
             STATE_ENTRY_ACTION
 
             STATE_TRANSITION_TEST
-            int16_t step_difference = me->angle_current_steps - me->angle_target_steps;
+            int32_t step_difference = me->angle_current_steps - me->angle_target_steps;
 
             // Command rotation to move towards the target position
             if( step_difference != 0 )
@@ -681,7 +681,7 @@ servo_process( ClearpathServoInstance_t servo )
                     step_direction = 1;
                 }
 
-                uint16_t pulses_needed = step_difference * step_direction;
+                uint32_t pulses_needed = step_difference * step_direction;
 
                 if( pulses_needed > 8 )
                 {
@@ -693,7 +693,7 @@ servo_process( ClearpathServoInstance_t servo )
                     status_yellow( false );
                 }
 
-                for( uint16_t pulses = 0; pulses < pulses_needed; pulses++ )
+                for( uint32_t pulses = 0; pulses < pulses_needed; pulses++ )
                 {
                     hal_gpio_toggle_pin( ServoHardwareMap[servo].pin_step );
                     hal_delay_us( SERVO_PULSE_DURATION_US );
@@ -702,7 +702,7 @@ servo_process( ClearpathServoInstance_t servo )
                     me->angle_current_steps = me->angle_current_steps + ( step_direction * -1 );
                 }
 
-                // Track movemement requests over time for velocity estimate
+                // Track movement requests over time for velocity estimate
                 average_short_update( &me->step_statistics, pulses_needed );
             }
             else
@@ -745,14 +745,14 @@ servo_process( ClearpathServoInstance_t servo )
  * therefore we need to convert the angle into steps, and apply the adequate offset.
  * The servo's range is approx 2300 counts.
  */
-PRIVATE int16_t
+PRIVATE int32_t
 convert_angle_steps( ClearpathServoInstance_t servo, float angle )
 {
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
 
     float steps_per_degree = (float)ServoConfig[servo].steps_per_revolution / SERVO_ANGLE_PER_REV;
     float converted_angle  = ( angle + ServoConfig[servo].angle_min ) * steps_per_degree;
-    return (int16_t)converted_angle;
+    return (int32_t)converted_angle;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -761,10 +761,10 @@ convert_angle_steps( ClearpathServoInstance_t servo, float angle )
  * Convert a motor position in steps to an angle in the motor reference frame (not kinematics shoulder angle)
  */
 PRIVATE float
-convert_steps_angle( ClearpathServoInstance_t servo, int16_t steps )
+convert_steps_angle( ClearpathServoInstance_t servo, int32_t steps )
 {
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
-    
+
     float steps_per_degree = (float)ServoConfig[servo].steps_per_revolution / SERVO_ANGLE_PER_REV;
     float steps_to_angle = (float)steps / steps_per_degree;
     return steps_to_angle;
