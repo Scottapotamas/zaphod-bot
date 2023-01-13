@@ -80,6 +80,7 @@ typedef struct
 typedef struct
 {
     bool requires_homing;
+    bool reverse_direction;
     uint32_t steps_per_revolution;
     float ratio;
     float angle_min;
@@ -128,28 +129,32 @@ PRIVATE const ServoHardware_t ServoHardwareMap[_NUMBER_CLEARPATH_SERVOS] = {
 };
 
 PRIVATE const ServoConfiguration_t ServoConfig[_NUMBER_CLEARPATH_SERVOS] = {
-    [_CLEARPATH_1] = {  .requires_homing      = true,
-                        .steps_per_revolution = SERVO_STEPS_PER_REV,
-                        .ratio                = 1,
-                        .angle_min            = SERVO_MIN_ANGLE,
-                        .angle_max            = SERVO_MAX_ANGLE,
-                        .angle_at_home        = -42.0f },
-
-    [_CLEARPATH_2] = {  .requires_homing      = true,
+    [_CLEARPATH_1] = { .requires_homing      = true,
+                       .reverse_direction    = false,
                        .steps_per_revolution = SERVO_STEPS_PER_REV,
                        .ratio                = 1,
-                       .angle_min            = SERVO_MIN_ANGLE,
+                       .angle_min            = -1*SERVO_MIN_ANGLE,
                        .angle_max            = SERVO_MAX_ANGLE,
                        .angle_at_home        = -42.0f },
 
-    [_CLEARPATH_3] = {  .requires_homing      = true,
+    [_CLEARPATH_2] = { .requires_homing      = true,
+                       .reverse_direction    = false,
                        .steps_per_revolution = SERVO_STEPS_PER_REV,
                        .ratio                = 1,
-                       .angle_min            = SERVO_MIN_ANGLE,
+                       .angle_min            = -1*SERVO_MIN_ANGLE,
                        .angle_max            = SERVO_MAX_ANGLE,
                        .angle_at_home        = -42.0f },
 
-    [_CLEARPATH_4] = {  .requires_homing      = false,
+    [_CLEARPATH_3] = { .requires_homing      = true,
+                       .reverse_direction    = false,
+                       .steps_per_revolution = SERVO_STEPS_PER_REV,
+                       .ratio                = 1,
+                       .angle_min            = -1*SERVO_MIN_ANGLE,
+                       .angle_max            = SERVO_MAX_ANGLE,
+                       .angle_at_home        = -42.0f },
+
+    [_CLEARPATH_4] = { .requires_homing      = false,
+                       .reverse_direction    = false,
                        .steps_per_revolution = 0,
                        .ratio                = 0,
                        .angle_min            = 0,
@@ -667,19 +672,12 @@ servo_process( ClearpathServoInstance_t servo )
             // Command rotation to move towards the target position
             if( step_difference != 0 )
             {
-                int8_t step_direction;
+                // Command direction is calculated by finding the polarity of the target error
+                // then XOR with the user's configuration to support 'flipping' direction
+                bool direction_ccw = ( me->angle_current_steps > me->angle_target_steps ) ^ ServoConfig[servo].reverse_direction;
+                int8_t step_direction = ( direction_ccw ) ? 1 : -1;
 
-                // Command the target direction
-                if( me->angle_current_steps < me->angle_target_steps )
-                {
-                    hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, SERVO_DIR_CW );
-                    step_direction = -1;
-                }
-                else
-                {
-                    hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, SERVO_DIR_CCW );
-                    step_direction = 1;
-                }
+                hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, direction_ccw );
 
                 uint32_t pulses_needed = step_difference * step_direction;
 
