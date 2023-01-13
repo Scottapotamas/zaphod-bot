@@ -25,6 +25,7 @@
   "dependencies": {
     "@blueprintjs/popover2": "^1.5.1",
     "@electricui/helpers": "0.9.5-c51b47ac3",
+    "madge": "^5.0.1",
     "react-color-palette": "^6.2.0",
     "source-map-support": "0.5.16",
     "three-stdlib": "^2.6.4",
@@ -199,6 +200,7 @@
     "dev": "electricui-build-tools dev",
     "setup": "arc install-electron && yarn sdks vscode",
     "start": "electricui-build-tools dev"
+    "circular": "madge ./src/application/index.tsx --circular --image graph.svg"
   },
   "templateChannel": "latest",
   "templateName": "electron",
