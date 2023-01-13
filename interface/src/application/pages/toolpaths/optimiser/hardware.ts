@@ -6,7 +6,7 @@ export enum MovementMoveType {
   BEZIER_QUADRATIC,
   BEZIER_QUADRATIC_LINEARISED,
   BEZIER_CUBIC,
-  BEZIER_CUBIC_LINEARISED
+  BEZIER_CUBIC_LINEARISED,
 }
 
 export enum MovementMoveReference {

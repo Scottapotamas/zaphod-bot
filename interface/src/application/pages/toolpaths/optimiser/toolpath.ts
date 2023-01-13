@@ -47,7 +47,9 @@ export function toolpath(
     const movementStartTime = movementTimestamp
 
     // Accumulate 'start' triggers
-    const movementTriggersOnStart = movementTriggers.filter(trigger => trigger.align === TriggerAlignment.START)
+    const movementTriggersOnStart = movementTriggers.filter(
+      trigger => trigger.align === TriggerAlignment.START,
+    )
 
     for (const trigger of movementTriggersOnStart) {
       triggers.push({
@@ -73,7 +75,9 @@ export function toolpath(
     }
 
     // Accumulate middle and end triggers, apply timestamp
-    const movementTriggersOnMiddle = movementTriggers.filter(trigger => trigger.align === TriggerAlignment.MIDDLE)
+    const movementTriggersOnMiddle = movementTriggers.filter(
+      trigger => trigger.align === TriggerAlignment.MIDDLE,
+    )
 
     for (const trigger of movementTriggersOnMiddle) {
       triggers.push({
@@ -82,7 +86,9 @@ export function toolpath(
       })
     }
 
-    const movementTriggersOnEnd = movementTriggers.filter(trigger => trigger.align === TriggerAlignment.END)
+    const movementTriggersOnEnd = movementTriggers.filter(
+      trigger => trigger.align === TriggerAlignment.END,
+    )
 
     for (const trigger of movementTriggersOnEnd) {
       triggers.push({
@@ -92,12 +98,26 @@ export function toolpath(
     }
 
     // Get the material override
-    const globalMaterialOverride = visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
-      ? importMaterial(visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID])
+    const globalMaterialOverride = visualisationSettings
+      .objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
+      ? importMaterial(
+          visualisationSettings.objectMaterialOverrides[
+            GLOBAL_OVERRIDE_OBJECT_ID
+          ],
+        )
       : null
 
-    let material = globalMaterialOverride ? globalMaterialOverride : movement.material
-    material = getMaterialOverride(visualisationSettings, movement.material, movement.overrideKeys)
+    let material = globalMaterialOverride
+      ? globalMaterialOverride
+      : movement.material
+    material = getMaterialOverride(
+      visualisationSettings,
+      movement.material,
+      movement.overrideKeys,
+    )
+
+    const startT = 0
+    const endT = 1
 
     // Accumulate the light fades
     for (const lightMove of material.generateLightpath(
@@ -105,8 +125,8 @@ export function toolpath(
       settings,
       visualisationSettings,
       cameraPosition,
-      0, // from start
-      1, // to end
+      startT,
+      endT,
     )) {
       if (lightMove.duration === 0) {
         // zero duration fades are dumped

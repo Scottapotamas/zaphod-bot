@@ -52,7 +52,10 @@ const emptyOverrideKeys: string[] = []
 /**
  * Add transition movements between each move
  */
-export function sparseToDense(sparseBag: Movement[], settings: Settings): DenseMovements {
+export function sparseToDense(
+  sparseBag: Movement[],
+  settings: Settings,
+): DenseMovements {
   if (sparseBag.length === 0) {
     // If there are no moves, return an empty dense bag
     return declareDense([])
@@ -71,17 +74,26 @@ export function sparseToDense(sparseBag: Movement[], settings: Settings): DenseM
 
   const denseMovements: DenseMovements = declareDense([previousMovement])
 
+  // Reset optimisation states and max speeds of everything
   for (let index = 0; index < flattened.length; index++) {
     const movement = flattened[index]
 
-    // Reset line lengths, etc
+    // Reset line lengths, the material etc
     movement.resetOptimisationState()
 
     // Set the max speed of the movement so velocities are scaled
     movement.setMaxSpeed(settings.optimisation.maxSpeed)
+  }
+
+  // Then do the optimisation pass
+  for (let index = 0; index < flattened.length; index++) {
+    const movement = flattened[index]
 
     // If the previous movement was a transit to the correct place for this movement, don't do a second transition
-    if (isTransit(previousMovement) && previousMovement.getEnd().distanceTo(movement.getStart()) < 1) {
+    if (
+      isTransit(previousMovement) &&
+      previousMovement.getEnd().distanceTo(movement.getStart()) < 1
+    ) {
       // Add the movement to the dense bag
       denseMovements.push(movement)
 
@@ -92,7 +104,11 @@ export function sparseToDense(sparseBag: Movement[], settings: Settings): DenseM
 
     // If the last movement and this movement are both lines, and the line from the start of the previous movement to the end of the next movement
     // contains the start and end points of both lines (they are collinear), then the transition should be a straight line between them
-    if (settings.optimisation.smoothInterlineTransitions && isLine(previousMovement) && isLine(movement)) {
+    if (
+      settings.optimisation.smoothInterlineTransitions &&
+      isLine(previousMovement) &&
+      isLine(movement)
+    ) {
       const line = new Line3(previousMovement.getStart(), movement.getEnd())
 
       const closestPME = new Vector3()
@@ -101,7 +117,10 @@ export function sparseToDense(sparseBag: Movement[], settings: Settings): DenseM
       line.closestPointToPoint(previousMovement.getEnd(), true, closestPME)
       line.closestPointToPoint(movement.getStart(), true, closestMS)
 
-      if (closestPME.distanceTo(previousMovement.getEnd()) < 1 && closestMS.distanceTo(movement.getStart()) < 1) {
+      if (
+        closestPME.distanceTo(previousMovement.getEnd()) < 1 &&
+        closestMS.distanceTo(movement.getStart()) < 1
+      ) {
         const interLineTransition = new Line(
           previousMovement.getEnd(),
           movement.getStart(),
@@ -135,12 +154,8 @@ export function sparseToDense(sparseBag: Movement[], settings: Settings): DenseM
         .getExpectedExitVelocity()
         .clone()
         .normalize()
-        .angleTo(
-          movement
-            .getDesiredEntryVelocity()
-            .clone()
-            .normalize(),
-        ) < MathUtils.degToRad(settings.optimisation.interLineTransitionAngle)
+        .angleTo(movement.getDesiredEntryVelocity().clone().normalize()) <
+        MathUtils.degToRad(settings.optimisation.interLineTransitionAngle)
     ) {
       // Shrink the end of the previousLine
       // Shrink the start of the current line
@@ -148,15 +163,78 @@ export function sparseToDense(sparseBag: Movement[], settings: Settings): DenseM
       const previousLine = previousMovement as Line
       const currentLine = movement as Line
 
-      previousLine.shrinkEndByDistance(settings.optimisation.interLineTransitionShaveDistance)
-      currentLine.shrinkStartByDistance(settings.optimisation.interLineTransitionShaveDistance)
+      const previousLineMaterial = previousLine.material
+      const currentLineMaterial = currentLine.material
+
+      // Shrink the previous line by a distance, calculate the T values of the line now shown
+      // Replace the material so over the new 0 -> 1 T value, it goes from 0 -> X
+
+      // Calculate the shrink percentage
+      const previousLineDistance = previousLine
+        .getFrom()
+        .distanceTo(previousLine.getTo())
+      const previousLineShrinkPercentage = MathUtils.clamp(
+        settings.optimisation.interLineTransitionShaveDistance /
+          previousLineDistance,
+        0,
+        1,
+      )
+
+      // Do the shrink
+      previousLine.shrinkEndByDistance(
+        settings.optimisation.interLineTransitionShaveDistance,
+      )
+
+      // Shrink the next line by a distance, calculate the T values of the line now shown
+      // Replace the material so over the new 0 -> 1 T value, it goes from Y -> 1
+
+      const currentLineDistance = currentLine
+        .getFrom()
+        .distanceTo(currentLine.getTo())
+      const currentLineShrinkPercentage = MathUtils.clamp(
+        settings.optimisation.interLineTransitionShaveDistance /
+          currentLineDistance,
+        0,
+        1,
+      )
+
+      // Do the shrink
+      currentLine.shrinkStartByDistance(
+        settings.optimisation.interLineTransitionShaveDistance,
+      )
+
+      // 0.5 test
+      previousLine.material = new RemapMaterial(previousLineMaterial, 0, 0.5)
+      const remainderOfPreviousLineMaterial = new RemapMaterial(
+        previousLineMaterial,
+        0.5,
+        1,
+      )
+      const remainderOfCurrentLineMaterial = new RemapMaterial(
+        currentLineMaterial,
+        0,
+        0.5,
+      )
+      currentLine.material = new RemapMaterial(currentLineMaterial, 0.5, 1)
+
+      // Split the materials up at the split points
+      // previousLine.material = new RemapMaterial(previousLineMaterial, 0, previousLineShrinkPercentage)
+      // const remainderOfPreviousLineMaterial = new RemapMaterial(previousLineMaterial, previousLineShrinkPercentage, 1)
+      // const remainderOfCurrentLineMaterial = new RemapMaterial(currentLineMaterial, 0, 1 - currentLineShrinkPercentage)
+      // currentLine.material = new RemapMaterial(currentLineMaterial, 1 - currentLineShrinkPercentage, 1)
+
+      // Insert a transition line in between. Its material needs to go from (1-X) of the previous material to Y of the current material
 
       const interLineTransition = new InterLineTransition(
-        previousMovement,
-        movement,
-        movement.objectID, // Take the object ID of this movement, they're probably the same.
+        previousLine,
+        currentLine,
+        currentLine.objectID, // Take the object ID of this movement, they're probably the same.
         emptyOverrideKeys,
-        new MixMaterial(previousMovement.material, movement.material),
+        // new MixMaterial(previousLineMaterial, currentLineMaterial),
+        new MixMaterial(
+          remainderOfPreviousLineMaterial,
+          remainderOfCurrentLineMaterial,
+        ),
       )
 
       interLineTransition.setMaxSpeed(settings.optimisation.maxSpeed)
@@ -165,10 +243,10 @@ export function sparseToDense(sparseBag: Movement[], settings: Settings): DenseM
       denseMovements.push(interLineTransition)
 
       // Add the movement to the dense bag
-      denseMovements.push(movement)
+      denseMovements.push(currentLine)
 
       // Update the last movement
-      previousMovement = movement
+      previousMovement = currentLine
       continue
     }
 
@@ -212,9 +290,19 @@ export function sparseToDense(sparseBag: Movement[], settings: Settings): DenseM
       // At the end of this move the end effector will be at the point to draw
       // Instead of stopping, we use a material to draw the pulse right at the last moment
       // and continue with the chain of catmulls.
-      const blinkAtEnd = new MixMaterial(defaultTransitionMaterial, movement.material, 0.999)
+      const blinkAtEnd = new MixMaterial(
+        defaultTransitionMaterial,
+        movement.material,
+        0.999,
+      )
 
-      const transition = new PointTransition(movementPrevPrev, movementPrev, movementCurrent, movementNext, blinkAtEnd)
+      const transition = new PointTransition(
+        movementPrevPrev,
+        movementPrev,
+        movementCurrent,
+        movementNext,
+        blinkAtEnd,
+      )
 
       transition.setMaxSpeed(settings.optimisation.maxSpeed)
 
@@ -236,7 +324,13 @@ export function sparseToDense(sparseBag: Movement[], settings: Settings): DenseM
         .multiplyScalar(settings.optimisation.lineRunUp * movement.getLength())
         .add(endPoint)
 
-      const runUp = new Line(startPoint, endPoint, defaultTransitionMaterial, TRANSITION_OBJECT_ID, [])
+      const runUp = new Line(
+        startPoint,
+        endPoint,
+        defaultTransitionMaterial,
+        TRANSITION_OBJECT_ID,
+        [],
+      )
       // Set the speed to the incoming line's speed, not the transition speed.
       runUp.setMaxSpeed(settings.optimisation.maxSpeed)
 
@@ -259,7 +353,9 @@ export function sparseToDense(sparseBag: Movement[], settings: Settings): DenseM
       denseMovements.push(movement)
 
       const startPointRunOut = movement.getEnd()
-      const backwardDirectionRunOut = movement.getExpectedExitVelocity().normalize()
+      const backwardDirectionRunOut = movement
+        .getExpectedExitVelocity()
+        .normalize()
       const endPointRunOut = backwardDirectionRunOut
         .multiplyScalar(settings.optimisation.lineRunUp * movement.getLength())
         .add(startPointRunOut)
@@ -343,7 +439,10 @@ export function sparseToCost(movements: Movement[]): number {
   return d2Total
 }
 
-export function hashTour(movements: Movement[], createHasher: (seed?: number) => XXHash<number>) {
+export function hashTour(
+  movements: Movement[],
+  createHasher: (seed?: number) => XXHash<number>,
+) {
   const hasher = createHasher()
 
   for (let index = 0; index < movements.length; index++) {
@@ -445,7 +544,10 @@ export interface Progress {
 
 export type Continue = boolean
 
-function optimiseByCache(sparseBag: Movement[], serialisedTour: SerialisedTour) {
+function optimiseByCache(
+  sparseBag: Movement[],
+  serialisedTour: SerialisedTour,
+) {
   return deserialiseTour(sparseBag, serialisedTour)
 }
 
@@ -565,7 +667,9 @@ export function orientTour(sparseBag: Movement[]) {
     const movement = sparseBag[index]
     const movementNext = sparseBag[index + 1]
 
-    const unflippedDistance = movement.getEnd().distanceTo(movementNext.getStart())
+    const unflippedDistance = movement
+      .getEnd()
+      .distanceTo(movementNext.getStart())
     const flippedDistance = movement.getEnd().distanceTo(movementNext.getEnd())
 
     if (flippedDistance < unflippedDistance) {
@@ -672,7 +776,12 @@ export function* optimiseBruteForce(
 const n = false
 const f = true
 
-function d(first: Movement, firstFlipped: boolean, second: Movement, secondFlipped: boolean) {
+function d(
+  first: Movement,
+  firstFlipped: boolean,
+  second: Movement,
+  secondFlipped: boolean,
+) {
   if (!firstFlipped && !secondFlipped) {
     return first.getEnd().distanceTo(second.getStart())
   } else if (firstFlipped && !secondFlipped) {
@@ -737,7 +846,9 @@ export function* optimise2Opt(
   fetchQueue: while (queue.size > 0) {
     tourIndex++
 
-    let [hash, serialised]: [number, SerialisedTour] = queue.entries().next().value
+    let [hash, serialised]: [number, SerialisedTour] = queue
+      .entries()
+      .next().value
 
     // Take a copy of the sparseBag so it doesn't get mutated underneath us
     // The movements might still be flipped, TODO: is this affecting us?
@@ -784,7 +895,9 @@ export function* optimise2Opt(
 
           if (!maintainedCost) {
             // debugger
-            console.warn(`Solver cost post yield not maintained, note this file and frame`)
+            console.warn(
+              `Solver cost post yield not maintained, note this file and frame`,
+            )
             cost = costPostYield
             break
           }
@@ -840,7 +953,16 @@ export function* optimise2Opt(
           }
 
           // Find the winner
-          const smallest = Math.min(current, flipL, flipR, flipLR, swapLR, flipLSwapLR, flipRSwapLR, flipLRSwapLR)
+          const smallest = Math.min(
+            current,
+            flipL,
+            flipR,
+            flipLR,
+            swapLR,
+            flipLSwapLR,
+            flipRSwapLR,
+            flipLRSwapLR,
+          )
 
           // update the cost
           if (smallest !== current) {
@@ -911,7 +1033,9 @@ export function* optimise2Opt(
 
           // Reorder the arrays to remove the longest link
           currentOrdering = right.concat(left)
-          const newLink = right[right.length - 1].getEnd().distanceTo(left[0].getStart())
+          const newLink = right[right.length - 1]
+            .getEnd()
+            .distanceTo(left[0].getStart())
           cost = cost - longestLinkDistance + newLink
         }
       }
@@ -998,16 +1122,26 @@ export async function optimise(
   const startingCost = sparseToCost(sparseBag)
 
   // Partial updates just run a beam search
-  let currentOptimisationLevel: OptimiserResult = optimiseNoop(sparseBag, createHasher).next().value
+  let currentOptimisationLevel: OptimiserResult = optimiseNoop(
+    sparseBag,
+    createHasher,
+  ).next().value
 
   if (partialUpdate) {
     const stopAfter = { current: startedOptimisation + OPTIMISATION_TIME }
 
     if (settings.optimisation.passes.nearestNeighbour) {
-      currentOptimisationLevel = optimiseBySearch(sparseBag, createHasher, stopAfter).next().value
+      currentOptimisationLevel = optimiseBySearch(
+        sparseBag,
+        createHasher,
+        stopAfter,
+      ).next().value
     }
 
-    const currentDense = sparseToDense(deserialiseTour(sparseBag, currentOptimisationLevel.best.tour), settings)
+    const currentDense = sparseToDense(
+      deserialiseTour(sparseBag, currentOptimisationLevel.best.tour),
+      settings,
+    )
     const curentDuration = getTotalDuration(currentDense)
 
     // Final status update
@@ -1029,7 +1163,12 @@ export async function optimise(
 
   const stopAfter = { current: performance.now() + OPTIMISATION_TIME }
 
-  for (const iteration of smartOptimiser(sparseBag, settings, createHasher, stopAfter)) {
+  for (const iteration of smartOptimiser(
+    sparseBag,
+    settings,
+    createHasher,
+    stopAfter,
+  )) {
     iterations += iteration.iterations
 
     const deserialised = deserialiseTour(sparseBag, iteration.best.tour)
@@ -1038,15 +1177,20 @@ export async function optimise(
     const currentDuration = getTotalDuration(currentDense)
 
     // Finish within the time it takes to render the frame no matter what
-    const done = iteration.completed || performance.now() - startedOptimisation > currentDuration
+    const done =
+      iteration.completed ||
+      performance.now() - startedOptimisation > currentDuration
 
     const calculatedCost = sparseToCost(deserialised)
     const hash = hashTour(deserialised, createHasher)
 
     const shouldContinue = await updateProgress({
       duration: currentDuration,
-      text: `${hash.toString(16)}: ${Math.round(iteration.best.cost * 10) / 10} (${Math.round(calculatedCost * 10) /
-        10}): ${Math.round(currentDuration * 100) / 100}ms`,
+      text: `${hash.toString(16)}: ${
+        Math.round(iteration.best.cost * 10) / 10
+      } (${Math.round(calculatedCost * 10) / 10}): ${
+        Math.round(currentDuration * 100) / 100
+      }ms`,
       serialisedTour: iteration.best.tour,
       completed: done,
       minimaFound: done,
@@ -1066,7 +1210,10 @@ export async function optimise(
     }
   }
 
-  const deserialised = deserialiseTour(sparseBag, currentOptimisationLevel.best.tour)
+  const deserialised = deserialiseTour(
+    sparseBag,
+    currentOptimisationLevel.best.tour,
+  )
   const currentDense = sparseToDense(deserialised, settings)
   const currentDuration = getTotalDuration(currentDense)
 
@@ -1076,12 +1223,16 @@ export async function optimise(
   // final update
   await updateProgress({
     duration: currentDuration,
-    text: `${hash.toString(16)}: ${Math.round(currentOptimisationLevel.best.cost * 10) / 10} (${Math.round(
-      calculatedCost * 10,
-    ) / 10}): ${Math.round(currentDuration * 100) / 100}ms`,
+    text: `${hash.toString(16)}: ${
+      Math.round(currentOptimisationLevel.best.cost * 10) / 10
+    } (${Math.round(calculatedCost * 10) / 10}): ${
+      Math.round(currentDuration * 100) / 100
+    }ms`,
     serialisedTour: currentOptimisationLevel.best.tour,
     completed: true,
-    minimaFound: currentOptimisationLevel.completed || performance.now() - startedOptimisation > currentDuration,
+    minimaFound:
+      currentOptimisationLevel.completed ||
+      performance.now() - startedOptimisation > currentDuration,
     timeSpent: performance.now() - startedOptimisation,
     startingCost,
     currentCost: sparseToCost(sparseBag),
@@ -1098,10 +1249,17 @@ export function* smartOptimiser(
 
   // Generate initial NN optimisation
 
-  let initialOptimisation: OptimiserResult = optimiseNoop(sparseBag, createHasher).next().value
+  let initialOptimisation: OptimiserResult = optimiseNoop(
+    sparseBag,
+    createHasher,
+  ).next().value
 
   if (settings.optimisation.passes.nearestNeighbour) {
-    initialOptimisation = optimiseBySearch(sparseBag, createHasher, stopAfter).next().value
+    initialOptimisation = optimiseBySearch(
+      sparseBag,
+      createHasher,
+      stopAfter,
+    ).next().value
 
     yield initialOptimisation
   }
@@ -1112,7 +1270,12 @@ export function* smartOptimiser(
 
     // Only optimise non-frozen movement groups
     if (isMovementGroup(movement) && !movement.frozen) {
-      for (const subRes of smartOptimiser(movement.getMovements(), settings, createHasher, stopAfter)) {
+      for (const subRes of smartOptimiser(
+        movement.getMovements(),
+        settings,
+        createHasher,
+        stopAfter,
+      )) {
         if (subRes.completed) {
           movement.hydrate(subRes.best.tour)
         } else {

@@ -61,7 +61,14 @@ export const OptimisationWorker = {
       }
 
       // Run the optimiser
-      await optimise(movements, partialUpdate, settings, updateProgress, debugInfo, cache)
+      await optimise(
+        movements,
+        partialUpdate,
+        settings,
+        updateProgress,
+        debugInfo,
+        cache,
+      )
     } catch (e) {
       progressUpdates.error(e)
     }

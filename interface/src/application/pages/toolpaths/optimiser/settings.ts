@@ -5,7 +5,8 @@ import type { ParticlesToMovementsSettings } from './particles'
 import type { EffectorToMovementSettings } from './effector'
 import type { GNodesMeshToMovementsSettings } from './gnodes_mesh'
 
-const overwriteMerge = (destinationArray: any[], sourceArray: any[]) => sourceArray
+const overwriteMerge = (destinationArray: any[], sourceArray: any[]) =>
+  sourceArray
 
 type DeepPartial<T> = T extends object
   ? {
@@ -32,6 +33,7 @@ export interface Settings {
       | Partial<LightToMovementsSettings>
       | Partial<CameraToMovementsSettings>
       | Partial<EffectorToMovementSettings>
+      | Partial<GNodesMeshToMovementsSettings>
   }
 
   // For disabling the rendering of objects
@@ -128,7 +130,7 @@ export function getToMovementSettings(
 ): GNodesMeshToMovementsSettings
 
 export function getToMovementSettings<
-  ReturnType =
+  ReturnType extends
     | GPencilToMovementsSettings
     | ParticlesToMovementsSettings
     | LightToMovementsSettings
@@ -137,7 +139,13 @@ export function getToMovementSettings<
     | GNodesMeshToMovementsSettings,
 >(
   settings: Settings,
-  objType: 'gpencil' | 'particles' | 'light' | 'camera' | 'effector' | 'gnodesMesh',
+  objType:
+    | 'gpencil'
+    | 'particles'
+    | 'light'
+    | 'camera'
+    | 'effector'
+    | 'gnodesMesh',
   overrideKeys: string[],
 ): ReturnType {
   let objSettings = settings.objectSettings[objType]
@@ -156,14 +164,22 @@ export function getToMovementSettings<
         lazilyGeneratedOverride = true
 
         // Form a shallow copy
-        objSettings = Object.assign({}, objSettings, settings.objectOverrides[overrideKey]) as ReturnType
+        objSettings = Object.assign(
+          {},
+          objSettings,
+          settings.objectOverrides[overrideKey],
+        ) as ReturnType
         continue
       }
 
       // If we have more than one level of nesting, merge in the other keys
-      objSettings = deepmerge(objSettings, settings.objectOverrides[overrideKey], {
-        arrayMerge: overwriteMerge,
-      }) as ReturnType
+      objSettings = deepmerge(
+        objSettings,
+        settings.objectOverrides[overrideKey],
+        {
+          arrayMerge: overwriteMerge,
+        },
+      ) as ReturnType
     }
   }
 
