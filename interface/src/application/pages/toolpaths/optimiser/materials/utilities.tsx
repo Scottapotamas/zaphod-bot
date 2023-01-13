@@ -22,6 +22,7 @@ export const enum MATERIALS {
   Z_GRADIENT = 'z_gradient',
   Z_DEPTH = 'z_depth',
   BLEND = 'blend',
+  REMAP = 'remap',
 }
 
 // Our angles are stored as floats in the range 0-1

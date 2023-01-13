@@ -88,4 +88,4 @@ export class RemapMaterial extends Material {
   }
 }
 
-// yarn madge ./ColorRamp.tsx --circular --image graph.svg
+//

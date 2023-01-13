@@ -109,30 +109,6 @@ export interface VisualisationSettings {
   brightness: number
 }
 
-export function getMaterialOverride(
-  visualisationSettings: VisualisationSettings,
-  providedMaterial: Material,
-  overrideKeys: string[],
-) {
-  let material = providedMaterial
-
-  // Check all override keys in precidence order
-  for (let index = 0; index < overrideKeys.length; index++) {
-    const overrideKey = overrideKeys[index]
-
-    const movementMaterialOverride = visualisationSettings.objectMaterialOverrides[overrideKey]
-
-    // Specific movement overrides take highest precidence
-    if (movementMaterialOverride) {
-      material = importMaterial(movementMaterialOverride)
-    }
-  }
-
-  // can probably cache this
-
-  return material
-}
-
 export interface Store {
   folder: string | null
   settings: Settings

@@ -7,9 +7,9 @@ import {
   MovementMoveType,
 } from '../../../../application/typedState'
 import type { Settings } from './settings'
-import { getMaterialOverride, VisualisationSettings } from '../interface/state'
+import { VisualisationSettings } from '../interface/state'
 import { Vector3 } from 'three'
-import { importMaterial } from './material'
+import { getMaterialOverride, importMaterial } from './material'
 import { TimedTrigger, TriggerAlignment } from './triggers'
 
 export interface Toolpath {
