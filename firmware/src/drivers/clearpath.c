@@ -24,6 +24,8 @@
 
 /* ----- Defines ------------------------------------------------------------ */
 
+DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
+
 typedef enum
 {
     SERVO_STATE_INACTIVE,
@@ -170,6 +172,8 @@ PRIVATE float convert_steps_angle( ClearpathServoInstance_t servo, int16_t steps
 PUBLIC void
 servo_init( ClearpathServoInstance_t servo )
 {
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+
     memset( &clearpath[servo], 0, sizeof( Servo_t ) );
 
     // Buffer commanded steps per tick for 50 ticks (50ms) to back velocity estimate
@@ -181,7 +185,9 @@ servo_init( ClearpathServoInstance_t servo )
 PUBLIC void
 servo_start( ClearpathServoInstance_t servo )
 {
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     Servo_t *me = &clearpath[servo];
+
     me->enabled = SERVO_ENABLE;
 }
 
@@ -190,7 +196,9 @@ servo_start( ClearpathServoInstance_t servo )
 PUBLIC void
 servo_stop( ClearpathServoInstance_t servo )
 {
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     Servo_t *me = &clearpath[servo];
+
     me->enabled = SERVO_DISABLE;
 }
 
@@ -213,6 +221,7 @@ servo_disable_all_hard( void )
 PUBLIC void
 servo_set_target_angle_limited( ClearpathServoInstance_t servo, float angle_degrees )
 {
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     Servo_t *me = &clearpath[servo];
 
     user_interface_motor_target_angle( servo, angle_degrees );
@@ -229,7 +238,9 @@ servo_set_target_angle_limited( ClearpathServoInstance_t servo, float angle_degr
 PUBLIC void
 servo_set_target_angle_raw( ClearpathServoInstance_t servo, float angle_degrees )
 {
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     Servo_t *me = &clearpath[servo];
+
     user_interface_motor_target_angle( servo, angle_degrees );
 
     // TODO fix/rework obsolete
@@ -242,6 +253,7 @@ servo_set_target_angle_raw( ClearpathServoInstance_t servo, float angle_degrees 
 PUBLIC float
 servo_get_current_angle( ClearpathServoInstance_t servo )
 {
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     Servo_t *me = &clearpath[servo];
 
     return convert_steps_angle( servo, me->angle_current_steps );
@@ -252,6 +264,7 @@ servo_get_current_angle( ClearpathServoInstance_t servo )
 PUBLIC uint16_t
 servo_get_steps_per_second( ClearpathServoInstance_t servo )
 {
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     Servo_t *me = &clearpath[servo];
 
     // The scalar sum of steps commanded for a span covering 50ms
@@ -264,6 +277,7 @@ servo_get_steps_per_second( ClearpathServoInstance_t servo )
 PUBLIC float
 servo_get_degrees_per_second( ClearpathServoInstance_t servo )
 {
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     return convert_steps_angle( servo, servo_get_steps_per_second( servo ) );
 }
 
@@ -272,6 +286,7 @@ servo_get_degrees_per_second( ClearpathServoInstance_t servo )
 PUBLIC bool
 servo_get_move_done( ClearpathServoInstance_t servo )
 {
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     Servo_t *me = &clearpath[servo];
 
     return ( me->angle_current_steps == me->angle_target_steps );
@@ -282,6 +297,7 @@ servo_get_move_done( ClearpathServoInstance_t servo )
 PUBLIC bool
 servo_get_servo_ok( ClearpathServoInstance_t servo )
 {
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     Servo_t *me = &clearpath[servo];
 
     return ( me->enabled
@@ -291,6 +307,7 @@ servo_get_servo_ok( ClearpathServoInstance_t servo )
 PUBLIC bool
 servo_get_servo_did_error( ClearpathServoInstance_t servo )
 {
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     Servo_t *me = &clearpath[servo];
 
     return ( me->currentState == SERVO_STATE_ERROR_RECOVERY || me->previousState == SERVO_STATE_ERROR_RECOVERY || me->nextState == SERVO_STATE_ERROR_RECOVERY );
@@ -302,6 +319,7 @@ servo_get_servo_did_error( ClearpathServoInstance_t servo )
 PRIVATE float
 servo_get_hlfb_percent( ClearpathServoInstance_t servo )
 {
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
 
     float percentage = 0.0f;
 
@@ -320,6 +338,7 @@ servo_get_hlfb_percent( ClearpathServoInstance_t servo )
 PRIVATE float
 servo_get_hlfb_percent_corrected( ClearpathServoInstance_t servo )
 {
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     return servo_get_hlfb_percent( servo ) - clearpath[servo].ic_feedback_trim;
 }
 
@@ -328,6 +347,8 @@ servo_get_hlfb_percent_corrected( ClearpathServoInstance_t servo )
 PRIVATE bool
 servo_get_connected_estimate( ClearpathServoInstance_t servo )
 {
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+
     uint32_t ms_since_last = hal_ic_hard_ms_since_value( ServoHardwareMap[servo].ic_feedback );
     return ( ms_since_last < SERVO_MISSING_HLFB_MS );
 }
@@ -337,6 +358,8 @@ servo_get_connected_estimate( ClearpathServoInstance_t servo )
 PUBLIC void
 servo_process( ClearpathServoInstance_t servo )
 {
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+
     Servo_t *me = &clearpath[servo];
 
     float servo_power    = sensors_servo_W( ServoHardwareMap[servo].adc_current );
@@ -725,6 +748,8 @@ servo_process( ClearpathServoInstance_t servo )
 PRIVATE int16_t
 convert_angle_steps( ClearpathServoInstance_t servo, float angle )
 {
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+
     float steps_per_degree = (float)ServoConfig[servo].steps_per_revolution / SERVO_ANGLE_PER_REV;
     float converted_angle  = ( angle + ServoConfig[servo].angle_min ) * steps_per_degree;
     return (int16_t)converted_angle;
@@ -738,6 +763,8 @@ convert_angle_steps( ClearpathServoInstance_t servo, float angle )
 PRIVATE float
 convert_steps_angle( ClearpathServoInstance_t servo, int16_t steps )
 {
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+    
     float steps_per_degree = (float)ServoConfig[servo].steps_per_revolution / SERVO_ANGLE_PER_REV;
     float steps_to_angle = (float)steps / steps_per_degree;
     return steps_to_angle;
