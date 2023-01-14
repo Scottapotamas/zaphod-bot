@@ -15,6 +15,7 @@
 #include "hal_system_speed.h"
 #include "sensors.h"
 #include "status.h"
+#include "expansion.h"
 
 #include "user_interface.h"
 
@@ -80,6 +81,8 @@ app_background( void )
 
         timer_ms_start( &adc_timer, BACKGROUND_ADC_AVG_POLL_MS );
     }
+
+    expansion_process();
 
     for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
     {

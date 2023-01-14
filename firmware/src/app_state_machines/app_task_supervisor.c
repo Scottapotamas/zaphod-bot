@@ -20,6 +20,7 @@
 #include "path_interpolator.h"
 #include "effector.h"
 #include "point_follower.h"
+#include "expansion.h"
 #include "sensors.h"
 #include "status.h"
 #include "user_interface.h"
@@ -99,6 +100,7 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
 
     // Put this somewhere more suitable
     point_follower_init();
+    expansion_init();
 
     STATE_INIT( &AppTaskSupervisor_main );
 }
@@ -543,13 +545,10 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
 
             if( &esre->target )
             {
-                float target_deg;
-                memcpy( &target_deg, &esre->target, sizeof( float ) );
+                int32_t target_deg;
+                memcpy( &target_deg, &esre->target, sizeof( int32_t ) );
 
-                // TODO check if the expansion servo is running/moving etc
-
-                // Set the target angle of the expansion clearpath servo
-                servo_set_target_angle_raw( _CLEARPATH_4, target_deg );
+                expansion_request_target( target_deg );
             }
         }
             return 0;

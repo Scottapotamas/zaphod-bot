@@ -748,6 +748,8 @@ convert_angle_steps( ClearpathServoInstance_t servo, float angle )
 {
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
 
+    // TODO take gearbox ratio into account
+
     float steps_per_degree = (float)ServoConfig[servo].steps_per_revolution / SERVO_ANGLE_PER_REV;
     float converted_angle  = ( angle + ServoConfig[servo].angle_min ) * steps_per_degree;
     return (int32_t)converted_angle;
@@ -762,6 +764,8 @@ PRIVATE float
 convert_steps_angle( ClearpathServoInstance_t servo, int32_t steps )
 {
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+
+    // TODO take gearbox ratio into account
 
     float steps_per_degree = (float)ServoConfig[servo].steps_per_revolution / SERVO_ANGLE_PER_REV;
     float steps_to_angle = (float)steps / steps_per_degree;

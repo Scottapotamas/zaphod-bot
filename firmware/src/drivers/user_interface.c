@@ -66,7 +66,7 @@ FanData_t      fan_stats;
 uint8_t mode_request = 0;
 
 MotorData_t motion_servo[4];
-float       external_servo_angle_target;
+int32_t     external_servo_angle_target;
 
 CartesianPoint_t current_position;    // global position of end effector in cartesian space
 CartesianPoint_t target_position;
@@ -101,7 +101,7 @@ eui_message_t ui_variables[] = {
     // Current and target positions in cartesian space
     EUI_CUSTOM( MSGID_POSITION_TARGET, target_position ),
     EUI_CUSTOM_RO( MSGID_POSITION_CURRENT, current_position ),
-    EUI_FLOAT( MSGID_POSITION_EXPANSION, external_servo_angle_target),
+    EUI_INT32( MSGID_POSITION_EXPANSION, external_servo_angle_target),
 
     EUI_CUSTOM_RO( MSGID_LED, rgb_led_drive ),
     EUI_CUSTOM( MSGID_LED_MANUAL_REQUEST, rgb_manual_control ),
