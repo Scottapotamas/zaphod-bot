@@ -5,6 +5,7 @@ import {
   generateLightPathFromMovement,
   getNominalLine,
   hexToRgba,
+  prettyPrintLightPath,
 } from './utilities'
 
 describe(`ColorRampMaterial`, () => {
@@ -18,6 +19,6 @@ describe(`ColorRampMaterial`, () => {
 
     const lightPath = generateLightPathFromMovement(line)
 
-    console.log(lightPath)
+    // prettyPrintLightPath(lightPath)
   })
 })

@@ -10,7 +10,7 @@ import type { Settings } from './settings'
 import { VisualisationSettings } from '../interface/state'
 import { Vector3 } from 'three'
 import { getMaterialOverride, importMaterial } from './material'
-import { TimedTrigger, TriggerAlignment } from './triggers'
+import type { TimedTrigger, TriggerAlignment } from './triggers'
 
 export interface Toolpath {
   movementMoves: MovementMove[]
@@ -48,7 +48,7 @@ export function toolpath(
 
     // Accumulate 'start' triggers
     const movementTriggersOnStart = movementTriggers.filter(
-      trigger => trigger.align === TriggerAlignment.START,
+      trigger => trigger.align === (`start` as TriggerAlignment.START),
     )
 
     for (const trigger of movementTriggersOnStart) {
@@ -76,7 +76,7 @@ export function toolpath(
 
     // Accumulate middle and end triggers, apply timestamp
     const movementTriggersOnMiddle = movementTriggers.filter(
-      trigger => trigger.align === TriggerAlignment.MIDDLE,
+      trigger => trigger.align === (`middle` as TriggerAlignment.MIDDLE),
     )
 
     for (const trigger of movementTriggersOnMiddle) {
@@ -87,7 +87,7 @@ export function toolpath(
     }
 
     const movementTriggersOnEnd = movementTriggers.filter(
-      trigger => trigger.align === TriggerAlignment.END,
+      trigger => trigger.align === (`end` as TriggerAlignment.END),
     )
 
     for (const trigger of movementTriggersOnEnd) {

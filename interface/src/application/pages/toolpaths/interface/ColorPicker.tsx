@@ -24,7 +24,12 @@ export function ColorPicker(props: ColorPickerProps) {
 
   const updateColor = useCallback(
     (col: Color) => {
-      props.writer([col.rgb.r / 255, col.rgb.g / 255, col.rgb.b / 255, col.rgb.a ?? 1])
+      props.writer([
+        col.rgb.r / 255,
+        col.rgb.g / 255,
+        col.rgb.b / 255,
+        col.rgb.a ?? 1,
+      ])
     },
     [props.writer],
   )

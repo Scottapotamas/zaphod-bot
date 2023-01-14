@@ -63,7 +63,7 @@ export const defaultTransitionMaterial = new InvisibleMaterial([
   19 / 255,
   124 / 255,
   189 / 255,
-  1
+  1,
 ])
 
 export function importMaterial(json: MaterialJSON) {

@@ -53,7 +53,12 @@ export class MutableLineSegmentGeometry {
     const colors = this.colors.slice()
 
     const backgroundColor = new Color(backgroundCol)
-    const backgroundColorAsRGBA: RGBA = [backgroundColor.r, backgroundColor.g, backgroundColor.b, 1]
+    const backgroundColorAsRGBA: RGBA = [
+      backgroundColor.r,
+      backgroundColor.g,
+      backgroundColor.b,
+      1,
+    ]
 
     const darkeningFactor = 0.8
 
@@ -109,7 +114,7 @@ export class MutableLineSegmentGeometry {
           vertexColors={true}
           resolution={this.resolution}
           linewidth={this.lineWidth}
-        //   {...props}
+          //   {...props}
         />
       </primitive>
     )

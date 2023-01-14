@@ -37,8 +37,8 @@ export const ToolpathViewer = (props: RouteComponentProps) => {
           </OutlineCard>
 
           <OutlineCard padding="2em">
-              <FolderPathSelector />
-              <RenderInterface />
+            <FolderPathSelector />
+            <RenderInterface />
           </OutlineCard>
 
           <Optimiser />
