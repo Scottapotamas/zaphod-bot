@@ -1,6 +1,7 @@
 /* ----- System Includes ---------------------------------------------------- */
 
 #include <string.h>
+#include <float.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 
@@ -734,6 +735,7 @@ servo_process( ClearpathServoInstance_t servo )
 
 /* -------------------------------------------------------------------------- */
 
+// TODO when working out why angle_min is involved, rewrite this comment
 /*
  * The kinematics output is an angle between -85 and +90, where 0 deg is when
  * the elbow-shaft link is parallel to the frame plate. Full range not available due
@@ -747,11 +749,15 @@ PRIVATE int32_t
 convert_angle_steps( ClearpathServoInstance_t servo, float angle )
 {
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+    REQUIRE( ServoConfig[servo].ratio > 0.0f + FLT_EPSILON);
 
-    // TODO take gearbox ratio into account
+    float steps_per_servo_degree = (float)ServoConfig[servo].steps_per_revolution / SERVO_ANGLE_PER_REV;
+    float output_ratio = ServoConfig[servo].ratio;
 
-    float steps_per_degree = (float)ServoConfig[servo].steps_per_revolution / SERVO_ANGLE_PER_REV;
-    float converted_angle  = ( angle + ServoConfig[servo].angle_min ) * steps_per_degree;
+    // TODO remove/work out why angle_min is involved here at all?
+    float servo_angle = ( angle + ServoConfig[servo].angle_min );
+
+    float converted_angle  = servo_angle * output_ratio * steps_per_servo_degree;
     return (int32_t)converted_angle;
 }
 
@@ -764,11 +770,12 @@ PRIVATE float
 convert_steps_angle( ClearpathServoInstance_t servo, int32_t steps )
 {
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
-
-    // TODO take gearbox ratio into account
+    REQUIRE( ServoConfig[servo].ratio > 0.0f + FLT_EPSILON);
 
     float steps_per_degree = (float)ServoConfig[servo].steps_per_revolution / SERVO_ANGLE_PER_REV;
-    float steps_to_angle = (float)steps / steps_per_degree;
+    float output_ratio = ServoConfig[servo].ratio;
+
+    float steps_to_angle = (float)steps / steps_per_degree / output_ratio;
     return steps_to_angle;
 }
 
