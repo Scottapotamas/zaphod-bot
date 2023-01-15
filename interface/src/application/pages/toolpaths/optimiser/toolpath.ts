@@ -116,8 +116,9 @@ export function toolpath(
       movement.overrideKeys,
     )
 
-    const startT = 0
-    const endT = 1
+    // If the movement is flipped, reverse the ordering of the material so it stays consistent
+    const matStartT = movement.isFlipped ? 1 : 0
+    const matendT = movement.isFlipped ? 0 : 1
 
     // Accumulate the light fades
     for (const lightMove of material.generateLightpath(
@@ -125,8 +126,8 @@ export function toolpath(
       settings,
       visualisationSettings,
       cameraPosition,
-      startT,
-      endT,
+      matStartT,
+      matendT,
     )) {
       if (lightMove.duration !== Math.floor(lightMove.duration)) {
         console.log(`precision error at time stamp ${movementTimestamp}`)

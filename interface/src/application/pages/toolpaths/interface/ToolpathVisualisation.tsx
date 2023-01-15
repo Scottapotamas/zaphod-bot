@@ -294,6 +294,9 @@ export function ToolpathMovements() {
 
           // Get the override if it has one
           material = getMaterialOverride(visualisationSettings, material, movement.overrideKeys)
+          // If the movement is flipped, reverse the ordering of the material so it stays consistent
+          const matStartT = movement.isFlipped ? 1 : 0
+          const matendT = movement.isFlipped ? 0 : 1
 
           // Generate using the
           material.generateThreeJSRepresentation(
@@ -305,8 +308,8 @@ export function ToolpathMovements() {
             addColouredLine,
             addDottedLine,
             addReactComponent,
-            0,
-            1,
+            matStartT,
+            matendT,
             0,
             renderThisMovementUpTo,
           )

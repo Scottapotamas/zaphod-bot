@@ -47,6 +47,8 @@ export function getXAxisAlignedLine(from: number, to: number) {
     [],
   )
 
+  line.interFrameID = String(Math.random())
+
   line.setMaxSpeed(1000)
 
   return line

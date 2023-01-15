@@ -94,6 +94,7 @@ export class GNodesMesh {
       let previousPointBlendedColor = edge.points[0].color
 
       const orderedMovements = new MovementGroup()
+      orderedMovements.interFrameID = `${this.name}-${edge.edge_index}`
 
       // Start at the second point, the first is located above
       for (let index = 1; index < edge.points.length; index++) {
