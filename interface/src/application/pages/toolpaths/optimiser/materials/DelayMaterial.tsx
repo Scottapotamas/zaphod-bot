@@ -27,6 +27,7 @@ export class DelayMaterial extends Material {
     super()
   }
 
+  // TODO: I think this can be generalised to use the fromT and toT methods
   public generateLightpath = (
     movement: Movement,
     settings: Settings,
@@ -84,6 +85,8 @@ export class DelayMaterial extends Material {
     addReactComponent: AddComponentCallback,
     fromT: number,
     toT: number,
+    spatialRenderFrom: number,
+    spatialRenderTo: number,
   ) => {
     // Defer the material rendering
     this.material.generateThreeJSRepresentation(
@@ -97,6 +100,8 @@ export class DelayMaterial extends Material {
       addReactComponent,
       fromT,
       toT,
+      spatialRenderFrom,
+      spatialRenderTo,
     )
   }
 }

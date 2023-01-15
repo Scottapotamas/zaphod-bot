@@ -26,12 +26,19 @@ export const InvisibleMaterialDefaultJSON: InvisibleMaterialJSON = {
   color: [0.3, 0.3, 0.3, 1],
 }
 
-export function isInvisibleMaterial(material: Material): material is InvisibleMaterial {
+export function isInvisibleMaterial(
+  material: Material,
+): material is InvisibleMaterial {
   return material.type === MATERIALS.INVISIBLE
 }
 
 export function importInvisibleMaterial(json: InvisibleMaterialJSON) {
-  const mat = new InvisibleMaterial([json.color[0], json.color[1], json.color[2], json.color[3]])
+  const mat = new InvisibleMaterial([
+    json.color[0],
+    json.color[1],
+    json.color[2],
+    json.color[3],
+  ])
 
   return mat
 }
@@ -76,24 +83,44 @@ export class InvisibleMaterial extends Material {
     addReactComponent: AddComponentCallback,
     fromT: number,
     toT: number,
+    spatialRenderFrom: number,
+    spatialRenderTo: number,
   ) => {
     // Annotate draw order
-    annotateDrawOrder(movementIndex, movement, visualisationSettings, addReactComponent)
+    annotateDrawOrder(
+      movementIndex,
+      movement,
+      visualisationSettings,
+      addReactComponent,
+    )
 
     // Despite being invisible in hardware, we still want to draw this in the UI
     const numSegments =
-      movement.type === MOVEMENT_TYPE.LINE || movement.type === MOVEMENT_TYPE.POINT
+      movement.type === MOVEMENT_TYPE.LINE ||
+      movement.type === MOVEMENT_TYPE.POINT
         ? 1
         : Math.max(Math.ceil(movement.getLength() / 5), 6)
 
     // For the number of segments,
     for (let index = 0; index < numSegments; index++) {
-      const startT = MathUtils.mapLinear(index / numSegments, 0, 1, fromT, toT)
-      const endT = MathUtils.mapLinear((index + 1) / numSegments, 0, 1, fromT, toT)
+      const startTSpatial = MathUtils.mapLinear(
+        index / numSegments,
+        0,
+        1,
+        spatialRenderFrom,
+        spatialRenderTo,
+      )
+      const endTSpatial = MathUtils.mapLinear(
+        (index + 1) / numSegments,
+        0,
+        1,
+        spatialRenderFrom,
+        spatialRenderTo,
+      )
 
       // Sample points along the movement
-      const start = movement.samplePoint(startT)
-      const end = movement.samplePoint(endT)
+      const start = movement.samplePoint(startTSpatial)
+      const end = movement.samplePoint(endTSpatial)
 
       // Add the line
       addDottedLine(start, end, this.color, this.color, movement.objectID)

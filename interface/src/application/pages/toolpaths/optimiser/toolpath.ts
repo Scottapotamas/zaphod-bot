@@ -128,6 +128,10 @@ export function toolpath(
       startT,
       endT,
     )) {
+      if (lightMove.duration !== Math.floor(lightMove.duration)) {
+        console.log(`precision error at time stamp ${movementTimestamp}`)
+      }
+
       if (lightMove.duration === 0) {
         // zero duration fades are dumped
         continue
@@ -142,11 +146,17 @@ export function toolpath(
       lightFadeTimestamp += lightMove.duration
     }
 
-    if (lightFadeTimestamp !== movementTimestamp) {
+    if (lightFadeTimestamp > movementTimestamp) {
+      // console.warn(
+      //   `${
+      //     lightFadeTimestamp - movementTimestamp
+      //   }ms surplus light fades at timestamp ${movementTimestamp}ms`,
+      // )
+    } else if (lightFadeTimestamp < movementTimestamp) {
       console.warn(
-        `The light and movement timestamps not adding up? They're ${Math.abs(
-          lightFadeTimestamp - movementTimestamp,
-        )}ms off at timestamp ${movementTimestamp}`,
+        `Not enough light fades to complete this movement at movement timestamp ${movementTimestamp}ms, missing ${
+          movementTimestamp - lightFadeTimestamp
+        }ms of light fades`,
       )
     }
   }

@@ -29,6 +29,7 @@ import {
 import {
   hsiToRgb,
   lerpRGBA,
+  rgbToHsi,
 } from '../../src/application/pages/toolpaths/optimiser/materials/utilities'
 
 import type { default as ChalkType } from 'chalk'
@@ -41,7 +42,7 @@ export function getXAxisAlignedLine(from: number, to: number) {
   const line = new Line(
     new Vector3(from, 0, 0),
     new Vector3(to, 0, 0),
-    new ColorRampMaterial(hexToRgba(`#ff0000`), hexToRgba(`#00ff00`)),
+    new ColorRampMaterial(hexToRgba(`#800020`), hexToRgba(`#FFC0CB`)),
     `${from}->${to}`,
     [],
   )
@@ -113,29 +114,33 @@ export function renderMovementSequence(
     rasterCellsFrom = Math.floor(rasterCellsFrom / options.mmPerCell)
     rasterCellsTo = Math.floor(rasterCellsTo / options.mmPerCell)
 
-    if (startingX === endingX) {
-      // always render at least once cell
-      rasterCellsTo += 1
-    }
-
     // Start the line with the timing information and the blank cells
     let line = `${timing} | ${' '.repeat(rasterCellsFrom)}`
 
     // Render the filled cells
     for (
       let charIndex = rasterCellsFrom;
-      charIndex < rasterCellsTo; // Render up to that cell
+      charIndex <= rasterCellsTo; // Render up to that cell
       charIndex++
     ) {
       let time = move.sync_offset
 
       if (rasterCellsFrom !== rasterCellsTo) {
+        let start = move.sync_offset
+        let end = move.sync_offset + move.duration - 1 // finish 1ms before the end if we can
+
+        // If the movement is going in the opposite direction, sample time out of order
+        if (representation === '<') {
+          start = move.sync_offset + move.duration - 1
+          end = move.sync_offset
+        }
+
         time = MathUtils.mapLinear(
           charIndex,
           rasterCellsFrom,
           rasterCellsTo,
-          move.sync_offset,
-          move.sync_offset + move.duration,
+          start,
+          end,
         )
       }
 
@@ -146,7 +151,7 @@ export function renderMovementSequence(
           break
         case '>':
           // Right facing lines
-          if (charIndex === rasterCellsTo - 1) {
+          if (charIndex === rasterCellsTo) {
             line += renderCell('>', time, toolpath)
           } else {
             line += renderCell('-', time, toolpath)
@@ -165,6 +170,8 @@ export function renderMovementSequence(
           throw new Error(`unknown representation`)
       }
     }
+
+    // line += ` ${move.sync_offset}ms runs for ${move.duration}ms`
 
     lines.push(line)
   }
@@ -190,8 +197,21 @@ function movementGetEndX(move: MovementMove) {
 
 const blankRGBA: RGBA | RGB = [0, 0, 0, 0]
 
+const representationToTextLine = {
+  x: '▾',
+  '<': '◂',
+  '>': '▸',
+  '-': '─',
+}
+const representationToTextBlank = {
+  x: '▿',
+  '<': '◃',
+  '>': '▹',
+  '-': '┈',
+}
+
 function renderCell(
-  text: '<' | 'x' | '>' | '-',
+  representation: '<' | '>' | 'x' | '-',
   time: number,
   toolpath: Toolpath,
 ) {
@@ -217,13 +237,23 @@ function renderCell(
     )
   }
 
+  let transition = false
+
+  if (rgb[0] === 0 && rgb[1] === 0 && rgb[2] === 0) {
+    transition = true
+  }
+
+  if (transition) {
+    return chalk.rgb(19, 124, 189)(representationToTextBlank[representation])
+  }
+
   return chalk
     .bgRgb(
       Math.floor(rgb[0] * 255),
       Math.floor(rgb[1] * 255),
       Math.floor(rgb[2] * 255),
     )
-    .black(text)
+    .black(representationToTextLine[representation])
 }
 
 export function findLightFade(toolpath: Toolpath, time: number): LightMove {

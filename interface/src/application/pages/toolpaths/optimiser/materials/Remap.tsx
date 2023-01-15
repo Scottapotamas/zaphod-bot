@@ -29,7 +29,7 @@ export function isRemapMaterial(material: Material): material is RemapMaterial {
 }
 
 /**
- * RemapMaterials remap a singular material to a new time range
+ * RemapMaterials remap a singular material to a new time range. They do this on the material only,
  */
 export class RemapMaterial extends Material {
   readonly type = MATERIALS.REMAP
@@ -55,8 +55,16 @@ export class RemapMaterial extends Material {
       settings,
       visualisationSettings,
       cameraPosition,
-      MathUtils.mapLinear(fromT, 0, 1, this.remapFrom, this.remapTo),
-      MathUtils.mapLinear(toT, 0, 1, this.remapFrom, this.remapTo),
+      MathUtils.clamp(
+        MathUtils.mapLinear(fromT, 0, 1, this.remapFrom, this.remapTo),
+        0,
+        1,
+      ),
+      MathUtils.clamp(
+        MathUtils.mapLinear(toT, 0, 1, this.remapFrom, this.remapTo),
+        0,
+        1,
+      ),
     )
   }
 
@@ -71,6 +79,8 @@ export class RemapMaterial extends Material {
     addReactComponent: AddComponentCallback,
     fromT: number,
     toT: number,
+    spatialRenderFrom: number,
+    spatialRenderTo: number,
   ) => {
     // Render the parent material
     this.parent.generateThreeJSRepresentation(
@@ -82,8 +92,18 @@ export class RemapMaterial extends Material {
       addColouredLine,
       addDottedLine,
       addReactComponent,
-      MathUtils.mapLinear(fromT, 0, 1, this.remapFrom, this.remapTo),
-      MathUtils.mapLinear(toT, 0, 1, this.remapFrom, this.remapTo),
+      MathUtils.clamp(
+        MathUtils.mapLinear(fromT, 0, 1, this.remapFrom, this.remapTo),
+        0,
+        1,
+      ),
+      MathUtils.clamp(
+        MathUtils.mapLinear(toT, 0, 1, this.remapFrom, this.remapTo),
+        0,
+        1,
+      ),
+      spatialRenderFrom,
+      spatialRenderTo,
     )
   }
 }

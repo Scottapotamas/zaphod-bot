@@ -1,5 +1,5 @@
 import { describe, expect, it, xit } from '@jest/globals'
-import { Vector3 } from 'three'
+import { MathUtils, Vector3 } from 'three'
 import { SimpleColorMaterial } from '../../src/application/pages/toolpaths/optimiser/materials/Color'
 import { ColorRampMaterial } from '../../src/application/pages/toolpaths/optimiser/materials/ColorRamp'
 import {
@@ -39,5 +39,11 @@ describe(`binarySearch`, () => {
     console.log(`150`, findLightFade(toolpath, 150).timestamp)
     console.log(`200`, findLightFade(toolpath, 200).timestamp)
     console.log(`300`, findLightFade(toolpath, 300).timestamp)
+  })
+})
+
+describe(`mapLinear`, () => {
+  it(`clamps values`, () => {
+    expect(MathUtils.mapLinear(-1, 0, 1, 0, 100)).toBe(0)
   })
 })

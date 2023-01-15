@@ -26,6 +26,7 @@ import { MixMaterial } from './materials/Mix'
 import xxhash, { XXHash } from 'xxhash-wasm'
 import { Permutor } from './permutor'
 import { RemapMaterial } from './materials/Remap'
+import { ColorRampMaterial } from './materials/ColorRamp'
 
 /**
  * Flatten any grouped movements into simple movements
@@ -203,25 +204,29 @@ export function sparseToDense(
         settings.optimisation.interLineTransitionShaveDistance,
       )
 
-      // 0.5 test
-      previousLine.material = new RemapMaterial(previousLineMaterial, 0, 0.5)
+      // Split the materials up at the split points
+      previousLine.material = new RemapMaterial(
+        previousLineMaterial,
+        0,
+        1 - previousLineShrinkPercentage,
+      )
+
       const remainderOfPreviousLineMaterial = new RemapMaterial(
         previousLineMaterial,
-        0.5,
+        1 - previousLineShrinkPercentage,
         1,
       )
       const remainderOfCurrentLineMaterial = new RemapMaterial(
         currentLineMaterial,
         0,
-        0.5,
+        currentLineShrinkPercentage,
       )
-      currentLine.material = new RemapMaterial(currentLineMaterial, 0.5, 1)
 
-      // Split the materials up at the split points
-      // previousLine.material = new RemapMaterial(previousLineMaterial, 0, previousLineShrinkPercentage)
-      // const remainderOfPreviousLineMaterial = new RemapMaterial(previousLineMaterial, previousLineShrinkPercentage, 1)
-      // const remainderOfCurrentLineMaterial = new RemapMaterial(currentLineMaterial, 0, 1 - currentLineShrinkPercentage)
-      // currentLine.material = new RemapMaterial(currentLineMaterial, 1 - currentLineShrinkPercentage, 1)
+      currentLine.material = new RemapMaterial(
+        currentLineMaterial,
+        currentLineShrinkPercentage,
+        1,
+      )
 
       // Insert a transition line in between. Its material needs to go from (1-X) of the previous material to Y of the current material
 

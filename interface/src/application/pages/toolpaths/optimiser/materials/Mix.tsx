@@ -54,15 +54,14 @@ export class MixMaterial extends Material {
     fromT: number,
     toT: number,
   ) => {
-    const fadesStart: PlannerLightMove[] =
-      this.start.generateLightpath(
-        movement,
-        settings,
-        visualisationSettings,
-        cameraPosition,
-        fromT,
-        toT,
-      )
+    const fadesStart: PlannerLightMove[] = this.start.generateLightpath(
+      movement,
+      settings,
+      visualisationSettings,
+      cameraPosition,
+      fromT,
+      toT,
+    )
     const fadesEnd: PlannerLightMove[] = this.end.generateLightpath(
       movement,
       settings,
@@ -97,6 +96,8 @@ export class MixMaterial extends Material {
     addReactComponent: AddComponentCallback,
     fromT: number,
     toT: number,
+    spatialRenderFrom: number,
+    spatialRenderTo: number,
   ) => {
     // Annotate draw order
     annotateDrawOrder(
@@ -118,6 +119,8 @@ export class MixMaterial extends Material {
       addReactComponent,
       MathUtils.mapLinear(fromT, 0, 1, 0, this.transitionT),
       MathUtils.mapLinear(toT, 0, 1, 0, this.transitionT),
+      spatialRenderFrom,
+      spatialRenderTo,
     )
 
     // Render the end material from the half way point
@@ -132,6 +135,8 @@ export class MixMaterial extends Material {
       addReactComponent,
       MathUtils.mapLinear(fromT, 0, 1, this.transitionT, 1),
       MathUtils.mapLinear(toT, 0, 1, this.transitionT, 1),
+      spatialRenderFrom,
+      spatialRenderTo,
     )
   }
 }

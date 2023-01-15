@@ -306,6 +306,8 @@ export function ToolpathMovements() {
             addDottedLine,
             addReactComponent,
             0,
+            1,
+            0,
             renderThisMovementUpTo,
           )
         }

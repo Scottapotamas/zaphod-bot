@@ -114,7 +114,7 @@
     "better-queue": "^3.8.10",
     "bluebird-lst": "^1.0.5",
     "chai": "^4.2.0",
-    "chalk": "^2.4.1",
+    "chalk": "^3.0.0",
     "classnames": "^2.2.6",
     "crocket": "^0.9.11",
     "css-loader": "^3.2.0",

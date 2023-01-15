@@ -94,6 +94,8 @@ export class VelocityMaterial extends Material {
     addReactComponent: AddComponentCallback,
     fromT: number,
     toT: number,
+    spatialRenderFrom: number,
+    spatialRenderTo: number,
   ) => {
     if (visualisationSettings.annotateDrawOrder) {
       addReactComponent(
@@ -103,9 +105,10 @@ export class VelocityMaterial extends Material {
           movementTypeToIntent(movement),
           `${movementTypeToLetter(
             movement,
-          )} #${movementIndex} (${movement.getDuration()}ms, ${Math.round(
-            (movement.getLength() / movement.getDuration()) * 1000 * 10,
-          ) / 10
+          )} #${movementIndex} (${movement.getDuration()}ms, ${
+            Math.round(
+              (movement.getLength() / movement.getDuration()) * 1000 * 10,
+            ) / 10
           }mm/s)`,
         ),
       )
@@ -114,7 +117,7 @@ export class VelocityMaterial extends Material {
     // A simple color material draws the line segment(s) from the start to the end with a single color
     const numSegments =
       movement.type === MOVEMENT_TYPE.LINE ||
-        movement.type === MOVEMENT_TYPE.POINT
+      movement.type === MOVEMENT_TYPE.POINT
         ? 1
         : Math.ceil(movement.getLength() / 5)
 
@@ -127,13 +130,19 @@ export class VelocityMaterial extends Material {
 
     // For the number of segments,
     for (let index = 0; index < numSegments; index++) {
-      const startT = MathUtils.mapLinear(index / numSegments, 0, 1, fromT, toT)
+      const startT = MathUtils.mapLinear(
+        index / numSegments,
+        0,
+        1,
+        spatialRenderFrom,
+        spatialRenderTo,
+      )
       const endT = MathUtils.mapLinear(
         (index + 1) / numSegments,
         0,
         1,
-        fromT,
-        toT,
+        spatialRenderFrom,
+        spatialRenderTo,
       )
 
       // Sample points along the movement, these will define the drawn line segment
