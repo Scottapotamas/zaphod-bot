@@ -43,11 +43,14 @@ typedef struct
     bool enable; // The follower is enabled
 } PointFollower_t;
 
-int32_t calculate_distance_this_tick( int32_t current, int32_t target, int32_t velocity );
+PRIVATE int32_t calculate_distance_this_tick( int32_t current, int32_t target, int32_t velocity );
 
 /* ----- Private Variables -------------------------------------------------- */
 
 PRIVATE PointFollower_t follower;
+
+PRIVATE int8_t acceleration = 1;
+PRIVATE int32_t velocity_max = 200;
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -168,10 +171,10 @@ point_follower_process( void )
 //    user_interface_set_pathing_status( me->currentState );
 }
 
-int8_t acceleration = 1;
-int32_t velocity_max = 200;
+/* -------------------------------------------------------------------------- */
 
-int32_t calculate_distance_this_tick( int32_t current, int32_t target, int32_t velocity )
+PRIVATE int32_t
+calculate_distance_this_tick( int32_t current, int32_t target, int32_t velocity )
 {
     int32_t error = target - current;
 
