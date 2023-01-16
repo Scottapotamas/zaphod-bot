@@ -165,7 +165,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
                 }
             }
 
-            if( me->counter == SERVO_COUNT )
+            if( me->counter == servo_get_configured_count() )
             {
                 eventPublish( EVENT_NEW( StateEvent, MOTION_HOMED ) );
                 effector_set_home();
@@ -221,7 +221,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
             }
 
             // A servo has dropped offline (fault or otherwise)
-            if( me->counter != SERVO_COUNT )
+            if( me->counter != servo_get_configured_count() )
             {
                 user_interface_report_error( "Servo loss" );
                 eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
@@ -373,7 +373,7 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
                 me->counter += !servo_get_servo_ok( servo );
             }
 
-            if( me->counter == SERVO_COUNT )
+            if( me->counter == _NUMBER_CLEARPATH_SERVOS )
             {
                 eventPublish( EVENT_NEW( StateEvent, MOTION_DISABLED ) );
                 STATE_TRAN( AppTaskMotion_main );

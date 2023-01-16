@@ -27,6 +27,11 @@ servo_init( ClearpathServoInstance_t servo );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC uint8_t
+servo_get_configured_count( void );
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC void
 servo_start( ClearpathServoInstance_t servo );
 

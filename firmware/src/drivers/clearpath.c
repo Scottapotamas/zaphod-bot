@@ -87,7 +87,6 @@ typedef struct
     float angle_min;
     float angle_max;
     float angle_at_home;
-
 } ServoConfiguration_t;
 
 /* ----- Private Variables -------------------------------------------------- */
@@ -133,7 +132,7 @@ PRIVATE const ServoConfiguration_t ServoConfig[_NUMBER_CLEARPATH_SERVOS] = {
     [_CLEARPATH_1] = { .requires_homing      = true,
                        .reverse_direction    = false,
                        .steps_per_revolution = SERVO_STEPS_PER_REV,
-                       .ratio                = 1,
+                       .ratio                = 1.0f,
                        .angle_min            = -1*SERVO_MIN_ANGLE,
                        .angle_max            = SERVO_MAX_ANGLE,
                        .angle_at_home        = -42.0f },
@@ -141,7 +140,7 @@ PRIVATE const ServoConfiguration_t ServoConfig[_NUMBER_CLEARPATH_SERVOS] = {
     [_CLEARPATH_2] = { .requires_homing      = true,
                        .reverse_direction    = false,
                        .steps_per_revolution = SERVO_STEPS_PER_REV,
-                       .ratio                = 1,
+                       .ratio                = 1.0f,
                        .angle_min            = -1*SERVO_MIN_ANGLE,
                        .angle_max            = SERVO_MAX_ANGLE,
                        .angle_at_home        = -42.0f },
@@ -149,7 +148,7 @@ PRIVATE const ServoConfiguration_t ServoConfig[_NUMBER_CLEARPATH_SERVOS] = {
     [_CLEARPATH_3] = { .requires_homing      = true,
                        .reverse_direction    = false,
                        .steps_per_revolution = SERVO_STEPS_PER_REV,
-                       .ratio                = 1,
+                       .ratio                = 1.0f,
                        .angle_min            = -1*SERVO_MIN_ANGLE,
                        .angle_max            = SERVO_MAX_ANGLE,
                        .angle_at_home        = -42.0f },
@@ -184,6 +183,23 @@ servo_init( ClearpathServoInstance_t servo )
 
     // Buffer commanded steps per tick for 50 ticks (50ms) to back velocity estimate
     average_short_init( &clearpath[servo].step_statistics, SPEED_ESTIMATOR_SPAN );
+}
+
+/* -------------------------------------------------------------------------- */
+
+// Returns the number of servos that have valid configuration
+//  implies that this number servos are ready for use
+PUBLIC uint8_t
+servo_get_configured_count( void )
+{
+    uint8_t num_configured = 0;
+
+    for( uint8_t servo = 0; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
+    {
+        num_configured += ( ServoConfig[servo].ratio >= 0.0f + FLT_EPSILON );
+    }
+
+    return num_configured;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -365,6 +381,12 @@ PUBLIC void
 servo_process( ClearpathServoInstance_t servo )
 {
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+
+    // Early exit if not configured
+    if( ServoConfig[servo].ratio <= 0.0f + FLT_EPSILON )
+    {
+        return;
+    }
 
     Servo_t *me = &clearpath[servo];
 
