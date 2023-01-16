@@ -187,6 +187,10 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
             AppTaskMotion_add_event_to_queue( me, e );
             return 0;
 
+        case MOTION_EMERGENCY:
+            STATE_TRAN( AppTaskMotion_recovery );
+            return 0;
+
         case STATE_EXIT_SIGNAL:
             eventTimerStopIfActive( &me->timer1 );
 
@@ -248,6 +252,10 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
 
             return 0;
         }
+
+        case MOTION_EMERGENCY:
+            STATE_TRAN( AppTaskMotion_recovery );
+            return 0;
 
         case STATE_EXIT_SIGNAL:
             eventTimerStopIfActive( &me->timer1 );
@@ -321,6 +329,10 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
         case MOTION_QUEUE_CLEAR:
             AppTaskMotion_clear_queue( me );
             STATE_TRAN( AppTaskMotion_inactive );
+            return 0;
+
+        case MOTION_EMERGENCY:
+            STATE_TRAN( AppTaskMotion_recovery );
             return 0;
 
         case STATE_EXIT_SIGNAL:
