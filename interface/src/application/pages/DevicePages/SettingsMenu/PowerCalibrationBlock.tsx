@@ -86,9 +86,9 @@ const ServoTableRow = (props: ServoRowProps) => {
       </td>
       <td>
         <NumberInput
-          accessor={state => state[MSGID.POWER_CALIBRATION].current_servo_1}
+          accessor={state => state[MSGID.POWER_CALIBRATION].current_servo[props.index]}
           writer={(state, value) => {
-            state[MSGID.POWER_CALIBRATION].current_servo_1 = value
+            state[MSGID.POWER_CALIBRATION].current_servo[props.index] = value
           }}
           rightElement={<Tag minimal>mA</Tag>}
           minorStepSize={1}

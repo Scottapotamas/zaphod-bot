@@ -487,10 +487,10 @@ export class PowerCalibrationCodec extends Codec {
     const packet = new SmartBuffer()
 
     packet.writeInt16LE(payload.voltage)
-    packet.writeInt16LE(payload.current_servo_1)
-    packet.writeInt16LE(payload.current_servo_2)
-    packet.writeInt16LE(payload.current_servo_3)
-    packet.writeInt16LE(payload.current_servo_4)
+    packet.writeInt16LE(payload.current_servo[0])
+    packet.writeInt16LE(payload.current_servo[1])
+    packet.writeInt16LE(payload.current_servo[2])
+    packet.writeInt16LE(payload.current_servo[3])
 
     return packet.toBuffer()
   }
@@ -498,13 +498,17 @@ export class PowerCalibrationCodec extends Codec {
   decode(payload: Buffer) {
     const reader = SmartBuffer.fromBuffer(payload)
 
-    return {
+    let calibration:PowerCalibration = {
       voltage: reader.readInt16LE(),
-      current_servo_1: reader.readInt16LE(),
-      current_servo_2: reader.readInt16LE(),
-      current_servo_3: reader.readInt16LE(),
-      current_servo_4: reader.readInt16LE(),
+      current_servo: []
     }
+
+    calibration.current_servo[0] = reader.readInt16LE()
+    calibration.current_servo[1] = reader.readInt16LE()
+    calibration.current_servo[2] = reader.readInt16LE()
+    calibration.current_servo[3] = reader.readInt16LE()
+
+    return calibration
   }
 }
 

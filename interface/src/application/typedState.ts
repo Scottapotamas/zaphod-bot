@@ -272,10 +272,7 @@ export type LedSettings = {
 
 export type PowerCalibration = {
   voltage: number
-  current_servo_1: number
-  current_servo_2: number
-  current_servo_3: number
-  current_servo_4: number
+  current_servo: number[]
 }
 
 export enum BOUNDARY_VIOLATION_MODES {
