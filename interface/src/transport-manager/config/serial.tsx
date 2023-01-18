@@ -28,8 +28,10 @@ import { HeartbeatConnectionMetadataReporter } from '@electricui/protocol-binary
 import { SerialPort } from 'serialport'
 import { usb } from 'usb'
 import { USBHintProducer } from '@electricui/transport-node-usb-discovery'
-import { customCodecs } from './codecs'
 import { CodecDuplexPipelineWithDefaults } from '@electricui/protocol-binary-codecs'
+
+import { customCodecs } from './delta_codecs'
+import { dmxCodecs } from './dmx_codecs'
 import { MSGID } from '../../application/typedState'
 
 const typeCache = new TypeCache()
@@ -74,7 +76,8 @@ const serialTransportFactory = new TransportFactory(
 
     // Add custom codecs after the default ones.
     codecPipeline.addCodecs(customCodecs)
-
+    codecPipeline.addCodecs(dmxCodecs)
+    
     const largePacketPipeline = new BinaryLargePacketHandlerPipeline({
       connectionInterface,
       maxPayloadLength: 100,
