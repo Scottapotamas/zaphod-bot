@@ -65,9 +65,7 @@ declare global {
 
     [MSGID.MODE_REQUEST]: CONTROL_MODES
     [MSGID.MOTION]: MotionState
-    [MSGID.SERVO]:
-      | [ServoInfo, ServoInfo, ServoInfo]
-      | [ServoInfo, ServoInfo, ServoInfo, ServoInfo] // if expansion slot is in
+    [MSGID.SERVO]: [ServoInfo, ServoInfo, ServoInfo, ServoInfo]
 
     [MSGID.POSITION_TARGET]: CartesianPoint
     [MSGID.POSITION_CURRENT]: CartesianPoint
