@@ -28,12 +28,6 @@ const layoutDescription = `
             State Home Position
           `
 
-const layoutDescriptionOld = `
-            State Position
-            State Position
-            Mode Position 
-          `
-
 type RobotSummaryProps = {
   isLarge?: boolean
 }
