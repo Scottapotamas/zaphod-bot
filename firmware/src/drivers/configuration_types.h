@@ -39,9 +39,9 @@ typedef struct
     uint8_t expansion_resolution;
     uint8_t expansion_ratio;
     uint8_t expansion_speed_limit;
+    uint8_t reserved_12;
     int16_t expansion_range_min;
     int16_t expansion_range_max;
-    uint8_t reserved_12;
 } SettingsValuesRenameMe_t;
 
 typedef struct
