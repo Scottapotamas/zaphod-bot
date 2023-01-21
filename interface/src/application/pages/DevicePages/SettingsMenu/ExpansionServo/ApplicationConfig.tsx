@@ -19,7 +19,7 @@ const MotionTypeSelector = () => {
           active={motion_setting==EXPANSION_MOTION_TYPES.ROTARY_LIMITED}
           outlined
           fill
-          intent={motion_setting ? Intent.NONE : Intent.SUCCESS}
+          intent={(motion_setting==EXPANSION_MOTION_TYPES.ROTARY_LIMITED) ? Intent.SUCCESS : Intent.NONE}
           writer={state => {
             state[MSGID.USER_CONFIG].flags.expansion_type = EXPANSION_MOTION_TYPES.ROTARY_LIMITED
           }}
@@ -31,7 +31,7 @@ const MotionTypeSelector = () => {
           active={motion_setting==EXPANSION_MOTION_TYPES.ROTARY_UNLIMITED}
           outlined
           fill
-          intent={motion_setting ? Intent.NONE : Intent.SUCCESS}
+          intent={(motion_setting==EXPANSION_MOTION_TYPES.ROTARY_UNLIMITED) ? Intent.SUCCESS : Intent.NONE}
           writer={state => {
             state[MSGID.USER_CONFIG].flags.expansion_type = EXPANSION_MOTION_TYPES.ROTARY_UNLIMITED
           }}
@@ -43,7 +43,7 @@ const MotionTypeSelector = () => {
           active={motion_setting==EXPANSION_MOTION_TYPES.LINEAR}
           outlined
           fill
-          intent={motion_setting ? Intent.SUCCESS : Intent.NONE}
+          intent={(motion_setting==EXPANSION_MOTION_TYPES.LINEAR) ? Intent.SUCCESS : Intent.NONE}
           writer={state => {
             state[MSGID.USER_CONFIG].flags.expansion_type = EXPANSION_MOTION_TYPES.LINEAR
           }}
@@ -62,6 +62,62 @@ export const ApplicationConfig = () => {
       <Box>
         <SectionHeading text="Motion Type" />
         <MotionTypeSelector />
+        <br/>
+        <br/>
+        {/* Ability to define a minimum and maximum value for the range of motion, or unlimited */}
+        <Composition templateCols="1fr 1fr" gapCol={20} >
+          <NumberInput
+            accessor={state => state[MSGID.USER_CONFIG].values.expansion_range_min}
+            writer={(state, value) => {
+              state[MSGID.USER_CONFIG].values.expansion_range_min = value
+            }}
+            intent={Intent.PRIMARY}
+            min={-400}
+            max={400}
+            rightElement={
+              <Tag minimal>
+                <b>MIN</b>
+              </Tag>
+            }
+            style={{maxWidth: '125px'}}
+          />
+          <NumberInput
+            accessor={state => state[MSGID.USER_CONFIG].values.expansion_range_max}
+            writer={(state, value) => {
+              state[MSGID.USER_CONFIG].values.expansion_range_max = value
+            }}
+            intent={Intent.PRIMARY}
+            min={-400}
+            max={400}
+            rightElement={
+              <Tag minimal>
+                <b>MAX</b>
+              </Tag>
+            }
+            style={{maxWidth: '125px'}}
+          />
+        </Composition>
+
+        <br/>
+
+        {/* Maximum speed of output stage */}
+        {/* TODO: modify label based on type of mode selected */}
+        <NumberInput
+          accessor={state => state[MSGID.USER_CONFIG].values.expansion_speed_limit}
+          writer={(state, value) => {
+            state[MSGID.USER_CONFIG].values.expansion_speed_limit = value
+          }}
+          fill
+          intent={Intent.PRIMARY}
+          min={0}
+          max={400}
+          rightElement={
+            <Tag minimal>
+              <b>units/second</b>
+            </Tag>
+          }
+        />
+
       </Box>
 
       <Box>
@@ -69,9 +125,9 @@ export const ApplicationConfig = () => {
 
         {/* TODO: use correct setting variable */}
         <NumberInput
-        accessor={state => state[MSGID.USER_CONFIG].values.speed_limit}
+        accessor={state => state[MSGID.USER_CONFIG].values.expansion_ratio}
         writer={(state, value) => {
-          state[MSGID.USER_CONFIG].values.speed_limit = value
+          state[MSGID.USER_CONFIG].values.expansion_ratio = value
         }}
         min={0}
         max={1}
@@ -82,12 +138,6 @@ export const ApplicationConfig = () => {
           </Tag>
         }
       />
-
-      {/* Ability to define a minimum and maximum value for the range of motion, or unlimited */}
-      
-      {/* Flip the direction of travel */}
-
-      
 
       </Box>
     </Composition>

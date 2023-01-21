@@ -552,9 +552,11 @@ export class UserConfigCodec extends Codec {
     packet.writeUInt8(payload.values.expansion_resolution)
     packet.writeUInt8(payload.values.expansion_ratio)
     packet.writeUInt8(payload.values.expansion_speed_limit)
-
+    packet.writeInt16LE(payload.values.expansion_range_min)
+    packet.writeInt16LE(payload.values.expansion_range_max)
+  
     // currently reserved values
-    packet.writeUInt8(0xDD)
+    packet.writeUInt8(0xFF)
 
     return packet.toBuffer()
   }
@@ -596,9 +598,11 @@ export class UserConfigCodec extends Codec {
       expansion_resolution: reader.readUInt8(),
       expansion_ratio: reader.readUInt8(),
       expansion_speed_limit: reader.readUInt8(),
+      expansion_range_min: reader.readInt16LE(),
+      expansion_range_max: reader.readInt16LE(),
     }
 
-    let v4 = reader.readUInt8() // reserved value
+    let r12 = reader.readUInt8() // reserved value
 
     return {
       flags: flags,

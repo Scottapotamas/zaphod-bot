@@ -324,6 +324,8 @@ export type UserConfigFields = {
   expansion_resolution: number;
   expansion_ratio: number;
   expansion_speed_limit: number;
+  expansion_range_min: number;
+  expansion_range_max: number;
 }
 
 export type UserConfig = {

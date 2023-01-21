@@ -8,10 +8,10 @@ export const ExpansionServoSettings = () => {
   return (
     <Composition templateCols="1fr" justifyItems="center" gap={20}>
       <Box>
-        <ApplicationConfig />
+        <ServoConfig />
       </Box>
       <Box>
-        <ServoConfig />
+        <ApplicationConfig />
       </Box>
     </Composition>
   )
