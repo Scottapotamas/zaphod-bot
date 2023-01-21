@@ -72,43 +72,43 @@ const ServoStatusBlock = (props: ServoStatusBlockProps) => {
   switch (servoState) {
     case 0:
       operation_mode = 'INACTIVE'
-      status_icon = IconNames.DELETE
+      status_icon = IconNames.SMALL_MINUS
       break
     case 1:
       operation_mode = 'DISABLING'
-      status_icon = IconNames.DISABLE
+      status_icon = IconNames.SMALL_CROSS
       break
     case 2:
-      operation_mode = 'CALIBRATING FEEDBACK'
-      status_icon = IconNames.HISTORY
+      operation_mode = 'CHECK FEEDBACK'
+      status_icon = IconNames.SMALL_PLUS
       break
     case 3:
       operation_mode = 'ENDSTOP SEARCH'
-      status_icon = IconNames.RESET
+      status_icon = IconNames.SMALL_SQUARE
       break
     case 4:
       operation_mode = 'ENDSTOP FOUND'
-      status_icon = IconNames.UPDATED
+      status_icon = IconNames.SMALL_TICK
       break
     case 5:
       operation_mode = 'FOLDBACK CHECK'
-      status_icon = IconNames.SELECTION
+      status_icon = IconNames.SMALL_SQUARE
       break
     case 6:
       operation_mode = 'HOMING SUCCESS'
-      status_icon = IconNames.CONFIRM
+      status_icon = IconNames.SMALL_TICK
       break
     case 7:
-      operation_mode = 'IDLE'
-      status_icon = IconNames.LAYOUT_CIRCLE
+      operation_mode = 'ACTIVE'
+      status_icon = IconNames.DOT
       break
     case 8:
       operation_mode = 'HIGH LOAD'
-      status_icon = IconNames.ISSUE
+      status_icon = IconNames.SYMBOL_CROSS
       break
     case 9:
       operation_mode = 'MOVING'
-      status_icon = IconNames.SOCIAL_MEDIA
+      status_icon = IconNames.DOT
       break
     default:
       operation_mode = 'INVALID MODE'
@@ -119,13 +119,15 @@ const ServoStatusBlock = (props: ServoStatusBlockProps) => {
   return (
     <Tag
       fill
-      minimal
-      large
+      minimal 
+      icon={status_icon}
+      // intent={Intent.PRIMARY}
       style={{
         fontWeight: 'bold',
-        fontSize: 'larger',
+        // fontSize: 'larger',
         textAlign: 'center',
-        height: '100%',
+        minWidth: '150px',
+        maxWidth: '200px',
       }}
     >
       {operation_mode}
@@ -141,7 +143,7 @@ const TargetAngleTag = (props: ServoStatusBlockProps) => {
       intent={servoColor[props.motorIndex]}
       style={{
         fontWeight: 'bold',
-        minWidth: '50px',
+        minWidth: '60px',
         textAlign: 'center',
       }}
     >
@@ -159,7 +161,7 @@ const FeedbackTag = (props: ServoStatusBlockProps) => {
       intent={servoColor[props.motorIndex]}
       style={{
         fontWeight: 'bold',
-        minWidth: '50px',
+        minWidth: '60px',
         textAlign: 'center',
       }}
     >
@@ -176,7 +178,7 @@ const PowerTag = (props: ServoStatusBlockProps) => {
       intent={servoColor[props.motorIndex]}
       style={{
         fontWeight: 'bold',
-        minWidth: '50px',
+        minWidth: '60px',
         textAlign: 'center',
       }}
     >
@@ -193,7 +195,7 @@ const RotationRateTag = (props: ServoStatusBlockProps) => {
       intent={servoColor[props.motorIndex]}
       style={{
         fontWeight: 'bold',
-        minWidth: '50px',
+        minWidth: '60px',
         textAlign: 'center',
       }}
     >
@@ -201,18 +203,26 @@ const RotationRateTag = (props: ServoStatusBlockProps) => {
     </Tag>
   )
 }
+const oldlayoutDescription = `
+  State Angle RotationRate
+  State Feedback Power
+`
 const layoutDescription = `
-  State State
-  Angle RotationRate
-  Feedback Power
+  State Angle RotationRate Feedback Power
 `
 
 const ServoStats = (props: MotorData) => {
+  const expansion_enabled = useHardwareState(state => state[MSGID.USER_CONFIG].flags.expansion_enabled)
+
+  if( props.index == 3 && !expansion_enabled )
+  {
+    return (<></>)
+  }
+
   return (
     <OutlineCard>
       <Composition
         areas={layoutDescription}
-        // templateCols="1fr"
         gap={5}
       >
         {Areas => (
@@ -240,17 +250,17 @@ const ServoStats = (props: MotorData) => {
 }
 
 const ServoStatsBlock = () => {
-  const motors = useHardwareState(state => state[MSGID.SERVO]) //.filter(obj => obj.enabled)
+  const motors = useHardwareState(state => state[MSGID.SERVO])
 
   if (!motors) {
     return <span>No motor telemetry available...</span>
   }
 
   return (
-    <Composition gap={5} templateCols="1fr 1fr 1fr 1fr">
-      {motors.map((clearpath, index) => (
+    <Composition gap={5} >
+      {motors.map((clearpath, index) => 
         <ServoStats servo={clearpath} index={index} key={index}/>
-      ))}
+      )}
     </Composition>
   )
 }
@@ -279,6 +289,7 @@ export const ServoSummary = () => {
         icon={chartsExpanded ? IconNames.CHEVRON_UP : IconNames.CHEVRON_DOWN}
       >
         {/* Consider a label here to explain the UX? */}
+        CHARTS
       </Button>
 
       <Collapse isOpen={chartsExpanded} transitionDuration={1500}>
