@@ -58,12 +58,10 @@ const MotionTypeSelector = () => {
 
 export const ApplicationConfig = () => {
   return (
-    <Composition templateCols="1fr 1fr" justifyItems="center" gap={20}>
-      <Box>
+    <Composition templateCols="1fr" justifyItems="center" gap={20}>
         <SectionHeading text="Motion Type" />
         <MotionTypeSelector />
-        <br/>
-        <br/>
+
         {/* Ability to define a minimum and maximum value for the range of motion, or unlimited */}
         <Composition templateCols="1fr 1fr" gapCol={20} >
           <NumberInput
@@ -98,8 +96,6 @@ export const ApplicationConfig = () => {
           />
         </Composition>
 
-        <br/>
-
         {/* Maximum speed of output stage */}
         {/* TODO: modify label based on type of mode selected */}
         <NumberInput
@@ -118,28 +114,6 @@ export const ApplicationConfig = () => {
           }
         />
 
-      </Box>
-
-      <Box>
-        <SectionHeading text="Ratio" />
-
-        {/* TODO: use correct setting variable */}
-        <NumberInput
-        accessor={state => state[MSGID.USER_CONFIG].values.expansion_ratio}
-        writer={(state, value) => {
-          state[MSGID.USER_CONFIG].values.expansion_ratio = value
-        }}
-        min={0}
-        max={1}
-        intent={Intent.PRIMARY}
-        rightElement={
-          <Tag minimal>
-            <b>RATIO</b>
-          </Tag>
-        }
-      />
-
-      </Box>
     </Composition>
   )
 }

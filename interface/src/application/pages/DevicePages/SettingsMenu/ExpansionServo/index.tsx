@@ -6,7 +6,7 @@ import { ApplicationConfig } from './ApplicationConfig'
 
 export const ExpansionServoSettings = () => {
   return (
-    <Composition templateCols="1fr" justifyItems="center" gap={20}>
+    <Composition templateCols="1fr 1fr" justifyItems="center" gap={20}>
       <Box>
         <ServoConfig />
       </Box>

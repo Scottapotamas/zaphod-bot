@@ -121,7 +121,7 @@ configuration_notify_config( void )
                                 user_configuration.flags.expansion_enabled,
                                 user_configuration.flags.expansion_requires_homing,
                                 user_configuration.flags.expansion_reverse,
-                                user_configuration.values.expansion_resolution, // TODO: REMAP INTO STEPS/REV?
+                                user_configuration.values.expansion_resolution * 100,
                                 user_configuration.values.expansion_ratio,                   // TODO: remap into float
                                 user_configuration.values.expansion_range_min,
                                 user_configuration.values.expansion_range_max,
@@ -270,15 +270,14 @@ PUBLIC int32_t
 configuration_get_expansion_limit_min( void )
 {
     // TODO: What precision/ is needed here?
-    return 0;
+    return user_configuration.values.expansion_range_min;
 }
 
 PUBLIC int32_t
 configuration_get_expansion_limit_max( void )
 {
     // TODO: What precision/ is needed here?
-    // TODO: How is non-symetrical points around homing handled?
-    return 0;
+    return user_configuration.values.expansion_range_max;
 }
 
 PUBLIC uint16_t

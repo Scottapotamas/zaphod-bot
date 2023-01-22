@@ -36,7 +36,7 @@ typedef struct
     uint8_t speed_limit;
     uint8_t volume_radius;
     uint8_t volume_z;
-    uint8_t expansion_resolution;
+    uint8_t expansion_resolution;   // sent/stored as 1/100th of the actual resolution
     uint8_t expansion_ratio;
     uint8_t expansion_speed_limit;
     uint8_t reserved_12;

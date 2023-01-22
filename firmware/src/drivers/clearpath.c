@@ -830,7 +830,7 @@ convert_angle_steps( ClearpathServoInstance_t servo, float angle )
 /* -------------------------------------------------------------------------- */
 
 /*
- * Convert a motor position in steps to an angle in the motor reference frame (not kinematics shoulder angle)
+ * Convert a motor position in steps to an angle in the motor reference frame
  */
 PRIVATE float
 convert_steps_angle( ClearpathServoInstance_t servo, int32_t steps )
