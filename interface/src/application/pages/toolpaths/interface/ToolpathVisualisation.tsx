@@ -20,14 +20,34 @@ import {
 import { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 
 import { useFrame, useThree } from '@react-three/fiber'
-import { Mesh, Group, Color, Vector2, PerspectiveCamera as PerspectiveCameraImpl, MathUtils } from 'three'
-import { changeState,  getSetting, setSetting, useSetting, useStore } from './state'
+import {
+  Mesh,
+  Group,
+  Color,
+  Vector2,
+  PerspectiveCamera as PerspectiveCameraImpl,
+  MathUtils,
+} from 'three'
+import {
+  changeState,
+  getSetting,
+  setSetting,
+  useSetting,
+  useStore,
+} from './state'
 import { MovementMoveType } from '../optimiser/hardware'
 import { sparseToDense } from '../optimiser/passes'
 import { CatmullRomLine } from './CatmullLine'
 import { MovementPoint } from 'src/application/typedState'
 import { Vector3 } from 'three'
-import { deserialiseTour, GLOBAL_OVERRIDE_OBJECT_ID, Movement, RGB, RGBA, XYZ } from '../optimiser/movements'
+import {
+  deserialiseTour,
+  GLOBAL_OVERRIDE_OBJECT_ID,
+  Movement,
+  RGB,
+  RGBA,
+  XYZ,
+} from '../optimiser/movements'
 import { Line2 } from 'three/examples/jsm/lines/Line2'
 import { LineMaterial } from 'three/examples/jsm/lines/LineMaterial'
 import { LineSegmentsGeometry } from 'three/examples/jsm/lines/LineSegmentsGeometry'
@@ -63,10 +83,12 @@ function convertToThreeCoordinateSystem(vector: [number, number, number]): [numb
 }
 
 export function getOrderedMovementsForFrame(frameNumber: number): Movement[] {
-  const orderedMovementsByFrame = getSetting(state => state.unorderedMovementsByFrame)
+  const unorderedMovementsByFrame = getSetting(
+    state => state.unorderedMovementsByFrame,
+  )
   const movementOrdering = getSetting(state => state.movementOrdering)
 
-  const movements = orderedMovementsByFrame[frameNumber] ?? []
+  const movements = unorderedMovementsByFrame[frameNumber] ?? []
   const ordering = movementOrdering[frameNumber] ?? {}
 
   return deserialiseTour(movements.slice(), ordering)

@@ -49,7 +49,7 @@ export const defaultSettings: Settings = {
       postWait: 250,
     },
     gnodesMesh: {
-      outputType: 1 as GNodesMeshOutputType.LINE_GROUP, // circular dep
+      outputType: 0 as GNodesMeshOutputType.LINES, // circular dep
     },
   },
 
@@ -247,6 +247,8 @@ export const initialState: Store = {
     y: 0,
     z: 0,
   },
+
+  hardwareMode: '', // What is this?
 
   arbitrary: {},
 

@@ -3,13 +3,8 @@ import { expose } from 'threads/worker'
 
 import { importJson, MovementJSON } from '../import'
 import { Movement, SerialisedTour } from '../movements'
-import {
-  Continue,
-  getTotalDuration,
-  optimise,
-  Progress,
-  sparseToDense,
-} from '../passes'
+import { Continue, optimise, Progress } from '../passes'
+import { preprocess } from '../preprocess'
 import type { Settings } from '../settings'
 
 let progressUpdates = new Subject<Progress>()
@@ -62,7 +57,7 @@ export const OptimisationWorker = {
 
       // Run the optimiser
       await optimise(
-        movements,
+        preprocess(movements, settings),
         partialUpdate,
         settings,
         updateProgress,

@@ -7,6 +7,7 @@ import type { Settings } from './settings'
 import type { Movement } from './movements'
 import { isEmpty } from './empty'
 import { VisualisationSettings } from '../interface/state'
+import { preprocess } from './preprocess'
 
 async function* walkJSON(dir: string): AsyncGenerator<string> {
   for await (const d of await fs.promises.opendir(dir)) {
@@ -120,7 +121,7 @@ export function renderablesToMovements(renderables: Renderable[], settings: Sett
     }
   }
 
-  return movements
+  return preprocess(movements, settings)
 }
 
 export interface ObjectNameTree {
