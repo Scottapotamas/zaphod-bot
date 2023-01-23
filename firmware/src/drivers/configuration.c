@@ -5,9 +5,11 @@
 #include "configuration.h"
 #include "configuration_types.h"
 
-#include "app_times.h"
-#include "app_version.h"
 #include "buzzer.h"
+#include "clearpath.h"
+
+#include "app_version.h"
+#include "app_times.h"
 #include "hal_flashmem.h"
 
 /* ----- Defines ------------------------------------------------------------ */
@@ -115,6 +117,16 @@ configuration_notify_config( void )
     // Notify relevant modules of new configuration
     buzzer_mute( user_configuration.flags.buzzer_mute );
 
+    servo_change_configuration( _CLEARPATH_4,
+                                user_configuration.flags.expansion_enabled,
+                                user_configuration.flags.expansion_requires_homing,
+                                user_configuration.flags.expansion_reverse,
+                                user_configuration.values.expansion_resolution, // TODO: REMAP INTO STEPS/REV?
+                                user_configuration.values.expansion_ratio,                   // TODO: remap into float
+                                user_configuration.values.expansion_range_min,
+                                user_configuration.values.expansion_range_max,
+                                0                                                     // TODO: position/angle at home value?
+                                );
 
     // TODO: consider doing damage tracking to only set relevant members?
 

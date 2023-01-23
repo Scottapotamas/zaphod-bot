@@ -80,6 +80,7 @@ typedef struct
 
 typedef struct
 {
+    bool installed;
     bool requires_homing;
     bool reverse_direction;
     uint32_t steps_per_revolution;
@@ -128,8 +129,9 @@ PRIVATE const ServoHardware_t ServoHardwareMap[_NUMBER_CLEARPATH_SERVOS] = {
                        .pin_oc_fault  = _SERVO_4_CURRENT_FAULT },
 };
 
-PRIVATE const ServoConfiguration_t ServoConfig[_NUMBER_CLEARPATH_SERVOS] = {
-    [_CLEARPATH_1] = { .requires_homing      = true,
+PRIVATE ServoConfiguration_t ServoConfig[_NUMBER_CLEARPATH_SERVOS] = {
+    [_CLEARPATH_1] = { .installed            = true,
+                       .requires_homing      = true,
                        .reverse_direction    = false,
                        .steps_per_revolution = SERVO_STEPS_PER_REV,
                        .ratio                = 1.0f,
@@ -137,7 +139,8 @@ PRIVATE const ServoConfiguration_t ServoConfig[_NUMBER_CLEARPATH_SERVOS] = {
                        .angle_max            = SERVO_MAX_ANGLE,
                        .angle_at_home        = -42.0f },
 
-    [_CLEARPATH_2] = { .requires_homing      = true,
+    [_CLEARPATH_2] = { .installed            = true,
+                       .requires_homing      = true,
                        .reverse_direction    = false,
                        .steps_per_revolution = SERVO_STEPS_PER_REV,
                        .ratio                = 1.0f,
@@ -145,7 +148,8 @@ PRIVATE const ServoConfiguration_t ServoConfig[_NUMBER_CLEARPATH_SERVOS] = {
                        .angle_max            = SERVO_MAX_ANGLE,
                        .angle_at_home        = -42.0f },
 
-    [_CLEARPATH_3] = { .requires_homing      = true,
+    [_CLEARPATH_3] = { .installed            = true,
+                       .requires_homing      = true,
                        .reverse_direction    = false,
                        .steps_per_revolution = SERVO_STEPS_PER_REV,
                        .ratio                = 1.0f,
@@ -153,7 +157,8 @@ PRIVATE const ServoConfiguration_t ServoConfig[_NUMBER_CLEARPATH_SERVOS] = {
                        .angle_max            = SERVO_MAX_ANGLE,
                        .angle_at_home        = -42.0f },
 
-    [_CLEARPATH_4] = { .requires_homing      = false,
+    [_CLEARPATH_4] = { .installed            = false,
+                       .requires_homing      = false,
                        .reverse_direction    = false,
                        .steps_per_revolution = 0,
                        .ratio                = 0,
@@ -187,6 +192,15 @@ servo_init( ClearpathServoInstance_t servo )
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC bool
+servo_is_configured( ClearpathServoInstance_t servo )
+{
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+    return ( ServoConfig[servo].installed && ServoConfig[servo].ratio >= 0.0f + FLT_EPSILON );
+}
+
+/* -------------------------------------------------------------------------- */
+
 // Returns the number of servos that have valid configuration
 //  implies that this number servos are ready for use
 PUBLIC uint8_t
@@ -194,12 +208,42 @@ servo_get_configured_count( void )
 {
     uint8_t num_configured = 0;
 
-    for( uint8_t servo = 0; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
+    for( ClearpathServoInstance_t servo = 0; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
     {
-        num_configured += ( ServoConfig[servo].ratio >= 0.0f + FLT_EPSILON );
+        num_configured += servo_is_configured(servo);
     }
 
     return num_configured;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC bool
+servo_change_configuration( ClearpathServoInstance_t servo,
+                            bool is_installed,
+                            bool requires_homing,
+                            bool reverse_direction,
+                            uint32_t steps_per_revolution,
+                            float ratio,
+                            float angle_min,
+                            float angle_max,
+                            float angle_at_home )
+{
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+
+    ServoConfiguration_t *config = &ServoConfig[servo];
+
+    // TODO: consider doing bounds/error checks on these values?
+    config->installed = is_installed;
+    config->requires_homing = requires_homing;
+    config->reverse_direction = reverse_direction;
+    config->steps_per_revolution = steps_per_revolution;
+    config->ratio = ratio;
+    config->angle_min = angle_min;
+    config->angle_max = angle_max;
+    config->angle_at_home = angle_at_home;
+
+    return false;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -383,7 +427,7 @@ servo_process( ClearpathServoInstance_t servo )
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
 
     // Early exit if not configured
-    if( ServoConfig[servo].ratio <= 0.0f + FLT_EPSILON )
+    if( !ServoConfig[servo].installed )
     {
         return;
     }
@@ -771,7 +815,7 @@ PRIVATE int32_t
 convert_angle_steps( ClearpathServoInstance_t servo, float angle )
 {
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
-    REQUIRE( ServoConfig[servo].ratio > 0.0f + FLT_EPSILON);
+    REQUIRE( ServoConfig[servo].ratio > 0.0f + FLT_EPSILON );
 
     float steps_per_servo_degree = (float)ServoConfig[servo].steps_per_revolution / SERVO_ANGLE_PER_REV;
     float output_ratio = ServoConfig[servo].ratio;
@@ -792,7 +836,7 @@ PRIVATE float
 convert_steps_angle( ClearpathServoInstance_t servo, int32_t steps )
 {
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
-    REQUIRE( ServoConfig[servo].ratio > 0.0f + FLT_EPSILON);
+    REQUIRE( ServoConfig[servo].ratio > 0.0f + FLT_EPSILON );
 
     float steps_per_degree = (float)ServoConfig[servo].steps_per_revolution / SERVO_ANGLE_PER_REV;
     float output_ratio = ServoConfig[servo].ratio;

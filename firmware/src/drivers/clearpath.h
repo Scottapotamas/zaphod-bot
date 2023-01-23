@@ -27,8 +27,26 @@ servo_init( ClearpathServoInstance_t servo );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC bool
+servo_is_configured( ClearpathServoInstance_t servo );
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC uint8_t
 servo_get_configured_count( void );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC bool
+servo_change_configuration( ClearpathServoInstance_t servo,
+                            bool is_installed,
+                            bool requires_homing,
+                            bool reverse_direction,
+                            uint32_t steps_per_revolution,
+                            float ratio,
+                            float angle_min,
+                            float angle_max,
+                            float angle_at_home );
 
 /* -------------------------------------------------------------------------- */
 
