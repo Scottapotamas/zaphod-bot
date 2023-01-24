@@ -47,36 +47,42 @@ PRIVATE int32_t calculate_distance_this_tick( int32_t current, int32_t target, i
 
 /* ----- Private Variables -------------------------------------------------- */
 
-PRIVATE PointFollower_t follower;
+PRIVATE PointFollower_t follow_state[NUMBER_POINT_FOLLOWERS] = { 0 };
 
 PRIVATE int8_t acceleration = 1;
 PRIVATE int32_t velocity_max = 200;
 
 /* ----- Public Functions --------------------------------------------------- */
 
+// TODO: ability to set velocity and acceleration as init arguments
 PUBLIC void
-point_follower_init( void )
+point_follower_init( PointFollowInstance_t follower )
 {
-    memset( &follower, 0, sizeof( follower ) );
+    REQUIRE( follower < NUMBER_POINT_FOLLOWERS );
+    PointFollower_t *me = &follow_state[follower];
+
+    memset( me, 0, sizeof( PointFollower_t ) );
 }
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-point_follower_set_target( CartesianPoint_t *target )
+point_follower_set_target( PointFollowInstance_t follower, CartesianPoint_t *target )
 {
+    REQUIRE( follower < NUMBER_POINT_FOLLOWERS );
     REQUIRE( target );
 
-    PointFollower_t *me = &follower;
+    PointFollower_t *me = &follow_state[follower];
     memcpy( &me->requested, target, sizeof( CartesianPoint_t ) );
 }
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC bool
-point_follower_get_move_done( void )
+point_follower_get_move_done( PointFollowInstance_t follower )
 {
-    PointFollower_t *me = &follower;
+    REQUIRE( follower < NUMBER_POINT_FOLLOWERS );
+    PointFollower_t *me = &follow_state[follower];
 
     // TODO: Check if distance is close enough to target
 
@@ -86,9 +92,10 @@ point_follower_get_move_done( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-point_follower_start( void )
+point_follower_start( PointFollowInstance_t follower )
 {
-    PointFollower_t *me = &follower;
+    REQUIRE( follower < NUMBER_POINT_FOLLOWERS );
+    PointFollower_t *me = &follow_state[follower];
 
     memset( &me->requested, 0, sizeof(CartesianPoint_t) );
     memset( &me->previous_march, 0, sizeof(CartesianPoint_t) );
@@ -100,12 +107,24 @@ point_follower_start( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-point_follower_stop( void )
+point_follower_stop( PointFollowInstance_t follower )
 {
-    PointFollower_t *me = &follower;
+    REQUIRE( follower < NUMBER_POINT_FOLLOWERS );
+    PointFollower_t *me = &follow_state[follower];
 
     // Request that the state-machine return to "OFF"
     me->enable = false;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+point_follower_process_all( void )
+{
+    for( PointFollowInstance_t instance = 0; instance < NUMBER_POINT_FOLLOWERS; instance++ )
+    {
+        point_follower_process( instance);
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -116,9 +135,10 @@ point_follower_stop( void )
 //      This should help reduce jerk when changing direction too quickly
 
 PUBLIC void
-point_follower_process( void )
+point_follower_process( PointFollowInstance_t follower )
 {
-    PointFollower_t *me = &follower;
+    REQUIRE( follower < NUMBER_POINT_FOLLOWERS );
+    PointFollower_t *me = &follow_state[follower];
 
     if( !me->enable )
     {

@@ -99,7 +99,9 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask *)me, DEMO_MODE_CONFIGURATION );
 
     // Put this somewhere more suitable
-    point_follower_init();
+    point_follower_init( POINT_FOLLOWER_DELTA );
+    point_follower_init( POINT_FOLLOWER_EXPANSION );
+
     expansion_init();
 
     STATE_INIT( &AppTaskSupervisor_main );
@@ -520,7 +522,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
 
             // TODO: this needs refactoring as the motion task normally interacts with the path interpolator
             path_interpolator_stop();
-            point_follower_start();
+            point_follower_start( POINT_FOLLOWER_DELTA );
             return 0;
 
         case TRACKED_TARGET_REQUEST: {
@@ -533,7 +535,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
                 memcpy( &target, &tpre->target, sizeof( CartesianPoint_t ) );
 
                 // TODO: Do we need to start the point follower first/now?
-                point_follower_set_target( &target );
+                point_follower_set_target( POINT_FOLLOWER_DELTA, &target );
             }
         }
             return 0;
@@ -563,7 +565,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
 
         case MECHANISM_REHOME: {
             CartesianPoint_t home = { 0, 0, 0 };
-            point_follower_set_target( &home );
+            point_follower_set_target( POINT_FOLLOWER_DELTA, &home );
 
             user_interface_reset_tracking_target();
             return 0;
@@ -573,7 +575,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
             return 0;
 
         case STATE_EXIT_SIGNAL:
-            point_follower_stop();
+            point_follower_stop( POINT_FOLLOWER_DELTA );
             user_interface_reset_tracking_target();
 
             eventTimerStopIfActive( &me->timer1 );

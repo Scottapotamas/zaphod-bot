@@ -11,35 +11,47 @@
 
 /* ----- Types ------------------------------------------------------------- */
 
+typedef enum
+{
+    POINT_FOLLOWER_DELTA = 0,
+    POINT_FOLLOWER_EXPANSION,
+    NUMBER_POINT_FOLLOWERS
+} PointFollowInstance_t;
+
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
-point_follower_init( void );
+point_follower_init( PointFollowInstance_t follower );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-point_follower_process( void );
+point_follower_process_all( void );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-point_follower_set_target( CartesianPoint_t *target );
+point_follower_process( PointFollowInstance_t follower );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+point_follower_set_target( PointFollowInstance_t follower, CartesianPoint_t *target );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC bool
-point_follower_get_move_done( void );
+point_follower_get_move_done( PointFollowInstance_t follower );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-point_follower_start( void );
+point_follower_start( PointFollowInstance_t follower );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-point_follower_stop( void );
+point_follower_stop( PointFollowInstance_t follower );
 
 /* -------------------------------------------------------------------------- */
 
