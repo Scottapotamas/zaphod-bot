@@ -11,50 +11,64 @@
 
 /* ----- Types ------------------------------------------------------------- */
 
+typedef enum
+{
+    PATH_INTERPOLATOR_DELTA = 0,
+    PATH_INTERPOLATOR_EXPANSION,
+    NUMBER_PATH_INTERPOLATORS
+} PathInterpolatorInstance_t;
+
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_init( void );
+path_interpolator_init( PathInterpolatorInstance_t interpolator );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_process( void );
+path_interpolator_process_all( void );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_set_epoch_reference( timer_ms_t sync_timer );
+path_interpolator_process( PathInterpolatorInstance_t interpolator );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_set_next( Movement_t *movement_to_process );
+path_interpolator_set_epoch_reference( PathInterpolatorInstance_t interpolator,
+                                       timer_ms_t sync_timer );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+path_interpolator_set_next( PathInterpolatorInstance_t interpolator,
+                            Movement_t *movement_to_process );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC bool
-path_interpolator_is_ready_for_next( void );
+path_interpolator_is_ready_for_next( PathInterpolatorInstance_t interpolator );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC float
-path_interpolator_get_progress( void );
+path_interpolator_get_progress( PathInterpolatorInstance_t interpolator );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC bool
-path_interpolator_get_move_done( void );
+path_interpolator_get_move_done( PathInterpolatorInstance_t interpolator );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_start( void );
+path_interpolator_start( PathInterpolatorInstance_t interpolator );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_stop( void );
+path_interpolator_stop( PathInterpolatorInstance_t interpolator );
 
 /* -------------------------------------------------------------------------- */
 

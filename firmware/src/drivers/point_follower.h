@@ -4,7 +4,6 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
-#include "timer_ms.h"
 #include <motion_types.h>
 
 /* ----- Defines ------------------------------------------------------------ */
@@ -52,9 +51,6 @@ point_follower_start( PointFollowInstance_t follower );
 
 PUBLIC void
 point_follower_stop( PointFollowInstance_t follower );
-
-/* -------------------------------------------------------------------------- */
-
 
 /* -------------------------------------------------------------------------- */
 

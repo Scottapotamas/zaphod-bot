@@ -19,8 +19,11 @@
 #include "configuration.h"
 #include "app_times.h"
 #include "timer_ms.h"
+#include "qassert.h"
 
 /* ----- Defines ------------------------------------------------------------ */
+
+DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 typedef enum
 {
@@ -49,12 +52,13 @@ typedef struct
 
 /* ----- Private Variables -------------------------------------------------- */
 
-PRIVATE MotionPlanner_t planner;
+PRIVATE MotionPlanner_t planner[NUMBER_PATH_INTERPOLATORS] = { 0 };
+
+PRIVATE void path_interpolator_calculate_percentage( PathInterpolatorInstance_t interpolator, uint16_t move_duration );
 
 PRIVATE void path_interpolator_premove_transforms( Movement_t *move );
 PRIVATE void path_interpolator_apply_rotation_offset( Movement_t *move );
 PRIVATE void path_interpolator_execute_move( Movement_t *move, float percentage );
-PRIVATE void path_interpolator_calculate_percentage( uint16_t move_duration );
 
 PRIVATE void path_interpolator_notify_pathing_started( uint32_t move_id );
 PRIVATE void path_interpolator_notify_pathing_complete( uint32_t move_id );
@@ -62,17 +66,21 @@ PRIVATE void path_interpolator_notify_pathing_complete( uint32_t move_id );
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_init( void )
+path_interpolator_init( PathInterpolatorInstance_t interpolator )
 {
-    memset( &planner, 0, sizeof( planner ) );
+    REQUIRE( interpolator < NUMBER_PATH_INTERPOLATORS );
+    MotionPlanner_t *me = &planner[interpolator];
+
+    memset( me, 0, sizeof( MotionPlanner_t ) );
 }
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_set_epoch_reference( timer_ms_t sync_timer )
+path_interpolator_set_epoch_reference( PathInterpolatorInstance_t interpolator, timer_ms_t sync_timer )
 {
-    MotionPlanner_t *me = &planner;
+    REQUIRE( interpolator < NUMBER_PATH_INTERPOLATORS );
+    MotionPlanner_t *me = &planner[interpolator];
 
     if( sync_timer )
     {
@@ -83,9 +91,12 @@ path_interpolator_set_epoch_reference( timer_ms_t sync_timer )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_set_next( Movement_t *movement_to_process )
+path_interpolator_set_next( PathInterpolatorInstance_t interpolator, Movement_t *movement_to_process )
 {
-    MotionPlanner_t *me                   = &planner;
+    REQUIRE( interpolator < NUMBER_PATH_INTERPOLATORS );
+    REQUIRE( movement_to_process->duration );
+
+    MotionPlanner_t *me = &planner[interpolator];
     Movement_t      *movement_insert_slot = { 0 };    // Allows us to put the new move into whichever slot is available
 
     if( me->move_a.duration == 0 )
@@ -106,35 +117,45 @@ path_interpolator_set_next( Movement_t *movement_to_process )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC bool
-path_interpolator_is_ready_for_next( void )
+path_interpolator_is_ready_for_next( PathInterpolatorInstance_t interpolator )
 {
-    bool slot_a_ready = ( planner.move_a.duration == 0 );
-    bool slot_b_ready = ( planner.move_b.duration == 0 );
+    REQUIRE( interpolator < NUMBER_PATH_INTERPOLATORS );
+    MotionPlanner_t *me = &planner[interpolator];
+
+    bool slot_a_ready = ( me->move_a.duration == 0 );
+    bool slot_b_ready = ( me->move_b.duration == 0 );
     return ( slot_a_ready || slot_b_ready );
 }
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC float
-path_interpolator_get_progress( void )
+path_interpolator_get_progress( PathInterpolatorInstance_t interpolator )
 {
-    return planner.progress_percent;
+    REQUIRE( interpolator < NUMBER_PATH_INTERPOLATORS );
+    MotionPlanner_t *me = &planner[interpolator];
+
+    return me->progress_percent;
 }
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC bool
-path_interpolator_get_move_done( void )
+path_interpolator_get_move_done( PathInterpolatorInstance_t interpolator )
 {
-    return ( planner.progress_percent >= 1.0f - FLT_EPSILON ) || planner.currentState == PLANNER_OFF;
+    REQUIRE( interpolator < NUMBER_PATH_INTERPOLATORS );
+    MotionPlanner_t *me = &planner[interpolator];
+
+    return ( me->progress_percent >= 1.0f - FLT_EPSILON ) || me->currentState == PLANNER_OFF;
 }
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void
-path_interpolator_calculate_percentage( uint16_t move_duration )
+path_interpolator_calculate_percentage( PathInterpolatorInstance_t interpolator, uint16_t move_duration )
 {
-    MotionPlanner_t *me = &planner;
+    REQUIRE( interpolator < NUMBER_PATH_INTERPOLATORS );
+    MotionPlanner_t *me = &planner[interpolator];
 
     // calculate current target completion based on time elapsed
     // time remaining is the allotted duration - time used (start to now), divide by the duration to get 0.0->1.0 progress
@@ -153,18 +174,22 @@ path_interpolator_calculate_percentage( uint16_t move_duration )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_start( void )
+path_interpolator_start( PathInterpolatorInstance_t interpolator )
 {
+    REQUIRE( interpolator < NUMBER_PATH_INTERPOLATORS );
+    MotionPlanner_t *me = &planner[interpolator];
+
     // Request that the state-machine transitions to "ON"
-    planner.enable = true;
+    me->enable = true;
 }
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_stop( void )
+path_interpolator_stop( PathInterpolatorInstance_t interpolator )
 {
-    MotionPlanner_t *me = &planner;
+    REQUIRE( interpolator < NUMBER_PATH_INTERPOLATORS );
+    MotionPlanner_t *me = &planner[interpolator];
 
     // Request that the state-machine return to "OFF"
     me->enable = false;
@@ -177,11 +202,23 @@ path_interpolator_stop( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_process( void )
+path_interpolator_process_all( void )
 {
-    MotionPlanner_t *me = &planner;
+    for( PathInterpolatorInstance_t instance = 0; instance < NUMBER_PATH_INTERPOLATORS; instance++ )
+    {
+        path_interpolator_process( instance );
+    }
+}
 
-    if( !planner.enable )
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+path_interpolator_process( PathInterpolatorInstance_t interpolator )
+{
+    REQUIRE( interpolator < NUMBER_PATH_INTERPOLATORS );
+    MotionPlanner_t *me = &planner[interpolator];
+
+    if( !me->enable )
     {
         STATE_NEXT( PLANNER_OFF );
     }
@@ -192,7 +229,7 @@ path_interpolator_process( void )
             STATE_ENTRY_ACTION
 
             STATE_TRANSITION_TEST
-            if( planner.enable )
+            if( me->enable )
             {
                 // At least one slot has a loaded move?
                 if( me->move_a.duration || me->move_b.duration )
@@ -247,11 +284,11 @@ path_interpolator_process( void )
             if( time_since_epoch_ms > me->current_move->sync_offset )
             {
                 // Continue the move
-                path_interpolator_calculate_percentage( me->current_move->duration );
+                path_interpolator_calculate_percentage( interpolator, me->current_move->duration );
                 path_interpolator_execute_move( me->current_move, me->progress_percent );
 
                 // Check if the move is done
-                if( path_interpolator_get_move_done() )
+                if( path_interpolator_get_move_done( interpolator ) )
                 {
                     path_interpolator_notify_pathing_complete( me->current_move->sync_offset );
 
@@ -275,7 +312,7 @@ path_interpolator_process( void )
                     // Fall back into the handler's off state until new moves are loaded
                     if( !me->current_move->duration )
                     {
-                        planner.enable = false;
+                        me->enable = false;
                         STATE_NEXT( PLANNER_OFF );
                     }
                 }
@@ -291,6 +328,8 @@ path_interpolator_process( void )
 
     user_interface_set_pathing_status( me->currentState );
 }
+
+/* -------------------------------------------------------------------------- */
 
 PRIVATE void
 path_interpolator_premove_transforms( Movement_t *move )
@@ -326,6 +365,8 @@ path_interpolator_premove_transforms( Movement_t *move )
     }
 }
 
+/* -------------------------------------------------------------------------- */
+
 PRIVATE void
 path_interpolator_apply_rotation_offset( Movement_t *move )
 {
@@ -337,11 +378,12 @@ path_interpolator_apply_rotation_offset( Movement_t *move )
     }
 }
 
+/* -------------------------------------------------------------------------- */
 
 PRIVATE void
 path_interpolator_execute_move( Movement_t *move, float percentage )
 {
-    CartesianPoint_t target       = { 0, 0, 0 };    // target position in cartesian space
+    CartesianPoint_t target   = { 0, 0, 0 };    // target position in cartesian space
     MotionSolution_t solve_ok = false;
 
     switch( move->type )
@@ -386,12 +428,16 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
             break;
     }
 
+    // TODO: work out how to extract the effector solution from expansion solution
     effector_request_target( &target );
 
     // Update the config/UI data based on this move
     user_interface_set_movement_data( move->sync_offset, move->type, (uint8_t)( percentage * 100 ) );
 }
 
+/* -------------------------------------------------------------------------- */
+
+// TODO: needs to be unique/tagged with which interpolator has started?
 PRIVATE void
 path_interpolator_notify_pathing_started( uint32_t move_id )
 {
@@ -402,6 +448,9 @@ path_interpolator_notify_pathing_started( uint32_t move_id )
     eventPublish( (StateEvent *)barrier_ev );
 }
 
+/* -------------------------------------------------------------------------- */
+
+// TODO: needs to be unique/tagged with which interpolator is done?
 PRIVATE void
 path_interpolator_notify_pathing_complete( uint32_t move_id )
 {

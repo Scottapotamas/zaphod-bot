@@ -92,7 +92,7 @@ PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __att
     eventSubscribe( (StateTask *)me, PATHING_COMPLETE );
 
     effector_init();
-    path_interpolator_init();
+    path_interpolator_init( PATH_INTERPOLATOR_DELTA );
     user_interface_set_motion_state( TASKSTATE_MOTION_INITIAL );
 
     STATE_INIT( &AppTaskMotion_main );
@@ -246,7 +246,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
 
             if( ste )
             {
-                path_interpolator_set_epoch_reference( ste->epoch );
+                path_interpolator_set_epoch_reference( PATH_INTERPOLATOR_DELTA, ste->epoch );
                 STATE_TRAN( AppTaskMotion_active );
             }
 
@@ -274,7 +274,7 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
             user_interface_set_motion_state( TASKSTATE_MOTION_ACTIVE );
             AppTaskMotion_commit_queued_move( me );
 
-            if( path_interpolator_is_ready_for_next() )
+            if( path_interpolator_is_ready_for_next( PATH_INTERPOLATOR_DELTA ) )
             {
                 stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
             }
@@ -357,7 +357,7 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
             }
 
             // Stop the motion interpolation engine
-            path_interpolator_stop();
+            path_interpolator_stop( PATH_INTERPOLATOR_DELTA );
 
             // Update state for UI
             user_interface_set_motion_state( TASKSTATE_MOTION_RECOVERY );
@@ -417,7 +417,7 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
 PRIVATE void AppTaskMotion_commit_queued_move( AppTaskMotion *me )
 {
     // Check for pending events in the queue, and the pathing engine is able to accept one
-    if( path_interpolator_is_ready_for_next()
+    if( path_interpolator_is_ready_for_next( PATH_INTERPOLATOR_DELTA )
         && eventQueueUsed( &me->super.requestQueue ) )
     {
         // Grab the next event off the queue
@@ -430,8 +430,8 @@ PRIVATE void AppTaskMotion_commit_queued_move( AppTaskMotion *me )
         if( next_move->duration )
         {
             // Pass this valid move to the pathing engine, and start it
-            path_interpolator_set_next( next_move );
-            path_interpolator_start();
+            path_interpolator_set_next( PATH_INTERPOLATOR_DELTA, next_move );
+            path_interpolator_start( PATH_INTERPOLATOR_DELTA );
 
             eventPoolGarbageCollect( (StateEvent *)next );    // Remove it from the queue
         }

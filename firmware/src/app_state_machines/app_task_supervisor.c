@@ -521,7 +521,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
             user_interface_reset_tracking_target();    // entering track mode should always reset position
 
             // TODO: this needs refactoring as the motion task normally interacts with the path interpolator
-            path_interpolator_stop();
+            path_interpolator_stop( PATH_INTERPOLATOR_DELTA );
             point_follower_start( POINT_FOLLOWER_DELTA );
             return 0;
 
@@ -691,7 +691,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
             if(    IS_IN_DEADBAND( position.x, 0, MM_TO_MICRONS( 0.1 ) )
                 && IS_IN_DEADBAND( position.y, 0, MM_TO_MICRONS( 0.1 ) )
                 && IS_IN_DEADBAND( position.z, 0, MM_TO_MICRONS( 0.1 ) )
-                && path_interpolator_get_move_done() )
+                && path_interpolator_get_move_done( PATH_INTERPOLATOR_DELTA ) )
             {
                 switch( me->requested_control_mode )
                 {
@@ -719,7 +719,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
             else
             {
                 // if the effector isn't moving, and isn't home, then issue another homing move
-                if( path_interpolator_get_move_done() )
+                if( path_interpolator_get_move_done( PATH_INTERPOLATOR_DELTA ) )
                 {
                     AppTaskSupervisorPublishRehomeEvent();
                 }
