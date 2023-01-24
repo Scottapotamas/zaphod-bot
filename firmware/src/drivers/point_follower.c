@@ -15,8 +15,8 @@
 #include "simple_state_machine.h"
 
 #include "effector.h"
+#include "expansion.h"
 #include "motion_types.h"
-#include "user_interface.h"
 #include "app_times.h"
 #include "timer_ms.h"
 #include "qassert.h"
@@ -163,7 +163,20 @@ point_follower_process( PointFollowInstance_t follower )
             STATE_ENTRY_ACTION
 
             STATE_TRANSITION_TEST
-            CartesianPoint_t effector     = effector_get_position();     // End-effector position
+            CartesianPoint_t effector = { 0 };     // End-effector position
+
+            switch( follower )
+            {
+                case POINT_FOLLOWER_DELTA:
+                    effector = effector_get_position();
+                    break;
+                case POINT_FOLLOWER_EXPANSION:
+                    effector.x = expansion_get_position();
+                    break;
+                default:
+                    ASSERT( false );
+            }
+
             CartesianPoint_t march        = { 0, 0, 0 };    // Quantity of positional cartesian error
             CartesianPoint_t target       = { 0, 0, 0 };    // Follower's target position for this tick
 
@@ -180,15 +193,25 @@ point_follower_process( PointFollowInstance_t follower )
             target.y = effector.y + march.y;
             target.z = effector.z + march.z;
 
-            effector_request_target( &target );
+            switch( follower )
+            {
+                case POINT_FOLLOWER_DELTA:
+                    effector_request_target( &target );
+                    break;
+
+                case POINT_FOLLOWER_EXPANSION:
+                    expansion_request_target( target.x );
+                    break;
+
+                default:
+                    ASSERT_PRINTF( false, "Invalid point follow inst" );
+            }
+
             STATE_EXIT_ACTION
 
             STATE_END
             break;
     }
-
-    // TODO report status to UI?
-//    user_interface_set_pathing_status( me->currentState );
 }
 
 /* -------------------------------------------------------------------------- */

@@ -38,7 +38,7 @@ typedef struct
     uint8_t volume_z;
     uint8_t expansion_resolution;   // sent/stored as 1/100th of the actual resolution
     uint8_t expansion_ratio;
-    uint8_t expansion_speed_limit;
+    uint8_t expansion_speed_limit;  // sent/stored as 10ths of actual resolution
     uint8_t reserved_12;
     int16_t expansion_range_min;
     int16_t expansion_range_max;

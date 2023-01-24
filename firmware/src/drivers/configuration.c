@@ -283,8 +283,7 @@ configuration_get_expansion_limit_max( void )
 PUBLIC uint16_t
 configuration_get_expansion_speed_limit( void )
 {
-    // TODO: if not configured, what's the default behaviour downstream?
-    return user_configuration.values.expansion_speed_limit;
+    return MIN( user_configuration.values.expansion_speed_limit * 10, EXPANSION_SPEED_LIMIT );
 }
 
 /* ----- End ---------------------------------------------------------------- */

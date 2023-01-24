@@ -58,7 +58,11 @@ PUBLIC void
 expansion_request_target( int32_t position )
 {
     requested_position = position;
-    new_target = true;
+
+    if( requested_position != effector_position )
+    {
+        new_target = true;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -84,10 +88,8 @@ expansion_process( void )
 {
     if( new_target )
     {
-        float angle_target = 0.0f;  // target motor shaft angle in degrees
-
         // Calculate the distance change for this tick
-        uint32_t proposed_distance_um = 0;  // cartesian_distance_between( &requested_position, &effector_position );
+        uint32_t proposed_distance_um = abs( requested_position - effector_position );
 
         // Check the instantaneous (1ms) distance request won't exceed effector limits
         // As microns/millisecond = millimeters/second, we can use take the mm/sec limit
@@ -101,11 +103,8 @@ expansion_process( void )
             // Keep track of the distance change over time for speed stats
             average_short_update( &movement_statistics, (uint16_t)proposed_distance_um );
 
-            // Calculate a motor solution, done using the 'point follower' style
-
-
             // Ask the motor to please move there
-            servo_set_target_angle_limited( _CLEARPATH_4, angle_target );
+            servo_set_target_angle_limited( _CLEARPATH_4, requested_position/1000 );
 
             effector_position = requested_position;
             requested_position = 0;

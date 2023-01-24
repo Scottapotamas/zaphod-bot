@@ -241,6 +241,27 @@ export class PositionCodec extends Codec {
   }
 }
 
+export class ExpansionPositionCodec extends Codec {
+  filter(message: Message): boolean {
+    return (
+      message.messageID === MSGID.POSITION_EXPANSION
+    )
+  }
+
+  encode(payload: number): Buffer {
+    const packet = new SmartBuffer()
+
+    packet.writeInt32LE(payload * 1000)
+    return packet.toBuffer()
+  }
+
+  decode(payload: Buffer): number {
+    const reader = SmartBuffer.fromBuffer(payload)
+
+    return reader.readInt32LE() / 1000
+  }
+}
+
 export class SupervisorInfoCodec extends Codec {
   filter(message: Message): boolean {
     return message.messageID === MSGID.SUPERVISOR
@@ -625,6 +646,7 @@ export const customCodecs = [
   new MotorDataCodec(),
   new MotionDataCodec(),
   new PositionCodec(),
+  new ExpansionPositionCodec(),
   new SupervisorInfoCodec(),
   new InboundMotionCodec(),
   new InboundFadeCodec(),

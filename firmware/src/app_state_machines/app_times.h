@@ -113,6 +113,7 @@ enum KinematicsDefines
 enum PathingDefines
 {
     EFFECTOR_SPEED_LIMIT    = 750U,    // mm/second
+    EXPANSION_SPEED_LIMIT   = 300U,    // mm/second or degrees/second
     SPEED_SAMPLE_RESOLUTION = 20U,     // number of samples to sum across spline
 
     ATTRACTOR_DEFAULT_SPEED = 100U,         // mm/second

@@ -266,13 +266,13 @@ uint32_t cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b )
     REQUIRE( a );
     REQUIRE( b );
 
-    int32_t distance = 0;
+    uint32_t distance = 0;
 
     int32_t delta_x = a->x - b->x;
     int32_t delta_y = a->y - b->y;
     int32_t delta_z = a->z - b->z;
     float   dist    = sqrtf( ( (float)delta_x * delta_x ) + ( (float)delta_y * delta_y ) + ( (float)delta_z * delta_z ) );
-    distance        = (int32_t)fabsf( dist );
+    distance        = (uint32_t)fabsf( dist );
 
     return distance;
 }

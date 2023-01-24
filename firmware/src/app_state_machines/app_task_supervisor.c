@@ -523,6 +523,10 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
             // TODO: this needs refactoring as the motion task normally interacts with the path interpolator
             path_interpolator_stop( PATH_INTERPOLATOR_DELTA );
             point_follower_start( POINT_FOLLOWER_DELTA );
+
+            path_interpolator_stop( PATH_INTERPOLATOR_EXPANSION );
+            point_follower_start( POINT_FOLLOWER_EXPANSION );
+
             return 0;
 
         case TRACKED_TARGET_REQUEST: {
@@ -547,10 +551,11 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
 
             if( &esre->target )
             {
-                int32_t target_deg;
-                memcpy( &target_deg, &esre->target, sizeof( int32_t ) );
+                CartesianPoint_t target = { 0 };
+                target.x = esre->target;
+//                memcpy( &target.x, &esre->target, sizeof( int32_t ) );
 
-                expansion_request_target( target_deg );
+                point_follower_set_target( POINT_FOLLOWER_EXPANSION, &target );
             }
         }
             return 0;
@@ -570,6 +575,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
             user_interface_reset_tracking_target();
             return 0;
         }
+
         case MOTION_DISABLED:
             STATE_TRAN( AppTaskSupervisor_disarmed );
             return 0;
