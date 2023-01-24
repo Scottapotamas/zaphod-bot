@@ -4,6 +4,7 @@ import type { LightToMovementsSettings } from './light'
 import type { ParticlesToMovementsSettings } from './particles'
 import type { EffectorToMovementSettings } from './effector'
 import type { GNodesMeshToMovementsSettings } from './gnodes_mesh'
+import type { GNodesVerticesToMovementsSettings } from './gnodes_vertices'
 
 const overwriteMerge = (destinationArray: any[], sourceArray: any[]) =>
   sourceArray
@@ -23,6 +24,7 @@ export interface Settings {
     camera: CameraToMovementsSettings
     effector: EffectorToMovementSettings
     gnodesMesh: GNodesMeshToMovementsSettings
+    gnodesVertices: GNodesVerticesToMovementsSettings
   }
 
   // Per-object overrides
@@ -34,6 +36,7 @@ export interface Settings {
       | Partial<CameraToMovementsSettings>
       | Partial<EffectorToMovementSettings>
       | Partial<GNodesMeshToMovementsSettings>
+      | Partial<GNodesVerticesToMovementsSettings>
   }
 
   // For disabling the rendering of objects
@@ -129,6 +132,12 @@ export function getToMovementSettings(
   overrideKeys: string[],
 ): GNodesMeshToMovementsSettings
 
+export function getToMovementSettings(
+  settings: Settings,
+  objType: 'gnodesVertices',
+  overrideKeys: string[],
+): GNodesVerticesToMovementsSettings
+
 export function getToMovementSettings<
   ReturnType extends
     | GPencilToMovementsSettings
@@ -136,7 +145,8 @@ export function getToMovementSettings<
     | LightToMovementsSettings
     | CameraToMovementsSettings
     | EffectorToMovementSettings
-    | GNodesMeshToMovementsSettings,
+    | GNodesMeshToMovementsSettings
+    | GNodesVerticesToMovementsSettings,
 >(
   settings: Settings,
   objType:
@@ -145,7 +155,8 @@ export function getToMovementSettings<
     | 'light'
     | 'camera'
     | 'effector'
-    | 'gnodesMesh',
+    | 'gnodesMesh'
+    | 'gnodesVertices',
   overrideKeys: string[],
 ): ReturnType {
   let objSettings = settings.objectSettings[objType]

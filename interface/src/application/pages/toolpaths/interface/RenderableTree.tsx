@@ -20,6 +20,7 @@ export enum NodeTypes {
   EMPTY = 'empty',
   EFFECTOR = 'effector',
   GNODES_MESH = 'gnodes-mesh',
+  GNODES_VERTICES = 'gnodes-vertices',
 }
 
 export type NodeID = string | number

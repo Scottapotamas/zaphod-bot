@@ -51,6 +51,11 @@ export const defaultSettings: Settings = {
     gnodesMesh: {
       outputType: 0 as GNodesMeshOutputType.LINES, // circular dep
     },
+    gnodesVertices: {
+      preWait: 5,
+      onDuration: 5,
+      postWait: 5,
+    },
   },
 
   // Do object level overrides here. Particle subsystems can be `object -> subsystem name`

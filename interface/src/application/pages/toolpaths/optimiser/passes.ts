@@ -27,6 +27,7 @@ import xxhash, { XXHash } from 'xxhash-wasm'
 import { Permutor } from './permutor'
 import { RemapMaterial } from './materials/Remap'
 import { ColorRampMaterial } from './materials/ColorRamp'
+import { MATERIALS } from './materials/utilities'
 
 /**
  * Flatten any grouped movements into simple movements
