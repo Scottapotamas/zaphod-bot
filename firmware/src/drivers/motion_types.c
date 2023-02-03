@@ -235,6 +235,7 @@ cartesian_move_distance( Movement_t *movement )
                 case _POINT_TRANSIT:
                 case _LINE:
                     // these shouldn't be solved by slice-summation
+                    ASSERT_PRINTF(false, "Don't try to slice a line");
                     break;
             }
 

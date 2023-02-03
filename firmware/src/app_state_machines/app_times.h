@@ -34,6 +34,8 @@ enum SystemDefines
     MOVEMENT_QUEUE_DEPTH_MAX = 150U,    // movement events in the queue
     MOVEMENT_QUEUE_LOW_WATERMARK = 3U,  // the queue is nearly empty
 
+    EXPANSION_QUEUE_DEPTH_MAX = 20U,    // expansion servo movement events in the queue
+
     LED_QUEUE_DEPTH_MAX      = 250U,    // LED animations in the queue
 
 };

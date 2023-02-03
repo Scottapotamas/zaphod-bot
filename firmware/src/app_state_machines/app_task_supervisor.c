@@ -20,7 +20,6 @@
 #include "path_interpolator.h"
 #include "point_follower.h"
 #include "effector.h"
-#include "expansion.h"
 #include "sensors.h"
 #include "status.h"
 #include "user_interface.h"
@@ -79,7 +78,6 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask *)me, MECHANISM_REHOME );
 
     eventSubscribe( (StateTask *)me, MOVEMENT_REQUEST );
-    eventSubscribe( (StateTask *)me, TRACKED_EXTERNAL_SERVO_REQUEST );
 
     // motion handler events
     eventSubscribe( (StateTask *)me, MOTION_ERROR );
@@ -96,8 +94,6 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask *)me, MOTION_QUEUE_LOW );
 
     eventSubscribe( (StateTask *)me, DEMO_MODE_CONFIGURATION );
-
-    expansion_init();
 
     STATE_INIT( &AppTaskSupervisor_main );
 }
@@ -404,14 +400,17 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
 
         case QUEUE_SYNC_START: {
             // Create sync start events for the motion and led tasks
-            SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
-            SyncTimestampEvent *led_sync   = EVENT_NEW( SyncTimestampEvent, LED_QUEUE_START );
+            SyncTimestampEvent *motor_sync     = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
+            SyncTimestampEvent *expansion_sync = EVENT_NEW( SyncTimestampEvent, EXPANSION_QUEUE_START );
+            SyncTimestampEvent *led_sync       = EVENT_NEW( SyncTimestampEvent, LED_QUEUE_START );
 
             // Set 'now' as the reference time from which moves/fades are executed
             timer_ms_stopwatch_start( &motor_sync->epoch );
+            timer_ms_stopwatch_start( &expansion_sync->epoch );
             timer_ms_stopwatch_start( &led_sync->epoch );
 
             eventPublish( (StateEvent *)motor_sync );
+            eventPublish( (StateEvent *)expansion_sync );
             eventPublish( (StateEvent *)led_sync );
             return 0;
         }
@@ -518,22 +517,6 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
 
             return 0;
 
-        case TRACKED_EXTERNAL_SERVO_REQUEST:
-        {
-            // Catch the inbound target angle
-            ExpansionServoRequestEvent *esre = (ExpansionServoRequestEvent *)e;
-
-            if( &esre->target )
-            {
-                CartesianPoint_t target = { 0 };
-                target.x = esre->target;
-//                memcpy( &target.x, &esre->target, sizeof( int32_t ) );
-
-                point_follower_set_target( POINT_FOLLOWER_EXPANSION, &target );
-            }
-        }
-            return 0;
-
         case MECHANISM_STOP:
             STATE_TRAN( AppTaskSupervisor_disarm_graceful );
             return 0;
@@ -543,6 +526,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
             return 0;
 
         case MECHANISM_REHOME: {
+            // TODO: Cleanup needed
             CartesianPoint_t home = { 0, 0, 0 };
             point_follower_set_target( POINT_FOLLOWER_DELTA, &home );
 

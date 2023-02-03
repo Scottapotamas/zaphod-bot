@@ -11,59 +11,57 @@
 #include "hal_systick.h"
 #include "qassert.h"
 
-#include "app_task_motion.h"
+#include "app_task_expansion.h"
 
 #include "clearpath.h"
 #include "motion_types.h"
 #include "path_interpolator.h"
 #include "point_follower.h"
-#include "effector.h"
-
-#include "user_interface.h"
+#include "expansion.h"
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 /* ----- Private Function Definitions --------------------------------------- */
 
-PRIVATE void AppTaskMotionConstructor( AppTaskMotion *me );
+PRIVATE void AppTaskExpansionConstructor( AppTaskExpansion *me );
 
-PRIVATE void  AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e );
-PRIVATE STATE AppTaskMotion_main( AppTaskMotion *me, const StateEvent *e );
-PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e );
-PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e );
-PRIVATE STATE AppTaskMotion_execute_events( AppTaskMotion *me, const StateEvent *e );
-PRIVATE STATE AppTaskMotion_follow_target( AppTaskMotion *me, const StateEvent *e );
-PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e );
+PRIVATE void  AppTaskExpansion_initial( AppTaskExpansion *me, const StateEvent *e );
+PRIVATE STATE AppTaskExpansion_main( AppTaskExpansion *me, const StateEvent *e );
+PRIVATE STATE AppTaskExpansion_home( AppTaskExpansion *me, const StateEvent *e );
+PRIVATE STATE AppTaskExpansion_inactive( AppTaskExpansion *me, const StateEvent *e );
+PRIVATE STATE AppTaskExpansion_execute_events( AppTaskExpansion *me, const StateEvent *e );
+PRIVATE STATE AppTaskExpansion_follow_target( AppTaskExpansion *me, const StateEvent *e );
+PRIVATE STATE AppTaskExpansion_recovery( AppTaskExpansion *me, const StateEvent *e );
 
-PRIVATE void AppTaskMotion_commit_queued_move( AppTaskMotion *me );
-PRIVATE void AppTaskMotion_clear_queue( AppTaskMotion *me );
-PRIVATE void AppTaskMotion_add_event_to_queue( AppTaskMotion *me, const StateEvent *e );
+PRIVATE void AppTaskExpansion_commit_queued_move( AppTaskExpansion *me );
+PRIVATE void AppTaskExpansion_clear_queue( AppTaskExpansion *me );
+PRIVATE void AppTaskExpansion_add_event_to_queue( AppTaskExpansion *me, const StateEvent *e );
 
 typedef enum
 {
-    TASKSTATE_MOTION_INITIAL = 0,
-    TASKSTATE_MOTION_MAIN,
-    TASKSTATE_MOTION_HOME,
-    TASKSTATE_MOTION_INACTIVE,
-    TASKSTATE_MOTION_EXECUTE_EVENTS,
-    TASKSTATE_MOTION_FOLLOW_POINT,
-    TASKSTATE_MOTION_RECOVERY,
+    TASKSTATE_EXPANSION_INITIAL = 0,
+    TASKSTATE_EXPANSION_MAIN,
+    TASKSTATE_EXPANSION_HOME,
+    TASKSTATE_EXPANSION_INACTIVE,
+    TASKSTATE_EXPANSION_EXECUTE_EVENTS,
+    TASKSTATE_EXPANSION_FOLLOW_POINT,
+    TASKSTATE_EXPANSION_RECOVERY,
 } MotionTaskState_t;
 
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC StateTask *
-appTaskMotionCreate( AppTaskMotion *me,
+appTaskExpansionCreate( AppTaskExpansion *me,
                      StateEvent    *eventQueueData[],
                      const uint8_t  eventQueueSize,
                      StateEvent    *movementQueue[],
                      const uint8_t  movementQueueSize )
 {
     // Clear all task data
-    memset( me, 0, sizeof( AppTaskMotion ) );
+    memset( me, 0, sizeof( AppTaskExpansion ) );
 
     // Initialise State Machine State
-    AppTaskMotionConstructor( me );
+    AppTaskExpansionConstructor( me );
 
     /* Initialise State Machine Task */
     return stateTaskCreate( (StateTask *)me,
@@ -76,15 +74,15 @@ appTaskMotionCreate( AppTaskMotion *me,
 /* ----- Private Functions -------------------------------------------------- */
 
 // State Machine Construction
-PRIVATE void AppTaskMotionConstructor( AppTaskMotion *me )
+PRIVATE void AppTaskExpansionConstructor( AppTaskExpansion *me )
 {
-    stateTaskCtor( &me->super, (State)&AppTaskMotion_initial );
+    stateTaskCtor( &me->super, (State)&AppTaskExpansion_initial );
 }
 
 /* -------------------------------------------------------------------------- */
 
 // State Machine Initial State
-PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __attribute__( ( __unused__ ) ) )
+PRIVATE void AppTaskExpansion_initial( AppTaskExpansion *me, const StateEvent *e __attribute__( ( __unused__ ) ) )
 {
     eventSubscribe( (StateTask *)me, MOTION_PREPARE );
     eventSubscribe( (StateTask *)me, MOTION_EMERGENCY );
@@ -92,40 +90,38 @@ PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __att
     eventSubscribe( (StateTask *)me, MOTION_FOLLOWER_START );
     eventSubscribe( (StateTask *)me, MOTION_FOLLOWER_STOP );
 
-    eventSubscribe( (StateTask *)me, MOTION_QUEUE_START );
-    eventSubscribe( (StateTask *)me, MOTION_QUEUE_ADD );
+    eventSubscribe( (StateTask *)me, EXPANSION_QUEUE_START );
+    eventSubscribe( (StateTask *)me, EXPANSION_QUEUE_ADD );
     eventSubscribe( (StateTask *)me, MOTION_QUEUE_CLEAR );
-    eventSubscribe( (StateTask *)me, PATHING_COMPLETE );
+    eventSubscribe( (StateTask *)me, EXPANSION_MOVE_COMPLETE );
 
-    eventSubscribe( (StateTask *)me, TRACKED_TARGET_REQUEST );
+    eventSubscribe( (StateTask *)me, TRACKED_EXTERNAL_SERVO_REQUEST );
 
-    effector_init();
+    expansion_init();
 
-    path_interpolator_init( PATH_INTERPOLATOR_DELTA );
-    point_follower_init( POINT_FOLLOWER_DELTA );
+    path_interpolator_init( PATH_INTERPOLATOR_EXPANSION );
+    point_follower_init( POINT_FOLLOWER_EXPANSION );
 
-    user_interface_set_motion_state( TASKSTATE_MOTION_INITIAL );
-
-    STATE_INIT( &AppTaskMotion_main );
+    STATE_INIT( &AppTaskExpansion_main );
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE STATE AppTaskMotion_main( AppTaskMotion *me, const StateEvent *e )
+PRIVATE STATE AppTaskExpansion_main( AppTaskExpansion *me, const StateEvent *e )
 {
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            user_interface_set_motion_state( TASKSTATE_MOTION_MAIN );
+//            user_interface_set_motion_state( TASKSTATE_EXPANSION_MAIN );
 
             return 0;
 
         case MOTION_PREPARE:
-            STATE_TRAN( AppTaskMotion_home );
+            STATE_TRAN( AppTaskExpansion_home );
             return 0;
 
         case MOTION_EMERGENCY:
-            STATE_TRAN( AppTaskMotion_recovery );
+            STATE_TRAN( AppTaskExpansion_recovery );
             return 0;
     }
     return (STATE)hsmTop;
@@ -133,7 +129,7 @@ PRIVATE STATE AppTaskMotion_main( AppTaskMotion *me, const StateEvent *e )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
+PRIVATE STATE AppTaskExpansion_home( AppTaskExpansion *me, const StateEvent *e )
 {
     switch( e->signal )
     {
@@ -141,15 +137,10 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
             me->retries = 0;
 
-            // Reset the motors and let them home
-            for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo <= _CLEARPATH_3; servo++ )
-            {
-                servo_start( servo );
-            }
+            // Reset the motor and let it home as needed
+            servo_start( _CLEARPATH_4 );
 
-            user_interface_set_motion_state( TASKSTATE_MOTION_HOME );
-
-            // Check the motors every 500ms to see if they are homed
+            // Check the motor every 500ms to see if they are homed
             eventTimerStartEvery( &me->timer1,
                                   (StateTask *)me,
                                   (StateEvent *)&stateEventReserved[STATE_TIMEOUT1_SIGNAL],
@@ -159,28 +150,23 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
         case STATE_TIMEOUT1_SIGNAL:
 
-            // Check all the servos have homed successfully by polling their manager for a 'all good' condition
-            me->counter = 0;
-            for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo <= _CLEARPATH_3; servo++ )
-            {
-                me->counter += servo_get_servo_ok( servo );
+            me->counter = servo_get_servo_ok( _CLEARPATH_4 );
 
-                // The servo is/recently entered an error recovery state
-                if( servo_get_servo_did_error( servo ) )
-                {
-                    // Bail out of the mechanism homing process entirely
-                    // while catching the error and re-requesting the servo to home would be nice, we let the user do that
-                    eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
-                    STATE_TRAN( AppTaskMotion_recovery );
-                    break;
-                }
+            // The servo is/recently entered an error recovery state
+            if( servo_get_servo_did_error( _CLEARPATH_4 ) )
+            {
+                // Bail out of the mechanism homing process entirely
+                // while catching the error and re-requesting the servo to home would be nice, we let the user do that
+                eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
+                STATE_TRAN( AppTaskExpansion_recovery );
+                break;
             }
 
-            if( me->counter == 3 )
+            if( me->counter )
             {
                 eventPublish( EVENT_NEW( StateEvent, MOTION_HOMED ) );
-                effector_set_home();
-                STATE_TRAN( AppTaskMotion_inactive );
+                expansion_set_home();
+                STATE_TRAN( AppTaskExpansion_inactive );
             }
             else
             {
@@ -188,14 +174,14 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
                 if( me->retries++ > SERVO_HOMING_SUPERVISOR_RETRIES )
                 {
                     eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
-                    STATE_TRAN( AppTaskMotion_recovery );
+                    STATE_TRAN( AppTaskExpansion_recovery );
                 }
             }
 
             return 0;
 
         case MOTION_EMERGENCY:
-            STATE_TRAN( AppTaskMotion_recovery );
+            STATE_TRAN( AppTaskExpansion_recovery );
             return 0;
 
         case STATE_EXIT_SIGNAL:
@@ -208,12 +194,11 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
+PRIVATE STATE AppTaskExpansion_inactive( AppTaskExpansion *me, const StateEvent *e )
 {
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            user_interface_set_motion_state( TASKSTATE_MOTION_INACTIVE );
 
             // Continuously check that the servos are still happy while holding position
             eventTimerStartEvery( &me->timer1,
@@ -234,14 +219,13 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
             // A servo has dropped offline (fault or otherwise)
             if( me->counter != servo_get_configured_count() )
             {
-                user_interface_report_error( "Servo loss" );
                 eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
-                STATE_TRAN( AppTaskMotion_recovery );
+                STATE_TRAN( AppTaskExpansion_recovery );
             }
             return 0;
 
         case MOTION_FOLLOWER_START:
-            STATE_TRAN( AppTaskMotion_follow_target );
+            STATE_TRAN( AppTaskExpansion_follow_target );
             return 0;
 
         case MOTION_QUEUE_START: {
@@ -249,23 +233,23 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
 
             if( ste )
             {
-                path_interpolator_set_epoch_reference( PATH_INTERPOLATOR_DELTA, ste->epoch );
-                STATE_TRAN( AppTaskMotion_execute_events );
+                path_interpolator_set_epoch_reference( PATH_INTERPOLATOR_EXPANSION, ste->epoch );
+                STATE_TRAN( AppTaskExpansion_execute_events );
             }
 
             return 0;
         }
 
-        case MOTION_QUEUE_ADD:
-            AppTaskMotion_add_event_to_queue( me, e );
+        case EXPANSION_QUEUE_ADD:
+            AppTaskExpansion_add_event_to_queue( me, e );
             return 0;
 
         case MOTION_QUEUE_CLEAR:
-            AppTaskMotion_clear_queue( me );
+            AppTaskExpansion_clear_queue( me );
             return 0;
 
         case MOTION_EMERGENCY:
-            STATE_TRAN( AppTaskMotion_recovery );
+            STATE_TRAN( AppTaskExpansion_recovery );
             return 0;
 
         case STATE_EXIT_SIGNAL:
@@ -277,33 +261,32 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE STATE AppTaskMotion_execute_events( AppTaskMotion *me, const StateEvent *e )
+PRIVATE STATE AppTaskExpansion_execute_events( AppTaskExpansion *me, const StateEvent *e )
 {
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            user_interface_set_motion_state( TASKSTATE_MOTION_EXECUTE_EVENTS );
 
             // Run the state-machine loop at 1kHz
             hal_systick_hook( 1, path_interpolator_process_all );
 
             // Commit a movement to an available slot in the path planner and tell it to start
-            AppTaskMotion_commit_queued_move( me );
+            AppTaskExpansion_commit_queued_move( me );
 
             // Start loading more moves from our queue
-            if( path_interpolator_is_ready_for_next( PATH_INTERPOLATOR_DELTA ) )
+            if( path_interpolator_is_ready_for_next( PATH_INTERPOLATOR_EXPANSION ) )
             {
                 stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
             }
             return 0;
 
         case STATE_STEP1_SIGNAL:
-            AppTaskMotion_commit_queued_move( me );
+            AppTaskExpansion_commit_queued_move( me );
             return 0;
 
         // TODO: add motion handler watching on PATHING_STARTED?
         //      possibly not needed...
-        case PATHING_COMPLETE: {
+        case EXPANSION_MOVE_COMPLETE: {
             uint8_t queue_used = eventQueueUsed( &me->super.requestQueue );
 
             if( queue_used < MOVEMENT_QUEUE_LOW_WATERMARK )
@@ -328,32 +311,32 @@ PRIVATE STATE AppTaskMotion_execute_events( AppTaskMotion *me, const StateEvent 
                 }
                 else
                 {
-                    STATE_TRAN( AppTaskMotion_inactive );
+                    STATE_TRAN( AppTaskExpansion_inactive );
                 }
             }
             else
             {
-                STATE_TRAN( AppTaskMotion_inactive );
+                STATE_TRAN( AppTaskExpansion_inactive );
             }
 
             return 0;
         }
 
-        case MOTION_QUEUE_ADD:
-            AppTaskMotion_add_event_to_queue( me, e );
+        case EXPANSION_QUEUE_ADD:
+            AppTaskExpansion_add_event_to_queue( me, e );
             return 0;
 
         case MOTION_QUEUE_CLEAR:
-            AppTaskMotion_clear_queue( me );
-            STATE_TRAN( AppTaskMotion_inactive );
+            AppTaskExpansion_clear_queue( me );
+            STATE_TRAN( AppTaskExpansion_inactive );
             return 0;
 
         case MOTION_EMERGENCY:
-            STATE_TRAN( AppTaskMotion_recovery );
+            STATE_TRAN( AppTaskExpansion_recovery );
             return 0;
 
         case STATE_EXIT_SIGNAL:
-            path_interpolator_stop( PATH_INTERPOLATOR_DELTA );
+            path_interpolator_stop( PATH_INTERPOLATOR_EXPANSION );
             hal_systick_unhook( path_interpolator_process_all );
 
             eventTimerStopIfActive( &me->timer1 );
@@ -364,41 +347,39 @@ PRIVATE STATE AppTaskMotion_execute_events( AppTaskMotion *me, const StateEvent 
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE STATE AppTaskMotion_follow_target( AppTaskMotion *me, const StateEvent *e )
+PRIVATE STATE AppTaskExpansion_follow_target( AppTaskExpansion *me, const StateEvent *e )
 {
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            user_interface_set_motion_state( TASKSTATE_MOTION_FOLLOW_POINT );
-
             hal_systick_hook( 1, point_follower_process_all );
-            point_follower_start( POINT_FOLLOWER_DELTA );
+            point_follower_start( POINT_FOLLOWER_EXPANSION );
             return 0;
 
-        case TRACKED_TARGET_REQUEST: {
-            // Catch the inbound target position event
-            TrackedPositionRequestEvent *tpre = (TrackedPositionRequestEvent *)e;
+        case TRACKED_EXTERNAL_SERVO_REQUEST:
+        {
+            // Catch the inbound target angle
+            ExpansionServoRequestEvent *esre = (ExpansionServoRequestEvent *)e;
 
-            if( &tpre->target )
+            if( &esre->target )
             {
-                CartesianPoint_t target;
-                memcpy( &target, &tpre->target, sizeof( CartesianPoint_t ) );
-
-                point_follower_set_target( POINT_FOLLOWER_DELTA, &target );
+                CartesianPoint_t target = { 0 };
+                target.x = esre->target;
+                point_follower_set_target( POINT_FOLLOWER_EXPANSION, &target );
             }
         }
             return 0;
 
         case MOTION_FOLLOWER_STOP:
-            STATE_TRAN( AppTaskMotion_inactive );
+            STATE_TRAN( AppTaskExpansion_inactive );
             return 0;
 
         case MOTION_EMERGENCY:
-            STATE_TRAN( AppTaskMotion_recovery );
+            STATE_TRAN( AppTaskExpansion_recovery );
             return 0;
 
         case STATE_EXIT_SIGNAL:
-            point_follower_stop( POINT_FOLLOWER_DELTA );
+            point_follower_stop( POINT_FOLLOWER_EXPANSION );
             hal_systick_unhook( point_follower_process_all );
 
             eventTimerStopIfActive( &me->timer1 );
@@ -409,7 +390,7 @@ PRIVATE STATE AppTaskMotion_follow_target( AppTaskMotion *me, const StateEvent *
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
+PRIVATE STATE AppTaskExpansion_recovery( AppTaskExpansion *me, const StateEvent *e )
 {
     switch( e->signal )
     {
@@ -422,10 +403,7 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
             }
 
             // Stop the motion interpolation engine
-            path_interpolator_stop( PATH_INTERPOLATOR_DELTA );
-
-            // Update state for UI
-            user_interface_set_motion_state( TASKSTATE_MOTION_RECOVERY );
+            path_interpolator_stop( PATH_INTERPOLATOR_EXPANSION );
 
             // Come back next loop and clear out queue etc
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
@@ -439,7 +417,7 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
             return 0;
 
         case STATE_STEP1_SIGNAL:
-            AppTaskMotion_clear_queue( me );
+            AppTaskExpansion_clear_queue( me );
             return 0;
 
         case STATE_TIMEOUT1_SIGNAL:
@@ -453,14 +431,14 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
             if( me->counter == _NUMBER_CLEARPATH_SERVOS )
             {
                 eventPublish( EVENT_NEW( StateEvent, MOTION_DISABLED ) );
-                STATE_TRAN( AppTaskMotion_main );
+                STATE_TRAN( AppTaskExpansion_main );
             }
             else
             {
                 if( me->retries++ < SERVO_RECOVERY_RETRIES )
                 {
                     eventTimerStopIfActive( &me->timer1 );
-                    STATE_TRAN( AppTaskMotion_recovery );
+                    STATE_TRAN( AppTaskExpansion_recovery );
                 }
                 else
                 {
@@ -479,10 +457,10 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void AppTaskMotion_commit_queued_move( AppTaskMotion *me )
+PRIVATE void AppTaskExpansion_commit_queued_move( AppTaskExpansion *me )
 {
     // Check for pending events in the queue, and the pathing engine is able to accept one
-    if( path_interpolator_is_ready_for_next( PATH_INTERPOLATOR_DELTA )
+    if( path_interpolator_is_ready_for_next( PATH_INTERPOLATOR_EXPANSION )
         && eventQueueUsed( &me->super.requestQueue ) )
     {
         // Grab the next event off the queue
@@ -495,20 +473,20 @@ PRIVATE void AppTaskMotion_commit_queued_move( AppTaskMotion *me )
         if( next_move->duration )
         {
             // Pass this valid move to the pathing engine, and start it
-            path_interpolator_set_next( PATH_INTERPOLATOR_DELTA, next_move );
-            path_interpolator_start( PATH_INTERPOLATOR_DELTA );
+            path_interpolator_set_next( PATH_INTERPOLATOR_EXPANSION, next_move );
+            path_interpolator_start( PATH_INTERPOLATOR_EXPANSION );
 
             eventPoolGarbageCollect( (StateEvent *)next );    // Remove it from the queue
         }
     }
 
     // Tell the UI the new queue depth after pulling a move from it
-    user_interface_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+//    user_interface_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void AppTaskMotion_clear_queue( AppTaskMotion *me )
+PRIVATE void AppTaskExpansion_clear_queue( AppTaskExpansion *me )
 {
     // Empty the queue
     StateEvent *next = eventQueueGet( &me->super.requestQueue );
@@ -519,12 +497,12 @@ PRIVATE void AppTaskMotion_clear_queue( AppTaskMotion *me )
     }
 
     // Update UI with queue content count
-    user_interface_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+//    user_interface_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void AppTaskMotion_add_event_to_queue( AppTaskMotion *me, const StateEvent *e )
+PRIVATE void AppTaskExpansion_add_event_to_queue( AppTaskExpansion *me, const StateEvent *e )
 {
     // Already in motion, so add this one to the queue
     MotionPlannerEvent *mpe = (MotionPlannerEvent *)e;
@@ -540,14 +518,14 @@ PRIVATE void AppTaskMotion_add_event_to_queue( AppTaskMotion *me, const StateEve
     else
     {
         // Queue full, clearly the input motion processor isn't abiding by the spec.
-        user_interface_report_error( "Motion Queue Full" );
+//        user_interface_report_error( "Motion Queue Full" );
 
         // Shutdown
         eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
-        STATE_TRAN( AppTaskMotion_recovery );
+        STATE_TRAN( AppTaskExpansion_recovery );
     }
 
-    user_interface_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
+//    user_interface_set_motion_queue_depth( eventQueueUsed( &me->super.requestQueue ) );
 }
 
 /* ----- End ---------------------------------------------------------------- */

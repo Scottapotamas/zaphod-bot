@@ -18,6 +18,7 @@
 
 /* Application Tasks */
 #include "app_task_led.h"
+#include "app_task_expansion.h"
 #include "app_task_motion.h"
 #include "app_task_supervisor.h"
 #include "app_task_shutter.h"
@@ -49,8 +50,8 @@ typedef ButtonEvent        EventsMediumType;
 typedef MotionPlannerEvent EventsLargeType;
 
 // ~~~ Event Pool Storage ~~~
-EventsSmallType  eventsSmall[10];     //  __attribute__ ((section (".ccmram")))
-EventsMediumType eventsMedium[15];    //  __attribute__ ((section (".ccmram")))
+EventsSmallType  eventsSmall[15];     //  __attribute__ ((section (".ccmram")))
+EventsMediumType eventsMedium[20];    //  __attribute__ ((section (".ccmram")))
 EventsLargeType __attribute__( ( section( ".ccmram" ) ) ) eventsLarge[400];
 
 // ~~~ Event Subscription Data ~~~
@@ -61,6 +62,10 @@ EventSubscribers eventSubscriberList[STATE_MAX_SIGNAL];
 AppTaskMotion appTaskMotion;
 StateEvent   *appTaskMotionEventQueue[MOVEMENT_QUEUE_DEPTH_MAX];
 StateEvent   *appTaskMotionQueue[150];
+
+AppTaskExpansion appTaskExpansion;
+StateEvent   *appTaskExpansionEventQueue[EXPANSION_QUEUE_DEPTH_MAX];
+StateEvent   *appTaskExpansionQueue[20];
 
 AppTaskLed  appTaskLed;
 StateEvent *appTaskLedEventQueue[LED_QUEUE_DEPTH_MAX];
@@ -124,6 +129,15 @@ void app_tasks_init( void )
                              DIM( appTaskMotionQueue ) );
 
     stateTaskerAddTask( &mainTasker, t, TASK_MOTION, "Movement" );
+    stateTaskerStartTask( &mainTasker, t );
+
+    t = appTaskExpansionCreate( &appTaskExpansion,
+                             appTaskExpansionEventQueue,
+                             DIM( appTaskExpansionEventQueue ),
+                             appTaskExpansionQueue,
+                             DIM( appTaskExpansionQueue ) );
+
+    stateTaskerAddTask( &mainTasker, t, TASK_EXPANSION, "Expansion" );
     stateTaskerStartTask( &mainTasker, t );
 
     // Handle LED control

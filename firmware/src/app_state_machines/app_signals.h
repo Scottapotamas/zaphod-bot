@@ -62,6 +62,10 @@ enum AppSignals
     PATHING_STARTED,     // Started executing a move
     PATHING_COMPLETE,    // Finished moving along a provided profile path
 
+    EXPANSION_QUEUE_START,
+    EXPANSION_QUEUE_ADD,      // Provide movement information for queue processing
+    EXPANSION_MOVE_COMPLETE,
+
     /* LED Handler Signals */
     LED_OFF,            // Turn off led immediately, clear the queue
     LED_QUEUE_START,
