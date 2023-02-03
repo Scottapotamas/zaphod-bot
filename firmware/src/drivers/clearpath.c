@@ -38,8 +38,6 @@ typedef enum
     SERVO_STATE_HOMING_CHECK_FOLDBACK,
     SERVO_STATE_HOMING_SUCCESS,
 
-    SERVO_STATE_IDLE,
-    SERVO_STATE_IDLE_HIGH_LOAD,
     SERVO_STATE_ACTIVE,
 } ServoState_t;
 
@@ -366,8 +364,7 @@ servo_get_servo_ok( ClearpathServoInstance_t servo )
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     Servo_t *me = &clearpath[servo];
 
-    return ( me->enabled
-             && ( me->currentState == SERVO_STATE_IDLE || me->currentState == SERVO_STATE_IDLE_HIGH_LOAD || me->currentState == SERVO_STATE_ACTIVE ) );
+    return ( me->enabled && ( me->currentState == SERVO_STATE_ACTIVE ) );
 }
 
 PUBLIC bool
@@ -644,7 +641,7 @@ servo_process( ClearpathServoInstance_t servo )
                     // Goal position needs to be the current position at init, or a large commanded move would occur
                     me->angle_target_steps = me->angle_current_steps;
 
-                    STATE_NEXT( SERVO_STATE_IDLE );
+                    STATE_NEXT( SERVO_STATE_ACTIVE );
                 }
             }
             else    // Position is substantially different from previous trend
@@ -655,73 +652,6 @@ servo_process( ClearpathServoInstance_t servo )
 
             // Motor is taking too long to complete the homing process
             if( timer_ms_stopwatch_lap( &me->timer ) > SERVO_HOMING_COMPLETE_MAX_MS )
-            {
-                STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-            }
-            STATE_EXIT_ACTION
-
-            STATE_END
-            break;
-
-        case SERVO_STATE_IDLE:
-            STATE_ENTRY_ACTION
-            timer_ms_start( &me->timer, SERVO_IDLE_SETTLE_MS );
-            STATE_TRANSITION_TEST
-            if( me->angle_current_steps != me->angle_target_steps )
-            {
-                STATE_NEXT( SERVO_STATE_ACTIVE );
-            }
-
-            // Allow some time for the motor to decelerate before we worry about excessive no-motion loads
-            if( timer_ms_is_expired( &me->timer ) )
-            {
-                //  Check if the motor has been drawing higher than expected power while stationary
-                //  OR if the idle torque is above/below a generous bound
-                if( servo_power > SERVO_IDLE_POWER_ALERT_W
-                    || ( servo_feedback < -1 * SERVO_IDLE_TORQUE_ALERT && servo_feedback > SERVO_IDLE_TORQUE_ALERT ) )
-                {
-                    // Something might be wrong, watch it more closely
-                    STATE_NEXT( SERVO_STATE_IDLE_HIGH_LOAD );
-                }
-            }
-            STATE_EXIT_ACTION
-
-            STATE_END
-            break;
-
-        case SERVO_STATE_IDLE_HIGH_LOAD:
-            STATE_ENTRY_ACTION
-            timer_ms_stopwatch_start( &me->timer );
-            STATE_TRANSITION_TEST
-            if( me->angle_current_steps != me->angle_target_steps )
-            {
-                STATE_NEXT( SERVO_STATE_ACTIVE );
-            }
-
-            // Evaluate the power or torque values for high no-movement loads
-            if( servo_power > SERVO_IDLE_POWER_ALERT_W
-                || ( servo_feedback < -1 * SERVO_IDLE_TORQUE_ALERT && servo_feedback > SERVO_IDLE_TORQUE_ALERT ) )
-            {
-                // Been measuring a pretty high load for a while now
-                if( timer_ms_stopwatch_lap( &me->timer ) > SERVO_IDLE_LOAD_TRIP_MS )
-                {
-                    // Shutdown for safety
-                    user_interface_report_error( "Servo Overload" );
-                    eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
-                    STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-                }
-            }
-            else
-            {
-                // If we've been under the alert threshold for a while, return to the idle state
-                if( timer_ms_stopwatch_lap( &me->timer ) > SERVO_IDLE_LOAD_TRIP_MS * 2 )
-                {
-                    STATE_NEXT( SERVO_STATE_IDLE );
-                }
-            }
-
-            // Been disabled or current sensor has flagged a fault, shutdown
-            if( !me->enabled || hal_gpio_read_pin( ServoHardwareMap[servo].pin_oc_fault ) == SERVO_OC_FAULT )
             {
                 STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
             }
@@ -769,11 +699,27 @@ servo_process( ClearpathServoInstance_t servo )
 
                 // Track movement requests over time for velocity estimate
                 average_short_update( &me->step_statistics, pulses_needed );
+
+                // Reset the 'no-motion' idle timer
+                timer_ms_start( &me->timer, SERVO_IDLE_SETTLE_MS );
             }
-            else
+            else    // no movement needed
             {
                 average_short_update( &me->step_statistics, 0 );
-                STATE_NEXT( SERVO_STATE_IDLE );
+
+                // Has the servo been idle for longer than the settling period?
+                if( timer_ms_is_expired( &me->timer ) )
+                {
+                    // Are the power or torque values high for a no-movement load?
+                    if( servo_power > SERVO_IDLE_POWER_ALERT_W
+                        || ( servo_feedback < -1 * SERVO_IDLE_TORQUE_ALERT && servo_feedback > SERVO_IDLE_TORQUE_ALERT ) )
+                    {
+                        // Signal to the supervisor that we're probably overloaded
+                        user_interface_report_error( "Servo Overload" );
+                        // TODO: use a specific load signal to allow higher level task to choose behaviour
+                        eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
+                    }
+                }
             }
 
             if( hal_gpio_read_pin( ServoHardwareMap[servo].pin_oc_fault ) == SERVO_OC_FAULT )

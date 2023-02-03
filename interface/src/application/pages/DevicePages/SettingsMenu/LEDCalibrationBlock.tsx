@@ -29,7 +29,7 @@ import {
   Checkbox,
 } from '@electricui/components-desktop-blueprint'
 import { Printer } from '@electricui/components-desktop'
-import { MSGID, ServoInfo } from 'src/application/typedState'
+import { MSGID } from 'src/application/typedState'
 import { SectionHeading } from './SectionHeading'
 
 export const LEDCalibrationBlock = () => {

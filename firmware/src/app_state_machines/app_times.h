@@ -166,7 +166,6 @@ enum ServoDefines
     SERVO_IDLE_POWER_ALERT_W = 40U,
     SERVO_IDLE_TORQUE_ALERT  = 30U,
     SERVO_IDLE_SETTLE_MS     = 50U,
-    SERVO_IDLE_LOAD_TRIP_MS  = 900U,
     SERVO_OC_FAULT           = false,
     SERVO_OC_OK              = true,
 

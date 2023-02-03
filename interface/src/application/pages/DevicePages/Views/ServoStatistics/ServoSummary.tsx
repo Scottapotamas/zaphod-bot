@@ -102,14 +102,6 @@ const ServoStatusBlock = (props: ServoStatusBlockProps) => {
       operation_mode = 'ACTIVE'
       status_icon = IconNames.DOT
       break
-    case 8:
-      operation_mode = 'HIGH LOAD'
-      status_icon = IconNames.SYMBOL_CROSS
-      break
-    case 9:
-      operation_mode = 'MOVING'
-      status_icon = IconNames.DOT
-      break
     default:
       operation_mode = 'INVALID MODE'
       status_icon = IconNames.HELP

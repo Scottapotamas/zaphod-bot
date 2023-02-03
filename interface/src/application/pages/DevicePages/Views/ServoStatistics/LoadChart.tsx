@@ -13,7 +13,7 @@ import { useHardwareState } from '@electricui/components-core'
 
 import { MessageDataSource } from '@electricui/core-timeseries'
 import { useDarkMode } from '@electricui/components-desktop'
-import { MSGID, ServoInfo } from '../../../../typedState'
+import { MSGID } from '../../../../typedState'
 
 const lightModeColours = [
   Colors.GREEN2,
