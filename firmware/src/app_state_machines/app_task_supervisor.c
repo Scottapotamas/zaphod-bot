@@ -21,7 +21,6 @@
 #include "effector.h"
 #include "point_follower.h"
 #include "sensors.h"
-#include "shutter_release.h"
 #include "status.h"
 #include "user_interface.h"
 
@@ -96,7 +95,6 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask *)me, QUEUE_SYNC_START );
     eventSubscribe( (StateTask *)me, MOTION_QUEUE_LOW );
 
-    eventSubscribe( (StateTask *)me, CAMERA_CAPTURE );
     eventSubscribe( (StateTask *)me, DEMO_MODE_CONFIGURATION );
 
     // Put this somewhere more suitable
@@ -433,31 +431,6 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
                 memcpy( &motion_request->move, &mpe->move, sizeof( Movement_t ) );
                 eventPublish( (StateEvent *)motion_request );
             }
-            return 0;
-        }
-
-        case CAMERA_CAPTURE: {
-            CameraShutterEvent *trigger = (CameraShutterEvent *)e;
-
-            if( trigger )
-            {
-                // Treat inbound 0 duration captures as a cancel request.
-                // Only attempt a capture if we aren't already
-                // Tell the UI when these rules are violated
-                if( trigger->exposure_time == 0 )
-                {
-                    shutter_cancel();
-                }
-                else if( !shutter_is_exposing() )
-                {
-                    shutter_capture( trigger->exposure_time );
-                }
-                else
-                {
-                    user_interface_report_error( "In use. Capture refused" );
-                }
-            }
-
             return 0;
         }
 

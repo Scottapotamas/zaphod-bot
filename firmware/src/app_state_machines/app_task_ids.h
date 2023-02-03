@@ -34,6 +34,7 @@ enum AppTaskID
     TASK_SUPERVISOR,    // High priority task that oversees the system
     TASK_MOTION,        // Handle the motion command queue and pathing engine, higher level motor supervisor
     TASK_LIGHTING,      // Handle the LED command queue and animations engine
+    TASK_SHUTTER,
                       //	TASK_EXPANSION,			//Handle the internal and external IO
 
     TASK_MAX,    // Last entry used to define the size of task table

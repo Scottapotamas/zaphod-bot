@@ -20,8 +20,8 @@
 #include "app_task_led.h"
 #include "app_task_motion.h"
 #include "app_task_supervisor.h"
+#include "app_task_shutter.h"
 
-#include "button.h"
 #include "hal_adc.h"
 #include "hal_systick.h"
 
@@ -70,6 +70,9 @@ StateEvent *appTaskLedQueue[250];
 
 AppTaskSupervisor appTaskSupervisor;
 StateEvent       *appTaskSupervisorEventQueue[20];
+
+AppTaskShutter appTaskShutter;
+StateEvent    *appTaskShutterEventQueue[5];
 
 // ~~~ Tasker ~~~
 
@@ -133,6 +136,14 @@ void app_tasks_init( void )
                           DIM( appTaskLedQueue ) );
 
     stateTaskerAddTask( &mainTasker, t, TASK_LIGHTING, "Lighting" );
+    stateTaskerStartTask( &mainTasker, t );
+
+    // Camera control task
+    t = appTaskShutterCreate( &appTaskShutter,
+                              appTaskShutterEventQueue,
+                              DIM( appTaskShutterEventQueue ) );
+
+    stateTaskerAddTask( &mainTasker, t, TASK_SHUTTER, "ShutterRelease" );
     stateTaskerStartTask( &mainTasker, t );
 
     // Overseer task
