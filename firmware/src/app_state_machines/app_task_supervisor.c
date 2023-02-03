@@ -18,8 +18,8 @@
 #include "buzzer.h"
 #include "demonstration.h"
 #include "path_interpolator.h"
-#include "effector.h"
 #include "point_follower.h"
+#include "effector.h"
 #include "expansion.h"
 #include "sensors.h"
 #include "status.h"
@@ -79,7 +79,6 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask *)me, MECHANISM_REHOME );
 
     eventSubscribe( (StateTask *)me, MOVEMENT_REQUEST );
-    eventSubscribe( (StateTask *)me, TRACKED_TARGET_REQUEST );
     eventSubscribe( (StateTask *)me, TRACKED_EXTERNAL_SERVO_REQUEST );
 
     // motion handler events
@@ -97,10 +96,6 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask *)me, MOTION_QUEUE_LOW );
 
     eventSubscribe( (StateTask *)me, DEMO_MODE_CONFIGURATION );
-
-    // Put this somewhere more suitable
-    point_follower_init( POINT_FOLLOWER_DELTA );
-    point_follower_init( POINT_FOLLOWER_EXPANSION );
 
     expansion_init();
 
@@ -515,33 +510,12 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
             me->active_control_mode = CONTROL_TRACK;
             user_interface_set_control_mode( me->active_control_mode );
 
+            eventPublish( EVENT_NEW( StateEvent, MOTION_FOLLOWER_START ) );
             eventPublish( EVENT_NEW( StateEvent, LED_ALLOW_MANUAL_CONTROL ) );
 
             // TODO: pushing 0,0,0 like this is dirty
             user_interface_reset_tracking_target();    // entering track mode should always reset position
 
-            // TODO: this needs refactoring as the motion task normally interacts with the path interpolator
-            path_interpolator_stop( PATH_INTERPOLATOR_DELTA );
-            point_follower_start( POINT_FOLLOWER_DELTA );
-
-            path_interpolator_stop( PATH_INTERPOLATOR_EXPANSION );
-            point_follower_start( POINT_FOLLOWER_EXPANSION );
-
-            return 0;
-
-        case TRACKED_TARGET_REQUEST: {
-            // Catch the inbound target position event
-            TrackedPositionRequestEvent *tpre = (TrackedPositionRequestEvent *)e;
-
-            if( &tpre->target )
-            {
-                CartesianPoint_t target;
-                memcpy( &target, &tpre->target, sizeof( CartesianPoint_t ) );
-
-                // TODO: Do we need to start the point follower first/now?
-                point_follower_set_target( POINT_FOLLOWER_DELTA, &target );
-            }
-        }
             return 0;
 
         case TRACKED_EXTERNAL_SERVO_REQUEST:
@@ -581,11 +555,12 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
             return 0;
 
         case STATE_EXIT_SIGNAL:
-            point_follower_stop( POINT_FOLLOWER_DELTA );
             user_interface_reset_tracking_target();
 
-            eventTimerStopIfActive( &me->timer1 );
+            eventPublish( EVENT_NEW( StateEvent, MOTION_FOLLOWER_STOP ) );
             eventPublish( EVENT_NEW( StateEvent, LED_RESTRICT_MANUAL_CONTROL ) );
+
+            eventTimerStopIfActive( &me->timer1 );
             return 0;
     }
     return (STATE)AppTaskSupervisor_main;
@@ -851,7 +826,6 @@ PRIVATE void AppTaskSupervisorProcessModeRequest( AppTaskSupervisor *me )
     }
 
     STATE_TRAN( AppTaskSupervisor_armed_change_mode );
-
 }
 
 /* -------------------------------------------------------------------------- */

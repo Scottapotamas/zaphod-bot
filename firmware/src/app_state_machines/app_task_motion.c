@@ -8,6 +8,7 @@
 #include "app_signals.h"
 #include "app_times.h"
 #include "event_subscribe.h"
+#include "hal_systick.h"
 #include "qassert.h"
 
 #include "app_task_motion.h"
@@ -15,6 +16,7 @@
 #include "clearpath.h"
 #include "motion_types.h"
 #include "path_interpolator.h"
+#include "point_follower.h"
 #include "effector.h"
 
 #include "user_interface.h"
@@ -29,7 +31,8 @@ PRIVATE void  AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e );
 PRIVATE STATE AppTaskMotion_main( AppTaskMotion *me, const StateEvent *e );
 PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e );
 PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e );
-PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e );
+PRIVATE STATE AppTaskMotion_execute_events( AppTaskMotion *me, const StateEvent *e );
+PRIVATE STATE AppTaskMotion_follow_target( AppTaskMotion *me, const StateEvent *e );
 PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e );
 
 PRIVATE void AppTaskMotion_commit_queued_move( AppTaskMotion *me );
@@ -42,7 +45,8 @@ typedef enum
     TASKSTATE_MOTION_MAIN,
     TASKSTATE_MOTION_HOME,
     TASKSTATE_MOTION_INACTIVE,
-    TASKSTATE_MOTION_ACTIVE,
+    TASKSTATE_MOTION_EXECUTE_EVENTS,
+    TASKSTATE_MOTION_FOLLOW_POINT,
     TASKSTATE_MOTION_RECOVERY,
 } MotionTaskState_t;
 
@@ -85,14 +89,21 @@ PRIVATE void AppTaskMotion_initial( AppTaskMotion *me, const StateEvent *e __att
     eventSubscribe( (StateTask *)me, MOTION_PREPARE );
     eventSubscribe( (StateTask *)me, MOTION_EMERGENCY );
 
+    eventSubscribe( (StateTask *)me, MOTION_FOLLOWER_START );
+    eventSubscribe( (StateTask *)me, MOTION_FOLLOWER_STOP );
+
+    eventSubscribe( (StateTask *)me, MOTION_QUEUE_START );
     eventSubscribe( (StateTask *)me, MOTION_QUEUE_ADD );
     eventSubscribe( (StateTask *)me, MOTION_QUEUE_CLEAR );
-    eventSubscribe( (StateTask *)me, MOTION_QUEUE_START );
-
     eventSubscribe( (StateTask *)me, PATHING_COMPLETE );
 
+    eventSubscribe( (StateTask *)me, TRACKED_TARGET_REQUEST );
+
     effector_init();
+
     path_interpolator_init( PATH_INTERPOLATOR_DELTA );
+    point_follower_init( POINT_FOLLOWER_DELTA );
+
     user_interface_set_motion_state( TASKSTATE_MOTION_INITIAL );
 
     STATE_INIT( &AppTaskMotion_main );
@@ -183,10 +194,6 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
             return 0;
 
-        case MOTION_QUEUE_ADD:
-            AppTaskMotion_add_event_to_queue( me, e );
-            return 0;
-
         case MOTION_EMERGENCY:
             STATE_TRAN( AppTaskMotion_recovery );
             return 0;
@@ -233,12 +240,8 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
             }
             return 0;
 
-        case MOTION_QUEUE_ADD:
-            AppTaskMotion_add_event_to_queue( me, e );
-            return 0;
-
-        case MOTION_QUEUE_CLEAR:
-            AppTaskMotion_clear_queue( me );
+        case MOTION_FOLLOWER_START:
+            STATE_TRAN( AppTaskMotion_follow_target );
             return 0;
 
         case MOTION_QUEUE_START: {
@@ -247,11 +250,19 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
             if( ste )
             {
                 path_interpolator_set_epoch_reference( PATH_INTERPOLATOR_DELTA, ste->epoch );
-                STATE_TRAN( AppTaskMotion_active );
+                STATE_TRAN( AppTaskMotion_execute_events );
             }
 
             return 0;
         }
+
+        case MOTION_QUEUE_ADD:
+            AppTaskMotion_add_event_to_queue( me, e );
+            return 0;
+
+        case MOTION_QUEUE_CLEAR:
+            AppTaskMotion_clear_queue( me );
+            return 0;
 
         case MOTION_EMERGENCY:
             STATE_TRAN( AppTaskMotion_recovery );
@@ -266,14 +277,20 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
+PRIVATE STATE AppTaskMotion_execute_events( AppTaskMotion *me, const StateEvent *e )
 {
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            user_interface_set_motion_state( TASKSTATE_MOTION_ACTIVE );
+            user_interface_set_motion_state( TASKSTATE_MOTION_EXECUTE_EVENTS );
+
+            // Run the state-machine loop at 1kHz
+            hal_systick_hook( 1, path_interpolator_process_all );
+
+            // Commit a movement to an available slot in the path planner and tell it to start
             AppTaskMotion_commit_queued_move( me );
 
+            // Start loading more moves from our queue
             if( path_interpolator_is_ready_for_next( PATH_INTERPOLATOR_DELTA ) )
             {
                 stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
@@ -336,6 +353,54 @@ PRIVATE STATE AppTaskMotion_active( AppTaskMotion *me, const StateEvent *e )
             return 0;
 
         case STATE_EXIT_SIGNAL:
+            path_interpolator_stop( PATH_INTERPOLATOR_DELTA );
+            hal_systick_unhook( path_interpolator_process_all );
+
+            eventTimerStopIfActive( &me->timer1 );
+            return 0;
+    }
+    return (STATE)hsmTop;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE STATE AppTaskMotion_follow_target( AppTaskMotion *me, const StateEvent *e )
+{
+    switch( e->signal )
+    {
+        case STATE_ENTRY_SIGNAL:
+            user_interface_set_motion_state( TASKSTATE_MOTION_FOLLOW_POINT );
+
+            hal_systick_hook( 1, point_follower_process_all );
+            point_follower_start( POINT_FOLLOWER_DELTA );
+            return 0;
+
+        case TRACKED_TARGET_REQUEST: {
+            // Catch the inbound target position event
+            TrackedPositionRequestEvent *tpre = (TrackedPositionRequestEvent *)e;
+
+            if( &tpre->target )
+            {
+                CartesianPoint_t target;
+                memcpy( &target, &tpre->target, sizeof( CartesianPoint_t ) );
+
+                point_follower_set_target( POINT_FOLLOWER_DELTA, &target );
+            }
+        }
+            return 0;
+
+        case MOTION_FOLLOWER_STOP:
+            STATE_TRAN( AppTaskMotion_inactive );
+            return 0;
+
+        case MOTION_EMERGENCY:
+            STATE_TRAN( AppTaskMotion_recovery );
+            return 0;
+
+        case STATE_EXIT_SIGNAL:
+            point_follower_stop( POINT_FOLLOWER_DELTA );
+            hal_systick_unhook( point_follower_process_all );
+
             eventTimerStopIfActive( &me->timer1 );
             return 0;
     }

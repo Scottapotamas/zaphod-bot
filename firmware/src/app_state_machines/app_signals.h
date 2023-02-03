@@ -51,6 +51,9 @@ enum AppSignals
     MOTION_PREPARE,      // Start n-axis homing process
     MOTION_EMERGENCY,    // Kill motors immediately
 
+    MOTION_FOLLOWER_START,
+    MOTION_FOLLOWER_STOP,
+
     MOTION_QUEUE_START,
     MOTION_QUEUE_ADD,      // Provide movement information for queue processing
     MOTION_QUEUE_CLEAR,    // Empty out pending movements

@@ -26,8 +26,6 @@
 #include "hal_systick.h"
 
 #include "led_interpolator.h"
-#include "path_interpolator.h"
-#include "point_follower.h"
 #include "effector.h"
 
 /* -------------------------------------------------------------------------- */
@@ -158,8 +156,6 @@ void app_tasks_init( void )
     hal_systick_hook( 2, hal_adc_tick );
 
     hal_systick_hook( 1, led_interpolator_process );
-    hal_systick_hook( 1, path_interpolator_process_all );
-    hal_systick_hook( 1, point_follower_process_all );
     hal_systick_hook( 1, effector_process );
 }
 
