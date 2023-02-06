@@ -676,17 +676,8 @@ servo_process( ClearpathServoInstance_t servo )
 
                 hal_gpio_write_pin( ServoHardwareMap[servo].pin_direction, direction_ccw );
 
-                uint32_t pulses_needed = step_difference * step_direction;
-
-                if( pulses_needed > 8 )
-                {
-                    pulses_needed = 8;
-                    status_yellow( true );    // visual debugging aid to see when speed limits are hit
-                }
-                else
-                {
-                    status_yellow( false );
-                }
+                // Clamp the number of steps per process loop's 'millisecond tick'
+                uint32_t pulses_needed = MIN( step_difference * step_direction, 8 );
 
                 for( uint32_t pulses = 0; pulses < pulses_needed; pulses++ )
                 {
