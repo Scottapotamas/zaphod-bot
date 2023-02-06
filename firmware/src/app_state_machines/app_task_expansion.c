@@ -405,9 +405,6 @@ PRIVATE STATE AppTaskExpansion_recovery( AppTaskExpansion *me, const StateEvent 
                 servo_stop( servo );
             }
 
-            // Stop the motion interpolation engine
-            path_interpolator_stop( PATH_INTERPOLATOR_EXPANSION );
-
             // Come back next loop and clear out queue etc
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
 

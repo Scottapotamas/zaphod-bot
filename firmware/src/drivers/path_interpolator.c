@@ -181,6 +181,10 @@ path_interpolator_start( PathInterpolatorInstance_t interpolator )
 
     // Request that the state-machine transitions to "ON"
     me->enable = true;
+
+    // Process the loop now
+    path_interpolator_process( interpolator );
+
 }
 
 /* -------------------------------------------------------------------------- */
@@ -197,6 +201,11 @@ path_interpolator_stop( PathInterpolatorInstance_t interpolator )
     // Wipe out the moves currently loaded into the queue
     memset( &me->move_a, 0, sizeof( Movement_t ) );
     memset( &me->move_b, 0, sizeof( Movement_t ) );
+
+    // Immediately do cleanup etc
+    // TODO: feels like 'expects external behaviour'
+    //      re: working around the hooking/unhooking process loop not providing enough time for cleanup
+    path_interpolator_process( interpolator );
 }
 
 /* -------------------------------------------------------------------------- */

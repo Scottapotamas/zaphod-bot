@@ -422,9 +422,6 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
                 servo_stop( servo );
             }
 
-            // Stop the motion interpolation engine
-            path_interpolator_stop( PATH_INTERPOLATOR_DELTA );
-
             // Update state for UI
             user_interface_set_motion_state( TASKSTATE_MOTION_RECOVERY );
 
@@ -465,7 +462,7 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
                 }
                 else
                 {
-                    ASSERT( true );    // motors aren't shutdown after repeated attempts -> hard-fault
+                    ASSERT( false );    // motors aren't shutdown after repeated attempts -> hard-fault
                 }
             }
 

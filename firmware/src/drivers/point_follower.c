@@ -102,6 +102,9 @@ point_follower_start( PointFollowInstance_t follower )
 
     // Request that the state-machine transitions to "ON"
     me->enable = true;
+
+    // Process the loop now
+    point_follower_process( follower );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -114,6 +117,9 @@ point_follower_stop( PointFollowInstance_t follower )
 
     // Request that the state-machine return to "OFF"
     me->enable = false;
+
+    // Immediately do cleanup etc
+    point_follower_process( follower );
 }
 
 /* -------------------------------------------------------------------------- */

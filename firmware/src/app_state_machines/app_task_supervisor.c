@@ -685,7 +685,6 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
                 }
             }
             return 0;
-        }
 
         case STATE_TIMEOUT2_SIGNAL:
             // Didn't see valid behaviour after 5 seconds, something must be wrong
