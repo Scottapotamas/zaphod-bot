@@ -353,15 +353,15 @@ path_interpolator_premove_transforms( Movement_t *move )
     {
         if( move->num_pts == 1 )
         {
-            move->points[1].x = move->points[0].x;
-            move->points[1].y = move->points[0].y;
-            move->points[1].z = move->points[0].z;
-            move->num_pts     = 2;
+            move->points[_LINE_END].x = move->points[_LINE_START].x;
+            move->points[_LINE_END].y = move->points[_LINE_START].y;
+            move->points[_LINE_END].z = move->points[_LINE_START].z;
+            move->num_pts = 2;
         }
 
-        move->points[0].x = effector_position.x;
-        move->points[0].y = effector_position.y;
-        move->points[0].z = effector_position.z;
+        move->points[_LINE_START].x = effector_position.x;
+        move->points[_LINE_START].y = effector_position.y;
+        move->points[_LINE_START].z = effector_position.z;
     }
 }
 
