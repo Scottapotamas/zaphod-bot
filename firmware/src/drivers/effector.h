@@ -37,6 +37,11 @@ effector_get_position( void );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC bool
+effector_is_near_home( void );
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC void
 effector_process( void );
 

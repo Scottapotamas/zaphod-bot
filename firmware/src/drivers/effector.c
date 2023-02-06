@@ -85,6 +85,20 @@ effector_get_position( void )
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC bool
+effector_is_near_home( void )
+{
+    CartesianPoint_t position = effector_get_position();
+
+    bool x_homed = IS_IN_DEADBAND( position.x, 0, MM_TO_MICRONS( 0.1 ) );
+    bool y_homed = IS_IN_DEADBAND( position.y, 0, MM_TO_MICRONS( 0.1 ) );
+    bool z_homed = IS_IN_DEADBAND( position.z, 0, MM_TO_MICRONS( 0.1 ) );
+
+    return ( x_homed && y_homed && z_homed );
+}
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC void
 effector_process( void )
 {

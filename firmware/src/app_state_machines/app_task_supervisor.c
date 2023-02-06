@@ -649,14 +649,9 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
 
             return 0;
 
-        case STATE_TIMEOUT1_SIGNAL: {
-            CartesianPoint_t position = effector_get_position();
-
+        case STATE_TIMEOUT1_SIGNAL:
             // Check to make sure the mechanism is near the home position before changing mode
-            if(    IS_IN_DEADBAND( position.x, 0, MM_TO_MICRONS( 0.1 ) )
-                && IS_IN_DEADBAND( position.y, 0, MM_TO_MICRONS( 0.1 ) )
-                && IS_IN_DEADBAND( position.z, 0, MM_TO_MICRONS( 0.1 ) )
-                && path_interpolator_get_move_done( PATH_INTERPOLATOR_DELTA ) )
+            if( effector_is_near_home() && path_interpolator_get_move_done( PATH_INTERPOLATOR_DELTA ) )
             {
                 switch( me->requested_control_mode )
                 {
@@ -754,23 +749,16 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
             AppTaskSupervisorPublishRehomeEvent();
             return 0;
 
-        case STATE_TIMEOUT1_SIGNAL: {
-            // get global position
-            CartesianPoint_t position = effector_get_position();
-
+        case STATE_TIMEOUT1_SIGNAL:
             // Check to make sure the mechanism is at the home position before disabling servo power
             // Allow a few microns error on position in check
-            if(    IS_IN_DEADBAND( position.x, 0, MM_TO_MICRONS( 0.15 ) )
-                && IS_IN_DEADBAND( position.y, 0, MM_TO_MICRONS( 0.15 ) )
-                && IS_IN_DEADBAND( position.z, 0, MM_TO_MICRONS( 0.15 ) )
-                )
+            if( effector_is_near_home() )
             {
                 // Todo use a 'quiet' disarm here rather than the hard emergency shutdown
                 eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
             }
 
             return 0;
-        }
 
         case STATE_TIMEOUT2_SIGNAL:
             // Didn't see a full disarm within 5 seconds of starting the process, should have homed by now
