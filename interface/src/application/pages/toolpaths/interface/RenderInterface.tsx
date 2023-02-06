@@ -596,9 +596,9 @@ export const RenderInterface = () => {
         {numFrames < 1 ? null : <Timeline key={numFrames} />}
       </FormGroup>
 
-      <p>
+      <div style={{paddingBottom: '0.5em'}}>
         <CurrentFrameTime />
-      </p>
+      </div>
 
       <SendToolpathToDeviceIfExists />
     </div>
