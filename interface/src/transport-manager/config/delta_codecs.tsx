@@ -200,7 +200,7 @@ export class MotionDataCodec extends Codec {
 
     return {
       pathing_state: reader.readUInt8(),
-      motion_state: reader.readUInt8(), // this isn't called the queue state on embedded
+      motion_state: reader.readUInt8(),
       profile_type: reader.readUInt8(),
       move_progress: reader.readUInt8(),
 
@@ -572,7 +572,7 @@ export class UserConfigCodec extends Codec {
 
     packet.writeUInt8(payload.values.expansion_resolution)
     packet.writeUInt8(payload.values.expansion_ratio)
-    packet.writeUInt8(payload.values.expansion_speed_limit)
+    packet.writeUInt8(payload.values.expansion_speed_limit/SPEED_LIMIT_SCALE_FACTOR)
     packet.writeUInt8(0xFF) // currently reserved values
 
     packet.writeInt16LE(payload.values.expansion_range_min)
@@ -585,7 +585,6 @@ export class UserConfigCodec extends Codec {
 
   decode(payload: Buffer): UserConfig {
     const reader = SmartBuffer.fromBuffer(payload)
-    console.log(reader.length)
 
     let b1 = reader.readUInt8()
     let b2 = reader.readUInt8() // reserved byte
@@ -619,7 +618,7 @@ export class UserConfigCodec extends Codec {
       volume_z: reader.readUInt8(),
       expansion_resolution: reader.readUInt8(),
       expansion_ratio: reader.readUInt8(),
-      expansion_speed_limit: reader.readUInt8(),
+      expansion_speed_limit: reader.readUInt8()*SPEED_LIMIT_SCALE_FACTOR,
       expansion_range_min: 0,
       expansion_range_max: 0,
     }
