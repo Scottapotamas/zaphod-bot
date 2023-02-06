@@ -42,6 +42,12 @@ configuration_set_defaults( void )
     led_calibration.balance_green = 0;
     led_calibration.balance_blue  = 0xFFFF * 0.65f;
 
+    power_trims.voltage = -3650;
+    power_trims.current_servo_1 = -25;
+    power_trims.current_servo_2 = 45;
+    power_trims.current_servo_3 = -205;
+    power_trims.current_servo_4 = -195;
+
     user_configuration.values.z_rotation = 0;
     user_configuration.values.speed_limit = EFFECTOR_SPEED_LIMIT / 10;
     user_configuration.values.volume_radius = KINEMATICS_RADIUS_MAX_MM;

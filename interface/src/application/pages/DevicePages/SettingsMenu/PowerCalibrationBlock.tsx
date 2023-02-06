@@ -160,7 +160,7 @@ export const PowerCalibrationBlock = () => {
               </td>
             </tr>
 
-            {[0, 1, 2].map(servoIndex => (
+            {[0, 1, 2, 3].map(servoIndex => (
               <ServoTableRow index={servoIndex} />
             ))}
 
