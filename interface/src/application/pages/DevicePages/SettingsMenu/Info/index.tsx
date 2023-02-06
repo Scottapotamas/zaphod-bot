@@ -161,6 +161,10 @@ export const InfoBlock = () => {
         <LastAssertReason />
         <br />
         <CPUClockText /> <CPULoadText />
+        <br/>
+        Move Queue: <Printer accessor={ state => state[MSGID.QUEUE_INFO].movements} />
+        <br/>
+        Fade Queue: <Printer accessor={ state => state[MSGID.QUEUE_INFO].lighting} />
       </Box>
       <Box>
         <SectionHeading text="Firmware Build" />
