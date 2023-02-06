@@ -26,7 +26,11 @@ path_interpolator_init( PathInterpolatorInstance_t interpolator );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_process_all( void );
+path_interpolator_process_delta( void );
+
+PUBLIC void
+path_interpolator_process_expansion( void );
+
 
 /* -------------------------------------------------------------------------- */
 

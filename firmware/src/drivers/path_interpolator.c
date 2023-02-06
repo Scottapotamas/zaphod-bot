@@ -202,12 +202,16 @@ path_interpolator_stop( PathInterpolatorInstance_t interpolator )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_process_all( void )
+path_interpolator_process_delta( void )
 {
-    for( PathInterpolatorInstance_t instance = 0; instance < NUMBER_PATH_INTERPOLATORS; instance++ )
-    {
-        path_interpolator_process( instance );
-    }
+    path_interpolator_process( PATH_INTERPOLATOR_DELTA );
+
+}
+
+PUBLIC void
+path_interpolator_process_expansion( void )
+{
+    path_interpolator_process( PATH_INTERPOLATOR_EXPANSION );
 }
 
 /* -------------------------------------------------------------------------- */

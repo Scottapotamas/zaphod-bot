@@ -119,12 +119,15 @@ point_follower_stop( PointFollowInstance_t follower )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-point_follower_process_all( void )
+point_follower_process_delta( void )
 {
-    for( PointFollowInstance_t instance = 0; instance < NUMBER_POINT_FOLLOWERS; instance++ )
-    {
-        point_follower_process( instance);
-    }
+    point_follower_process( POINT_FOLLOWER_DELTA );
+}
+
+PUBLIC void
+point_follower_process_expansion( void )
+{
+    point_follower_process( POINT_FOLLOWER_EXPANSION );
 }
 
 /* -------------------------------------------------------------------------- */

@@ -25,7 +25,10 @@ point_follower_init( PointFollowInstance_t follower );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-point_follower_process_all( void );
+point_follower_process_delta( void );
+
+PUBLIC void
+point_follower_process_expansion( void );
 
 /* -------------------------------------------------------------------------- */
 

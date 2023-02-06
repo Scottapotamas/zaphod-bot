@@ -271,7 +271,7 @@ PRIVATE STATE AppTaskExpansion_execute_events( AppTaskExpansion *me, const State
         case STATE_ENTRY_SIGNAL:
 
             // Run the state-machine loop at 1kHz
-            hal_systick_hook( 1, path_interpolator_process_all );
+            hal_systick_hook( 1, path_interpolator_process_expansion );
 
             // Commit a movement to an available slot in the path planner and tell it to start
             AppTaskExpansion_commit_queued_move( me );
@@ -340,7 +340,7 @@ PRIVATE STATE AppTaskExpansion_execute_events( AppTaskExpansion *me, const State
 
         case STATE_EXIT_SIGNAL:
             path_interpolator_stop( PATH_INTERPOLATOR_EXPANSION );
-            hal_systick_unhook( path_interpolator_process_all );
+            hal_systick_unhook( path_interpolator_process_expansion );
 
             eventTimerStopIfActive( &me->timer1 );
             return 0;
@@ -355,7 +355,7 @@ PRIVATE STATE AppTaskExpansion_follow_target( AppTaskExpansion *me, const StateE
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            hal_systick_hook( 1, point_follower_process_all );
+            hal_systick_hook( 1, point_follower_process_expansion );
             point_follower_start( POINT_FOLLOWER_EXPANSION );
             return 0;
 
@@ -383,7 +383,7 @@ PRIVATE STATE AppTaskExpansion_follow_target( AppTaskExpansion *me, const StateE
 
         case STATE_EXIT_SIGNAL:
             point_follower_stop( POINT_FOLLOWER_EXPANSION );
-            hal_systick_unhook( point_follower_process_all );
+            hal_systick_unhook( point_follower_process_expansion );
 
             eventTimerStopIfActive( &me->timer1 );
             return 0;

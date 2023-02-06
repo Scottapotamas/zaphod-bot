@@ -286,7 +286,7 @@ PRIVATE STATE AppTaskMotion_execute_events( AppTaskMotion *me, const StateEvent 
             user_interface_set_motion_state( TASKSTATE_MOTION_EXECUTE_EVENTS );
 
             // Run the state-machine loop at 1kHz
-            hal_systick_hook( 1, path_interpolator_process_all );
+            hal_systick_hook( 1, path_interpolator_process_delta );
 
             // Commit a movement to an available slot in the path planner and tell it to start
             AppTaskMotion_commit_queued_move( me );
@@ -355,7 +355,7 @@ PRIVATE STATE AppTaskMotion_execute_events( AppTaskMotion *me, const StateEvent 
 
         case STATE_EXIT_SIGNAL:
             path_interpolator_stop( PATH_INTERPOLATOR_DELTA );
-            hal_systick_unhook( path_interpolator_process_all );
+            hal_systick_unhook( path_interpolator_process_delta );
 
             eventTimerStopIfActive( &me->timer1 );
             return 0;
@@ -372,7 +372,7 @@ PRIVATE STATE AppTaskMotion_follow_target( AppTaskMotion *me, const StateEvent *
         case STATE_ENTRY_SIGNAL:
             user_interface_set_motion_state( TASKSTATE_MOTION_FOLLOW_POINT );
 
-            hal_systick_hook( 1, point_follower_process_all );
+            hal_systick_hook( 1, point_follower_process_delta );
             point_follower_start( POINT_FOLLOWER_DELTA );
             return 0;
 
@@ -400,7 +400,7 @@ PRIVATE STATE AppTaskMotion_follow_target( AppTaskMotion *me, const StateEvent *
 
         case STATE_EXIT_SIGNAL:
             point_follower_stop( POINT_FOLLOWER_DELTA );
-            hal_systick_unhook( point_follower_process_all );
+            hal_systick_unhook( point_follower_process_delta );
 
             eventTimerStopIfActive( &me->timer1 );
             return 0;
