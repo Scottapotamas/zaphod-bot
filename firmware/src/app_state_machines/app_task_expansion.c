@@ -117,7 +117,10 @@ PRIVATE STATE AppTaskExpansion_main( AppTaskExpansion *me, const StateEvent *e )
             return 0;
 
         case MOTION_PREPARE:
-            STATE_TRAN( AppTaskExpansion_home );
+            if( servo_is_configured( _CLEARPATH_4 ) )
+            {
+                STATE_TRAN( AppTaskExpansion_home );
+            }
             return 0;
 
         case MOTION_EMERGENCY:
@@ -140,7 +143,7 @@ PRIVATE STATE AppTaskExpansion_home( AppTaskExpansion *me, const StateEvent *e )
             // Reset the motor and let it home as needed
             servo_start( _CLEARPATH_4 );
 
-            // Check the motor every 500ms to see if they are homed
+            // Check the motor every 500ms to see if it's homed
             eventTimerStartEvery( &me->timer1,
                                   (StateTask *)me,
                                   (StateEvent *)&stateEventReserved[STATE_TIMEOUT1_SIGNAL],
@@ -164,7 +167,7 @@ PRIVATE STATE AppTaskExpansion_home( AppTaskExpansion *me, const StateEvent *e )
 
             if( me->counter )
             {
-                eventPublish( EVENT_NEW( StateEvent, MOTION_HOMED ) );
+                eventPublish( EVENT_NEW( StateEvent, EXPANSION_HOMED ) );
                 expansion_set_home();
                 STATE_TRAN( AppTaskExpansion_inactive );
             }

@@ -125,6 +125,7 @@ PRIVATE STATE AppTaskMotion_main( AppTaskMotion *me, const StateEvent *e )
             return 0;
 
         case MOTION_EMERGENCY:
+            // TODO: why do we hit this on startup?
             STATE_TRAN( AppTaskMotion_recovery );
             return 0;
     }

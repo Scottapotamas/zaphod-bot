@@ -65,6 +65,7 @@ enum AppSignals
     EXPANSION_QUEUE_START,
     EXPANSION_QUEUE_ADD,      // Provide movement information for queue processing
     EXPANSION_MOVE_COMPLETE,
+    EXPANSION_HOMED,
 
     /* LED Handler Signals */
     LED_OFF,            // Turn off led immediately, clear the queue
