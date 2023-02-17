@@ -21,7 +21,7 @@ export const defaultSettings: Settings = {
   objectSettings: {
     gpencil: {
       outputType: 1 as GPencilOutputType.LINE_GROUP, // circular dep
-      simplificationTolerance: 0,
+      simplificationTolerance: 0.1,
     },
     particles: {
       drawInVelocityOrientation: false,
