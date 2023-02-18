@@ -149,6 +149,9 @@ PUBLIC void
 led_interpolator_start( void )
 {
     planner.animation_run = true;
+
+    // Process the loop now
+    led_interpolator_process();
 }
 
 PUBLIC void
@@ -157,6 +160,11 @@ led_interpolator_stop( void )
     planner.animation_run = false;
     memset( &planner.fade_a, 0, sizeof( Fade_t ) );
     memset( &planner.fade_b, 0, sizeof( Fade_t ) );
+
+    // Immediately do cleanup etc
+    // TODO: feels like 'expects external behaviour'
+    //      re: working around the hooking/unhooking process loop not providing enough time for cleanup
+    led_interpolator_process();
 }
 
 /* -------------------------------------------------------------------------- */

@@ -13,6 +13,7 @@
 #include "app_task_led.h"
 #include "led_interpolator.h"
 
+#include "hal_systick.h"
 #include "user_interface.h"
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
@@ -148,7 +149,9 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            // TODO: tell the ui about the led state in use
+            // Run the state-machine loop at 1kHz
+            hal_systick_hook( 1, led_interpolator_process );
+
             AppTaskLed_commit_queued_fade( me );
 
             if( led_interpolator_is_ready_for_next() )
@@ -163,7 +166,7 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
 
         case ANIMATION_COMPLETE: {
             // the LED interpolation engine has completed the animation execution,
-            // loop around to process another event with the same ID, or go back to inactive and wait for sync
+            // loop around to process another event, or go back to inactive and wait for sync
             if( eventQueueUsed( &me->super.requestQueue ) )
             {
                 StateEvent *next = eventQueuePeek( &me->super.requestQueue );
@@ -180,9 +183,8 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
                     STATE_TRAN( AppTaskLed_inactive );
                 }
             }
-            else if( led_interpolator_is_empty() )
+            else
             {
-                // TODO: check why there's an else if here, but not in the motion task
                 STATE_TRAN( AppTaskLed_inactive );
             }
 
@@ -199,8 +201,10 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
             return 0;
 
         case STATE_EXIT_SIGNAL:
-            eventTimerStopIfActive( &me->timer1 );
             led_interpolator_stop();
+            hal_systick_unhook( led_interpolator_process );
+
+            eventTimerStopIfActive( &me->timer1 );
             return 0;
     }
     return (STATE)hsmTop;
