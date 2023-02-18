@@ -22,9 +22,7 @@ import {
 
 import { MSGID } from 'src/application/typedState'
 
-import { SystemSummary } from './Views/SystemSummary'
 import { RobotSummary } from './Views/RobotSummary'
-
 import { ServoSummary } from './Views/ServoStatistics/ServoSummary'
 
 import { ControlBlock } from './Controls/ControlBlock'
@@ -109,11 +107,6 @@ const SideBar = () => {
   )
 }
 
-const layoutDescription = `
-            Sidebar Three Charts
-            Sidebar Three Charts
-            Controls Three Charts
-          `
 
 const MainWindow = (props: RouteComponentProps) => {
   return (
@@ -146,11 +139,6 @@ const MainWindow = (props: RouteComponentProps) => {
         style={{ minWidth: 450, maxWidth: 600,left: '1em', bottom: '1em', position: 'absolute' }}
       >
         <ControlBlock />
-      </div>
-
-      {/* Centered status info */}
-      <div style={{ maxWidth: '400px', position: 'absolute', left: '0', right: '0', marginLeft: 'auto', marginRight: 'auto' }}>
-        {/* <SystemSummary /> */}
       </div>
 
       {/* Left Sidebar for telemetry */}

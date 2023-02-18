@@ -1,4 +1,4 @@
-import { HTMLTable, Icon, Intent } from '@blueprintjs/core'
+import { Colors, HTMLTable, Icon, Intent } from '@blueprintjs/core'
 import {
   IntervalRequester,
   useHardwareState,
@@ -9,8 +9,10 @@ import { Composition, Box } from 'atomic-layout'
 import { Statistic } from '@electricui/components-desktop-blueprint'
 import { Printer } from '@electricui/components-desktop'
 import { MSGID } from 'src/application/typedState'
+import { MessageDataSource } from '@electricui/core-timeseries'
 
 import { SectionHeading } from '../SectionHeading'
+import { SparkTag } from 'src/application/components/SparkTag'
 
 const SensorsActive = () => {
   const sensorEnabledState =
@@ -62,10 +64,10 @@ const CPUClockText = () => {
   const cpu_clock = useHardwareState(state => state[MSGID.SYSTEM].cpu_clock)
 
   if (cpu_clock) {
-    return <div>CPU Clock: {cpu_clock}Mhz</div>
+    return <div>CPU ({cpu_clock}MHz)</div>
   }
 
-  return <div>Error getting CPU clockspeed</div>
+  return <div>CPU (? MHZ)</div>
 }
 
 const CPULoadText = () => {
@@ -140,47 +142,133 @@ const BuildInfoTable = () => {
   )
 }
 
+const sysDS = new MessageDataSource(MSGID.SYSTEM)
+const fanDS = new MessageDataSource(MSGID.FAN)
+const queueDS = new MessageDataSource(MSGID.QUEUE_INFO)
+
 export const InfoBlock = () => {
   const num_tasks: number | null = useHardwareState(
     state => (state.tasks || []).length,
   )
 
   return (
-    <Composition templateCols="1fr 1fr" justifyItems="center" gap={20}>
+    <Composition templateCols="1fr 1fr 1fr" justifyItems="center" gap={20}>
       <Box>
         <IntervalRequester interval={200} variables={[MSGID.SYSTEM]} />
         <SectionHeading text="Status" />
+
+        <Composition
+          autoCols="minmax(100px, 150px)"
+          autoFlow="column"
+          gapCol={5}
+        >
+          <SparkTag
+            title="CPU" //TODO put the clock speed in here
+            color={Colors.GRAY4}
+            drawValue
+            datasource={sysDS}
+            accessor={state => state.cpu_load}
+          />
+        </Composition>
+      </Box>
+
+      <Box>
+        <SectionHeading text="Queues" />
+        <Composition
+          autoCols="minmax(80px, 180px)"
+          autoFlow="column"
+          gapCol={5}
+        >
+          <SparkTag
+            title="Move"
+            color={Colors.BLUE4}
+            drawValue
+            datasource={queueDS}
+            accessor={state => state.movements}
+            min={0}
+            max={150}
+          />
+          <SparkTag
+            title="Fade"
+            color={Colors.GREEN4}
+            drawValue
+            datasource={queueDS}
+            accessor={state => state.lighting}
+            min={0}
+            max={250}
+          />
+        </Composition>
+      </Box>
+
+      <Box>
+        <SectionHeading text="Thermals" />
+        <Composition
+          autoCols="minmax(100px, 180px)"
+          autoFlow="column"
+          gapCol={5}
+        >
+          <SparkTag
+            title="RPM"
+            color={Colors.RED4}
+            drawValue
+            datasource={fanDS}
+            accessor={state => state.rpm}
+            min={0}
+            max={2500}
+          />
+          <SparkTag
+            title="Ambient"
+            color={Colors.INDIGO3}
+            drawValue
+            datasource={sysDS}
+            accessor={state => state.temp_ambient}
+            min={0}
+            max={60}
+          />
+          <SparkTag
+            title="75V PSU"
+            color={Colors.CERULEAN4}
+            drawValue
+            datasource={sysDS}
+            accessor={state => state.temp_supply}
+            min={0}
+            max={60}
+          />
+          <SparkTag
+            title="CPU"
+            color={Colors.TURQUOISE4}
+            drawValue
+            datasource={sysDS}
+            accessor={state => state.temp_cpu}
+            min={0}
+            max={60}
+          />
+        </Composition>
+      </Box>
+
+      <Box>
+        <SectionHeading text="Debug" />
+
         <SensorsActive />
         <ModuleActive />
+
         <br />
         <IntervalRequester
           interval={1000}
-          variables={[[MSGID.ASSERT_CAUSE], [MSGID.RESET_CAUSE]]}
+          variables={[MSGID.ASSERT_CAUSE, MSGID.RESET_CAUSE, MSGID.FAN]}
         />
         <LastResetReason />
         <LastAssertReason />
-        <br />
-        <CPUClockText /> <CPULoadText />
-        <br/>
-        Move Queue: <Printer accessor={ state => state[MSGID.QUEUE_INFO].movements} />
-        <br/>
-        Fade Queue: <Printer accessor={ state => state[MSGID.QUEUE_INFO].lighting} />
       </Box>
+
+      <Box>
+        <SectionHeading text="Update" />
+        TODO: File selector here
+      </Box>
+
       <Box>
         <SectionHeading text="Firmware Build" />
         <BuildInfoTable />
-      </Box>
-      <Box>
-        <SectionHeading text="Thermals" />
-        Temperature sensors here
-        <br />
-        Fan speed/duty here
-      </Box>
-      <Box>
-        <SectionHeading text="Manual Update" />
-        Load a valid update file for flashing:
-        <br />
-        File selector here
       </Box>
     </Composition>
   )
