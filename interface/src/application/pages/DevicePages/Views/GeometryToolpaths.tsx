@@ -25,6 +25,7 @@ import { useContextBridge } from '@react-three/drei'
 
 import { ToolpathMovements, AxisLines } from '../../toolpaths/interface/ToolpathVisualisation'
 import { DeltaAssembly } from 'src/application/components/RiggedModel'
+import { GroundPlane } from 'src/application/components/GroundPlane'
 
 export const GeometryToolpathViewer = () => {
   const setCameraRef = useCallback((camera: PerspectiveCameraImpl) => {
@@ -68,7 +69,9 @@ export const GeometryToolpathViewer = () => {
 
         <ToolpathMovements />
         <DeltaAssembly />
-        {/* <fog attach="fog" args={['#101010', 600, 3000]} /> */}
+
+        <GroundPlane />
+        <fog attach="fog" args={['#101010', 500, 3000]} />
       </ContextBridge>
     </Canvas>
   )

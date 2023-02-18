@@ -58,6 +58,7 @@ import { DeltaAssembly } from './../../../components/RiggedModel'
 import { isCamera } from '../optimiser/camera'
 import { useDarkMode } from '@electricui/components-desktop'
 import { lerpRGBA } from '../optimiser/materials/utilities'
+import { GroundPlane } from 'src/application/components/GroundPlane'
 
 export function AxisLines() {
   return (
@@ -458,8 +459,9 @@ export const ToolpathVisualisation = () => {
 
       <ToolpathMovements />
       <DeltaAssembly />
-
-      {/* <fog attach="fog" args={['#101010', 600, 3000]} /> */}
+      
+      <GroundPlane />
+      <fog attach="fog" args={['#101010', 500, 3000]} />
     </Canvas>
   )
 }
