@@ -27,8 +27,8 @@ int32_t z_min = MM_TO_MICRONS( KINEMATICS_Z_MIN_MM );
 int32_t radius = MM_TO_MICRONS( KINEMATICS_RADIUS_MAX_MM );
 
 // Rotate the cartesian co-ordinate space
-int8_t flip_x = 1;
-int8_t flip_y = 1;
+int8_t flip_x = -1;
+int8_t flip_y = -1;
 int8_t flip_z = -1;
 
 // Delta geometry defines

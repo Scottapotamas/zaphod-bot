@@ -62,20 +62,20 @@ export function kinematics_point_to_angle(effectorPosition: CartesianPoint, armI
   if (armIndex === 0) return result.angle
 
   if (result.ok) {
-    // Rotate +120 degrees
+    // Rotate -120 degrees
     result = delta_angle_plane_calc(
-      position.x * cos120 + position.y * sin120,
-      position.y * cos120 - position.x * sin120,
+      position.x * cos120 - position.y * sin120,
+      position.y * cos120 + position.x * sin120,
       position.z,
     )
     if (armIndex === 1) return result.angle
   }
 
   if (result.ok) {
-    // Rotate -120 degrees
+    // Rotate +120 degrees
     result = delta_angle_plane_calc(
-      position.x * cos120 - position.y * sin120,
-      position.y * cos120 + position.x * sin120,
+      position.x * cos120 + position.y * sin120,
+      position.y * cos120 - position.x * sin120,
       position.z,
     )
     if (armIndex === 2) return result.angle

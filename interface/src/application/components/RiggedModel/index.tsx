@@ -86,7 +86,7 @@ function calculateLookAt(
   // Delta -> ThreeJS transform
   mutableEffector.set(cpos.x, cpos.z, -cpos.y)
 
-  mutableEuler.set(0, (armIndex * (-2 * Math.PI)) / 3, 0)
+  mutableEuler.set(0, (armIndex * (2 * Math.PI)) / 3, 0)
 
   mutableOffset.set(left ? 22.5 : -22.5, 0, -32).applyEuler(mutableEuler)
 
@@ -313,7 +313,7 @@ export const DeltaAssembly = () => {
         <group rotation={[0, Math.PI / -2, 0]}>
           {[0, 1, 2].map(armIndex => (
             <group
-              rotation={[0, armIndex * ((-2 * Math.PI) / 3), 0]}
+              rotation={[0, armIndex * ((2 * Math.PI) / 3), 0]}
               key={armIndex}
             >
               <ArmAssembly armIndex={armIndex} />
