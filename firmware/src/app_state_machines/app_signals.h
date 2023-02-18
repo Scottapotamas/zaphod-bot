@@ -76,8 +76,8 @@ enum AppSignals
     ANIMATION_STARTED,     // Started executing a fade
     ANIMATION_COMPLETE,    // Finished drawing out the LED animated colour ramp
 
-    LED_ALLOW_MANUAL_CONTROL,
-    LED_RESTRICT_MANUAL_CONTROL,
+    LED_REQUEST_MANUAL_CONTROL,
+    LED_RELEASE_MANUAL_CONTROL,
 
     LED_MANUAL_SET,
 

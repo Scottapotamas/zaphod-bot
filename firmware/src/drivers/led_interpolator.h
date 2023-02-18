@@ -53,17 +53,6 @@ led_interpolator_stop( void );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-led_interpolator_manual_override_on( void );
-
-PUBLIC void
-led_interpolator_manual_override_release( void );
-
-PUBLIC void
-led_interpolator_manual_control_set_rgb( uint16_t red, uint16_t green, uint16_t blue, bool enabled );
-
-/* -------------------------------------------------------------------------- */
-
 PUBLIC float
 led_interpolator_get_progress( void );
 

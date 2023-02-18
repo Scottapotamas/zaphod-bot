@@ -14,6 +14,7 @@
 #include "led_interpolator.h"
 
 #include "hal_systick.h"
+#include "led.h"
 #include "user_interface.h"
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
@@ -73,8 +74,8 @@ PRIVATE void AppTaskLed_initial( AppTaskLed *me, const StateEvent *e __attribute
     eventSubscribe( (StateTask *)me, LED_QUEUE_CLEAR );
     eventSubscribe( (StateTask *)me, LED_QUEUE_START );
 
-    eventSubscribe( (StateTask *)me, LED_ALLOW_MANUAL_CONTROL );
-    eventSubscribe( (StateTask *)me, LED_RESTRICT_MANUAL_CONTROL );
+    eventSubscribe( (StateTask *)me, LED_REQUEST_MANUAL_CONTROL );
+    eventSubscribe( (StateTask *)me, LED_RELEASE_MANUAL_CONTROL );
     eventSubscribe( (StateTask *)me, LED_MANUAL_SET );
 
     eventSubscribe( (StateTask *)me, ANIMATION_COMPLETE );
@@ -131,7 +132,7 @@ PRIVATE STATE AppTaskLed_inactive( AppTaskLed *me, const StateEvent *e )
         }
             return 0;
 
-        case LED_ALLOW_MANUAL_CONTROL:
+        case LED_REQUEST_MANUAL_CONTROL:
             STATE_TRAN( AppTaskLed_active_manual );
             return 0;
 
@@ -217,11 +218,10 @@ PRIVATE STATE AppTaskLed_active_manual( AppTaskLed *me, const StateEvent *e )
     switch( e->signal )
     {
         case STATE_ENTRY_SIGNAL:
-            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
-            led_interpolator_manual_override_on();
+
             return 0;
 
-        case LED_RESTRICT_MANUAL_CONTROL:
+        case LED_RELEASE_MANUAL_CONTROL:
             STATE_TRAN( AppTaskLed_inactive );
             return 0;
 
@@ -230,17 +230,25 @@ PRIVATE STATE AppTaskLed_active_manual( AppTaskLed *me, const StateEvent *e )
 
             if( lme )
             {
-                led_interpolator_manual_control_set_rgb( lme->colour.red,
-                                                         lme->colour.green,
-                                                         lme->colour.blue,
-                                                         lme->enabled );
+                led_enable( lme->enabled );    // Turn off the LED if the user isn't wanting it on
+
+                if( lme->enabled )
+                {
+                    GenericColour_t output_values = { 0.0f, 0.0f, 0.0f };
+
+                    output_values.x = (float)lme->colour.red / 0xFFFFU;
+                    output_values.y = (float)lme->colour.green / 0xFFFFU;
+                    output_values.z = (float)lme->colour.blue / 0xFFFFU;
+
+                    // Set the LED channel values in RGB percentages [0.0f -> 1.0f]
+                    led_set( output_values.x, output_values.y, output_values.z );
+                }
             }
         }
             return 0;
 
         case STATE_EXIT_SIGNAL:
-            eventTimerStopIfActive( &me->timer1 );
-            led_interpolator_manual_override_release();
+
             return 0;
     }
     return (STATE)hsmTop;

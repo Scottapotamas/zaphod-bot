@@ -19,7 +19,6 @@
 #include "led.h"
 #include "led_types.h"
 #include "timer_ms.h"
-#include "user_interface.h"
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
@@ -29,7 +28,6 @@ typedef enum
 {
     ANIMATION_OFF,
     ANIMATION_WAIT_AND_EXECUTE,
-    ANIMATION_MANUAL,
 } RGBState_t;
 
 typedef struct
@@ -42,7 +40,6 @@ typedef struct
     Fade_t  fade_b;          // Slot B fade storage
     Fade_t *current_fade;    // Points to fade_a or fade_b
 
-    bool       manual_mode;        // user control
     bool       animation_run;      // if the planner is enabled
     timer_ms_t epoch_timestamp;    // Reference system time for fade offset sequencing
 
@@ -117,7 +114,6 @@ led_interpolator_set_objective( Fade_t *fade_to_process )
     if( fade_insert_slot != NULL )
     {
         memcpy( fade_insert_slot, fade_to_process, sizeof( Fade_t ) );
-        me->manual_mode = false;
     }
 }
 
@@ -180,45 +176,13 @@ led_interpolator_get_fade_done( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-led_interpolator_manual_override_on( void )
-{
-    planner.manual_mode = true;
-}
-
-PUBLIC void
-led_interpolator_manual_override_release( void )
-{
-    planner.manual_mode = false;
-}
-
-PUBLIC void
-led_interpolator_manual_control_set_rgb( uint16_t red, uint16_t green, uint16_t blue, bool enabled )
-{
-    led_enable( enabled );    // Turn off the LED if the user isn't wanting it on
-
-    GenericColour_t output_values = { 0.0f, 0.0f, 0.0f };
-
-    output_values.x = (float)red / 0xFFFFU;
-    output_values.y = (float)green / 0xFFFFU;
-    output_values.z = (float)blue / 0xFFFFU;
-
-    if( enabled )
-    {
-        // Set the LED channel values in RGB percentages [0.0f -> 1.0f]
-        led_set( output_values.x, output_values.y, output_values.z );
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
 led_interpolator_set_dark( void )
 {
-    planner.led_colour.red   = 0;
-    planner.led_colour.green = 0;
-    planner.led_colour.blue  = 0;
+    planner.led_colour.red   = 0U;
+    planner.led_colour.green = 0U;
+    planner.led_colour.blue  = 0U;
 
-    led_set( planner.led_colour.red, planner.led_colour.red, planner.led_colour.red );
+    led_set( planner.led_colour.red, planner.led_colour.green, planner.led_colour.blue );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -232,7 +196,6 @@ led_interpolator_process( void )
     {
         case ANIMATION_OFF:
             STATE_ENTRY_ACTION
-            user_interface_set_led_status( me->currentState );
             led_interpolator_set_dark();
 
             // Disable the LED driver once we've been off for a while
@@ -244,11 +207,6 @@ led_interpolator_process( void )
                 {
                     STATE_NEXT( ANIMATION_WAIT_AND_EXECUTE );
                 }
-            }
-
-            if( me->manual_mode )
-            {
-                STATE_NEXT( ANIMATION_MANUAL );
             }
 
             // If off for extended period of time, turn the LED driver off
@@ -331,24 +289,7 @@ led_interpolator_process( void )
             timer_ms_stop( &me->animation_est_complete );
             STATE_END
             break;
-
-        case ANIMATION_MANUAL:
-            STATE_ENTRY_ACTION
-
-            STATE_TRANSITION_TEST
-            // All the fun for this state is done one-shot when the setting event comes in
-            // See led_interpolator_manual_control_set_rgb() earlier in this file
-            if( !planner.manual_mode )
-            {
-                STATE_NEXT( ANIMATION_OFF );
-            }
-            STATE_EXIT_ACTION
-
-            STATE_END
-            break;
     }
-
-    user_interface_set_led_status( me->currentState );
 }
 
 /* -------------------------------------------------------------------------- */

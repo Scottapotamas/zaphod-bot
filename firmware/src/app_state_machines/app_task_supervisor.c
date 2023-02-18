@@ -452,7 +452,7 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
             me->active_control_mode = CONTROL_MANUAL;
             user_interface_set_control_mode( me->active_control_mode );
 
-            eventPublish( EVENT_NEW( StateEvent, LED_ALLOW_MANUAL_CONTROL ) );
+            eventPublish( EVENT_NEW( StateEvent, LED_REQUEST_MANUAL_CONTROL ) );
             return 0;
 
         case MECHANISM_STOP:
@@ -493,7 +493,7 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
             return 0;
 
         case STATE_EXIT_SIGNAL:
-            eventPublish( EVENT_NEW( StateEvent, LED_RESTRICT_MANUAL_CONTROL ) );
+            eventPublish( EVENT_NEW( StateEvent, LED_RELEASE_MANUAL_CONTROL ) );
 
             return 0;
     }
@@ -510,7 +510,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
             user_interface_set_control_mode( me->active_control_mode );
 
             eventPublish( EVENT_NEW( StateEvent, MOTION_FOLLOWER_START ) );
-            eventPublish( EVENT_NEW( StateEvent, LED_ALLOW_MANUAL_CONTROL ) );
+            eventPublish( EVENT_NEW( StateEvent, LED_REQUEST_MANUAL_CONTROL ) );
 
             // TODO: pushing 0,0,0 like this is dirty
             user_interface_reset_tracking_target();    // entering track mode should always reset position
@@ -542,7 +542,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
             user_interface_reset_tracking_target();
 
             eventPublish( EVENT_NEW( StateEvent, MOTION_FOLLOWER_STOP ) );
-            eventPublish( EVENT_NEW( StateEvent, LED_RESTRICT_MANUAL_CONTROL ) );
+            eventPublish( EVENT_NEW( StateEvent, LED_RELEASE_MANUAL_CONTROL ) );
 
             eventTimerStopIfActive( &me->timer1 );
             return 0;
