@@ -58,11 +58,11 @@ function ForearmGeometry() {
       */}
 
       {/* <GLTF receiveShadow asset={DeltaForearmModel} position={[0, 0, -43]} rotation={[0, Math.PI, 0]} /> */}
-      <mesh>
+      <mesh >
         <sphereBufferGeometry attach="geometry" args={[8, 16, 16]} />
         <meshStandardMaterial attach="material" roughness={0.6} />
       </mesh>
-      <mesh position={[0, 0, 340]}>
+      <mesh position={[0, 0, 340]} >
         <sphereBufferGeometry attach="geometry" args={[8, 16, 16]} />
         <meshStandardMaterial attach="material" roughness={0.6} />
       </mesh>
@@ -289,9 +289,26 @@ function HardwareConnector() {
   return null
 }
 
-export const DeltaAssembly = () => {
+export function DeltaAssembly() {
   const deviceID = useDeviceID()
 
+  const ref = useRef<Group>(null)
+
+  useEffect(() => {
+    if( ref?.current ) {
+      ref.current.traverse(mesh => {
+        mesh.castShadow = true
+        mesh.receiveShadow = true
+        // console.log("Assuming this thing is a mesh...")
+      })
+    }
+
+    return useStore.subscribe(
+      state => state.hardwareMode,
+      hardwareMode => {},
+    )
+  }, [])
+    
   return (
     <>
       {/* End effector */}
@@ -299,11 +316,10 @@ export const DeltaAssembly = () => {
 
       <TargetPositionVisualiser/>
 
-      <group position={[0, -190, 0]} castShadow receiveShadow>
+      <group position={[0, -190, 0]} ref={ref}>
         {/* Base positioned such that threeJS '[0,0,0' is aligned line with the servo shaft center */}
         <group rotation={[0, (-90 * Math.PI) / 180, 0]}>
           <GLTF
-            receiveShadow
             asset={DeltaBaseModel}
             position={[2.5, -135, -5.5]}
           />
