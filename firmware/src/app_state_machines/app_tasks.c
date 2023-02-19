@@ -26,7 +26,6 @@
 #include "hal_adc.h"
 #include "hal_systick.h"
 
-#include "led_interpolator.h"
 #include "effector.h"
 
 /* -------------------------------------------------------------------------- */
@@ -169,7 +168,6 @@ void app_tasks_init( void )
     hal_systick_hook( 1, eventTimerTick );
     hal_systick_hook( 2, hal_adc_tick );
 
-    hal_systick_hook( 1, led_interpolator_process );
     hal_systick_hook( 1, effector_process );
 }
 

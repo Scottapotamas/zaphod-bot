@@ -168,9 +168,6 @@ PUBLIC void
 user_interface_set_led_values( uint16_t red, uint16_t green, uint16_t blue );
 
 PUBLIC void
-user_interface_get_led_manual( float *r, float *g, float *b, uint8_t *en );
-
-PUBLIC void
 user_interface_set_led_queue_depth( uint8_t utilisation );
 
 /* -------------------------------------------------------------------------- */

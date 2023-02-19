@@ -647,15 +647,6 @@ user_interface_set_led_queue_depth( uint8_t utilisation )
     //    eui_send_tracked("queue");
 }
 
-PUBLIC void
-user_interface_get_led_manual( float *r, float *g, float *b, uint8_t *en )
-{
-    *r  = rgb_manual_control.red;
-    *g  = rgb_manual_control.green;
-    *b  = rgb_manual_control.blue;
-    *en = rgb_manual_control.enable;
-}
-
 PRIVATE void
 rgb_manual_led_event()
 {

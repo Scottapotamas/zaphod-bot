@@ -40,7 +40,7 @@ typedef struct
     Fade_t  fade_b;          // Slot B fade storage
     Fade_t *current_fade;    // Points to fade_a or fade_b
 
-    bool       animation_run;      // if the planner is enabled
+    bool       enable;             // if the planner is enabled
     timer_ms_t epoch_timestamp;    // Reference system time for fade offset sequencing
 
     timer_ms_t animation_started;         // timestamp the start
@@ -75,8 +75,6 @@ PUBLIC void
 led_interpolator_init( void )
 {
     memset( &planner, 0, sizeof( planner ) );
-
-    led_init();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -138,7 +136,7 @@ led_interpolator_is_empty( void )
 PUBLIC void
 led_interpolator_start( void )
 {
-    planner.animation_run = true;
+    planner.enable = true;
 
     // Process the loop now
     led_interpolator_process();
@@ -147,7 +145,7 @@ led_interpolator_start( void )
 PUBLIC void
 led_interpolator_stop( void )
 {
-    planner.animation_run = false;
+    planner.enable = false;
     memset( &planner.fade_a, 0, sizeof( Fade_t ) );
     memset( &planner.fade_b, 0, sizeof( Fade_t ) );
 
@@ -192,16 +190,18 @@ led_interpolator_process( void )
 {
     LEDPlanner_t *me = &planner;
 
+    if( !me->enable )
+    {
+        STATE_NEXT( ANIMATION_OFF );
+    }
+
     switch( me->currentState )
     {
         case ANIMATION_OFF:
             STATE_ENTRY_ACTION
             led_interpolator_set_dark();
-
-            // Disable the LED driver once we've been off for a while
-            timer_ms_start( &me->animation_started, LED_SLEEP_TIMER );
             STATE_TRANSITION_TEST
-            if( me->animation_run )
+            if( me->enable )
             {
                 if( me->fade_a.duration || me->fade_b.duration )
                 {
@@ -209,14 +209,7 @@ led_interpolator_process( void )
                 }
             }
 
-            // If off for extended period of time, turn the LED driver off
-            if( timer_ms_is_expired( &me->animation_started ) )
-            {
-                led_enable( false );
-            }
-
             STATE_EXIT_ACTION
-            led_enable( true );
             timer_ms_stop( &me->animation_started );
             STATE_END
             break;

@@ -80,6 +80,7 @@ PRIVATE void AppTaskLed_initial( AppTaskLed *me, const StateEvent *e __attribute
 
     eventSubscribe( (StateTask *)me, ANIMATION_COMPLETE );
 
+    led_init();
     led_interpolator_init();
 
     STATE_INIT( &AppTaskLed_main );
@@ -153,6 +154,8 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
             // Run the state-machine loop at 1kHz
             hal_systick_hook( 1, led_interpolator_process );
 
+            led_enable( true );
+
             AppTaskLed_commit_queued_fade( me );
 
             if( led_interpolator_is_ready_for_next() )
@@ -202,6 +205,7 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
             return 0;
 
         case STATE_EXIT_SIGNAL:
+            led_enable( false );
             led_interpolator_stop();
             hal_systick_unhook( led_interpolator_process );
 
@@ -248,7 +252,7 @@ PRIVATE STATE AppTaskLed_active_manual( AppTaskLed *me, const StateEvent *e )
             return 0;
 
         case STATE_EXIT_SIGNAL:
-
+            led_enable( false );
             return 0;
     }
     return (STATE)hsmTop;
