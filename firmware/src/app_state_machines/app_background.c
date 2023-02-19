@@ -15,8 +15,10 @@
 #include "hal_system_speed.h"
 #include "sensors.h"
 #include "status.h"
-#include "expansion.h"
 
+#include "expansion.h"
+#include "effector.h"
+#include "led.h"
 #include "user_interface.h"
 
 /* -------------------------------------------------------------------------- */
@@ -81,6 +83,13 @@ app_background( void )
 
         timer_ms_start( &adc_timer, BACKGROUND_ADC_AVG_POLL_MS );
     }
+
+    CartesianPoint_t effector_pos = effector_get_position();
+    uint32_t effector_speed = effector_get_speed();
+
+    led_update_speed_luma_factor( effector_speed );
+    user_interface_set_effector_speed( effector_speed );
+    user_interface_set_position( effector_pos.x, effector_pos.y, effector_pos.z );
 
     expansion_process();
 

@@ -84,6 +84,9 @@ configuration_get_led_luma_correction_enabled( void );
 PUBLIC bool
 configuration_get_led_wb_correction_enabled( void );
 
+PUBLIC bool
+configuration_get_led_speed_compensation_enabled( void );
+
 /* -------------------------------------------------------------------------- */
 
 ///* Is the expansion servo functionality turned on (not actual servo status)

@@ -238,14 +238,14 @@ PRIVATE STATE AppTaskLed_active_manual( AppTaskLed *me, const StateEvent *e )
 
                 if( lme->enabled )
                 {
-                    GenericColour_t output_values = { 0.0f, 0.0f, 0.0f };
+                    GenericColour_t manual_rgb = { 0.0f, 0.0f, 0.0f };
 
-                    output_values.x = (float)lme->colour.red / 0xFFFFU;
-                    output_values.y = (float)lme->colour.green / 0xFFFFU;
-                    output_values.z = (float)lme->colour.blue / 0xFFFFU;
+                    manual_rgb.x = (float)lme->colour.red / 0xFFFFU;
+                    manual_rgb.y = (float)lme->colour.green / 0xFFFFU;
+                    manual_rgb.z = (float)lme->colour.blue / 0xFFFFU;
 
                     // Set the LED channel values in RGB percentages [0.0f -> 1.0f]
-                    led_set( output_values.x, output_values.y, output_values.z );
+                    led_request_rgb( manual_rgb.x, manual_rgb.y, manual_rgb.z );
                 }
             }
         }

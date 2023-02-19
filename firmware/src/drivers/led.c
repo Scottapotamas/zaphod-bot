@@ -1,29 +1,33 @@
 /* ----- System Includes ---------------------------------------------------- */
 
 #include <math.h>
-#include <string.h>
 
 /* ----- Local Includes ----------------------------------------------------- */
 
+#include "led.h"
 #include "app_times.h"
-#include "configuration.h"
+
 #include "hal_gpio.h"
 #include "hal_pwm.h"
-#include "led.h"
+
 #include "user_interface.h"
+#include "configuration.h"
 
 /* ----- Private Types ------------------------------------------------------ */
 
 /* ----- Private Variables -------------------------------------------------- */
 
-PRIVATE float
-led_luminance_correct( float input );
+PRIVATE void led_apply_corrections( void );
 
-PRIVATE void
-led_whitebalance_correct( float *red, float *green, float *blue );
+PRIVATE float led_luminance_correct( float input );
+PRIVATE void  led_whitebalance_correct( float *red, float *green, float *blue );
+PRIVATE float led_power_limit();
 
-PRIVATE float
-led_power_limit();
+/* -------------------------------------------------------------------------- */
+
+GenericColour_t setpoint = { 0 };
+GenericColour_t corrected_setpoint = { 0 };
+float speed_luma_factor = 1.0f;
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -33,7 +37,9 @@ led_init( void )
     hal_pwm_generation( _PWM_TIM_AUX_0, LED_FREQUENCY_HZ );
     hal_pwm_generation( _PWM_TIM_AUX_1, LED_FREQUENCY_HZ );
     hal_pwm_generation( _PWM_TIM_AUX_2, LED_FREQUENCY_HZ );
-    led_set( 0.0f, 0.0f, 0.0f );
+
+    // Ensure some PWM values are set right now
+    led_refresh_output();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -52,49 +58,114 @@ led_enable( bool enable )
 
 /* -------------------------------------------------------------------------- */
 
-// Input 3 float [0-1] values for RGB color channels in linear space
-// Applies luma and whitebalance correction
 PUBLIC void
-led_set( float r, float g, float b )
+led_request_dark( void )
 {
-    float setpoint_r = 0;
-    float setpoint_g = 0;
-    float setpoint_b = 0;
+    setpoint.x = 0.0f;
+    setpoint.y = 0.0f;
+    setpoint.z = 0.0f;
 
+    led_apply_corrections();
+}
+
+// Request RGB with 0.0 to 1.0 values
+PUBLIC void
+led_request_rgb( float r, float g, float b )
+{
+    // TODO: refactor to use a RGB float structure as arg instead
+    setpoint.x = r;
+    setpoint.y = g;
+    setpoint.z = b;
+
+    led_apply_corrections();
+}
+
+PUBLIC void
+led_request_hsi( HSIColour_t color )
+{
+    // Convert to RGB
+    hsi_to_rgb( color.hue, color.saturation, color.intensity, &setpoint.x, &setpoint.y, &setpoint.z );
+
+    led_apply_corrections();
+}
+
+/* -------------------------------------------------------------------------- */
+
+// Calculate a brightness reduction factor based on the current movement speed
+// This should result in equivalent exposure for lines rendered at different speeds
+// Result is 1.0 when moving at maximum speed down to a clamped value of 0.05 (5%)
+
+PUBLIC void
+led_update_speed_luma_factor( uint32_t mm_second )
+{
+    uint32_t max_speed = configuration_get_effector_speed_limit();
+
+    // How fast are we moving relative to the max?
+    float speed_factor = (float)mm_second / (float)max_speed;
+
+    speed_luma_factor = CLAMP( speed_factor, 0.05f, 1.0f );
+}
+
+/* -------------------------------------------------------------------------- */
+
+// Applies luma and white-balance corrections
+// These only need to be applied 'once' as the input setpoint changes
+PRIVATE void
+led_apply_corrections( void )
+{
     if( configuration_get_led_luma_correction_enabled() )
     {
-        setpoint_r = led_luminance_correct( r );
-        setpoint_g = led_luminance_correct( g );
-        setpoint_b = led_luminance_correct( b );
+        corrected_setpoint.x = led_luminance_correct( setpoint.x );
+        corrected_setpoint.y = led_luminance_correct( setpoint.y );
+        corrected_setpoint.z = led_luminance_correct( setpoint.z );
     }
     else
     {
-        setpoint_r = r;
-        setpoint_g = g;
-        setpoint_b = b;
+        corrected_setpoint.x = setpoint.x;
+        corrected_setpoint.y = setpoint.y;
+        corrected_setpoint.z = setpoint.z;
     }
 
     if( configuration_get_led_wb_correction_enabled() )
     {
-        led_whitebalance_correct( &setpoint_r, &setpoint_g, &setpoint_b );
+        led_whitebalance_correct( &corrected_setpoint.x, &corrected_setpoint.y, &corrected_setpoint.z );
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+// Requests PWM duty-cycles for the R, G, B outputs.
+// Also apply the most recent effector speed compensation factor (if enabled)
+PUBLIC void
+led_refresh_output( void )
+{
+    GenericColour_t output = { 0 };
+    float reduction_factor = 1.0f;
+
+    if( configuration_get_led_speed_compensation_enabled() )
+    {
+        reduction_factor = speed_luma_factor;
     }
 
-    // Override LED brightness value
-//    setpoint_r *= led_power_limit();
-//    setpoint_g *= led_power_limit();
-//    setpoint_b *= led_power_limit();
+    output.x = corrected_setpoint.x * reduction_factor;
+    output.y = corrected_setpoint.y * reduction_factor;
+    output.z = corrected_setpoint.z * reduction_factor;
 
-    setpoint_r = CLAMP( setpoint_r, 0.0f, 1.0f );
-    setpoint_g = CLAMP( setpoint_g, 0.0f, 1.0f );
-    setpoint_b = CLAMP( setpoint_b, 0.0f, 1.0f );
+    output.x = CLAMP( output.x, 0.0f, 1.0f );
+    output.y = CLAMP( output.y, 0.0f, 1.0f );
+    output.z = CLAMP( output.z, 0.0f, 1.0f );
+
+    // PWM peripheral expects 0-100 percentage input, also invert the polarity of the duty cycle
+    output.x = ( output.x * -1.0f + 1.0f ) * 100.0f;
+    output.y = ( output.y * -1.0f + 1.0f ) * 100.0f;
+    output.z = ( output.z * -1.0f + 1.0f ) * 100.0f;
 
     // Set the output duty cycles for the LED PWM channels
-    // PWM peripheral expects 0-100 percentage input, and we need to invert the polarity of the duty cycle
-    hal_pwm_set_percentage_f( _PWM_TIM_AUX_0, ( setpoint_r * -1.0f + 1.0f ) * 100.0f );
-    hal_pwm_set_percentage_f( _PWM_TIM_AUX_1, ( setpoint_g * -1.0f + 1.0f ) * 100.0f );
-    hal_pwm_set_percentage_f( _PWM_TIM_AUX_2, ( setpoint_b * -1.0f + 1.0f ) * 100.0f );
+    hal_pwm_set_percentage_f( _PWM_TIM_AUX_0, output.x );
+    hal_pwm_set_percentage_f( _PWM_TIM_AUX_1, output.y );
+    hal_pwm_set_percentage_f( _PWM_TIM_AUX_2, output.z );
 
-    user_interface_set_led_values( setpoint_r * 0xFFFF, setpoint_g * 0xFFFF, setpoint_b * 0xFFFF );
+    user_interface_set_led_values( output.x * 0xFFFF, output.y * 0xFFFF, output.z * 0xFFFF );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -143,7 +214,7 @@ led_whitebalance_correct( float *red, float *green, float *blue )
 /* -------------------------------------------------------------------------- */
 
 PRIVATE float
-led_power_limit()
+led_power_limit( void )
 {
     uint16_t limit = 0;
     configuration_get_led_bias( &limit );

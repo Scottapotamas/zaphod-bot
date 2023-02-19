@@ -14,10 +14,7 @@
 
 #include "kinematics.h"
 #include "clearpath.h"
-
-#include "configuration.h"
 #include "motion_types.h"
-#include "user_interface.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -139,9 +136,6 @@ effector_process( void )
     {
         average_short_update( &movement_statistics, 0 );
     }
-
-    user_interface_set_position( effector_position.x, effector_position.y, effector_position.z );
-    user_interface_set_effector_speed( effector_get_speed() );
 }
 
 /* -------------------------------------------------------------------------- */

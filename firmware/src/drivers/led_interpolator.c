@@ -47,7 +47,6 @@ typedef struct
     timer_ms_t animation_est_complete;    // timestamp when the animation will end
     float      progress_percent;          // calculated progress
 
-    RGBColour_t led_colour;    // current channel outputs
 } LEDPlanner_t;
 
 /* ----- Private Variables -------------------------------------------------- */
@@ -176,11 +175,7 @@ led_interpolator_get_fade_done( void )
 PUBLIC void
 led_interpolator_set_dark( void )
 {
-    planner.led_colour.red   = 0U;
-    planner.led_colour.green = 0U;
-    planner.led_colour.blue  = 0U;
-
-    led_set( planner.led_colour.red, planner.led_colour.green, planner.led_colour.blue );
+    led_request_dark();
 }
 
 /* -------------------------------------------------------------------------- */
@@ -314,7 +309,6 @@ led_interpolator_execute_fade( Fade_t *fade, float percentage )
     REQUIRE( fade );
 
     HSIColour_t     fade_target   = { 0.0f, 0.0f, 0.0f };
-    GenericColour_t output_values = { 0.0f, 0.0f, 0.0f };
 
     switch( fade->type )
     {
@@ -329,11 +323,8 @@ led_interpolator_execute_fade( Fade_t *fade, float percentage )
             break;
     }
 
-    // Perform colour compensation adjustments
-    hsi_to_rgb( fade_target.hue, fade_target.saturation, fade_target.intensity, &output_values.x, &output_values.y, &output_values.z );
-
     // Set the LED channel values in RGB percentages [0.0f -> 1.0f]
-    led_set( output_values.x, output_values.y, output_values.z );
+    led_request_hsi( fade_target );
 }
 
 /* -------------------------------------------------------------------------- */

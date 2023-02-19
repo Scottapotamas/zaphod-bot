@@ -26,6 +26,7 @@
 #include "hal_systick.h"
 
 #include "effector.h"
+#include "led.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -168,6 +169,7 @@ void app_tasks_init( void )
     hal_systick_hook( 2, hal_adc_tick );
 
     hal_systick_hook( 1, effector_process );
+    hal_systick_hook( 1, led_refresh_output );
 }
 
 /* -------------------------------------------------------------------------- */
