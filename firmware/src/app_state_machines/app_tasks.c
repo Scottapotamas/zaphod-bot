@@ -6,7 +6,6 @@
 /* Task & State Machine Support */
 #include "app_background.h"
 #include "app_events.h"
-#include "app_hardware.h"
 #include "app_signals.h"
 #include "app_task_ids.h"
 #include "app_times.h"

@@ -61,7 +61,6 @@ app_hardware_init( void )
     buzzer_init();
     fan_init();
     sensors_init();
-    shutter_init();
 
     // delta main servo motor handlers
     servo_init( _CLEARPATH_1 );

@@ -59,7 +59,7 @@ PRIVATE void AppTaskShutter_initial( AppTaskShutter *me, const StateEvent *e __a
 {
     eventSubscribe( (StateTask *)me, CAMERA_CAPTURE );
 
-    // init etc
+    shutter_init();
 
     STATE_INIT( &AppTaskShutter_main );
 }
