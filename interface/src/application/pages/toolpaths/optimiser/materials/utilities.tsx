@@ -1,13 +1,13 @@
 import { MathUtils, Vector3 } from 'three'
 import { NodeID } from '../../interface/RenderableTree'
-import { useStore, VisualisationSettings } from '../../interface/state'
+import { changeState, useStore, VisualisationSettings } from '../../interface/state'
 import type { AddComponentCallback, Movement, RGBA } from '../movements'
 
 import { MOVEMENT_TYPE } from './../movement_types'
 
 import { Intent, Tag } from '@blueprintjs/core'
 import { Html } from '@react-three/drei'
-import React from 'react'
+import React, { useCallback } from 'react'
 
 export const enum MATERIALS {
   DEFAULT = 'default', // used for overrides to indicate no override
@@ -181,6 +181,7 @@ export function annotateDrawOrder(
 
     addReactComponent(
       generateHtmlTagFromAveragePosition(
+        movementIndex,
         movement.objectID,
         movement.getApproximateCentroid(),
         intent,
@@ -194,7 +195,8 @@ export function annotateDrawOrder(
 const TagZIndexRange = [4096, 0]
 
 export function generateHtmlTagFromAveragePosition(
-  objectID: NodeID,
+  movementIndex: number,
+  objectID: string,
   centroid: Vector3,
   intent: Intent,
   text: string,
@@ -205,6 +207,7 @@ export function generateHtmlTagFromAveragePosition(
   const component = ( 
     <Html position={threeCentroid} key={text} zIndexRange={TagZIndexRange}>
       <TagThatHidesWhenNotInList
+        movementIndex={movementIndex}
         objectID={objectID}
         intent={intent}
         text={text}
@@ -216,25 +219,40 @@ export function generateHtmlTagFromAveragePosition(
 }
 
 function TagThatHidesWhenNotInList(props: {
-  objectID: NodeID
+  movementIndex: number
+  objectID: string
   intent: Intent
   text: string
 }) {
   const isHidden = useStore(state => {
     // If nothing is hovered, display everything
-    if (state.treeStore.hoveredObjectIDs.length === 0) {
+    if (state.treeStore.hoveredItems.length === 0) {
       return false
     }
 
-    // If something is hovered, only display if it matches
-    return !state.treeStore.hoveredObjectIDs.includes(props.objectID)
+    // If something is hovered, only display if it matches a hovered object ID or movement index
+    return !(state.treeStore.hoveredItems.includes(props.movementIndex) || state.treeStore.hoveredItems.includes(props.objectID))
   })
+
+  const onMouseEnter = useCallback(() => {
+    changeState(state => {
+      state.treeStore.hoveredItems = [props.movementIndex]
+    })
+  }, [props.movementIndex])
+
+  const onMouseLeave = useCallback(() => {
+    changeState(state => {
+      state.treeStore.hoveredItems = []
+    })
+  }, [props.movementIndex])
 
   return (
     <Tag
       intent={props.intent}
       minimal={isHidden}
-      style={{ opacity: isHidden ? 0.5 : 1, cursor: 'pointer' }}
+      style={{ opacity: isHidden ? 0.2 : 1, cursor: 'pointer' }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
       {props.text}
     </Tag>

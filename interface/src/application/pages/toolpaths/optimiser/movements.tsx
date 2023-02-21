@@ -148,7 +148,8 @@ export type AddLineCallback = (
   end: Vector3,
   colorStart: RGBA,
   colorEnd: RGBA,
-  objectID: string,
+  movementIndex: number,
+  objectID?: string
 ) => void
 
 export type AddComponentCallback = (component: React.ReactNode) => void

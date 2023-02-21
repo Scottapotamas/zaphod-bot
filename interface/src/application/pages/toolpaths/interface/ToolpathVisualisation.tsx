@@ -104,12 +104,14 @@ export function ToolpathMovements() {
 
   const [customComponents, setComponents] = useState<React.ReactNode[]>([])
 
-  const colouredLineToObjectID: React.MutableRefObject<{
-    [objectID: string]: number[]
-  }> = useRef({})
-  const invisibleLineToObjectID: React.MutableRefObject<{
-    [objectID: string]: number[]
-  }> = useRef({})
+  const movementIndexToColouredLine: React.MutableRefObject<Map<string | number, number[]>
+  > = useRef(new Map())
+  const movementIndexToDottedLine: React.MutableRefObject<Map<string | number, number[]>
+  > = useRef(new Map())
+  const objectIDToColouredLine: React.MutableRefObject<Map<string | number, number[]>
+  > = useRef(new Map())
+  const objectIDToDottedLine: React.MutableRefObject<Map<string | number, number[]>
+  > = useRef(new Map())
 
   const backgroundCol = useDarkMode() ? '#191b1d' : '#f5f8fa'
   const backgroundColor = new Color(backgroundCol)
@@ -118,7 +120,7 @@ export function ToolpathMovements() {
   useEffect(() => {
     let lineIndex = 0
 
-    const addColouredLine = (start: Vector3, end: Vector3, colorStart: RGBA, colorEnd: RGBA, objectID: string) => {
+    const addColouredLine = (start: Vector3, end: Vector3, colorStart: RGBA, colorEnd: RGBA, movementIndex: number, objectID?: string ) => {
       // Do the Blender -> ThreeJS coordinate system transform inline
       lines.positions[lineIndex * 6 + 0] = start.x
       lines.positions[lineIndex * 6 + 1] = start.z
@@ -156,12 +158,20 @@ export function ToolpathMovements() {
       lines.colors[lineIndex * 6 + 4] = colEndBlended[1]
       lines.colors[lineIndex * 6 + 5] = colEndBlended[2]
 
-      // Create the mapping for objectID -> coloured line index
-      if (objectID) {
-        if (!colouredLineToObjectID.current[objectID]) {
-          colouredLineToObjectID.current[objectID] = []
+      // Create the mapping for movementIndex -> coloured line index
+      if (movementIndex !== undefined) {
+        if (!movementIndexToColouredLine.current.has(movementIndex)) {
+          movementIndexToColouredLine.current.set(movementIndex, [])
         }
-        colouredLineToObjectID.current[objectID].push(lineIndex)
+        movementIndexToColouredLine.current.get(movementIndex)!.push(lineIndex)
+      }
+
+      // Create the mapping for objectID -> coloured line index
+      if (objectID !== undefined) {
+        if (!objectIDToColouredLine.current.has(objectID)) {
+          objectIDToColouredLine.current.set(objectID, [])
+        }
+        objectIDToColouredLine.current.get(objectID)!.push(lineIndex)
       }
 
       // console.log(`${lineCounter} [${start.x},${start.y}${start.z}]->[${end.x},${end.y}${end.z}]`)
@@ -169,33 +179,41 @@ export function ToolpathMovements() {
       lineIndex += 1
     }
 
-    let transitionIndex = 0
+    let dottedLineIndex = 0
 
-    const addDottedLine = (start: Vector3, end: Vector3, colorStart: RGBA, colorEnd: RGBA, objectID: string) => {
+    const addDottedLine = (start: Vector3, end: Vector3, colorStart: RGBA, colorEnd: RGBA, movementIndex?: number, objectID?: string ) => {
       // Do the Blender -> ThreeJS coordinate system transform inline
-      transitions.positions[transitionIndex * 6 + 0] = start.x
-      transitions.positions[transitionIndex * 6 + 1] = start.z
-      transitions.positions[transitionIndex * 6 + 2] = -start.y
-      transitions.positions[transitionIndex * 6 + 3] = end.x
-      transitions.positions[transitionIndex * 6 + 4] = end.z
-      transitions.positions[transitionIndex * 6 + 5] = -end.y
+      transitions.positions[dottedLineIndex * 6 + 0] = start.x
+      transitions.positions[dottedLineIndex * 6 + 1] = start.z
+      transitions.positions[dottedLineIndex * 6 + 2] = -start.y
+      transitions.positions[dottedLineIndex * 6 + 3] = end.x
+      transitions.positions[dottedLineIndex * 6 + 4] = end.z
+      transitions.positions[dottedLineIndex * 6 + 5] = -end.y
 
-      transitions.colors[transitionIndex * 6 + 0] = colorStart[0]
-      transitions.colors[transitionIndex * 6 + 1] = colorStart[1]
-      transitions.colors[transitionIndex * 6 + 2] = colorStart[2]
-      transitions.colors[transitionIndex * 6 + 3] = colorEnd[0]
-      transitions.colors[transitionIndex * 6 + 4] = colorEnd[1]
-      transitions.colors[transitionIndex * 6 + 5] = colorEnd[2]
+      transitions.colors[dottedLineIndex * 6 + 0] = colorStart[0]
+      transitions.colors[dottedLineIndex * 6 + 1] = colorStart[1]
+      transitions.colors[dottedLineIndex * 6 + 2] = colorStart[2]
+      transitions.colors[dottedLineIndex * 6 + 3] = colorEnd[0]
+      transitions.colors[dottedLineIndex * 6 + 4] = colorEnd[1]
+      transitions.colors[dottedLineIndex * 6 + 5] = colorEnd[2]
 
-      // Create the mapping for objectID -> coloured line index
-      if (objectID) {
-        if (!invisibleLineToObjectID.current[objectID]) {
-          invisibleLineToObjectID.current[objectID] = []
+      // Create the mapping for movementIndex -> dotted line index
+      if (movementIndex !== undefined) {
+        if (!movementIndexToDottedLine.current.has(movementIndex)) {
+          movementIndexToDottedLine.current.set(movementIndex, [])
         }
-        invisibleLineToObjectID.current[objectID].push(transitionIndex)
+        movementIndexToDottedLine.current.get(movementIndex)!.push(dottedLineIndex)
       }
 
-      transitionIndex += 1
+      // Create the mapping for objectID -> dotted line index
+      if (objectID !== undefined) {
+        if (!objectIDToDottedLine.current.has(objectID)) {
+          objectIDToDottedLine.current.set(objectID, [])
+        }
+        objectIDToDottedLine.current.get(objectID)!.push(dottedLineIndex)
+      }
+
+      dottedLineIndex += 1
     }
 
     // This is expensive, if we can avoid doing this, do so.
@@ -221,11 +239,13 @@ export function ToolpathMovements() {
 
         // Refresh the line geometries
         lineIndex = 0
-        transitionIndex = 0
+        dottedLineIndex = 0
 
         // Refresh the line mapping
-        colouredLineToObjectID.current = {}
-        invisibleLineToObjectID.current = {}
+        movementIndexToColouredLine.current = new Map()
+        movementIndexToDottedLine.current = new Map()
+        objectIDToColouredLine.current = new Map()
+        objectIDToDottedLine.current = new Map()
 
         // Refresh the react components
         setComponents(state => [])
@@ -339,7 +359,7 @@ export function ToolpathMovements() {
         }
 
         lines.refreshGeometry(lineIndex)
-        transitions.refreshGeometry(transitionIndex)
+        transitions.refreshGeometry(dottedLineIndex)
 
         // console.log(`built ${lineCounter} lines`, lines.line.visible)
       },
@@ -364,9 +384,9 @@ export function ToolpathMovements() {
   // On hovering change, update the lines
   useEffect(() => {
     return useStore.subscribe(
-      state => state.treeStore.hoveredObjectIDs,
-      hoveredObjectIDs => {
-        if (hoveredObjectIDs.length === 0) {
+      state => state.treeStore.hoveredItems,
+      hoveredItems => {
+        if (hoveredItems.length === 0) {
           // If nothing is hovered, reset both
           lines.setHoveredIndices([], false, backgroundCol)
           transitions.setHoveredIndices([], false, backgroundCol)
@@ -386,8 +406,8 @@ export function ToolpathMovements() {
         const colouredLineIndices: number[] = []
         const invisibleLineIndices: number[] = []
 
-        for (const objectID of hoveredObjectIDs) {
-          const colouredIndices = colouredLineToObjectID.current[objectID]
+        for (const itemID of hoveredItems) {
+          let colouredIndices = movementIndexToColouredLine.current.get(itemID)
 
           if (colouredIndices) {
             for (let i = 0; i < colouredIndices.length; i++) {
@@ -396,7 +416,25 @@ export function ToolpathMovements() {
             }
           }
 
-          const invisibleIndices = invisibleLineToObjectID.current[objectID]
+          let invisibleIndices = movementIndexToDottedLine.current.get(itemID)
+
+          if (invisibleIndices) {
+            for (let i = 0; i < invisibleIndices.length; i++) {
+              const lineIndex = invisibleIndices[i]
+              invisibleLineIndices.push(lineIndex)
+            }
+          }
+
+          colouredIndices = objectIDToColouredLine.current.get(itemID)
+
+          if (colouredIndices) {
+            for (let i = 0; i < colouredIndices.length; i++) {
+              const lineIndex = colouredIndices[i]
+              colouredLineIndices.push(lineIndex)
+            }
+          }
+
+          invisibleIndices = objectIDToDottedLine.current.get(itemID)
 
           if (invisibleIndices) {
             for (let i = 0; i < invisibleIndices.length; i++) {

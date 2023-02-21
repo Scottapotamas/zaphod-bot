@@ -166,7 +166,7 @@ export abstract class Material {
       )
 
       // Add the line
-      addColouredLine(start, end, startCol, endCol, movement.objectID)
+      addColouredLine(start, end, startCol, endCol, movementIndex, movement.objectID)
     }
   }
 }

@@ -163,7 +163,7 @@ export interface Store {
   treeStore: {
     tree: TreeNodeInfo<NodeInfo>[]
     selectedItemID: NodeID | null // Store the ID of the item that's currently selected
-    hoveredObjectIDs: NodeID[] // Store the IDs of all currently hovered objects
+    hoveredItems: (string | number)[] // Store the objectIDs or movementIndexes of all currently hovered items
   }
 
   // Arbitrary data store from Empty objects in Blender
@@ -260,7 +260,7 @@ export const initialState: Store = {
   treeStore: {
     tree: [],
     selectedItemID: null,
-    hoveredObjectIDs: [],
+    hoveredItems: [],
   },
 
   priorityFrame: 1,

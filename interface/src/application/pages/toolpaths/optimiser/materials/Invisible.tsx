@@ -123,7 +123,7 @@ export class InvisibleMaterial extends Material {
       const end = movement.samplePoint(endTSpatial)
 
       // Add the line
-      addDottedLine(start, end, this.color, this.color, movement.objectID)
+      addDottedLine(start, end, this.color, this.color, movementIndex, movement.objectID)
     }
   }
 }

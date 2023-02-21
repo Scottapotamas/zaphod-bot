@@ -100,7 +100,7 @@ export class VelocityMaterial extends Material {
     if (visualisationSettings.annotateDrawOrder) {
       addReactComponent(
         generateHtmlTagFromAveragePosition(
-          movement.objectID,
+          movementIndex,
           movement.getApproximateCentroid(),
           movementTypeToIntent(movement),
           `${movementTypeToLetter(
@@ -176,7 +176,7 @@ export class VelocityMaterial extends Material {
         end,
         calculateColorFromSpeed(startSpeed, intendedSpeed),
         calculateColorFromSpeed(endSpeed, intendedSpeed),
-        movement.objectID,
+        movementIndex, movement.objectID
       )
     }
   }

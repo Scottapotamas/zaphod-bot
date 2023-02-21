@@ -60,7 +60,7 @@ export class MutableLineSegmentGeometry {
       1,
     ]
 
-    const darkeningFactor = 0.8
+    const darkeningFactor = 0.9
 
     for (let lineIndex = 0; lineIndex < colors.length / 6; lineIndex++) {
       // If it's in the list, or we're doing them all

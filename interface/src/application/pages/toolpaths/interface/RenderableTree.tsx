@@ -387,25 +387,25 @@ export function RenderableTree() {
   const handleNodeMouseEnter = useCallback(
     (_node: TreeNodeInfo<NodeInfo>, nodePath: NodeID[], e: React.MouseEvent<HTMLElement>) => {
       changeState(state => {
-        const hoveredIDs: NodeID[] = []
+        const hoveredIDs: number[] = []
 
         // If we're hovering over the global override, select everything that doesn't have a material override
         if (_node.id === GLOBAL_OVERRIDE_OBJECT_ID) {
           forEachNode(state.treeStore.tree, node => {
             if (!state.visualisationSettings.objectMaterialOverrides[node.id]) {
-              hoveredIDs.push(node.id)
+              hoveredIDs.push(node.id as any) // we're sure this is a string
             }
           })
 
-          state.treeStore.hoveredObjectIDs = hoveredIDs
+          state.treeStore.hoveredItems = hoveredIDs
           return
         }
 
         forNodeWithIDAndChildren(state.treeStore.tree, _node.id, node => {
-          hoveredIDs.push(node.id)
+          hoveredIDs.push(node.id as any) // we're sure this is a string
         })
 
-        state.treeStore.hoveredObjectIDs = hoveredIDs
+        state.treeStore.hoveredItems = hoveredIDs
       })
     },
     [],
@@ -414,7 +414,7 @@ export function RenderableTree() {
   const onNodeMouseLeave = useCallback(
     (node: TreeNodeInfo<NodeInfo>, nodePath: NodeID[], e: React.MouseEvent<HTMLElement>) => {
       changeState(state => {
-        state.treeStore.hoveredObjectIDs = []
+        state.treeStore.hoveredItems = []
       })
     },
     [],
