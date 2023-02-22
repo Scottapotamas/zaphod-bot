@@ -14,7 +14,7 @@
 typedef struct
 {
     unsigned buzzer_mute : 1;
-    unsigned effector_as_status_led : 1;
+    unsigned effector_led_scaling : 1;
     unsigned pendant_optional : 1;
     unsigned pendant_verify_on_arm : 1;
     unsigned pendant_light_enabled : 1;
@@ -28,7 +28,7 @@ typedef struct
     unsigned expansion_reverse : 1;
     unsigned expansion_reserved : 1;
     unsigned reserved_b3: 8;
-} SettingsBitfieldRenameMe_t;
+} SettingsFlags_t;
 
 typedef struct
 {
@@ -42,12 +42,12 @@ typedef struct
     uint8_t reserved_12;
     int16_t expansion_range_min;
     int16_t expansion_range_max;
-} SettingsValuesRenameMe_t;
+} SettingsValues_t;
 
 typedef struct
 {
-    SettingsBitfieldRenameMe_t flags;
-    SettingsValuesRenameMe_t values;
+    SettingsFlags_t  flags;
+    SettingsValues_t values;
 } UserConfig_t;
 
 /* -------------------------------------------------------------------------- */

@@ -298,7 +298,7 @@ export enum EXPANSION_FEEDBACK_SIGNAL {
 
 export type UserConfigFlags = {
   buzzer_mute: boolean;
-  effector_as_status_led: boolean;
+  effector_led_scaling: boolean;
   pendant_optional: boolean;
   pendant_verify_on_arm: boolean;
   pendant_light_enabled: boolean;
