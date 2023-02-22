@@ -38,9 +38,9 @@ configuration_set_defaults( void )
 {
     led_calibration.correct_gamma = false;
     led_calibration.correct_wb    = true;
-    led_calibration.balance_red   = 0xFFFFU * 0.48f;
-    led_calibration.balance_green = 0;
-    led_calibration.balance_blue  = 0xFFFF * 0.65f;
+    led_calibration.balance_red   = 0xFFFFU * 0;
+    led_calibration.balance_green = 0xFFFFU * 0.46f;
+    led_calibration.balance_blue  = 0xFFFF * 0.59f;
 
     power_trims.voltage = -3650;
     power_trims.current_servo_1 = -25;
