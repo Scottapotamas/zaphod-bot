@@ -96,12 +96,12 @@ led_request_hsi( HSIColour_t color )
 // Result is 1.0 when moving at maximum speed down to a clamped value of 0.05 (5%)
 
 PUBLIC void
-led_update_speed_luma_factor( uint32_t mm_second )
+led_update_speed_luma_factor( uint32_t microns_second )
 {
     uint32_t max_speed = configuration_get_effector_speed_limit();
 
     // How fast are we moving relative to the max?
-    float speed_factor = (float)mm_second / (float)max_speed;
+    float speed_factor = ((float)microns_second / 1000) / (float)max_speed;
 
     speed_luma_factor = CLAMP( speed_factor, 0.05f, 1.0f );
 }

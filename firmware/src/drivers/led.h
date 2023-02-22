@@ -36,7 +36,7 @@ led_request_hsi( HSIColour_t color );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-led_update_speed_luma_factor( uint32_t mm_second );
+led_update_speed_luma_factor( uint32_t microns_second );
 
 /* -------------------------------------------------------------------------- */
 
