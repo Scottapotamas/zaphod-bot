@@ -56,22 +56,6 @@ export const GeometryToolpathViewer = () => {
 
   const spotlightRef = useRef<SpotLight>(null)
 
-  useEffect(() => {
-    if( spotlightRef?.current ) {
-      spotlightRef.current.shadow.radius = 5
-            // spotlightRef.current.shadow.mapSize.setX(2048)
-      // spotlightRef.current.shadow.mapSize.setY(2048)
-      // spotlightRef.current.shadow.bias = -0.0018
-      // spotlightRef.current.shadow.normalBias = 0.0001
-      console.log("Spotlight intensity:", spotlightRef.current.intensity)
-    }
-
-    return useStore.subscribe(
-      state => state.hardwareMode,
-      hardwareMode => {},
-    )
-  }, [])
-
   return (
     // PCFShadowMap is default but has artifacts, 
     // PCFSoftShadowMap seems similar
@@ -87,7 +71,17 @@ export const GeometryToolpathViewer = () => {
         {/* <directionalLight position={[-10, -20, -50]} intensity={0.3} color="#cee8f2" castShadow/> */}
 
         <group position={[300, -200, 250]}>
-          <spotLight ref={spotlightRef} intensity={2.5} penumbra={1} angle={Math.PI / 6} castShadow color="#cee8f2" />
+          <spotLight 
+          ref={spotlightRef} 
+          intensity={2.5} 
+          penumbra={1} 
+          angle={Math.PI / 6} 
+          castShadow 
+          color="#cee8f2" 
+          shadow-mapSize-x={2048}
+          shadow-mapSize-y={2048}
+          shadow-normalBias={1}
+          />
 
           <mesh >
             <sphereBufferGeometry attach="geometry" args={[4, 8, 8]} />

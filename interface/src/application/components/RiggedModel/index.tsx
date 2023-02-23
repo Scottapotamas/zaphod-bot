@@ -302,11 +302,6 @@ export function DeltaAssembly() {
         // console.log("Assuming this thing is a mesh...")
       })
     }
-
-    return useStore.subscribe(
-      state => state.hardwareMode,
-      hardwareMode => {},
-    )
   }, [])
     
   return (
