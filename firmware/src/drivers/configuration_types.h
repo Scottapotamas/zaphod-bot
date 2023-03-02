@@ -14,7 +14,7 @@
 typedef struct
 {
     unsigned buzzer_mute : 1;
-    unsigned effector_led_scaling : 1;
+    unsigned reserved0 : 1;
     unsigned pendant_optional : 1;
     unsigned pendant_verify_on_arm : 1;
     unsigned pendant_light_enabled : 1;

@@ -39,6 +39,7 @@ typedef enum
 {
     _INSTANT_CHANGE = 0,
     _LINEAR_RAMP,
+    _LINEAR_RAMP_LUMA_SPEED,
 } FadeAdjective_t;
 
 #define COLOUR_SETPOINT_COUNT 2

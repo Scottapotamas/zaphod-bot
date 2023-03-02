@@ -547,7 +547,7 @@ export class UserConfigCodec extends Codec {
     let bitfield4 = 0xEE;  // currently reserved
 
     bitfield1 |= (payload.flags.buzzer_mute ? 1 : 0) 
-    bitfield1 |= ((payload.flags.effector_led_scaling ? 1 : 0) << 1 )
+    bitfield1 |= ((false ? 1 : 0) << 1 )  // field no longer used - replace as needed
     bitfield1 |= ((payload.flags.pendant_optional ? 1 : 0) << 2 )
     bitfield1 |= ((payload.flags.pendant_verify_on_arm ? 1 : 0) << 3 )
     bitfield1 |= ((payload.flags.pendant_light_enabled ? 1 : 0) << 4 )
@@ -593,7 +593,7 @@ export class UserConfigCodec extends Codec {
 
     let flags:UserConfigFlags = {
       buzzer_mute: (b1 & 0x01) == 1,
-      effector_led_scaling: ((b1 >> 1) & 0x01) == 1,
+      // reserved0: ((b1 >> 1) & 0x01) == 1,
       pendant_optional: ((b1 >> 2) & 0x01) == 1,
       pendant_verify_on_arm: ((b1 >> 3) & 0x01) == 1,
       pendant_light_enabled: ((b1 >> 4) & 0x01) == 1,

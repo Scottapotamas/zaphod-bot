@@ -25,6 +25,11 @@ led_enable( bool enable );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
+led_compensate_luma_for_speed( bool enable );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
 led_request_dark( void );
 
 PUBLIC void

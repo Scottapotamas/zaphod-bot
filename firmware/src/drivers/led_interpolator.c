@@ -316,10 +316,17 @@ led_interpolator_execute_fade( Fade_t *fade, float percentage )
             fade_target.hue        = fade->input_colours[0].hue;
             fade_target.saturation = fade->input_colours[0].saturation;
             fade_target.intensity  = fade->input_colours[0].intensity;
+            led_compensate_luma_for_speed( false );
             break;
 
         case _LINEAR_RAMP:
             hsi_lerp_linear( fade->input_colours, fade->num_pts, percentage, &fade_target );
+            led_compensate_luma_for_speed( false );
+            break;
+
+        case _LINEAR_RAMP_LUMA_SPEED:
+            hsi_lerp_linear( fade->input_colours, fade->num_pts, percentage, &fade_target );
+            led_compensate_luma_for_speed( true );
             break;
     }
 

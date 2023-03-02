@@ -27,6 +27,7 @@ PRIVATE float led_power_limit();
 
 GenericColour_t setpoint = { 0 };
 GenericColour_t corrected_setpoint = { 0 };
+bool compensate_luma_for_speed = false;
 float speed_luma_factor = 1.0f;
 
 /* ----- Public Functions --------------------------------------------------- */
@@ -54,6 +55,14 @@ led_enable( bool enable )
     {
         user_interface_set_led_values( 0, 0, 0 );
     }
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+led_compensate_luma_for_speed( bool enable )
+{
+    compensate_luma_for_speed = enable;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -142,7 +151,7 @@ led_refresh_output( void )
     GenericColour_t output = { 0 };
     float reduction_factor = 1.0f;
 
-    if( configuration_get_led_speed_compensation_enabled() )
+    if( compensate_luma_for_speed )
     {
         reduction_factor = speed_luma_factor;
     }

@@ -228,12 +228,6 @@ configuration_get_led_wb_correction_enabled( void )
     return led_calibration.correct_wb;
 }
 
-PUBLIC bool
-configuration_get_led_speed_compensation_enabled( void )
-{
-    return user_configuration.flags.effector_led_scaling;
-}
-
 /* -------------------------------------------------------------------------- */
 
 PUBLIC bool

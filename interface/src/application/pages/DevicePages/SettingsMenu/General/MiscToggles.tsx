@@ -46,19 +46,6 @@ export const MiscToggles = () => {
       <Checkbox
         checked={true}
         unchecked={false}
-        accessor={state =>
-          state[MSGID.USER_CONFIG].flags.effector_led_scaling
-        }
-        writer={(state, value) => {
-          state[MSGID.USER_CONFIG].flags.effector_led_scaling = value
-        }}
-      >
-        Scale brightness with effector speed
-      </Checkbox>
-
-      <Checkbox
-        checked={true}
-        unchecked={false}
         accessor={state => state[MSGID.USER_CONFIG].flags.buzzer_mute}
         writer={(state, value) => {
           state[MSGID.USER_CONFIG].flags.buzzer_mute = value
