@@ -239,6 +239,7 @@ export enum LightMoveType {
   IMMEDIATE,
   RAMP,
   RAMP_LUMA_SPEED,
+  RAMP_POSITIONAL_NOISE,
 }
 
 export type Hue = number

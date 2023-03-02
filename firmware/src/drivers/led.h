@@ -11,6 +11,7 @@ extern "C" {
 
 #include "global.h"
 #include "led_types.h"
+#include "motion_types.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -30,6 +31,11 @@ led_compensate_luma_for_speed( bool enable );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
+led_apply_positional_noise( bool enable );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
 led_request_dark( void );
 
 PUBLIC void
@@ -42,6 +48,11 @@ led_request_hsi( HSIColour_t color );
 
 PUBLIC void
 led_update_speed_luma_factor( uint32_t microns_second );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+led_update_positional_noise( CartesianPoint_t position );
 
 /* -------------------------------------------------------------------------- */
 

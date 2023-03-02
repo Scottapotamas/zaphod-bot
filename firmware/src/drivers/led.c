@@ -23,12 +23,17 @@ PRIVATE float led_luminance_correct( float input );
 PRIVATE void  led_whitebalance_correct( float *red, float *green, float *blue );
 PRIVATE float led_power_limit();
 
+PRIVATE float bnoise( float x );
+PRIVATE float fbm( float value );
+
 /* -------------------------------------------------------------------------- */
 
 GenericColour_t setpoint = { 0 };
 GenericColour_t corrected_setpoint = { 0 };
 bool compensate_luma_for_speed = false;
+bool positional_luma_noise = false;
 float speed_luma_factor = 1.0f;
+float positional_noise_luma_factor = 1.0f;
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -63,6 +68,14 @@ PUBLIC void
 led_compensate_luma_for_speed( bool enable )
 {
     compensate_luma_for_speed = enable;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+led_apply_positional_noise( bool enable )
+{
+    positional_luma_noise = enable;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -117,6 +130,73 @@ led_update_speed_luma_factor( uint32_t microns_second )
 
 /* -------------------------------------------------------------------------- */
 
+// 1D Noise function ported from https://www.shadertoy.com/view/3sd3Rs
+// Fully deterministic, periodic and doesn't require caching/lookups like typical Perlin noise generators
+PRIVATE float
+bnoise( float x )
+{
+    float temp; // modf needs to return the integer part somewhere
+
+    // Setup
+    float i = floorf( x );
+    float fract = modff( x, &temp );
+    float sign = copysignf( 1.0f, modff(x/2.0f, &temp ) - 0.5f );
+
+    // Create a random value k in [0..1]
+    float k = modff( i * 0.1731f, &temp );
+
+    // Quartic polynomial
+    return   sign
+           * fract
+           * ( fract - 1.0f )
+           * ( ( 16.0f * k - 4.0f ) * fract * ( fract - 1.0f ) - 1.0f );
+}
+
+// Fractal Brownian Motion
+// Superimposes the noise function for a range of scales
+PRIVATE float
+fbm( float value )
+{
+    const uint8_t octaves = 3; // Higher count increases the fine detail/complexity of the noise
+
+    float noise = 0.0f;
+    float amplitude = 1.0f;
+
+    for( uint8_t i = 0; i < octaves; i++ )
+    {
+        noise += amplitude * bnoise(value );
+
+        // Next iteration should have a lower amplitude and higher frequency
+        amplitude *= 0.5f;
+        value *= 2.0f;  // Increase frequency
+        value += 0.131f; // Offset to mitigate the noise function returning zero for integer/zero positions
+    }
+
+    return noise;
+}
+
+// For a given position in 3D space, calculate a noise-based luma offset
+PUBLIC void
+led_update_positional_noise( CartesianPoint_t position )
+{
+    // Normalise the position of the effector to a percentage of the allowable volume
+    float radius_mm = (float)configuration_get_volume_restriction_radius_mm();
+    float range_z = (float)configuration_get_volume_restriction_height_mm();
+
+    float normalised_x = MAP( MICRONS_TO_MM( (float)position.x ), -1*radius_mm, radius_mm, 0.0f, 1.0f );
+    float normalised_y = MAP( MICRONS_TO_MM( (float)position.y ), -1*radius_mm, radius_mm, 0.0f, 1.0f );
+    float normalised_z = MAP( MICRONS_TO_MM( (float)position.z ), 0.0f, range_z, 0.0f, 1.0f );
+
+    // Repeat the behaviour below for each axis
+    float nx = fbm( normalised_x );
+    float ny = fbm( normalised_y );
+    float nz = fbm( normalised_z );
+
+    positional_noise_luma_factor = ( nx + ny + nz ) / 3;
+}
+
+/* -------------------------------------------------------------------------- */
+
 // Applies luma and white-balance corrections
 // These only need to be applied 'once' as the input setpoint changes
 PRIVATE void
@@ -154,6 +234,11 @@ led_refresh_output( void )
     if( compensate_luma_for_speed )
     {
         reduction_factor = speed_luma_factor;
+    }
+
+    if( positional_luma_noise )
+    {
+        reduction_factor += positional_noise_luma_factor;
     }
 
     output.x = corrected_setpoint.x * reduction_factor;

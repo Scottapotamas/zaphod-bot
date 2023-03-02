@@ -88,6 +88,8 @@ app_background( void )
     uint32_t effector_speed = effector_get_speed();
 
     led_update_speed_luma_factor( effector_speed );
+    led_update_positional_noise( effector_pos );
+
     user_interface_set_effector_speed( effector_speed );
     user_interface_set_position( effector_pos.x, effector_pos.y, effector_pos.z );
 
