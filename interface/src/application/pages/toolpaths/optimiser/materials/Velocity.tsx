@@ -76,7 +76,7 @@ export class VelocityMaterial extends Material {
 
     const fade: PlannerLightMove = {
       duration: movement.getDuration(),
-      type: LightMoveType.IMMEDIATE,
+      settings: { type: LightMoveType.IMMEDIATE },
       points: [rgbToHsi(1, 1, 1)],
     }
 

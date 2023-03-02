@@ -46,7 +46,7 @@ export function importInvisibleMaterial(json: InvisibleMaterialJSON) {
 export function invisibleLightFade(duration: number) {
   const fade: PlannerLightMove = {
     duration: duration,
-    type: LightMoveType.IMMEDIATE,
+    settings: { type: LightMoveType.IMMEDIATE },
     points: [[0, 0, 0]], // Set a light move of the LED being off
   }
   return fade

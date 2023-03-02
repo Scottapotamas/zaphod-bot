@@ -70,7 +70,7 @@ export abstract class Material {
 
     const fade: PlannerLightMove = {
       duration: movement.getDuration(),
-      type: LightMoveType.RAMP,
+      settings: { type: LightMoveType.RAMP },
       points: [
         startHSI,
         endHSI, //

@@ -28,6 +28,12 @@ export enum LightMoveType {
   RAMP,
 }
 
+export type LightSettingsField = {
+  type: LightMoveType
+  speed_compensated?: boolean
+  positional_noise?: boolean
+}
+
 export type Hue = number
 export type Saturation = number
 export type Intensity = number
@@ -36,6 +42,6 @@ export type LightPoint = [Hue, Saturation, Intensity]
 
 export type PlannerLightMove = {
   duration: number
-  type: LightMoveType
+  settings: LightSettingsField
   points: Array<LightPoint>
 }
