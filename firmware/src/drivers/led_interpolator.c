@@ -310,32 +310,19 @@ led_interpolator_execute_fade( Fade_t *fade, float percentage )
 
     HSIColour_t     fade_target   = { 0.0f, 0.0f, 0.0f };
 
-    switch( fade->type )
+    led_compensate_luma_for_speed( fade->settings.speed_compensated );
+    led_apply_positional_noise( fade->settings.positional_noise );
+
+    switch( fade->settings.type )
     {
         case _INSTANT_CHANGE:
             fade_target.hue        = fade->input_colours[0].hue;
             fade_target.saturation = fade->input_colours[0].saturation;
             fade_target.intensity  = fade->input_colours[0].intensity;
-            led_compensate_luma_for_speed( false );
-            led_apply_positional_noise( false );
             break;
 
         case _LINEAR_RAMP:
-            hsi_lerp_linear( fade->input_colours, fade->num_pts, percentage, &fade_target );
-            led_compensate_luma_for_speed( false );
-            led_apply_positional_noise( false );
-            break;
-
-        case _LINEAR_RAMP_LUMA_SPEED:
-            hsi_lerp_linear( fade->input_colours, fade->num_pts, percentage, &fade_target );
-            led_compensate_luma_for_speed( true );
-            led_apply_positional_noise( false );
-            break;
-
-        case _LINEAR_RAMP_LUMA_NOISE:
-            hsi_lerp_linear( fade->input_colours, fade->num_pts, percentage, &fade_target );
-            led_compensate_luma_for_speed( false );
-            led_apply_positional_noise( true );
+            hsi_lerp_linear( fade->input_colours, fade->settings.num_pts, percentage, &fade_target );
             break;
     }
 

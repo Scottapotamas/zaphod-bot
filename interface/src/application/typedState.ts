@@ -238,8 +238,6 @@ export type MovementMove = {
 export enum LightMoveType {
   IMMEDIATE,
   RAMP,
-  RAMP_LUMA_SPEED,
-  RAMP_POSITIONAL_NOISE,
 }
 
 export type Hue = number
@@ -248,12 +246,18 @@ export type Intensity = number
 
 export type LightPoint = [Hue, Saturation, Intensity]
 
+export type LightSettingsField = {
+  num_points?: number
+  type: LightMoveType
+  speed_compensated?: boolean
+  positional_noise?: boolean
+}
+
 export type LightMove = {
   timestamp: number
   duration: number
-  type: LightMoveType
+  settings: LightSettingsField
   points: Array<LightPoint>
-  num_points?: number
 }
 
 export type LedStatus = {

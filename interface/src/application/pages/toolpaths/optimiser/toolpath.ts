@@ -176,9 +176,11 @@ export function toolpath(
       lightFades.unshift({
         timestamp: 0,
         duration: delay,
-        type: LightMoveType.IMMEDIATE,
+        settings: { 
+          num_points: 1, 
+          type: LightMoveType.IMMEDIATE, 
+        },
         points: [[0, 0, 0]],
-        num_points: 1,
       })
     } else {
       const delay = settings.lightFadeOffset * -1

@@ -18,6 +18,7 @@ import {
   CartesianPoint,
   MovementMove,
   LightMoveType,
+  LightSettingsField,
   LightMove,
   LightPoint,
   LedStatus,
@@ -380,12 +381,20 @@ export class InboundFadeCodec extends Codec {
   encode(payload: LightMove): Buffer {
     const packet = new SmartBuffer()
 
-    payload.num_points = payload.points.length
+    payload.settings.num_points = payload.points.length
+
+    let bitfield1 = 0x00;
+    let bitfield2 = 0xFF;  // currently unused
+
+    bitfield1 |= (payload.settings.num_points) 
+    bitfield1 |= (payload.settings.type << 2 ) 
+    bitfield1 |= ((payload.settings.speed_compensated ? 1 : 0) << 6 )
+    bitfield1 |= ((payload.settings.positional_noise ? 1 : 0) << 7 )
 
     packet.writeUInt32LE(payload.timestamp)
     packet.writeUInt16LE(payload.duration)
-    packet.writeUInt8(payload.type)
-    packet.writeUInt8(payload.num_points)
+    packet.writeUInt8(bitfield1)
+    packet.writeUInt8(bitfield2)
 
     for (let index = 0; index < 2; index++) {
       const pointData = payload.points[index]
@@ -408,14 +417,22 @@ export class InboundFadeCodec extends Codec {
     const reader = SmartBuffer.fromBuffer(payload)
 
     const points_decoded: Array<LightPoint> = []
+    let settings:LightSettingsField = {} as LightSettingsField
 
     const movement: LightMove = {
       timestamp: reader.readUInt32LE(),
       duration: reader.readUInt16LE(),
-      type: reader.readUInt8(),
-      num_points: reader.readUInt8(),
+      settings: settings,
       points: points_decoded,
     }
+
+    let b1 = reader.readUInt8()
+    let b2 = reader.readUInt8() // unused byte
+
+    settings.num_points = (b1 & 0x03)
+    settings.type = ((b1 >> 2) & 0x0F)
+    settings.speed_compensated = ((b1 >> 6) & 0x01) == 1
+    settings.positional_noise = ((b1 >> 7) & 0x01) == 1
 
     for (let index = 0; index < 2; index++) {
       const pointData: LightPoint = [
