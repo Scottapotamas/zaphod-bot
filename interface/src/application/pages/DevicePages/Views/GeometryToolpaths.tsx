@@ -82,15 +82,8 @@ export const GeometryToolpathViewer = () => {
           shadow-mapSize-y={2048}
           shadow-normalBias={1}
           />
-
-          <mesh >
-            <sphereBufferGeometry attach="geometry" args={[4, 8, 8]} />
-            <meshStandardMaterial attach="material" roughness={0.6} />
-          </mesh>
         </group>
         
-
-
         <ToolpathMovements />
         <DeltaAssembly />
 
