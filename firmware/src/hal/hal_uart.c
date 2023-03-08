@@ -111,8 +111,8 @@ hal_uart_init( HalUartPort_t port )
             LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_UART5 );
             LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_DMA1 );
 
-            hal_gpio_init_alternate( _EXT_OUTPUT_0, LL_GPIO_AF_8, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
-            hal_gpio_init_alternate( _EXT_INPUT_0, LL_GPIO_AF_8, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
+            hal_gpio_init_alternate( _EXT_OUTPUT_0, LL_GPIO_AF_8, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
+            hal_gpio_init_alternate( _EXT_INPUT_0, LL_GPIO_AF_8, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
 
             hal_uart_dma_init( HAL_UART_PORT_EXTERNAL );
             hal_uart_peripheral_init( h->usart, EXTERNAL_BAUD );
@@ -137,8 +137,8 @@ hal_uart_init( HalUartPort_t port )
             LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_USART1 );
             LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_DMA2 );
 
-            hal_gpio_init_alternate( _AUX_UART_RX, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
-            hal_gpio_init_alternate( _AUX_UART_TX, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
+            hal_gpio_init_alternate( _AUX_UART_RX, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
+            hal_gpio_init_alternate( _AUX_UART_TX, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
 
             hal_uart_dma_init( HAL_UART_PORT_INTERNAL );
             hal_uart_peripheral_init( h->usart, INTERNAL_BAUD );
@@ -162,8 +162,8 @@ hal_uart_init( HalUartPort_t port )
             LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_USART2 );
             LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_DMA1 );
 
-            hal_gpio_init_alternate( _CARD_UART_RX, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
-            hal_gpio_init_alternate( _CARD_UART_TX, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
+            hal_gpio_init_alternate( _CARD_UART_RX, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
+            hal_gpio_init_alternate( _CARD_UART_TX, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
             //            hal_gpio_init_alternate( _CARD_UART_CTS, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
             //            hal_gpio_init_alternate( _CARD_UART_RTS, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
 
