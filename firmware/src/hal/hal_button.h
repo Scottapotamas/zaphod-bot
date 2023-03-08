@@ -17,7 +17,9 @@ typedef enum
 {
     BUTTON_0,
     BUTTON_1,
+#ifndef ESTOP_PENDANT_IS_SMART
     BUTTON_EXTERNAL,
+#endif
     BUTTON_MAX
 } ButtonId_t;
 

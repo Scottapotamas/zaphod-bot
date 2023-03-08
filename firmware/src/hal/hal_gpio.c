@@ -89,8 +89,13 @@ const HalGpioDef_t HalGpioHardwareMap[] = {
     [_AUX_UART_RX] = { .mode = MODE_AF_PP, .port = PORT_B, .pin = PIN_7, .initial = 0 },
 
     /* --- EXTERNAL EXPANSION IO --- */
-    [_EXT_INPUT_0]  = { .mode = MODE_INPUT, .port = PORT_D, .pin = PIN_2, .initial = 0 },
-    [_EXT_OUTPUT_0] = { .mode = MODE_OUT_PP, .port = PORT_C, .pin = PIN_12, .initial = 0 },
+#ifdef ESTOP_PENDANT_IS_SMART
+    [_EXT_INPUT_0]  = { .mode = MODE_AF_PP, .port = PORT_D, .pin = PIN_2, .initial = 0 },
+    [_EXT_OUTPUT_0] = { .mode = MODE_AF_PP, .port = PORT_C, .pin = PIN_12, .initial = 0 },
+#else
+    [_EXT_INPUT_1]  = { .mode = MODE_INPUT, .port = PORT_D, .pin = PIN_0, .initial = 0 },
+    [_EXT_OUTPUT_1] = { .mode = MODE_OUT_PP, .port = PORT_D, .pin = PIN_1, .initial = 0 },
+#endif
 
     [_EXT_INPUT_1]  = { .mode = MODE_INPUT, .port = PORT_D, .pin = PIN_0, .initial = 0 },
     [_EXT_OUTPUT_1] = { .mode = MODE_OUT_PP, .port = PORT_D, .pin = PIN_1, .initial = 0 },

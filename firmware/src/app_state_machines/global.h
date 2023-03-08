@@ -55,6 +55,11 @@ typedef union    ///< Allow mapping int16 to uint16
 
 /* -------------------------------------------------------------------------- */
 
+/** E-STOP box with external comms vs IO lines for button/LED */
+#define ESTOP_PENDANT_IS_SMART (true)
+
+/* -------------------------------------------------------------------------- */
+
 //! \def _BV(bit)
 /// Basic bitvalue macro (suitable for up to 32 bits)
 #ifndef _BV

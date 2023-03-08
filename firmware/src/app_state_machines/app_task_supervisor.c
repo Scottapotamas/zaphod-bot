@@ -67,7 +67,9 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
 {
     button_init( BUTTON_0, AppTaskSupervisorButtonEvent );
     button_init( BUTTON_1, AppTaskSupervisorButtonEvent );
+#ifndef ESTOP_PENDANT_IS_SMART
     button_init( BUTTON_EXTERNAL, AppTaskSupervisorButtonEvent );
+#endif
 
     // Detect user activities
     eventSubscribe( (StateTask *)me, BUTTON_NORMAL_SIGNAL );
@@ -138,10 +140,11 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
         case BUTTON_PRESSED_SIGNAL:
             switch( ( (ButtonPressedEvent *)e )->id )
             {
+#ifndef ESTOP_PENDANT_IS_SMART
                 case BUTTON_EXTERNAL:
                     eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
                     return 0;
-
+#endif
                 default:
                     break;
             }

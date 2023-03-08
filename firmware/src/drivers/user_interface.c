@@ -143,7 +143,10 @@ enum
 eui_interface_t communication_interface[] = {
     [LINK_MODULE]   = EUI_INTERFACE_CB( &user_interface_tx_put_module, &user_interface_eui_callback_module ),
     [LINK_INTERNAL] = EUI_INTERFACE_CB( &user_interface_tx_put_internal, &user_interface_eui_callback_internal ),
+
+#ifdef ESTOP_PENDANT_IS_SMART
     [LINK_EXTERNAL] = EUI_INTERFACE_CB( &user_interface_tx_put_external, &user_interface_eui_callback_external ),
+#endif
 };
 
 /* ----- Public Functions --------------------------------------------------- */
@@ -151,8 +154,12 @@ eui_interface_t communication_interface[] = {
 PUBLIC void
 user_interface_init( void )
 {
-    hal_uart_init( HAL_UART_PORT_MODULE );
     // TODO init other serial ports for UI use?
+    hal_uart_init( HAL_UART_PORT_MODULE );
+//    hal_uart_init( HAL_UART_PORT_INTERNAL );
+#ifdef ESTOP_PENDANT_IS_SMART
+    hal_uart_init( HAL_UART_PORT_EXTERNAL );
+#endif
 
     EUI_LINK( communication_interface );
     EUI_TRACK( ui_variables );
@@ -196,7 +203,15 @@ user_interface_handle_data( void )
         eui_parse( hal_uart_rx_get( HAL_UART_PORT_MODULE ), &communication_interface[LINK_MODULE] );
     }
 
-    // TODO handle other communication link serial FIFO
+    while( hal_uart_rx_data_available( HAL_UART_PORT_INTERNAL ) )
+    {
+        eui_parse( hal_uart_rx_get( HAL_UART_PORT_INTERNAL ), &communication_interface[LINK_INTERNAL] );
+    }
+
+    while( hal_uart_rx_data_available( HAL_UART_PORT_EXTERNAL ) )
+    {
+        eui_parse( hal_uart_rx_get( HAL_UART_PORT_EXTERNAL ), &communication_interface[LINK_EXTERNAL] );
+    }
 }
 
 PUBLIC bool
@@ -215,6 +230,8 @@ user_interface_connection_ok( void )
 
 /* -------------------------------------------------------------------------- */
 
+#ifdef ESTOP_PENDANT_IS_SMART
+
 PRIVATE void
 user_interface_tx_put_external( uint8_t *c, uint16_t length )
 {
@@ -226,6 +243,8 @@ user_interface_eui_callback_external( uint8_t message )
 {
     user_interface_eui_callback( LINK_EXTERNAL, &communication_interface[LINK_EXTERNAL], message );
 }
+
+#endif
 
 /* -------------------------------------------------------------------------- */
 

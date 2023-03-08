@@ -76,7 +76,11 @@ bool external_state = false;
 PUBLIC void
 status_external( bool on )
 {
+#ifdef ESTOP_PENDANT_IS_SMART
+    // TODO send a message to the pendant to change LED state
+#else
     hal_gpio_write_pin( _EXT_OUTPUT_0, on );
+#endif
     external_state = on;
 }
 
@@ -85,7 +89,11 @@ status_external( bool on )
 PUBLIC void
 status_external_toggle( void )
 {
+#ifdef ESTOP_PENDANT_IS_SMART
+    // TODO send a message to the pendant to toggle LED state
+#else
     hal_gpio_toggle_pin( _EXT_OUTPUT_0 );
+#endif
     external_state = !external_state;
 }
 
@@ -94,7 +102,11 @@ status_external_toggle( void )
 PUBLIC void
 status_external_override( bool on )
 {
+#ifdef ESTOP_PENDANT_IS_SMART
+    // TODO send a message to the pendant to turn the LED on
+#else
     hal_gpio_write_pin( _EXT_OUTPUT_0, on );
+#endif
 }
 
 /* -------------------------------------------------------------------------- */
@@ -102,7 +114,11 @@ status_external_override( bool on )
 PUBLIC void
 status_external_resume( void )
 {
+#ifdef ESTOP_PENDANT_IS_SMART
+    // TODO reset the E-STOP LED override
+#else
     hal_gpio_write_pin( _EXT_OUTPUT_0, external_state );
+#endif
 }
 
 /* ----- End ---------------------------------------------------------------- */

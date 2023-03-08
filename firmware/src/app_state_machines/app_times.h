@@ -46,7 +46,7 @@ enum CommunicationDefines
 {
     MODULE_BAUD   = 500000,
     INTERNAL_BAUD = 115200,
-    EXTERNAL_BAUD = 115200,
+    EXTERNAL_BAUD = 500000,
 };
 
 /* -------------------------------------------------------------------------- */
