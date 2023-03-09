@@ -221,7 +221,7 @@ function renderCell(
   let rgb: RGB | RGBA = blankRGBA
 
   // If it's an immediate light fade, render the colour at that time
-  if (fade.type === LightMoveType.IMMEDIATE) {
+  if (fade.settings.type === LightMoveType.IMMEDIATE) {
     rgb = hsiToRgb(fade.points[0][0], fade.points[0][1], fade.points[0][2])
   } else {
     // It's a fade, interpolate it
@@ -266,9 +266,8 @@ export function findLightFade(toolpath: Toolpath, time: number): LightMove {
     return {
       timestamp: finishTime,
       duration: 9999,
-      type: LightMoveType.IMMEDIATE,
+      settings: { type: LightMoveType.IMMEDIATE },
       points: [[0, 0, 0]],
-      num_points: 3,
     }
   }
 
