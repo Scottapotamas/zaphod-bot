@@ -349,6 +349,7 @@ export function sparseToDense(
         settings.optimisation.transitionSize,
       )
       transition.setMaxSpeed(settings.optimisation.maxSpeed)
+      transition.normaliseVelocities()
 
       // Add the transition to the dense bag
       denseMovements.push(transition)
@@ -393,6 +394,7 @@ export function sparseToDense(
       settings.optimisation.transitionSize,
     )
     transition.setMaxSpeed(settings.optimisation.maxSpeed)
+    transition.normaliseVelocities()
 
     // Add the transition to the dense bag
     denseMovements.push(transition)
@@ -434,14 +436,6 @@ export function sparseToCost(movements: Movement[]): number {
 
     d2Total += d2
   }
-
-  // for (let index = 1; index < movements.length; index++) {
-  //   const movementP = movements[index - 1]
-  //   const movement = movements[index]
-  //   const d2 = new Transition(movementP, movement, defaultTransitionMaterial)
-
-  //   d2Total += d2.getLength()
-  // }
 
   return d2Total
 }

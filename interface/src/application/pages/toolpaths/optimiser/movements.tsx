@@ -868,6 +868,25 @@ export class Transition extends Movement {
     this.maxSpeed = maxSpeed
   }
 
+  public normaliseVelocities = () => {
+    const desiredEntryVelocity = this.getDesiredEntryVelocity().length()
+    const currentEntryVelocity = predictVelocityAtT(this, 0)
+
+    const desiredExitVelocity = this.getExpectedExitVelocity().length()
+    const currentExitVelocity = predictVelocityAtT(this, 1)
+
+    let factor = 1
+
+    // Build this based on the bigger number
+    if (desiredExitVelocity > desiredEntryVelocity) {
+      factor = desiredExitVelocity / currentExitVelocity
+    } else {
+      factor = desiredEntryVelocity / currentEntryVelocity
+    }
+
+    this.setMaxSpeed(this.maxSpeed * factor)
+  }
+
   public getDuration = () => {
     return Math.ceil(
       (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
