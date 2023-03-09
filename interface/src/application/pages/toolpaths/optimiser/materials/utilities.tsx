@@ -1,13 +1,26 @@
 import { MathUtils, Vector3 } from 'three'
 import { NodeID } from '../../interface/RenderableTree'
-import { changeState, useStore, VisualisationSettings } from '../../interface/state'
-import type { AddComponentCallback, Movement, RGBA } from '../movements'
+import {
+  changeState,
+  useStore,
+  VisualisationSettings,
+} from '../../interface/state'
+import type {
+  AddComponentCallback,
+  Movement,
+  RGBA,
+  Transition,
+} from '../movements'
 
 import { MOVEMENT_TYPE } from './../movement_types'
 
 import { Intent, Tag } from '@blueprintjs/core'
 import { Html } from '@react-three/drei'
 import React, { useCallback } from 'react'
+import {
+  findHighestApproximateSpeedAndT,
+  predictSpeedAtT,
+} from '../movement_utilities'
 
 export const enum MATERIALS {
   DEFAULT = 'default', // used for overrides to indicate no override
@@ -179,13 +192,31 @@ export function annotateDrawOrder(
     const intent = movementTypeToIntent(movement)
     const type = movementTypeToLetter(movement)
 
+    let extra = ''
+
+    if (type === 'T' && false) {
+      const transition = movement as Transition
+      extra = `in:${
+        Math.round(transition.entryVelocity.length() * 100) / 100
+      } (${Math.round(predictSpeedAtT(movement, 0) * 100) / 100}) out:${
+        Math.round(transition.exitVelocity.length() * 100) / 100
+      } (${Math.round(predictSpeedAtT(movement, 1) * 100) / 100}) max:${
+        Math.round(transition.maxSpeed * 100) / 100
+      } (${
+        Math.round(findHighestApproximateSpeedAndT(movement).maxSpeed * 100) /
+        100
+      }) priority: ${
+        transition.getEntrySpeedExact() ? 'entry' : 'exit'
+      } flipped: ${transition.isFlipped ? 'flipped' : 'normal'}`
+    }
+
     addReactComponent(
       generateHtmlTagFromAveragePosition(
         movementIndex,
         movement.objectID,
         movement.getApproximateCentroid(),
         intent,
-        `${type} #${movementIndex} (${movement.getDuration()}ms)`,
+        `${type} #${movementIndex} (${movement.getDuration()}ms) ${extra}`,
       ),
     )
   }
@@ -204,7 +235,7 @@ export function generateHtmlTagFromAveragePosition(
   // Convert the centroid from Blender units to ThreeJS units
   const threeCentroid = new Vector3(centroid.x, centroid.z, -centroid.y)
 
-  const component = ( 
+  const component = (
     <Html position={threeCentroid} key={text} zIndexRange={TagZIndexRange}>
       <TagThatHidesWhenNotInList
         movementIndex={movementIndex}
@@ -231,7 +262,10 @@ function TagThatHidesWhenNotInList(props: {
     }
 
     // If something is hovered, only display if it matches a hovered object ID or movement index
-    return !(state.treeStore.hoveredItems.includes(props.movementIndex) || state.treeStore.hoveredItems.includes(props.objectID))
+    return !(
+      state.treeStore.hoveredItems.includes(props.movementIndex) ||
+      state.treeStore.hoveredItems.includes(props.objectID)
+    )
   })
 
   const onMouseEnter = useCallback(() => {

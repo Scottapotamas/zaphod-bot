@@ -10,8 +10,11 @@ import { TriggerCall, TriggerType } from './triggers'
 import { MOVEMENT_TYPE } from './movement_types'
 
 import {
+  fcmp,
+  findHighestApproximateSpeedAndT,
   isMovementGroup,
   MILLISECONDS_IN_SECOND,
+  predictSpeedAtT,
   predictVelocityAtT,
 } from './movement_utilities'
 
@@ -590,10 +593,7 @@ export class Line extends Movement {
   public samplePoint = (t: number) => {
     const start = this.getStart()
     const length = this.getLength()
-    const direction = this.getEnd()
-      .clone()
-      .sub(this.getStart().clone())
-      .normalize()
+    const direction = this.getEnd().clone().sub(this.getStart()).normalize()
 
     return direction.multiplyScalar(length * t).add(start)
   }
@@ -743,16 +743,6 @@ export class Point extends Movement {
   }
 }
 
-// const transitionCurveCache = new LRUCache<string, number>({
-//   maxSize: 1000, // store 1000 lengths by default
-// });
-
-// function transitionKeygen(a: Vector3, b: Vector3, c: Vector3, d: Vector3) {
-//   return `${a.x},${a.y},${a.z}-${b.x},${b.y},${b.z}-${c.x},${c.y},${c.z}-${d.x},${d.y},${d.z}`;
-// }
-
-// let cacheHits = 0;
-
 /**
  * A transition is a move from one Movement to another.
  *
@@ -761,8 +751,6 @@ export class Point extends Movement {
 export class Transition extends Movement {
   readonly type = MOVEMENT_TYPE.TRANSITION
   maxSpeed: number = defaultSpeed // mm/s
-  private numSegments = 20
-
   public baseMaterial: Material
 
   public objectID = TRANSITION_OBJECT_ID
@@ -773,15 +761,69 @@ export class Transition extends Movement {
     public c1: Vector3,
     public c2: Vector3,
     public c3: Vector3,
-    public entrySpeed: number,
-    public exitSpeed: number,
+    public entryVelocity: Vector3,
+    public exitVelocity: Vector3,
     public material: Material,
+    private entrySpeedExact: boolean, // false is exact exit speed
   ) {
     super()
     this.baseMaterial = material
   }
 
   private curve: CubicBezierCurve3 | null = null
+
+  /**
+   * Normalises the speed so that the maximum is hit.
+   */
+  private normaliseSpeed = () => {
+    const desiredEntrySpeed = Math.min(
+      this.getDesiredEntryVelocity().length(),
+      this.maxSpeed,
+    )
+    const desiredMaxSpeed = this.maxSpeed
+    const desiredExitSpeed = Math.min(
+      this.getExpectedExitVelocity().length(),
+      this.maxSpeed,
+    )
+
+    let desiredSpeed = desiredMaxSpeed
+    let tToPredictSpeedAt = 0.5
+
+    if (this.getEntrySpeedExact() && !fcmp(desiredEntrySpeed, 0, 5)) {
+      // if the entry speed is the one we need to be exact and it's not 0ish, try to hit that
+      desiredSpeed = desiredEntrySpeed
+
+      tToPredictSpeedAt = 0
+    } else if (!this.getEntrySpeedExact() && !fcmp(desiredExitSpeed, 0, 5)) {
+      // if the entry speed is the one we need to be exact and it's not 0ish, try to hit that
+      desiredSpeed = desiredExitSpeed
+
+      tToPredictSpeedAt = 1
+    } else {
+      // otherwise just try and hit the max speed at our fastest point
+      const { maxSpeed, tOfHighestSpeed } =
+        findHighestApproximateSpeedAndT(this)
+      desiredSpeed = this.maxSpeed
+
+      tToPredictSpeedAt = tOfHighestSpeed
+    }
+
+    this.maxSpeed = 100
+
+    const speedAtT = predictSpeedAtT(this, tToPredictSpeedAt)
+
+    const factor = desiredSpeed / speedAtT
+
+    if (!isFinite(factor)) {
+      console.log(
+        `bad factor ${factor} actualSpeedT ${tToPredictSpeedAt} speedAtT ${speedAtT} desiredSpeedAtT ${desiredSpeed}`,
+      )
+
+      return this.curve
+    }
+
+    this.maxSpeed = this.maxSpeed * factor
+  }
 
   private lazyGenerateCurve = () => {
     if (this.curve) return this.curve
@@ -810,6 +852,11 @@ export class Transition extends Movement {
 
     // Reset the curve
     this.curve = null
+  }
+
+  public getEntrySpeedExact = () => {
+    // The notion of entry is stable over flipped and unflipped versions
+    return this.entrySpeedExact
   }
 
   public flatten = () => {
@@ -866,25 +913,9 @@ export class Transition extends Movement {
 
   public setMaxSpeed = (maxSpeed: number) => {
     this.maxSpeed = maxSpeed
-  }
 
-  public normaliseVelocities = () => {
-    const desiredEntryVelocity = this.getDesiredEntryVelocity().length()
-    const currentEntryVelocity = predictVelocityAtT(this, 0)
-
-    const desiredExitVelocity = this.getExpectedExitVelocity().length()
-    const currentExitVelocity = predictVelocityAtT(this, 1)
-
-    let factor = 1
-
-    // Build this based on the bigger number
-    if (desiredExitVelocity > desiredEntryVelocity) {
-      factor = desiredExitVelocity / currentExitVelocity
-    } else {
-      factor = desiredEntryVelocity / currentEntryVelocity
-    }
-
-    this.setMaxSpeed(this.maxSpeed * factor)
+    // after this call this.maxSpeed will likely be different to what is set in maxSpeed
+    this.normaliseSpeed()
   }
 
   public getDuration = () => {
@@ -902,19 +933,11 @@ export class Transition extends Movement {
   }
 
   public getDesiredEntryVelocity = () => {
-    return this.getC1()
-      .clone()
-      .sub(this.getC0())
-      .normalize()
-      .multiplyScalar(this.entrySpeed)
+    return this.entryVelocity
   }
 
   public getExpectedExitVelocity = () => {
-    return this.getC3()
-      .clone()
-      .sub(this.getC2())
-      .normalize()
-      .multiplyScalar(this.exitSpeed)
+    return this.exitVelocity
   }
 
   public generateToolpath = () => {

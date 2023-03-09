@@ -18,7 +18,9 @@ import {
   isTransit,
   declareDense,
   DenseMovements,
+  predictSpeedAtT,
   predictVelocityAtT,
+  findHighestApproximateSpeedAndT,
 } from './movement_utilities'
 
 import type { Settings } from './settings'
@@ -1360,40 +1362,163 @@ function generateTransition(
     )
   const c3 = nextMovement.getStart()
 
-  const transition = new Transition(
+  const distanceToTravel = previousMovement
+    .getEnd()
+    .distanceTo(nextMovement.getStart())
+
+  if (distanceToTravel === 0) {
+    return []
+  }
+
+  const singularTransition = new Transition(
     c0,
     c1,
     c2,
     c3,
-    previousMovement.getExpectedExitVelocity().length(),
-    nextMovement.getDesiredEntryVelocity().length(),
+    previousMovement.getExpectedExitVelocity(),
+    nextMovement.getDesiredEntryVelocity(),
 
     material,
+    true, // doesn't matter
   )
-  transition.setMaxSpeed(settings.optimisation.maxSpeed)
-  transition.normaliseVelocities()
+  singularTransition.setMaxSpeed(settings.optimisation.maxSpeed)
 
-  // Validate its speed doesn't exceed the maximum
+  const midPointVelocity = predictVelocityAtT(singularTransition, 0.5)
 
-  let exceededSpeedLimit = false
+  const midpointClampedSpeed = Math.min(
+    midPointVelocity.length(),
+    settings.optimisation.maxSpeed,
+  )
 
-  let maxSpeed = 0
+  const clampedMidPointVelocity = midPointVelocity
+    .clone()
+    .normalize()
+    .multiplyScalar(midpointClampedSpeed)
 
-  for (const t of [0, 0.1, 0.25, 0.33, 0.5, 0.66, 0.75, 1]) {
-    const speed = predictVelocityAtT(transition, t)
+  // Subdivide the bezier into two pieces
+  const { A, B, C, D, E, F, G } = subdivideBezier(c0, c1, c2, c3, 0.5)
 
-    if (speed > settings.optimisation.maxSpeed) {
-      exceededSpeedLimit = true
+  // Build each half of the transition
+  const transitionA = new Transition(
+    A,
+    B,
+    C,
+    D,
+    previousMovement.getExpectedExitVelocity(),
+    clampedMidPointVelocity,
+    material,
+    true,
+  )
+  transitionA.setMaxSpeed(settings.optimisation.maxSpeed)
 
-      maxSpeed = Math.max(maxSpeed, speed)
-    }
+  const transitionB = new Transition(
+    D,
+    E,
+    F,
+    G,
+    clampedMidPointVelocity,
+    nextMovement.getDesiredEntryVelocity(),
+    material,
+    false,
+  )
+  transitionB.setMaxSpeed(settings.optimisation.maxSpeed)
+
+  // const maxSpeedA = findHighestApproximateSpeed(transitionA)
+  // const maxSpeedB = findHighestApproximateSpeed(transitionB)
+
+  checkTransitionSpeed(transitionA, 'A')
+  checkTransitionSpeed(transitionB, 'B')
+
+  return [transitionA, transitionB]
+}
+
+function pointAlongLine(start: Vector3, end: Vector3, u: number) {
+  const length = end.distanceTo(start)
+  const direction = end.clone().sub(start).normalize()
+
+  return direction.multiplyScalar(length * u).add(start)
+}
+
+// Use De Casteljau's algorithm
+// https://math.stackexchange.com/questions/877725/retrieve-the-initial-cubic-b%C3%A9zier-curve-subdivided-in-two-b%C3%A9zier-curves
+function subdivideBezier(
+  c0: Vector3,
+  c1: Vector3,
+  c2: Vector3,
+  c3: Vector3,
+  transitionT: number,
+): {
+  A: Vector3
+  B: Vector3
+  C: Vector3
+  D: Vector3
+  E: Vector3
+  F: Vector3
+  G: Vector3
+} {
+  const u = transitionT
+  // const v = 1 - u
+
+  const A = c0
+  const P = c1
+  const Q = c2
+  const G = c3
+
+  const X = pointAlongLine(P, Q, u)
+
+  const B = pointAlongLine(A, P, u)
+
+  const C = pointAlongLine(B, X, u)
+  const F = pointAlongLine(Q, G, u)
+  const E = pointAlongLine(X, F, u)
+  const D = pointAlongLine(C, E, u)
+
+  return {
+    A,
+    B,
+    C,
+    D,
+    E,
+    F,
+    G,
   }
+}
 
-  if (exceededSpeedLimit) {
-    console.log(
-      `transition goes to ${maxSpeed}, > ${settings.optimisation.maxSpeed}`,
-    )
+function checkTransitionSpeed(transition: Transition, name: string) {
+  const { maxSpeed, tOfHighestSpeed } =
+    findHighestApproximateSpeedAndT(transition)
+
+  const probableMaxSpeed = transition.getEntrySpeedExact()
+    ? transition.getDesiredEntryVelocity().length()
+    : transition.getExpectedExitVelocity().length()
+
+  // if it's more than 10 over, throw up a warning
+  if (!isFinite(transition.maxSpeed) || probableMaxSpeed - maxSpeed > 10) {
+    console.log(`desiredSpeed strange for ${name}
+    entryVelocity:  [${transition
+      .getDesiredEntryVelocity()
+      .toArray()
+      .join(', ')}] transition.getDesiredEntryVelocity().length() ${transition
+      .getDesiredEntryVelocity()
+      .length()}
+    exitVelocity:  [${transition
+      .getExpectedExitVelocity()
+      .toArray()
+      .join(', ')}] transition.getExpectedExitVelocity().length() ${transition
+      .getExpectedExitVelocity()
+      .length()}
+    
+    entrySpeedExact: ${transition.getEntrySpeedExact() ? 'entry' : 'exit'}
+
+    transition.maxSpeed: ${transition.maxSpeed}
+    predictedSpeedAt 0: ${predictSpeedAtT(transition, 0)}
+    predictedSpeedAt 0.1: ${predictSpeedAtT(transition, 0.1)}
+    predictedSpeedAt 0.3: ${predictSpeedAtT(transition, 0.3)}
+    predictedSpeedAt 0.5: ${predictSpeedAtT(transition, 0.5)}
+    predictedSpeedAt 0.7: ${predictSpeedAtT(transition, 0.7)}
+    predictedSpeedAt 0.9: ${predictSpeedAtT(transition, 0.9)}
+    predictedSpeedAt 1: ${predictSpeedAtT(transition, 1)}
+    max speed sampled is at ${maxSpeed}, t ${tOfHighestSpeed}
+    `)
   }
-
-  return [transition]
 }

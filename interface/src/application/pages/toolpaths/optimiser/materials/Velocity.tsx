@@ -2,7 +2,7 @@ import { MathUtils, Vector3 } from 'three'
 import type { VisualisationSettings } from '../../interface/state'
 import type { Settings } from '../../optimiser/settings'
 import { Movement, RGBA } from './../movements'
-import { predictVelocityAtT } from './../movement_utilities'
+import { predictSpeedAtT } from './../movement_utilities'
 import { Material } from './Base'
 import { Tag } from '@blueprintjs/core'
 import React from 'react'
@@ -68,7 +68,7 @@ export class VelocityMaterial extends Material {
   ): RGBA => {
     const intendedSpeed = settings.optimisation.maxSpeed
 
-    const speed = predictVelocityAtT(movement, t)
+    const speed = predictSpeedAtT(movement, t)
     const col = calculateColorFromSpeed(speed, intendedSpeed)
 
     return col

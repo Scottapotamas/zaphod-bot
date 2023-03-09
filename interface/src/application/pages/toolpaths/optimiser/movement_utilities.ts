@@ -83,19 +83,34 @@ export function predictVelocityAtT(movement: Movement, t: number) {
 
   const speed = (distance * MILLISECONDS_IN_SECOND) / timeDelta
 
-  return speed
+  return pRight.clone().sub(pLeft).normalize().multiplyScalar(speed)
 }
 
-export function bezierFromHermiteForm(
-  start: Vector3,
-  startVelocity: Vector3,
-  end: Vector3,
-  endVelocity: Vector3,
-) {
-  const controlPoint0 = start
-  const controlPoint1 = start
-    .clone()
-    .add(startVelocity.clone().multiplyScalar(0.3))
-  const controlPoint2 = end.clone().sub(endVelocity.clone().multiplyScalar(0.3))
-  const controlPoint3 = end
+export function predictSpeedAtT(movement: Movement, t: number) {
+  return predictVelocityAtT(movement, t).length()
+}
+
+export function findHighestApproximateSpeedAndT(movement: Movement) {
+  let maxSpeed = 0
+  const numSegments = 20
+  let tOfHighestSpeed = 0
+
+  for (let index = 0; index <= numSegments; index++) {
+    const t = index / numSegments
+    const speed = predictSpeedAtT(movement, t)
+
+    if (speed > maxSpeed) {
+      maxSpeed = speed
+      tOfHighestSpeed = t
+    }
+  }
+
+  return { maxSpeed, tOfHighestSpeed }
+}
+
+/**
+ * Returns if the difference between a and b is less than the tolerance
+ */
+export function fcmp(a: number, b: number, tolerance: number) {
+  return Math.abs(a - b) < tolerance
 }
