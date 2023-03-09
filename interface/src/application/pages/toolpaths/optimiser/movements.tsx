@@ -769,10 +769,13 @@ export class Transition extends Movement {
   public overrideKeys = []
 
   constructor(
-    public from: Movement,
-    public to: Movement,
+    public c0: Vector3,
+    public c1: Vector3,
+    public c2: Vector3,
+    public c3: Vector3,
+    public entrySpeed: number,
+    public exitSpeed: number,
     public material: Material,
-    private transitionSize: number,
   ) {
     super()
     this.baseMaterial = material
@@ -790,22 +793,10 @@ export class Transition extends Movement {
      * v3 – The ending point.
      */
     this.curve = new CubicBezierCurve3(
-      this.getStart(),
-      this.getStart()
-        .clone()
-        .add(
-          this.getDesiredEntryVelocity()
-            .clone()
-            .multiplyScalar(this.transitionSize),
-        ),
-      this.getEnd()
-        .clone()
-        .sub(
-          this.getExpectedExitVelocity()
-            .clone()
-            .multiplyScalar(this.transitionSize),
-        ),
-      this.getEnd(),
+      this.getC0(),
+      this.getC1(),
+      this.getC2(),
+      this.getC3(),
     )
 
     this.curve.arcLengthDivisions = 20 // divide into 20 segments for length calculations
@@ -825,12 +816,36 @@ export class Transition extends Movement {
     return [this]
   }
 
-  private getTo = () => {
-    return this.isFlipped ? this.from : this.to
+  private getC0 = () => {
+    if (!this.isFlipped) {
+      return this.c0
+    } else {
+      return this.c3
+    }
   }
 
-  private getFrom = () => {
-    return this.isFlipped ? this.to : this.from
+  private getC1 = () => {
+    if (!this.isFlipped) {
+      return this.c1
+    } else {
+      return this.c2
+    }
+  }
+
+  private getC2 = () => {
+    if (!this.isFlipped) {
+      return this.c2
+    } else {
+      return this.c1
+    }
+  }
+
+  private getC3 = () => {
+    if (!this.isFlipped) {
+      return this.c3
+    } else {
+      return this.c0
+    }
   }
 
   public hydrate = (serialised: SerialisedTour) => {
@@ -842,24 +857,9 @@ export class Transition extends Movement {
   }
 
   public getLength = () => {
-    // // Check if we have a cached length first since this is expensive.
-    // const key = transitionKeygen(
-    //   this.getStart(),
-    //   this.getEnd(),
-    //   this.getDesiredEntryVelocity(),
-    //   this.getExpectedExitVelocity()
-    // );
-
-    // const cached = transitionCurveCache.get(key);
-
-    // if (cached) return cached;
-
-    // Otherwise generate the curve, get the length
     const curve = this.lazyGenerateCurve()
 
     const length = curve.getLength()
-
-    // transitionCurveCache.set(key, length);
 
     return length
   }
@@ -894,19 +894,27 @@ export class Transition extends Movement {
   }
 
   public getStart = () => {
-    return this.getFrom().getEnd()
+    return this.getC0()
   }
 
   public getEnd = () => {
-    return this.getTo().getStart()
+    return this.getC3()
   }
 
   public getDesiredEntryVelocity = () => {
-    return this.getFrom().getExpectedExitVelocity()
+    return this.getC1()
+      .clone()
+      .sub(this.getC0())
+      .normalize()
+      .multiplyScalar(this.entrySpeed)
   }
 
   public getExpectedExitVelocity = () => {
-    return this.getTo().getDesiredEntryVelocity()
+    return this.getC3()
+      .clone()
+      .sub(this.getC2())
+      .normalize()
+      .multiplyScalar(this.exitSpeed)
   }
 
   public generateToolpath = () => {
@@ -915,24 +923,10 @@ export class Transition extends Movement {
       type: MovementMoveType.BEZIER_CUBIC,
       reference: MovementMoveReference.ABSOLUTE,
       points: [
-        this.getStart().toArray(),
-        this.getStart()
-          .clone()
-          .add(
-            this.getDesiredEntryVelocity()
-              .clone()
-              .multiplyScalar(this.transitionSize),
-          )
-          .toArray(),
-        this.getEnd()
-          .clone()
-          .sub(
-            this.getExpectedExitVelocity()
-              .clone()
-              .multiplyScalar(this.transitionSize),
-          )
-          .toArray(),
-        this.getEnd().toArray(),
+        this.getC0().toArray(),
+        this.getC1().toArray(),
+        this.getC2().toArray(),
+        this.getC3().toArray(),
       ],
     }
 
@@ -940,24 +934,7 @@ export class Transition extends Movement {
   }
 
   public getApproximateCentroid = () => {
-    return getCentroid([
-      this.getStart(),
-      this.getStart()
-        .clone()
-        .add(
-          this.getDesiredEntryVelocity()
-            .clone()
-            .multiplyScalar(this.transitionSize),
-        ),
-      this.getEnd()
-        .clone()
-        .sub(
-          this.getExpectedExitVelocity()
-            .clone()
-            .multiplyScalar(this.transitionSize),
-        ),
-      this.getEnd(),
-    ])
+    return getCentroid([this.getC0(), this.getC1(), this.getC2(), this.getC3()])
   }
 
   public samplePoint = (t: number) => {
@@ -968,6 +945,7 @@ export class Transition extends Movement {
 
   public resetOptimisationState = () => {
     this.material = this.baseMaterial
+    this.curve = null
   }
 
   public getTriggers = () => {
@@ -978,7 +956,7 @@ export class Transition extends Movement {
 function getCentroid(points: Vector3[]) {
   const centroid = new Vector3()
   for (const point of points) {
-    centroid.add(point)
+    centroid.add(point) // this doesn't mutate point
   }
   centroid.divideScalar(points.length)
 

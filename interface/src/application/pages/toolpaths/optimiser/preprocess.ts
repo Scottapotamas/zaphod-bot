@@ -1,6 +1,7 @@
 import { CylinderGeometry, Raycaster, Vector3 } from 'three'
 import { SimpleColorMaterial } from './materials/Color'
-import { isLine, isMovementGroup, Line, Movement } from './movements'
+import { Line, Movement } from './movements'
+import { isLine, isMovementGroup } from './movement_utilities'
 import { MOVEMENT_TYPE } from './movement_types'
 import { Settings } from './settings'
 
@@ -50,7 +51,7 @@ export function preprocess(initial: Movement[], settings: Settings) {
     } else {
       // The movement is at least partially within the cylinder.
 
-      console.log(`movement`, movement.type, `is partially within`)
+      // console.log(`movement`, movement.type, `is partially within`)
 
       if (isLine(movement)) {
         // TODO: Make this work

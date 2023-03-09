@@ -18,6 +18,7 @@ import {
   isTransit,
   declareDense,
   DenseMovements,
+  predictVelocityAtT,
 } from './movement_utilities'
 
 import type { Settings } from './settings'
@@ -29,6 +30,7 @@ import { Permutor } from './permutor'
 import { RemapMaterial } from './materials/Remap'
 import { ColorRampMaterial } from './materials/ColorRamp'
 import { MATERIALS } from './materials/utilities'
+import { Material } from './materials/Base'
 
 /**
  * Flatten any grouped movements into simple movements
@@ -342,17 +344,14 @@ export function sparseToDense(
       runUp.setMaxSpeed(settings.optimisation.maxSpeed)
 
       // Build our transition movement from the old movement to the new
-      const transition = new Transition(
-        previousMovement,
-        runUp,
-        defaultTransitionMaterial,
-        settings.optimisation.transitionSize,
+      denseMovements.push(
+        ...generateTransition(
+          previousMovement,
+          runUp,
+          defaultTransitionMaterial,
+          settings,
+        ),
       )
-      transition.setMaxSpeed(settings.optimisation.maxSpeed)
-      transition.normaliseVelocities()
-
-      // Add the transition to the dense bag
-      denseMovements.push(transition)
 
       // Add the run up
       denseMovements.push(runUp)
@@ -387,17 +386,14 @@ export function sparseToDense(
     }
 
     // Build our transition movement from the old movement to the new
-    const transition = new Transition(
-      previousMovement,
-      movement,
-      defaultTransitionMaterial,
-      settings.optimisation.transitionSize,
+    denseMovements.push(
+      ...generateTransition(
+        previousMovement,
+        movement,
+        defaultTransitionMaterial,
+        settings,
+      ),
     )
-    transition.setMaxSpeed(settings.optimisation.maxSpeed)
-    transition.normaliseVelocities()
-
-    // Add the transition to the dense bag
-    denseMovements.push(transition)
 
     // Add the movement to the dense bag
     denseMovements.push(movement)
@@ -1333,4 +1329,71 @@ function debuggerIfCostOut(currentOrdering: Movement[], cost: number) {
   }
 
   return calculatedCost
+}
+
+function generateTransition(
+  previousMovement: Movement,
+  nextMovement: Movement,
+  material: Material,
+  settings: Settings,
+) {
+  const controlPointScalar = settings.optimisation.transitionSize
+
+  const c0 = previousMovement.getEnd()
+  const c1 = previousMovement
+    .getEnd()
+    .clone()
+    .add(
+      previousMovement
+        .getExpectedExitVelocity()
+        .clone()
+        .multiplyScalar(controlPointScalar),
+    )
+  const c2 = nextMovement
+    .getStart()
+    .clone()
+    .sub(
+      nextMovement
+        .getDesiredEntryVelocity()
+        .clone()
+        .multiplyScalar(controlPointScalar),
+    )
+  const c3 = nextMovement.getStart()
+
+  const transition = new Transition(
+    c0,
+    c1,
+    c2,
+    c3,
+    previousMovement.getExpectedExitVelocity().length(),
+    nextMovement.getDesiredEntryVelocity().length(),
+
+    material,
+  )
+  transition.setMaxSpeed(settings.optimisation.maxSpeed)
+  transition.normaliseVelocities()
+
+  // Validate its speed doesn't exceed the maximum
+
+  let exceededSpeedLimit = false
+
+  let maxSpeed = 0
+
+  for (const t of [0, 0.1, 0.25, 0.33, 0.5, 0.66, 0.75, 1]) {
+    const speed = predictVelocityAtT(transition, t)
+
+    if (speed > settings.optimisation.maxSpeed) {
+      exceededSpeedLimit = true
+
+      maxSpeed = Math.max(maxSpeed, speed)
+    }
+  }
+
+  if (exceededSpeedLimit) {
+    console.log(
+      `transition goes to ${maxSpeed}, > ${settings.optimisation.maxSpeed}`,
+    )
+  }
+
+  return [transition]
 }
