@@ -1,28 +1,12 @@
 import { MathUtils, Vector3 } from 'three'
 import type { VisualisationSettings } from '../../interface/state'
 import type { Settings } from '../../optimiser/settings'
-import { PlannerLightMove, LightMoveType } from './../hardware'
-import {
-  AddComponentCallback,
-  AddLineCallback,
-  isLine,
-  isTransition,
-  Movement,
-  predictVelocityAtT,
-  RGBA,
-} from './../movements'
-import { MOVEMENT_TYPE } from './../movement_types'
+import { Movement, RGBA } from './../movements'
+import { predictVelocityAtT } from './../movement_utilities'
 import { Material } from './Base'
 import { Tag } from '@blueprintjs/core'
 import React from 'react'
-import {
-  generateHtmlTagFromAveragePosition,
-  lerpRGBA,
-  MATERIALS,
-  movementTypeToIntent,
-  movementTypeToLetter,
-  rgbToHsi,
-} from './utilities'
+import { lerpRGBA, MATERIALS } from './utilities'
 import { IconNames } from '@blueprintjs/icons'
 import { Composition, Box } from 'atomic-layout'
 

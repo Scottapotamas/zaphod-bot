@@ -3,12 +3,12 @@ import { Vector3 } from 'three'
 import { SimpleColorMaterial } from '../../src/application/pages/toolpaths/optimiser/materials/Color'
 import { ColorRampMaterial } from '../../src/application/pages/toolpaths/optimiser/materials/ColorRamp'
 import {
-  declareDense,
   Line,
   Point,
 } from '../../src/application/pages/toolpaths/optimiser/movements'
 import { sparseToDense } from '../../src/application/pages/toolpaths/optimiser/passes'
 import { hexToRgba } from '../materials/utilities'
+import { declareDense } from '../../src/application/pages/toolpaths/optimiser/movement_utilities'
 
 import { getDefaultSettings } from '../materials/utilities'
 

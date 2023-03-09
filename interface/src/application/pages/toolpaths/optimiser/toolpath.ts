@@ -1,4 +1,5 @@
-import { DenseMovements, GLOBAL_OVERRIDE_OBJECT_ID } from './movements'
+import { DenseMovements } from './movement_utilities'
+import { GLOBAL_OVERRIDE_OBJECT_ID } from './movements'
 import {
   LightMove,
   LightMoveType,

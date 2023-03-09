@@ -3,13 +3,13 @@ import type { VisualisationSettings } from '../../interface/state'
 import type { Settings } from '../../optimiser/settings'
 import { LightMoveType, PlannerLightMove } from './../hardware'
 import { MOVEMENT_TYPE } from './../movement_types'
-import {
+import type {
   AddComponentCallback,
   AddLineCallback,
-  isTransition,
   Movement,
   RGBA,
 } from './../movements'
+import { isTransition } from './../movement_utilities'
 import { annotateDrawOrder, rgbToHsi } from './utilities'
 
 /**

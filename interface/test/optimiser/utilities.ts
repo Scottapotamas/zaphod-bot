@@ -1,12 +1,11 @@
 import { MathUtils, Vector3 } from 'three'
 import {
-  DenseMovements,
   Line,
   Movement,
   RGB,
   RGBA,
 } from '../../src/application/pages/toolpaths/optimiser/movements'
-
+import { DenseMovements } from '../../src/application/pages/toolpaths/optimiser/movement_utilities'
 import { ColorRampMaterial } from '../../src/application/pages/toolpaths/optimiser/materials/ColorRamp'
 
 import {

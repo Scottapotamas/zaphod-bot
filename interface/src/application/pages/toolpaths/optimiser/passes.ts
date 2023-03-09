@@ -1,16 +1,8 @@
 import {
-  declareDense,
-  DenseMovements,
   deserialiseTour,
   InterLineTransition,
-  isLine,
-  isMovementGroup,
-  isPoint,
-  isTransit,
   Line,
-  MILLISECONDS_IN_SECOND,
   Movement,
-  Point,
   PointTransition,
   SerialisedTour,
   serialiseTour,
@@ -18,6 +10,15 @@ import {
   Transition,
   TRANSITION_OBJECT_ID,
 } from './movements'
+
+import {
+  isLine,
+  isMovementGroup,
+  isPoint,
+  isTransit,
+  declareDense,
+  DenseMovements,
+} from './movement_utilities'
 
 import type { Settings } from './settings'
 import { Line3, MathUtils, Vector3 } from 'three'

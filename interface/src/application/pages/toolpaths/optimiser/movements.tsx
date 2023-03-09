@@ -9,13 +9,18 @@ import {
 import { TriggerCall, TriggerType } from './triggers'
 import { MOVEMENT_TYPE } from './movement_types'
 
+import {
+  isMovementGroup,
+  MILLISECONDS_IN_SECOND,
+  predictVelocityAtT,
+} from './movement_utilities'
+
 import React from 'react'
 
 export const TRANSITION_OBJECT_ID = '__transition'
 export const GLOBAL_OVERRIDE_OBJECT_ID = '__all'
 
 const defaultSpeed = 30 // mm/s
-export const MILLISECONDS_IN_SECOND = 1000
 
 /**
  * The base level optimisable movement.
@@ -149,7 +154,7 @@ export type AddLineCallback = (
   colorStart: RGBA,
   colorEnd: RGBA,
   movementIndex: number,
-  objectID?: string
+  objectID?: string,
 ) => void
 
 export type AddComponentCallback = (component: React.ReactNode) => void
@@ -211,16 +216,6 @@ export function deserialiseTour(
     return aOrder - bOrder
   })
   return movements
-}
-
-export type DenseMovements = Movement[] & { __dense: true }
-
-export function declareDense(movements: Movement[]) {
-  return movements as unknown as DenseMovements
-}
-
-export function isMovementGroup(movement: Movement): movement is MovementGroup {
-  return movement.type === MOVEMENT_TYPE.GROUP
 }
 
 /**
@@ -421,10 +416,6 @@ export class MovementGroup extends Movement {
   }
 }
 
-export function isLine(movement: Movement): movement is Line {
-  return movement.type === MOVEMENT_TYPE.LINE
-}
-
 /**
  * A line is a linear move from one location to another, with the light on.
  */
@@ -619,10 +610,6 @@ export class Line extends Movement {
   }
 }
 
-export function isPoint(movement: Movement): movement is Point {
-  return movement.type === MOVEMENT_TYPE.POINT
-}
-
 const zeroVector = new Vector3(0, 0, 0)
 
 /**
@@ -754,10 +741,6 @@ export class Point extends Movement {
   public getTriggers = () => {
     return this.triggers
   }
-}
-
-export function isTransition(movement: Movement): movement is Transition {
-  return movement.type === MOVEMENT_TYPE.TRANSITION
 }
 
 // const transitionCurveCache = new LRUCache<string, number>({
@@ -910,7 +893,7 @@ export class Transition extends Movement {
   public generateToolpath = () => {
     const move: PlannerMovementMove = {
       duration: this.getDuration(),
-      type: MovementMoveType.BEZIER_CUBIC_LINEARISED,
+      type: MovementMoveType.BEZIER_CUBIC,
       reference: MovementMoveReference.ABSOLUTE,
       points: [
         this.getStart().toArray(),
@@ -981,12 +964,6 @@ function getCentroid(points: Vector3[]) {
   centroid.divideScalar(points.length)
 
   return centroid
-}
-
-export function isPointTransition(
-  movement: Movement,
-): movement is PointTransition {
-  return movement.type === MOVEMENT_TYPE.POINT_TRANSITION
 }
 
 /**
@@ -1192,12 +1169,6 @@ export class PointTransition extends Movement {
   }
 }
 
-export function isInterLineTransition(
-  movement: Movement,
-): movement is InterLineTransition {
-  return movement.type === MOVEMENT_TYPE.INTER_LINE_TRANSITION
-}
-
 // const transitionCurveCache = new LRUCache<string, number>({
 //   maxSize: 1000, // store 1000 lengths by default
 // });
@@ -1362,10 +1333,6 @@ export class InterLineTransition extends Movement {
   public getTriggers = () => {
     return this.triggers
   }
-}
-
-export function isTransit(movement: Movement): movement is Transit {
-  return movement.type === MOVEMENT_TYPE.TRANSIT
 }
 
 /**
@@ -1715,32 +1682,4 @@ export class CatmullChain extends Movement {
   public getTriggers = () => {
     return this.triggers
   }
-}
-
-// For a given movement, predict the velocity at T
-export function predictVelocityAtT(movement: Movement, t: number) {
-  // 1% parts, should be accurate enough
-  const tRange = 0.01
-  const halfT = tRange / 2
-
-  // Calculate T slightly earlier and slightly later
-  const tLeft = Math.max(0, t - halfT)
-  const tRight = Math.min(1, t + halfT)
-
-  // Calculate the positions at those points
-  const pLeft = movement.samplePoint(tLeft)
-  const pRight = movement.samplePoint(tRight)
-
-  // Calculate distance
-  const distance = pLeft.distanceTo(pRight)
-
-  // Calculate duration across that time
-  const movementDuration = movement.getDuration()
-  const tRangeActual = tRight - tLeft
-
-  const timeDelta = tRangeActual * movementDuration
-
-  const speed = (distance * MILLISECONDS_IN_SECOND) / timeDelta
-
-  return speed
 }

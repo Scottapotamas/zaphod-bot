@@ -3,12 +3,13 @@ import { Vector3 } from 'three'
 import { SimpleColorMaterial } from '../../src/application/pages/toolpaths/optimiser/materials/Color'
 import { ColorRampMaterial } from '../../src/application/pages/toolpaths/optimiser/materials/ColorRamp'
 import {
-  declareDense,
   deserialiseTour,
   Line,
   Point,
   serialiseTour,
 } from '../../src/application/pages/toolpaths/optimiser/movements'
+import { declareDense } from '../../src/application/pages/toolpaths/optimiser/movement_utilities'
+
 import {
   optimiseBySearch,
   OptimiserResult,
