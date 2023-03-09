@@ -59,72 +59,14 @@ export class InvisibleMaterial extends Material {
     super()
   }
 
-  public generateLightpath = (
+  public calculateColor = (
     movement: Movement,
     settings: Settings,
     visualisationSettings: VisualisationSettings,
     cameraPosition: Vector3,
-    fromT: number,
-    toT: number,
-  ) => {
-    const fade = invisibleLightFade(movement.getDuration())
-
-    return [fade]
-  }
-
-  public generateThreeJSRepresentation = (
-    movementIndex: number,
-    movement: Movement,
-    settings: Settings,
-    visualisationSettings: VisualisationSettings,
-    cameraPosition: Vector3,
-    addColouredLine: AddLineCallback,
-    addDottedLine: AddLineCallback,
-    addReactComponent: AddComponentCallback,
-    fromT: number,
-    toT: number,
-    spatialRenderFrom: number,
-    spatialRenderTo: number,
-  ) => {
-    // Annotate draw order
-    annotateDrawOrder(
-      movementIndex,
-      movement,
-      visualisationSettings,
-      addReactComponent,
-    )
-
-    // Despite being invisible in hardware, we still want to draw this in the UI
-    const numSegments =
-      movement.type === MOVEMENT_TYPE.LINE ||
-      movement.type === MOVEMENT_TYPE.POINT
-        ? 1
-        : Math.max(Math.ceil(movement.getLength() / 5), 6)
-
-    // For the number of segments,
-    for (let index = 0; index < numSegments; index++) {
-      const startTSpatial = MathUtils.mapLinear(
-        index / numSegments,
-        0,
-        1,
-        spatialRenderFrom,
-        spatialRenderTo,
-      )
-      const endTSpatial = MathUtils.mapLinear(
-        (index + 1) / numSegments,
-        0,
-        1,
-        spatialRenderFrom,
-        spatialRenderTo,
-      )
-
-      // Sample points along the movement
-      const start = movement.samplePoint(startTSpatial)
-      const end = movement.samplePoint(endTSpatial)
-
-      // Add the line
-      addDottedLine(start, end, this.color, this.color, movementIndex, movement.objectID)
-    }
+    t: number,
+  ): RGBA => {
+    return [this.color[0], this.color[1], this.color[2], 0]
   }
 }
 

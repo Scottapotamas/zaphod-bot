@@ -3,9 +3,10 @@ import type { VisualisationSettings } from '../../interface/state'
 import type { Settings } from '../../optimiser/settings'
 import { LightMoveType, PlannerLightMove } from './../hardware'
 import { MOVEMENT_TYPE } from './../movement_types'
-import type {
+import {
   AddComponentCallback,
   AddLineCallback,
+  isTransition,
   Movement,
   RGBA,
 } from './../movements'
@@ -166,7 +167,25 @@ export abstract class Material {
       )
 
       // Add the line
-      addColouredLine(start, end, startCol, endCol, movementIndex, movement.objectID)
+      if (isTransition(movement)) {
+        addDottedLine(
+          start,
+          end,
+          startCol,
+          endCol,
+          movementIndex,
+          movement.objectID,
+        )
+      } else {
+        addColouredLine(
+          start,
+          end,
+          startCol,
+          endCol,
+          movementIndex,
+          movement.objectID,
+        )
+      }
     }
   }
 }
