@@ -2,10 +2,13 @@ import { MathUtils, Vector3 } from 'three'
 import type { VisualisationSettings } from '../../interface/state'
 import type { Settings } from '../../optimiser/settings'
 import { PlannerLightMove, LightMoveType } from './../hardware'
-import type {
+import {
   AddComponentCallback,
   AddLineCallback,
+  isLine,
+  isTransition,
   Movement,
+  predictVelocityAtT,
   RGBA,
 } from './../movements'
 import { MOVEMENT_TYPE } from './../movement_types'
@@ -53,136 +56,42 @@ export class VelocityMaterial extends Material {
     super()
   }
 
-  // public calculateColor = (
+  // TODO: Have the Delta have a material that does this with its own information
+  // public generateLightpath = (
   //   movement: Movement,
-
   //   settings: Settings,
   //   visualisationSettings: VisualisationSettings,
+  //   cameraPosition: Vector3,
+  //   fromT: number,
+  //   toT: number,
+  // ) => {
 
-  //   t: number,
-  // ): RGBA => {
-  //   return [0, 0, 0]
+  //   const fade: PlannerLightMove = {
+  //     duration: movement.getDuration(),
+  //     settings: { type: LightMoveType.IMMEDIATE },
+  //     points: [rgbToHsi(1, 1, 1)],
+  //   }
+
+  //   return [fade]
   // }
 
-  public generateLightpath = (
+  public calculateColor = (
     movement: Movement,
     settings: Settings,
     visualisationSettings: VisualisationSettings,
     cameraPosition: Vector3,
-    fromT: number,
-    toT: number,
-  ) => {
-    // TODO: Have the Delta have a material that does this with its own information
-
-    const fade: PlannerLightMove = {
-      duration: movement.getDuration(),
-      settings: { type: LightMoveType.IMMEDIATE },
-      points: [rgbToHsi(1, 1, 1)],
-    }
-
-    return [fade]
-  }
-
-  public generateThreeJSRepresentation = (
-    movementIndex: number,
-    movement: Movement,
-    settings: Settings,
-    visualisationSettings: VisualisationSettings,
-    cameraPosition: Vector3,
-    addColouredLine: AddLineCallback,
-    addDottedLine: AddLineCallback,
-    addReactComponent: AddComponentCallback,
-    fromT: number,
-    toT: number,
-    spatialRenderFrom: number,
-    spatialRenderTo: number,
-  ) => {
-    if (visualisationSettings.annotateDrawOrder) {
-      addReactComponent(
-        generateHtmlTagFromAveragePosition(
-          movementIndex,
-          movement.getApproximateCentroid(),
-          movementTypeToIntent(movement),
-          `${movementTypeToLetter(
-            movement,
-          )} #${movementIndex} (${movement.getDuration()}ms, ${
-            Math.round(
-              (movement.getLength() / movement.getDuration()) * 1000 * 10,
-            ) / 10
-          }mm/s)`,
-        ),
-      )
-    }
-
-    // A simple color material draws the line segment(s) from the start to the end with a single color
-    const numSegments =
-      movement.type === MOVEMENT_TYPE.LINE ||
-      movement.type === MOVEMENT_TYPE.POINT
-        ? 1
-        : Math.ceil(movement.getLength() / 5)
-
-    // Calculate the bounds of the colors used
+    t: number,
+  ): RGBA => {
     const intendedSpeed = settings.optimisation.maxSpeed
 
-    const movementDuration = movement.getDuration()
+    const speed = predictVelocityAtT(movement, t)
+    const col = calculateColorFromSpeed(speed, intendedSpeed)
 
-    const tRange = 1 / numSegments
-
-    // For the number of segments,
-    for (let index = 0; index < numSegments; index++) {
-      const startT = MathUtils.mapLinear(
-        index / numSegments,
-        0,
-        1,
-        spatialRenderFrom,
-        spatialRenderTo,
-      )
-      const endT = MathUtils.mapLinear(
-        (index + 1) / numSegments,
-        0,
-        1,
-        spatialRenderFrom,
-        spatialRenderTo,
-      )
-
-      // Sample points along the movement, these will define the drawn line segment
-      const start = movement.samplePoint(startT)
-      const end = movement.samplePoint(endT)
-
-      // Sample points before and after to get speeds at the start and end points
-      // which define the line segment. Since we have vertex colour control,
-      // we want that information embedded in every available vertex.
-      const tBeforeStart = Math.max(0, startT - tRange / 2)
-      const tMidpoint = (startT + endT) / 2
-      const tAfterEnd = Math.min(1, endT + tRange / 2)
-
-      // Calculate points before and after
-      const pBeforeStart = movement.samplePoint(tBeforeStart)
-      const pMidpoint = movement.samplePoint(tMidpoint)
-      const pAfterEnd = movement.samplePoint(tAfterEnd)
-
-      const timeStart = tMidpoint - tBeforeStart
-      const timeEnd = tAfterEnd - tMidpoint
-
-      const distanceStart = pBeforeStart.distanceTo(pMidpoint)
-      const distanceEnd = pMidpoint.distanceTo(pAfterEnd)
-
-      const startSpeed = distanceStart / timeStart
-      const endSpeed = distanceEnd / timeEnd
-
-      // Add the line
-      addColouredLine(
-        start,
-        end,
-        calculateColorFromSpeed(startSpeed, intendedSpeed),
-        calculateColorFromSpeed(endSpeed, intendedSpeed),
-        movementIndex, movement.objectID
-      )
-    }
+    return col
   }
 }
 
-const LIMIT_SPEED = 350 // mm/s, the hardware limit, don't go over this under any circumstances
+const LIMIT_SPEED = 500 // mm/s, the hardware limit, don't go over this under any circumstances
 
 const BLACK: RGBA = [0, 0, 0, 1]
 const GREEN: RGBA = [15 / 255, 153 / 255, 96 / 255, 1] // #0F9960

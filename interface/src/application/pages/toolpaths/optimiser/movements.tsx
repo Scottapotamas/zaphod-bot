@@ -1716,3 +1716,31 @@ export class CatmullChain extends Movement {
     return this.triggers
   }
 }
+
+// For a given movement, predict the velocity at T
+export function predictVelocityAtT(movement: Movement, t: number) {
+  // 1% parts, should be accurate enough
+  const tRange = 0.01
+  const halfT = tRange / 2
+
+  // Calculate T slightly earlier and slightly later
+  const tLeft = Math.max(0, t - halfT)
+  const tRight = Math.min(1, t + halfT)
+
+  // Calculate the positions at those points
+  const pLeft = movement.samplePoint(tLeft)
+  const pRight = movement.samplePoint(tRight)
+
+  // Calculate distance
+  const distance = pLeft.distanceTo(pRight)
+
+  // Calculate duration across that time
+  const movementDuration = movement.getDuration()
+  const tRangeActual = tRight - tLeft
+
+  const timeDelta = tRangeActual * movementDuration
+
+  const speed = (distance * MILLISECONDS_IN_SECOND) / timeDelta
+
+  return speed
+}
