@@ -41,7 +41,9 @@ export const ToolpathViewer = (props: RouteComponentProps) => {
             <RenderInterface />
           </OutlineCard>
 
-          <Optimiser />
+          <OutlineCard padding="2em">
+            <Optimiser />
+          </OutlineCard>
         </Composition>
       </div>
     </React.Fragment>

@@ -96,6 +96,23 @@ export function sparseToDense(
   for (let index = 0; index < flattened.length; index++) {
     const movement = flattened[index]
 
+    // Clamp the max speed based on the length of the movement
+    const clampedLength = MathUtils.clamp(
+      movement.getLength(),
+      1,
+      settings.optimisation.rampToMaxSpeedDistance,
+    )
+
+    let maxSpeedForMovement = MathUtils.mapLinear(
+      clampedLength,
+      1,
+      settings.optimisation.rampToMaxSpeedDistance,
+      25,
+      settings.optimisation.maxSpeed,
+    )
+
+    movement.setMaxSpeed(maxSpeedForMovement)
+
     // If the previous movement was a transit to the correct place for this movement, don't do a second transition
     if (
       isTransit(previousMovement) &&
@@ -136,7 +153,7 @@ export function sparseToDense(
           emptyOverrideKeys,
         )
 
-        interLineTransition.setMaxSpeed(settings.optimisation.maxSpeed)
+        interLineTransition.setMaxSpeed(maxSpeedForMovement)
 
         // Add the transition to the dense bag
         denseMovements.push(interLineTransition)
@@ -248,7 +265,7 @@ export function sparseToDense(
         ),
       )
 
-      interLineTransition.setMaxSpeed(settings.optimisation.maxSpeed)
+      interLineTransition.setMaxSpeed(maxSpeedForMovement)
 
       // Add the transition to the dense bag
       denseMovements.push(interLineTransition)
@@ -271,7 +288,7 @@ export function sparseToDense(
         TRANSITION_OBJECT_ID,
         emptyOverrideKeys,
       )
-      transit.setMaxSpeed(settings.optimisation.maxSpeed)
+      transit.setMaxSpeed(maxSpeedForMovement)
 
       // Add the transition to the dense bag
       denseMovements.push(transit)
@@ -315,7 +332,7 @@ export function sparseToDense(
         blinkAtEnd,
       )
 
-      transition.setMaxSpeed(settings.optimisation.maxSpeed)
+      transition.setMaxSpeed(maxSpeedForMovement)
 
       // Add the transition to the dense bag, it handles the point.
       denseMovements.push(transition)
@@ -343,7 +360,7 @@ export function sparseToDense(
         [],
       )
       // Set the speed to the incoming line's speed, not the transition speed.
-      runUp.setMaxSpeed(settings.optimisation.maxSpeed)
+      runUp.setMaxSpeed(maxSpeedForMovement)
 
       // Build our transition movement from the old movement to the new
       denseMovements.push(
@@ -377,7 +394,7 @@ export function sparseToDense(
         emptyOverrideKeys,
       )
       // Set the speed to the incoming line's speed, not the transition speed.
-      runOut.setMaxSpeed(settings.optimisation.maxSpeed)
+      runOut.setMaxSpeed(maxSpeedForMovement)
 
       denseMovements.push(runOut)
 

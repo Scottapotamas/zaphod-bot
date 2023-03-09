@@ -84,7 +84,12 @@ export interface OptimisationSettings {
    */
   transitionSize: number
 
+  /**
+   * How far does a line need to be to hit max speed
+   */
   maxSpeed: number // mm/s
+
+  rampToMaxSpeedDistance: number // mm
 
   /**
    * Which optimisation passes are enabled

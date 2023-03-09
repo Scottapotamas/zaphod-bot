@@ -1,5 +1,8 @@
 import create, { GetState, SetState, StateSelector } from 'zustand'
-import { StoreApiWithSubscribeWithSelector, subscribeWithSelector } from 'zustand/middleware'
+import {
+  StoreApiWithSubscribeWithSelector,
+  subscribeWithSelector,
+} from 'zustand/middleware'
 import produce from 'immer'
 import type { Settings } from '../optimiser/settings'
 
@@ -64,14 +67,15 @@ export const defaultSettings: Settings = {
   skippedObjects: {},
 
   optimisation: {
-    maxSpeed: 150,
+    maxSpeed: 300,
+    rampToMaxSpeedDistance: 5,
+    transitionSize: 0.15, // 1 / 3,
     waitAtStartDuration: 3000,
     interLineTransitionAngle: 50,
     interLineTransitionShaveDistance: 5,
     smoothInterlineTransitions: true,
     lineRunUp: 0,
     disableShapedTransitions: false,
-    transitionSize: 0.1,
     passes: {
       nearestNeighbour: true,
       bruteForceSmall: true,
@@ -282,9 +286,12 @@ export const initialState: Store = {
   cameraOverrideDuration: 0,
 }
 
-export const useStore = create<Store, SetState<Store>, GetState<Store>, StoreApiWithSubscribeWithSelector<Store>>(
-  subscribeWithSelector(() => initialState),
-)
+export const useStore = create<
+  Store,
+  SetState<Store>,
+  GetState<Store>,
+  StoreApiWithSubscribeWithSelector<Store>
+>(subscribeWithSelector(() => initialState))
 
 export const resetStore = () => useStore.setState(initialState)
 
@@ -346,9 +353,13 @@ export function incrementViewportFrameVersion(state: WritableDraft<Store>) {
 }
 
 export function useViewportFrameDuration() {
-  return useSetting(state => state.estimatedDurationByFrame[state.viewportFrame] ?? 0)
+  return useSetting(
+    state => state.estimatedDurationByFrame[state.viewportFrame] ?? 0,
+  )
 }
 
 export function useViewportFrameState() {
-  return useSetting(state => state.frameOptimisationState[state.viewportFrame] ?? 2) // UNOPTIMISED = 2, avoiding circular dependency
+  return useSetting(
+    state => state.frameOptimisationState[state.viewportFrame] ?? 2,
+  ) // UNOPTIMISED = 2, avoiding circular dependency
 }

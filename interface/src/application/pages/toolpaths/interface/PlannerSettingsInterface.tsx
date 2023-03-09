@@ -440,14 +440,29 @@ function GeneralTab() {
     <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
       <NumericInput
         label="Max Speed"
-        min={0}
+        min={25}
         max={500}
         stepSize={25}
         majorStepSize={100}
         rightText="mm/s"
         selector={state => state.settings.optimisation.maxSpeed}
-        writer={(state, value) => (state.settings.optimisation.maxSpeed = value)}
+        writer={(state, value) =>
+          (state.settings.optimisation.maxSpeed = value)
+        }
         description="The peak movement speed"
+      />
+      <NumericInput
+        label="Speed ramp distance"
+        min={5}
+        max={500}
+        stepSize={5}
+        majorStepSize={25}
+        rightText="mm"
+        selector={state => state.settings.optimisation.rampToMaxSpeedDistance}
+        writer={(state, value) =>
+          (state.settings.optimisation.rampToMaxSpeedDistance = value)
+        }
+        description="The distance required to hit max speed"
       />
       <NumericInput
         label="Transition Size"
