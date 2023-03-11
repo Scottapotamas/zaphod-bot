@@ -1379,14 +1379,6 @@ function generateTransition(
     )
   const c3 = nextMovement.getStart()
 
-  const distanceToTravel = previousMovement
-    .getEnd()
-    .distanceTo(nextMovement.getStart())
-
-  if (distanceToTravel === 0) {
-    return []
-  }
-
   const singularTransition = new Transition(
     c0,
     c1,
