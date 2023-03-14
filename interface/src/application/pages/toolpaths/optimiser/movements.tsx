@@ -971,6 +971,10 @@ export class Transition extends Movement {
     this.curve = null
   }
 
+  public resetCurve = () => {
+    this.curve = null
+  }
+
   public getTriggers = () => {
     return this.triggers
   }
@@ -1294,8 +1298,50 @@ export class InterLineTransition extends Movement {
     return length
   }
 
+  /**
+   * Normalises the speed so that the maximum is hit.
+   */
+  private normaliseSpeed = () => {
+    const desiredEntrySpeed = Math.min(
+      this.getDesiredEntryVelocity().length(),
+      this.maxSpeed,
+    )
+    const desiredMaxSpeed = this.maxSpeed
+    const desiredExitSpeed = Math.min(
+      this.getExpectedExitVelocity().length(),
+      this.maxSpeed,
+    )
+
+    let desiredSpeed = desiredMaxSpeed
+    let tToPredictSpeedAt = 0.5
+
+    // otherwise just try and hit the max speed at our fastest point
+    const { maxSpeed, tOfHighestSpeed } = findHighestApproximateSpeedAndT(this)
+    desiredSpeed = this.maxSpeed
+
+    tToPredictSpeedAt = tOfHighestSpeed
+
+    this.maxSpeed = 100
+
+    const speedAtT = predictSpeedAtT(this, tToPredictSpeedAt)
+
+    const factor = desiredSpeed / speedAtT
+
+    if (!isFinite(factor)) {
+      console.log(
+        `bad factor ${factor} actualSpeedT ${tToPredictSpeedAt} speedAtT ${speedAtT} desiredSpeedAtT ${desiredSpeed}`,
+      )
+
+      return this.curve
+    }
+
+    this.maxSpeed = this.maxSpeed * factor
+  }
+
   public setMaxSpeed = (maxSpeed: number) => {
     this.maxSpeed = maxSpeed
+
+    this.normaliseSpeed()
   }
 
   public getDuration = () => {

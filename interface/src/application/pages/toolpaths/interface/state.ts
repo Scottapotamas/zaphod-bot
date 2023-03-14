@@ -69,7 +69,7 @@ export const defaultSettings: Settings = {
   optimisation: {
     maxSpeed: 300,
     rampToMaxSpeedDistance: 5,
-    transitionSize: 0.15, // 1 / 3,
+    transitionSize: 0.1, // 1 / 3,
     waitAtStartDuration: 3000,
     interLineTransitionAngle: 50,
     interLineTransitionShaveDistance: 5,
