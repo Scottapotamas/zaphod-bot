@@ -1407,212 +1407,96 @@ function generateTransition(
     .normalize()
     .multiplyScalar(midpointClampedSpeed)
 
-  // Subdivide the bezier into two pieces
-  const { A, B, C, D, E, F, G } = subdivideBezier(c0, c1, c2, c3, 0.5)
+  const {
+    entryTransition,
+    exitTransition,
 
-  let cVal = 0 // can be tested from 0-1 to slow down if required
-  let optimisedC = pointAlongLine(C, D, cVal)
-
-  let eVal = 0 // can be tested from 0-1 to slow down if required
-  let optimisedE = pointAlongLine(E, D, eVal)
-
-  let entryTransition = new Transition(
     A,
     B,
-    optimisedC,
+    C,
     D,
-    entryVelocity,
-    clampedMidPointVelocity,
-    material,
-    true,
-  )
-  entryTransition.setMaxSpeed(settings.optimisation.maxSpeed)
-
-  // If the end of the entry is too fast, mutate the control point to try and slow it down
-  const endOfEntryTransitionSpeed = predictSpeedAtT(entryTransition, 1)
-
-  if (endOfEntryTransitionSpeed > settings.optimisation.maxSpeed) {
-    // We'll optimise this transition to slow down the midpoint
-
-    let left = 0
-    let right = 1
-
-    console.log(
-      `optimising entry since ${endOfEntryTransitionSpeed} > ${settings.optimisation.maxSpeed}`,
-    )
-
-    let slowestCVal = 0
-    let slowestSpeed = Infinity
-
-    let iters = 0
-    optimiseEntry: while (true) {
-      iters++
-
-      cVal = (left + right) / 2
-      optimisedC = pointAlongLine(C, D, cVal)
-
-      entryTransition = new Transition(
-        A,
-        B,
-        optimisedC,
-        D,
-        entryVelocity,
-        clampedMidPointVelocity,
-        material,
-        true,
-      )
-      entryTransition.setMaxSpeed(settings.optimisation.maxSpeed)
-
-      const transitionSpeed = predictSpeedAtT(entryTransition, 1)
-
-      // console.log(
-      //   `trying cVal ${cVal}, transitionSpeed: ${transitionSpeed} left: ${left} right: ${right}`,
-      // )
-
-      if (transitionSpeed < settings.optimisation.maxSpeed) {
-        right = cVal
-
-        // And break when we're just under the speed limit
-        if (Math.abs(settings.optimisation.maxSpeed - transitionSpeed) < 5) {
-          console.log(
-            `solution found after ${iters} iters, cVal: ${cVal}, speed: ${transitionSpeed} near max: ${settings.optimisation.maxSpeed}`,
-          )
-          break optimiseEntry
-        }
-      } else {
-        left = cVal
-      }
-
-      if (transitionSpeed < slowestSpeed) {
-        slowestSpeed = transitionSpeed
-        slowestCVal = cVal
-      }
-
-      if (iters > 10) {
-        // Final iteration to use the lowest speed found
-        optimisedC = pointAlongLine(C, D, slowestCVal)
-
-        entryTransition = new Transition(
-          A,
-          B,
-          optimisedC,
-          D,
-          entryVelocity,
-          clampedMidPointVelocity,
-          material,
-          true,
-        )
-        entryTransition.setMaxSpeed(settings.optimisation.maxSpeed)
-
-        console.log(
-          `too many iterations ${iters}, slowestCVal: ${slowestCVal}, speed: ${slowestSpeed} over max: ${settings.optimisation.maxSpeed}`,
-        )
-
-        break optimiseEntry
-      }
-    }
-  }
-
-  let exitTransition = new Transition(
-    D,
-    optimisedE,
+    E,
     F,
     G,
+  } = subdivideBezierAndClampSpeed(
+    c0,
+    c1,
+    c2,
+    c3,
+    entryVelocity,
     clampedMidPointVelocity,
     exitVelocity,
+    settings.optimisation.maxSpeed,
     material,
-    false,
   )
-  exitTransition.setMaxSpeed(settings.optimisation.maxSpeed)
 
-  // If the start of the exit is too fast, mutate the control point to try and slow it down
-  const endOfExitTransitionSpeed = predictSpeedAtT(exitTransition, 0)
+  const { maxSpeed: maxSpeedEntry } =
+    findHighestApproximateSpeedAndT(entryTransition)
 
-  if (endOfExitTransitionSpeed > settings.optimisation.maxSpeed) {
-    // We'll optimise this transition to slow down the midpoint
+  const { maxSpeed: maxSpeedExit } =
+    findHighestApproximateSpeedAndT(exitTransition)
 
-    let left = 0
-    let right = 1
+  const transitions: Transition[] = []
 
-    console.log(
-      `optimising exit since ${endOfExitTransitionSpeed} > ${settings.optimisation.maxSpeed}`,
+  if (maxSpeedEntry > settings.optimisation.maxSpeed) {
+    // further subdivide the entry
+
+    const {
+      entryTransition: entryEntryTransition,
+      exitTransition: entryExitTransition,
+    } = subdivideBezierAndClampSpeed(
+      A,
+      B,
+      C,
+      D,
+      entryVelocity,
+      clampedMidPointVelocity,
+      clampedMidPointVelocity,
+      settings.optimisation.maxSpeed,
+      material,
     )
 
-    let slowestEVal = 0
-    let slowestSpeed = Infinity
+    transitions.push(entryEntryTransition, entryExitTransition)
+  } else {
+    transitions.push(entryTransition)
+  }
 
-    let iters = 0
-    optimiseExit: while (true) {
-      iters++
+  if (maxSpeedExit > settings.optimisation.maxSpeed) {
+    // further subdivide the exit
 
-      cVal = (left + right) / 2
-      optimisedE = pointAlongLine(E, D, cVal)
+    const {
+      entryTransition: exitEntryTransition,
+      exitTransition: exitExitTransition,
+    } = subdivideBezierAndClampSpeed(
+      D,
+      E,
+      F,
+      G,
+      clampedMidPointVelocity,
+      clampedMidPointVelocity,
+      exitVelocity,
+      settings.optimisation.maxSpeed,
+      material,
+    )
 
-      exitTransition = new Transition(
-        D,
-        optimisedE,
-        F,
-        G,
-        clampedMidPointVelocity,
-        exitVelocity,
-        material,
-        false,
+    transitions.push(exitEntryTransition, exitExitTransition)
+  } else {
+    transitions.push(exitTransition)
+  }
+
+  for (const [index, transition] of transitions.entries()) {
+    checkTransitionSpeed(transition, `transition #${index}`)
+
+    const { maxSpeed } = findHighestApproximateSpeedAndT(transition)
+
+    if (maxSpeed > settings.optimisation.maxSpeed) {
+      console.log(
+        `still failing to clamp speed, revert to constant velocity spline`,
       )
-      exitTransition.setMaxSpeed(settings.optimisation.maxSpeed)
-
-      const transitionSpeed = predictSpeedAtT(exitTransition, 0)
-
-      if (transitionSpeed < settings.optimisation.maxSpeed) {
-        right = cVal
-
-        // And break when we're just under the speed limit
-        if (Math.abs(settings.optimisation.maxSpeed - transitionSpeed) < 5) {
-          console.log(
-            `solution found after ${iters} iters, cVal: ${cVal}, speed: ${transitionSpeed} near max: ${settings.optimisation.maxSpeed}`,
-          )
-          break optimiseExit
-        }
-      } else {
-        left = cVal
-      }
-
-      if (transitionSpeed < slowestSpeed) {
-        slowestSpeed = transitionSpeed
-        slowestEVal = cVal
-      }
-
-      if (iters > 10) {
-        // Final iteration to use the lowest speed found
-        optimisedE = pointAlongLine(E, D, slowestEVal)
-
-        exitTransition = new Transition(
-          D,
-          optimisedE,
-          F,
-          G,
-          entryVelocity,
-          clampedMidPointVelocity,
-          material,
-          true,
-        )
-        exitTransition.setMaxSpeed(settings.optimisation.maxSpeed)
-
-        console.log(
-          `too many iterations ${iters}, slowestEVal: ${slowestEVal}, speed: ${slowestSpeed} over max: ${settings.optimisation.maxSpeed}`,
-        )
-
-        break optimiseExit
-      }
     }
   }
 
-  // const maxSpeedA = findHighestApproximateSpeed(transitionA)
-  // const maxSpeedB = findHighestApproximateSpeed(exitTransition)
-
-  checkTransitionSpeed(entryTransition, 'entry')
-  checkTransitionSpeed(exitTransition, 'exit')
-
-  return [entryTransition, exitTransition]
+  return transitions
 }
 
 function pointAlongLine(start: Vector3, end: Vector3, u: number) {
@@ -1703,5 +1587,232 @@ function checkTransitionSpeed(transition: Transition, name: string) {
     predictedSpeedAt 1: ${predictSpeedAtT(transition, 1)}
     max speed sampled is at ${maxSpeed}, t ${tOfHighestSpeed}
     `)
+  }
+}
+
+// TODO: try splitting TRANSITION into TRANS ITION
+// and if the middle is still too fast, into TR ANS ITI ON
+
+function subdivideBezierAndClampSpeed(
+  c0: Vector3,
+  c1: Vector3,
+  c2: Vector3,
+  c3: Vector3,
+
+  entryVelocity: Vector3,
+  midpointVelocity: Vector3,
+  exitVelocity: Vector3,
+  maxSpeed: number,
+  material: Material,
+) {
+  // Subdivide the bezier into two pieces
+  const { A, B, C, D, E, F, G } = subdivideBezier(c0, c1, c2, c3, 0.5)
+
+  let cVal = 0 // can be tested from 0-1 to slow down if required
+  let optimisedC = pointAlongLine(C, D, cVal)
+
+  let eVal = 0 // can be tested from 0-1 to slow down if required
+  let optimisedE = pointAlongLine(E, D, eVal)
+
+  let entryTransition = new Transition(
+    A,
+    B,
+    optimisedC,
+    D,
+    entryVelocity,
+    midpointVelocity,
+    material,
+    true,
+  )
+  entryTransition.setMaxSpeed(maxSpeed)
+
+  // If the end of the entry is too fast, mutate the control point to try and slow it down
+  const endOfEntryTransitionSpeed = predictSpeedAtT(entryTransition, 1)
+
+  if (endOfEntryTransitionSpeed > maxSpeed) {
+    // We'll optimise this transition to slow down the midpoint
+
+    let left = 0
+    let right = 1
+
+    // console.log(
+    //   `optimising entry since ${endOfEntryTransitionSpeed} > ${maxSpeed}`,
+    // )
+
+    let slowestCVal = 0
+    let slowestSpeed = Infinity
+
+    let iters = 0
+    optimiseEntry: while (true) {
+      iters++
+
+      cVal = (left + right) / 2
+      optimisedC = pointAlongLine(C, D, cVal)
+
+      entryTransition = new Transition(
+        A,
+        B,
+        optimisedC,
+        D,
+        entryVelocity,
+        midpointVelocity,
+        material,
+        true,
+      )
+      entryTransition.setMaxSpeed(maxSpeed)
+
+      const transitionSpeed = predictSpeedAtT(entryTransition, 1)
+
+      // console.log(
+      //   `trying cVal ${cVal}, transitionSpeed: ${transitionSpeed} left: ${left} right: ${right}`,
+      // )
+
+      if (transitionSpeed < maxSpeed) {
+        right = cVal
+
+        // And break when we're just under the speed limit
+        if (Math.abs(maxSpeed - transitionSpeed) < 5) {
+          // console.log(
+          //   `solution found after ${iters} iters, cVal: ${cVal}, speed: ${transitionSpeed} near max: ${maxSpeed}`,
+          // )
+          break optimiseEntry
+        }
+      } else {
+        left = cVal
+      }
+
+      if (transitionSpeed < slowestSpeed) {
+        slowestSpeed = transitionSpeed
+        slowestCVal = cVal
+      }
+
+      if (iters > 10) {
+        // Final iteration to use the lowest speed found
+        optimisedC = pointAlongLine(C, D, slowestCVal)
+
+        entryTransition = new Transition(
+          A,
+          B,
+          optimisedC,
+          D,
+          entryVelocity,
+          midpointVelocity,
+          material,
+          true,
+        )
+        entryTransition.setMaxSpeed(maxSpeed)
+
+        console.log(
+          `too many iterations ${iters}, slowestCVal: ${slowestCVal}, speed: ${slowestSpeed} over max: ${maxSpeed}`,
+        )
+
+        break optimiseEntry
+      }
+    }
+  }
+
+  let exitTransition = new Transition(
+    D,
+    optimisedE,
+    F,
+    G,
+    midpointVelocity,
+    exitVelocity,
+    material,
+    false,
+  )
+  exitTransition.setMaxSpeed(maxSpeed)
+
+  // If the start of the exit is too fast, mutate the control point to try and slow it down
+  const endOfExitTransitionSpeed = predictSpeedAtT(exitTransition, 0)
+
+  if (endOfExitTransitionSpeed > maxSpeed) {
+    // We'll optimise this transition to slow down the midpoint
+
+    let left = 0
+    let right = 1
+
+    // console.log(
+    //   `optimising exit since ${endOfExitTransitionSpeed} > ${maxSpeed}`,
+    // )
+
+    let slowestEVal = 0
+    let slowestSpeed = Infinity
+
+    let iters = 0
+    optimiseExit: while (true) {
+      iters++
+
+      cVal = (left + right) / 2
+      optimisedE = pointAlongLine(E, D, cVal)
+
+      exitTransition = new Transition(
+        D,
+        optimisedE,
+        F,
+        G,
+        midpointVelocity,
+        exitVelocity,
+        material,
+        false,
+      )
+      exitTransition.setMaxSpeed(maxSpeed)
+
+      const transitionSpeed = predictSpeedAtT(exitTransition, 0)
+
+      if (transitionSpeed < maxSpeed) {
+        right = cVal
+
+        // And break when we're just under the speed limit
+        if (Math.abs(maxSpeed - transitionSpeed) < 5) {
+          // console.log(
+          //   `solution found after ${iters} iters, cVal: ${cVal}, speed: ${transitionSpeed} near max: ${maxSpeed}`,
+          // )
+          break optimiseExit
+        }
+      } else {
+        left = cVal
+      }
+
+      if (transitionSpeed < slowestSpeed) {
+        slowestSpeed = transitionSpeed
+        slowestEVal = cVal
+      }
+
+      if (iters > 10) {
+        // Final iteration to use the lowest speed found
+        optimisedE = pointAlongLine(E, D, slowestEVal)
+
+        exitTransition = new Transition(
+          D,
+          optimisedE,
+          F,
+          G,
+          entryVelocity,
+          midpointVelocity,
+          material,
+          true,
+        )
+        exitTransition.setMaxSpeed(maxSpeed)
+
+        console.log(
+          `too many iterations ${iters}, slowestEVal: ${slowestEVal}, speed: ${slowestSpeed} over max: ${maxSpeed}`,
+        )
+
+        break optimiseExit
+      }
+    }
+  }
+
+  return {
+    entryTransition,
+    exitTransition,
+    A: A,
+    B: B,
+    C: optimisedC,
+    D: D,
+    E: optimisedE,
+    F: F,
+    G: G,
   }
 }
