@@ -34,8 +34,8 @@ export function isPoint(movement: Movement): movement is Point {
   return movement.type === MOVEMENT_TYPE.POINT
 }
 
-export function isTransition(movement: Movement): movement is Transition {
-  return movement.type === MOVEMENT_TYPE.TRANSITION
+export function isTransition(movement: Movement) {
+  return movement.isTransition
 }
 
 export function isPointTransition(

@@ -35,6 +35,11 @@ export abstract class Movement {
   abstract type: string
 
   /**
+   * If it's a transition movement
+   */
+  abstract isTransition: boolean
+
+  /**
    * The object ID, unique within a scene.
    */
   abstract objectID: string
@@ -228,6 +233,7 @@ export class MovementGroup extends Movement {
   readonly type = MOVEMENT_TYPE.GROUP
   public material = defaultTransitionMaterial
   public baseMaterial = defaultTransitionMaterial
+  public isTransition = false
 
   public objectID = '___movement_group' // This should never match
 
@@ -427,6 +433,7 @@ export class Line extends Movement {
   // Maximum speed in millimeters per second
   public maxSpeed: number = defaultSpeed
   public baseMaterial: Material
+  public isTransition = false
 
   // The maximum amount of shrink 0-1. If both are non-zero, meet at half way point
   private maxStartShrinkFactor = 0
@@ -618,6 +625,7 @@ const zeroVector = new Vector3(0, 0, 0)
 export class Point extends Movement {
   readonly type = MOVEMENT_TYPE.POINT
   maxSpeed: number = defaultSpeed
+  public isTransition = false
 
   public baseMaterial: Material
 
@@ -752,6 +760,7 @@ export class Transition extends Movement {
   readonly type = MOVEMENT_TYPE.TRANSITION
   maxSpeed: number = defaultSpeed // mm/s
   public baseMaterial: Material
+  public isTransition = false
 
   public objectID = TRANSITION_OBJECT_ID
   public overrideKeys = []
@@ -1000,6 +1009,7 @@ export class PointTransition extends Movement {
   maxSpeed: number = defaultSpeed
   public objectID = TRANSITION_OBJECT_ID
   public overrideKeys = []
+  public isTransition = false
 
   public baseMaterial: Material
   private numSegments = 20
@@ -1213,6 +1223,7 @@ export class InterLineTransition extends Movement {
   maxSpeed: number = defaultSpeed // mm/s
   private numSegments = 20
   public baseMaterial: Material
+  public isTransition = false
 
   constructor(
     private from: Line,
@@ -1408,6 +1419,7 @@ export class Transit extends Movement {
   readonly type = MOVEMENT_TYPE.TRANSIT
 
   public baseMaterial: Material
+  public isTransition = true
 
   constructor(
     public endPoint: Vector3,
@@ -1532,6 +1544,7 @@ export class CatmullChain extends Movement {
   readonly type = MOVEMENT_TYPE.CATMULL_CHAIN
 
   public baseMaterial: Material
+  public isTransition = false
 
   // Maximum speed in millimeters per second
   public maxSpeed: number = defaultSpeed
