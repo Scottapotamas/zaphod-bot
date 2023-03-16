@@ -606,6 +606,11 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
         }
             return 0;
 
+        case MECHANISM_REHOME:
+            AppTaskSupervisorPublishRehomeEvent();
+            stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
+            return 0;
+
         case MECHANISM_STOP:
             STATE_TRAN( AppTaskSupervisor_disarm_graceful );
             return 0;
@@ -756,7 +761,7 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
             // Allow a few microns error on position in check
             if( effector_is_near_home() )
             {
-                // Todo use a 'quiet' disarm here rather than the hard emergency shutdown
+                // TODO: use a 'quiet' disarm here rather than the hard emergency shutdown
                 eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
             }
 
@@ -808,6 +813,7 @@ PRIVATE void AppTaskSupervisorProcessModeRequest( AppTaskSupervisor *me )
 PRIVATE void AppTaskSupervisorPublishRehomeEvent( void )
 {
     eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
+    eventPublish( EVENT_NEW( StateEvent, LED_QUEUE_CLEAR ) );
 
     // request a move to 0,0,0
     MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );

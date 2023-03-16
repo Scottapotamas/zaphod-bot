@@ -444,7 +444,8 @@ servo_process( ClearpathServoInstance_t servo )
     }
 
     // If disabled (by supervisor etc) then immediately start disable process
-    if( !me->enabled && me->currentState > SERVO_STATE_INACTIVE )
+    if(    ( me->enabled == SERVO_DISABLE )
+        && ( me->currentState > SERVO_STATE_ERROR_RECOVERY ) )
     {
         STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
     }
