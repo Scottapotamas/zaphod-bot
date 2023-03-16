@@ -7,8 +7,9 @@ import {
   SerialisedTour,
   serialiseTour,
   Transit,
-  Transition,
+  Bezier,
   TRANSITION_OBJECT_ID,
+  ConstantSpeedBezier,
 } from './movements'
 
 import {
@@ -21,6 +22,7 @@ import {
   predictSpeedAtT,
   predictVelocityAtT,
   findHighestApproximateSpeedAndT,
+  MILLISECONDS_IN_SECOND,
 } from './movement_utilities'
 
 import type { Settings } from './settings'
@@ -111,6 +113,10 @@ export function sparseToDense(
       settings.optimisation.maxSpeed,
     )
 
+    if (settings.optimisation.rampToMaxSpeedDistance === 0) {
+      maxSpeedForMovement = settings.optimisation.maxSpeed
+    }
+
     movement.setMaxSpeed(maxSpeedForMovement)
 
     // If the previous movement was a transit to the correct place for this movement, don't do a second transition
@@ -129,7 +135,7 @@ export function sparseToDense(
     // If the last movement and this movement are both lines, and the line from the start of the previous movement to the end of the next movement
     // contains the start and end points of both lines (they are collinear), then the transition should be a straight line between them
     if (
-      settings.optimisation.smoothInterlineTransitions &&
+      settings.optimisation.mergeColinearLines &&
       isLine(previousMovement) &&
       isLine(movement)
     ) {
@@ -142,21 +148,25 @@ export function sparseToDense(
       line.closestPointToPoint(movement.getStart(), true, closestMS)
 
       if (
-        closestPME.distanceTo(previousMovement.getEnd()) < 1 &&
-        closestMS.distanceTo(movement.getStart()) < 1
+        closestPME.distanceTo(previousMovement.getEnd()) === 0 &&
+        closestMS.distanceTo(movement.getStart()) === 0
       ) {
-        const interLineTransition = new Line(
+        const colinearLineTransition = new Line(
           previousMovement.getEnd(),
           movement.getStart(),
           defaultTransitionMaterial,
           TRANSITION_OBJECT_ID, // Take the object ID of this movement, they're probably the same.
           emptyOverrideKeys,
         )
+        colinearLineTransition.isTransition = true
 
-        interLineTransition.setMaxSpeed(maxSpeedForMovement)
+        colinearLineTransition.setMaxSpeed(maxSpeedForMovement)
 
-        // Add the transition to the dense bag
-        denseMovements.push(interLineTransition)
+        // Dump <1mm movements
+        if (colinearLineTransition.getLength() > 1) {
+          // Add the transition to the dense bag
+          denseMovements.push(colinearLineTransition)
+        }
 
         // Add the movement to the dense bag
         denseMovements.push(movement)
@@ -253,22 +263,19 @@ export function sparseToDense(
 
       // Insert a transition line in between. Its material needs to go from (1-X) of the previous material to Y of the current material
 
-      const interLineTransition = new InterLineTransition(
+      const interLineTransitions = generateInterLineTransition(
         previousLine,
         currentLine,
-        currentLine.objectID, // Take the object ID of this movement, they're probably the same.
-        emptyOverrideKeys,
-        // new MixMaterial(previousLineMaterial, currentLineMaterial),
         new MixMaterial(
           remainderOfPreviousLineMaterial,
           remainderOfCurrentLineMaterial,
         ),
+        maxSpeedForMovement,
+        false,
       )
 
-      interLineTransition.setMaxSpeed(maxSpeedForMovement)
-
-      // Add the transition to the dense bag
-      denseMovements.push(interLineTransition)
+      // Add these transitions to the dense bag
+      denseMovements.push(...interLineTransitions)
 
       // Add the movement to the dense bag
       denseMovements.push(currentLine)
@@ -364,11 +371,13 @@ export function sparseToDense(
 
       // Build our transition movement from the old movement to the new
       denseMovements.push(
-        ...generateTransition(
+        ...generateBezierTransition(
           previousMovement,
           runUp,
           defaultTransitionMaterial,
-          settings,
+          settings.optimisation.transitionSize,
+          settings.optimisation.maxSpeed,
+          true,
         ),
       )
 
@@ -406,11 +415,13 @@ export function sparseToDense(
 
     // Build our transition movement from the old movement to the new
     denseMovements.push(
-      ...generateTransition(
+      ...generateBezierTransition(
         previousMovement,
         movement,
         defaultTransitionMaterial,
-        settings,
+        settings.optimisation.transitionSize,
+        settings.optimisation.maxSpeed,
+        true,
       ),
     )
 
@@ -1350,14 +1361,14 @@ function debuggerIfCostOut(currentOrdering: Movement[], cost: number) {
   return calculatedCost
 }
 
-function generateTransition(
+function generateBezierTransition(
   previousMovement: Movement,
   nextMovement: Movement,
   material: Material,
-  settings: Settings,
+  controlPointScalar: number,
+  maxSpeed: number,
+  markAsTransition: boolean,
 ) {
-  const controlPointScalar = settings.optimisation.transitionSize
-
   const c0 = previousMovement.getEnd()
   const c1 = previousMovement
     .getEnd()
@@ -1382,25 +1393,23 @@ function generateTransition(
   const entryVelocity = previousMovement.getExpectedExitVelocity()
   const exitVelocity = nextMovement.getDesiredEntryVelocity()
 
-  const singularTransition = new Transition(
+  const singularTransition = new Bezier(
     c0,
     c1,
     c2,
     c3,
     entryVelocity,
     exitVelocity,
-
     material,
+    TRANSITION_OBJECT_ID,
     true, // doesn't matter
   )
-  singularTransition.setMaxSpeed(settings.optimisation.maxSpeed)
+  singularTransition.isTransition = markAsTransition
+  singularTransition.setMaxSpeed(maxSpeed)
 
   const midPointVelocity = predictVelocityAtT(singularTransition, 0.5)
 
-  const midpointClampedSpeed = Math.min(
-    midPointVelocity.length(),
-    settings.optimisation.maxSpeed,
-  )
+  const midpointClampedSpeed = Math.min(midPointVelocity.length(), maxSpeed)
 
   const clampedMidPointVelocity = midPointVelocity
     .clone()
@@ -1426,8 +1435,9 @@ function generateTransition(
     entryVelocity,
     clampedMidPointVelocity,
     exitVelocity,
-    settings.optimisation.maxSpeed,
+    maxSpeed,
     material,
+    markAsTransition,
   )
 
   const { maxSpeed: maxSpeedEntry } =
@@ -1436,9 +1446,9 @@ function generateTransition(
   const { maxSpeed: maxSpeedExit } =
     findHighestApproximateSpeedAndT(exitTransition)
 
-  const transitions: Transition[] = []
+  const transitions: Bezier[] = []
 
-  if (maxSpeedEntry > settings.optimisation.maxSpeed) {
+  if (maxSpeedEntry > maxSpeed) {
     // further subdivide the entry
 
     const {
@@ -1452,8 +1462,9 @@ function generateTransition(
       entryVelocity,
       clampedMidPointVelocity,
       clampedMidPointVelocity,
-      settings.optimisation.maxSpeed,
+      maxSpeed,
       material,
+      markAsTransition,
     )
 
     transitions.push(entryEntryTransition, entryExitTransition)
@@ -1461,7 +1472,7 @@ function generateTransition(
     transitions.push(entryTransition)
   }
 
-  if (maxSpeedExit > settings.optimisation.maxSpeed) {
+  if (maxSpeedExit > maxSpeed) {
     // further subdivide the exit
 
     const {
@@ -1475,8 +1486,9 @@ function generateTransition(
       clampedMidPointVelocity,
       clampedMidPointVelocity,
       exitVelocity,
-      settings.optimisation.maxSpeed,
+      maxSpeed,
       material,
+      markAsTransition,
     )
 
     transitions.push(exitEntryTransition, exitExitTransition)
@@ -1487,16 +1499,56 @@ function generateTransition(
   for (const [index, transition] of transitions.entries()) {
     checkTransitionSpeed(transition, `transition #${index}`)
 
-    const { maxSpeed } = findHighestApproximateSpeedAndT(transition)
+    const { maxSpeed: maxSpeedOfTransitionPart } =
+      findHighestApproximateSpeedAndT(transition)
 
-    if (maxSpeed > settings.optimisation.maxSpeed) {
-      console.log(
-        `still failing to clamp speed, revert to constant velocity spline`,
+    if (maxSpeedOfTransitionPart > maxSpeed) {
+      const constantSpeedTransitionEntry = new ConstantSpeedBezier(
+        A,
+        B,
+        C,
+        D,
+        material,
+        TRANSITION_OBJECT_ID,
       )
+      constantSpeedTransitionEntry.isTransition = markAsTransition
+      constantSpeedTransitionEntry.setMaxSpeed(entryVelocity.length())
+
+      const constantSpeedTransitionExit = new ConstantSpeedBezier(
+        D,
+        E,
+        F,
+        G,
+        material,
+        TRANSITION_OBJECT_ID,
+      )
+      constantSpeedTransitionExit.isTransition = markAsTransition
+      constantSpeedTransitionExit.setMaxSpeed(exitVelocity.length())
+
+      return [constantSpeedTransitionEntry, constantSpeedTransitionExit]
     }
   }
 
   return transitions
+}
+
+function generateInterLineTransition(
+  previousMovement: Movement,
+  nextMovement: Movement,
+  material: Material,
+  maxSpeed: number,
+  markAsTransition: boolean,
+) {
+  const trans = new InterLineTransition(
+    previousMovement as Line,
+    nextMovement as Line,
+    nextMovement.objectID,
+    [],
+    material,
+  )
+  trans.setMaxSpeed(maxSpeed)
+
+  return [trans]
 }
 
 function pointAlongLine(start: Vector3, end: Vector3, u: number) {
@@ -1551,7 +1603,7 @@ function subdivideBezier(
   }
 }
 
-function checkTransitionSpeed(transition: Transition, name: string) {
+function checkTransitionSpeed(transition: Bezier, name: string) {
   const { maxSpeed, tOfHighestSpeed } =
     findHighestApproximateSpeedAndT(transition)
 
@@ -1590,9 +1642,6 @@ function checkTransitionSpeed(transition: Transition, name: string) {
   }
 }
 
-// TODO: try splitting TRANSITION into TRANS ITION
-// and if the middle is still too fast, into TR ANS ITI ON
-
 function subdivideBezierAndClampSpeed(
   c0: Vector3,
   c1: Vector3,
@@ -1604,6 +1653,7 @@ function subdivideBezierAndClampSpeed(
   exitVelocity: Vector3,
   maxSpeed: number,
   material: Material,
+  markAsTransition: boolean,
 ) {
   // Subdivide the bezier into two pieces
   const { A, B, C, D, E, F, G } = subdivideBezier(c0, c1, c2, c3, 0.5)
@@ -1614,7 +1664,7 @@ function subdivideBezierAndClampSpeed(
   let eVal = 0 // can be tested from 0-1 to slow down if required
   let optimisedE = pointAlongLine(E, D, eVal)
 
-  let entryTransition = new Transition(
+  let entryTransition = new Bezier(
     A,
     B,
     optimisedC,
@@ -1622,8 +1672,10 @@ function subdivideBezierAndClampSpeed(
     entryVelocity,
     midpointVelocity,
     material,
+    TRANSITION_OBJECT_ID,
     true,
   )
+  entryTransition.isTransition = markAsTransition
   entryTransition.setMaxSpeed(maxSpeed)
 
   // If the end of the entry is too fast, mutate the control point to try and slow it down
@@ -1649,7 +1701,7 @@ function subdivideBezierAndClampSpeed(
       cVal = (left + right) / 2
       optimisedC = pointAlongLine(C, D, cVal)
 
-      entryTransition = new Transition(
+      entryTransition = new Bezier(
         A,
         B,
         optimisedC,
@@ -1657,8 +1709,10 @@ function subdivideBezierAndClampSpeed(
         entryVelocity,
         midpointVelocity,
         material,
+        TRANSITION_OBJECT_ID,
         true,
       )
+      entryTransition.isTransition = markAsTransition
       entryTransition.setMaxSpeed(maxSpeed)
 
       const transitionSpeed = predictSpeedAtT(entryTransition, 1)
@@ -1690,7 +1744,7 @@ function subdivideBezierAndClampSpeed(
         // Final iteration to use the lowest speed found
         optimisedC = pointAlongLine(C, D, slowestCVal)
 
-        entryTransition = new Transition(
+        entryTransition = new Bezier(
           A,
           B,
           optimisedC,
@@ -1698,8 +1752,10 @@ function subdivideBezierAndClampSpeed(
           entryVelocity,
           midpointVelocity,
           material,
+          TRANSITION_OBJECT_ID,
           true,
         )
+        entryTransition.isTransition = markAsTransition
         entryTransition.setMaxSpeed(maxSpeed)
 
         console.log(
@@ -1711,7 +1767,7 @@ function subdivideBezierAndClampSpeed(
     }
   }
 
-  let exitTransition = new Transition(
+  let exitTransition = new Bezier(
     D,
     optimisedE,
     F,
@@ -1719,8 +1775,10 @@ function subdivideBezierAndClampSpeed(
     midpointVelocity,
     exitVelocity,
     material,
+    TRANSITION_OBJECT_ID,
     false,
   )
+  exitTransition.isTransition = markAsTransition
   exitTransition.setMaxSpeed(maxSpeed)
 
   // If the start of the exit is too fast, mutate the control point to try and slow it down
@@ -1746,7 +1804,7 @@ function subdivideBezierAndClampSpeed(
       cVal = (left + right) / 2
       optimisedE = pointAlongLine(E, D, cVal)
 
-      exitTransition = new Transition(
+      exitTransition = new Bezier(
         D,
         optimisedE,
         F,
@@ -1754,8 +1812,10 @@ function subdivideBezierAndClampSpeed(
         midpointVelocity,
         exitVelocity,
         material,
+        TRANSITION_OBJECT_ID,
         false,
       )
+      exitTransition.isTransition = markAsTransition
       exitTransition.setMaxSpeed(maxSpeed)
 
       const transitionSpeed = predictSpeedAtT(exitTransition, 0)
@@ -1783,7 +1843,7 @@ function subdivideBezierAndClampSpeed(
         // Final iteration to use the lowest speed found
         optimisedE = pointAlongLine(E, D, slowestEVal)
 
-        exitTransition = new Transition(
+        exitTransition = new Bezier(
           D,
           optimisedE,
           F,
@@ -1791,8 +1851,10 @@ function subdivideBezierAndClampSpeed(
           entryVelocity,
           midpointVelocity,
           material,
+          TRANSITION_OBJECT_ID,
           true,
         )
+        exitTransition.isTransition = markAsTransition
         exitTransition.setMaxSpeed(maxSpeed)
 
         console.log(

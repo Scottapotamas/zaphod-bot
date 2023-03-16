@@ -453,7 +453,7 @@ function GeneralTab() {
       />
       <NumericInput
         label="Speed ramp distance"
-        min={5}
+        min={0}
         max={500}
         stepSize={5}
         majorStepSize={25}
@@ -690,6 +690,11 @@ function LineTab() {
       />
 
       {/* GPencil Output type <GPencilOutputType /> */}
+      <Checkbox
+        label="Merge colinear lines"
+        selector={state => state.settings.optimisation.mergeColinearLines}
+        writer={(state, value) => (state.settings.optimisation.mergeColinearLines = value)}
+      />
       <Checkbox
         label="Inter-line Optimisations Enabled"
         selector={state => state.settings.optimisation.smoothInterlineTransitions}

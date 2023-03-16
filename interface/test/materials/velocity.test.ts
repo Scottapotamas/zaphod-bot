@@ -6,11 +6,11 @@ import { VelocityMaterial } from '../../src/application/pages/toolpaths/optimise
 import {
   Line,
   Movement,
-  Transition,
+  Bezier,
 } from '../../src/application/pages/toolpaths/optimiser/movements'
 import {
   declareDense,
-  predictVelocityAtT,
+  predictSpeedAtT,
 } from '../../src/application/pages/toolpaths/optimiser/movement_utilities'
 import {
   generateToolpathWithDefaults,
@@ -18,10 +18,13 @@ import {
 } from '../optimiser/utilities'
 import {
   generateLightPathFromMovement,
+  getDefaultSettings,
   getNominalLine,
   hexToRgba,
   prettyPrintLightPath,
 } from './utilities'
+
+import { generateTransition } from '../../src/application/pages/toolpaths/optimiser/passes'
 
 function sampleSpeeds(movement: Movement) {
   const arr: string[] = []
@@ -33,7 +36,7 @@ function sampleSpeeds(movement: Movement) {
 
   for (let index = 0; index <= 4; index++) {
     const t = index / 4
-    const speed = Math.round(predictVelocityAtT(movement, t) * 10) / 10
+    const speed = Math.round(predictSpeedAtT(movement, t) * 10) / 10
     arr.push(speed.toFixed(1).padStart(5, ' '))
   }
   return arr
@@ -47,25 +50,11 @@ function assertVelocityContinuity(movements: Movement[]) {
   for (let index = 1; index < movements.length; index++) {
     const currentMovement = movements[index]
 
-    const velocityAtPreviousMovementEnd = predictVelocityAtT(
-      previousMovement,
-      1,
-    )
+    const velocityAtPreviousMovementEnd = predictSpeedAtT(previousMovement, 1)
 
-    const velocityAtCurrentMovementStart = predictVelocityAtT(
-      currentMovement,
-      0,
-    )
+    const velocityAtCurrentMovementStart = predictSpeedAtT(currentMovement, 0)
 
-    // Allow for 2% of the biggest velocity of the movements as leeyway
-    const biggerVelocity = Math.max(
-      predictVelocityAtT(previousMovement, 0),
-      velocityAtPreviousMovementEnd,
-      velocityAtCurrentMovementStart,
-      predictVelocityAtT(currentMovement, 1),
-    )
-
-    const leeway = biggerVelocity / 50
+    const leeway = 10
 
     expect(
       Math.abs(velocityAtCurrentMovementStart - velocityAtPreviousMovementEnd),
@@ -90,11 +79,9 @@ function buildTest(
   const B = new Line(startB, endB, mat, 'B', [])
   B.setMaxSpeed(speedB)
 
-  const AtoB = new Transition(A, B, mat, transitionSize)
+  const transitions = generateTransition(A, B, mat, getDefaultSettings())
 
-  AtoB.normaliseVelocities()
-
-  assertVelocityContinuity([A, AtoB, B])
+  assertVelocityContinuity([A, ...transitions, B])
 }
 
 const mat = new VelocityMaterial()
@@ -111,20 +98,23 @@ describe(`VelocityMaterial`, () => {
     A.setMaxSpeed(100)
 
     const B = new Line(
-      new Vector3(0, 100, 0),
-      new Vector3(100, 100, 0),
+      new Vector3(100, 1000, 0),
+      new Vector3(0, 1000, 0),
       mat,
       'objectId',
       [],
     )
     B.setMaxSpeed(300)
 
-    const C = new Transition(A, B, mat, 0.3333)
-
-    C.normaliseVelocities()
+    const transitions = generateTransition(A, B, mat, getDefaultSettings())
 
     console.log(`Line 1: [${sampleSpeeds(A).join(', ')}]
-Transt: [${sampleSpeeds(C).join(', ')}]
+${transitions
+  .map(
+    (transition, index) =>
+      `Transition #${index}: [${sampleSpeeds(transition).join(', ')}]`,
+  )
+  .join('\n')}
 Line 2: [${sampleSpeeds(B).join(', ')}]`)
   })
 

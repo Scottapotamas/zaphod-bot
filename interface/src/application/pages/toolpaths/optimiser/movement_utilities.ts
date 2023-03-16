@@ -7,11 +7,12 @@ import type {
   MovementGroup,
   Line,
   Point,
-  Transition,
+  Bezier,
   PointTransition,
   InterLineTransition,
   Transit,
   CatmullChain,
+  ConstantSpeedBezier,
 } from './movements'
 
 export const MILLISECONDS_IN_SECOND = 1000
@@ -32,6 +33,16 @@ export function isLine(movement: Movement): movement is Line {
 
 export function isPoint(movement: Movement): movement is Point {
   return movement.type === MOVEMENT_TYPE.POINT
+}
+
+export function isBezier(movement: Movement): movement is Bezier {
+  return movement.type === MOVEMENT_TYPE.BEZIER
+}
+
+export function isConstantSpeedBezier(
+  movement: Movement,
+): movement is ConstantSpeedBezier {
+  return movement.type === MOVEMENT_TYPE.BEZIER_CONSTANT_SPEED
 }
 
 export function isTransition(movement: Movement) {

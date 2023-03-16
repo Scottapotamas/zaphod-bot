@@ -752,17 +752,14 @@ export class Point extends Movement {
 }
 
 /**
- * A transition is a move from one Movement to another.
- *
- * It's probably going to be a Cubic Bezier, with the velocity components used as control points.
+ * A cubic bezier curve
  */
-export class Transition extends Movement {
-  readonly type = MOVEMENT_TYPE.TRANSITION
+export class Bezier extends Movement {
+  readonly type = MOVEMENT_TYPE.BEZIER
   maxSpeed: number = defaultSpeed // mm/s
   public baseMaterial: Material
   public isTransition = false
 
-  public objectID = TRANSITION_OBJECT_ID
   public overrideKeys = []
 
   constructor(
@@ -773,6 +770,7 @@ export class Transition extends Movement {
     public entryVelocity: Vector3,
     public exitVelocity: Vector3,
     public material: Material,
+    public objectID: string,
     private entrySpeedExact: boolean, // false is exact exit speed
   ) {
     super()
@@ -973,6 +971,186 @@ export class Transition extends Movement {
     const curve = this.lazyGenerateCurve()
 
     return curve.getPoint(t)
+  }
+
+  public resetOptimisationState = () => {
+    this.material = this.baseMaterial
+    this.curve = null
+  }
+
+  public resetCurve = () => {
+    this.curve = null
+  }
+
+  public getTriggers = () => {
+    return this.triggers
+  }
+}
+
+/**
+ * A constant speed cubic bezier curve
+ */
+export class ConstantSpeedBezier extends Movement {
+  readonly type = MOVEMENT_TYPE.BEZIER_CONSTANT_SPEED
+  maxSpeed: number = defaultSpeed // mm/s
+  public baseMaterial: Material
+  public isTransition = false
+
+  public overrideKeys = []
+
+  constructor(
+    public c0: Vector3,
+    public c1: Vector3,
+    public c2: Vector3,
+    public c3: Vector3,
+    public material: Material,
+    public objectID: string,
+  ) {
+    super()
+    this.baseMaterial = material
+  }
+
+  private curve: CubicBezierCurve3 | null = null
+
+  private lazyGenerateCurve = () => {
+    if (this.curve) return this.curve
+
+    /**
+     * v0 – The starting point.
+     * v1 – The first control point.
+     * v2 – The second control point.
+     * v3 – The ending point.
+     */
+    this.curve = new CubicBezierCurve3(
+      this.getC0(),
+      this.getC1(),
+      this.getC2(),
+      this.getC3(),
+    )
+
+    this.curve.arcLengthDivisions = 20 // divide into 20 segments for length calculations
+
+    return this.curve
+  }
+
+  // Swap the ordering of this transition movement
+  public flip = () => {
+    this.isFlipped = !this.isFlipped
+
+    // Reset the curve
+    this.curve = null
+  }
+
+  public flatten = () => {
+    return [this]
+  }
+
+  private getC0 = () => {
+    if (!this.isFlipped) {
+      return this.c0
+    } else {
+      return this.c3
+    }
+  }
+
+  private getC1 = () => {
+    if (!this.isFlipped) {
+      return this.c1
+    } else {
+      return this.c2
+    }
+  }
+
+  private getC2 = () => {
+    if (!this.isFlipped) {
+      return this.c2
+    } else {
+      return this.c1
+    }
+  }
+
+  private getC3 = () => {
+    if (!this.isFlipped) {
+      return this.c3
+    } else {
+      return this.c0
+    }
+  }
+
+  public hydrate = (serialised: SerialisedTour) => {
+    this.isFlipped = serialised[this.interFrameID]?.flipped
+  }
+
+  public getCost = () => {
+    return this.getLength()
+  }
+
+  public getLength = () => {
+    const curve = this.lazyGenerateCurve()
+
+    const length = curve.getLength()
+
+    return length
+  }
+
+  public setMaxSpeed = (maxSpeed: number) => {
+    this.maxSpeed = maxSpeed
+  }
+
+  public getDuration = () => {
+    return Math.ceil(
+      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
+    )
+  }
+
+  public getStart = () => {
+    return this.getC0()
+  }
+
+  public getEnd = () => {
+    return this.getC3()
+  }
+
+  public getDesiredEntryVelocity = () => {
+    return this.getC0()
+      .clone()
+      .sub(this.getC1())
+      .normalize()
+      .multiplyScalar(this.maxSpeed)
+  }
+
+  public getExpectedExitVelocity = () => {
+    return this.getC2()
+      .clone()
+      .sub(this.getC3())
+      .normalize()
+      .multiplyScalar(this.maxSpeed)
+  }
+
+  public generateToolpath = () => {
+    const move: PlannerMovementMove = {
+      duration: this.getDuration(),
+      type: MovementMoveType.BEZIER_CUBIC_LINEARISED,
+      reference: MovementMoveReference.ABSOLUTE,
+      points: [
+        this.getC0().toArray(),
+        this.getC1().toArray(),
+        this.getC2().toArray(),
+        this.getC3().toArray(),
+      ],
+    }
+
+    return [move]
+  }
+
+  public getApproximateCentroid = () => {
+    return getCentroid([this.getC0(), this.getC1(), this.getC2(), this.getC3()])
+  }
+
+  public samplePoint = (t: number) => {
+    const curve = this.lazyGenerateCurve()
+
+    return curve.getPointAt(t)
   }
 
   public resetOptimisationState = () => {
@@ -1400,7 +1578,7 @@ export class InterLineTransition extends Movement {
   public samplePoint = (t: number) => {
     const curve = this.lazyGenerateCurve()
 
-    return curve.getPoint(t)
+    return curve.getPointAt(t)
   }
 
   public resetOptimisationState = () => {

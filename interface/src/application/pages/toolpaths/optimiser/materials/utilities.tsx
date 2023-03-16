@@ -9,7 +9,8 @@ import type {
   AddComponentCallback,
   Movement,
   RGBA,
-  Transition,
+  Bezier,
+  ConstantSpeedBezier,
 } from '../movements'
 
 import { MOVEMENT_TYPE } from './../movement_types'
@@ -19,6 +20,9 @@ import { Html } from '@react-three/drei'
 import React, { useCallback } from 'react'
 import {
   findHighestApproximateSpeedAndT,
+  isBezier,
+  isConstantSpeedBezier,
+  isTransition,
   predictSpeedAtT,
 } from '../movement_utilities'
 
@@ -151,8 +155,11 @@ export function movementTypeToLetter(movement: Movement) {
     case MOVEMENT_TYPE.POINT:
       type = 'P'
       break
-    case MOVEMENT_TYPE.TRANSITION:
-      type = 'T'
+    case MOVEMENT_TYPE.BEZIER:
+      type = 'B'
+      break
+    case MOVEMENT_TYPE.BEZIER_CONSTANT_SPEED:
+      type = 'CB'
       break
     case MOVEMENT_TYPE.POINT_TRANSITION:
       type = 'PT'
@@ -171,11 +178,7 @@ export function movementTypeToLetter(movement: Movement) {
 export function movementTypeToIntent(movement: Movement) {
   let intent: Intent = 'none'
 
-  if (
-    movement.type === MOVEMENT_TYPE.TRANSITION ||
-    movement.type === MOVEMENT_TYPE.POINT_TRANSITION ||
-    movement.type === MOVEMENT_TYPE.INTER_LINE_TRANSITION
-  ) {
+  if (isTransition(movement)) {
     intent = 'primary'
   }
 
@@ -194,8 +197,15 @@ export function annotateDrawOrder(
 
     let extra = ''
 
-    if (type === 'T' && false) {
-      const transition = movement as Transition
+    if (isBezier(movement)) {
+      const transition = movement as Bezier
+
+      try {
+        transition.entryVelocity.length()
+      } catch (e) {
+        debugger
+      }
+
       extra = `in:${
         Math.round(transition.entryVelocity.length() * 100) / 100
       } (${Math.round(predictSpeedAtT(movement, 0) * 100) / 100}) out:${
@@ -208,6 +218,18 @@ export function annotateDrawOrder(
       }) priority: ${
         transition.getEntrySpeedExact() ? 'entry' : 'exit'
       } flipped: ${transition.isFlipped ? 'flipped' : 'normal'}`
+    }
+
+    if (isConstantSpeedBezier(movement)) {
+      const transition = movement as ConstantSpeedBezier
+      extra = `in:${Math.round(transition.maxSpeed * 100) / 100} (${
+        Math.round(predictSpeedAtT(movement, 0) * 100) / 100
+      }) out:${Math.round(transition.maxSpeed * 100) / 100} (${
+        Math.round(predictSpeedAtT(movement, 1) * 100) / 100
+      }) max:${Math.round(transition.maxSpeed * 100) / 100} (${
+        Math.round(findHighestApproximateSpeedAndT(movement).maxSpeed * 100) /
+        100
+      }) flipped: ${transition.isFlipped ? 'flipped' : 'normal'}`
     }
 
     addReactComponent(
