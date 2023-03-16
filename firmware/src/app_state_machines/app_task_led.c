@@ -79,6 +79,7 @@ PRIVATE void AppTaskLed_initial( AppTaskLed *me, const StateEvent *e __attribute
     eventSubscribe( (StateTask *)me, LED_MANUAL_SET );
 
     eventSubscribe( (StateTask *)me, ANIMATION_COMPLETE );
+    eventSubscribe( (StateTask *)me, MOTION_EMERGENCY );
 
     led_init();
     led_interpolator_init();
@@ -117,6 +118,7 @@ PRIVATE STATE AppTaskLed_inactive( AppTaskLed *me, const StateEvent *e )
             AppTaskLed_add_event_to_queue( me, e );
             return 0;
 
+        case MOTION_EMERGENCY:
         case LED_QUEUE_CLEAR:
             AppTaskLed_clear_queue( me );
             return 0;
@@ -199,6 +201,7 @@ PRIVATE STATE AppTaskLed_active( AppTaskLed *me, const StateEvent *e )
             AppTaskLed_add_event_to_queue( me, e );
             return 0;
 
+        case MOTION_EMERGENCY:
         case LED_QUEUE_CLEAR:
             AppTaskLed_clear_queue( me );
             STATE_TRAN( AppTaskLed_inactive );
