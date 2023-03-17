@@ -1,9 +1,8 @@
 import {
   deserialiseTour,
-  InterLineTransition,
   Line,
   Movement,
-  PointTransition,
+  ConstantSpeedCatmullRom,
   SerialisedTour,
   serialiseTour,
   Transit,
@@ -23,6 +22,7 @@ import {
   predictVelocityAtT,
   findHighestApproximateSpeedAndT,
   MILLISECONDS_IN_SECOND,
+  isConstantSpeedBezier,
 } from './movement_utilities'
 
 import type { Settings } from './settings'
@@ -219,6 +219,11 @@ export function sparseToDense(
         settings.optimisation.interLineTransitionShaveDistance,
       )
 
+      // If shrinking that line makes its length 0, delete it from the denseMovements list
+      if (previousLine.getLength() === 0) {
+        denseMovements.pop()
+      }
+
       // Shrink the next line by a distance, calculate the T values of the line now shown
       // Replace the material so over the new 0 -> 1 T value, it goes from Y -> 1
 
@@ -276,12 +281,127 @@ export function sparseToDense(
 
       // Add these transitions to the dense bag
       denseMovements.push(...interLineTransitions)
+      previousMovement = interLineTransitions[interLineTransitions.length - 1]
 
-      // Add the movement to the dense bag
-      denseMovements.push(currentLine)
+      // Add the movement to the dense bag if it has length
+      if (currentLine.getLength() > 0) {
+        denseMovements.push(currentLine)
+        previousMovement = currentLine
+      }
 
       // Update the last movement
-      previousMovement = currentLine
+      continue
+    }
+
+    // If the last movement is a constant speed bezier and the next movement is a line,
+    // and their end and start points match up
+    // And their velocity angles aren't too dissimilar,
+    // reduce the length of the next line and do a transition inline
+    if (
+      settings.optimisation.smoothInterlineTransitions &&
+      isConstantSpeedBezier(previousMovement) &&
+      isLine(movement) &&
+      previousMovement.getEnd().distanceTo(movement.getStart()) < 1 &&
+      previousMovement
+        .getExpectedExitVelocity()
+        .clone()
+        .normalize()
+        .angleTo(movement.getDesiredEntryVelocity().clone().normalize()) <
+        MathUtils.degToRad(settings.optimisation.interLineTransitionAngle)
+    ) {
+      // Shrink the end of the previousLine
+      // Shrink the start of the current line
+
+      const previousLine = previousMovement
+      const currentLine = movement
+
+      const previousLineMaterial = previousLine.material
+      const currentLineMaterial = currentLine.material
+
+      // Shrink the next line by a distance, calculate the T values of the line now shown
+      // Replace the material so over the new 0 -> 1 T value, it goes from Y -> 1
+      const previousLineDistance = previousLine.getLength()
+      const previousLineShrinkPercentage = MathUtils.clamp(
+        settings.optimisation.interLineTransitionShaveDistance /
+          previousLineDistance,
+        0,
+        1,
+      )
+
+      const currentLineDistance = currentLine
+        .getFrom()
+        .distanceTo(currentLine.getTo())
+      const currentLineShrinkPercentage = MathUtils.clamp(
+        settings.optimisation.interLineTransitionShaveDistance /
+          currentLineDistance,
+        0,
+        1,
+      )
+
+      // Do the shrink
+      currentLine.shrinkStartByDistance(
+        settings.optimisation.interLineTransitionShaveDistance,
+      )
+
+      // Split the materials up at the split points
+      previousLine.material = new RemapMaterial(
+        previousLineMaterial,
+        0,
+        1 - previousLineShrinkPercentage,
+      )
+
+      const remainderOfPreviousLineMaterial = new RemapMaterial(
+        previousLineMaterial,
+        1 - previousLineShrinkPercentage,
+        1,
+      )
+      const remainderOfCurrentLineMaterial = new RemapMaterial(
+        currentLineMaterial,
+        0,
+        currentLineShrinkPercentage,
+      )
+
+      currentLine.material = new RemapMaterial(
+        currentLineMaterial,
+        currentLineShrinkPercentage,
+        1,
+      )
+
+      // Insert a transition line in between. Its material needs to go from (1-X) of the previous material to Y of the current material
+      const { newPreviousMovementCSB, nextMovementCSB } =
+        generateCSBezierToLineTransition(
+          previousLine,
+          currentLine,
+          new MixMaterial(
+            remainderOfPreviousLineMaterial,
+            remainderOfCurrentLineMaterial,
+          ),
+          settings.optimisation.interLineTransitionShaveDistance,
+          maxSpeedForMovement,
+          false,
+        )
+
+      // Shrink the previous constant size bezier, we need to pop it off and add back our new one
+      denseMovements.pop()
+
+      // If newPreviousMovementCSB is null, it's shorter than our shave distance
+      // and will just be removed
+      if (newPreviousMovementCSB && newPreviousMovementCSB.getLength() > 0) {
+        newPreviousMovementCSB.material = previousLine.material
+        denseMovements.push(newPreviousMovementCSB)
+      }
+
+      // Add the inter-line transition to the dense bag
+      denseMovements.push(nextMovementCSB)
+      previousMovement = nextMovementCSB
+
+      // Add the current line to the dense bag if it has length
+      if (currentLine.getLength() > 0) {
+        denseMovements.push(currentLine)
+        previousMovement = currentLine
+      }
+
+      // Update the last movement
       continue
     }
 
@@ -295,6 +415,7 @@ export function sparseToDense(
         TRANSITION_OBJECT_ID,
         emptyOverrideKeys,
       )
+      transit.isTransition = true
       transit.setMaxSpeed(maxSpeedForMovement)
 
       // Add the transition to the dense bag
@@ -331,13 +452,15 @@ export function sparseToDense(
         0.999,
       )
 
-      const transition = new PointTransition(
-        movementPrevPrev,
-        movementPrev,
-        movementCurrent,
-        movementNext,
+      const transition = new ConstantSpeedCatmullRom(
+        movementPrevPrev.getEnd(),
+        movementPrev.getEnd(),
+        movementCurrent.getStart(),
+        movementNext.getStart(),
         blinkAtEnd,
+        movement.objectID,
       )
+      transition.isTransition = true
 
       transition.setMaxSpeed(maxSpeedForMovement)
 
@@ -1438,6 +1561,7 @@ function generateBezierTransition(
     maxSpeed,
     material,
     markAsTransition,
+    0.5,
   )
 
   const { maxSpeed: maxSpeedEntry } =
@@ -1465,6 +1589,7 @@ function generateBezierTransition(
       maxSpeed,
       material,
       markAsTransition,
+      0.5,
     )
 
     transitions.push(entryEntryTransition, entryExitTransition)
@@ -1489,6 +1614,7 @@ function generateBezierTransition(
       maxSpeed,
       material,
       markAsTransition,
+      0.5,
     )
 
     transitions.push(exitEntryTransition, exitExitTransition)
@@ -1533,22 +1659,154 @@ function generateBezierTransition(
 }
 
 function generateInterLineTransition(
-  previousMovement: Movement,
-  nextMovement: Movement,
+  previousMovement: Line,
+  nextMovement: Line,
   material: Material,
   maxSpeed: number,
   markAsTransition: boolean,
 ) {
-  const trans = new InterLineTransition(
-    previousMovement as Line,
-    nextMovement as Line,
-    nextMovement.objectID,
-    [],
+  // const trans = new Line(previousMovement.getEnd(), nextMovement.getStart(), material, previousMovement.objectID,[])
+
+  // trans.isTransition = markAsTransition
+  // trans.setMaxSpeed(maxSpeed)
+
+  // return [trans]
+
+  const trans = new ConstantSpeedBezier(
+    previousMovement.getEnd(),
+    previousMovement.getTo(),
+    nextMovement.getFrom(),
+    nextMovement.getStart(),
     material,
+    nextMovement.objectID,
   )
+  trans.isTransition = markAsTransition
   trans.setMaxSpeed(maxSpeed)
 
   return [trans]
+}
+
+function generateCSBezierToLineTransition(
+  previousMovement: ConstantSpeedBezier,
+  nextMovement: Line,
+  material: Material,
+  shaveDistance: number,
+  maxSpeed: number,
+  markAsTransition: boolean,
+) {
+  // Calculate the time T where we can split the previous bezier
+  const bezier = new Bezier(
+    previousMovement.getC0(),
+    previousMovement.getC1(),
+    previousMovement.getC2(),
+    previousMovement.getC3(),
+    previousMovement.getDesiredEntryVelocity(),
+    previousMovement.getExpectedExitVelocity(),
+    material,
+    previousMovement.objectID,
+    true,
+  )
+
+  let left = 0
+  let right = 1
+  let iters = 0
+
+  let tVal = 0
+
+  let keepPreviousMovement = bezier.getLength() > shaveDistance
+
+  if (keepPreviousMovement) {
+    while (true) {
+      iters++
+
+      tVal = (left + right) / 2
+
+      // Calculate the distance from that point to the end of the bezier
+      const distance = bezier
+        .samplePoint(tVal)
+        .distanceTo(previousMovement.getC3())
+
+      if (distance < shaveDistance) {
+        right = tVal
+      } else {
+        left = tVal
+      }
+
+      if (Math.abs(distance - shaveDistance) < 1) {
+        break
+      }
+
+      if (iters > 100) {
+        console.log(
+          `exceeded 100 iters to generate csbezier to line transition`,
+          tVal,
+          shaveDistance,
+          bezier.getLength(),
+        )
+        break
+      }
+    }
+
+    // Split the previous bezier with control points A, B, C, D
+    const { A, B, C, D, E, F, G } = subdivideBezierAndClampSpeed(
+      previousMovement.getC0(),
+      previousMovement.getC1(),
+      previousMovement.getC2(),
+      previousMovement.getC3(),
+      previousMovement.getDesiredEntryVelocity(),
+      previousMovement.getExpectedExitVelocity(),
+      nextMovement.getDesiredEntryVelocity(),
+      maxSpeed,
+      material,
+      markAsTransition,
+      0.5,
+    )
+
+    const newPreviousMovementCSB = new ConstantSpeedBezier(
+      A,
+      B,
+      C,
+      D,
+      material,
+      previousMovement.objectID,
+    )
+    newPreviousMovementCSB.isTransition = markAsTransition
+    newPreviousMovementCSB.setMaxSpeed(maxSpeed)
+
+    const nextMovementCSB = new ConstantSpeedBezier(
+      D,
+      E,
+      nextMovement.getStart(),
+      nextMovement.getFrom(),
+      material,
+      nextMovement.objectID,
+    )
+    nextMovementCSB.isTransition = markAsTransition
+    nextMovementCSB.setMaxSpeed(maxSpeed)
+
+    return {
+      newPreviousMovementCSB,
+      nextMovementCSB,
+    }
+  } else {
+    // Just return the next movement, the old movement will be removed
+
+    const nextMovementCSB = new ConstantSpeedBezier(
+      previousMovement.getC0(),
+      previousMovement.getC1(),
+      nextMovement.getFrom(),
+      nextMovement.getStart(),
+      material,
+      nextMovement.objectID,
+    )
+    nextMovementCSB.isTransition = markAsTransition
+    nextMovementCSB.setMaxSpeed(maxSpeed)
+
+    return {
+      newPreviousMovementCSB: null,
+      nextMovementCSB,
+    }
+  }
 }
 
 function pointAlongLine(start: Vector3, end: Vector3, u: number) {
@@ -1654,9 +1912,10 @@ function subdivideBezierAndClampSpeed(
   maxSpeed: number,
   material: Material,
   markAsTransition: boolean,
+  tValue: number,
 ) {
   // Subdivide the bezier into two pieces
-  const { A, B, C, D, E, F, G } = subdivideBezier(c0, c1, c2, c3, 0.5)
+  const { A, B, C, D, E, F, G } = subdivideBezier(c0, c1, c2, c3, tValue)
 
   let cVal = 0 // can be tested from 0-1 to slow down if required
   let optimisedC = pointAlongLine(C, D, cVal)
@@ -1723,16 +1982,16 @@ function subdivideBezierAndClampSpeed(
 
       if (transitionSpeed < maxSpeed) {
         right = cVal
-
-        // And break when we're just under the speed limit
-        if (Math.abs(maxSpeed - transitionSpeed) < 5) {
-          // console.log(
-          //   `solution found after ${iters} iters, cVal: ${cVal}, speed: ${transitionSpeed} near max: ${maxSpeed}`,
-          // )
-          break optimiseEntry
-        }
       } else {
         left = cVal
+      }
+
+      // And break when we're just under the speed limit
+      if (Math.abs(maxSpeed - transitionSpeed) < 2) {
+        // console.log(
+        //   `solution found after ${iters} iters, cVal: ${cVal}, speed: ${transitionSpeed} near max: ${maxSpeed}`,
+        // )
+        break optimiseEntry
       }
 
       if (transitionSpeed < slowestSpeed) {
@@ -1740,7 +1999,7 @@ function subdivideBezierAndClampSpeed(
         slowestCVal = cVal
       }
 
-      if (iters > 10) {
+      if (iters > 25) {
         // Final iteration to use the lowest speed found
         optimisedC = pointAlongLine(C, D, slowestCVal)
 
@@ -1759,7 +2018,7 @@ function subdivideBezierAndClampSpeed(
         entryTransition.setMaxSpeed(maxSpeed)
 
         console.log(
-          `too many iterations ${iters}, slowestCVal: ${slowestCVal}, speed: ${slowestSpeed} over max: ${maxSpeed}`,
+          `too many iterations entry ${iters}, slowestCVal: ${slowestCVal}, speed: ${slowestSpeed} over max: ${maxSpeed}`,
         )
 
         break optimiseEntry
@@ -1822,16 +2081,16 @@ function subdivideBezierAndClampSpeed(
 
       if (transitionSpeed < maxSpeed) {
         right = cVal
-
-        // And break when we're just under the speed limit
-        if (Math.abs(maxSpeed - transitionSpeed) < 5) {
-          // console.log(
-          //   `solution found after ${iters} iters, cVal: ${cVal}, speed: ${transitionSpeed} near max: ${maxSpeed}`,
-          // )
-          break optimiseExit
-        }
       } else {
         left = cVal
+      }
+
+      // And break when we're just under the speed limit
+      if (Math.abs(maxSpeed - transitionSpeed) < 2) {
+        // console.log(
+        //   `solution found after ${iters} iters, cVal: ${cVal}, speed: ${transitionSpeed} near max: ${maxSpeed}`,
+        // )
+        break optimiseExit
       }
 
       if (transitionSpeed < slowestSpeed) {
@@ -1839,7 +2098,7 @@ function subdivideBezierAndClampSpeed(
         slowestEVal = cVal
       }
 
-      if (iters > 10) {
+      if (iters > 25) {
         // Final iteration to use the lowest speed found
         optimisedE = pointAlongLine(E, D, slowestEVal)
 
@@ -1858,7 +2117,7 @@ function subdivideBezierAndClampSpeed(
         exitTransition.setMaxSpeed(maxSpeed)
 
         console.log(
-          `too many iterations ${iters}, slowestEVal: ${slowestEVal}, speed: ${slowestSpeed} over max: ${maxSpeed}`,
+          `too many iterations exit ${iters}, slowestEVal: ${slowestEVal}, speed: ${slowestSpeed} over max: ${maxSpeed}`,
         )
 
         break optimiseExit

@@ -8,8 +8,7 @@ import type {
   Line,
   Point,
   Bezier,
-  PointTransition,
-  InterLineTransition,
+  CatmullRom,
   Transit,
   CatmullChain,
   ConstantSpeedBezier,
@@ -51,14 +50,8 @@ export function isTransition(movement: Movement) {
 
 export function isPointTransition(
   movement: Movement,
-): movement is PointTransition {
-  return movement.type === MOVEMENT_TYPE.POINT_TRANSITION
-}
-
-export function isInterLineTransition(
-  movement: Movement,
-): movement is InterLineTransition {
-  return movement.type === MOVEMENT_TYPE.INTER_LINE_TRANSITION
+): movement is CatmullRom {
+  return movement.type === MOVEMENT_TYPE.CATMULL_ROM
 }
 
 export function isTransit(movement: Movement): movement is Transit {

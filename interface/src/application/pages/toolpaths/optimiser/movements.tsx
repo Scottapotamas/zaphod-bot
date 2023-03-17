@@ -516,10 +516,11 @@ export class Line extends Movement {
 
       let shrinkFactor = this.maxStartShrinkFactor
 
-      if (this.maxEndShrinkFactor) {
-        // If there's also a shrink factor on the end, clamp our start shrink factor to 0.5
-        shrinkFactor = MathUtils.clamp(this.maxStartShrinkFactor, 0, 0.5)
-      }
+      shrinkFactor = MathUtils.clamp(
+        this.maxStartShrinkFactor,
+        0,
+        MathUtils.clamp(this.maxEndShrinkFactor, 0.5, 1),
+      )
 
       return this.getDirection()
         .multiplyScalar(length * shrinkFactor)
@@ -535,13 +536,14 @@ export class Line extends Movement {
 
       let shrinkFactor = this.maxEndShrinkFactor
 
-      if (this.maxStartShrinkFactor) {
-        // If there's also a shrink factor on the start, clamp our end shrink factor to 0.5
-        shrinkFactor = MathUtils.clamp(this.maxEndShrinkFactor, 0, 0.5)
-      }
+      shrinkFactor = MathUtils.clamp(
+        this.maxEndShrinkFactor,
+        MathUtils.clamp(this.maxStartShrinkFactor, 0, 0.5),
+        1,
+      )
 
       return this.getDirection()
-        .multiplyScalar(length * (1 - shrinkFactor))
+        .multiplyScalar(length * shrinkFactor)
         .add(this.getFrom())
     }
 
@@ -563,7 +565,7 @@ export class Line extends Movement {
     const clampedDistance = MathUtils.clamp(distance, 0, length)
     const shinkFactor = clampedDistance / length
 
-    this.maxEndShrinkFactor = shinkFactor
+    this.maxEndShrinkFactor = 1 - shinkFactor
   }
 
   public getDesiredEntryVelocity = () => {
@@ -1045,7 +1047,7 @@ export class ConstantSpeedBezier extends Movement {
     return [this]
   }
 
-  private getC0 = () => {
+  public getC0 = () => {
     if (!this.isFlipped) {
       return this.c0
     } else {
@@ -1053,7 +1055,7 @@ export class ConstantSpeedBezier extends Movement {
     }
   }
 
-  private getC1 = () => {
+  public getC1 = () => {
     if (!this.isFlipped) {
       return this.c1
     } else {
@@ -1061,7 +1063,7 @@ export class ConstantSpeedBezier extends Movement {
     }
   }
 
-  private getC2 = () => {
+  public getC2 = () => {
     if (!this.isFlipped) {
       return this.c2
     } else {
@@ -1069,7 +1071,7 @@ export class ConstantSpeedBezier extends Movement {
     }
   }
 
-  private getC3 = () => {
+  public getC3 = () => {
     if (!this.isFlipped) {
       return this.c3
     } else {
@@ -1120,9 +1122,9 @@ export class ConstantSpeedBezier extends Movement {
   }
 
   public getExpectedExitVelocity = () => {
-    return this.getC2()
+    return this.getC3()
       .clone()
-      .sub(this.getC3())
+      .sub(this.getC2())
       .normalize()
       .multiplyScalar(this.maxSpeed)
   }
@@ -1178,14 +1180,11 @@ function getCentroid(points: Vector3[]) {
 }
 
 /**
- * A transition is a move from one Point to another.
- *
- * Uses a catmull spline to visit points
+ * A catmull spline
  */
-export class PointTransition extends Movement {
-  readonly type = MOVEMENT_TYPE.POINT_TRANSITION
+export class CatmullRom extends Movement {
+  readonly type = MOVEMENT_TYPE.CATMULL_ROM
   maxSpeed: number = defaultSpeed
-  public objectID = TRANSITION_OBJECT_ID
   public overrideKeys = []
   public isTransition = false
 
@@ -1193,11 +1192,12 @@ export class PointTransition extends Movement {
   private numSegments = 20
 
   constructor(
-    private prePointMovement: Movement,
-    private pointFrom: Point,
-    private pointTo: Point,
-    private postPointMovement: Movement,
+    private c0: Vector3,
+    private c1: Vector3,
+    private c2: Vector3,
+    private c3: Vector3,
     public material: Material,
+    public objectID: string,
   ) {
     super()
     this.baseMaterial = material
@@ -1207,22 +1207,6 @@ export class PointTransition extends Movement {
   private curvelength: number | null = null
 
   private curve: CatmullRomCurve3 | null = null
-
-  public getPrePointMovement = () => {
-    return this.prePointMovement
-  }
-
-  public getPointFrom = () => {
-    return this.pointFrom
-  }
-
-  public getPointTo = () => {
-    return this.pointTo
-  }
-
-  public getPostPointMovement = () => {
-    return this.postPointMovement
-  }
 
   private lazyGenerateCurve = () => {
     if (this.curve) return this.curve
@@ -1234,12 +1218,7 @@ export class PointTransition extends Movement {
      * v3 – The ending point.
      */
     this.curve = new CatmullRomCurve3(
-      [
-        this.getPrePointMovement().getEnd(),
-        this.getPointFrom().getEnd(),
-        this.getPointTo().getStart(),
-        this.getPostPointMovement().getStart(),
-      ],
+      [this.getC0(), this.getC1(), this.getC2(), this.getC3()],
       false,
       'catmullrom',
     )
@@ -1247,6 +1226,38 @@ export class PointTransition extends Movement {
     this.curve.arcLengthDivisions = 20 // divide into 20 segments for length calculations
 
     return this.curve
+  }
+
+  public getC0 = () => {
+    if (!this.isFlipped) {
+      return this.c0
+    } else {
+      return this.c3
+    }
+  }
+
+  public getC1 = () => {
+    if (!this.isFlipped) {
+      return this.c1
+    } else {
+      return this.c2
+    }
+  }
+
+  public getC2 = () => {
+    if (!this.isFlipped) {
+      return this.c2
+    } else {
+      return this.c1
+    }
+  }
+
+  public getC3 = () => {
+    if (!this.isFlipped) {
+      return this.c3
+    } else {
+      return this.c0
+    }
   }
 
   private lazyGenerateCurveLength = () => {
@@ -1332,19 +1343,243 @@ export class PointTransition extends Movement {
   }
 
   public getStart = () => {
-    return this.getPointFrom().getEnd()
+    return this.getC0()
   }
 
   public getEnd = () => {
-    return this.getPointTo().getStart()
+    return this.getC3()
   }
 
   public getDesiredEntryVelocity = () => {
-    return this.getPointFrom().getExpectedExitVelocity()
+    return this.getC0()
+      .clone()
+      .sub(this.getC1())
+      .normalize()
+      .multiplyScalar(this.maxSpeed)
   }
 
   public getExpectedExitVelocity = () => {
-    return this.getPointTo().getDesiredEntryVelocity()
+    return this.getC3()
+      .clone()
+      .sub(this.getC2())
+      .normalize()
+      .multiplyScalar(this.maxSpeed)
+  }
+
+  public generateToolpath = () => {
+    const move: PlannerMovementMove = {
+      duration: this.getDuration(),
+      type: MovementMoveType.CATMULL_SPLINE,
+      reference: MovementMoveReference.ABSOLUTE,
+      points: [
+        this.getC0().toArray(),
+        this.getC1().toArray(),
+        this.getC2().toArray(),
+        this.getC3().toArray(),
+      ],
+    }
+
+    return [move]
+  }
+
+  public getApproximateCentroid = () => {
+    return getCentroid([this.getC0(), this.getC1(), this.getC2(), this.getC3()])
+  }
+
+  public resetOptimisationState = () => {
+    this.material = this.baseMaterial
+  }
+
+  public getTriggers = () => {
+    return this.triggers
+  }
+}
+
+/**
+ * A catmull spline
+ */
+export class ConstantSpeedCatmullRom extends Movement {
+  readonly type = MOVEMENT_TYPE.CATMULL_ROM_CONSTANT_SPEED
+  maxSpeed: number = defaultSpeed
+  public overrideKeys = []
+  public isTransition = false
+
+  public baseMaterial: Material
+  private numSegments = 20
+
+  constructor(
+    private c0: Vector3,
+    private c1: Vector3,
+    private c2: Vector3,
+    private c3: Vector3,
+    public material: Material,
+    public objectID: string,
+  ) {
+    super()
+    this.baseMaterial = material
+  }
+
+  private curvePoints: Vector3[] = []
+  private curvelength: number | null = null
+
+  private curve: CatmullRomCurve3 | null = null
+
+  private lazyGenerateCurve = () => {
+    if (this.curve) return this.curve
+
+    /**
+     * v0 – The starting point.
+     * v1 – The first control point.
+     * v2 – The second control point.
+     * v3 – The ending point.
+     */
+    this.curve = new CatmullRomCurve3(
+      [this.getC0(), this.getC1(), this.getC2(), this.getC3()],
+      false,
+      'catmullrom',
+    )
+
+    this.curve.arcLengthDivisions = 20 // divide into 20 segments for length calculations
+
+    return this.curve
+  }
+
+  public getC0 = () => {
+    if (!this.isFlipped) {
+      return this.c0
+    } else {
+      return this.c3
+    }
+  }
+
+  public getC1 = () => {
+    if (!this.isFlipped) {
+      return this.c1
+    } else {
+      return this.c2
+    }
+  }
+
+  public getC2 = () => {
+    if (!this.isFlipped) {
+      return this.c2
+    } else {
+      return this.c1
+    }
+  }
+
+  public getC3 = () => {
+    if (!this.isFlipped) {
+      return this.c3
+    } else {
+      return this.c0
+    }
+  }
+
+  private lazyGenerateCurveLength = () => {
+    if (this.curvelength) return this.curvelength
+
+    const curve = this.lazyGenerateCurve()
+
+    // By default CatmullRomCurve3.getPoints(segments) gives us points along the entire length of vectors,
+    // including the control points, we need to only build points between the start and end.
+
+    // The control points are 1/3 and 2/3 of the way along the curve.
+
+    this.curvePoints = []
+
+    for (let index = 0; index < this.numSegments; index++) {
+      // remap 0 -> num segments to a float between 1/3 and 2/3
+      const t = MathUtils.mapLinear(index, 0, this.numSegments, 1 / 3, 2 / 3)
+
+      this.curvePoints.push(curve.getPoint(t))
+    }
+
+    let distance = 0
+
+    let lastPoint = this.curvePoints[0]
+
+    for (let index = 1; index < this.curvePoints.length; index++) {
+      const point = this.curvePoints[index]
+
+      distance += lastPoint.distanceTo(point)
+      lastPoint = point
+    }
+
+    this.curvelength = distance
+
+    return distance
+  }
+
+  public samplePoint = (t: number) => {
+    const curve = this.lazyGenerateCurve()
+
+    // The control points are 1/3 and 2/3 of the way along the curve, we only want to sample points within that region,
+    // so remap the request, from 0-1 to 1/3-2/3
+    const tR = MathUtils.mapLinear(t, 0, 1, 1 / 3, 2 / 3)
+
+    return curve.getPointAt(tR)
+  }
+
+  // Swap the ordering of this transition movement
+  public flip = () => {
+    this.isFlipped = !this.isFlipped
+
+    // Reset the curve
+    this.curve = null
+    // TODO: Flip the material
+  }
+
+  public flatten = () => {
+    return [this]
+  }
+
+  public hydrate = (serialised: SerialisedTour) => {
+    this.isFlipped = serialised[this.interFrameID]?.flipped
+  }
+
+  public getCost = () => {
+    return this.getLength()
+  }
+
+  public getLength = () => {
+    const length = this.lazyGenerateCurveLength()
+
+    return length
+  }
+
+  public setMaxSpeed = (maxSpeed: number) => {
+    this.maxSpeed = maxSpeed
+  }
+
+  public getDuration = () => {
+    return Math.ceil(
+      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
+    )
+  }
+
+  public getStart = () => {
+    return this.getC0()
+  }
+
+  public getEnd = () => {
+    return this.getC3()
+  }
+
+  public getDesiredEntryVelocity = () => {
+    return this.getC0()
+      .clone()
+      .sub(this.getC1())
+      .normalize()
+      .multiplyScalar(this.maxSpeed)
+  }
+
+  public getExpectedExitVelocity = () => {
+    return this.getC3()
+      .clone()
+      .sub(this.getC2())
+      .normalize()
+      .multiplyScalar(this.maxSpeed)
   }
 
   public generateToolpath = () => {
@@ -1353,10 +1588,10 @@ export class PointTransition extends Movement {
       type: MovementMoveType.CATMULL_SPLINE_LINEARISED,
       reference: MovementMoveReference.ABSOLUTE,
       points: [
-        this.getPrePointMovement().getEnd().toArray(),
-        this.getPointFrom().getEnd().toArray(),
-        this.getPointTo().getStart().toArray(),
-        this.getPostPointMovement().getStart().toArray(),
+        this.getC0().toArray(),
+        this.getC1().toArray(),
+        this.getC2().toArray(),
+        this.getC3().toArray(),
       ],
     }
 
@@ -1364,12 +1599,7 @@ export class PointTransition extends Movement {
   }
 
   public getApproximateCentroid = () => {
-    return getCentroid([
-      this.getPrePointMovement().getEnd(),
-      this.getPointFrom().getEnd(),
-      this.getPointTo().getStart(),
-      this.getPostPointMovement().getStart(),
-    ])
+    return getCentroid([this.getC0(), this.getC1(), this.getC2(), this.getC3()])
   }
 
   public resetOptimisationState = () => {
@@ -1390,205 +1620,6 @@ export class PointTransition extends Movement {
 // }
 
 // let cacheHits = 0;
-
-/**
- * A transition is a move from one Movement to another.
- *
- * It's probably going to be a Cubic Bezier, with the velocity components used as control points.
- */
-export class InterLineTransition extends Movement {
-  readonly type = MOVEMENT_TYPE.INTER_LINE_TRANSITION
-  maxSpeed: number = defaultSpeed // mm/s
-  private numSegments = 20
-  public baseMaterial: Material
-  public isTransition = false
-
-  constructor(
-    private from: Line,
-    private to: Line,
-    public objectID: string, // Takes the ObjectID of the first line
-    public overrideKeys: string[], // Takes the overrideKeys of the first line?
-    public material: Material,
-  ) {
-    super()
-    this.baseMaterial = material
-  }
-
-  public getFrom = () => {
-    return this.from
-  }
-
-  public getTo = () => {
-    return this.to
-  }
-
-  private curve: CubicBezierCurve3 | null = null
-
-  private lazyGenerateCurve = () => {
-    if (this.curve) return this.curve
-
-    /**
-     * v0 – The starting point.
-     * v1 – The first control point.
-     * v2 – The second control point.
-     * v3 – The ending point.
-     */
-    this.curve = new CubicBezierCurve3(
-      this.getFrom().getEnd(),
-      this.getFrom().getTo(),
-      this.getTo().getFrom(),
-      this.getTo().getStart(),
-    )
-
-    this.curve.arcLengthDivisions = 20 // divide into 20 segments for length calculations
-
-    return this.curve
-  }
-
-  // Swap the ordering of this transition movement
-  public flip = () => {
-    this.isFlipped = !this.isFlipped
-
-    // TODO: Flip the material
-  }
-
-  public flatten = () => {
-    return [this]
-  }
-
-  public hydrate = (serialised: SerialisedTour) => {
-    this.isFlipped = serialised[this.interFrameID]?.flipped
-  }
-
-  public getCost = () => {
-    return this.getLength()
-  }
-
-  public getLength = () => {
-    // // Check if we have a cached length first since this is expensive.
-    // const key = transitionKeygen(
-    //   this.getStart(),
-    //   this.getEnd(),
-    //   this.getDesiredEntryVelocity(),
-    //   this.getExpectedExitVelocity()
-    // );
-
-    // const cached = transitionCurveCache.get(key);
-
-    // if (cached) return cached;
-
-    // Otherwise generate the curve, get the length
-    const curve = this.lazyGenerateCurve()
-
-    const length = curve.getLength()
-
-    // transitionCurveCache.set(key, length);
-
-    return length
-  }
-
-  /**
-   * Normalises the speed so that the maximum is hit.
-   */
-  private normaliseSpeed = () => {
-    const desiredEntrySpeed = Math.min(
-      this.getDesiredEntryVelocity().length(),
-      this.maxSpeed,
-    )
-    const desiredMaxSpeed = this.maxSpeed
-    const desiredExitSpeed = Math.min(
-      this.getExpectedExitVelocity().length(),
-      this.maxSpeed,
-    )
-
-    let desiredSpeed = desiredMaxSpeed
-    let tToPredictSpeedAt = 0.5
-
-    // otherwise just try and hit the max speed at our fastest point
-    const { maxSpeed, tOfHighestSpeed } = findHighestApproximateSpeedAndT(this)
-    desiredSpeed = this.maxSpeed
-
-    tToPredictSpeedAt = tOfHighestSpeed
-
-    this.maxSpeed = 100
-
-    const speedAtT = predictSpeedAtT(this, tToPredictSpeedAt)
-
-    const factor = desiredSpeed / speedAtT
-
-    if (!isFinite(factor)) {
-      console.log(
-        `bad factor ${factor} actualSpeedT ${tToPredictSpeedAt} speedAtT ${speedAtT} desiredSpeedAtT ${desiredSpeed}`,
-      )
-
-      return this.curve
-    }
-
-    this.maxSpeed = this.maxSpeed * factor
-  }
-
-  public setMaxSpeed = (maxSpeed: number) => {
-    this.maxSpeed = maxSpeed
-
-    this.normaliseSpeed()
-  }
-
-  public getDuration = () => {
-    return Math.ceil(
-      (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
-    )
-  }
-
-  public getStart = () => {
-    return this.getFrom().getEnd()
-  }
-
-  public getEnd = () => {
-    return this.getTo().getStart()
-  }
-
-  public getDesiredEntryVelocity = () => {
-    return this.getFrom().getExpectedExitVelocity()
-  }
-
-  public getExpectedExitVelocity = () => {
-    return this.getTo().getDesiredEntryVelocity()
-  }
-
-  public generateToolpath = () => {
-    const move: PlannerMovementMove = {
-      duration: this.getDuration(),
-      type: MovementMoveType.BEZIER_CUBIC_LINEARISED,
-      reference: MovementMoveReference.ABSOLUTE,
-      points: [
-        this.getFrom().getEnd().toArray(),
-        this.getFrom().getTo().toArray(),
-        this.getTo().getFrom().toArray(),
-        this.getTo().getStart().toArray(),
-      ],
-    }
-
-    return [move]
-  }
-
-  public getApproximateCentroid = () => {
-    return getCentroid([this.getStart(), this.getEnd()])
-  }
-
-  public samplePoint = (t: number) => {
-    const curve = this.lazyGenerateCurve()
-
-    return curve.getPointAt(t)
-  }
-
-  public resetOptimisationState = () => {
-    this.material = this.baseMaterial
-  }
-
-  public getTriggers = () => {
-    return this.triggers
-  }
-}
 
 /**
  * A `Transit` is an invisible move to a point without care for the path taken

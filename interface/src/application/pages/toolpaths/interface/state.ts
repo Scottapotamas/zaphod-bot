@@ -72,7 +72,7 @@ export const defaultSettings: Settings = {
     transitionSize: 0.1, // 1 / 3,
     waitAtStartDuration: 3000,
     interLineTransitionAngle: 50,
-    interLineTransitionShaveDistance: 5,
+    interLineTransitionShaveDistance: 2,
     smoothInterlineTransitions: true,
     mergeColinearLines: true,
     lineRunUp: 0,

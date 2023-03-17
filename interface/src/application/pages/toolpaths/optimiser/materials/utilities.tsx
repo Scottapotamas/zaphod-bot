@@ -161,8 +161,11 @@ export function movementTypeToLetter(movement: Movement) {
     case MOVEMENT_TYPE.BEZIER_CONSTANT_SPEED:
       type = 'CB'
       break
-    case MOVEMENT_TYPE.POINT_TRANSITION:
-      type = 'PT'
+    case MOVEMENT_TYPE.CATMULL_ROM:
+      type = 'ROM'
+      break
+    case MOVEMENT_TYPE.CATMULL_ROM_CONSTANT_SPEED:
+      type = 'CROM'
       break
     case MOVEMENT_TYPE.INTER_LINE_TRANSITION:
       type = 'IT'

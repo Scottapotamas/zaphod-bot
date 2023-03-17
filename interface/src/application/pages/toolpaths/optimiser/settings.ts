@@ -57,6 +57,11 @@ export interface OptimisationSettings {
   /**
    * Whether to smooth interline transitions
    */
+  mergeColinearLines: boolean
+
+  /**
+   * Whether to smooth interline transitions
+   */
   smoothInterlineTransitions: boolean
 
   /**
