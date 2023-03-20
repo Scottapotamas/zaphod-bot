@@ -39,7 +39,7 @@ import { MovementMoveType } from '../optimiser/hardware'
 import { sparseToDense } from '../optimiser/passes'
 import { CatmullRomLine } from './CatmullLine'
 import { MovementPoint } from 'src/application/typedState'
-import { Vector3 } from 'three'
+import { Vector3, PCFSoftShadowMap } from 'three'
 import {
   deserialiseTour,
   GLOBAL_OVERRIDE_OBJECT_ID,
@@ -484,16 +484,38 @@ export const ToolpathVisualisation = () => {
   }, [])
 
   return (
-    <Canvas linear dpr={[1, 2]} style={{ zIndex: 0 }}>
+    <Canvas linear dpr={[1, 2]} style={{ zIndex: 0 }} shadows={{ enabled: true, type: PCFSoftShadowMap }}>
       <PerspectiveCamera ref={setCameraRef} makeDefault position={[0, 150, 400]} far={10000} />
       <OrbitControls ref={setOrbitControlsRef} />
       <AxisLines />
 
-      <ambientLight intensity={0.2} />
-      <directionalLight position={[-100, 0, -50]} intensity={1} color="red" />
-      <directionalLight position={[-10, -20, -50]} intensity={0.3} color="#0c8cbf" />
+      <ambientLight intensity={0.1} />
 
-      <spotLight position={[400, 20, 400]} intensity={2.5} penumbra={1} angle={0.3} castShadow color="#0c8cbf" />
+      {/* Top down */}
+      <spotLight 
+        position={[0, 100, 0]}
+        intensity={1.0} 
+        penumbra={1} 
+        angle={Math.PI / 3} 
+        castShadow 
+        color="#cee8f2" 
+        shadow-mapSize-x={2048}
+        shadow-mapSize-y={2048}
+        shadow-normalBias={1}
+      />
+
+      {/* From the side */}
+      <spotLight 
+        position={[300, -200, 300]}
+        intensity={1} 
+        penumbra={1} 
+        angle={Math.PI / 6} 
+        castShadow 
+        color="#cee8f2" 
+        shadow-mapSize-x={2048}
+        shadow-mapSize-y={2048}
+        shadow-normalBias={1}
+      />
 
       <ToolpathMovements />
       <DeltaAssembly />
