@@ -714,7 +714,7 @@ PRIVATE void home_mech_cb( void )
 
 PRIVATE void movement_generate_event( void )
 {
-    MotionPlannerEvent *motion_request = EVENT_NEW( MotionPlannerEvent, MOVEMENT_REQUEST );
+    MotionPlannerEvent *motion_request = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
 
     if( motion_request )
     {

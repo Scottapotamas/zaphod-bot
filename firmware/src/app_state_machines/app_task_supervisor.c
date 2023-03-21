@@ -79,8 +79,6 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask *)me, MECHANISM_STOP );
     eventSubscribe( (StateTask *)me, MECHANISM_REHOME );
 
-    eventSubscribe( (StateTask *)me, MOVEMENT_REQUEST );
-
     // motion handler events
     eventSubscribe( (StateTask *)me, MOTION_ERROR );
     eventSubscribe( (StateTask *)me, MOTION_HOMED );
@@ -93,6 +91,7 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask *)me, MODE_MANUAL );
 
     eventSubscribe( (StateTask *)me, QUEUE_SYNC_START );
+    eventSubscribe( (StateTask *)me, MOTION_QUEUE_ADD );
     eventSubscribe( (StateTask *)me, MOTION_QUEUE_LOW );
 
     eventSubscribe( (StateTask *)me, DEMO_MODE_CONFIGURATION );
@@ -418,23 +417,6 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
             return 0;
         }
 
-            // TODO: Remove movement request proxy behaviour through supervisor?
-        case MOVEMENT_REQUEST: {
-            // catch the inbound movement event
-            MotionPlannerEvent *mpe = (MotionPlannerEvent *)e;
-
-            // Create event to pass event for motion handler
-            MotionPlannerEvent *motion_request = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
-
-            if( motion_request )
-            {
-                // copy the movement into the new event for the motion handler.
-                memcpy( &motion_request->move, &mpe->move, sizeof( Movement_t ) );
-                eventPublish( (StateEvent *)motion_request );
-            }
-            return 0;
-        }
-
         case MOTION_DISABLED:
             STATE_TRAN( AppTaskSupervisor_disarmed );
             return 0;
@@ -470,19 +452,14 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
             AppTaskSupervisorPublishRehomeEvent();
             return 0;
 
-        case MOVEMENT_REQUEST: {
+        case MOTION_QUEUE_ADD: {
             // catch the inbound movement event
             MotionPlannerEvent *mpe = (MotionPlannerEvent *)e;
 
-            // Create event to pass event for motion handler
-            MotionPlannerEvent *motion_request = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
-
-            if( motion_request )
+            if( mpe->move.points )
             {
-                // copy the movement into the new event for the motion handler.
-                memcpy( &motion_request->move, &mpe->move, sizeof( Movement_t ) );
-                eventPublish( (StateEvent *)motion_request );
-
+                // Fire a sync event now to trigger the moves immediately
+                // the manual mode doesn't really use queuing behaviours
                 SyncTimestampEvent *motor_sync = EVENT_NEW( SyncTimestampEvent, MOTION_QUEUE_START );
                 timer_ms_stopwatch_start( &motor_sync->epoch );
                 eventPublish( (StateEvent *)motor_sync );

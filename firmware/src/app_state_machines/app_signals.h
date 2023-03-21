@@ -36,7 +36,6 @@ enum AppSignals
 
     TRACKED_EXTERNAL_SERVO_REQUEST,
     TRACKED_TARGET_REQUEST,
-    MOVEMENT_REQUEST,
 
     /* Servo Signals */
     MECHANISM_START,
