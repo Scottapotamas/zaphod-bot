@@ -31,6 +31,11 @@ import {
   VelocityMaterialJSON,
 } from './materials/Velocity'
 import {
+  importDurationMaterial,
+  DurationMaterialDefaultJSON,
+  DurationMaterialJSON,
+} from './materials/Duration'
+import {
   importZGradientMaterial,
   ZGradientMaterialDefaultJSON,
   ZGradientMaterialJSON,
@@ -52,6 +57,7 @@ export type MaterialJSON =
   | ColorMaterialJSON
   | ColorRampMaterialJSON
   | VelocityMaterialJSON
+  | DurationMaterialJSON
   | InvisibleMaterialJSON
   | RandomColorMaterialJSON
   | FlickerMaterialJSON
@@ -80,6 +86,8 @@ export function importMaterial(json: MaterialJSON) {
         return importColorRampMaterial(json)
       case MATERIALS.VELOCITY:
         return importVelocityMaterial(json)
+      case MATERIALS.DURATION:
+        return importDurationMaterial(json)
       case MATERIALS.INVISIBLE:
         return importInvisibleMaterial(json)
       case MATERIALS.RANDOM:
@@ -117,6 +125,8 @@ export function getDefaultJSONForType(type: MATERIALS) {
       return ColorRampMaterialDefaultJSON
     case MATERIALS.VELOCITY:
       return VelocityMaterialDefaultJSON
+    case MATERIALS.DURATION:
+      return DurationMaterialDefaultJSON
     case MATERIALS.INVISIBLE:
       return InvisibleMaterialDefaultJSON
     case MATERIALS.RANDOM:

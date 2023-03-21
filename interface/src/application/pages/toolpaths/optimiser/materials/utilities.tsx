@@ -40,6 +40,7 @@ export const enum MATERIALS {
   Z_DEPTH = 'z_depth',
   BLEND = 'blend',
   REMAP = 'remap',
+  DURATION = 'duration',
 }
 
 // Our angles are stored as floats in the range 0-1

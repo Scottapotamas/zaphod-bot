@@ -15,6 +15,7 @@ import { FlickerMaterialEditor, FlickerMaterialJSON } from '../optimiser/materia
 import { ZDepthMaterialEditor, ZDepthMaterialJSON } from '../optimiser/materials/ZDepth'
 import { ZGradientMaterialEditor, ZGradientMaterialJSON } from '../optimiser/materials/ZGradient'
 import { BlendMaterialEditor, BlendMaterialJSON } from '../optimiser/materials/Blend'
+import { DurationMaterialEditor, DurationMaterialJSON } from '../optimiser/materials/Duration'
 
 export interface MaterialOption {
   materialType: MATERIALS
@@ -42,6 +43,11 @@ const materialOptions: MaterialOption[] = [
     materialType: MATERIALS.VELOCITY,
     text: 'Velocity as Color',
     icon: IconNames.DASHBOARD,
+  },
+  {
+    materialType: MATERIALS.DURATION,
+    text: 'Duration as Color',
+    icon: IconNames.TIME,
   },
   {
     materialType: MATERIALS.INVISIBLE,
@@ -163,6 +169,14 @@ export function MaterialEditor(props: MaterialEditorProps) {
         <VelocityMaterialEditor
           json={props.json as VelocityMaterialJSON}
           mutateJson={props.updateJson as JsonMutator<VelocityMaterialJSON>}
+        />
+      )
+      break
+    case MATERIALS.DURATION:
+      MaterialOverrideEditor = (
+        <DurationMaterialEditor
+          json={props.json as DurationMaterialJSON}
+          mutateJson={props.updateJson as JsonMutator<DurationMaterialJSON>}
         />
       )
       break
