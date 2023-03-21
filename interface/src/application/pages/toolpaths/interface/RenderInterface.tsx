@@ -113,7 +113,7 @@ import { Material } from '../optimiser/materials/Base'
 import { GLOBAL_OVERRIDE_OBJECT_ID } from '../optimiser/movements'
 import { importMaterial } from '../optimiser/material'
 import { useDeviceID } from '@electricui/components-core'
-import { MSGID, QueueDepthInfo } from 'src/application/typedState'
+import { LightMove, MovementMove, MSGID, QueueDepthInfo } from 'src/application/typedState'
 import { getOrderedMovementsForFrame } from './ToolpathVisualisation'
 import { FRAME_STATE } from '../optimiser/main'
 import { isCamera } from '../optimiser/camera'
@@ -205,46 +205,97 @@ export function SendToolpath() {
   const query = useQuery()
 
   const sendMovement = useCallback(
-    (move: PlannerMovementMove) => {
+    async (move: MovementMove) => {
       const cancellationToken = new CancellationToken()
       const message = new Message(MSGID.QUEUE_ADD_MOVE, move)
 
-      return sendMessage(message, cancellationToken)
+      try {
+        await sendMessage(message, cancellationToken)
+      } catch (e) {
+        if (cancellationToken.caused(e)) {
+          // cancellationToken timed out
+          return
+        } else {
+          console.error(e)
+          throw new Error(`Failed to send movement move at sync_offset #${move.sync_offset}`)
+        }
+      }
     },
     [sendMessage],
   )
 
   const sendLightMove = useCallback(
-    (fade: PlannerLightMove) => {
+    async (fade: LightMove) => {
       const cancellationToken = new CancellationToken()
       const message = new Message(MSGID.QUEUE_ADD_FADE, fade)
 
-      return sendMessage(message, cancellationToken)
+      try {
+        await sendMessage(message, cancellationToken)
+      } catch (e) {
+        if (cancellationToken.caused(e)) {
+          // cancellationToken timed out
+          return
+        } else {
+          console.error(e)
+          throw new Error(`Failed to send light move at timestamp #${fade.timestamp}`)
+        }
+      }
     },
     [sendMessage],
   )
 
   const sendSync = useCallback(async () => {
     const cancellationToken = new CancellationToken()
-
     const syncMessage = new Message(MSGID.QUEUE_SYNC, null)
-    await sendMessage(syncMessage, cancellationToken)
+
+    try {
+      await sendMessage(syncMessage, cancellationToken)
+    } catch (e) {
+      if (cancellationToken.caused(e)) {
+        // cancellationToken timed out
+        return
+      } else {
+        console.error(e)
+        throw new Error(`Failed to send queue sync`)
+      }
+    }
   }, [sendMessage])
 
   const sendClear = useCallback(async () => {
     const cancellationToken = new CancellationToken()
     const syncMessage = new Message(MSGID.QUEUE_CLEAR, null)
-    await sendMessage(syncMessage, cancellationToken)
-    await sendCapture(0) // cancel any currently running capture
 
-    await query(MSGID.QUEUE_INFO, cancellationToken)
+    try {
+      await sendMessage(syncMessage, cancellationToken)
+      await sendCapture(0) // cancel any currently running capture
+      await query(MSGID.QUEUE_INFO, cancellationToken)
+    } catch (e) {
+      if (cancellationToken.caused(e)) {
+        // cancellationToken timed out
+        return
+      } else {
+        console.error(e)
+        throw new Error(`Failed to clear queue`)
+      }
+    }
   }, [sendMessage])
 
   const sendAngle = useCallback(
     async (angle: number) => {
       const cancellationToken = new CancellationToken()
-      const syncMessage = new Message(MSGID.POSITION_EXPANSION, angle)
-      await sendMessage(syncMessage, cancellationToken)
+      const angleMessage = new Message(MSGID.POSITION_EXPANSION, angle)
+
+      try {
+        await sendMessage(angleMessage, cancellationToken)
+      } catch (e) {
+        if (cancellationToken.caused(e)) {
+          // cancellationToken timed out
+          return
+        } else {
+          console.error(e)
+          throw new Error(`Failed to send angle`)
+        }
+      }
     },
     [sendMessage],
   )
@@ -260,23 +311,47 @@ export function SendToolpath() {
         console.log(`Capturing for ${duration}ms`)
       }
 
-      await sendMessage(captureMessage, cancellationToken)
+      try {
+        await sendMessage(captureMessage, cancellationToken)
+      } catch (e) {
+        if (cancellationToken.caused(e)) {
+          // cancellationToken timed out
+          return
+        } else {
+          console.error(e)
+          throw new Error(`Failed to send capture message`)
+        }
+      }
     },
     [sendMessage],
   )
 
   const queryMotionAndQueueDepth = useCallback(async () => {
     const cancellationToken = new CancellationToken()
-    await query(MSGID.QUEUE_INFO, cancellationToken)
-    await query(MSGID.MOTION, cancellationToken)
+
+    try {
+      await query(MSGID.QUEUE_INFO, cancellationToken)
+      await query(MSGID.MOTION, cancellationToken)
+    } catch (e) {
+      if (cancellationToken.caused(e)) {
+        // cancellationToken timed out
+        return
+      } else {
+        console.error(e)
+        throw new Error(`Failed to query queue information`)
+      }
+    }
   }, [sendMessage])
 
-  const updateOptimisticQueueDepth = useCallback((movementDepth: number, lightQueueDepth: number) => {
-    changeState(state => {
-      state.movementQueueUI = movementDepth
-      state.lightQueueUI = lightQueueDepth
-    })
-  }, [])
+  const updateOptimisticQueueDepth = useCallback(
+    (movementDepth: number, lightQueueDepth: number) => {
+      changeState(state => {
+        state.movementQueueUI = movementDepth
+        state.lightQueueUI = lightQueueDepth
+      })
+    },
+    [],
+  )
 
   function getSequenceSender() {
     if (!sequenceSenderRef.current) {
