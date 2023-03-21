@@ -30,7 +30,7 @@ app_hardware_init( void )
     hal_gpio_configure_defaults();
 
     // Start the watchdog
-    hal_watchdog_init( 5000 );
+    hal_watchdog_init( 500 );
 
     // Initialise the CPU manager DWT
     hal_system_speed_init();
