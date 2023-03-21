@@ -20,7 +20,7 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 PUBLIC mm_per_second_t
 cartesian_move_speed( Movement_t *movement )
 {
-    REQUIRE( movement );
+    REQUIRE( movement->num_pts );
 
     // microns-per-millisecond converts to millimeters-per-second with no numeric conversion
     // long live the metric system
@@ -166,7 +166,7 @@ cartesian_distance_linearisation_from_lut( uint32_t sync_offset, float progress 
 PUBLIC uint32_t
 cartesian_move_distance( Movement_t *movement )
 {
-    REQUIRE( movement );
+    REQUIRE( movement->num_pts );
 
     uint32_t distance = 0;
 
@@ -286,7 +286,7 @@ uint32_t cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b )
 PUBLIC MotionSolution_t
 cartesian_plan_smoothed_line( Movement_t *movement, float start_weight, float end_weight )
 {
-    REQUIRE( movement );
+    REQUIRE( movement->num_pts );
 
     // Error checks - only accept lines with 2 points
     if( movement->type != _LINE || movement->num_pts != 2 )

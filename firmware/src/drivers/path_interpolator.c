@@ -94,16 +94,17 @@ PUBLIC void
 path_interpolator_set_next( PathInterpolatorInstance_t interpolator, Movement_t *movement_to_process )
 {
     REQUIRE( interpolator < NUMBER_PATH_INTERPOLATORS );
+    REQUIRE( movement_to_process->num_pts );
     REQUIRE( movement_to_process->duration );
 
     MotionPlanner_t *me = &planner[interpolator];
     Movement_t      *movement_insert_slot = { 0 };    // Allows us to put the new move into whichever slot is available
 
-    if( me->move_a.duration == 0 )
+    if( me->move_a.num_pts == 0 )
     {
         movement_insert_slot = &me->move_a;
     }
-    else if( me->move_b.duration == 0 )
+    else if( me->move_b.num_pts == 0 )
     {
         movement_insert_slot = &me->move_b;
     }
@@ -383,6 +384,8 @@ path_interpolator_premove_transforms( Movement_t *move )
 PRIVATE void
 path_interpolator_apply_rotation_offset( Movement_t *move )
 {
+    REQUIRE( move->num_pts );
+
     float offset_deg = configuration_get_z_rotation();
 
     for( uint8_t i = 0; i < move->num_pts; i++ )
@@ -396,6 +399,8 @@ path_interpolator_apply_rotation_offset( Movement_t *move )
 PRIVATE void
 path_interpolator_execute_move( Movement_t *move, float percentage )
 {
+    REQUIRE( move->num_pts );
+
     CartesianPoint_t target   = { 0, 0, 0 };    // target position in cartesian space
     MotionSolution_t solve_ok = SOLUTION_ERROR;
 
