@@ -208,6 +208,7 @@ export function SendToolpath() {
     async (move: MovementMove) => {
       const cancellationToken = new CancellationToken()
       const message = new Message(MSGID.QUEUE_ADD_MOVE, move)
+      message.metadata.ack = true // explicitly request acks
 
       try {
         await sendMessage(message, cancellationToken)
@@ -228,6 +229,7 @@ export function SendToolpath() {
     async (fade: LightMove) => {
       const cancellationToken = new CancellationToken()
       const message = new Message(MSGID.QUEUE_ADD_FADE, fade)
+      message.metadata.ack = true // explicitly request acks
 
       try {
         await sendMessage(message, cancellationToken)
@@ -247,6 +249,7 @@ export function SendToolpath() {
   const sendSync = useCallback(async () => {
     const cancellationToken = new CancellationToken()
     const syncMessage = new Message(MSGID.QUEUE_SYNC, null)
+    syncMessage.metadata.ack = true // explicitly request acks
 
     try {
       await sendMessage(syncMessage, cancellationToken)
@@ -263,10 +266,11 @@ export function SendToolpath() {
 
   const sendClear = useCallback(async () => {
     const cancellationToken = new CancellationToken()
-    const syncMessage = new Message(MSGID.QUEUE_CLEAR, null)
+    const clearMessage = new Message(MSGID.QUEUE_CLEAR, null)
+    clearMessage.metadata.ack = true // explicitly request acks
 
     try {
-      await sendMessage(syncMessage, cancellationToken)
+      await sendMessage(clearMessage, cancellationToken)
       await sendCapture(0) // cancel any currently running capture
       await query(MSGID.QUEUE_INFO, cancellationToken)
     } catch (e) {
@@ -284,6 +288,7 @@ export function SendToolpath() {
     async (angle: number) => {
       const cancellationToken = new CancellationToken()
       const angleMessage = new Message(MSGID.POSITION_EXPANSION, angle)
+      angleMessage.metadata.ack = true // explicitly request acks
 
       try {
         await sendMessage(angleMessage, cancellationToken)
@@ -304,6 +309,7 @@ export function SendToolpath() {
     async (duration: number) => {
       const cancellationToken = new CancellationToken()
       const captureMessage = new Message(MSGID.CAPTURE, duration)
+      captureMessage.metadata.ack = true // explicitly request acks
 
       if (duration === 0) {
         console.log(`Clearing current capture`)
