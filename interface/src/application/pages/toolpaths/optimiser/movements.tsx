@@ -1212,10 +1212,10 @@ export class CatmullRom extends Movement {
     if (this.curve) return this.curve
 
     /**
-     * v0 – The starting point.
-     * v1 – The first control point.
-     * v2 – The second control point.
-     * v3 – The ending point.
+     * v0 – The 'first' control point.
+     * v1 – The starting point.
+     * v2 – The ending point.
+     * v3 – The 'second' control point.
      */
     this.curve = new CatmullRomCurve3(
       [this.getC0(), this.getC1(), this.getC2(), this.getC3()],

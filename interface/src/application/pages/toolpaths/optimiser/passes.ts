@@ -489,6 +489,7 @@ export function sparseToDense(
         TRANSITION_OBJECT_ID,
         [],
       )
+      runUp.isTransition = true
       // Set the speed to the incoming line's speed, not the transition speed.
       runUp.setMaxSpeed(maxSpeedForMovement)
 
@@ -525,6 +526,7 @@ export function sparseToDense(
         TRANSITION_OBJECT_ID,
         emptyOverrideKeys,
       )
+      runOut.isTransition = true
       // Set the speed to the incoming line's speed, not the transition speed.
       runOut.setMaxSpeed(maxSpeedForMovement)
 
