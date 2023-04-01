@@ -177,6 +177,27 @@ export function sparseToDense(
       }
     }
 
+    // If the last movement and this movement have matching end and start points
+    // and their velocity angles are _very_ similar
+    // immediately snap between them without a transition
+    if (
+      settings.optimisation.smoothInterlineTransitions &&
+      previousMovement.getEnd().distanceTo(movement.getStart()) < 1 &&
+      previousMovement
+      .getExpectedExitVelocity()
+      .clone()
+      .normalize()
+      .angleTo(movement.getDesiredEntryVelocity().clone().normalize()) <
+      MathUtils.degToRad(settings.optimisation.interLineTransitionLessAngle)
+    ) {
+      // Add the movement to the dense bag
+      denseMovements.push(movement)
+
+      // Update the last movement
+      previousMovement = movement
+      continue
+    }
+
     // If the last movement and this movement are both lines, and their end and start points match up
     // And their velocity angles aren't too dissimilar, reduce the length of the lines and do a transition inline
     if (
