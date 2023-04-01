@@ -268,6 +268,8 @@ function bezierSplineToMovementGroup(
 
   const movementGroup = new MovementGroup()
   movementGroup.interFrameID = `${objectID}-${splineIndex}`
+  movementGroup.frozen = true // We're sure that these are connected, so no need to optimise within a group
+  // That being said this prevents flipping which is not desired, we need something that just prevents internal re-ordering.
 
   for (const [leftPoint, rightPoint] of window(points, 2)) {
     const c0 = new Vector3(...leftPoint.co)
