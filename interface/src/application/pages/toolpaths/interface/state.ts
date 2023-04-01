@@ -19,6 +19,7 @@ import type { NodeID, NodeInfo } from './RenderableTree'
 import type { FRAME_STATE, ToolpathGenerator } from './../optimiser/main'
 import type { GPencilOutputType } from '../optimiser/gpencil'
 import type { GNodesMeshOutputType } from '../optimiser/gnodes_mesh'
+import { GNodesCurvesOutputType } from '../optimiser/gnodes_curves'
 
 export const defaultSettings: Settings = {
   objectSettings: {
@@ -59,6 +60,9 @@ export const defaultSettings: Settings = {
       onDuration: 5,
       postWait: 5,
     },
+    gnodesCurves: {
+      outputType: 1 as GNodesCurvesOutputType.GROUP_PER_SPLINE,
+    },
   },
 
   // Do object level overrides here. Particle subsystems can be `object -> subsystem name`
@@ -71,8 +75,9 @@ export const defaultSettings: Settings = {
     rampToMaxSpeedDistance: 0,
     transitionSize: 0.1, // 1 / 3,
     waitAtStartDuration: 3000,
-    interLineTransitionAngle: 50,
+    interLineTransitionAngle: 50, // degrees
     interLineTransitionShaveDistance: 2,
+    interLineTransitionLessAngle: 2, // degrees
     smoothInterlineTransitions: true,
     mergeColinearLines: true,
     lineRunUp: 0,

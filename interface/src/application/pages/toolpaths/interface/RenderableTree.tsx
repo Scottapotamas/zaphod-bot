@@ -21,6 +21,7 @@ export enum NodeTypes {
   EFFECTOR = 'effector',
   GNODES_MESH = 'gnodes-mesh',
   GNODES_VERTICES = 'gnodes-vertices',
+  GNODES_CURVES = 'gnodes-curves',
 }
 
 export type NodeID = string | number

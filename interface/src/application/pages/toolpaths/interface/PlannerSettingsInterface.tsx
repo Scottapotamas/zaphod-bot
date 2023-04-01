@@ -711,6 +711,7 @@ function LineTab() {
             rightText="°"
             selector={state => state.settings.optimisation.interLineTransitionAngle}
             writer={(state, value) => (state.settings.optimisation.interLineTransitionAngle = value)}
+            description="Below this angle, lines can be smoothed with an inter-line bezier"
           />
           <NumericInput
             label="Inter-line Transition Distance"
@@ -721,6 +722,17 @@ function LineTab() {
             rightText="mm"
             selector={state => state.settings.optimisation.interLineTransitionShaveDistance}
             writer={(state, value) => (state.settings.optimisation.interLineTransitionShaveDistance = value)}
+          />
+          <NumericInput
+            label="Inter-line Transition-less Angle"
+            min={0}
+            max={360}
+            stepSize={1}
+            majorStepSize={36}
+            rightText="°"
+            selector={state => state.settings.optimisation.interLineTransitionLessAngle}
+            writer={(state, value) => (state.settings.optimisation.interLineTransitionLessAngle = value)}
+            description="Below this angle, movements don't need a transition at all"
           />
         </>
       ) : null}

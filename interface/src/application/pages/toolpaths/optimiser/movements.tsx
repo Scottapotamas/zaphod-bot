@@ -1114,9 +1114,9 @@ export class ConstantSpeedBezier extends Movement {
   }
 
   public getDesiredEntryVelocity = () => {
-    return this.getC0()
+    return this.getC1()
       .clone()
-      .sub(this.getC1())
+      .sub(this.getC0())
       .normalize()
       .multiplyScalar(this.maxSpeed)
   }

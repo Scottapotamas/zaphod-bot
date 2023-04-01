@@ -5,6 +5,7 @@ import type { ParticlesToMovementsSettings } from './particles'
 import type { EffectorToMovementSettings } from './effector'
 import type { GNodesMeshToMovementsSettings } from './gnodes_mesh'
 import type { GNodesVerticesToMovementsSettings } from './gnodes_vertices'
+import type { GNodesCurvesToMovementsSettings } from './gnodes_curves'
 
 const overwriteMerge = (destinationArray: any[], sourceArray: any[]) =>
   sourceArray
@@ -25,6 +26,7 @@ export interface Settings {
     effector: EffectorToMovementSettings
     gnodesMesh: GNodesMeshToMovementsSettings
     gnodesVertices: GNodesVerticesToMovementsSettings
+    gnodesCurves: GNodesCurvesToMovementsSettings
   }
 
   // Per-object overrides
@@ -37,6 +39,7 @@ export interface Settings {
       | Partial<EffectorToMovementSettings>
       | Partial<GNodesMeshToMovementsSettings>
       | Partial<GNodesVerticesToMovementsSettings>
+      | Partial<GNodesCurvesToMovementsSettings>
   }
 
   // For disabling the rendering of objects
@@ -68,6 +71,11 @@ export interface OptimisationSettings {
    * The angle in degrees below which lines will be taken in a single pass
    */
   interLineTransitionAngle: number
+
+  /**
+   * The angle in degrees below which lines will be taken in a single pass without a transition
+   */
+  interLineTransitionLessAngle: number
 
   /**
    * Distance in mm to shave off lines when doing inter line transitions
@@ -148,6 +156,12 @@ export function getToMovementSettings(
   overrideKeys: string[],
 ): GNodesVerticesToMovementsSettings
 
+export function getToMovementSettings(
+  settings: Settings,
+  objType: 'gnodesCurves',
+  overrideKeys: string[],
+): GNodesCurvesToMovementsSettings
+
 export function getToMovementSettings<
   ReturnType extends
     | GPencilToMovementsSettings
@@ -156,7 +170,8 @@ export function getToMovementSettings<
     | CameraToMovementsSettings
     | EffectorToMovementSettings
     | GNodesMeshToMovementsSettings
-    | GNodesVerticesToMovementsSettings,
+    | GNodesVerticesToMovementsSettings
+    | GNodesCurvesToMovementsSettings,
 >(
   settings: Settings,
   objType:
@@ -166,7 +181,8 @@ export function getToMovementSettings<
     | 'camera'
     | 'effector'
     | 'gnodesMesh'
-    | 'gnodesVertices',
+    | 'gnodesVertices'
+    | 'gnodesCurves',
   overrideKeys: string[],
 ): ReturnType {
   let objSettings = settings.objectSettings[objType]
