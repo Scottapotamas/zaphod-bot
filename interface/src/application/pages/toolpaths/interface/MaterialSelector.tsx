@@ -16,6 +16,7 @@ import { ZDepthMaterialEditor, ZDepthMaterialJSON } from '../optimiser/materials
 import { ZGradientMaterialEditor, ZGradientMaterialJSON } from '../optimiser/materials/ZGradient'
 import { BlendMaterialEditor, BlendMaterialJSON } from '../optimiser/materials/Blend'
 import { DurationMaterialEditor, DurationMaterialJSON } from '../optimiser/materials/Duration'
+import { FlippedMaterialEditor, FlippedMaterialJSON } from '../optimiser/materials/Flipped'
 
 export interface MaterialOption {
   materialType: MATERIALS
@@ -48,6 +49,11 @@ const materialOptions: MaterialOption[] = [
     materialType: MATERIALS.DURATION,
     text: 'Duration as Color',
     icon: IconNames.TIME,
+  },
+  {
+    materialType: MATERIALS.FLIPPED,
+    text: 'Flipped movements',
+    icon: IconNames.SWAP_HORIZONTAL,
   },
   {
     materialType: MATERIALS.INVISIBLE,
@@ -172,14 +178,22 @@ export function MaterialEditor(props: MaterialEditorProps) {
         />
       )
       break
-    case MATERIALS.DURATION:
-      MaterialOverrideEditor = (
-        <DurationMaterialEditor
-          json={props.json as DurationMaterialJSON}
-          mutateJson={props.updateJson as JsonMutator<DurationMaterialJSON>}
-        />
-      )
-      break
+      case MATERIALS.DURATION:
+        MaterialOverrideEditor = (
+          <DurationMaterialEditor
+            json={props.json as DurationMaterialJSON}
+            mutateJson={props.updateJson as JsonMutator<DurationMaterialJSON>}
+          />
+        )
+        break
+        case MATERIALS.FLIPPED:
+          MaterialOverrideEditor = (
+            <FlippedMaterialEditor
+              json={props.json as FlippedMaterialJSON}
+              mutateJson={props.updateJson as JsonMutator<FlippedMaterialJSON>}
+            />
+          )
+          break
     // case MATERIALS.MIX:
     //   MaterialOverrideEditor = (
     //     <MixMaterialEditor objectID={objectID} json={json as MixMaterialJSON} />

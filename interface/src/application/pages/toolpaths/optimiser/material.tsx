@@ -52,6 +52,7 @@ import {
 } from './materials/Blend'
 import { VisualisationSettings } from '../interface/state'
 import { Material } from './materials/Base'
+import { FlippedMaterialDefaultJSON, FlippedMaterialJSON, importFlippedMaterial } from './materials/Flipped'
 
 export type MaterialJSON =
   | ColorMaterialJSON
@@ -64,6 +65,7 @@ export type MaterialJSON =
   | ZGradientMaterialJSON
   | ZDepthMaterialJSON
   | BlendMaterialJSON
+  | FlippedMaterialJSON
 
 export const defaultTransitionMaterial = new InvisibleMaterial([
   19 / 255,
@@ -100,6 +102,8 @@ export function importMaterial(json: MaterialJSON) {
         return importZDepthMaterial(json)
       case MATERIALS.BLEND:
         return importBlendMaterial(json)
+      case MATERIALS.FLIPPED:
+        return importFlippedMaterial(json)
 
       default:
         throw new Error(
@@ -139,6 +143,8 @@ export function getDefaultJSONForType(type: MATERIALS) {
       return ZDepthMaterialDefaultJSON
     case MATERIALS.BLEND:
       return BlendMaterialDefaultJSON
+    case MATERIALS.FLIPPED:
+      return FlippedMaterialDefaultJSON
 
     default:
       throw new Error(
