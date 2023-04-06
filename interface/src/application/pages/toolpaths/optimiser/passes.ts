@@ -1681,7 +1681,7 @@ function generateBezierTransition(
   return transitions
 }
 
-function generateInterLineTransition(
+export function generateInterLineTransition(
   previousMovement: Line,
   nextMovement: Line,
   material: Material,

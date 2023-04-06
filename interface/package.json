@@ -66,6 +66,7 @@
     "@electricui/core-redux-state": "0.9.4-6c6a1c6cd",
     "@electricui/core-timeseries": "0.9.8-6c6a1c6cd",
     "@electricui/dataflow": "0.10.2-6c6a1c6cd",
+    "@electricui/jest-transform": "0.1.0-e76758200",
     "@electricui/loader": "0.9.3-6c6a1c6cd",
     "@electricui/protocol-binary": "0.9.4-6c6a1c6cd",
     "@electricui/protocol-binary-cobs": "0.9.4-6c6a1c6cd",

@@ -24,7 +24,7 @@ import {
   prettyPrintLightPath,
 } from './utilities'
 
-import { generateTransition } from '../../src/application/pages/toolpaths/optimiser/passes'
+import { generateInterLineTransition } from '../../src/application/pages/toolpaths/optimiser/passes'
 
 function sampleSpeeds(movement: Movement) {
   const arr: string[] = []
@@ -79,7 +79,9 @@ function buildTest(
   const B = new Line(startB, endB, mat, 'B', [])
   B.setMaxSpeed(speedB)
 
-  const transitions = generateTransition(A, B, mat, getDefaultSettings())
+  const maxSpeed = getDefaultSettings().optimisation.maxSpeed
+
+  const transitions = generateInterLineTransition(A, B, mat, maxSpeed, false)
 
   assertVelocityContinuity([A, ...transitions, B])
 }
@@ -106,7 +108,9 @@ describe(`VelocityMaterial`, () => {
     )
     B.setMaxSpeed(300)
 
-    const transitions = generateTransition(A, B, mat, getDefaultSettings())
+    const maxSpeed = getDefaultSettings().optimisation.maxSpeed
+
+    const transitions = generateInterLineTransition(A, B, mat, maxSpeed, false)
 
     console.log(`Line 1: [${sampleSpeeds(A).join(', ')}]
 ${transitions
