@@ -210,49 +210,24 @@ function polySplineToMovementGroup(
   const orderedMovements = new MovementGroup()
   orderedMovements.interFrameID = `${objectID}-${splineIndex}`
 
-  // for (const edge of this.edges) {
-  //   // A stroke needs at least two points to form a line
-  //   if (edge.points.length < 2) {
-  //     continue
-  //   }
+  for (let index = 1; index < points.length; index++) {
+    const prev = points[index - 1]
+    const curr = points[index - 1]
 
-  //   let lastPoint = new Vector3(
-  //     edge.points[0].co[0],
-  //     edge.points[0].co[1],
-  //     edge.points[0].co[2],
-  //   )
+    const prevPos = new Vector3(prev.co[0], prev.co[1], prev.co[2])
+    const currPos = new Vector3(curr.co[0], curr.co[1], curr.co[2])
 
-  //   let previousPointBlendedColor = edge.points[0].color
-
-  //   // Start at the second point, the first is located above
-  //   for (let index = 1; index < edge.points.length; index++) {
-  //     const point = edge.points[index]
-  //     const co = point.co
-
-  //     let currentPoint = new Vector3(co[0], co[1], co[2])
-  //     const vertexMat = new ColorRampMaterial(
-  //       previousPointBlendedColor,
-  //       point.color,
-  //     )
-  //     previousPointBlendedColor = point.color
-
-  //     // Create a line from the lastPoint to the currentPoint
-  //     const line: Movement = new Line(
-  //       lastPoint,
-  //       currentPoint,
-  //       vertexMat,
-  //       objectID,
-  //       overrideKeys,
-  //     )
-
-  //     // This ID isn't guaranteed to be stable, but it'll probably be close at least some of the time
-  //     line.interFrameID = point.id
-
-  //     orderedMovements.addMovement(line)
-
-  //     lastPoint = currentPoint
-  //   }
-  // }
+    // Create a line from the lastPoint to the currentPoint
+    const line: Movement = new Line(
+      prevPos,
+      currPos,
+      new ColorRampMaterial(prev.color, curr.color),
+      objectID,
+      overrideKeys,
+    )
+    line.interFrameID = `${objectID}-${splineIndex}-${index}`
+    orderedMovements.addMovement(line)
+  }
 
   return orderedMovements
 }
