@@ -811,7 +811,10 @@ function VisualisationTab() {
       <Checkbox
         label="Step Through Movements"
         selector={state => state.visualisationSettings.stepThrough}
-        writer={(state, value) => (state.visualisationSettings.stepThrough = value)}
+        writer={(state, value) => {
+          state.visualisationSettings.stepThrough = value
+          state.treeStore.hoveredItems = []
+        }}
       />
       {stepThrough ? (
         <>
