@@ -27,6 +27,10 @@ export function preprocess(initial: Movement[], settings: Settings) {
   const movements: Movement[] = []
 
   for (const movement of initial) {
+    if (isMovementGroup(movement) && movement.getMovements().length === 0) {
+      // dump empty movement groups
+      continue
+    }
     const startWithin = pointWithinCylinder(
       movement.getStart(),
       cylinderCenter,
