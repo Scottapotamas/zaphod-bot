@@ -15,7 +15,7 @@ import { Tooltip2 } from '@blueprintjs/popover2'
 
 import { Composition } from 'atomic-layout'
 
-import React, { useCallback, useState, useEffect, useRef } from 'react'
+import React, { useCallback, useState, useEffect, useRef, useMemo } from 'react'
 
 import {
   changeState,
@@ -369,29 +369,33 @@ function StepThroughMovementsControl() {
     changeState(state => {
       state.treeStore.hoveredItems = [movementIndex]
 
-      console.log(`selected movement #${movementIndex}:`, currentDenseMovements.current[movementIndex])
-
-      // Trigger an update, wrap around
-      incrementViewportFrameVersion(state)
+      // console.log(`selected movement #${movementIndex}:`, currentDenseMovements.current[movementIndex])
     })
   }, [])
 
-  const orderedMovements = useSetting(state => {
-    const movements = getOrderedMovementsForFrame(state.viewportFrame)
-    currentDenseMovements.current = sparseToDense(movements, state.settings)
+  // re-render on frame change, memoise the dense movements
+  const viewportFrame = useSetting(state => state.viewportFrame)
+
+  const orderedMovements = useMemo(() => {
+    const movements = getOrderedMovementsForFrame(viewportFrame)
+    currentDenseMovements.current = sparseToDense(
+      movements,
+      getSetting(state => state.settings),
+    )
 
     return currentDenseMovements.current
-  })
-  
+  }, [viewportFrame])
+
+  const maxIndex = Math.max(0, orderedMovements.length - 1)
 
   return (
     <div style={{ marginLeft: 10, marginRight: 10 }}>
       <Slider
         min={0}
-        max={Math.max(0, orderedMovements.length - 1)}
-        value={movementIndex}
+        max={maxIndex}
+        value={Math.min(movementIndex, maxIndex)} // If the frame changes, just set it to the max index
         onChange={updateSelectedMovementIndex}
-        labelValues={[0, Math.max(0, orderedMovements.length - 1)]}
+        labelValues={[0, maxIndex]}
       />
     </div>
   )
@@ -488,9 +492,7 @@ function GeneralTab() {
         majorStepSize={100}
         rightText="mm/s"
         selector={state => state.settings.optimisation.maxSpeed}
-        writer={(state, value) =>
-          (state.settings.optimisation.maxSpeed = value)
-        }
+        writer={(state, value) => (state.settings.optimisation.maxSpeed = value)}
         description="The peak movement speed"
       />
       <NumericInput
@@ -501,9 +503,7 @@ function GeneralTab() {
         majorStepSize={25}
         rightText="mm"
         selector={state => state.settings.optimisation.rampToMaxSpeedDistance}
-        writer={(state, value) =>
-          (state.settings.optimisation.rampToMaxSpeedDistance = value)
-        }
+        writer={(state, value) => (state.settings.optimisation.rampToMaxSpeedDistance = value)}
         description="The distance required to hit max speed"
       />
       <NumericInput
