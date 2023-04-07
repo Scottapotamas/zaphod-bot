@@ -120,6 +120,9 @@ export interface VisualisationSettings {
   previewProgress: boolean
   frameProgress: number
 
+  // One-by-one movement hover
+  stepThrough: boolean
+
   // Global brightness modifier, 0-1 float
   brightness: number
 }
@@ -235,6 +238,7 @@ export const initialState: Store = {
     previewProgress: false,
     frameProgress: 0,
     brightness: 1,
+    stepThrough: false,
   },
 
   settingsDirty: false,

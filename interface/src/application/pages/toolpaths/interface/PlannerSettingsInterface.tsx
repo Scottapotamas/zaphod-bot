@@ -15,7 +15,7 @@ import { Tooltip2 } from '@blueprintjs/popover2'
 
 import { Composition } from 'atomic-layout'
 
-import React, { useCallback, useState, useEffect } from 'react'
+import React, { useCallback, useState, useEffect, useRef } from 'react'
 
 import {
   changeState,
@@ -36,6 +36,9 @@ import { WritableDraft } from 'immer/dist/internal'
 
 import './styles.css'
 import { DMXControlTab } from './DMXControl'
+import { getOrderedMovementsForFrame } from './ToolpathVisualisation'
+import { sparseToDense } from '../optimiser/passes'
+import { Movement } from '../optimiser/movements'
 
 // TODO: How do we get the defaults from here?
 // Bool defaults are false, number defaults are 0
@@ -350,6 +353,45 @@ function PreviewTimelineControl() {
         labelStepSize={1}
         onChange={updatePreviewTimeline}
         stepSize={0.001}
+      />
+    </div>
+  )
+}
+
+function StepThroughMovementsControl() {
+  const [movementIndex, set] = useState(0)
+
+  const currentDenseMovements = useRef<Movement[]>([])
+
+  const updateSelectedMovementIndex = useCallback(movementIndex => {
+    set(movementIndex)
+
+    changeState(state => {
+      state.treeStore.hoveredItems = [movementIndex]
+
+      console.log(`selected movement #${movementIndex}:`, currentDenseMovements.current[movementIndex])
+
+      // Trigger an update, wrap around
+      incrementViewportFrameVersion(state)
+    })
+  }, [])
+
+  const orderedMovements = useSetting(state => {
+    const movements = getOrderedMovementsForFrame(state.viewportFrame)
+    currentDenseMovements.current = sparseToDense(movements, state.settings)
+
+    return currentDenseMovements.current
+  })
+  
+
+  return (
+    <div style={{ marginLeft: 10, marginRight: 10 }}>
+      <Slider
+        min={0}
+        max={Math.max(0, orderedMovements.length - 1)}
+        value={movementIndex}
+        onChange={updateSelectedMovementIndex}
+        labelValues={[0, Math.max(0, orderedMovements.length - 1)]}
       />
     </div>
   )
@@ -752,6 +794,7 @@ function LineTab() {
 
 function VisualisationTab() {
   const previewEnabled = useSetting(state => state.visualisationSettings.previewProgress)
+  const stepThrough = useSetting(state => state.visualisationSettings.stepThrough)
 
   return (
     <Composition templateCols="1fr 200px" gap="1em" alignItems="center">
@@ -763,6 +806,16 @@ function VisualisationTab() {
       {previewEnabled ? (
         <>
           Preview Timeline <PreviewTimelineControl />
+        </>
+      ) : null}
+      <Checkbox
+        label="Step Through Movements"
+        selector={state => state.visualisationSettings.stepThrough}
+        writer={(state, value) => (state.visualisationSettings.stepThrough = value)}
+      />
+      {stepThrough ? (
+        <>
+          Selected Step <StepThroughMovementsControl />
         </>
       ) : null}
       Annotate Draw Order <AnnotateOrderingToggle />
