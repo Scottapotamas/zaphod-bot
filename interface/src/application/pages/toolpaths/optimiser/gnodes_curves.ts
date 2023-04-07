@@ -212,7 +212,7 @@ function polySplineToMovementGroup(
 
   for (let index = 1; index < points.length; index++) {
     const prev = points[index - 1]
-    const curr = points[index - 1]
+    const curr = points[index]
 
     const prevPos = new Vector3(prev.co[0], prev.co[1], prev.co[2])
     const currPos = new Vector3(curr.co[0], curr.co[1], curr.co[2])
