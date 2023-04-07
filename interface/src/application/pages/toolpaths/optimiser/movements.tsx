@@ -241,7 +241,7 @@ export class MovementGroup extends Movement {
 
   private movements: Movement[] = []
 
-  // Whether the internal ordering is frozen or can be mutated. Also prevents flipping
+  // Whether the internal ordering is frozen or can be mutated.
   public frozen = false
 
   public addMovement = (movement: Movement) => {
@@ -253,11 +253,6 @@ export class MovementGroup extends Movement {
   }
 
   public flip = () => {
-    // Frozen movement groups can't be flipped
-    if (this.frozen) {
-      return
-    }
-
     // Otherwise flip all internal movements
     for (let index = 0; index < this.movements.length; index++) {
       const movement = this.movements[index]

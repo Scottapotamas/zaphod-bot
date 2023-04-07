@@ -184,11 +184,11 @@ export function sparseToDense(
       settings.optimisation.smoothInterlineTransitions &&
       previousMovement.getEnd().distanceTo(movement.getStart()) < 1 &&
       previousMovement
-      .getExpectedExitVelocity()
-      .clone()
-      .normalize()
-      .angleTo(movement.getDesiredEntryVelocity().clone().normalize()) <
-      MathUtils.degToRad(settings.optimisation.interLineTransitionLessAngle)
+        .getExpectedExitVelocity()
+        .clone()
+        .normalize()
+        .angleTo(movement.getDesiredEntryVelocity().clone().normalize()) <
+        MathUtils.degToRad(settings.optimisation.interLineTransitionLessAngle)
     ) {
       // Add the movement to the dense bag
       denseMovements.push(movement)
@@ -602,9 +602,9 @@ export function sparseToCost(movements: Movement[]): number {
   let d2Total = 0
 
   for (let index = 1; index < movements.length; index++) {
-    const movementP = movements[index - 1]
-    const movement = movements[index]
-    const d2 = movementP.getEnd().distanceTo(movement.getStart())
+    const prev = movements[index - 1]
+    const curr = movements[index]
+    const d2 = prev.getEnd().distanceToSquared(curr.getStart())
 
     d2Total += d2
   }
@@ -746,7 +746,8 @@ export function* optimiseNoop(
   return
 }
 
-// Search happens so fast we don't bother having it be cancellable
+// 84 minutes total
+
 export function* optimiseBySearch(
   sparseBag: Movement[],
   createHasher: (seed?: number) => XXHash<number>,
@@ -770,63 +771,99 @@ export function* optimiseBySearch(
     return
   }
 
-  const toOrder: Movement[] = sparseBag.slice() // Copy the array
+  let totalIterations = 0
 
-  // Start from the first movement
-  let previousMovement = toOrder[0] // splice returns an array of the deleted items, index 0 is our starting point
-  const nnOrdering = [previousMovement]
+  let worstCost = -Infinity
 
-  // Find the closest next movement, potentially flipping it
-  while (toOrder.length > 0) {
-    let closest: Movement = previousMovement
-    let closestDistance = Infinity
-    let closestIndex = 0
+  // Start a search from every movement, flipped and not flipped
+  for (let sFi = 0; sFi < 2; sFi++) {
+    const startFlipped = sFi === 0
 
-    for (let index = 0; index < toOrder.length; index++) {
-      const movement = toOrder[index]
+    for (let tourIndex = 0; tourIndex < sparseBag.length; tourIndex++) {
+      let previousMovement = sparseBag[tourIndex]
 
-      // Check if the end of the next movement is closer
-      let d = movement.getStart().distanceTo(previousMovement.getEnd())
-
-      if (d < closestDistance) {
-        closestDistance = d
-        closest = movement
-        closestIndex = index
+      // Check if the time limit has been exceeded
+      if (performance.now() > stopAfter.current) {
+        yield {
+          iterations: tourIndex + 1,
+          completed: false,
+          time: performance.now() - start,
+          best,
+        }
       }
 
-      // Try flipping it
-      movement.flip()
+      const toOrder = sparseBag.slice()
+      toOrder.splice(tourIndex, 1) // remove our starting element from the list to order
 
-      d = movement.getStart().distanceTo(previousMovement.getEnd())
+      const nnOrdering = [previousMovement]
 
-      // If it is closer, leave it flipped
-      if (d < closestDistance) {
-        closestDistance = d
-        closest = movement
-        closestIndex = index
-        continue
+      // Flip the start movement if necessary
+      if (startFlipped && !previousMovement.isFlipped ||
+         !startFlipped && previousMovement.isFlipped) {
+        previousMovement.flip()
       }
 
-      // Otherwise flip it back
-      movement.flip()
+      // Find the closest next movement, potentially flipping it
+      while (toOrder.length > 0) {
+        let closest: Movement = previousMovement
+        let closestDistance = Infinity
+        let closestIndex = 0
+
+        for (let index = 0; index < toOrder.length; index++) {
+          const movement = toOrder[index]
+
+          // Check if the end of the next movement is closer
+          let d = movement.getStart().distanceTo(previousMovement.getEnd())
+
+          if (d < closestDistance) {
+            closestDistance = d
+            closest = movement
+            closestIndex = index
+          }
+
+          // Try flipping it
+          movement.flip()
+
+          d = movement.getStart().distanceTo(previousMovement.getEnd())
+
+          // If it is closer, leave it flipped
+          if (d < closestDistance) {
+            closestDistance = d
+            closest = movement
+            closestIndex = index
+            continue
+          }
+
+          // Otherwise flip it back
+          movement.flip()
+        }
+
+        // We've found the next closest, pop it off
+        toOrder.splice(closestIndex, 1)
+
+        // And add it to the nnOrdered array
+        nnOrdering.push(closest)
+
+        // Update the previousMovement
+        previousMovement = closest
+      }
+
+      const cost = sparseToCost(nnOrdering)
+
+      if (cost < best.cost) {
+        best.tour = serialiseTour(nnOrdering)
+        best.hash = hashTour(nnOrdering, createHasher)
+        best.cost = sparseToCost(nnOrdering)
+      } else {
+        worstCost = cost
+      }
+
+      totalIterations++
     }
-
-    // We've found the next closest, pop it off
-    toOrder.splice(closestIndex, 1)
-
-    // And add it to the nnOrdered array
-    nnOrdering.push(closest)
-
-    // Update the previousMovement
-    previousMovement = closest
   }
 
-  best.tour = serialiseTour(nnOrdering)
-  best.hash = hashTour(nnOrdering, createHasher)
-  best.cost = sparseToCost(nnOrdering)
-
   yield {
-    iterations: toOrder.length,
+    iterations: totalIterations,
     completed: true,
     time: performance.now() - start,
     best,

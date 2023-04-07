@@ -209,6 +209,7 @@ function polySplineToMovementGroup(
 
   const orderedMovements = new MovementGroup()
   orderedMovements.interFrameID = `${objectID}-${splineIndex}`
+  orderedMovements.frozen = true // We're sure that these are connected, so no need to optimise within a group
 
   for (let index = 1; index < points.length; index++) {
     const prev = points[index - 1]
@@ -244,8 +245,8 @@ function bezierSplineToMovementGroup(
   const movementGroup = new MovementGroup()
   movementGroup.interFrameID = `${objectID}-${splineIndex}`
   movementGroup.frozen = true // We're sure that these are connected, so no need to optimise within a group
-  // That being said this prevents flipping which is not desired, we need something that just prevents internal re-ordering.
 
+  let i = 0
   for (const [leftPoint, rightPoint] of window(points, 2)) {
     const c0 = new Vector3(...leftPoint.co)
     const c1 = new Vector3(...leftPoint.handle_right)
@@ -261,7 +262,9 @@ function bezierSplineToMovementGroup(
       objectID,
     )
 
+    bezier.interFrameID = `${objectID}-${splineIndex}-${i}`
     movementGroup.addMovement(bezier)
+    i++
   }
 
   return movementGroup

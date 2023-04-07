@@ -102,6 +102,7 @@ export class Effector {
     }
 
     const orderedMovements = new MovementGroup()
+    
     // Freeze internal movement ordering
     orderedMovements.frozen = true
 
