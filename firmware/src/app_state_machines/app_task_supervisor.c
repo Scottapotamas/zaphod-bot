@@ -281,13 +281,15 @@ PRIVATE STATE AppTaskSupervisor_arm_error( AppTaskSupervisor *me,
 
             // We only get here when another state thinks the mechanism isn't responding properly
             // so treat it as a high severity error, and trigger e-stop behaviour
-            eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
-
-            // send message to UI
-            user_interface_report_error( "Arming Error" );
+            EmergencyStopEvent *estop_evt = EVENT_NEW( EmergencyStopEvent, MOTION_EMERGENCY );
+            if( estop_evt )
+            {
+                // TODO: is this cause sufficiently descriptive?
+                estop_evt->cause = EMERGENCY_SUPERVISOR;
+                eventPublish( (StateEvent *)estop_evt );
+            }
 
             buzzer_sound( BUZZER_ARMING_ERROR_NUM, BUZZER_ARMING_ERROR_TONE, BUZZER_ARMING_ERROR_DURATION );
-
             return 0;
 
         case MOTION_DISABLED:
@@ -739,7 +741,12 @@ PRIVATE STATE AppTaskSupervisor_disarm_graceful( AppTaskSupervisor *me,
             if( effector_is_near_home() )
             {
                 // TODO: use a 'quiet' disarm here rather than the hard emergency shutdown
-                eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
+                EmergencyStopEvent *estop_evt = EVENT_NEW( EmergencyStopEvent, MOTION_EMERGENCY );
+                if( estop_evt )
+                {
+                    estop_evt->cause = EMERGENCY_NONE;
+                    eventPublish( (StateEvent *)estop_evt );
+                }
             }
 
             return 0;

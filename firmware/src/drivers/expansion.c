@@ -10,10 +10,10 @@
 #include "app_times.h"
 #include "app_signals.h"
 #include "event_subscribe.h"
+#include "app_events.h"
 #include "qassert.h"
 
 #include "clearpath.h"
-
 #include "configuration.h"
 #include "motion_types.h"
 #include "user_interface.h"
@@ -96,7 +96,13 @@ expansion_process( void )
         if( proposed_distance_um > configuration_get_expansion_speed_limit() )
         {
             // Violations shouldn't reach the effectors, so E-STOP immediately
-            eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
+            EmergencyStopEvent *estop_evt = EVENT_NEW( EmergencyStopEvent, MOTION_EMERGENCY );
+            if( estop_evt )
+            {
+                estop_evt->cause = EMERGENCY_VIOLATION;
+                eventPublish( (StateEvent *)estop_evt );
+            }
+            ASSERT(false);
         }
         else    // under the speed limit
         {

@@ -286,8 +286,12 @@ path_interpolator_process( PathInterpolatorInstance_t interpolator )
 
                 if( speed > configuration_get_effector_speed_limit() )
                 {
-                    // TODO do something other than just E-STOP on the overspeed move
-                    eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
+                    EmergencyStopEvent *estop_evt = EVENT_NEW( EmergencyStopEvent, MOTION_EMERGENCY );
+                    if( estop_evt )
+                    {
+                        estop_evt->cause = EMERGENCY_REQUEST_DENIED;
+                        eventPublish( (StateEvent *)estop_evt );
+                    }
 
                     user_interface_report_error( "Requested illegal speed move" );
                 }

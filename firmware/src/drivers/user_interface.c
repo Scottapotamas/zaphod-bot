@@ -312,9 +312,16 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
                         eventPublish( EVENT_NEW( StateEvent, MODE_TRACK ) );
                         break;
 
-                    default:
+                    default: {
                         // Punish an incorrect attempt at mode changes with E-STOP
-                        eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
+                        EmergencyStopEvent *estop_evt = EVENT_NEW( EmergencyStopEvent, MOTION_EMERGENCY );
+
+                        if( estop_evt )
+                        {
+                            estop_evt->cause = EMERGENCY_REQUEST_DENIED;
+                            eventPublish( (StateEvent *)estop_evt );
+                        }
+                    }
                         break;
                 }
             }
@@ -700,7 +707,13 @@ PRIVATE void stop_mech_cb( void )
 
 PRIVATE void emergency_stop_cb( void )
 {
-    eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
+    EmergencyStopEvent *estop_evt = EVENT_NEW( EmergencyStopEvent, MOTION_EMERGENCY );
+
+    if( estop_evt )
+    {
+        estop_evt->cause = EMERGENCY_USER;
+        eventPublish( (StateEvent *)estop_evt );
+    }
 }
 
 /* -------------------------------------------------------------------------- */

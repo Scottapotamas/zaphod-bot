@@ -49,6 +49,25 @@ typedef struct ButtonPressedEvent__
 
 /* -------------------------------------------------------------------------- */
 
+typedef enum
+{
+    EMERGENCY_NONE = 0,
+    EMERGENCY_USER,
+    EMERGENCY_REQUEST_DENIED,
+    EMERGENCY_SUPERVISOR,
+    EMERGENCY_HARDWARE,
+    EMERGENCY_VIOLATION,
+} EmergencyReason;
+
+/** Report detected button presses */
+typedef struct EmergencyStopEvent__
+{
+    StateEvent      super;  /**< Encapsulated event reference */
+    EmergencyReason cause;  /**< Flag describing why we are firing an ESTOP */
+} EmergencyStopEvent;
+
+/* -------------------------------------------------------------------------- */
+
 /** Motion command */
 typedef struct MotionPlannerEvent__
 {

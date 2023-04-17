@@ -11,9 +11,10 @@
 #include "app_signals.h"
 #include "event_subscribe.h"
 #include "qassert.h"
+#include "app_events.h"
 
-#include "kinematics.h"
 #include "clearpath.h"
+#include "kinematics.h"
 #include "motion_types.h"
 
 /* ----- Defines ------------------------------------------------------------ */
@@ -112,7 +113,12 @@ effector_process( void )
         {
             // Violations shouldn't reach the effector kinematics, so E-STOP immediately
             //   motion requests from path planning shouldn't queue/plan over-speed moves!
-            eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
+            EmergencyStopEvent *estop_evt = EVENT_NEW( EmergencyStopEvent, MOTION_EMERGENCY );
+            if( estop_evt )
+            {
+                estop_evt->cause = EMERGENCY_VIOLATION;
+                eventPublish( (StateEvent *)estop_evt );
+            }
         }
         else    // under the speed limit
         {
