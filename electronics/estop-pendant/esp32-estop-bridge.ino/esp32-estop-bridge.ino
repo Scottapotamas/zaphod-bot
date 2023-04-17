@@ -13,7 +13,9 @@
 #include "electricui.h"
 
 // Serial Connections
-#define BAUDRATE 500000
+#define BAUDRATE_PC 500000
+
+#define BAUDRATE_DELTA 500000
 #define UART_RX 16
 #define UART_TX 17
 
@@ -96,10 +98,10 @@ eui_message_t sniff_variables[] =
 void init_serial( void ) 
 {
   // USB connection to host PC
-  Serial.begin( BAUDRATE );
+  Serial.begin( BAUDRATE_PC );
 
   // Hardware connection to delta via LEMO cable
-  Serial2.begin( BAUDRATE, SERIAL_8N1, UART_RX, UART_TX );
+  Serial2.begin( BAUDRATE_DELTA, SERIAL_8N1, UART_RX, UART_TX );
   
   EUI_LINK(  sniff_interfaces );
   EUI_TRACK( sniff_variables  );
