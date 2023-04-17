@@ -23,12 +23,12 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
     POINT( X2, Y2, Z2 ) \
 }
 
-#define DELAY_MOVEMENT( DURATION ) {.type =_POINT_TRANSIT, .ref =_POS_RELATIVE, .sync_offset=0, .duration=(DURATION), .num_pts=1, .points={ {0,0,0} }}
-#define MOVE_TO( DURATION, TO ) {.type =_POINT_TRANSIT, .ref =_POS_ABSOLUTE, .sync_offset=0, .duration=(DURATION), .num_pts=1, .points={ TO }}
+#define DELAY_MOVEMENT( DURATION ) { .metadata = { .type =_POINT_TRANSIT, .ref =_POS_RELATIVE, .num_pts=1, }, .sync_offset=0, .duration=(DURATION), .points={ {0,0,0} }}
+#define MOVE_TO( DURATION, TO ) { .metadata = {.type =_POINT_TRANSIT, .ref =_POS_ABSOLUTE, .num_pts=1, }, .sync_offset=0, .duration=(DURATION), .points={ TO }}
 #define MOVE_BETWEEN( DURATION, FROM, TO ) {.type =_LINE, .ref =_POS_ABSOLUTE, .sync_offset=0, .duration=(DURATION), .num_pts=2, .points={ FROM, TO}}
-#define MOVE_BETWEEN_SMOOTH( DURATION, SMOOTH, X1, Y1, Z1, X2, Y2, Z2 ) {.type =_BEZIER_CUBIC, .ref =_POS_ABSOLUTE, .sync_offset=0, .duration=(DURATION), .num_pts=4, .points=POINT_PAIR_CUBIC((X1)*1000, (Y1)*1000, (Z1)*1000, (X2)*1000, (Y2)*1000, (Z2)*1000, (SMOOTH)) }
+#define MOVE_BETWEEN_SMOOTH( DURATION, SMOOTH, X1, Y1, Z1, X2, Y2, Z2 ) { .metadata = { .type =_BEZIER_CUBIC, .ref =_POS_ABSOLUTE,  .num_pts=4, }, .sync_offset=0, .duration=(DURATION), .points=POINT_PAIR_CUBIC((X1)*1000, (Y1)*1000, (Z1)*1000, (X2)*1000, (Y2)*1000, (Z2)*1000, (SMOOTH)) }
 
-#define CUBIC_BEZIER( DURATION, A, B, C, D ) {.type =_BEZIER_CUBIC, .ref =_POS_ABSOLUTE, .sync_offset=0, .duration=(DURATION), .num_pts=4, .points={ A, B, C, D } }
+#define CUBIC_BEZIER( DURATION, A, B, C, D ) { .metadata = { .type =_BEZIER_CUBIC, .ref =_POS_ABSOLUTE, .num_pts=4, }, .sync_offset=0, .duration=(DURATION), .points={ A, B, C, D } }
 
 /* -------------------------------------------------------------------------- */
 

@@ -310,16 +310,18 @@ export class InboundMotionCodec extends Codec {
   encode(payload: MovementMove): Buffer {
     const packet = new SmartBuffer()
 
-    payload.num_points = payload.points.length
+    // 2-byte metadata bitfield
+    let meta = 0x0000;
 
-    packet.writeUInt8(payload.type)
-    packet.writeUInt8(payload.reference)
-    packet.writeUInt8(payload.num_points)
-    packet.writeUInt8(0x00) // padding
-    packet.writeUInt32LE(payload.sync_offset)
+    meta |= (payload.id)                  // 9 bits
+    meta |= (payload.reference << 9)      // 1 bit
+    meta |= (payload.type << 10)          // 3 bits
+    meta |= (payload.points.length << 13)  // 3 bits
+
+    packet.writeUInt16LE(meta)
 
     packet.writeUInt16LE(payload.duration)
-    packet.writeUInt16LE(0x0000) // padding
+    packet.writeUInt32LE(payload.sync_offset)
 
     for (let index = 0; index < 4; index++) {
       const pointData = payload.points[index]
@@ -343,18 +345,22 @@ export class InboundMotionCodec extends Codec {
 
     const points_decoded: Array<MovementPoint> = []
 
-    let type = reader.readUInt8()
-    let reference = reader.readUInt8()
-    let num_points = reader.readUInt8()
-    reader.readUInt8()  // padding
-    let sync_offset = reader.readUInt32LE()
+    // 2-byte bitfield packing
+    let meta = reader.readUInt16LE()
+
+    let move_identifier = ( meta & 0x01FF )   // 9 bits
+    let reference = ( meta & 0x0200 )         // 1 bit
+    let type = ( meta & 0x1C00 )              // 3 bits
+    let num_points = ( meta & 0xE000 )        // 3 bits
+
     let duration = reader.readUInt16LE()
-    reader.readUInt16LE() // padding
+    let sync_offset = reader.readUInt32LE()
 
     const movement: MovementMove = {
       type: type,
       reference: reference,
       num_points: num_points,
+      id: move_identifier,
       sync_offset: sync_offset,
       duration: duration,
       points: points_decoded,

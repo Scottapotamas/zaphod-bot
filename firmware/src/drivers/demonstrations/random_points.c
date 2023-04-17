@@ -36,9 +36,9 @@ random_points_get_move( uint8_t sequence_index, Movement_t *move )
     //   we'll also randomly generate the duration to that point
     Movement_t random_transit = { 0 };
 
-    random_transit.ref = _POS_ABSOLUTE;
-    random_transit.type = _LINE;
-    random_transit.num_pts = 2;
+    random_transit.metadata.ref = _POS_ABSOLUTE;
+    random_transit.metadata.type = _LINE;
+    random_transit.metadata.num_pts = 2;
 
     // Moving from the previous end position
     random_transit.points[_LINE_START].x = previous_position.x;

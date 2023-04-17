@@ -20,7 +20,7 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 PUBLIC mm_per_second_t
 cartesian_move_speed( Movement_t *movement )
 {
-    REQUIRE( movement->num_pts );
+    REQUIRE( movement->metadata.num_pts );
 
     // microns-per-millisecond converts to millimeters-per-second with no numeric conversion
     // long live the metric system
@@ -166,11 +166,12 @@ cartesian_distance_linearisation_from_lut( uint32_t sync_offset, float progress 
 PUBLIC uint32_t
 cartesian_move_distance( Movement_t *movement )
 {
-    REQUIRE( movement->num_pts );
+    REQUIRE( movement->metadata.num_pts );
 
     uint32_t distance = 0;
+    MotionAdjective_t move_type = (MotionAdjective_t)movement->metadata.type;
 
-    if( movement->type == _POINT_TRANSIT || movement->type == _LINE )
+    if( move_type == _POINT_TRANSIT || move_type == _LINE )
     {
         // straight line 3D distance
         distance = cartesian_distance_between( &movement->points[0], &movement->points[1] );
@@ -182,7 +183,7 @@ cartesian_move_distance( Movement_t *movement )
         CartesianPoint_t previous_point = { 0, 0, 0 };
 
         // Copy the curve start point as the previous point, as first sample is non-zero
-        switch( movement->type )
+        switch( move_type )
         {
             case _BEZIER_QUADRATIC:
             case _BEZIER_QUADRATIC_LINEARISED:
@@ -215,21 +216,21 @@ cartesian_move_distance( Movement_t *movement )
             float sample_t = (float)i / SPEED_SAMPLE_RESOLUTION;
 
             // sample the position of the effector using the relevant interp processor
-            switch( movement->type )
+            switch( move_type )
             {
                 case _BEZIER_QUADRATIC:
                 case _BEZIER_QUADRATIC_LINEARISED:
-                    cartesian_point_on_quadratic_bezier( movement->points, movement->num_pts, sample_t, &sample_point );
+                    cartesian_point_on_quadratic_bezier( movement->points, movement->metadata.num_pts, sample_t, &sample_point );
                     break;
 
                 case _BEZIER_CUBIC:
                 case _BEZIER_CUBIC_LINEARISED:
-                    cartesian_point_on_cubic_bezier( movement->points, movement->num_pts, sample_t, &sample_point );
+                    cartesian_point_on_cubic_bezier( movement->points, movement->metadata.num_pts, sample_t, &sample_point );
                     break;
 
                 case _CATMULL_SPLINE:
                 case _CATMULL_SPLINE_LINEARISED:
-                    cartesian_point_on_catmull_spline( movement->points, movement->num_pts, sample_t, &sample_point );
+                    cartesian_point_on_catmull_spline( movement->points, movement->metadata.num_pts, sample_t, &sample_point );
                     break;
 
                 case _POINT_TRANSIT:
@@ -286,10 +287,10 @@ uint32_t cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b )
 PUBLIC MotionSolution_t
 cartesian_plan_smoothed_line( Movement_t *movement, float start_weight, float end_weight )
 {
-    REQUIRE( movement->num_pts );
+    REQUIRE( movement->metadata.num_pts );
 
     // Error checks - only accept lines with 2 points
-    if( movement->type != _LINE || movement->num_pts != 2 )
+    if( (MotionAdjective_t)movement->metadata.type != _LINE || movement->metadata.num_pts != 2 )
     {
         // Error
         return SOLUTION_ERROR;
@@ -305,8 +306,8 @@ cartesian_plan_smoothed_line( Movement_t *movement, float start_weight, float en
     cartesian_find_point_on_line( &movement->points[_CUBIC_END], &movement->points[_CUBIC_START], &movement->points[_CUBIC_CONTROL_B], end_weight );
 
     // "Fix" the other fields in the movement to match our new movement
-    movement->type    = _BEZIER_CUBIC;
-    movement->num_pts = 4;
+    movement->metadata.type    = _BEZIER_CUBIC;
+    movement->metadata.num_pts = 4;
 
     return SOLUTION_VALID;
 }

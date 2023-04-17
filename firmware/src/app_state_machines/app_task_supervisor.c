@@ -794,11 +794,11 @@ PRIVATE void AppTaskSupervisorPublishRehomeEvent( void )
 
     // request a move to 0,0,0
     MotionPlannerEvent *motev = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
-    motev->move.type          = _POINT_TRANSIT;
-    motev->move.ref           = _POS_ABSOLUTE;
-    motev->move.duration      = 800;
-    motev->move.sync_offset   = 0;
-    motev->move.num_pts       = 1;
+    motev->move.metadata.type       = _POINT_TRANSIT;
+    motev->move.metadata.ref        = _POS_ABSOLUTE;
+    motev->move.metadata.num_pts    = 1;
+    motev->move.duration            = 800;
+    motev->move.sync_offset         = 0;
 
     motev->move.points[0].x = 0;
     motev->move.points[0].y = 0;

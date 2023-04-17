@@ -80,11 +80,11 @@ demonstration_enqueue_moves( uint8_t max_moves_emitted )
 
                 if( transit )
                 {
-                    transit->move.type          = _POINT_TRANSIT;
-                    transit->move.ref           = _POS_ABSOLUTE;
+                    transit->move.metadata.type = _POINT_TRANSIT;
+                    transit->move.metadata.ref  = _POS_ABSOLUTE;
                     transit->move.sync_offset   = 0;
                     transit->move.duration      = 1000;
-                    transit->move.num_pts       = 1;
+                    transit->move.metadata.num_pts  = 1;
                     transit->move.points[0].x   = next_move.points[_CATMULL_START].x;
                     transit->move.points[0].y   = next_move.points[_CATMULL_START].y;
                     transit->move.points[0].z   = next_move.points[_CATMULL_START].z;
@@ -117,7 +117,7 @@ demonstration_enqueue_moves( uint8_t max_moves_emitted )
         }
 
         // Check if a new move was provided
-        if( !next_move.num_pts )
+        if( !next_move.metadata.num_pts )
         {
             break;
         }

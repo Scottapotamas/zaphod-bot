@@ -231,6 +231,7 @@ export type MovementMove = {
   duration: number
   type: MovementMoveType
   reference: MovementMoveReference
+  id: number
   points: Array<MovementPoint>
   num_points?: number
 }

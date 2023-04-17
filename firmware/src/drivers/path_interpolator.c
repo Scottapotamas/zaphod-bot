@@ -94,17 +94,17 @@ PUBLIC void
 path_interpolator_set_next( PathInterpolatorInstance_t interpolator, Movement_t *movement_to_process )
 {
     REQUIRE( interpolator < NUMBER_PATH_INTERPOLATORS );
-    REQUIRE( movement_to_process->num_pts );
+    REQUIRE( movement_to_process->metadata.num_pts );
     REQUIRE( movement_to_process->duration );
 
     MotionPlanner_t *me = &planner[interpolator];
     Movement_t      *movement_insert_slot = { 0 };    // Allows us to put the new move into whichever slot is available
 
-    if( me->move_a.num_pts == 0 )
+    if( me->move_a.metadata.num_pts == 0 )
     {
         movement_insert_slot = &me->move_a;
     }
-    else if( me->move_b.num_pts == 0 )
+    else if( me->move_b.metadata.num_pts == 0 )
     {
         movement_insert_slot = &me->move_b;
     }
@@ -215,7 +215,6 @@ PUBLIC void
 path_interpolator_process_delta( void )
 {
     path_interpolator_process( PATH_INTERPOLATOR_DELTA );
-
 }
 
 PUBLIC void
@@ -351,9 +350,9 @@ path_interpolator_premove_transforms( Movement_t *move )
     CartesianPoint_t effector_position = effector_get_position();
 
     // apply current position to a relative movement
-    if( move->ref == _POS_RELATIVE )
+    if( (MotionReference_t)move->metadata.ref == _POS_RELATIVE )
     {
-        for( uint8_t i = 0; i < move->num_pts; i++ )
+        for( uint8_t i = 0; i < move->metadata.num_pts; i++ )
         {
             move->points[i].x += effector_position.x;
             move->points[i].y += effector_position.y;
@@ -363,14 +362,14 @@ path_interpolator_premove_transforms( Movement_t *move )
 
     // A transit move is from current position to point 1, so overwrite 0 with current position,
     // and then reuse a normal line movement
-    if( move->type == _POINT_TRANSIT )
+    if( (MotionAdjective_t)move->metadata.type == _POINT_TRANSIT )
     {
-        if( move->num_pts == 1 )
+        if( move->metadata.num_pts == 1 )
         {
             move->points[_LINE_END].x = move->points[_LINE_START].x;
             move->points[_LINE_END].y = move->points[_LINE_START].y;
             move->points[_LINE_END].z = move->points[_LINE_START].z;
-            move->num_pts = 2;
+            move->metadata.num_pts = 2;
         }
 
         move->points[_LINE_START].x = effector_position.x;
@@ -384,11 +383,11 @@ path_interpolator_premove_transforms( Movement_t *move )
 PRIVATE void
 path_interpolator_apply_rotation_offset( Movement_t *move )
 {
-    REQUIRE( move->num_pts );
+    REQUIRE( move->metadata.num_pts );
 
     float offset_deg = configuration_get_z_rotation();
 
-    for( uint8_t i = 0; i < move->num_pts; i++ )
+    for( uint8_t i = 0; i < move->metadata.num_pts; i++ )
     {
         cartesian_point_rotate_around_z( &move->points[i], offset_deg );
     }
@@ -399,50 +398,50 @@ path_interpolator_apply_rotation_offset( Movement_t *move )
 PRIVATE void
 path_interpolator_execute_move( Movement_t *move, float percentage )
 {
-    REQUIRE( move->num_pts );
+    REQUIRE( move->metadata.num_pts );
 
     CartesianPoint_t target   = { 0, 0, 0 };    // target position in cartesian space
-    MotionSolution_t solve_ok = SOLUTION_ERROR;
+//    MotionSolution_t solve_ok = SOLUTION_ERROR;
 
-    switch( move->type )
+    switch( move->metadata.type )
     {
         case _POINT_TRANSIT:
-            solve_ok = cartesian_point_on_line( move->points, move->num_pts, percentage, &target );
+            cartesian_point_on_line( move->points, move->metadata.num_pts, percentage, &target );
             break;
 
         case _LINE:
-            solve_ok = cartesian_point_on_line( move->points, move->num_pts, percentage, &target );
+            cartesian_point_on_line( move->points, move->metadata.num_pts, percentage, &target );
             break;
 
         case _CATMULL_SPLINE:
-            solve_ok = cartesian_point_on_catmull_spline( move->points, move->num_pts, percentage, &target );
+            cartesian_point_on_catmull_spline( move->points, move->metadata.num_pts, percentage, &target );
             break;
 
         case _CATMULL_SPLINE_LINEARISED:
             percentage = cartesian_distance_linearisation_from_lut( move->sync_offset, percentage );
-            solve_ok = cartesian_point_on_catmull_spline( move->points, move->num_pts, percentage, &target );
+            cartesian_point_on_catmull_spline( move->points, move->metadata.num_pts, percentage, &target );
             break;
 
         case _BEZIER_QUADRATIC:
-            solve_ok = cartesian_point_on_quadratic_bezier( move->points, move->num_pts, percentage, &target );
+            cartesian_point_on_quadratic_bezier( move->points, move->metadata.num_pts, percentage, &target );
             break;
 
         case _BEZIER_QUADRATIC_LINEARISED:
             percentage = cartesian_distance_linearisation_from_lut( move->sync_offset, percentage );
-            solve_ok = cartesian_point_on_quadratic_bezier( move->points, move->num_pts, percentage, &target );
+            cartesian_point_on_quadratic_bezier( move->points, move->metadata.num_pts, percentage, &target );
             break;
 
         case _BEZIER_CUBIC:
-            solve_ok = cartesian_point_on_cubic_bezier( move->points, move->num_pts, percentage, &target );
+            cartesian_point_on_cubic_bezier( move->points, move->metadata.num_pts, percentage, &target );
             break;
 
         case _BEZIER_CUBIC_LINEARISED:
             percentage = cartesian_distance_linearisation_from_lut( move->sync_offset, percentage );
-            solve_ok = cartesian_point_on_cubic_bezier( move->points, move->num_pts, percentage, &target );
+            cartesian_point_on_cubic_bezier( move->points, move->metadata.num_pts, percentage, &target );
             break;
 
         default:
-            // TODO this should be considered a motion error
+            ASSERT_PRINTF( false, "Invalid move type" );
             break;
     }
 
@@ -450,7 +449,7 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
     effector_request_target( &target );
 
     // Update the config/UI data based on this move
-    user_interface_set_movement_data( move->sync_offset, move->type, (uint8_t)( percentage * 100 ) );
+    user_interface_set_movement_data( move->sync_offset, move->metadata.type, (uint8_t)( percentage * 100 ) );
 }
 
 /* -------------------------------------------------------------------------- */
