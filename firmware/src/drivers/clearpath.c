@@ -12,14 +12,11 @@
 #include "hal_gpio.h"
 #include "hal_ic_hard.h"
 
-#include "app_signals.h"
 #include "app_times.h"
-#include "event_subscribe.h"
 #include "global.h"
 #include "qassert.h"
 #include "simple_state_machine.h"
 #include "average_short.h"
-#include "status.h"
 #include "timer_ms.h"
 #include "user_interface.h"
 
@@ -57,6 +54,7 @@ typedef struct
 
     AverageShort_t step_statistics;
     bool       presence_detected;
+    bool       has_high_load;
 } Servo_t;
 
 typedef struct
@@ -364,7 +362,9 @@ servo_get_servo_ok( ClearpathServoInstance_t servo )
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     Servo_t *me = &clearpath[servo];
 
-    return ( me->enabled && ( me->currentState == SERVO_STATE_ACTIVE ) );
+    return (    me->enabled
+             && me->currentState == SERVO_STATE_ACTIVE
+             && !me->has_high_load );
 }
 
 PUBLIC bool
@@ -641,6 +641,7 @@ servo_process( ClearpathServoInstance_t servo )
 
                     // Goal position needs to be the current position at init, or a large commanded move would occur
                     me->angle_target_steps = me->angle_current_steps;
+                    me->has_high_load = false;
 
                     STATE_NEXT( SERVO_STATE_ACTIVE );
                 }
@@ -706,10 +707,7 @@ servo_process( ClearpathServoInstance_t servo )
                     if( servo_power > SERVO_IDLE_POWER_ALERT_W
                         || ( servo_feedback < -1 * SERVO_IDLE_TORQUE_ALERT && servo_feedback > SERVO_IDLE_TORQUE_ALERT ) )
                     {
-                        // Signal to the supervisor that we're probably overloaded
-                        user_interface_report_error( "Servo Overload" );
-                        // TODO: use a specific load signal to allow higher level task to choose behaviour
-                        eventPublish( EVENT_NEW( StateEvent, MOTION_EMERGENCY ) );
+                        me->has_high_load = true;
                     }
                 }
             }

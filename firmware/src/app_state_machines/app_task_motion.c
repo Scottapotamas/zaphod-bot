@@ -35,6 +35,7 @@ PRIVATE STATE AppTaskMotion_execute_events( AppTaskMotion *me, const StateEvent 
 PRIVATE STATE AppTaskMotion_follow_target( AppTaskMotion *me, const StateEvent *e );
 PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e );
 
+PRIVATE void AppTaskMotion_check_servos_ok( AppTaskMotion *me );
 PRIVATE void AppTaskMotion_commit_queued_move( AppTaskMotion *me );
 PRIVATE void AppTaskMotion_clear_queue( AppTaskMotion *me );
 PRIVATE void AppTaskMotion_add_event_to_queue( AppTaskMotion *me, const StateEvent *e );
@@ -225,20 +226,7 @@ PRIVATE STATE AppTaskMotion_inactive( AppTaskMotion *me, const StateEvent *e )
             return 0;
 
         case STATE_TIMEOUT1_SIGNAL:
-            // Check all the servos are active
-            me->counter = 0;
-            for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
-            {
-                me->counter += servo_get_servo_ok( servo );
-            }
-
-            // A servo has dropped offline (fault or otherwise)
-            if( me->counter != servo_get_configured_count() )
-            {
-                user_interface_report_error( "Servo loss" );
-                eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
-                STATE_TRAN( AppTaskMotion_recovery );
-            }
+            AppTaskMotion_check_servos_ok( me );
             return 0;
 
         case MOTION_FOLLOWER_START:
@@ -288,6 +276,12 @@ PRIVATE STATE AppTaskMotion_execute_events( AppTaskMotion *me, const StateEvent 
             // Run the state-machine loop at 1kHz
             hal_systick_hook( 1, path_interpolator_process_delta );
 
+            // Continuously check that the servos are still happy while holding position
+            eventTimerStartEvery( &me->timer1,
+                                  (StateTask *)me,
+                                  (StateEvent *)&stateEventReserved[STATE_TIMEOUT1_SIGNAL],
+                                  MS_TO_TICKS( SERVO_HOMING_SUPERVISOR_CHECK_MS ) );
+
             // Commit a movement to an available slot in the path planner and tell it to start
             AppTaskMotion_commit_queued_move( me );
 
@@ -296,6 +290,10 @@ PRIVATE STATE AppTaskMotion_execute_events( AppTaskMotion *me, const StateEvent 
             {
                 stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
             }
+            return 0;
+
+        case STATE_TIMEOUT1_SIGNAL:
+            AppTaskMotion_check_servos_ok( me );
             return 0;
 
         case STATE_STEP1_SIGNAL:
@@ -372,8 +370,18 @@ PRIVATE STATE AppTaskMotion_follow_target( AppTaskMotion *me, const StateEvent *
         case STATE_ENTRY_SIGNAL:
             user_interface_set_motion_state( TASKSTATE_MOTION_FOLLOW_POINT );
 
+            // Continuously check that the servos are still happy while holding position
+            eventTimerStartEvery( &me->timer1,
+                                  (StateTask *)me,
+                                  (StateEvent *)&stateEventReserved[STATE_TIMEOUT1_SIGNAL],
+                                  MS_TO_TICKS( SERVO_HOMING_SUPERVISOR_CHECK_MS ) );
+
             hal_systick_hook( 1, point_follower_process_delta );
             point_follower_start( POINT_FOLLOWER_DELTA );
+            return 0;
+
+        case STATE_TIMEOUT1_SIGNAL:
+            AppTaskMotion_check_servos_ok( me );
             return 0;
 
         case TRACKED_TARGET_REQUEST: {
@@ -473,6 +481,26 @@ PRIVATE STATE AppTaskMotion_recovery( AppTaskMotion *me, const StateEvent *e )
             return 0;
     }
     return (STATE)hsmTop;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void AppTaskMotion_check_servos_ok( AppTaskMotion *me )
+{
+    // Check all the servos are active
+    me->counter = 0;
+    for( ClearpathServoInstance_t servo = _CLEARPATH_1; servo < _NUMBER_CLEARPATH_SERVOS; servo++ )
+    {
+        me->counter += servo_get_servo_ok( servo );
+    }
+
+    // A servo has dropped offline (fault or otherwise)
+    if( me->counter != servo_get_configured_count() )
+    {
+        user_interface_report_error( "Servo loss" );
+        eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
+        STATE_TRAN( AppTaskMotion_recovery );
+    }
 }
 
 /* -------------------------------------------------------------------------- */
