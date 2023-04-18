@@ -58,6 +58,7 @@ PRIVATE void AppTaskShutterConstructor( AppTaskShutter *me )
 PRIVATE void AppTaskShutter_initial( AppTaskShutter *me, const StateEvent *e __attribute__( ( __unused__ ) ) )
 {
     eventSubscribe( (StateTask *)me, CAMERA_CAPTURE );
+    eventSubscribe( (StateTask *)me, MOTION_EMERGENCY );
 
     shutter_init();
 
@@ -108,8 +109,8 @@ PRIVATE STATE AppTaskShutter_capture( AppTaskShutter *me, const StateEvent *e )
             STATE_TRAN( AppTaskShutter_main );
             return 0;
 
-        case CAMERA_CAPTURE:
-            // Shutter command during an existing capture cancels the running capture
+        case MOTION_EMERGENCY:  // Stop exposure immediately if eSTOP is triggered
+        case CAMERA_CAPTURE:    // Shutter command during an existing capture cancels the running capture
             shutter_capture( false );
             STATE_TRAN( AppTaskShutter_main );
             return 0;
