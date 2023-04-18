@@ -300,16 +300,16 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
                         // TODO allow UI to request a no-mode setting?
                         break;
                     case CONTROL_MANUAL:
-                        eventPublish( EVENT_NEW( StateEvent, MODE_MANUAL ) );
+                        eventPublish( EVENT_NEW( StateEvent, MODE_REQUEST_MANUAL ) );
                         break;
                     case CONTROL_EVENT:
-                        eventPublish( EVENT_NEW( StateEvent, MODE_EVENT ) );
+                        eventPublish( EVENT_NEW( StateEvent, MODE_REQUEST_EVENT ) );
                         break;
                     case CONTROL_DEMO:
-                        eventPublish( EVENT_NEW( StateEvent, MODE_DEMO ) );
+                        eventPublish( EVENT_NEW( StateEvent, MODE_REQUEST_DEMO ) );
                         break;
                     case CONTROL_TRACK:
-                        eventPublish( EVENT_NEW( StateEvent, MODE_TRACK ) );
+                        eventPublish( EVENT_NEW( StateEvent, MODE_REQUEST_TRACK ) );
                         break;
 
                     default: {
@@ -693,14 +693,14 @@ rgb_manual_led_event()
 
 PRIVATE void start_mech_cb( void )
 {
-    eventPublish( EVENT_NEW( StateEvent, MECHANISM_START ) );
+    eventPublish( EVENT_NEW( StateEvent, REQUEST_ARM ) );
 }
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void stop_mech_cb( void )
 {
-    eventPublish( EVENT_NEW( StateEvent, MECHANISM_STOP ) );
+    eventPublish( EVENT_NEW( StateEvent, REQUEST_DISARM ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -720,7 +720,7 @@ PRIVATE void emergency_stop_cb( void )
 
 PRIVATE void home_mech_cb( void )
 {
-    eventPublish( EVENT_NEW( StateEvent, MECHANISM_REHOME ) );
+    eventPublish( EVENT_NEW( StateEvent, REQUEST_REHOME ) );
 }
 
 /* -------------------------------------------------------------------------- */

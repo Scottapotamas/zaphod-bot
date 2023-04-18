@@ -75,20 +75,21 @@ PRIVATE void AppTaskSupervisor_initial( AppTaskSupervisor *me,
     eventSubscribe( (StateTask *)me, BUTTON_NORMAL_SIGNAL );
     eventSubscribe( (StateTask *)me, BUTTON_PRESSED_SIGNAL );
 
-    eventSubscribe( (StateTask *)me, MECHANISM_START );
-    eventSubscribe( (StateTask *)me, MECHANISM_STOP );
-    eventSubscribe( (StateTask *)me, MECHANISM_REHOME );
+    eventSubscribe( (StateTask *)me, REQUEST_ARM );
+    eventSubscribe( (StateTask *)me, REQUEST_DISARM );
+    eventSubscribe( (StateTask *)me, REQUEST_REHOME );
 
     // motion handler events
     eventSubscribe( (StateTask *)me, MOTION_ERROR );
-    eventSubscribe( (StateTask *)me, MOTION_HOMED );
+    eventSubscribe( (StateTask *)me, MOTION_HOME_COMPLETE );
+    eventSubscribe( (StateTask *)me, MOTION_HOME_ERROR );
     eventSubscribe( (StateTask *)me, MOTION_DISABLED );
 
     // operation modes
-    eventSubscribe( (StateTask *)me, MODE_TRACK );
-    eventSubscribe( (StateTask *)me, MODE_DEMO );
-    eventSubscribe( (StateTask *)me, MODE_EVENT );
-    eventSubscribe( (StateTask *)me, MODE_MANUAL );
+    eventSubscribe( (StateTask *)me, MODE_REQUEST_TRACK );
+    eventSubscribe( (StateTask *)me, MODE_REQUEST_DEMO );
+    eventSubscribe( (StateTask *)me, MODE_REQUEST_EVENT );
+    eventSubscribe( (StateTask *)me, MODE_REQUEST_MANUAL );
 
     eventSubscribe( (StateTask *)me, QUEUE_SYNC_START );
     eventSubscribe( (StateTask *)me, MOTION_QUEUE_ADD );
@@ -124,11 +125,11 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
             {
                 case BUTTON_0:
                     me->requested_control_mode = CONTROL_DEMO;
-                    eventPublish( EVENT_NEW( StateEvent, MECHANISM_START ) );
+                    eventPublish( EVENT_NEW( StateEvent, REQUEST_ARM ) );
                     return 0;
 
                 case BUTTON_1:
-                    eventPublish( EVENT_NEW( StateEvent, MECHANISM_STOP ) );
+                    eventPublish( EVENT_NEW( StateEvent, REQUEST_DISARM ) );
                     return 0;
 
                 default:
@@ -149,22 +150,22 @@ PRIVATE STATE AppTaskSupervisor_main( AppTaskSupervisor *me,
             }
             break;
 
-        case MODE_MANUAL:
+        case MODE_REQUEST_MANUAL:
             me->requested_control_mode = CONTROL_MANUAL;
             AppTaskSupervisorProcessModeRequest( me );
             return 0;
 
-        case MODE_TRACK:
+        case MODE_REQUEST_TRACK:
             me->requested_control_mode = CONTROL_TRACK;
             AppTaskSupervisorProcessModeRequest( me );
             return 0;
 
-        case MODE_DEMO:
+        case MODE_REQUEST_DEMO:
             me->requested_control_mode = CONTROL_DEMO;
             AppTaskSupervisorProcessModeRequest( me );
             return 0;
 
-        case MODE_EVENT:
+        case MODE_REQUEST_EVENT:
             me->requested_control_mode = CONTROL_EVENT;
             AppTaskSupervisorProcessModeRequest( me );
             return 0;
@@ -206,7 +207,7 @@ PRIVATE STATE AppTaskSupervisor_disarmed( AppTaskSupervisor *me,
             status_external( false );
             return 0;
 
-        case MECHANISM_START:
+        case REQUEST_ARM:
             STATE_TRAN( AppTaskSupervisor_arm_start );
             return 0;
 
@@ -237,7 +238,7 @@ PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
             eventPublish( EVENT_NEW( StateEvent, MOTION_PREPARE ) );
 
             // timeout incase the motion handler doesn't signal back
-            eventTimerStartEvery( &me->timer1,
+            eventTimerStartOnce(  &me->timer1,
                                   (StateTask *)me,
                                   (StateEvent *)&stateEventReserved[STATE_TIMEOUT1_SIGNAL],
                                   MS_TO_TICKS( SERVO_HOMING_MAX_MS ) );
@@ -247,11 +248,12 @@ PRIVATE STATE AppTaskSupervisor_arm_start( AppTaskSupervisor *me,
             STATE_TRAN( AppTaskSupervisor_arm_error );
             return 0;
 
+        case MOTION_HOME_ERROR:
         case MOTION_ERROR:
             STATE_TRAN( AppTaskSupervisor_arm_error );
             return 0;
 
-        case MOTION_HOMED:
+        case MOTION_HOME_COMPLETE:
             STATE_TRAN( AppTaskSupervisor_arm_success );
             return 0;
 
@@ -355,11 +357,12 @@ PRIVATE STATE AppTaskSupervisor_arm_success( AppTaskSupervisor *me,
 
             return 0;
 
+        case MOTION_HOME_ERROR:
         case MOTION_ERROR:
             STATE_TRAN( AppTaskSupervisor_disarm_graceful );
             return 0;
 
-        case MECHANISM_STOP:
+        case REQUEST_DISARM:
             STATE_TRAN( AppTaskSupervisor_disarm_graceful );
             return 0;
 
@@ -390,7 +393,7 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
 
             return 0;
 
-        case MECHANISM_STOP:
+        case REQUEST_DISARM:
             STATE_TRAN( AppTaskSupervisor_disarm_graceful );
             return 0;
 
@@ -398,7 +401,7 @@ PRIVATE STATE AppTaskSupervisor_armed_event( AppTaskSupervisor *me,
             STATE_TRAN( AppTaskSupervisor_arm_error );
             return 0;
 
-        case MECHANISM_REHOME:
+        case REQUEST_REHOME:
             AppTaskSupervisorPublishRehomeEvent();
             return 0;
 
@@ -442,7 +445,7 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
             eventPublish( EVENT_NEW( StateEvent, LED_REQUEST_MANUAL_CONTROL ) );
             return 0;
 
-        case MECHANISM_STOP:
+        case REQUEST_DISARM:
             STATE_TRAN( AppTaskSupervisor_disarm_graceful );
             return 0;
 
@@ -450,7 +453,7 @@ PRIVATE STATE AppTaskSupervisor_armed_manual( AppTaskSupervisor *me,
             STATE_TRAN( AppTaskSupervisor_arm_error );
             return 0;
 
-        case MECHANISM_REHOME:
+        case REQUEST_REHOME:
             AppTaskSupervisorPublishRehomeEvent();
             return 0;
 
@@ -499,7 +502,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
 
             return 0;
 
-        case MECHANISM_STOP:
+        case REQUEST_DISARM:
             STATE_TRAN( AppTaskSupervisor_disarm_graceful );
             return 0;
 
@@ -507,7 +510,7 @@ PRIVATE STATE AppTaskSupervisor_armed_track( AppTaskSupervisor *me,
             STATE_TRAN( AppTaskSupervisor_arm_error );
             return 0;
 
-        case MECHANISM_REHOME: {
+        case REQUEST_REHOME: {
             // TODO: Cleanup needed
             CartesianPoint_t home = { 0, 0, 0 };
             point_follower_set_target( POINT_FOLLOWER_DELTA, &home );
@@ -585,12 +588,12 @@ PRIVATE STATE AppTaskSupervisor_armed_demo( AppTaskSupervisor *me,
         }
             return 0;
 
-        case MECHANISM_REHOME:
+        case REQUEST_REHOME:
             AppTaskSupervisorPublishRehomeEvent();
             stateTaskPostReservedEvent( STATE_STEP1_SIGNAL );
             return 0;
 
-        case MECHANISM_STOP:
+        case REQUEST_DISARM:
             STATE_TRAN( AppTaskSupervisor_disarm_graceful );
             return 0;
 
@@ -678,7 +681,7 @@ PRIVATE STATE AppTaskSupervisor_armed_change_mode( AppTaskSupervisor *me,
             STATE_TRAN( AppTaskSupervisor_arm_error );
             return 0;
 
-        case MECHANISM_STOP:
+        case REQUEST_DISARM:
             STATE_TRAN( AppTaskSupervisor_disarm_graceful );
             return 0;
 

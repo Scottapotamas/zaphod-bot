@@ -171,7 +171,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
                 {
                     // Bail out of the mechanism homing process entirely
                     // while catching the error and re-requesting the servo to home would be nice, we let the user do that
-                    eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
+                    eventPublish( EVENT_NEW( StateEvent, MOTION_HOME_ERROR ) );
                     STATE_TRAN( AppTaskMotion_recovery );
                     break;
                 }
@@ -179,7 +179,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
 
             if( me->counter == 3 )
             {
-                eventPublish( EVENT_NEW( StateEvent, MOTION_HOMED ) );
+                eventPublish( EVENT_NEW( StateEvent, MOTION_HOME_COMPLETE ) );
                 effector_set_home();
                 STATE_TRAN( AppTaskMotion_inactive );
             }
@@ -188,7 +188,7 @@ PRIVATE STATE AppTaskMotion_home( AppTaskMotion *me, const StateEvent *e )
                 // Allow subsequent homing check retries
                 if( me->retries++ > SERVO_HOMING_SUPERVISOR_RETRIES )
                 {
-                    eventPublish( EVENT_NEW( StateEvent, MOTION_ERROR ) );
+                    eventPublish( EVENT_NEW( StateEvent, MOTION_HOME_ERROR ) );
                     STATE_TRAN( AppTaskMotion_recovery );
                 }
             }

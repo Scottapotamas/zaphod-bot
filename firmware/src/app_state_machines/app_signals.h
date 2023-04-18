@@ -18,9 +18,6 @@ enum AppSignals
     /* System Command Signals */
     SYSTEM_STATUS_FAULT_DETECTED = STATE_USER_SIGNAL,    // Signal 8 - First Custom Signal,
 
-    /* User Activity Signals e.g. from terminal */
-    USER_ACTIVITY_EVENT_SIGNAL,
-
     /* Button Signals */
     BUTTON_EVENT_SIGNAL,    /* Internal button activity event */
     BUTTON_PRESSED_SIGNAL,  /* Key Down Event */
@@ -29,21 +26,22 @@ enum AppSignals
     BUTTON_RELEASED_SIGNAL, /* Key Up Event */
 
     /* High level mode change requests */
-    MODE_TRACK,
-    MODE_DEMO,
-    MODE_EVENT,
-    MODE_MANUAL,
+    MODE_REQUEST_TRACK,
+    MODE_REQUEST_DEMO,
+    MODE_REQUEST_EVENT,
+    MODE_REQUEST_MANUAL,
 
     TRACKED_EXTERNAL_SERVO_REQUEST,
     TRACKED_TARGET_REQUEST,
 
     /* Servo Signals */
-    MECHANISM_START,
-    MECHANISM_STOP,
-    MECHANISM_REHOME,
+    REQUEST_ARM,
+    REQUEST_DISARM,
+    REQUEST_REHOME,
 
-    MOTION_HOMED,    // All motors have homed without detected error
-    MOTION_ERROR,    // Error while homing
+    MOTION_HOME_COMPLETE,    // All motors have homed without detected error
+    MOTION_ERROR,            // A different error case from the motion handler
+    MOTION_HOME_ERROR,       // Error while homing
     MOTION_DISABLED,
 
     /* Motion Handler Signals */
