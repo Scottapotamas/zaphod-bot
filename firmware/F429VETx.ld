@@ -1,56 +1,23 @@
-/*
-*****************************************************************************
-**
-
-**  File        : LinkerScript.ld
-**
-**  Abstract    : Linker script for STM32F429VETx Device with
-**                512KByte FLASH, 192KByte RAM
-**
-**                Set heap size, stack size and stack location according
-**                to application requirements.
-**
-**                Set memory bank area and size if external memory is used.
-**
-**  Target      : STMicroelectronics STM32
-**
-**
-**  Distribution: The file is distributed as is, without any warranty
-**                of any kind.
-**
-**  (c)Copyright Ac6.
-**  You may use this file as-is or modify it according to the needs of your
-**  project. Distribution of this file (unmodified or modified) is not
-**  permitted. Ac6 permit registered System Workbench for MCU users the
-**  rights to distribute the assembled, compiled & linked contents of this
-**  file as part of an application binary file, provided that it is built
-**  using the System Workbench for MCU toolchain.
-**
-*****************************************************************************
-*/
-
-/* Entry Point */
 ENTRY(Reset_Handler)
 
 /* Highest address of the user mode stack */
-_estack = 0x20030000;    /* end of RAM */
-/* Generate a link error if heap and stack don't fit into RAM */
-_Min_Heap_Size = 0x200;      /* required amount of heap  */
-_Min_Stack_Size = 0x400; /* required amount of stack */
+_estack = 0x20000000 + 192K;    /* end of RAM */
+_Min_Heap_Size = 0x200;
+_Min_Stack_Size = 0x400;
 
 /* Specify the memory areas */
 MEMORY
 {
+    FLASH (rx)              : ORIGIN = 0x08000000,  LENGTH = 512K
     RAM (xrw)               : ORIGIN = 0x20000000,  LENGTH = 192K
     CCMRAM (rw)             : ORIGIN = 0x10000000,  LENGTH = 64K
-    FLASH (rx)              : ORIGIN = 0x08000000,  LENGTH = 512K
 }
+
 /* See page 78 of ST doc RM0090 for single bank flash memory layout. */
 /* Layout in sequential sectors is as follows: 16k, 16k, 16k, 16k, 64k, 128k, 128k, 128k */
 /*    FLASH_BOOT (rx)         : ORIGIN = 0x08000000,  LENGTH = 32K */
-/*    EMULATED_EEPROM (rwx)   : ORIGIN = 0x08008000,  LENGTH = 32K
+/*    EMULATED_EEPROM (rwx)   : ORIGIN = 0x08008000,  LENGTH = 32K */
 
-/* Define output sections */
 SECTIONS
 {
   /* The startup code goes first into FLASH */
@@ -189,5 +156,3 @@ SECTIONS
 
   .ARM.attributes 0 : { *(.ARM.attributes) }
 }
-
-

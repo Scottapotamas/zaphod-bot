@@ -1,6 +1,12 @@
-[submodule "firmware/vendor/electricui-embedded"]
-	path = firmware/vendor/electricui-embedded
-	url = https://github.com/electricui/electricui-embedded
-[submodule "firmware/vendor/electricui-interval-sender"]
-	path = firmware/vendor/electricui-interval-sender
+[submodule "firmware/modules/electricui-interval-sender"]
+	path = firmware/modules/electricui-interval-sender
 	url = https://github.com/electricui/electricui-interval-sender
+[submodule "firmware/modules/electricui-embedded"]
+	path = firmware/modules/electricui-embedded
+	url = https://github.com/electricui/electricui-embedded
+[submodule "firmware/modules/stm32-cmake"]
+	path = firmware/modules/stm32-cmake
+	url = https://github.com/ObKo/stm32-cmake
+[submodule "firmware/modules/freertos"]
+	path = firmware/modules/freertos
+	url = https://github.com/freertos/freertos.git
