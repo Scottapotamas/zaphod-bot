@@ -10,8 +10,7 @@
 
 #include "hal_adc.h"
 
-#include "app_config.h"
-#include "average_short.h"
+//#include "average_short.h"
 #include "qassert.h"
 
 /* ---------------- Lower Level Peripheral ---------------------------------- */
@@ -65,7 +64,7 @@ PRIVATE uint32_t adc_channels[HAL_ADC_INPUT_NUM];    // Destination 'userspace' 
 PRIVATE uint16_t       adc_rate[HAL_ADC_INPUT_NUM];        // Track the requested rate per-channel
 PRIVATE uint8_t        adc_enabled[HAL_ADC_INPUT_NUM];     // Track if each channel is needed or not
 PRIVATE uint32_t       adc_peaks[HAL_ADC_INPUT_NUM];       // Track the highest value
-PRIVATE AverageShort_t adc_averages[HAL_ADC_INPUT_NUM];    // Track the average value
+//PRIVATE AverageShort_t adc_averages[HAL_ADC_INPUT_NUM];    // Track the average value
 
 PRIVATE HalAdcState_t hal_adc1;    // Track behaviour for our peripheral (running, set rate etc)
 
@@ -81,18 +80,18 @@ hal_adc_init( void )
     memset( &adc_enabled, 0, sizeof( adc_enabled ) );
     memset( &adc_dma, 0, sizeof( adc_dma ) );
     memset( &adc_channels, 0, sizeof( adc_channels ) );
-    memset( &adc_averages, 0, sizeof( adc_averages ) );
+//    memset( &adc_averages, 0, sizeof( adc_averages ) );
 
-    average_short_init( &adc_averages[HAL_ADC_INPUT_VREFINT], 32 );
-    average_short_init( &adc_averages[HAL_ADC_INPUT_M1_CURRENT], 50 );
-    average_short_init( &adc_averages[HAL_ADC_INPUT_M2_CURRENT], 50 );
-    average_short_init( &adc_averages[HAL_ADC_INPUT_M3_CURRENT], 50 );
-    average_short_init( &adc_averages[HAL_ADC_INPUT_M4_CURRENT], 50 );
-    average_short_init( &adc_averages[HAL_ADC_INPUT_VOLT_SENSE], 32 );
-    average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_PCB], 32 );
-    average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_REG], 32 );
-    average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_EXT], 32 );
-    average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_INTERNAL], 32 );
+//    average_short_init( &adc_averages[HAL_ADC_INPUT_VREFINT], 32 );
+//    average_short_init( &adc_averages[HAL_ADC_INPUT_M1_CURRENT], 50 );
+//    average_short_init( &adc_averages[HAL_ADC_INPUT_M2_CURRENT], 50 );
+//    average_short_init( &adc_averages[HAL_ADC_INPUT_M3_CURRENT], 50 );
+//    average_short_init( &adc_averages[HAL_ADC_INPUT_M4_CURRENT], 50 );
+//    average_short_init( &adc_averages[HAL_ADC_INPUT_VOLT_SENSE], 32 );
+//    average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_PCB], 32 );
+//    average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_REG], 32 );
+//    average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_EXT], 32 );
+//    average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_INTERNAL], 32 );
 
     hal_adc1.running = false;
     hal_adc1.done    = false;
@@ -180,7 +179,7 @@ PUBLIC bool
 hal_adc_valid( HalAdcInput_t input )
 {
     REQUIRE( input < HAL_ADC_INPUT_NUM );
-    return adc_averages[input].counter > 0;
+    return 0;//adc_averages[input].counter > 0;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -189,7 +188,7 @@ PUBLIC uint32_t
 hal_adc_read( HalAdcInput_t input )
 {
     REQUIRE( input < HAL_ADC_INPUT_NUM );
-    return (uint32_t)average_short_get_last( &adc_averages[input] );
+    return adc_channels[input];
 }
 
 /* -------------------------------------------------------------------------- */
@@ -198,7 +197,7 @@ PUBLIC uint32_t
 hal_adc_read_avg( HalAdcInput_t input )
 {
     REQUIRE( input < HAL_ADC_INPUT_NUM );
-    return (uint32_t)average_short_get_average( &adc_averages[input] );
+    return 0;//(uint32_t)average_short_get_average( &adc_averages[input] );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -356,7 +355,7 @@ void DMA2_Stream0_IRQHandler( void )
              chan < ( HAL_ADC_INPUT_NUM / 2 );
              chan++ )
         {
-            average_short_update( &adc_averages[chan], (uint16_t)adc_channels[chan] );
+//            average_short_update( &adc_averages[chan], (uint16_t)adc_channels[chan] );
             adc_peaks[chan] = MAX( adc_peaks[chan], adc_channels[chan] );
         }
     }
@@ -377,7 +376,7 @@ void DMA2_Stream0_IRQHandler( void )
              chan < HAL_ADC_INPUT_NUM;
              chan++ )
         {
-            average_short_update( &adc_averages[chan], (uint16_t)adc_channels[chan] );
+//            average_short_update( &adc_averages[chan], (uint16_t)adc_channels[chan] );
             adc_peaks[chan] = MAX( adc_peaks[chan], adc_channels[chan] );
         }
 

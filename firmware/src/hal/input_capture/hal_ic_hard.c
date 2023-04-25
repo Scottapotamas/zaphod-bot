@@ -11,7 +11,6 @@
 
 #include "hal_gpio.h"
 #include "hal_ic_hard.h"
-#include "hal_systick.h"
 #include "qassert.h"
 
 /* ----- Defines ------------------------------------------------------------ */
@@ -240,13 +239,14 @@ hal_ic_hard_read( InputCaptureSignal_t input )
 PUBLIC float
 hal_ic_hard_read_f( InputCaptureSignal_t input )
 {
-    return (float)ic_state[input].value / 100;
+    return (float)ic_state[input].value / 100.0f;
 }
 
 PUBLIC uint32_t
 hal_ic_hard_ms_since_value( InputCaptureSignal_t input )
 {
-    return hal_systick_get_ms() - ic_state[input].value_timestamp;
+
+    return 0; //hal_systick_get_ms() - ic_state[input].value_timestamp;
 }
 /* -------------------------------------------------------------------------- */
 
@@ -265,7 +265,8 @@ hal_ic_hard_pwmic_irq_handler( InputCaptureSignal_t input, TIM_TypeDef *TIMx )
             ic_state[input].cnt_b   = LL_TIM_IC_GetCaptureCH2( TIMx );
             ic_state[input].value = ( ic_state[input].cnt_b * 10000 ) / ( ic_state[input].cnt_a );
 
-            ic_state[input].value_timestamp = hal_systick_get_ms();
+            // TODO do we care about timestamping this data changing?
+            //ic_state[input].value_timestamp = hal_systick_get_ms();
             // TODO optionally calculate frequency for this signal
             // uint32_t frequency = TimerClock  / (1*cnt_a);
         }

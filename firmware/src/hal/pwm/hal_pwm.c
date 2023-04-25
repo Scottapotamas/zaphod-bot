@@ -5,11 +5,11 @@
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_gpio.h"
 #include "stm32f4xx_ll_tim.h"
+#include "stm32f4xx_ll_rcc.h"
 
 #include "hal_gpio.h"
 #include "hal_pwm.h"
 #include "qassert.h"
-#include "stm32f4xx_ll_rcc.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -105,6 +105,7 @@ hal_pwm_configure_peripheral( uint8_t AHBx, TIM_TypeDef *TIMx, uint32_t channel,
     // Get the timer's clock frequency,
     // = PCLK1 or PCLK2 with a 2x factor applied _if APB has any prescale set_
     uint32_t  timer_clk = 0;
+
     LL_RCC_ClocksTypeDef rcc_clks = { 0 };
     LL_RCC_GetSystemClocksFreq( &rcc_clks );
 

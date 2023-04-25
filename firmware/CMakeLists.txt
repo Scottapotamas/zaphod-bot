@@ -20,6 +20,8 @@ find_package(HAL COMPONENTS
 )
 find_package(FreeRTOS COMPONENTS ARM_CM4F REQUIRED)
 
+add_definitions(-DUSE_FULL_LL_DRIVER)
+
 # Clock speed definitions for custom hardware
 add_definitions(-DHSE_VALUE=8000000)
 add_definitions(-DLSE_VALUE=32768)

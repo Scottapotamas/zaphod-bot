@@ -1,1 +1,4 @@
+add_subdirectory(adc)
 add_subdirectory(gpio)
+add_subdirectory(pwm)
+add_subdirectory(input_capture)
