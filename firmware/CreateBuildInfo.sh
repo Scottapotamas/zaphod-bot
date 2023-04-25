@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # This is the path where we will create a C header
-BUILD_INFO_FILE=./build_info.h
+BUILD_INFO_FILE=./src/build_info.h
 
 echo "Getting metadata from last local commit on current branch"
 

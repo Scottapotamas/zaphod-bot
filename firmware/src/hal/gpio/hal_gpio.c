@@ -1,16 +1,16 @@
-/* ----- System Includes ---------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_gpio.h"
 #include "stm32f4xx_ll_pwr.h"
 
-/* ----- Local Includes ----------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #include "hal_gpio.h"
 #include "hal_gpio_types.h"
 #include "qassert.h"
 
-/* ----- Private Function Declarations -------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /** Map the port nr to a STM32 GPIO_TypeDef */
 
@@ -65,7 +65,7 @@ PRIVATE void
 hal_gpio_deinit( HalGpioPortNr_t port_nr,
                  HalGpioPinNr_t  pin_nr );
 
-/* ----- Private Data ------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
@@ -84,7 +84,7 @@ const HalGpioDef_t HalGpioHardwareMap[] = {
     [_AUX_ANALOG_1] = { .mode = MODE_INPUT, .port = PORT_A, .pin = PIN_5, .initial = 0 },
 
     [_AUX_SCL]     = { .mode = MODE_INPUT, .port = PORT_B, .pin = PIN_10, .initial = 0 },
-    [_AUX_SDA]     = { .mode = MODE_INPUT, .port = PORT_B, .pin = PIN_11, .initial = 0 },
+    [_AUX_SDA]     = { .mode = MODE_OUT_PP, .port = PORT_B, .pin = PIN_11, .initial = 0 },
     [_AUX_UART_TX] = { .mode = MODE_AF_PP, .port = PORT_B, .pin = PIN_6, .initial = 0 },
     [_AUX_UART_RX] = { .mode = MODE_AF_PP, .port = PORT_B, .pin = PIN_7, .initial = 0 },
 
@@ -163,7 +163,7 @@ const HalGpioDef_t HalGpioHardwareMap[] = {
     [_SERVO_4_CURRENT_FAULT] = { .mode = MODE_INPUT, .port = PORT_B, .pin = PIN_0, .initial = 0 },
 };
 
-/* ----- Public Function Implementations ------------------------------------ */
+/* -------------------------------------------------------------------------- */
 
 PUBLIC void
 hal_gpio_configure_defaults( void )
@@ -303,7 +303,7 @@ hal_gpio_disable_pin( HalGpioPortPin_t gpio_port_pin_nr )
     //    hal_gpio_deinit( m->port, m->pin );
 }
 
-/* ----- Private Function Implementations ----------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /** Map the port nr to a STM32 GPIO_TypeDef */
 
@@ -541,4 +541,4 @@ hal_gpio_deinit( HalGpioPortNr_t port_nr,
     // TODO implement pin de-init/reset with LL
 }
 
-/* ----- End ---------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

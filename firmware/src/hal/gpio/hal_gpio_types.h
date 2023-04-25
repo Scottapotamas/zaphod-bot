@@ -1,17 +1,11 @@
 #ifndef HAL_GPIO_TYPES_H
 #define HAL_GPIO_TYPES_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* ----- System Includes ---------------------------------------------------- */
-
-/* ----- Local Includes ----------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #include "global.h"
 
-/* ----- Defines ------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
 
 /** Readability macros to remind us which is a HIGH level or LOW level */
 #define GPIO_HIGH true
@@ -65,10 +59,6 @@ typedef struct
     unsigned initial : 1;      /* Initialisation level for outputs */
 } HalGpioDef_t;
 
-/* ----- End ---------------------------------------------------------------- */
-
-#ifdef __cplusplus
-}
-#endif
+/* -------------------------------------------------------------------------- */
 
 #endif /* HAL_GPIO_TYPES_H */

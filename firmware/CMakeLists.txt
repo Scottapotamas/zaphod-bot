@@ -11,12 +11,13 @@ stm32_fetch_cmsis(F4)
 stm32_fetch_hal(F4)
 
 find_package(CMSIS COMPONENTS STM32F4 REQUIRED)
-find_package(HAL COMPONENTS STM32F4
+find_package(HAL COMPONENTS
+        STM32F4
         LL_RCC
         LL_PWR
         LL_UTILS
-        LL_GPIO
-        REQUIRED)
+        REQUIRED
+)
 find_package(FreeRTOS COMPONENTS ARM_CM4F REQUIRED)
 
 # Clock speed definitions for custom hardware
@@ -25,23 +26,29 @@ add_definitions(-DLSE_VALUE=32768)
 
 # Automatically run the Git metadata embedding tool
 IF (WIN32)
-    add_custom_command(git_info BYPRODUCTS "${CMAKE_SOURCE_DIR}/build-info.h"
+    add_custom_command(git_info BYPRODUCTS "${CMAKE_SOURCE_DIR}/src/build_info.h"
             COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/CreateBuildInfo.bat
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             )
 ELSE()
-    add_custom_target(git_info BYPRODUCTS "${CMAKE_SOURCE_DIR}/build-info.h"
+    add_custom_target(git_info BYPRODUCTS "${CMAKE_SOURCE_DIR}/src/build_info.h"
             COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/CreateBuildInfo.sh
             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
             )
 ENDIF()
 
 add_executable(${PROJ_NAME})
+
+include_directories(src/common)
+add_subdirectory(src/application)
+add_subdirectory(src/hal)
+add_subdirectory(src/utility)
+
 target_sources(
         ${PROJ_NAME}
         PRIVATE
-        main.c
-        ${CMAKE_SOURCE_DIR}/build-info.h
+        ${CMAKE_SOURCE_DIR}/src/main.c
+        ${CMAKE_SOURCE_DIR}/src/build_info.h
 )
 
 target_include_directories(
@@ -52,14 +59,14 @@ target_include_directories(
 
 target_link_libraries(
         ${PROJ_NAME}
-        PRIVATE
+        PUBLIC
+        hal_gpio_lib
         FreeRTOS::Timers
         FreeRTOS::Heap::4
         FreeRTOS::ARM_CM4F
         HAL::STM32::F4::LL_RCC
         HAL::STM32::F4::LL_PWR
         HAL::STM32::F4::LL_UTILS
-        HAL::STM32::F4::LL_GPIO
         CMSIS::STM32::F429xx
         STM32::NoSys
 )

@@ -1,24 +1,18 @@
 #ifndef HAL_GPIO_H
 #define HAL_GPIO_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* ----- System Includes ---------------------------------------------------- */
-
-/* ----- Local Includes ----------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #include "global.h"
 
-/* ----- Defines ------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
 
 /** Readability macros to remind us which is a HIGH level or LOW level */
 
 #define GPIO_HIGH true
 #define GPIO_LOW  false
 
-/* ----- Types ------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /** Operational mode for pins */
 
@@ -135,15 +129,21 @@ hal_gpio_configure_defaults( void );
 /** Configure an indicated pin for the give mode */
 
 PUBLIC void
-hal_gpio_init( HalGpioPortPin_t gpio_port_pin_nr, HalGpioMode_t mode, bool initial );
+hal_gpio_init( HalGpioPortPin_t gpio_port_pin_nr,
+               HalGpioMode_t mode,
+               bool initial
+               );
 
 /* -------------------------------------------------------------------------- */
 
 /** Allow more manual configuration of alternative functions, while wrapping the pin/port def */
 
 PUBLIC void
-hal_gpio_init_alternate( HalGpioPortPin_t gpio_port_pin_nr, uint32_t alternative_function, uint32_t speed,
-                         uint32_t pull );
+hal_gpio_init_alternate( HalGpioPortPin_t gpio_port_pin_nr,
+                         uint32_t alternative_function,
+                         uint32_t speed,
+                         uint32_t pull
+                         );
 
 /* -------------------------------------------------------------------------- */
 
@@ -157,7 +157,9 @@ hal_gpio_read_pin( HalGpioPortPin_t gpio_port_pin_nr );
 /** Set output pin high when on = true, low when on = false */
 
 PUBLIC void
-hal_gpio_write_pin( HalGpioPortPin_t gpio_port_pin_nr, bool on );
+hal_gpio_write_pin( HalGpioPortPin_t gpio_port_pin_nr,
+                    bool on
+                    );
 
 /* -------------------------------------------------------------------------- */
 
@@ -173,10 +175,6 @@ hal_gpio_toggle_pin( HalGpioPortPin_t gpio_port_pin_nr );
 PUBLIC void
 hal_gpio_disable_pin( HalGpioPortPin_t gpio_port_pin_nr );
 
-/* ----- End ---------------------------------------------------------------- */
-
-#ifdef __cplusplus
-}
-#endif
+/* -------------------------------------------------------------------------- */
 
 #endif /* HAL_GPIO_H */

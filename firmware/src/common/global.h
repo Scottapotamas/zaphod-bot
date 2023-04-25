@@ -1,32 +1,14 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-/* ----- System Includes ---------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <stdlib.h>
+//#include <stdlib.h>
 
-/* ----- Local Includes ----------------------------------------------------- */
-
-/* ----- Types -------------------------------------------------------------- */
-
-typedef unsigned char uchar_t;    ///< Specifically unsigned char.
-
-typedef float float32_t;    ///< Clarify that float is 32bit.
-
-typedef union    ///< Allow mapping int16 to uint16
-{                ///< without conversions
-    int16_t  i16;
-    uint16_t u16;
-} Union16_t;
-
-/* ----- Defines ------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
 
 //! \def PRIVATE
 /// Makes it more clear that static functions/data are really private.
@@ -51,7 +33,7 @@ typedef union    ///< Allow mapping int16 to uint16
 /* -------------------------------------------------------------------------- */
 
 /** Allow the assert handler to set all servo enable pins to disabled */
-#define DISABLE_MOTORS_ON_ASSERT (true)
+//#define DISABLE_MOTORS_ON_ASSERT (true)
 
 /* -------------------------------------------------------------------------- */
 
@@ -59,10 +41,9 @@ typedef union    ///< Allow mapping int16 to uint16
 #define ESTOP_PENDANT_IS_SMART (true)
 
 /* -------------------------------------------------------------------------- */
-
-//! \def _BV(bit)
-/// Basic bitvalue macro (suitable for up to 32 bits)
 #ifndef _BV
+    //! \def _BV(bit)
+    /// Basic bitvalue macro (suitable for up to 32 bits)
   #define _BV(bit)         (1UL<<(bit))
 #endif
 
@@ -81,25 +62,46 @@ typedef union    ///< Allow mapping int16 to uint16
 #define INT2BCD(_int_)    (((((_int_)/10)<<4)|((_int_)%10))&0xff)
 
 /* -------------------------------------------------------------------------- */
+#ifndef AVG
+    /*!
+     * Return average of two values
+     */
+    #define AVG(X, Y) (((X) + (Y)) / 2)
+#endif
 
-/** Return average of two values */
-#define AVG(X, Y)               (((X) + (Y)) / 2)
-
-/** Return minimum of two values */
 #ifndef MIN
-	#define MIN(X, Y)               (((X) < (Y)) ? (X) : (Y))
+    /*!
+     * Return minimum of two values
+     */
+    #define MIN(X, Y) (((X) < (Y)) ? (X) : (Y))
 #endif
 
-/** Return maximum of two values */
 #ifndef MAX
-#define MAX(X, Y)               (((X) > (Y)) ? (X) : (Y))
+    /*!
+     * Return maximum of two values
+     */
+    #define MAX(X, Y) (((X) > (Y)) ? (X) : (Y))
 #endif
 
-/** Return the clamped value of a variable between a low and a high value */
-#define CLAMP(X, LOW, HIGH)     (((X) > (HIGH)) ? (HIGH) : (((X) < (LOW)) ? (LOW) : (X)))
+#ifndef CLAMP
+    /*! Return the clamped value of a variable between a low and a high value */
+    #define CLAMP(X, LOW, HIGH) (((X) > (HIGH)) ? (HIGH) : (((X) < (LOW)) ? (LOW) : (X)))
+#endif
 
-/** Returns a remapped value from it's original position inside bounds, to a new position between new bounds */
-#define MAP(X, IN_MIN, IN_MAX, OUT_MIN, OUT_MAX) (((X) - (IN_MIN)) * ((OUT_MAX) - (OUT_MIN)) / ((IN_MAX) - (IN_MIN)) + (OUT_MIN))
+#ifndef MAP
+    /*!
+     * Returns a remapped value from it's original position inside bounds,
+     * to a new position between new bounds
+     */
+    #define MAP(X, IN_MIN, IN_MAX, OUT_MIN, OUT_MAX) (((X) - (IN_MIN)) * ((OUT_MAX) - (OUT_MIN)) / ((IN_MAX) - (IN_MIN)) + (OUT_MIN))
+#endif
+
+#ifndef IS_IN_DEADBAND
+    /*!
+     * Returns boolean state if the input values A and B are within DEADBAND of eachother.
+     */
+    #define IS_IN_DEADBAND( A, B, DEADBAND ) ( abs( (A) - (B) ) <= (DEADBAND) )
+#endif
 
 /** Convert various units into microns */
 #define MM_TO_MICRONS( X ) ( (X) * 1000 )
@@ -108,8 +110,6 @@ typedef union    ///< Allow mapping int16 to uint16
 /** Convert microns into mm/cm */
 #define MICRONS_TO_MM( X ) ( (X) / 1000 )
 #define MICRONS_TO_CM( X ) ( (X) / 10000 )
-
-#define IS_IN_DEADBAND( A, B, DEADBAND ) ( abs( (A) - (B) ) <= (DEADBAND) )
 
 /* -------------------------------------------------------------------------- */
 
@@ -182,8 +182,5 @@ typedef union    ///< Allow mapping int16 to uint16
                                      CRITICAL_SECTION_END();    \
                                  } while(0)
 
-/* ----- End ------------~--------------------------------------------------- */
-#ifdef __cplusplus
-}
-#endif
-#endif
+/* -------------------------------------------------------------------------- */
+#endif  /* GLOBAL_H */

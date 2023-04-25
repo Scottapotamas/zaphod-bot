@@ -26,7 +26,7 @@
 
 @rem  -------------------------------------------------------------------
 
-@set BUILD_INFO_FILE=./build_info.h
+@set BUILD_INFO_FILE=./src/build_info.h
 
 @rem === Create Build Info Header File ===
 @echo[

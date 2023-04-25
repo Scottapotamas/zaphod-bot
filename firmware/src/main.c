@@ -7,14 +7,10 @@
 #include <stm32f4xx_ll_pwr.h>
 #include <stm32f4xx_ll_utils.h>
 
-#include <stm32f4xx_ll_gpio.h>
+#include "hal_gpio.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
-
-#ifdef DISABLE_MOTORS_ON_ASSERT
-#include "clearpath.h"
-#endif
 
 /* -------------------------------------------------------------------------- */
 
@@ -23,41 +19,13 @@ static void system_clock_config( void );
 
 /* -------------------------------------------------------------------------- */
 
-#define LED_1_PORT                GPIOE
-#define LED_1_PIN                 LL_GPIO_PIN_4
-#define LED_1_PORT_CLK_ENABLE()   { RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN; }
-
-#define LED_2_PORT                GPIOE
-#define LED_2_PIN                 LL_GPIO_PIN_3
-#define LED_2_PORT_CLK_ENABLE()   { RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN; }
-
-#define LED_3_PORT                GPIOE
-#define LED_3_PIN                 LL_GPIO_PIN_2
-#define LED_3_PORT_CLK_ENABLE()   { RCC->AHB1ENR |= RCC_AHB1ENR_GPIOEEN; }
-
-void initGPIO()
-{
-    LED_1_PORT_CLK_ENABLE();
-    LED_2_PORT_CLK_ENABLE();
-    LED_3_PORT_CLK_ENABLE();
-
-    LL_GPIO_SetPinMode(LED_1_PORT, LED_1_PIN, LL_GPIO_MODE_OUTPUT);
-    LL_GPIO_SetPinOutputType(LED_1_PORT, LED_1_PIN, LL_GPIO_OUTPUT_PUSHPULL);
-
-    LL_GPIO_SetPinMode(LED_2_PORT, LED_2_PIN, LL_GPIO_MODE_OUTPUT);
-    LL_GPIO_SetPinOutputType(LED_2_PORT, LED_2_PIN, LL_GPIO_OUTPUT_PUSHPULL);
-
-    LL_GPIO_SetPinMode(LED_3_PORT, LED_3_PIN, LL_GPIO_MODE_OUTPUT);
-    LL_GPIO_SetPinOutputType(LED_3_PORT, LED_3_PIN, LL_GPIO_OUTPUT_PUSHPULL);
-
-}
 
 static void blinkGreenTask(void *arg)
 {
     for(;;)
     {
-        vTaskDelay(200);
-        LL_GPIO_TogglePin(LED_1_PORT, LED_1_PIN);
+        vTaskDelay(700);
+        hal_gpio_toggle_pin( _STATUS_0 );
     }
 }
 
@@ -65,9 +33,8 @@ static void blinkRedTask(void *arg)
 {
     for(;;)
     {
-        vTaskDelay(50);
-        LL_GPIO_TogglePin(LED_3_PORT, LED_3_PIN);
-
+        vTaskDelay(150);
+        hal_gpio_toggle_pin( _STATUS_1 );
     }
 }
 
@@ -78,7 +45,8 @@ int main(void)
     init_core();
     system_clock_config();
 
-    initGPIO();
+    hal_gpio_configure_defaults();
+
 
     xTaskCreate(blinkGreenTask, "blinkG", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL);
     xTaskCreate(blinkRedTask, "blinkR", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL);
