@@ -5,6 +5,7 @@
 #include "task.h"
 
 #include "fan.h"
+#include "buzzer.h"
 
 #include "hal_gpio.h"
 #include "hal_core.h"
@@ -18,7 +19,7 @@ static void blinkGreenTask(void *arg)
 {
     for(;;)
     {
-        vTaskDelay(700);
+        vTaskDelay(pdMS_TO_TICKS(1000) );
         hal_gpio_toggle_pin( _STATUS_0 );
     }
 }
@@ -42,6 +43,7 @@ int main(void)
     hal_gpio_configure_defaults();
 
     fan_init();
+    buzzer_init();
 
     xTaskCreate(blinkGreenTask, "blinkG", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL);
     xTaskCreate(blinkRedTask, "blinkR", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL);

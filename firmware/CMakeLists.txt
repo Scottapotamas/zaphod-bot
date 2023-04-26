@@ -61,6 +61,7 @@ target_link_libraries(
         ${PROJ_NAME}
         PUBLIC
         fan_lib
+        buzzer_lib
         hal_gpio_lib
         hal_system_lib
         FreeRTOS::Timers
