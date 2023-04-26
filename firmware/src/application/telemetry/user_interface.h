@@ -5,26 +5,20 @@
 extern "C" {
 #endif
 
-/* ----- System Includes ---------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-#include <electricui.h>
-
-/* ----- Local Includes ----------------------------------------------------- */
-
-#include "configuration_types.h"
+//#include "configuration_types.h"
 #include "global.h"
-#include "motion_types.h"
+//#include "motion_types.h"
 #include "user_interface_types.h"
 
-/* ----- Defines ------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
 
-/* ----- Public Functions --------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
 
 PUBLIC void
 user_interface_init( void );
-
-PUBLIC void
-user_interface_handle_data( void );
 
 PUBLIC bool
 user_interface_connection_ok( void );
@@ -99,8 +93,8 @@ user_interface_set_fan_rpm( uint16_t rpm );
 PUBLIC void
 user_interface_set_fan_state( uint8_t state );
 
-PUBLIC FanCurve_t *
-user_interface_get_fan_curve_ptr( void );
+//PUBLIC FanCurve_t *
+//user_interface_get_fan_curve_ptr( void );
 
 /* -------------------------------------------------------------------------- */
 
@@ -174,8 +168,6 @@ user_interface_set_led_queue_depth( uint8_t utilisation );
 
 PUBLIC void
 user_interface_push_position( void );
-
-/* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 

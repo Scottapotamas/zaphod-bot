@@ -42,6 +42,7 @@ include_directories(src/common)
 add_subdirectory(src/application)
 add_subdirectory(src/hal)
 add_subdirectory(src/utility)
+add_subdirectory(modules/electricui-embedded)
 
 target_sources(
         ${PROJ_NAME}
@@ -62,6 +63,7 @@ target_link_libraries(
         PUBLIC
         fan_lib
         buzzer_lib
+        telemetry_lib
         hal_gpio_lib
         hal_system_lib
         FreeRTOS::Timers

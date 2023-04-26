@@ -10,6 +10,8 @@
 #include "hal_gpio.h"
 #include "hal_core.h"
 
+#include "user_interface.h"
+
 // TODO: move DWT related into a system/core HAL wrapper
 #include "stm32f4xx_ll_cortex.h"
 
@@ -44,6 +46,7 @@ int main(void)
 
     fan_init();
     buzzer_init();
+    user_interface_init();
 
     xTaskCreate(blinkGreenTask, "blinkG", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL);
     xTaskCreate(blinkRedTask, "blinkR", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL);

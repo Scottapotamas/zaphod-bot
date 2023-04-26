@@ -2,23 +2,30 @@
 
 /* ----- Local Includes ----------------------------------------------------- */
 
-#include "configuration.h"
 #include "user_interface.h"
 #include "user_interface_msgid.h"
-#include "timer_ms.h"
 
-#include "app_task_ids.h"
-#include "app_tasks.h"
+#include "FreeRTOS.h"
+#include "task.h"
+#include <electricui.h>
 
-#include "app_events.h"
-#include "app_signals.h"
-#include "app_times.h"
-#include "app_version.h"
-#include "event_subscribe.h"
-#include "hal_uart.h"
 #include "hal_uuid.h"
+#include "hal_uart.h"
+#include "version.h"
+
+
+//#include "configuration.h"
+//#include "timer_ms.h"
+//#include "app_task_ids.h"
+//#include "app_tasks.h"
+//#include "app_events.h"
+//#include "app_signals.h"
+//#include "app_times.h"
+//#include "event_subscribe.h"
 
 /* ----- Private Function Declaration --------------------------------------- */
+
+PRIVATE void user_interface_handle_data( void *arg );
 
 PRIVATE void
 user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t message );
@@ -68,21 +75,22 @@ uint8_t mode_request = 0;
 MotorData_t motion_servo[4];
 int32_t     external_servo_angle_target;
 
-CartesianPoint_t current_position;    // global position of end effector in cartesian space
-CartesianPoint_t target_position;
+//CartesianPoint_t current_position;    // global position of end effector in cartesian space
+//CartesianPoint_t target_position;
 
 LedState_t rgb_led_drive;
 LedState_t rgb_manual_control;
 
 QueueDepths_t queue_data;
-Movement_t    motion_inbound;
-Fade_t        light_fade_inbound;
+//Movement_t    motion_inbound;
+//Fade_t        light_fade_inbound;
 
 uint32_t camera_shutter_duration_ms = 0;
 
 uint8_t demo_mode_configuration = 0;
 
 eui_message_t ui_variables[] = {
+    /*
     // Higher level system setup information
     EUI_CHAR_ARRAY_RO( MSGID_RESET_CAUSE, reset_cause ),
     EUI_CHAR_ARRAY_RO( MSGID_ASSERT_CAUSE, assert_cause ),
@@ -99,9 +107,8 @@ eui_message_t ui_variables[] = {
     EUI_UINT8( MSGID_MODE_REQUEST, mode_request ),
 
     // Current and target positions in cartesian space
-    EUI_CUSTOM( MSGID_POSITION_TARGET, target_position ),
-    EUI_CUSTOM_RO( MSGID_POSITION_CURRENT, current_position ),
-    EUI_CUSTOM( MSGID_POSITION_EXPANSION, external_servo_angle_target),
+//    EUI_CUSTOM( MSGID_POSITION_TARGET, target_position ),
+//    EUI_CUSTOM_RO( MSGID_POSITION_CURRENT, current_position ),
 
     EUI_CUSTOM_RO( MSGID_LED, rgb_led_drive ),
     EUI_CUSTOM( MSGID_LED_MANUAL_REQUEST, rgb_manual_control ),
@@ -110,27 +117,32 @@ eui_message_t ui_variables[] = {
     EUI_CUSTOM_RO( MSGID_QUEUE_INFO, queue_data ),
     EUI_FUNC( MSGID_QUEUE_CLEAR, clear_all_queue ),
     EUI_FUNC( MSGID_QUEUE_SYNC, sync_begin_queues ),
-    EUI_CUSTOM( MSGID_QUEUE_ADD_FADE, light_fade_inbound ),
-    EUI_CUSTOM( MSGID_QUEUE_ADD_MOVE, motion_inbound ),
+//    EUI_CUSTOM( MSGID_QUEUE_ADD_FADE, light_fade_inbound ),
+//    EUI_CUSTOM( MSGID_QUEUE_ADD_MOVE, motion_inbound ),
 
     // Event trigger callbacks
     EUI_FUNC( MSGID_EMERGENCY_STOP, emergency_stop_cb ),
     EUI_FUNC( MSGID_ARM, start_mech_cb ),
     EUI_FUNC( MSGID_DISARM, stop_mech_cb ),
     EUI_FUNC( MSGID_HOME, home_mech_cb ),
+    */
+    EUI_CUSTOM( MSGID_POSITION_EXPANSION, external_servo_angle_target),
+
     EUI_UINT32( MSGID_CAPTURE, camera_shutter_duration_ms ),
 
-    EUI_UINT8( MSGID_DEMO_CONFIGURATION, demo_mode_configuration ),
+//    EUI_UINT8( MSGID_DEMO_CONFIGURATION, demo_mode_configuration ),
 
     // Configuration fields are stored in configuration.c, we access them directly via pointer manipulation
-    { .id = MSGID_LED_CALIBRATION, .type = TYPE_CUSTOM, .size = sizeof(LedSettings_t), {.data = 0} },
-    { .id = MSGID_POWER_CALIBRATION, .type = TYPE_CUSTOM, .size = sizeof(PowerCalibration_t), {.data = 0} },
-    { .id = MSGID_FAN_CURVE, .type = TYPE_CUSTOM, .size = sizeof(FanCurve_t)*NUM_FAN_CURVE_POINTS, {.data = 0} },
-    { .id = MSGID_CONFIG, .type = TYPE_CUSTOM, .size = sizeof(UserConfig_t), {.data = 0} }
+//    { .id = MSGID_LED_CALIBRATION, .type = TYPE_CUSTOM, .size = sizeof(LedSettings_t), {.data = 0} },
+//    { .id = MSGID_POWER_CALIBRATION, .type = TYPE_CUSTOM, .size = sizeof(PowerCalibration_t), {.data = 0} },
+//    { .id = MSGID_FAN_CURVE, .type = TYPE_CUSTOM, .size = sizeof(FanCurve_t)*NUM_FAN_CURVE_POINTS, {.data = 0} },
+//    { .id = MSGID_CONFIG, .type = TYPE_CUSTOM, .size = sizeof(UserConfig_t), {.data = 0} }
 };
 
 #define HEARTBEAT_EXPECTED_MS 800	// Expect to see a heartbeat within this threshold
-timer_ms_t last_heartbeat = 0;
+
+// TODO update for FreeRTOS
+uint32_t last_heartbeat = 0;
 uint8_t heartbeat_ok_count = 0;		// Running count of successful heartbeat messages
 
 enum
@@ -143,10 +155,7 @@ enum
 eui_interface_t communication_interface[] = {
     [LINK_MODULE]   = EUI_INTERFACE_CB( &user_interface_tx_put_module, &user_interface_eui_callback_module ),
     [LINK_INTERNAL] = EUI_INTERFACE_CB( &user_interface_tx_put_internal, &user_interface_eui_callback_internal ),
-
-#ifdef ESTOP_PENDANT_IS_SMART
     [LINK_EXTERNAL] = EUI_INTERFACE_CB( &user_interface_tx_put_external, &user_interface_eui_callback_external ),
-#endif
 };
 
 /* ----- Public Functions --------------------------------------------------- */
@@ -155,14 +164,12 @@ PUBLIC void
 user_interface_init( void )
 {
     // TODO init other serial ports for UI use?
-    hal_uart_init( HAL_UART_PORT_MODULE );
-//    hal_uart_init( HAL_UART_PORT_INTERNAL );
-#ifdef ESTOP_PENDANT_IS_SMART
-    hal_uart_init( HAL_UART_PORT_EXTERNAL );
-#endif
+    hal_uart_init( HAL_UART_PORT_MODULE, 500000 );
+    hal_uart_init( HAL_UART_PORT_INTERNAL, 500000 );
+    hal_uart_init( HAL_UART_PORT_EXTERNAL, 500000 );
 
-    EUI_LINK( communication_interface );
-    EUI_TRACK( ui_variables );
+    eui_setup_tracked( &ui_variables, EUI_ARR_ELEM(ui_variables) );
+    eui_setup_interfaces( &communication_interface, EUI_ARR_ELEM(communication_interface) );
     eui_setup_identifier( (char *)HAL_UUID, 12 );    // header byte is 96-bit, therefore 12-bytes
 
     // set build info to hardcoded values
@@ -181,47 +188,66 @@ user_interface_init( void )
     strcpy( (char *)&fw_info.build_name, ProgramName );
 
     // Find MSGID_CONFIG and set the pointer to the configuration handler's struct data
-    eui_message_t *tracked_config = find_tracked_object( MSGID_CONFIG );
-    tracked_config->ptr.data = configuration_get_user_config_ptr();
+//    eui_message_t *tracked_config = find_tracked_object( MSGID_CONFIG );
+//    tracked_config->ptr.data = configuration_get_user_config_ptr();
+//
+//    tracked_config = find_tracked_object( MSGID_FAN_CURVE );
+//    tracked_config->ptr.data = configuration_get_fan_curve_ptr();
+//
+//    tracked_config = find_tracked_object( MSGID_LED_CALIBRATION );
+//    tracked_config->ptr.data = configuration_get_led_calibration_ptr();
+//
+//    tracked_config = find_tracked_object( MSGID_POWER_CALIBRATION );
+//    tracked_config->ptr.data = configuration_get_power_calibration_ptr();
 
-    tracked_config = find_tracked_object( MSGID_FAN_CURVE );
-    tracked_config->ptr.data = configuration_get_fan_curve_ptr();
-
-    tracked_config = find_tracked_object( MSGID_LED_CALIBRATION );
-    tracked_config->ptr.data = configuration_get_led_calibration_ptr();
-
-    tracked_config = find_tracked_object( MSGID_POWER_CALIBRATION );
-    tracked_config->ptr.data = configuration_get_power_calibration_ptr();
+    xTaskCreate(user_interface_handle_data,
+                 "telemetry",
+                 configMINIMAL_STACK_SIZE,
+                 NULL,
+                 tskIDLE_PRIORITY + 1,
+                 NULL
+                 );
 
 }
 
-PUBLIC void
-user_interface_handle_data( void )
+#define PARSE_CHUNK_SIZE 32
+
+PRIVATE void
+user_interface_handle_data( void *arg )
 {
-    while( hal_uart_rx_data_available( HAL_UART_PORT_MODULE ) )
+    for(;;)
     {
-        eui_parse( hal_uart_rx_get( HAL_UART_PORT_MODULE ), &communication_interface[LINK_MODULE] );
-    }
+        uint8_t buffer[PARSE_CHUNK_SIZE];
+        uint32_t bytes_available;
 
-    while( hal_uart_rx_data_available( HAL_UART_PORT_INTERNAL ) )
-    {
-        eui_parse( hal_uart_rx_get( HAL_UART_PORT_INTERNAL ), &communication_interface[LINK_INTERNAL] );
-    }
+        // Read data from the UART into the buffer
+//        bytes_available = hal_uart_read( HAL_UART_PORT_MODULE, buffer, PARSE_CHUNK_SIZE);
+//        // Iterate over the received bytes and pass them to the parser
+//        for (uint32_t i = 0; i < bytes_available; i++) {
+//            eui_parse(buffer[i], &communication_interface[LINK_MODULE]);
+//        }
+//
+//        bytes_available = hal_uart_read( HAL_UART_PORT_INTERNAL, buffer, PARSE_CHUNK_SIZE);
+//        for (uint32_t i = 0; i < bytes_available; i++) {
+//            eui_parse(buffer[i], &communication_interface[LINK_INTERNAL]);
+//        }
 
-    while( hal_uart_rx_data_available( HAL_UART_PORT_EXTERNAL ) )
-    {
-        eui_parse( hal_uart_rx_get( HAL_UART_PORT_EXTERNAL ), &communication_interface[LINK_EXTERNAL] );
+        bytes_available = hal_uart_read( HAL_UART_PORT_EXTERNAL, buffer, PARSE_CHUNK_SIZE);
+        for (uint32_t i = 0; i < bytes_available; i++) {
+            eui_parse(buffer[i], &communication_interface[LINK_EXTERNAL]);
+        }
     }
 }
 
 PUBLIC bool
 user_interface_connection_ok( void )
 {
+    // TODO update this for FreeRTOS
     // Check if the most recent heartbeats have timed out
-    if( timer_ms_is_expired( &last_heartbeat ) )
-    {
-        heartbeat_ok_count = 0;
-    }
+//    if( timer_ms_is_expired( &last_heartbeat ) )
+//    {
+//        heartbeat_ok_count = 0;
+//    }
 
     // Connection is considered OK if more than 3 heartbeats have arrived
     // within the threshold duration
@@ -230,7 +256,6 @@ user_interface_connection_ok( void )
 
 /* -------------------------------------------------------------------------- */
 
-#ifdef ESTOP_PENDANT_IS_SMART
 
 PRIVATE void
 user_interface_tx_put_external( uint8_t *c, uint16_t length )
@@ -243,8 +268,6 @@ user_interface_eui_callback_external( uint8_t message )
 {
     user_interface_eui_callback( LINK_EXTERNAL, &communication_interface[LINK_EXTERNAL], message );
 }
-
-#endif
 
 /* -------------------------------------------------------------------------- */
 
@@ -300,27 +323,27 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
                         // TODO allow UI to request a no-mode setting?
                         break;
                     case CONTROL_MANUAL:
-                        eventPublish( EVENT_NEW( StateEvent, MODE_REQUEST_MANUAL ) );
+//                        eventPublish( EVENT_NEW( StateEvent, MODE_REQUEST_MANUAL ) );
                         break;
                     case CONTROL_EVENT:
-                        eventPublish( EVENT_NEW( StateEvent, MODE_REQUEST_EVENT ) );
+//                        eventPublish( EVENT_NEW( StateEvent, MODE_REQUEST_EVENT ) );
                         break;
                     case CONTROL_DEMO:
-                        eventPublish( EVENT_NEW( StateEvent, MODE_REQUEST_DEMO ) );
+//                        eventPublish( EVENT_NEW( StateEvent, MODE_REQUEST_DEMO ) );
                         break;
                     case CONTROL_TRACK:
-                        eventPublish( EVENT_NEW( StateEvent, MODE_REQUEST_TRACK ) );
+//                        eventPublish( EVENT_NEW( StateEvent, MODE_REQUEST_TRACK ) );
                         break;
 
                     default: {
                         // Punish an incorrect attempt at mode changes with E-STOP
-                        EmergencyStopEvent *estop_evt = EVENT_NEW( EmergencyStopEvent, MOTION_EMERGENCY );
-
-                        if( estop_evt )
-                        {
-                            estop_evt->cause = EMERGENCY_REQUEST_DENIED;
-                            eventPublish( (StateEvent *)estop_evt );
-                        }
+//                        EmergencyStopEvent *estop_evt = EVENT_NEW( EmergencyStopEvent, MOTION_EMERGENCY );
+//
+//                        if( estop_evt )
+//                        {
+//                            estop_evt->cause = EMERGENCY_REQUEST_DENIED;
+//                            eventPublish( (StateEvent *)estop_evt );
+//                        }
                     }
                         break;
                 }
@@ -348,8 +371,8 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
 
             // Fire an event to refresh the LED if the UI sends a value in
             // This makes display updates when manually setting colors or calibration values nice and responsive
-            if( strcmp( (char *)name_rx, MSGID_LED_MANUAL_REQUEST ) == 0 && has_payload
-                || strcmp( (char *)name_rx, MSGID_LED_CALIBRATION ) == 0 && has_payload )
+            if(    ( strcmp( (char *)name_rx, MSGID_LED_MANUAL_REQUEST ) == 0 && has_payload )
+                || ( strcmp( (char *)name_rx, MSGID_LED_CALIBRATION ) == 0 && has_payload ) )
             {
                 rgb_manual_led_event();
             }
@@ -366,22 +389,23 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
 
             if( strcmp( (char *)name_rx, MSGID_CONFIG ) == 0 && has_payload )
             {
-                configuration_notify_config();
+//                configuration_notify_config();
             }
 
             if( strcmp( (char *)name_rx, MSGID_FAN_CURVE ) == 0 && has_payload )
             {
-                configuration_notify_fan_curve();
+//                configuration_notify_fan_curve();
             }
 
             if( strcmp( (char*)name_rx, EUI_INTERNAL_HEARTBEAT ) == 0 )
             {
-                if( !timer_ms_is_expired( &last_heartbeat ) )
-                {
-                    heartbeat_ok_count++;
-                }
+                // TODO update heartbeat monitor for FreeRTOS
+//                if( !timer_ms_is_expired( &last_heartbeat ) )
+//                {
+//                    heartbeat_ok_count++;
+//                }
 
-                timer_ms_start( &last_heartbeat, HEARTBEAT_EXPECTED_MS );
+//                timer_ms_start( &last_heartbeat, HEARTBEAT_EXPECTED_MS );
             }
             break;
         }
@@ -392,8 +416,8 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
             break;
 
         case EUI_CB_PARSE_FAIL:
-            // Inbound message parsing failed, this callback help while debugging
-
+            // Inbound message parsing failed, this callback can help while debugging
+            user_interface_report_error("eui pf");
             break;
 
         default:
@@ -564,9 +588,9 @@ user_interface_set_temp_cpu( float temp )
 PUBLIC void
 user_interface_set_position( int32_t x, int32_t y, int32_t z )
 {
-    current_position.x = x;
-    current_position.y = y;
-    current_position.z = z;
+//    current_position.x = x;
+//    current_position.y = y;
+//    current_position.z = z;
 }
 
 PUBLIC void
@@ -578,11 +602,11 @@ user_interface_set_effector_speed( uint32_t microns_per_second )
 PUBLIC void
 user_interface_reset_tracking_target()
 {
-    target_position.x = 0;
-    target_position.y = 0;
-    target_position.z = 0;
+//    target_position.x = 0;
+//    target_position.y = 0;
+//    target_position.z = 0;
 
-    eui_send_tracked( MSGID_POSITION_TARGET );    // tell the UI that the value has changed
+//    eui_send_tracked( MSGID_POSITION_TARGET );    // tell the UI that the value has changed
 }
 
 PUBLIC void
@@ -676,103 +700,103 @@ user_interface_set_led_queue_depth( uint8_t utilisation )
 PRIVATE void
 rgb_manual_led_event()
 {
-    LightingManualEvent *colour_request = EVENT_NEW( LightingManualEvent, LED_MANUAL_SET );
-
-    if( colour_request )
-    {
-        colour_request->colour.red   = rgb_manual_control.red;
-        colour_request->colour.green = rgb_manual_control.green;
-        colour_request->colour.blue  = rgb_manual_control.blue;
-        colour_request->enabled      = rgb_manual_control.enable;
-
-        eventPublish( (StateEvent *)colour_request );
-    }
+//    LightingManualEvent *colour_request = EVENT_NEW( LightingManualEvent, LED_MANUAL_SET );
+//
+//    if( colour_request )
+//    {
+//        colour_request->colour.red   = rgb_manual_control.red;
+//        colour_request->colour.green = rgb_manual_control.green;
+//        colour_request->colour.blue  = rgb_manual_control.blue;
+//        colour_request->enabled      = rgb_manual_control.enable;
+//
+//        eventPublish( (StateEvent *)colour_request );
+//    }
 }
 
 /* ----- Private Functions -------------------------------------------------- */
 
 PRIVATE void start_mech_cb( void )
 {
-    eventPublish( EVENT_NEW( StateEvent, REQUEST_ARM ) );
+//    eventPublish( EVENT_NEW( StateEvent, REQUEST_ARM ) );
 }
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void stop_mech_cb( void )
 {
-    eventPublish( EVENT_NEW( StateEvent, REQUEST_DISARM ) );
+//    eventPublish( EVENT_NEW( StateEvent, REQUEST_DISARM ) );
 }
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void emergency_stop_cb( void )
 {
-    EmergencyStopEvent *estop_evt = EVENT_NEW( EmergencyStopEvent, MOTION_EMERGENCY );
-
-    if( estop_evt )
-    {
-        estop_evt->cause = EMERGENCY_USER;
-        eventPublish( (StateEvent *)estop_evt );
-    }
+//    EmergencyStopEvent *estop_evt = EVENT_NEW( EmergencyStopEvent, MOTION_EMERGENCY );
+//
+//    if( estop_evt )
+//    {
+//        estop_evt->cause = EMERGENCY_USER;
+//        eventPublish( (StateEvent *)estop_evt );
+//    }
 }
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void home_mech_cb( void )
 {
-    eventPublish( EVENT_NEW( StateEvent, REQUEST_REHOME ) );
+//    eventPublish( EVENT_NEW( StateEvent, REQUEST_REHOME ) );
 }
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void movement_generate_event( void )
 {
-    MotionPlannerEvent *motion_request = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
-
-    if( motion_request )
-    {
-        memcpy( &motion_request->move, &motion_inbound, sizeof( motion_inbound ) );
-        eventPublish( (StateEvent *)motion_request );
-        memset( &motion_inbound, 0, sizeof( motion_inbound ) );
-    }
+//    MotionPlannerEvent *motion_request = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
+//
+//    if( motion_request )
+//    {
+//        memcpy( &motion_request->move, &motion_inbound, sizeof( motion_inbound ) );
+//        eventPublish( (StateEvent *)motion_request );
+//        memset( &motion_inbound, 0, sizeof( motion_inbound ) );
+//    }
 }
 
 PRIVATE void tracked_position_event( void )
 {
-    TrackedPositionRequestEvent *position_request = EVENT_NEW( TrackedPositionRequestEvent, TRACKED_TARGET_REQUEST );
-
-    if( position_request )
-    {
-        memcpy( &position_request->target, &target_position, sizeof( target_position ) );
-        eventPublish( (StateEvent *)position_request );
-        memset( &target_position, 0, sizeof( target_position ) );
-    }
+//    TrackedPositionRequestEvent *position_request = EVENT_NEW( TrackedPositionRequestEvent, TRACKED_TARGET_REQUEST );
+//
+//    if( position_request )
+//    {
+//        memcpy( &position_request->target, &target_position, sizeof( target_position ) );
+//        eventPublish( (StateEvent *)position_request );
+//        memset( &target_position, 0, sizeof( target_position ) );
+//    }
 }
 
 PRIVATE void tracked_external_servo_request( void )
 {
-    ExpansionServoRequestEvent *angle_request = EVENT_NEW( ExpansionServoRequestEvent, TRACKED_EXTERNAL_SERVO_REQUEST );
-
-    if( angle_request )
-    {
-        memcpy( &angle_request->target, &external_servo_angle_target, sizeof( external_servo_angle_target ) );
-        eventPublish( (StateEvent *)angle_request );
-        memset( &external_servo_angle_target, 0, sizeof( external_servo_angle_target ) );
-    }
+//    ExpansionServoRequestEvent *angle_request = EVENT_NEW( ExpansionServoRequestEvent, TRACKED_EXTERNAL_SERVO_REQUEST );
+//
+//    if( angle_request )
+//    {
+//        memcpy( &angle_request->target, &external_servo_angle_target, sizeof( external_servo_angle_target ) );
+//        eventPublish( (StateEvent *)angle_request );
+//        memset( &external_servo_angle_target, 0, sizeof( external_servo_angle_target ) );
+//    }
 }
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void lighting_generate_event( void )
 {
-    LightingPlannerEvent *lighting_request = EVENT_NEW( LightingPlannerEvent, LED_QUEUE_ADD );
-
-    if( lighting_request )
-    {
-        memcpy( &lighting_request->animation, &light_fade_inbound, sizeof( light_fade_inbound ) );
-        eventPublish( (StateEvent *)lighting_request );
-        memset( &light_fade_inbound, 0, sizeof( light_fade_inbound ) );
-    }
+//    LightingPlannerEvent *lighting_request = EVENT_NEW( LightingPlannerEvent, LED_QUEUE_ADD );
+//
+//    if( lighting_request )
+//    {
+//        memcpy( &lighting_request->animation, &light_fade_inbound, sizeof( light_fade_inbound ) );
+//        eventPublish( (StateEvent *)lighting_request );
+//        memset( &light_fade_inbound, 0, sizeof( light_fade_inbound ) );
+//    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -783,13 +807,13 @@ PRIVATE void lighting_generate_event( void )
 
 PRIVATE void sync_begin_queues( void )
 {
-    eventPublish( EVENT_NEW( StateEvent, QUEUE_SYNC_START ) );
+//    eventPublish( EVENT_NEW( StateEvent, QUEUE_SYNC_START ) );
 }
 
 PRIVATE void clear_all_queue( void )
 {
-    eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
-    eventPublish( EVENT_NEW( StateEvent, LED_QUEUE_CLEAR ) );
+//    eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
+//    eventPublish( EVENT_NEW( StateEvent, LED_QUEUE_CLEAR ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -797,14 +821,14 @@ PRIVATE void clear_all_queue( void )
 PRIVATE void
 trigger_camera_capture( void )
 {
-    CameraShutterEvent *trigger = EVENT_NEW( CameraShutterEvent, CAMERA_CAPTURE );
-
-    if( trigger )
-    {
-        memcpy( &trigger->exposure_time, &camera_shutter_duration_ms, sizeof( camera_shutter_duration_ms ) );
-        eventPublish( (StateEvent *)trigger );
-        memset( &camera_shutter_duration_ms, 0, sizeof( camera_shutter_duration_ms ) );
-    }
+//    CameraShutterEvent *trigger = EVENT_NEW( CameraShutterEvent, CAMERA_CAPTURE );
+//
+//    if( trigger )
+//    {
+//        memcpy( &trigger->exposure_time, &camera_shutter_duration_ms, sizeof( camera_shutter_duration_ms ) );
+//        eventPublish( (StateEvent *)trigger );
+//        memset( &camera_shutter_duration_ms, 0, sizeof( camera_shutter_duration_ms ) );
+//    }
 }
 
 
@@ -821,13 +845,13 @@ user_interface_push_position( void )
 PRIVATE void
 request_demo_configuration( void )
 {
-    DemoModeConfigurationEvent *request = EVENT_NEW( DemoModeConfigurationEvent, DEMO_MODE_CONFIGURATION );
-
-    if( request )
-    {
-        memcpy( &request->program_index, &demo_mode_configuration, sizeof( demo_mode_configuration ) );
-        eventPublish( (StateEvent *)request );
-    }
+//    DemoModeConfigurationEvent *request = EVENT_NEW( DemoModeConfigurationEvent, DEMO_MODE_CONFIGURATION );
+//
+//    if( request )
+//    {
+//        memcpy( &request->program_index, &demo_mode_configuration, sizeof( demo_mode_configuration ) );
+//        eventPublish( (StateEvent *)request );
+//    }
 }
 
 /* ----- End ---------------------------------------------------------------- */

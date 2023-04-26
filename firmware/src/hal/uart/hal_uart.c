@@ -11,13 +11,15 @@
 #include "stm32f4xx_ll_dma.h"
 #include "stm32f4xx_ll_rcc.h"
 #include "stm32f4xx_ll_usart.h"
+#include "stm32f4xx_ll_gpio.h"
 
-#include "app_times.h"
-#include "fifo.h"
 #include "global.h"
 #include "hal_gpio.h"
 #include "hal_uart.h"
 #include "qassert.h"
+
+#include "FreeRTOS.h"
+#include "stream_buffer.h"
 
 /* ----- Private Data ------------------------------------------------------- */
 
@@ -25,8 +27,8 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 /* ----- Defines ------------------------------------------------------------ */
 
-#define HAL_UART_RX_FIFO_SIZE 1024
-#define HAL_UART_TX_FIFO_SIZE 1024
+#define HAL_UART_RX_STREAM_SIZE 1024
+#define HAL_UART_TX_STREAM_SIZE 1024
 
 #define HAL_UART_RX_DMA_BUFFER_SIZE 512
 
@@ -44,13 +46,9 @@ typedef struct
     uint32_t     dma_stream_rx;
     uint32_t     dma_channel_rx;
 
-    // User-space buffers are serviced outside IRQ
-    fifo_t   tx_fifo;
-    uint8_t  tx_buffer[HAL_UART_TX_FIFO_SIZE];
-    uint16_t tx_sneak_bytes;
-
-    fifo_t  rx_fifo;
-    uint8_t rx_buffer[HAL_UART_RX_FIFO_SIZE];
+    // FreeRTOS Stream handles
+    StreamBufferHandle_t xRxStreamBuffer;
+    StreamBufferHandle_t xTxStreamBuffer;
 
     // Raw DMA buffer,
     volatile uint8_t dma_rx_buffer[HAL_UART_RX_DMA_BUFFER_SIZE];
@@ -88,8 +86,11 @@ hal_usart_irq_rx_handler( HalUart_t *h );
 /* ----- USART Interface ---------------------------------------------------- */
 
 PUBLIC void
-hal_uart_init( HalUartPort_t port )
+hal_uart_init( HalUartPort_t port, uint32_t baudrate )
 {
+    REQUIRE( port < HAL_UART_NUM_PORTS);
+    REQUIRE( baudrate );
+
     HalUart_t *h = &hal_uart[port];
     memset( h, 0, sizeof( HalUart_t ) );
 
@@ -105,8 +106,11 @@ hal_uart_init( HalUartPort_t port )
             h->dma_stream_rx  = LL_DMA_STREAM_0;
             h->dma_channel_rx = LL_DMA_CHANNEL_4;
 
-            fifo_init( &h->tx_fifo, h->tx_buffer, HAL_UART_TX_FIFO_SIZE );
-            fifo_init( &h->rx_fifo, h->rx_buffer, HAL_UART_RX_FIFO_SIZE );
+            h->xRxStreamBuffer = xStreamBufferCreate( HAL_UART_RX_STREAM_SIZE, 1 );
+            REQUIRE(h->xRxStreamBuffer);
+
+            h->xTxStreamBuffer = xStreamBufferCreate( HAL_UART_TX_STREAM_SIZE, 1 );
+            REQUIRE(h->xTxStreamBuffer);
 
             LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_UART5 );
             LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_DMA1 );
@@ -115,7 +119,7 @@ hal_uart_init( HalUartPort_t port )
             hal_gpio_init_alternate( _EXT_INPUT_0, LL_GPIO_AF_8, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
 
             hal_uart_dma_init( HAL_UART_PORT_EXTERNAL );
-            hal_uart_peripheral_init( h->usart, EXTERNAL_BAUD );
+            hal_uart_peripheral_init( h->usart, baudrate );
 
             // Start it up
             LL_DMA_EnableStream( h->dma_peripheral, h->dma_stream_rx );    // rx stream
@@ -131,8 +135,11 @@ hal_uart_init( HalUartPort_t port )
             h->dma_stream_rx  = LL_DMA_STREAM_2;
             h->dma_channel_rx = LL_DMA_CHANNEL_4;
 
-            fifo_init( &h->tx_fifo, h->tx_buffer, HAL_UART_TX_FIFO_SIZE );
-            fifo_init( &h->rx_fifo, h->rx_buffer, HAL_UART_RX_FIFO_SIZE );
+            h->xRxStreamBuffer = xStreamBufferCreate(HAL_UART_RX_STREAM_SIZE, 1);
+            REQUIRE(h->xRxStreamBuffer);
+
+            h->xTxStreamBuffer = xStreamBufferCreate(HAL_UART_TX_STREAM_SIZE, 1);
+            REQUIRE(h->xTxStreamBuffer);
 
             LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_USART1 );
             LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_DMA2 );
@@ -141,7 +148,7 @@ hal_uart_init( HalUartPort_t port )
             hal_gpio_init_alternate( _AUX_UART_TX, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
 
             hal_uart_dma_init( HAL_UART_PORT_INTERNAL );
-            hal_uart_peripheral_init( h->usart, INTERNAL_BAUD );
+            hal_uart_peripheral_init( h->usart, baudrate );
 
             LL_DMA_EnableStream( h->dma_peripheral, h->dma_stream_rx );    // rx stream
             LL_USART_Enable( h->usart );
@@ -156,8 +163,11 @@ hal_uart_init( HalUartPort_t port )
             h->dma_stream_rx  = LL_DMA_STREAM_5;
             h->dma_channel_rx = LL_DMA_CHANNEL_4;
 
-            fifo_init( &h->tx_fifo, h->tx_buffer, HAL_UART_TX_FIFO_SIZE );
-            fifo_init( &h->rx_fifo, h->rx_buffer, HAL_UART_RX_FIFO_SIZE );
+            h->xRxStreamBuffer = xStreamBufferCreate(HAL_UART_RX_STREAM_SIZE, 1);
+            REQUIRE(h->xRxStreamBuffer);
+
+            h->xTxStreamBuffer = xStreamBufferCreate(HAL_UART_TX_STREAM_SIZE, 1);
+            REQUIRE(h->xTxStreamBuffer);
 
             LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_USART2 );
             LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_DMA1 );
@@ -168,7 +178,7 @@ hal_uart_init( HalUartPort_t port )
             //            hal_gpio_init_alternate( _CARD_UART_RTS, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
 
             hal_uart_dma_init( HAL_UART_PORT_MODULE );
-            hal_uart_peripheral_init( h->usart, MODULE_BAUD );
+            hal_uart_peripheral_init( h->usart, baudrate );
 
             LL_DMA_EnableStream( h->dma_peripheral, h->dma_stream_rx );    // rx stream
             LL_USART_Enable( h->usart );
@@ -196,57 +206,6 @@ hal_uart_global_deinit( void )
 
 /* -------------------------------------------------------------------------- */
 
-/* Non-blocking send for a single character to the UART tx FIFO queue.
- * Returns true when successful. false when queue was full.
- */
-
-PUBLIC bool
-hal_uart_put( HalUartPort_t port, uint8_t ch )
-{
-    HalUart_t *h = &hal_uart[port];
-
-    uint32_t sent = fifo_write( &h->tx_fifo, &ch, 1 );
-
-    hal_uart_start_tx( h );
-    return ( sent == 1 );
-}
-
-/* -------------------------------------------------------------------------- */
-
-/** Wait until FIFO cleared. */
-
-PUBLIC void
-hal_uart_flush( HalUartPort_t port )
-{
-    HalUart_t *h = &hal_uart[port];
-    uint32_t   used;
-
-    do
-    {
-        used = fifo_used( &h->tx_fifo );
-    } while( used > 0 );
-}
-
-/* -------------------------------------------------------------------------- */
-
-/* Non-blocking send for a single character to the UART tx FIFO queue.
- * Returns true when successful. false when queue was full.
- */
-
-PUBLIC bool
-hal_uart_put_blocking( HalUartPort_t port, uint8_t ch )
-{
-    HalUart_t *h = &hal_uart[port];
-
-    uint32_t timeout = 100000;
-    while( ( --timeout > 0 ) && ( fifo_free( &h->tx_fifo ) == 0 ) ) {}
-    uint32_t sent = fifo_write( &h->tx_fifo, &ch, 1 );
-    hal_uart_start_tx( h );
-    return ( sent == 1 );
-}
-
-/* -------------------------------------------------------------------------- */
-
 /* Non-blocking send for a number of characters to the UART tx FIFO queue.
  * Returns the number of characters written to the queue. When less than
  * length, characters were dropped.
@@ -258,42 +217,15 @@ hal_uart_write( HalUartPort_t port, const uint8_t *data, uint32_t length )
     HalUart_t *h    = &hal_uart[port];
     uint32_t   sent = 0;
 
-    if( fifo_free( &h->tx_fifo ) >= length )
-    {
-        sent = fifo_write( &h->tx_fifo, data, length );
-        hal_uart_start_tx( h );
-    }
+    // Write the data onto the txStream
+    sent = xStreamBufferSend(h->xTxStreamBuffer,
+                              data,
+                              length,
+                              portMAX_DELAY
+                              );
+    hal_uart_start_tx( h );
 
     return sent;
-}
-
-/* -------------------------------------------------------------------------- */
-
-/* Returns number of available characters in the RX FIFO queue. */
-
-PUBLIC uint32_t
-hal_uart_rx_data_available( HalUartPort_t port )
-{
-    HalUart_t *h = &hal_uart[port];
-
-    return fifo_used( &h->rx_fifo );
-}
-
-/* -------------------------------------------------------------------------- */
-
-/* Retrieve a single byte from the rx FIFO queue.
- * Returns 0 when no data is available
- */
-
-PUBLIC uint8_t
-hal_uart_rx_get( HalUartPort_t port )
-{
-    HalUart_t *h = &hal_uart[port];
-
-    uint8_t c = 0;
-    fifo_read( &h->rx_fifo, &c, 1 );
-
-    return c;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -306,9 +238,15 @@ PUBLIC uint32_t
 hal_uart_read( HalUartPort_t port, uint8_t *data, uint32_t maxlength )
 {
     HalUart_t *h = &hal_uart[port];
-    uint32_t   len;
+    uint32_t   len = 0;
 
-    len = fifo_read( &h->rx_fifo, data, maxlength );
+    // Read bytes out of the rxStream
+    len = xStreamBufferReceive(h->xRxStreamBuffer,
+                                data,
+                                maxlength,
+                                // TODO work out a non-blocking way to do this and wake the parent?
+                                5   //portMAX_DELAY
+                                );
 
     return len;
 }
@@ -568,20 +506,24 @@ hal_uart_start_tx( HalUart_t *h )
     /* If transfer is not ongoing */
     if( !LL_DMA_IsEnabledStream( h->dma_peripheral, h->dma_stream_tx ) )
     {
-        h->tx_sneak_bytes = fifo_used_linear( &h->tx_fifo );
+        // Accept up to 32 bytes of data
+        // StreamBuffer -> buffer for DMA -> UART TX
+        uint8_t txData[ 32 ];
+        size_t xReceivedBytes;
+        BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-        // Limit maximum size to transmit at a time
-        if( h->tx_sneak_bytes > 32 )
+        xReceivedBytes = xStreamBufferReceiveFromISR(h->xTxStreamBuffer,
+                                                      &txData,
+                                                      32,
+                                                      &xHigherPriorityTaskWoken
+                                                      );
+
+        // Configure DMA with the data
+        if( xReceivedBytes )
         {
-            h->tx_sneak_bytes = 32;
-        }
+            void *ptr = &txData;
 
-        // Transmit remaining data
-        if( h->tx_sneak_bytes > 0 )
-        {
-            void *ptr = fifo_get_tail_ptr( &h->tx_fifo, h->tx_sneak_bytes );
-
-            LL_DMA_SetDataLength( h->dma_peripheral, h->dma_stream_tx, h->tx_sneak_bytes );
+            LL_DMA_SetDataLength( h->dma_peripheral, h->dma_stream_tx, xReceivedBytes );
             LL_DMA_SetMemoryAddress( h->dma_peripheral, h->dma_stream_tx, (uint32_t)ptr );
 
             hal_uart_clear_dma_tx_flags( h->dma_peripheral, h->dma_stream_tx );
@@ -597,7 +539,7 @@ hal_uart_start_tx( HalUart_t *h )
 PRIVATE void
 hal_uart_completed_tx( HalUart_t *h )
 {
-    fifo_skip( &h->tx_fifo, h->tx_sneak_bytes );
+    // We finished a DMA transfer, start another one?
     hal_uart_start_tx( h );
 }
 
@@ -611,6 +553,8 @@ hal_usart_irq_rx_handler( HalUart_t *h )
 {
     // Calculate current head index
     uint32_t current_pos = HAL_UART_RX_DMA_BUFFER_SIZE - LL_DMA_GetDataLength( h->dma_peripheral, h->dma_stream_rx );
+    size_t xBytesSent = 0;
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     // Has DMA given us new data?
     if( current_pos != h->dma_rx_pos )
@@ -618,17 +562,32 @@ hal_usart_irq_rx_handler( HalUart_t *h )
         // Data hasn't hit the end yet
         if( current_pos > h->dma_rx_pos )
         {
-            fifo_write( &h->rx_fifo, (const uint8_t *)&h->dma_rx_buffer[h->dma_rx_pos], current_pos - h->dma_rx_pos );
+            xBytesSent = xStreamBufferSendFromISR( h->xRxStreamBuffer,
+                                                   (const uint8_t *)&h->dma_rx_buffer[h->dma_rx_pos],
+                                                   current_pos - h->dma_rx_pos,
+                                                   &xHigherPriorityTaskWoken );
+
+            // if the stream doesn't have sufficient capacity, this will fail
+            ASSERT( xBytesSent == (current_pos - h->dma_rx_pos) );
+
         }
         else    // circular buffer overflowed
         {
             // Read to the end of the buffer
-            fifo_write( &h->rx_fifo, (const uint8_t *)&h->dma_rx_buffer[h->dma_rx_pos], DIM( h->dma_rx_buffer ) - h->dma_rx_pos );
+            xBytesSent = xStreamBufferSendFromISR( h->xRxStreamBuffer,
+                                                   (const uint8_t *)&h->dma_rx_buffer[h->dma_rx_pos],
+                                                   DIM( h->dma_rx_buffer ) - h->dma_rx_pos,
+                                                   &xHigherPriorityTaskWoken );
+            ASSERT( xBytesSent == (DIM( h->dma_rx_buffer ) - h->dma_rx_pos) );
 
             // Read from the start of the buffer to the current head
             if( current_pos > 0 )
             {
-                fifo_write( &h->rx_fifo, (const uint8_t *)&h->dma_rx_buffer[0], current_pos );
+                xBytesSent = xStreamBufferSendFromISR( h->xRxStreamBuffer,
+                                                       (const uint8_t *)&h->dma_rx_buffer[0],
+                                                       current_pos,
+                                                       &xHigherPriorityTaskWoken );
+                ASSERT( xBytesSent == current_pos );
             }
         }
     }
