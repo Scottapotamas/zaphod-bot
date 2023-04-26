@@ -1,10 +1,8 @@
-/* ----- Local Includes ----------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #include "hal_reset.h"
-#include "stm32f4xx_ll_rcc.h"
 
-#include "hal_delay.h"
-#include "hal_watchdog.h"
+#include "stm32f4xx_ll_rcc.h"
 
 /* Assert printout requirements */
 #include <stdio.h>
@@ -100,8 +98,7 @@ hal_reset_cause_description( HalPowerResetCause_t cause )
 PUBLIC void
 hal_reset_software( void )
 {
-    hal_delay_ms( 10 );    // allow some time for serial buffers to flush etc
-    hal_watchdog_refresh();
+    // TODO: allow some time for serial buffers to flush etc?
     NVIC_SystemReset();
 }
 
@@ -151,4 +148,4 @@ hal_reset_assert_description( void )
     return (char *)&cached_assert_datagram.message;
 }
 
-/* ----- End ---------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

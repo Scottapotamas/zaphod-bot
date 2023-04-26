@@ -11,13 +11,7 @@ stm32_fetch_cmsis(F4)
 stm32_fetch_hal(F4)
 
 find_package(CMSIS COMPONENTS STM32F4 REQUIRED)
-find_package(HAL COMPONENTS
-        STM32F4
-        LL_RCC
-        LL_PWR
-        LL_UTILS
-        REQUIRED
-)
+find_package(HAL COMPONENTS STM32F4 LL_RCC REQUIRED)
 find_package(FreeRTOS COMPONENTS ARM_CM4F REQUIRED)
 
 add_definitions(-DUSE_FULL_LL_DRIVER)
@@ -41,6 +35,9 @@ ENDIF()
 
 add_executable(${PROJ_NAME})
 
+
+set(FREERTOS_CONFIG_H ${CMAKE_SOURCE_DIR}/src/)
+
 include_directories(src/common)
 add_subdirectory(src/application)
 add_subdirectory(src/hal)
@@ -55,20 +52,21 @@ target_sources(
 
 target_include_directories(
         ${PROJ_NAME}
-        PRIVATE
+        PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}
+        ${FREERTOS_CONFIG_H}
 )
 
 target_link_libraries(
         ${PROJ_NAME}
         PUBLIC
+        fan_lib
         hal_gpio_lib
+        hal_system_lib
         FreeRTOS::Timers
         FreeRTOS::Heap::4
         FreeRTOS::ARM_CM4F
         HAL::STM32::F4::LL_RCC
-        HAL::STM32::F4::LL_PWR
-        HAL::STM32::F4::LL_UTILS
         CMSIS::STM32::F429xx
         STM32::NoSys
 )

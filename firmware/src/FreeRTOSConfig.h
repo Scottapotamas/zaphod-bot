@@ -66,10 +66,6 @@ extern uint32_t SystemCoreClock;
 #define configUSE_COUNTING_SEMAPHORES   1
 #define configGENERATE_RUN_TIME_STATS   1    // Task timing stats
 
-/* Co-routine definitions. */
-//#define configUSE_CO_ROUTINES           0
-//#define configMAX_CO_ROUTINE_PRIORITIES ( 2 )
-
 /* Software timer definitions. */
 #define configUSE_TIMERS             1
 #define configTIMER_TASK_PRIORITY    ( 2 )
@@ -150,6 +146,7 @@ standard names. */
 
 extern void portConfigureTimerForRuntimeStats( void );
 #define portCONFIGURE_TIMER_FOR_RUN_TIME_STATS() portConfigureTimerForRuntimeStats()
+
 extern uint32_t portGetRuntimeCounterValue( void );
 #define portGET_RUN_TIME_COUNTER_VALUE() portGetRuntimeCounterValue()
 
