@@ -22,6 +22,7 @@ find_package(HAL COMPONENTS
         LL_RCC
         LL_PWR
         LL_UTILS
+        LL_DMA
         LL_GPIO
         LL_USART
         REQUIRED
@@ -37,6 +38,7 @@ target_link_libraries(
         HAL::STM32::F4::LL_RCC
         HAL::STM32::F4::LL_PWR
         HAL::STM32::F4::LL_UTILS
+        HAL::STM32::F4::LL_DMA
         HAL::STM32::F4::LL_GPIO
         HAL::STM32::F4::LL_USART
 )

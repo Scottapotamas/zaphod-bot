@@ -6,18 +6,20 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "queue.h"
+
 #include "simple_state_machine.h"
 #include "qassert.h"
 
 #include "hal_pwm.h"
 
-// TODO input rpm data via queue/task notification/subscription instead of raw calls
-#include "hal_ic_hard.h"
-
 /* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
+/* -------------------------------------------------------------------------- */
+
+#define FAN_MIN_SETPOINT 5U
 #define FAN_STALL_FAULT_RPM 140U
 #define FAN_STALL_MAX_RPM 1800U
 #define NUM_FAN_CURVE_POINTS 5U
@@ -27,11 +29,24 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 /* -------------------------------------------------------------------------- */
 
+typedef enum {
+    FAN_SENSOR_NONE = 0,
+    FAN_SENSOR_TEMPERATURE,
+    FAN_SENSOR_SPEED,
+} FAN_SENSOR_TYPE;
+
+typedef struct
+{
+    FAN_SENSOR_TYPE type;
+    uint16_t value;
+} FanInput_t;
+
 typedef struct
 {
     FanState_t previousState;
     FanState_t currentState;
     FanState_t nextState;
+    QueueHandle_t xRequestQueue;
     uint8_t    speed;            // as a percentage 0-100, what the fan should be at 'now'
 } Fan_t;
 
@@ -97,6 +112,30 @@ fan_get_state( void )
     return me->currentState;
 }
 
+PUBLIC void
+fan_update_temperature( uint16_t temperature )
+{
+    Fan_t *me = &fan;
+
+    FanInput_t new = { 0 };
+    new.type = FAN_SENSOR_TEMPERATURE;
+    new.value = temperature;
+
+    xQueueSendToBack( me->xRequestQueue, (void *)&new, 0 );
+}
+
+PUBLIC void
+fan_update_hall( uint16_t rpm )
+{
+    Fan_t *me = &fan;
+
+    FanInput_t new = { 0 };
+    new.type = FAN_SENSOR_SPEED;
+    new.value = rpm;
+
+    xQueueSendToBack( me->xRequestQueue, (void *)&new, 0 );
+}
+
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void
@@ -104,31 +143,53 @@ fan_process( void *arg )
 {
     Fan_t *me = &fan;
 
-    // TODO this should be done upstream
-    hal_ic_hard_init();
+    me->xRequestQueue = xQueueCreate( 10, sizeof(FanInput_t) );
+    REQUIRE( me->xRequestQueue );
+    vQueueAddToRegistry( me->xRequestQueue, "fanInputs");  // Debug view annotation
 
     hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ );
 
     for(;;)
     {
-        // Get the current fan speed
-        //    uint16_t fan_hall_rpm = sensors_fan_speed_RPM();
+        // Block until new sensor data arrives
+        // If nothing arrives for 500ms, run (and we'll assume something's gone wrong)
+        FanInput_t new_data = { 0 };
+        xQueueReceive( me->xRequestQueue, &new_data, pdMS_TO_TICKS(500) );
 
-        // TODO: block on new RPM or temperature data coming in
-        //      - after a long timeout go to 100% ?
+        switch( new_data.type )
+        {
+            case FAN_SENSOR_NONE:
+                // Should only hit this after a 'no sensor data' timeout...
+                // So go to full speed
+                me->speed = 100;
+                break;
 
-        float fan_hall_rpm   = hal_ic_hard_read_f(HAL_IC_HARD_FAN_HALL) * 60;
-        float expansion_temp = 22.0f;
+            case FAN_SENSOR_TEMPERATURE:
+                // Calculate target speed based on temperature curve
+                me->speed = fan_speed_at_temp( new_data.value );
+                break;
 
+            case FAN_SENSOR_SPEED:
+                // Rotor stop detection
+                if(    me->currentState == FAN_STATE_ON
+                    && new_data.value < FAN_STALL_FAULT_RPM )
+                {
+                    STATE_NEXT( FAN_STATE_STALL );
+                }
+                break;
+        }
+
+        // Manage the fan's startup/stop behaviour
         switch( me->currentState )
         {
             case FAN_STATE_OFF:
                 STATE_ENTRY_ACTION
-                    // Set a zero duty cycle - up to the fan to actually spin down
-                    hal_pwm_set_percentage_f( _PWM_TIM_FAN, 0.0f );
+                    // Set a zero duty cycle - fan needs to support 0-duty spin down though
+                    me->speed = 0;
+                    hal_pwm_set_percentage_f( _PWM_TIM_FAN, me->speed );
                 STATE_TRANSITION_TEST
-                    // If temperature requires it, trigger startup blip
-                    if( fan_speed_at_temp( expansion_temp ) )
+                    // Trigger startup blip
+                    if( me->speed > FAN_MIN_SETPOINT )
                     {
                         STATE_NEXT( FAN_STATE_START );
                     }
@@ -139,10 +200,10 @@ fan_process( void *arg )
             case FAN_STATE_STALL:
                 STATE_ENTRY_ACTION
                     // Stop the fan because we think it's stalled
-                    hal_pwm_set_percentage_f( _PWM_TIM_FAN, 0.0f );
+                    me->speed = 0;
+                    hal_pwm_set_percentage_f( _PWM_TIM_FAN, me->speed );
                 STATE_TRANSITION_TEST
                     // TODO: Check if repeated stalls are occuring?
-
                     vTaskDelay( pdMS_TO_TICKS(FAN_STALL_WAIT_TIME_MS) );
                     STATE_NEXT( FAN_STATE_START );
                 STATE_EXIT_ACTION
@@ -151,8 +212,9 @@ fan_process( void *arg )
 
             case FAN_STATE_START:
                 STATE_ENTRY_ACTION
-                    // Set PWM to 100% for a short period
-                    hal_pwm_set_percentage_f( _PWM_TIM_FAN, 100.0f );
+                    // Set to 100% for a short period
+                    me->speed = 100;
+                    hal_pwm_set_percentage_f( _PWM_TIM_FAN, me->speed );
                 STATE_TRANSITION_TEST
                     vTaskDelay( pdMS_TO_TICKS(FAN_STARTUP_TIME_MS) );
                     STATE_NEXT( FAN_STATE_ON );
@@ -162,31 +224,18 @@ fan_process( void *arg )
 
             case FAN_STATE_ON:
                 STATE_ENTRY_ACTION
-
                 STATE_TRANSITION_TEST
-                    // Calculate target speed based on temperature curve
-                    me->speed = fan_speed_at_temp( expansion_temp );
-
                     hal_pwm_set_percentage_f( _PWM_TIM_FAN, CLAMP( me->speed, 0.0f, 100.0f ) );
 
-                    // Fan req turned off
-                    if( me->speed < 5 )
+                    if( me->speed < FAN_MIN_SETPOINT )
                     {
                         STATE_NEXT( FAN_STATE_OFF );
                     }
-
-                    vTaskDelay( pdMS_TO_TICKS(5) );
-
-                    // Rotor stop detection
-                    if( fan_hall_rpm < FAN_STALL_FAULT_RPM )
-                    {
-                        STATE_NEXT( FAN_STATE_STALL );
-                    }
                 STATE_EXIT_ACTION
+                    me->speed = 0;
                 STATE_END
                 break;
         }
-
     }
 }
 
@@ -217,7 +266,13 @@ fan_speed_at_temp( float temperature )
         if( (uint8_t)temperature > fan_curve[i].temperature && (uint8_t)temperature <= fan_curve[i + 1].temperature )
         {
             // Linear interpolation for fan speed between the surrounding rows in LUT
-            return fan_curve[i].percentage + ( ( ( temperature - fan_curve[i].temperature ) / ( fan_curve[i + 1].temperature - fan_curve[i].temperature ) ) * ( fan_curve[i + 1].percentage - fan_curve[i].percentage ) );
+            uint8_t value = MAP( temperature,
+                               fan_curve[i].temperature,
+                               fan_curve[i + 1].temperature,
+                               fan_curve[i].percentage,
+                               fan_curve[i + 1].percentage );
+
+            return value;//fan_curve[i].percentage + ( ( ( temperature - fan_curve[i].temperature ) / ( fan_curve[i + 1].temperature - fan_curve[i].temperature ) ) * ( fan_curve[i + 1].percentage - fan_curve[i].percentage ) );
         }
     }
 

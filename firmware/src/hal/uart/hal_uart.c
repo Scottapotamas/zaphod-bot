@@ -206,7 +206,7 @@ hal_uart_global_deinit( void )
 
 /* -------------------------------------------------------------------------- */
 
-/* Non-blocking send for a number of characters to the UART tx FIFO queue.
+/* Non-blocking send for a number of characters to the UART tx stream.
  * Returns the number of characters written to the queue. When less than
  * length, characters were dropped.
  */
@@ -498,11 +498,6 @@ PRIVATE void hal_uart_clear_dma_tx_flags( DMA_TypeDef *DMAx, uint32_t stream_tx 
 PRIVATE void
 hal_uart_start_tx( HalUart_t *h )
 {
-    uint32_t primask;
-
-    primask = __get_PRIMASK();
-    __disable_irq();
-
     /* If transfer is not ongoing */
     if( !LL_DMA_IsEnabledStream( h->dma_peripheral, h->dma_stream_tx ) )
     {
@@ -517,6 +512,7 @@ hal_uart_start_tx( HalUart_t *h )
                                                       32,
                                                       &xHigherPriorityTaskWoken
                                                       );
+//        taskYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
         // Configure DMA with the data
         if( xReceivedBytes )
@@ -532,8 +528,6 @@ hal_uart_start_tx( HalUart_t *h )
             LL_DMA_EnableStream( h->dma_peripheral, h->dma_stream_tx );
         }
     }
-
-    __set_PRIMASK( primask );
 }
 
 PRIVATE void

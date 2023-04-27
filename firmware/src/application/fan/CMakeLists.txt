@@ -21,7 +21,6 @@ target_link_libraries(
         fan_lib
         PRIVATE
         hal_pwm_lib
-        hal_input_capture_lib
         FreeRTOS::ARM_CM4F
         # TODO: work out how to compile/link with hard-float without specifying the STM32::F4 package?
         STM32::F4

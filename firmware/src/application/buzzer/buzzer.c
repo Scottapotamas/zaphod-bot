@@ -88,7 +88,7 @@ PRIVATE void
 buzzer_process( void )
 {
     // Create a buzzer event request queue
-    me->xRequestQueue = xQueueCreate( 10, sizeof(BuzzerRequest_t) );
+    me->xRequestQueue = xQueueCreate( 5, sizeof(BuzzerRequest_t) );
     REQUIRE( me->xRequestQueue );
     vQueueAddToRegistry( me->xRequestQueue, "beepReq");  // Debug view annotation
 

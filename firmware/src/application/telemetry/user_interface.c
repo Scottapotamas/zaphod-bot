@@ -163,6 +163,7 @@ eui_interface_t communication_interface[] = {
 PUBLIC void
 user_interface_init( void )
 {
+    hal_uart_global_deinit();
     // TODO init other serial ports for UI use?
     hal_uart_init( HAL_UART_PORT_MODULE, 500000 );
     hal_uart_init( HAL_UART_PORT_INTERNAL, 500000 );
@@ -218,7 +219,7 @@ user_interface_handle_data( void *arg )
     for(;;)
     {
         uint8_t buffer[PARSE_CHUNK_SIZE];
-        uint32_t bytes_available;
+        uint32_t bytes_available = 0;
 
         // Read data from the UART into the buffer
 //        bytes_available = hal_uart_read( HAL_UART_PORT_MODULE, buffer, PARSE_CHUNK_SIZE);
