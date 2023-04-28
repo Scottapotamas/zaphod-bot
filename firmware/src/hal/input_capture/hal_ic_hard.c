@@ -1,8 +1,6 @@
-/* ----- System Includes ---------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #include <string.h>
-
-/* ----- Local Includes ----------------------------------------------------- */
 
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_gpio.h"
@@ -13,7 +11,7 @@
 #include "hal_ic_hard.h"
 #include "qassert.h"
 
-/* ----- Defines ------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
@@ -22,7 +20,7 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 #define FAN_TIM_CLOCK           84000000UL
 #define FAN_IC_EDGES_PER_PERIOD 1
 
-/* ----- Variables ---------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 typedef struct
 {
@@ -35,7 +33,7 @@ typedef struct
 
 PRIVATE HalHardICIntermediate_t ic_state[HAL_IC_HARD_NUM];  // holding values used to calculate edge durations -> duty/freq
 
-/* ----- Private Functions -------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 PRIVATE void
 hal_ic_hard_configure_pwm_input( TIM_TypeDef *TIMx );
@@ -43,7 +41,7 @@ hal_ic_hard_configure_pwm_input( TIM_TypeDef *TIMx );
 PRIVATE void
 hal_ic_hard_pwmic_irq_handler( InputCaptureSignal_t input, TIM_TypeDef *TIMx );
 
-/* ----- Public Functions --------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 PUBLIC void
 hal_ic_hard_init( void )
@@ -180,6 +178,8 @@ hal_setup_capture( uint8_t input )
             break;
     }
 }
+
+/* -------------------------------------------------------------------------- */
 
 PRIVATE void
 hal_ic_hard_configure_pwm_input( TIM_TypeDef *TIMx )
@@ -352,4 +352,4 @@ void TIM1_BRK_TIM9_IRQHandler( void )
     }
 }
 
-/* ----- End ---------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

@@ -1,11 +1,9 @@
-/* ----- System Includes ---------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-/* ----- Local Includes ----------------------------------------------------- */
 
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_dma.h"
@@ -21,18 +19,16 @@
 #include "FreeRTOS.h"
 #include "stream_buffer.h"
 
-/* ----- Private Data ------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
-
-/* ----- Defines ------------------------------------------------------------ */
 
 #define HAL_UART_RX_STREAM_SIZE 1024
 #define HAL_UART_TX_STREAM_SIZE 1024
 
-#define HAL_UART_RX_DMA_BUFFER_SIZE 512
+#define HAL_UART_RX_DMA_BUFFER_SIZE 256
 
-/* ----- Types -------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 typedef struct
 {
@@ -56,11 +52,11 @@ typedef struct
 
 } HalUart_t;
 
-/* ----- Variables ---------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 PRIVATE HalUart_t hal_uart[HAL_UART_NUM_PORTS];
 
-/* ----- Private Functions -------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 PRIVATE void
 hal_uart_dma_init( HalUartPort_t port );
@@ -83,7 +79,7 @@ hal_uart_completed_tx( HalUart_t *h );
 PRIVATE void
 hal_usart_irq_rx_handler( HalUart_t *h );
 
-/* ----- USART Interface ---------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 PUBLIC void
 hal_uart_init( HalUartPort_t port, uint32_t baudrate )
@@ -724,4 +720,4 @@ void DMA1_Stream6_IRQHandler( void )
     }
 }
 
-/* ----- End ---------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

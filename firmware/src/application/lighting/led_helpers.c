@@ -1,13 +1,9 @@
-/* ----- System Includes ---------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-
-/* ----- Local Includes ----------------------------------------------------- */
-
-#include "app_times.h"
-#include "led_types.h"
+#include "led_helpers.h"
 #include "qassert.h"
 
-/* ----- Defines ------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
@@ -16,7 +12,7 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 PRIVATE float
 hue_to_channel( float p, float q, float t );
 
-/* ----- Public Functions --------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 /* Converts a Hue/Saturation/Intensity colour to a Red/Green/Blue one
  * Input HSI are [0, 1]
@@ -92,4 +88,4 @@ hue_to_channel( float p, float q, float t )
     return p;
 }
 
-/* ----- End ---------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

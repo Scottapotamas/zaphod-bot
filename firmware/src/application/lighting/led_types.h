@@ -1,11 +1,11 @@
 #ifndef LED_TYPES_H
 #define LED_TYPES_H
 
-/* ----- Local Includes ----------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #include "global.h"
 
-/* ----- Defines ------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
 
 // LED Channel power. 0 for off, 0xFFFFFFFFFFFF for full output
 typedef struct
@@ -59,14 +59,6 @@ typedef struct
     FadeBitfield_t  settings;                                // Settings values
     HSIColour_t     input_colours[COLOUR_SETPOINT_COUNT];    // array of colours
 } Fade_t;
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-hsi_to_rgb( float h, float s, float i, float *r, float *g, float *b );
-
-/* -------------------------------------------------------------------------- */
-
 
 /* -------------------------------------------------------------------------- */
 

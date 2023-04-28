@@ -5,13 +5,11 @@
 extern "C" {
 #endif
 
-/* ----- System Includes ---------------------------------------------------- */
-
-/* ----- Local Includes ----------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #include "global.h"
 
-/* ----- Types ------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 typedef enum
 {
@@ -23,7 +21,7 @@ typedef enum
     _PWM_NUMBER_TIMERS
 } PWMOutputTimerDef_t;
 
-/* ----- Public Functions -------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 PUBLIC void
 hal_pwm_generation( PWMOutputTimerDef_t pwm_output, uint16_t frequency );
@@ -43,7 +41,7 @@ void hal_pwm_set_byte( PWMOutputTimerDef_t pwm_output, uint8_t duty_cycle );
 PRIVATE void
 hal_pwm_set( PWMOutputTimerDef_t pwm_output, uint16_t duty_cycle );
 
-/* ----- End ---------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #ifdef __cplusplus
 }

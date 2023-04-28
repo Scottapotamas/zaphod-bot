@@ -1,19 +1,15 @@
-/* ----- System Includes ---------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #include <string.h>
 
-/* ----- Local Includes ----------------------------------------------------- */
+#include "hal_adc.h"
+#include "qassert.h"
 
 #include "stm32f4xx_ll_adc.h"
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_dma.h"
 
-#include "hal_adc.h"
-
-//#include "average_short.h"
-#include "qassert.h"
-
-/* ---------------- Lower Level Peripheral ---------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
@@ -48,54 +44,30 @@ PRIVATE uint32_t hal_ranks[] = {
     LL_ADC_REG_RANK_15,
     LL_ADC_REG_RANK_16
 };
-/* ---------------- Higher Level Processing ---------------------------------- */
 
-typedef struct
-{
-    bool     running;
-    bool     done;
-    uint16_t tick;
-    uint16_t rate;
-} HalAdcState_t;
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void hal_adc_configure_dma( void );
+PRIVATE void hal_adc_configure( void );
 
 PRIVATE uint32_t adc_dma[HAL_ADC_INPUT_NUM];         // 'Raw' DMA copy area for ADC readings
 PRIVATE uint32_t adc_channels[HAL_ADC_INPUT_NUM];    // Destination 'userspace' ADC readings
 
-PRIVATE uint16_t       adc_rate[HAL_ADC_INPUT_NUM];        // Track the requested rate per-channel
-PRIVATE uint8_t        adc_enabled[HAL_ADC_INPUT_NUM];     // Track if each channel is needed or not
-PRIVATE uint32_t       adc_peaks[HAL_ADC_INPUT_NUM];       // Track the highest value
-//PRIVATE AverageShort_t adc_averages[HAL_ADC_INPUT_NUM];    // Track the average value
+/* -------------------------------------------------------------------------- */
 
-PRIVATE HalAdcState_t hal_adc1;    // Track behaviour for our peripheral (running, set rate etc)
-
-/* ------------------------- Functions -------------------------------------- */
-
-PUBLIC void
-hal_adc_init( void )
+PUBLIC void hal_adc_init( void )
 {
-    // Init the higher level handling of ADC readings
-    memset( &hal_adc1, 0, sizeof( hal_adc1 ) );
-    memset( &adc_peaks, 0, sizeof( adc_peaks ) );
-    memset( &adc_rate, 0, sizeof( adc_rate ) );
-    memset( &adc_enabled, 0, sizeof( adc_enabled ) );
     memset( &adc_dma, 0, sizeof( adc_dma ) );
     memset( &adc_channels, 0, sizeof( adc_channels ) );
-//    memset( &adc_averages, 0, sizeof( adc_averages ) );
 
-//    average_short_init( &adc_averages[HAL_ADC_INPUT_VREFINT], 32 );
-//    average_short_init( &adc_averages[HAL_ADC_INPUT_M1_CURRENT], 50 );
-//    average_short_init( &adc_averages[HAL_ADC_INPUT_M2_CURRENT], 50 );
-//    average_short_init( &adc_averages[HAL_ADC_INPUT_M3_CURRENT], 50 );
-//    average_short_init( &adc_averages[HAL_ADC_INPUT_M4_CURRENT], 50 );
-//    average_short_init( &adc_averages[HAL_ADC_INPUT_VOLT_SENSE], 32 );
-//    average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_PCB], 32 );
-//    average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_REG], 32 );
-//    average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_EXT], 32 );
-//    average_short_init( &adc_averages[HAL_ADC_INPUT_TEMP_INTERNAL], 32 );
+    hal_adc_configure_dma();
+    hal_adc_configure();
+}
 
-    hal_adc1.running = false;
-    hal_adc1.done    = false;
+/* -------------------------------------------------------------------------- */
 
+PRIVATE void hal_adc_configure_dma( void )
+{
     // Configure DMA channel for ADC
     NVIC_SetPriority( DMA2_Stream0_IRQn, 3 ); /* DMA IRQ lower priority than ADC IRQ */
     NVIC_EnableIRQ( DMA2_Stream0_IRQn );
@@ -130,8 +102,14 @@ hal_adc_init( void )
     // Enable the DMA transfer
     LL_DMA_EnableStream( DMA2, LL_DMA_STREAM_0 );
 
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void hal_adc_configure( void )
+{
     // Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
-    NVIC_SetPriority( ADC_IRQn, 2 ); /* ADC IRQ needs greater priority than DMA IRQ */
+    NVIC_SetPriority( ADC_IRQn, 2 );    /* ADC IRQ needs greater priority than DMA IRQ */
     NVIC_EnableIRQ( ADC_IRQn );
 
     LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_ADC1 );
@@ -152,9 +130,9 @@ hal_adc_init( void )
     if( LL_ADC_IsEnabled( ADC1 ) == 0 )
     {
         LL_ADC_REG_SetTriggerSource( ADC1, LL_ADC_REG_TRIG_SOFTWARE );
-        // LL_ADC_REG_SetTriggerEdge(ADC1, LL_ADC_REG_TRIG_EXT_RISING);
         LL_ADC_REG_SetContinuousMode( ADC1, LL_ADC_REG_CONV_SINGLE );
         LL_ADC_REG_SetDMATransfer( ADC1, LL_ADC_REG_DMA_TRANSFER_UNLIMITED );
+        // LL_ADC_REG_SetTriggerEdge(ADC1, LL_ADC_REG_TRIG_EXT_RISING);
         // LL_ADC_REG_SetFlagEndOfConversion(ADC1, LL_ADC_REG_FLAG_EOC_SEQUENCE_CONV);
 
         // Set ADC group regular sequencer length and scan direction
@@ -175,17 +153,7 @@ hal_adc_init( void )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC bool
-hal_adc_valid( HalAdcInput_t input )
-{
-    REQUIRE( input < HAL_ADC_INPUT_NUM );
-    return 0;//adc_averages[input].counter > 0;
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC uint32_t
-hal_adc_read( HalAdcInput_t input )
+PUBLIC uint32_t hal_adc_read( HalAdcInput_t input )
 {
     REQUIRE( input < HAL_ADC_INPUT_NUM );
     return adc_channels[input];
@@ -193,133 +161,29 @@ hal_adc_read( HalAdcInput_t input )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC uint32_t
-hal_adc_read_avg( HalAdcInput_t input )
+PUBLIC void hal_adc_start( void )
 {
-    REQUIRE( input < HAL_ADC_INPUT_NUM );
-    return 0;//(uint32_t)average_short_get_average( &adc_averages[input] );
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC uint32_t
-hal_adc_read_peak( HalAdcInput_t input )
-{
-    REQUIRE( input < HAL_ADC_INPUT_NUM );
-    return adc_peaks[input];
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-hal_adc_start( HalAdcInput_t input, uint16_t poll_rate_ms )
-{
-    // Increment reference count for this input
-    adc_enabled[input] = ( uint8_t )( adc_enabled[input] + 1 );
-
-    // Clear the peak history
-    adc_peaks[input] = 0;
-
-    // Set the interval to poll this
-    adc_rate[input] = poll_rate_ms;
-
-    // Check if ADC needs enabling
-    bool enabled  = false;
-    hal_adc1.rate = UINT16_MAX;
-
-    for( uint8_t chan = HAL_ADC_INPUT_M1_CURRENT;
-         chan < HAL_ADC_INPUT_VREFINT;
-         chan++ )
+    if( LL_ADC_IsEnabled( ADC1 ) == 0 )
     {
-        if( adc_enabled[chan] > 0 )
-        {
-            hal_adc1.rate = MIN( hal_adc1.rate, adc_rate[chan] );
-            enabled |= true;
-        }
+        LL_ADC_Enable( ADC1 );
     }
 
-    if( !hal_adc1.running && enabled )
-    {
-        if( LL_ADC_IsEnabled( ADC1 ) == 0 )
-        {
-            LL_ADC_Enable( ADC1 );
+    // LL_DMA_DisableStream(DMA2, LL_DMA_STREAM_0);
+    // LL_DMA_EnableStream(DMA2,LL_DMA_STREAM_0);
 
-            hal_adc1.running = true;
-            hal_adc1.done    = true;    // Allow first conversion
-        }
+    if( LL_ADC_IsEnabled( ADC1 ) == 1 )
+    {
+        LL_ADC_REG_StartConversionSWStart( ADC1 );
     }
 }
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-hal_adc_stop( HalAdcInput_t input )
+PUBLIC void hal_adc_stop( void )
 {
-    REQUIRE( input < HAL_ADC_INPUT_NUM );
-
-    // Decrement reference count for this input
-    if( adc_enabled[input] > 0 )
+    if( LL_ADC_IsEnabled( ADC1 ) == 1 )
     {
-        adc_enabled[input] = ( uint8_t )( adc_enabled[input] - 1 );
-    }
-
-    // If channel is OFF, scan for ADC controller to switch off
-    if( adc_enabled[input] == 0 )
-    {
-        bool enabled = false;
-        for( uint8_t chan = HAL_ADC_INPUT_M1_CURRENT;
-             chan < HAL_ADC_INPUT_VREFINT;
-             chan++ )
-        {
-            if( adc_enabled[chan] > 0 )
-            {
-                enabled = true;
-                break;
-            }
-        }
-
-        // If no longer enabled, turn off the sampling DMA
-        if( !enabled )
-        {
-            hal_adc1.running = false;
-
-            if( LL_ADC_IsEnabled( ADC1 ) == 1 )
-            {
-                LL_ADC_Disable( ADC1 );
-            }
-
-            // TODO disable ADC DMA when stopped?
-        }
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-/** Timer tick to trigger a ADC conversion cycle */
-
-PUBLIC void
-hal_adc_tick( void )
-{
-    if( hal_adc1.running )
-    {
-        if( hal_adc1.done )
-        {
-            hal_adc1.tick++;
-            if( hal_adc1.tick > hal_adc1.rate )
-            {
-                hal_adc1.tick = 0;
-
-                //                LL_DMA_DisableStream(DMA2, LL_DMA_STREAM_0);
-                //                LL_DMA_EnableStream(DMA2,LL_DMA_STREAM_0);
-
-                if( LL_ADC_IsEnabled( ADC1 ) == 1 )
-                {
-                    LL_ADC_REG_StartConversionSWStart( ADC1 );
-                }
-
-                hal_adc1.done = false;
-            }
-        }
+        LL_ADC_Disable( ADC1 );
     }
 }
 
@@ -333,8 +197,7 @@ void ADC_IRQHandler( void )
         LL_ADC_ClearFlag_OVR( ADC1 );    // Clear flag ADC group regular overrun
         LL_ADC_DisableIT_OVR( ADC1 );    // Disable overrun interrupt
 
-        // TODO Gracefully recover when ADC overrun error occurs
-        asm( "nop" );
+        ASSERT(false);
     }
 }
 
@@ -349,15 +212,6 @@ void DMA2_Stream0_IRQHandler( void )
         memcpy( &adc_channels[HAL_ADC_INPUT_M1_CURRENT],
                 &adc_dma[HAL_ADC_INPUT_M1_CURRENT],
                 ( HAL_ADC_INPUT_NUM / 2 ) * sizeof( adc_channels[0] ) );
-
-        /* Run them though the averaging */
-        for( uint8_t chan = HAL_ADC_INPUT_M1_CURRENT;
-             chan < ( HAL_ADC_INPUT_NUM / 2 );
-             chan++ )
-        {
-//            average_short_update( &adc_averages[chan], (uint16_t)adc_channels[chan] );
-            adc_peaks[chan] = MAX( adc_peaks[chan], adc_channels[chan] );
-        }
     }
 
     // DMA transfer complete caused the DMA interruption
@@ -370,27 +224,14 @@ void DMA2_Stream0_IRQHandler( void )
         memcpy( &adc_channels[HAL_ADC_INPUT_NUM / 2],
                 &adc_dma[HAL_ADC_INPUT_NUM / 2],
                 ( HAL_ADC_INPUT_NUM / 2 ) * sizeof( adc_channels[0] ) );
-
-        /* Run them though the averaging */
-        for( uint8_t chan = HAL_ADC_INPUT_NUM / 2;
-             chan < HAL_ADC_INPUT_NUM;
-             chan++ )
-        {
-//            average_short_update( &adc_averages[chan], (uint16_t)adc_channels[chan] );
-            adc_peaks[chan] = MAX( adc_peaks[chan], adc_channels[chan] );
-        }
-
-        hal_adc1.done = true;
     }
 
     // DMA transfer error caused the DMA interruption
     if( LL_DMA_IsActiveFlag_TE0( DMA2 ) == 1 )
     {
         LL_DMA_ClearFlag_TE0( DMA2 );    // Clear flag DMA transfer error
-
-        // TODO Handle adc DMA errors?
-        asm( "nop" );
+        ASSERT(false);
     }
 }
 
-/* ----- End ---------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */

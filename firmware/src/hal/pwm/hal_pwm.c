@@ -1,6 +1,4 @@
-/* ----- System Includes ---------------------------------------------------- */
-
-/* ----- Local Includes ----------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_gpio.h"
@@ -11,7 +9,7 @@
 #include "hal_pwm.h"
 #include "qassert.h"
 
-/* ----- Defines ------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
@@ -33,10 +31,12 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
  * AUX2    - TIM12_1
  */
 
+/* -------------------------------------------------------------------------- */
+
 PRIVATE void
 hal_pwm_configure_peripheral( uint8_t AHBx, TIM_TypeDef *TIMx, uint32_t channel, uint32_t frequency );
 
-/* ----- Public Functions --------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 void hal_pwm_generation( PWMOutputTimerDef_t pwm_output, uint16_t frequency )
 {
@@ -239,4 +239,4 @@ PRIVATE void hal_pwm_set( PWMOutputTimerDef_t pwm_output, uint16_t duty_cycle )
     }
 }
 
-/* ----- End ---------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
