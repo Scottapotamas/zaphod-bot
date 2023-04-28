@@ -1,4 +1,12 @@
-import { FormGroup, Intent, MultiSlider, Slider, Button, ButtonProps, Colors } from '@blueprintjs/core'
+import {
+  FormGroup,
+  Intent,
+  MultiSlider,
+  Slider,
+  Button,
+  ButtonProps,
+  Colors,
+} from '@blueprintjs/core'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Composition, Box } from 'atomic-layout'
@@ -64,9 +72,17 @@ function SceneLengthSlider() {
         onChange={setLocalMinMax}
         stepSize={1}
       >
-        <MultiSlider.Handle type="start" value={localMinMax[0]} intentBefore={Intent.WARNING} />
+        <MultiSlider.Handle
+          type="start"
+          value={localMinMax[0]}
+          intentBefore={Intent.WARNING}
+        />
 
-        <MultiSlider.Handle type="end" value={localMinMax[1]} intentAfter={Intent.WARNING} />
+        <MultiSlider.Handle
+          type="end"
+          value={localMinMax[1]}
+          intentAfter={Intent.WARNING}
+        />
       </MultiSlider>
     </div>
   )
@@ -80,7 +96,10 @@ function Timeline() {
 
   const updateViewportFrame = useCallback(frameNumber => {
     changeState(state => {
-      state.viewportFrame = Math.min(selectedMaxFrame, Math.max(selectedMinFrame, frameNumber))
+      state.viewportFrame = Math.min(
+        selectedMaxFrame,
+        Math.max(selectedMinFrame, frameNumber),
+      )
 
       // Trigger an update, wrap around
       incrementViewportFrameVersion(state)
@@ -89,7 +108,10 @@ function Timeline() {
 
   const updatePriorityFrame = useCallback(frameNumber => {
     changeState(state => {
-      state.priorityFrame = Math.min(selectedMaxFrame, Math.max(selectedMinFrame, frameNumber))
+      state.priorityFrame = Math.min(
+        selectedMaxFrame,
+        Math.max(selectedMinFrame, frameNumber),
+      )
     })
   }, [])
 
@@ -113,7 +135,12 @@ import { Material } from '../optimiser/materials/Base'
 import { GLOBAL_OVERRIDE_OBJECT_ID } from '../optimiser/movements'
 import { importMaterial } from '../optimiser/material'
 import { useDeviceID } from '@electricui/components-core'
-import { LightMove, MovementMove, MSGID, QueueDepthInfo } from 'src/application/typedState'
+import {
+  LightMove,
+  MovementMove,
+  MSGID,
+  QueueDepthInfo,
+} from 'src/application/typedState'
 import { getOrderedMovementsForFrame } from './ToolpathVisualisation'
 import { FRAME_STATE } from '../optimiser/main'
 import { isCamera } from '../optimiser/camera'
@@ -130,7 +157,8 @@ async function getToolpathForFrame(frameNumber: number) {
   const settings = getSetting(state => state.settings)
   const visualisationSettings = getSetting(state => state.visualisationSettings)
 
-  const renderablesForFrame = getSetting(state => state.renderablesByFrame[state.viewportFrame]) ?? []
+  const renderablesForFrame =
+    getSetting(state => state.renderablesByFrame[state.viewportFrame]) ?? []
 
   const blenderCamera = renderablesForFrame.find(isCamera)
 
@@ -142,13 +170,20 @@ async function getToolpathForFrame(frameNumber: number) {
 
   const dense = sparseToDense(orderedMovements, settings)
 
-  const globalMaterialOverride = visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
-    ? importMaterial(visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID])
+  const globalMaterialOverride = visualisationSettings.objectMaterialOverrides[
+    GLOBAL_OVERRIDE_OBJECT_ID
+  ]
+    ? importMaterial(
+        visualisationSettings.objectMaterialOverrides[
+          GLOBAL_OVERRIDE_OBJECT_ID
+        ],
+      )
     : null
 
   dense.map(movement => {
     // Find any material overrides
-    const movementMaterialOverride = visualisationSettings.objectMaterialOverrides[movement.objectID]
+    const movementMaterialOverride =
+      visualisationSettings.objectMaterialOverrides[movement.objectID]
 
     // Global overrides take least precidence
     if (globalMaterialOverride) {
@@ -196,7 +231,9 @@ function CopyToolpathToClipboard() {
 }
 
 export function SendToolpath() {
-  const sequenceSenderRef: React.MutableRefObject<SequenceSender | null> = useRef(null)
+  const sequenceSenderRef: React.MutableRefObject<SequenceSender | null> = useRef(
+    null,
+  )
 
   const sendMessage = useSendMessage()
   const deviceManager = useDeviceManager()
@@ -204,110 +241,85 @@ export function SendToolpath() {
   const dmxDeviceID = useDeviceIDByMetadata({ device_type: 'dmx' } as any)
   const query = useQuery()
 
+  const [isLoading, setIsLoading] = useState(false)
+  const cancellationTokenRef = useRef(new CancellationToken())
+
   const sendMovement = useCallback(
-    async (move: MovementMove) => {
-      const cancellationToken = new CancellationToken()
+    async (move: MovementMove, cancellationToken: CancellationToken) => {
       const message = new Message(MSGID.QUEUE_ADD_MOVE, move)
       message.metadata.ack = true // explicitly request acks
 
-      try {
-        await sendMessage(message, cancellationToken)
-      } catch (e) {
-        if (cancellationToken.caused(e)) {
-          // cancellationToken timed out
-          return
-        } else {
-          console.error(e)
-          throw new Error(`Failed to send movement move at sync_offset #${move.sync_offset}`)
-        }
-      }
+      return sendMessage(message, cancellationToken)
     },
     [sendMessage],
   )
 
   const sendLightMove = useCallback(
-    async (fade: LightMove) => {
-      const cancellationToken = new CancellationToken()
+    async (fade: LightMove, cancellationToken: CancellationToken) => {
       const message = new Message(MSGID.QUEUE_ADD_FADE, fade)
       message.metadata.ack = true // explicitly request acks
 
+      return sendMessage(message, cancellationToken)
+    },
+    [sendMessage],
+  )
+
+  const sendSync = useCallback(
+    async (cancellationToken: CancellationToken) => {
+      const syncMessage = new Message(MSGID.QUEUE_SYNC, null)
+      syncMessage.metadata.ack = true // explicitly request acks
+
+      return sendMessage(syncMessage, cancellationToken)
+    },
+    [sendMessage],
+  )
+
+  const sendClear = useCallback(
+    async (cancellationToken: CancellationToken) => {
+      const clearMessage = new Message(MSGID.QUEUE_CLEAR, null)
+      clearMessage.metadata.ack = true // explicitly request acks
+
       try {
-        await sendMessage(message, cancellationToken)
+        await sendMessage(clearMessage, cancellationToken)
+        await sendCapture(0) // cancel any currently running capture
+        await query(MSGID.QUEUE_INFO, cancellationToken)
       } catch (e) {
         if (cancellationToken.caused(e)) {
           // cancellationToken timed out
           return
         } else {
           console.error(e)
-          throw new Error(`Failed to send light move at timestamp #${fade.timestamp}`)
+          throw new Error(`Failed to clear queue`)
         }
       }
     },
     [sendMessage],
   )
 
-  const sendSync = useCallback(async () => {
-    const cancellationToken = new CancellationToken()
-    const syncMessage = new Message(MSGID.QUEUE_SYNC, null)
-    syncMessage.metadata.ack = true // explicitly request acks
+  // const sendAngle = useCallback(
+  //   async (angle: number) => {
+  //     const cancellationToken = new CancellationToken().deadline(1000)
+  //     const angleMessage = new Message(MSGID.POSITION_EXPANSION, angle)
+  //     angleMessage.metadata.ack = true // explicitly request acks
 
-    try {
-      await sendMessage(syncMessage, cancellationToken)
-    } catch (e) {
-      if (cancellationToken.caused(e)) {
-        // cancellationToken timed out
-        return
-      } else {
-        console.error(e)
-        throw new Error(`Failed to send queue sync`)
-      }
-    }
-  }, [sendMessage])
-
-  const sendClear = useCallback(async () => {
-    const cancellationToken = new CancellationToken()
-    const clearMessage = new Message(MSGID.QUEUE_CLEAR, null)
-    clearMessage.metadata.ack = true // explicitly request acks
-
-    try {
-      await sendMessage(clearMessage, cancellationToken)
-      await sendCapture(0) // cancel any currently running capture
-      await query(MSGID.QUEUE_INFO, cancellationToken)
-    } catch (e) {
-      if (cancellationToken.caused(e)) {
-        // cancellationToken timed out
-        return
-      } else {
-        console.error(e)
-        throw new Error(`Failed to clear queue`)
-      }
-    }
-  }, [sendMessage])
-
-  const sendAngle = useCallback(
-    async (angle: number) => {
-      const cancellationToken = new CancellationToken()
-      const angleMessage = new Message(MSGID.POSITION_EXPANSION, angle)
-      angleMessage.metadata.ack = true // explicitly request acks
-
-      try {
-        await sendMessage(angleMessage, cancellationToken)
-      } catch (e) {
-        if (cancellationToken.caused(e)) {
-          // cancellationToken timed out
-          return
-        } else {
-          console.error(e)
-          throw new Error(`Failed to send angle`)
-        }
-      }
-    },
-    [sendMessage],
-  )
+  //     try {
+  //       await sendMessage(angleMessage, cancellationToken)
+  //     } catch (e) {
+  //       if (cancellationToken.caused(e)) {
+  //         // cancellationToken timed out
+  //         return
+  //       } else {
+  //         console.error(e)
+  //         throw new Error(`Failed to send angle`)
+  //       }
+  //     }
+  //   },
+  //   [sendMessage],
+  // )
 
   const sendCapture = useCallback(
     async (duration: number) => {
-      const cancellationToken = new CancellationToken()
+      const cancellationToken = new CancellationToken().deadline(1000)
       const captureMessage = new Message(MSGID.CAPTURE, duration)
       captureMessage.metadata.ack = true // explicitly request acks
 
@@ -332,22 +344,13 @@ export function SendToolpath() {
     [sendMessage],
   )
 
-  const queryMotionAndQueueDepth = useCallback(async () => {
-    const cancellationToken = new CancellationToken()
-
-    try {
+  const queryMotionAndQueueDepth = useCallback(
+    async (cancellationToken: CancellationToken) => {
       await query(MSGID.QUEUE_INFO, cancellationToken)
       await query(MSGID.MOTION, cancellationToken)
-    } catch (e) {
-      if (cancellationToken.caused(e)) {
-        // cancellationToken timed out
-        return
-      } else {
-        console.error(e)
-        throw new Error(`Failed to query queue information`)
-      }
-    }
-  }, [sendMessage])
+    },
+    [sendMessage],
+  )
 
   const updateOptimisticQueueDepth = useCallback(
     (movementDepth: number, lightQueueDepth: number) => {
@@ -390,22 +393,30 @@ export function SendToolpath() {
     state => state[MSGID.MOTION],
     moStat => {
       if (moStat) {
-        getSequenceSender().updateHardwareProgress(moStat.movement_identifier, moStat.move_progress)
+        getSequenceSender().updateHardwareProgress(
+          moStat.movement_identifier,
+          moStat.move_progress,
+        )
       }
     },
   )
 
-  const [isLoading, setIsLoading] = useState(false)
-  const cancellationTokenRef = useRef(new CancellationToken())
-
   const renderSequence = useCallback(
-    async (minFrameNumber: number, maxFrameNumber: number, cancellationToken: CancellationToken) => {
+    async (
+      minFrameNumber: number,
+      maxFrameNumber: number,
+      cancellationToken: CancellationToken,
+    ) => {
       getSequenceSender().clear()
 
       cancellationTokenRef.current = cancellationToken
 
       try {
-        for (let frameNumber = minFrameNumber; frameNumber <= maxFrameNumber; frameNumber++) {
+        for (
+          let frameNumber = minFrameNumber;
+          frameNumber <= maxFrameNumber;
+          frameNumber++
+        ) {
           console.log(`rendering frame ${frameNumber}`)
           cancellationToken.haltIfCancelled()
 
@@ -424,7 +435,10 @@ export function SendToolpath() {
             }
 
             // Round up the estimated duration to the nearest second
-            return Math.ceil(state.estimatedDurationByFrame[frameNumber] / 1000) * 1000
+            return (
+              Math.ceil(state.estimatedDurationByFrame[frameNumber] / 1000) *
+              1000
+            )
           })
 
           // Process the toolpath into final form
@@ -483,7 +497,7 @@ export function SendToolpath() {
           console.log(`Sending sync`)
           const syncStart = Date.now()
 
-          await sendSync() // Begin rendering
+          await sendSync(cancellationToken) // Begin rendering
 
           console.log(`Waiting for frame to complete`)
 
@@ -527,7 +541,11 @@ export function SendToolpath() {
     const maxFrameNumber = getSetting(state => state.selectedMaxFrame)
     cancellationTokenRef.current?.cancel()
 
-    return renderSequence(minFrameNumber, maxFrameNumber, new CancellationToken())
+    return renderSequence(
+      minFrameNumber,
+      maxFrameNumber,
+      new CancellationToken(),
+    )
   }, [renderSequence])
 
   const handleViewportFrameRender = useCallback(() => {
@@ -566,7 +584,14 @@ export function SendToolpath() {
       >
         <b>RENDER TIMELINE</b>
       </Button>
-      <Button onClick={handleClear} icon={IconNames.CROSS} intent={Intent.DANGER} fill minimal outlined>
+      <Button
+        onClick={handleClear}
+        icon={IconNames.CROSS}
+        intent={Intent.DANGER}
+        fill
+        minimal
+        outlined
+      >
         <b>CLEAR</b>
       </Button>
     </Composition>
@@ -576,7 +601,11 @@ export function SendToolpath() {
 export function SendToolpathToDeviceIfExists() {
   const deviceID = useDeviceID()
 
-  const toolpathComponent = deviceID ? <SendToolpath /> : <CopyToolpathToClipboard />
+  const toolpathComponent = deviceID ? (
+    <SendToolpath />
+  ) : (
+    <CopyToolpathToClipboard />
+  )
 
   return toolpathComponent
 }
@@ -613,16 +642,25 @@ export function CurrentFrameTime() {
       break
   }
 
-  const currentlyRenderingFrame = useSetting(state => state.currentlyRenderingFrame)
+  const currentlyRenderingFrame = useSetting(
+    state => state.currentlyRenderingFrame,
+  )
   const maxFrame = useSetting(state => state.selectedMaxFrame)
 
-  const cameraDurationOverride = useSetting(state => state.cameraOverrideDuration)
+  const cameraDurationOverride = useSetting(
+    state => state.cameraOverrideDuration,
+  )
 
   const totalRenderTimeMinutes = useSetting(state => {
     let total = 0
 
-    for (const [frameNumber, duration] of Object.entries(state.estimatedDurationByFrame)) {
-      if (Number(frameNumber) >= state.selectedMinFrame && Number(frameNumber) <= state.selectedMaxFrame) {
+    for (const [frameNumber, duration] of Object.entries(
+      state.estimatedDurationByFrame,
+    )) {
+      if (
+        Number(frameNumber) >= state.selectedMinFrame &&
+        Number(frameNumber) <= state.selectedMaxFrame
+      ) {
         // Round up the estimated duration to the nearest second
         let thisFrameDuration = Math.ceil(duration / 1000) * 1000
 
@@ -641,12 +679,19 @@ export function CurrentFrameTime() {
   return (
     <Composition templateCols="2fr 2fr 1fr" gap={5} justifyItems="center">
       <Box>
-        <span style={{ color: Colors.GRAY3 }}>FRAME:</span> <b style={{ color }}>{niceDurationTime.toFixed(1)}s</b>
+        <span style={{ color: Colors.GRAY3 }}>FRAME:</span>{' '}
+        <b style={{ color }}>{niceDurationTime.toFixed(1)}s</b>
       </Box>
 
       <Box>
         <span style={{ color: Colors.GRAY3 }}>TIMELINE:</span>{' '}
-        <b style={cameraDurationOverride > 0 ? { color: Colors.RED3 } : undefined}>{totalRenderTimeMinutes} min</b>
+        <b
+          style={
+            cameraDurationOverride > 0 ? { color: Colors.RED3 } : undefined
+          }
+        >
+          {totalRenderTimeMinutes} min
+        </b>
       </Box>
 
       <Box>
@@ -677,7 +722,7 @@ export const RenderInterface = () => {
         {numFrames < 1 ? null : <Timeline key={numFrames} />}
       </FormGroup>
 
-      <div style={{paddingBottom: '0.5em'}}>
+      <div style={{ paddingBottom: '0.5em' }}>
         <CurrentFrameTime />
       </div>
 

@@ -94,6 +94,7 @@ export function toolpath(
       movementMoves.push({
         ...move,
         sync_offset: movementTimestamp,
+        id: 0 // Will be replaced after the deduplication 
       })
 
       movementTimestamp += move.duration
@@ -187,6 +188,7 @@ export function toolpath(
       lightFades.push({
         ...lightMove,
         timestamp: lightFadeTimestamp,
+        id: 0, // Will be replaced after the deduplication
       })
 
       // Increment the timestamp
@@ -227,6 +229,7 @@ export function toolpath(
           type: LightMoveType.IMMEDIATE,
         },
         points: [[0, 0, 0]],
+        id: 0 // Will be replaced after the deduplication, but will likely stay 0
       })
     } else {
       const delay = settings.lightFadeOffset * -1
@@ -238,12 +241,13 @@ export function toolpath(
 
       // Add a blank move to the beginning
       movementMoves.unshift({
-        sync_offset: 0,
         duration: delay,
         type: MovementMoveType.POINT_TRANSIT, // Despite being a point, draw a line
         reference: MovementMoveReference.RELATIVE,
         points: [[0, 0, 0]],
         num_points: 1,
+        sync_offset: 0,
+        id: 0 // Will be replaced after the deduplication, but will likely stay 0
       })
     }
   }
@@ -321,6 +325,18 @@ export function toolpath(
     console.log(
       `Reduced movement count from ${prePostProcessMovementMoveCount} to ${postPostProcessMovementMoveCount}`,
     )
+  }
+
+  // Give every movement and fade a globally unique ID, just use the index,
+  // The codec should wrap if it isn't big enough.
+  for (let index = 0; index < movementMoves.length; index++) {
+    const move = movementMoves[index];
+    move.id = index
+  }
+
+  for (let index = 0; index < lightFades.length; index++) {
+    const fade = lightFades[index];
+    fade.id = index
   }
 
   return {

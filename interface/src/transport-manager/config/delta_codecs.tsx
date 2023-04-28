@@ -430,6 +430,7 @@ export class InboundFadeCodec extends Codec {
       duration: reader.readUInt16LE(),
       settings: settings,
       points: points_decoded,
+      id: 0 // unimplemented
     }
 
     let b1 = reader.readUInt8()

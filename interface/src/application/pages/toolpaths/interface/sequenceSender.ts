@@ -2,10 +2,18 @@ import { CancellationToken, Deferred } from '@electricui/core'
 import { LightMove, MovementMove } from '../../../../application/typedState'
 import { Toolpath } from './../optimiser/toolpath'
 
-export type SendMovement = (movement: MovementMove) => Promise<void>
-export type SendLightMove = (lightMove: LightMove) => Promise<void>
-export type SendClear = () => Promise<void>
-export type RequestQueueUpdates = () => Promise<void>
+export type SendMovement = (
+  movement: MovementMove,
+  cancellationToken: CancellationToken,
+) => Promise<void>
+export type SendLightMove = (
+  lightMove: LightMove,
+  cancellationToken: CancellationToken,
+) => Promise<void>
+export type SendClear = (cancellationToken: CancellationToken) => Promise<void>
+export type RequestQueueUpdates = (
+  cancellationToken: CancellationToken,
+) => Promise<void>
 export type UpdateQueueInProgress = (
   movementQueueDepth: number,
   lightQueueDepth: number,
@@ -48,6 +56,8 @@ export class SequenceSender {
 
     this.waitForFrameToComplete = this.waitForFrameToComplete.bind(this)
     this.waitForInitialBatch = this.waitForInitialBatch.bind(this)
+
+    this.sendDataAndRetry = this.sendDataAndRetry.bind(this)
   }
 
   stopTimers() {
@@ -77,7 +87,7 @@ export class SequenceSender {
 
     this.notifyUIOfOptimisticQueues()
     this.stopTimers()
-    await this.sendClear()
+    await this.sendClear(this.cancellationToken)
   }
 
   async ingest(toolpath: Toolpath, cancellationToken: CancellationToken) {
@@ -87,8 +97,9 @@ export class SequenceSender {
     this.movementMoves = toolpath.movementMoves
     this.lightMoves = toolpath.lightMoves
 
-    this.finalMovementTimestamp =
-      this.movementMoves[this.movementMoves.length - 1].sync_offset
+    this.finalMovementTimestamp = this.movementMoves[
+      this.movementMoves.length - 1
+    ].sync_offset
 
     this.startTimers()
   }
@@ -108,10 +119,68 @@ export class SequenceSender {
     return this.initialBatchDeferred.promise
   }
 
+  async sendDataAndRetry(item: LightMove | MovementMove, moveOrLight: boolean) {
+    let retries = 0
+    const MAX_RETRIES = 50
+
+    while (retries < MAX_RETRIES) {
+      retries++
+
+      // If upstream is cancelled while we retry, exit
+      if (this.cancellationToken.isCancelled()) {
+        return
+      }
+
+      // Allow for a max of 1 second to send a packet
+      const cancellationToken = new CancellationToken().deadline(1000)
+
+      // If upstream cancels mid flight, we cancel
+      this.cancellationToken.subscribe(cancellationToken.cancel)
+
+      try {
+        if (moveOrLight) {
+          await this.sendMovement(item as MovementMove, cancellationToken)
+        } else {
+          await this.sendLightMove(item as LightMove, cancellationToken)
+        }
+
+        // Return on success
+        return
+      } catch (e) {
+        if (cancellationToken.caused(e)) {
+          // Just retry on a timeout
+          console.warn(
+            `Retrying (${retries}/${MAX_RETRIES}) after failed to send ${
+              moveOrLight ? 'move' : 'fade'
+            } item #${item.id} due to timeout.`
+          )
+          continue
+        } else {
+          console.error(
+            `Retrying (${retries}/${MAX_RETRIES}) after failed to send ${
+              moveOrLight ? 'move' : 'fade'
+            } item #${item.id} due to error:`,
+            e,
+          )
+          continue
+        }
+      } finally {
+        // Unsubscribe from upstream's cancellation token
+        this.cancellationToken.unsubscribe(cancellationToken.cancel)
+      }
+    }
+
+    console.error(
+      `Failed to send item ${moveOrLight ? 'move' : 'fade'} #${
+        item.id
+      }, gave up after ${MAX_RETRIES} retries`,
+    )
+  }
+
   async tick() {
     if (this.isRendering) {
       // Request a queue update to start
-      await this.requestQueueUpdates()
+      await this.requestQueueUpdates(this.cancellationToken)
     }
 
     // If both queues are empty, don't do anything in the tick
@@ -143,7 +212,7 @@ export class SequenceSender {
           const shifted = this.lightMoves.shift()!
           this.notifyUIOfOptimisticQueues()
 
-          await this.sendLightMove(shifted)
+          await this.sendDataAndRetry(shifted, false)
           continue
         }
 
@@ -152,7 +221,9 @@ export class SequenceSender {
         const shifted = this.movementMoves.shift()!
         this.notifyUIOfOptimisticQueues()
 
-        await this.sendMovement(shifted)
+        await this.sendDataAndRetry(shifted, true)
+
+        // TODO: Why is this here?
         this.isRendering = true
         continue
       }
@@ -162,14 +233,14 @@ export class SequenceSender {
       const shifted = this.lightMoves.shift()!
       this.notifyUIOfOptimisticQueues()
 
-      await this.sendLightMove(shifted)
+      await this.sendDataAndRetry(shifted, false)
     }
 
     // The initial batch has been sent
     this.initialBatchDeferred.resolve()
 
     // request a queue update when we're done
-    await this.requestQueueUpdates()
+    await this.requestQueueUpdates(this.cancellationToken)
   }
 
   updateHardwareQueues(motionDepth: number, fadeDepth: number) {

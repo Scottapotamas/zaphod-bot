@@ -259,6 +259,7 @@ export type LightMove = {
   duration: number
   settings: LightSettingsField
   points: Array<LightPoint>
+  id: number
 }
 
 export type LedStatus = {
