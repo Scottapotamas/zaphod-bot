@@ -7,11 +7,13 @@
 
 #include "path_interpolator.h"
 
+#include "cartesian_interpolator.h"
+#include "cartesian_helpers.h"
+
 #include "app_events.h"
 #include "app_signals.h"
 #include "event_subscribe.h"
 #include "global.h"
-#include "simple_state_machine.h"
 
 #include "effector.h"
 #include "motion_types.h"
@@ -25,28 +27,19 @@
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
-typedef enum
-{
-    PLANNER_OFF,
-    PLANNER_WAIT_AND_EXECUTE,
-} PlanningState_t;
-
 typedef struct
 {
-    PlanningState_t previousState;
-    PlanningState_t currentState;
-    PlanningState_t nextState;
 
     Movement_t  move_a;          // Slot A movement storage
     Movement_t  move_b;          // Slot B movement storage
     Movement_t *current_move;    // Points to move_a or move_b
 
-    bool       enable;             // The planner is enabled
-    timer_ms_t epoch_timestamp;    // Reference system time for move offset sequencing
+    bool     enable;             // The planner is enabled
+    uint32_t epoch_timestamp;    // Reference system time for move offset sequencing
 
-    timer_ms_t movement_started;         // timestamp the start point
-    timer_ms_t movement_est_complete;    // timestamp the predicted end point
-    float      progress_percent;         // calculated progress
+    uint32_t movement_started;         // timestamp the start point
+    uint32_t movement_est_complete;    // timestamp the predicted end point
+    float    progress_percent;         // calculated progress
 
 } MotionPlanner_t;
 
@@ -77,7 +70,7 @@ path_interpolator_init( PathInterpolatorInstance_t interpolator )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_set_epoch_reference( PathInterpolatorInstance_t interpolator, timer_ms_t sync_timer )
+path_interpolator_set_epoch_reference( PathInterpolatorInstance_t interpolator, uint32_t sync_timer )
 {
     REQUIRE( interpolator < NUMBER_PATH_INTERPOLATORS );
     MotionPlanner_t *me = &planner[interpolator];
@@ -147,7 +140,7 @@ path_interpolator_get_move_done( PathInterpolatorInstance_t interpolator )
     REQUIRE( interpolator < NUMBER_PATH_INTERPOLATORS );
     MotionPlanner_t *me = &planner[interpolator];
 
-    return ( me->progress_percent >= 1.0f - FLT_EPSILON ) || me->currentState == PLANNER_OFF;
+    return ( me->progress_percent >= 1.0f - FLT_EPSILON );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -231,31 +224,8 @@ path_interpolator_process( PathInterpolatorInstance_t interpolator )
     REQUIRE( interpolator < NUMBER_PATH_INTERPOLATORS );
     MotionPlanner_t *me = &planner[interpolator];
 
-    if( !me->enable )
-    {
-        STATE_NEXT( PLANNER_OFF );
-    }
 
-    switch( me->currentState )
-    {
-        case PLANNER_OFF:
-            STATE_ENTRY_ACTION
-
-            STATE_TRANSITION_TEST
-            if( me->enable )
-            {
-                // At least one slot has a loaded move?
-                if( me->move_a.duration || me->move_b.duration )
-                {
-                    STATE_NEXT( PLANNER_WAIT_AND_EXECUTE );
-                }
-            }
-            STATE_EXIT_ACTION
-            STATE_END
-            break;
-
-        case PLANNER_WAIT_AND_EXECUTE:
-            STATE_ENTRY_ACTION
+        // TODO: First run behaviour
             // Pick the first slot with a valid move
             if( me->move_a.duration )
             {
@@ -266,7 +236,7 @@ path_interpolator_process( PathInterpolatorInstance_t interpolator )
                 me->current_move = &me->move_b;
             }
 
-            STATE_TRANSITION_TEST
+        // TODO: Loop behaviour
             // Calculate the time since the 'epoch' event
             uint32_t time_since_epoch_ms = timer_ms_stopwatch_lap( &me->epoch_timestamp );
 
@@ -286,14 +256,14 @@ path_interpolator_process( PathInterpolatorInstance_t interpolator )
 
                 if( speed > configuration_get_effector_speed_limit() )
                 {
-                    EmergencyStopEvent *estop_evt = EVENT_NEW( EmergencyStopEvent, MOTION_EMERGENCY );
-                    if( estop_evt )
-                    {
-                        estop_evt->cause = EMERGENCY_REQUEST_DENIED;
-                        eventPublish( (StateEvent *)estop_evt );
-                    }
+//                    EmergencyStopEvent *estop_evt = EVENT_NEW( EmergencyStopEvent, MOTION_EMERGENCY );
+//                    if( estop_evt )
+//                    {
+//                        estop_evt->cause = EMERGENCY_REQUEST_DENIED;
+//                        eventPublish( (StateEvent *)estop_evt );
+//                    }
 
-                    user_interface_report_error( "Requested illegal speed move" );
+//                    user_interface_report_error( "Requested illegal speed move" );
                 }
 
             }
@@ -322,7 +292,9 @@ path_interpolator_process( PathInterpolatorInstance_t interpolator )
                         me->current_move = &me->move_a;
                     }
 
-                    timer_ms_stop( &me->movement_started );
+                    // TODO: exit/cleanup behaviour
+//                    me->current_move     = 0;
+//                    timer_ms_stop( &me->movement_started );
 
                     // Other move slot ready?
 
@@ -330,20 +302,11 @@ path_interpolator_process( PathInterpolatorInstance_t interpolator )
                     if( !me->current_move->duration )
                     {
                         me->enable = false;
-                        STATE_NEXT( PLANNER_OFF );
                     }
                 }
             }
-            STATE_EXIT_ACTION
-            me->current_move     = 0;
-            me->progress_percent = 0;
-            timer_ms_stop( &me->movement_started );
-            timer_ms_stop( &me->movement_est_complete );
-            STATE_END
-            break;
-    }
 
-    user_interface_set_pathing_status( me->currentState );
+//    user_interface_set_pathing_status( me->currentState );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -351,7 +314,8 @@ path_interpolator_process( PathInterpolatorInstance_t interpolator )
 PRIVATE void
 path_interpolator_premove_transforms( Movement_t *move )
 {
-    CartesianPoint_t effector_position = effector_get_position();
+    // TODO: refactor requried once kinematics module can provide position info
+    CartesianPoint_t effector_position = { .x = 0, .y = 0, .z = 0 };//effector_get_position();
 
     // apply current position to a relative movement
     if( (MotionReference_t)move->metadata.ref == _POS_RELATIVE )
@@ -389,7 +353,8 @@ path_interpolator_apply_rotation_offset( Movement_t *move )
 {
     REQUIRE( move->metadata.num_pts );
 
-    float offset_deg = configuration_get_z_rotation();
+    // TODO: refactor required
+    float offset_deg = 0.0f; //configuration_get_z_rotation();
 
     for( uint8_t i = 0; i < move->metadata.num_pts; i++ )
     {
@@ -450,10 +415,10 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
     }
 
     // TODO: work out how to extract the effector solution from expansion solution
-    effector_request_target( &target );
+//    effector_request_target( &target );
 
     // Update the config/UI data based on this move
-    user_interface_set_movement_data( move->sync_offset, move->metadata.type, (uint8_t)( percentage * 100 ) );
+//    user_interface_set_movement_data( move->sync_offset, move->metadata.type, (uint8_t)( percentage * 100 ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -462,11 +427,12 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
 PRIVATE void
 path_interpolator_notify_pathing_started( uint32_t move_id )
 {
-    SyncTimestampEvent *barrier_ev = EVENT_NEW( SyncTimestampEvent, PATHING_STARTED );
-    uint32_t            publish_id = move_id;
-
-    memcpy( &barrier_ev->epoch, &publish_id, sizeof( move_id ) );
-    eventPublish( (StateEvent *)barrier_ev );
+    // TODO: obsolete code removal required
+//    SyncTimestampEvent *barrier_ev = EVENT_NEW( SyncTimestampEvent, PATHING_STARTED );
+//    uint32_t            publish_id = move_id;
+//
+//    memcpy( &barrier_ev->epoch, &publish_id, sizeof( move_id ) );
+//    eventPublish( (StateEvent *)barrier_ev );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -475,11 +441,11 @@ path_interpolator_notify_pathing_started( uint32_t move_id )
 PRIVATE void
 path_interpolator_notify_pathing_complete( uint32_t move_id )
 {
-    SyncTimestampEvent *barrier_ev = EVENT_NEW( SyncTimestampEvent, PATHING_COMPLETE );
-    uint32_t            publish_id = move_id;
-
-    memcpy( &barrier_ev->epoch, &publish_id, sizeof( move_id ) );
-    eventPublish( (StateEvent *)barrier_ev );
+//    SyncTimestampEvent *barrier_ev = EVENT_NEW( SyncTimestampEvent, PATHING_COMPLETE );
+//    uint32_t            publish_id = move_id;
+//
+//    memcpy( &barrier_ev->epoch, &publish_id, sizeof( move_id ) );
+//    eventPublish( (StateEvent *)barrier_ev );
 }
 
 /* ----- End ---------------------------------------------------------------- */

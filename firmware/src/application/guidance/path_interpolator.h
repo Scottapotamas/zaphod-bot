@@ -4,8 +4,7 @@
 /* ----- Local Includes ----------------------------------------------------- */
 
 #include "global.h"
-#include "timer_ms.h"
-#include <motion_types.h>
+#include "movement_types.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 
@@ -41,7 +40,7 @@ path_interpolator_process( PathInterpolatorInstance_t interpolator );
 
 PUBLIC void
 path_interpolator_set_epoch_reference( PathInterpolatorInstance_t interpolator,
-                                       timer_ms_t sync_timer );
+                                       uint32_t sync_timer );
 
 /* -------------------------------------------------------------------------- */
 
