@@ -104,17 +104,13 @@ void fan_sensors_callback(ObserverEvent_t event, EventData data, void *context)
     {
         case SENSOR_FAN_SPEED:
             new.type = FAN_SENSOR_SPEED;
-            new.value = (data.uint32Value / 100) * 60;
-
-            // TODO RPM value conversion done in the sensors module?
-            //    old: uint16_t fan_rpm = hal_ic_hard_read(HAL_IC_HARD_FAN_HALL ) * 60;
-
+            new.value = data.floatValue;
             xQueueSendToBack( me->xRequestQueue, (void *)&new, 0 );
         break;
 
         case SENSOR_TEMPERATURE_EXTERNAL:
             new.type = FAN_SENSOR_TEMPERATURE;
-            new.value = data.uint32Value;
+            new.value = data.floatValue;
             xQueueSendToBack( me->xRequestQueue, (void *)&new, 0 );
             break;
 

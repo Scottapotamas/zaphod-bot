@@ -8,7 +8,12 @@
 #include "timers.h"
 
 #include "hal_adc.h"
+#include "hal_power.h"
+#include "hal_temperature.h"
 #include "hal_ic_hard.h"
+#include "hal_fan_tacho.h"
+#include "hal_servo_hlfb.h"
+
 #include "average_short.h"
 
 #include "subject.h"
@@ -33,9 +38,12 @@ typedef struct
     uint16_t value;
 } HalInput_t;
 
+typedef float (*sensor_conversion_fn)(uint32_t adc);
+
 typedef struct {
     uint32_t timestamp;
     AverageShort_t stats;
+    sensor_conversion_fn converter;
 } FilteredData_t;
 
 FilteredData_t data[SENSOR_NUM_FIELDS] = { 0 };
@@ -63,6 +71,26 @@ PUBLIC void sensors_init( void )
         // TODO cleanup the timespan to run averaging on
         average_short_init( &data[i].stats, 32 );
     }
+
+    // Provide ADC counts -> floating SI units converter functions for each signal
+    data[SENSOR_SERVO_1_CURRENT].converter = hal_current_A;
+    data[SENSOR_SERVO_2_CURRENT].converter = hal_current_A;
+    data[SENSOR_SERVO_4_CURRENT].converter = hal_current_A;
+    data[SENSOR_VOLTAGE_INPUT].converter = hal_current_A;
+
+    data[SENSOR_VOLTAGE_INPUT].converter = hal_voltage_V;
+
+    data[SENSOR_TEMPERATURE_PCB].converter = hal_temperature_pcb_degrees_C;
+    data[SENSOR_TEMPERATURE_REGULATOR].converter = hal_temperature_pcb_degrees_C;
+    data[SENSOR_TEMPERATURE_EXTERNAL].converter = hal_temperature_ext_degrees_C;
+    data[SENSOR_TEMPERATURE_MICRO].converter = hal_temperature_micro_degrees_C;
+
+    data[SENSOR_SERVO_1_HLFB].converter = hal_servo_hlfb;
+    data[SENSOR_SERVO_2_HLFB].converter = hal_servo_hlfb;
+    data[SENSOR_SERVO_3_HLFB].converter = hal_servo_hlfb;
+    data[SENSOR_SERVO_4_HLFB].converter = hal_servo_hlfb;
+    data[SENSOR_FAN_SPEED].converter = hal_fan_tacho_rpm;
+
 
     // Configure the hardware peripherals
     hal_adc_init( sensors_callback_adc );
@@ -98,7 +126,15 @@ PUBLIC void sensors_task( void *arg )
 
         // Prep notification structure, perform unit conversions
         EventData event;
-        event.uint32Value = average;
+
+        if( data[new_data.type].converter )
+        {
+            event.floatValue = data[new_data.type].converter(average);
+        }
+        else
+        {
+            event.uint32Value = average;
+        }
 
         // Notify upstream observers
         subject_notify(&subject, new_data.type, event );

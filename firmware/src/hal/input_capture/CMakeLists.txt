@@ -6,6 +6,10 @@ add_library (
         hal_ic_hard.c
 #        hal_ic_soft.h
 #        hal_ic_soft.c
+        hal_fan_tacho.h
+        hal_fan_tacho.c
+        hal_servo_hlfb.h
+        hal_servo_hlfb.c
 )
 
 target_include_directories (

@@ -4,6 +4,10 @@ add_library (
         hal_adc_lib
         hal_adc.h
         hal_adc.c
+        hal_power.h
+        hal_power.c
+        hal_temperature.h
+        hal_temperature.c
 )
 
 target_include_directories (

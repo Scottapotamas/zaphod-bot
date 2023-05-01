@@ -261,27 +261,27 @@ PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData da
     switch( event )
     {
         case SENSOR_FAN_SPEED:
-            fan_stats.speed_rpm = data.uint32Value;
+            fan_stats.speed_rpm = data.floatValue;
             break;
 
         case SENSOR_VOLTAGE_INPUT:
-            system_stats.input_voltage = data.uint32Value * 100;
+            system_stats.input_voltage = data.floatValue * 100;
             break;
 
         case SENSOR_TEMPERATURE_PCB:
-            system_stats.temp_pcb_ambient = data.uint32Value * 100;
+            system_stats.temp_pcb_ambient = data.floatValue * 100;
             break;
 
         case SENSOR_TEMPERATURE_REGULATOR:
-            system_stats.temp_pcb_regulator = data.uint32Value * 100;
+            system_stats.temp_pcb_regulator = data.floatValue * 100;
             break;
 
         case SENSOR_TEMPERATURE_EXTERNAL:
-            system_stats.temp_external_probe = data.uint32Value * 100;
+            system_stats.temp_external_probe = data.floatValue * 100;
             break;
 
         case SENSOR_TEMPERATURE_MICRO:
-            system_stats.temp_cpu = data.uint32Value * 100;
+            system_stats.temp_cpu = data.floatValue * 100;
             break;
 
         // TODO: telemetry task needs to handle all other sensor values

@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-/* ----- Local Includes ----------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #include "global.h"
 
@@ -13,15 +13,13 @@ extern "C" {
 
 /** Returns converted voltage from input adc reading
   */
-PUBLIC float
-hal_voltage_V( uint32_t raw_adc );
+PUBLIC float hal_voltage_V( uint32_t raw_adc );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC float
-hal_current_A( uint32_t raw_adc );
+PUBLIC float hal_current_A( uint32_t raw_adc );
 
-/* ----- End ---------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #ifdef __cplusplus
 }
