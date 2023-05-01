@@ -18,6 +18,6 @@ bool subject_add_observer(Subject *subject, Observer *observer);
 
 bool subject_remove_observer(Subject *subject, Observer *observer);
 
-void subject_notify(Subject *subject, EventFlag event, EventData data);
+void subject_notify(Subject *subject, ObserverEvent_t event, EventData data);
 
 #endif    // SUBJECT_H

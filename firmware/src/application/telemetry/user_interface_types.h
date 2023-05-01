@@ -33,7 +33,7 @@ typedef enum
 
 typedef struct
 {
-    bool sensors_enable;    // if ADC sampling and conversions are active
+    bool obsolete;          // TODO remove this from the codecs - sensors are always enabled
     bool module_enable;     // add-in card powered
 
     // microcontroller info

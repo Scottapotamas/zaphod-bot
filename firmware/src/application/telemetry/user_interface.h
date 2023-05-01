@@ -11,6 +11,7 @@ extern "C" {
 //#include "global.h"
 //#include "motion_types.h"
 #include "user_interface_types.h"
+#include "observer.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -19,6 +20,10 @@ user_interface_init( void );
 
 PUBLIC void
 user_interface_task( void *arg );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC Observer * user_interface_get_sensor_observer( void );
 
 /* -------------------------------------------------------------------------- */
 
@@ -53,14 +58,10 @@ user_interface_update_task_statistics( void );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-user_interface_set_sensors_enabled( bool enable );
 
 PUBLIC void
 user_interface_set_module_enable( bool enable );
 
-PUBLIC void
-user_interface_set_input_voltage( float voltage );
 
 /* -------------------------------------------------------------------------- */
 
@@ -90,27 +91,10 @@ PUBLIC void
 user_interface_set_fan_percentage( uint8_t percent );
 
 PUBLIC void
-user_interface_set_fan_rpm( uint16_t rpm );
-
-PUBLIC void
 user_interface_set_fan_state( uint8_t state );
 
 //PUBLIC FanCurve_t *
 //user_interface_get_fan_curve_ptr( void );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-user_interface_set_temp_ambient( float temp );
-
-PUBLIC void
-user_interface_set_temp_regulator( float temp );
-
-PUBLIC void
-user_interface_set_temp_external( float temp );
-
-PUBLIC void
-user_interface_set_temp_cpu( float temp );
 
 /* -------------------------------------------------------------------------- */
 

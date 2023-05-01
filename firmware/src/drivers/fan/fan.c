@@ -10,9 +10,8 @@
 
 #include "simple_state_machine.h"
 #include "qassert.h"
-
 #include "hal_pwm.h"
-
+#include "signals.h"
 /* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
@@ -63,9 +62,12 @@ FanCurve_t user_curve[NUM_FAN_CURVE_POINTS] = { 0 };
 PRIVATE Fan_t fan;
 PRIVATE FanCurve_t *fan_curve;
 
+PRIVATE Observer sensor_observer = { 0 };
+
 /* -------------------------------------------------------------------------- */
 
 PRIVATE uint8_t fan_speed_at_temp( float temperature );
+PRIVATE void fan_sensors_callback(ObserverEvent_t event, EventData data, void *context);
 
 /* -------------------------------------------------------------------------- */
 
@@ -75,6 +77,58 @@ fan_init( void )
     memset( &fan, 0, sizeof( fan ) );
     fan_curve = (FanCurve_t *)&default_curve;
 
+    Fan_t *me = &fan;
+
+    // Setup an internal use queue
+    // TODO: remove as the observer events can be used with a wake (binary semph?)
+    me->xRequestQueue = xQueueCreate( 10, sizeof(FanInput_t) );
+    REQUIRE( me->xRequestQueue );
+    vQueueAddToRegistry( me->xRequestQueue, "fanInputs");  // Debug view annotation
+
+    hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ );
+
+    // Subscribe to the sensor events needed for fan control
+    observer_init( &sensor_observer, fan_sensors_callback, NULL );
+    observer_subscribe( &sensor_observer, SENSOR_FAN_SPEED );
+    observer_subscribe( &sensor_observer, SENSOR_TEMPERATURE_EXTERNAL );
+}
+
+/* -------------------------------------------------------------------------- */
+
+void fan_sensors_callback(ObserverEvent_t event, EventData data, void *context)
+{
+    Fan_t *me = &fan;
+    FanInput_t new = { 0 };
+
+    switch( event )
+    {
+        case SENSOR_FAN_SPEED:
+            new.type = FAN_SENSOR_SPEED;
+            new.value = (data.uint32Value / 100) * 60;
+
+            // TODO RPM value conversion done in the sensors module?
+            //    old: uint16_t fan_rpm = hal_ic_hard_read(HAL_IC_HARD_FAN_HALL ) * 60;
+
+            xQueueSendToBack( me->xRequestQueue, (void *)&new, 0 );
+        break;
+
+        case SENSOR_TEMPERATURE_EXTERNAL:
+            new.type = FAN_SENSOR_TEMPERATURE;
+            new.value = data.uint32Value;
+            xQueueSendToBack( me->xRequestQueue, (void *)&new, 0 );
+            break;
+
+        default:
+            // Why did we recieve a signal that we didn't subscribe to?
+            ASSERT(false);
+            break;
+    }
+}
+
+
+PUBLIC Observer * fan_get_observer( void )
+{
+    return &sensor_observer;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -109,41 +163,11 @@ fan_get_state( void )
     return me->currentState;
 }
 
-PUBLIC void
-fan_update_temperature( uint16_t temperature )
-{
-    Fan_t *me = &fan;
-
-    FanInput_t new = { 0 };
-    new.type = FAN_SENSOR_TEMPERATURE;
-    new.value = temperature;
-
-    xQueueSendToBack( me->xRequestQueue, (void *)&new, 0 );
-}
-
-PUBLIC void
-fan_update_hall( uint16_t rpm )
-{
-    Fan_t *me = &fan;
-
-    FanInput_t new = { 0 };
-    new.type = FAN_SENSOR_SPEED;
-    new.value = rpm;
-
-    xQueueSendToBack( me->xRequestQueue, (void *)&new, 0 );
-}
-
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void fan_task( void *arg )
 {
     Fan_t *me = &fan;
-
-    me->xRequestQueue = xQueueCreate( 10, sizeof(FanInput_t) );
-    REQUIRE( me->xRequestQueue );
-    vQueueAddToRegistry( me->xRequestQueue, "fanInputs");  // Debug view annotation
-
-    hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ );
 
     for(;;)
     {

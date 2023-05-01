@@ -24,6 +24,7 @@ target_link_libraries(
         PRIVATE
         hal_uart_lib
         hal_system_lib
+        utility_observer_lib
         electricui
         FreeRTOS::ARM_CM4F
         # TODO: work out how to compile/link with hard-float without specifying the STM32::F4 package?

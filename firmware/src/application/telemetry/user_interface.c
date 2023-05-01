@@ -12,7 +12,7 @@
 #include "hal_uuid.h"
 #include "hal_uart.h"
 #include "version.h"
-
+#include "signals.h"
 
 //#include "configuration.h"
 //#include "timer_ms.h"
@@ -25,7 +25,8 @@
 
 /* ----- Private Function Declaration --------------------------------------- */
 
-PRIVATE void user_interface_handle_data( void *arg );
+PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData data, void *context);
+
 
 PRIVATE void
 user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t message );
@@ -158,6 +159,8 @@ eui_interface_t communication_interface[] = {
     [LINK_EXTERNAL] = EUI_INTERFACE_CB( &user_interface_tx_put_external, &user_interface_eui_callback_external ),
 };
 
+PRIVATE Observer sensor_observer = { 0 };
+
 /* ----- Public Functions --------------------------------------------------- */
 
 PUBLIC void
@@ -172,9 +175,21 @@ user_interface_init( void )
     hal_uart_init( HAL_UART_PORT_INTERNAL, 500000 );
     hal_uart_init( HAL_UART_PORT_EXTERNAL, 500000 );
 
-    eui_setup_tracked( &ui_variables, EUI_ARR_ELEM(ui_variables) );
-    eui_setup_interfaces( &communication_interface, EUI_ARR_ELEM(communication_interface) );
+    eui_setup_tracked( ui_variables, EUI_ARR_ELEM(ui_variables) );
+    eui_setup_interfaces( communication_interface, EUI_ARR_ELEM(communication_interface) );
     eui_setup_identifier( (char *)HAL_UUID, 12 );    // header byte is 96-bit, therefore 12-bytes
+
+    // Subscribe to the sensor events
+    observer_init( &sensor_observer, user_interface_sensors_callback, NULL );
+    observer_subscribe( &sensor_observer, SENSOR_FAN_SPEED );
+    observer_subscribe( &sensor_observer, SENSOR_VOLTAGE_INPUT );
+    observer_subscribe( &sensor_observer, SENSOR_TEMPERATURE_PCB );
+    observer_subscribe( &sensor_observer, SENSOR_TEMPERATURE_REGULATOR );
+    observer_subscribe( &sensor_observer, SENSOR_TEMPERATURE_EXTERNAL );
+    observer_subscribe( &sensor_observer, SENSOR_TEMPERATURE_MICRO );
+
+    // TODO: telemetry task needs to subscribe to the rest of the sensor values
+
 
     // set build info to hardcoded values
     memset( &fw_info.build_branch, 0, sizeof( fw_info.build_branch ) );
@@ -203,8 +218,6 @@ user_interface_init( void )
 //
 //    tracked_config = find_tracked_object( MSGID_POWER_CALIBRATION );
 //    tracked_config->ptr.data = configuration_get_power_calibration_ptr();
-
-
 
 }
 
@@ -237,6 +250,49 @@ user_interface_task( void *arg )
     }
 }
 
+PUBLIC Observer * user_interface_get_sensor_observer( void )
+{
+    return &sensor_observer;
+}
+
+
+PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData data, void *context)
+{
+    switch( event )
+    {
+        case SENSOR_FAN_SPEED:
+            fan_stats.speed_rpm = data.uint32Value;
+            break;
+
+        case SENSOR_VOLTAGE_INPUT:
+            system_stats.input_voltage = data.uint32Value * 100;
+            break;
+
+        case SENSOR_TEMPERATURE_PCB:
+            system_stats.temp_pcb_ambient = data.uint32Value * 100;
+            break;
+
+        case SENSOR_TEMPERATURE_REGULATOR:
+            system_stats.temp_pcb_regulator = data.uint32Value * 100;
+            break;
+
+        case SENSOR_TEMPERATURE_EXTERNAL:
+            system_stats.temp_external_probe = data.uint32Value * 100;
+            break;
+
+        case SENSOR_TEMPERATURE_MICRO:
+            system_stats.temp_cpu = data.uint32Value * 100;
+            break;
+
+        // TODO: telemetry task needs to handle all other sensor values
+
+        default:
+            // Why did we recieve a signal that we didn't subscribe to?
+//            ASSERT(false);
+            break;
+    }
+}
+
 PUBLIC bool
 user_interface_connection_ok( void )
 {
@@ -253,7 +309,6 @@ user_interface_connection_ok( void )
 }
 
 /* -------------------------------------------------------------------------- */
-
 
 PRIVATE void
 user_interface_tx_put_external( uint8_t *c, uint16_t length )
@@ -474,21 +529,9 @@ user_interface_set_cpu_clock( uint32_t clock )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-user_interface_set_sensors_enabled( bool enable )
-{
-    system_stats.sensors_enable = enable;
-}
-
 void user_interface_set_module_enable( bool enabled )
 {
     system_stats.module_enable = enabled;
-}
-
-PUBLIC void
-user_interface_set_input_voltage( float voltage )
-{
-    system_stats.input_voltage = voltage * 100;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -544,12 +587,6 @@ user_interface_set_fan_percentage( uint8_t percent )
 }
 
 PUBLIC void
-user_interface_set_fan_rpm( uint16_t rpm )
-{
-    fan_stats.speed_rpm = rpm;
-}
-
-PUBLIC void
 user_interface_set_fan_state( uint8_t state )
 {
     fan_stats.state = state;
@@ -557,29 +594,7 @@ user_interface_set_fan_state( uint8_t state )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-user_interface_set_temp_ambient( float temp )
-{
-    system_stats.temp_pcb_ambient = temp * 100;
-}
 
-PUBLIC void
-user_interface_set_temp_regulator( float temp )
-{
-    system_stats.temp_pcb_regulator = temp * 100;
-}
-
-PUBLIC void
-user_interface_set_temp_external( float temp )
-{
-    system_stats.temp_external_probe = temp * 100;
-}
-
-PUBLIC void
-user_interface_set_temp_cpu( float temp )
-{
-    system_stats.temp_cpu = temp * 100;
-}
 
 /* -------------------------------------------------------------------------- */
 

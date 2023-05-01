@@ -8,6 +8,7 @@ extern "C" {
 /* -------------------------------------------------------------------------- */
 
 #include "global.h"
+#include "observer.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -33,6 +34,10 @@ PUBLIC void fan_task( void *arg );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC Observer * fan_get_observer( void );
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC void
 fan_set_curve( FanCurve_t *curve, uint8_t num_points );
 
@@ -40,16 +45,6 @@ fan_set_curve( FanCurve_t *curve, uint8_t num_points );
 
 PUBLIC FanState_t
 fan_get_state( void );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-fan_update_temperature( uint16_t temperature );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-fan_update_hall( uint16_t rpm );
 
 /* -------------------------------------------------------------------------- */
 

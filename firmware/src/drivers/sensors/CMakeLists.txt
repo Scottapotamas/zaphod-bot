@@ -4,10 +4,6 @@ add_library (
         sensors_lib
         sensors.h
         sensors.c
-        observer.h
-        observer.c
-        subject.h
-        subject.c
 )
 
 target_include_directories (
@@ -23,6 +19,8 @@ find_package(FreeRTOS COMPONENTS ARM_CM4F REQUIRED)
 
 target_link_libraries(
         sensors_lib
+        PUBLIC
+        utility_observer_lib
         PRIVATE
         hal_adc_lib
         hal_input_capture_lib

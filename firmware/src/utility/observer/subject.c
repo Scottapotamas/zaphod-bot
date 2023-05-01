@@ -24,6 +24,7 @@ bool subject_add_observer( Subject *subject, Observer *observer )
 
     xSemaphoreTake(subject->mutex, portMAX_DELAY);
 
+    // TODO: Consider checking for duplicate observers if paranoid about correctness?
     for( int i = 0; i < MAX_OBSERVERS; i++ )
     {
         if( subject->observers[i] == NULL )
@@ -60,10 +61,10 @@ bool subject_remove_observer( Subject *subject, Observer *observer )
     return result;
 }
 
-void subject_notify(Subject *subject, EventFlag event, EventData data)
+void subject_notify(Subject *subject, ObserverEvent_t event, EventData data)
 {
     REQUIRE( subject );
-    REQUIRE( event < MAX_EVENT_COUNT );
+    REQUIRE( event < OBSERVER_MAX_EVENT_COUNT );
 
     xSemaphoreTake( subject->mutex, portMAX_DELAY );
 

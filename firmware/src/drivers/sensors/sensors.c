@@ -13,6 +13,7 @@
 
 #include "subject.h"
 #include "observer.h"
+#include "signals.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -28,7 +29,7 @@ PRIVATE void sensors_callback_input_capture( InputCaptureSignal_t flag, uint32_t
 
 typedef struct
 {
-    SENSOR_INDEX type;
+    SENSOR_EVENT_FLAG type;
     uint16_t value;
 } HalInput_t;
 
@@ -46,7 +47,7 @@ Subject subject = { 0 };
 
 /* -------------------------------------------------------------------------- */
 
-void sensors_init( void )
+PUBLIC void sensors_init( void )
 {
     // Create a subject
     subject_init(&subject);
@@ -81,7 +82,7 @@ void sensors_init( void )
 
 /* -------------------------------------------------------------------------- */
 
-void sensors_task( void *arg )
+PUBLIC void sensors_task( void *arg )
 {
     // Data handling/post-processing task
     for(;;)
@@ -109,6 +110,14 @@ void sensors_task( void *arg )
     //    subject_remove_observer(&subject, &observer2);
 }
 
+/* -------------------------------------------------------------------------- */
+
+// Ability for external modules to add Observers.
+// Observers are responsible for their own event subscriptions
+PUBLIC void sensors_add_observer( Observer *observer )
+{
+    subject_add_observer( &subject, observer );
+}
 
 /* -------------------------------------------------------------------------- */
 
@@ -124,7 +133,7 @@ PRIVATE void sensors_trigger_adc_callback( TimerHandle_t xTimer )
 PRIVATE void sensors_callback_adc( HalAdcInput_t flag, uint16_t value )
 {
     HalInput_t new = { 0 };
-    new.type = (SENSOR_INDEX)flag;
+    new.type = (SENSOR_EVENT_FLAG)flag;
     new.value = value;
 
     xQueueSendToBackFromISR( xHalQueue, (void *)&new, 0 );
@@ -136,51 +145,9 @@ PRIVATE void sensors_callback_adc( HalAdcInput_t flag, uint16_t value )
 PRIVATE void sensors_callback_input_capture( InputCaptureSignal_t flag, uint32_t value )
 {
     HalInput_t new = { 0 };
-    new.type = (SENSOR_INDEX)flag + SENSOR_SERVO_1_HLFB;    // 'translate' ic enum values into the sensor enum range
+    new.type = (SENSOR_EVENT_FLAG)flag + SENSOR_SERVO_1_HLFB;    // 'translate' ic enum values into the sensor enum range
     new.value = value;
     xQueueSendToBackFromISR( xHalQueue, (void *)&new, 0 );
 }
 
 /* -------------------------------------------------------------------------- */
-
-//    uint16_t fan_rpm = hal_ic_hard_read(HAL_IC_HARD_FAN_HALL ) * 60;
-//    fan_update_hall( fan_rpm );
-//fan_update_temperature( 25 );
-
-
-// At compile time
-// Observer observer1 = { 0 };
-// Observer observer2 = { 0 };
-
-
-//    // Create two observers
-//    observer_init(&observer1, &observer1_callback, NULL);
-//    observer_init(&observer2, &observer2_callback, NULL);
-
-//    // Add observers to the subject
-//    subject_add_observer(&subject, &observer1);
-//    subject_add_observer(&subject, &observer2);
-
-//    observer_subscribe( &observer1, SENSOR_EVENT_A );
-//    observer_subscribe( &observer2, SENSOR_EVENT_B );
-
-// Callback functions for two observers
-void observer1_callback( EventFlag event,
-                         EventData data,
-                         void *context )
-{
-    if( data.floatValue < 0.0f  )
-    {
-        asm("NOP");
-    }
-}
-
-void observer2_callback( EventFlag event,
-                         EventData data,
-                         void *context )
-{
-    if( data.uint32Value > 32 )
-    {
-        asm("NOP");
-    }
-}
