@@ -4,7 +4,6 @@
 #include "observer.h"
 #include "FreeRTOS.h"
 #include "semphr.h"
-#include "global.h"
 
 #define MAX_OBSERVERS 10
 

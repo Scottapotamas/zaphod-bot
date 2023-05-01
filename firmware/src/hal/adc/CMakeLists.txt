@@ -1,4 +1,4 @@
-message("Processing hal/adc/CMakeList.txt")
+message("Processing hal/adc")
 
 add_library (
         hal_adc_lib

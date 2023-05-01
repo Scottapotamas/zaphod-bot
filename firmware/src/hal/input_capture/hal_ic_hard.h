@@ -21,10 +21,12 @@ typedef enum
     HAL_IC_HARD_NUM
 } InputCaptureSignal_t;
 
+typedef void (*HardICDataCallback)(InputCaptureSignal_t channel, uint32_t value);
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-hal_ic_hard_init( void );
+hal_ic_hard_init( HardICDataCallback callback );
 
 /* -------------------------------------------------------------------------- */
 

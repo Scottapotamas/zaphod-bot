@@ -28,12 +28,11 @@ typedef enum
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void hal_adc_init( void );
+typedef void (*ADCDataCallback)(HalAdcInput_t channel, uint16_t value);
 
 /* -------------------------------------------------------------------------- */
 
-/** Last converted ADC read */
-PUBLIC uint32_t hal_adc_read( HalAdcInput_t input );
+PUBLIC void hal_adc_init( ADCDataCallback callback );
 
 /* -------------------------------------------------------------------------- */
 

@@ -12,7 +12,7 @@
 
 /* -------------------------------------------------------------------------- */
 
-// DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
+DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 /* -------------------------------------------------------------------------- */
 
@@ -26,8 +26,8 @@ PUBLIC void
 average_short_init( AverageShort_t *me, uint16_t span )
 {
     /* span must be sensible and fit in buffer */
-    // REQUIRE( span > 0 );
-    // REQUIRE( span <= AVERAGE_SHORT_MAX_SPAN );
+     REQUIRE( span > 0 );
+     REQUIRE( span <= AVERAGE_SHORT_MAX_SPAN );
 
     /* Clear the structure */
     memset( me, 0, sizeof( AverageShort_t ) );
@@ -40,8 +40,7 @@ average_short_init( AverageShort_t *me, uint16_t span )
 
 /** Add a new value to the buffer and get the average so far returned. After
  *  AVERAGE_SHORT_SPAN entries, it becomes a running average of the last
- *  AVERAGE_SHORT_SPAN values. It is expected to be updated one per second
- *  so for a total averaging over a minute.
+ *  AVERAGE_SHORT_SPAN values.
  */
 
 PUBLIC uint16_t

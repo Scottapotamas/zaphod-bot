@@ -1,8 +1,6 @@
 #ifndef OBSERVER_H
 #define OBSERVER_H
 
-#include "FreeRTOS.h"
-#include "semphr.h"
 #include "global.h"
 
 typedef enum
@@ -10,7 +8,7 @@ typedef enum
     SENSOR_EVENT_A = 0,
     SENSOR_EVENT_B,
 
-    MAX_EVENT_COUNT // MUST NOT EXCEED 32 EVENTS
+    MAX_EVENT_COUNT = 32 // MUST NOT EXCEED 32 EVENTS
 } EventFlag;
 
 typedef union

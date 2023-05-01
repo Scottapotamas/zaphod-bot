@@ -40,6 +40,7 @@ set(FREERTOS_CONFIG_H ${CMAKE_SOURCE_DIR}/src/)
 
 include_directories(src/common)
 add_subdirectory(src/application)
+add_subdirectory(src/drivers)
 add_subdirectory(src/hal)
 add_subdirectory(src/utility)
 add_subdirectory(modules/electricui-embedded)

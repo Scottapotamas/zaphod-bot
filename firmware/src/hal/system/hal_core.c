@@ -27,6 +27,8 @@ PUBLIC void hal_core_init( void )
     LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_SYSCFG );
     LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_PWR );
 
+    // We want all preempt priority bits and no subpriority bits
+    //  - see discussion in https://www.freertos.org/RTOS-Cortex-M3-M4.html
     NVIC_SetPriorityGrouping( NVIC_PRIORITYGROUP_4 );
 
     NVIC_SetPriority( MemoryManagement_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 0, 0 ) );

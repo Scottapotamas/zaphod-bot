@@ -6,6 +6,7 @@
 
 #include "fan.h"
 #include "buzzer.h"
+#include "sensors.h"
 
 #include "hal_gpio.h"
 #include "hal_core.h"
@@ -43,6 +44,8 @@ int main(void)
     hal_core_clock_configure();
 
     hal_gpio_configure_defaults();
+
+    xTaskCreate(sensors_init, "sensors", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL);
 
     fan_init();
     buzzer_init();

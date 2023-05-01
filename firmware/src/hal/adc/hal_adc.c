@@ -51,14 +51,15 @@ PRIVATE void hal_adc_configure_dma( void );
 PRIVATE void hal_adc_configure( void );
 
 PRIVATE uint32_t adc_dma[HAL_ADC_INPUT_NUM];         // 'Raw' DMA copy area for ADC readings
-PRIVATE uint32_t adc_channels[HAL_ADC_INPUT_NUM];    // Destination 'userspace' ADC readings
+PRIVATE ADCDataCallback user_callback = NULL;
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void hal_adc_init( void )
+PUBLIC void hal_adc_init( ADCDataCallback callback )
 {
     memset( &adc_dma, 0, sizeof( adc_dma ) );
-    memset( &adc_channels, 0, sizeof( adc_channels ) );
+
+    user_callback = callback;
 
     hal_adc_configure_dma();
     hal_adc_configure();
@@ -69,7 +70,7 @@ PUBLIC void hal_adc_init( void )
 PRIVATE void hal_adc_configure_dma( void )
 {
     // Configure DMA channel for ADC
-    NVIC_SetPriority( DMA2_Stream0_IRQn, 3 ); /* DMA IRQ lower priority than ADC IRQ */
+    NVIC_SetPriority( DMA2_Stream0_IRQn, 7 ); /* DMA IRQ lower priority than ADC IRQ */
     NVIC_EnableIRQ( DMA2_Stream0_IRQn );
 
     LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_DMA2 );
@@ -109,7 +110,7 @@ PRIVATE void hal_adc_configure_dma( void )
 PRIVATE void hal_adc_configure( void )
 {
     // Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
-    NVIC_SetPriority( ADC_IRQn, 2 );    /* ADC IRQ needs greater priority than DMA IRQ */
+    NVIC_SetPriority( ADC_IRQn, 6 );    /* ADC IRQ needs greater priority than DMA IRQ */
     NVIC_EnableIRQ( ADC_IRQn );
 
     LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_ADC1 );
@@ -129,10 +130,12 @@ PRIVATE void hal_adc_configure( void )
 
     if( LL_ADC_IsEnabled( ADC1 ) == 0 )
     {
+        // TODO consider supporting a timer based trigger option
         LL_ADC_REG_SetTriggerSource( ADC1, LL_ADC_REG_TRIG_SOFTWARE );
+        // LL_ADC_REG_SetTriggerEdge(ADC1, LL_ADC_REG_TRIG_EXT_RISING);
+
         LL_ADC_REG_SetContinuousMode( ADC1, LL_ADC_REG_CONV_SINGLE );
         LL_ADC_REG_SetDMATransfer( ADC1, LL_ADC_REG_DMA_TRANSFER_UNLIMITED );
-        // LL_ADC_REG_SetTriggerEdge(ADC1, LL_ADC_REG_TRIG_EXT_RISING);
         // LL_ADC_REG_SetFlagEndOfConversion(ADC1, LL_ADC_REG_FLAG_EOC_SEQUENCE_CONV);
 
         // Set ADC group regular sequencer length and scan direction
@@ -153,14 +156,6 @@ PRIVATE void hal_adc_configure( void )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC uint32_t hal_adc_read( HalAdcInput_t input )
-{
-    REQUIRE( input < HAL_ADC_INPUT_NUM );
-    return adc_channels[input];
-}
-
-/* -------------------------------------------------------------------------- */
-
 PUBLIC void hal_adc_start( void )
 {
     if( LL_ADC_IsEnabled( ADC1 ) == 0 )
@@ -173,7 +168,16 @@ PUBLIC void hal_adc_start( void )
 
     if( LL_ADC_IsEnabled( ADC1 ) == 1 )
     {
-        LL_ADC_REG_StartConversionSWStart( ADC1 );
+        if( LL_ADC_REG_IsTriggerSourceSWStart( ADC1 ) == 1 )
+        {
+            LL_ADC_REG_StartConversionSWStart( ADC1 );
+        }
+        else
+        {
+            // Assumes external trigger source is already configured and running,
+            // this just allows the ADC to trigger on said source
+            LL_ADC_REG_StartConversionExtTrig( ADC1, LL_ADC_REG_TRIG_EXT_RISING );
+        }
     }
 }
 
@@ -184,6 +188,11 @@ PUBLIC void hal_adc_stop( void )
     if( LL_ADC_IsEnabled( ADC1 ) == 1 )
     {
         LL_ADC_Disable( ADC1 );
+    }
+
+    if( LL_ADC_REG_IsTriggerSourceSWStart( ADC1 ) == 0 )
+    {
+        LL_ADC_REG_StopConversionExtTrig( ADC1 );
     }
 }
 
@@ -208,22 +217,31 @@ void DMA2_Stream0_IRQHandler( void )
     {
         LL_DMA_ClearFlag_HT0( DMA2 );    // Clear flag DMA half transfer
 
-        // Freeze the first half of the DMA samples
-        memcpy( &adc_channels[HAL_ADC_INPUT_M1_CURRENT],
-                &adc_dma[HAL_ADC_INPUT_M1_CURRENT],
-                ( HAL_ADC_INPUT_NUM / 2 ) * sizeof( adc_channels[0] ) );
+        // Handle the first half of the DMA samples
+        if( user_callback )
+        {
+            user_callback( HAL_ADC_INPUT_M1_CURRENT, adc_dma[HAL_ADC_INPUT_M1_CURRENT] );
+            user_callback( HAL_ADC_INPUT_M2_CURRENT, adc_dma[HAL_ADC_INPUT_M2_CURRENT] );
+            user_callback( HAL_ADC_INPUT_M3_CURRENT, adc_dma[HAL_ADC_INPUT_M3_CURRENT] );
+            user_callback( HAL_ADC_INPUT_M4_CURRENT, adc_dma[HAL_ADC_INPUT_M4_CURRENT] );
+            user_callback( HAL_ADC_INPUT_VOLT_SENSE, adc_dma[HAL_ADC_INPUT_VOLT_SENSE] );
+        }
     }
 
     // DMA transfer complete caused the DMA interruption
     if( LL_DMA_IsActiveFlag_TC0( DMA2 ) == 1 )
     {
-
         LL_DMA_ClearFlag_TC0( DMA2 );    // Clear flag DMA transfer complete
 
-        // Freeze the second half of the DMA samples
-        memcpy( &adc_channels[HAL_ADC_INPUT_NUM / 2],
-                &adc_dma[HAL_ADC_INPUT_NUM / 2],
-                ( HAL_ADC_INPUT_NUM / 2 ) * sizeof( adc_channels[0] ) );
+        // Handle the second half of the DMA samples
+        if( user_callback )
+        {
+            user_callback( HAL_ADC_INPUT_TEMP_PCB, adc_dma[HAL_ADC_INPUT_TEMP_PCB] );
+            user_callback( HAL_ADC_INPUT_TEMP_REG, adc_dma[HAL_ADC_INPUT_TEMP_REG] );
+            user_callback( HAL_ADC_INPUT_TEMP_EXT, adc_dma[HAL_ADC_INPUT_TEMP_EXT] );
+            user_callback( HAL_ADC_INPUT_TEMP_INTERNAL, adc_dma[HAL_ADC_INPUT_TEMP_INTERNAL] );
+            user_callback( HAL_ADC_INPUT_VREFINT, adc_dma[HAL_ADC_INPUT_VREFINT] );
+        }
     }
 
     // DMA transfer error caused the DMA interruption

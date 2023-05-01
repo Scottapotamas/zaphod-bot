@@ -1,4 +1,4 @@
-message("Processing application/sensors/CMakeList.txt")
+message("Processing drivers/sensors")
 
 add_library (
         sensors_lib
@@ -24,6 +24,9 @@ find_package(FreeRTOS COMPONENTS ARM_CM4F REQUIRED)
 target_link_libraries(
         sensors_lib
         PRIVATE
+        hal_adc_lib
+        hal_input_capture_lib
+        utility_averages_lib
         FreeRTOS::ARM_CM4F
         # TODO: work out how to compile/link with hard-float without specifying the STM32::F4 package?
         STM32::F4

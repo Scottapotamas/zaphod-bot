@@ -32,6 +32,7 @@ typedef struct
 } HalHardICIntermediate_t;
 
 PRIVATE HalHardICIntermediate_t ic_state[HAL_IC_HARD_NUM];  // holding values used to calculate edge durations -> duty/freq
+PRIVATE HardICDataCallback user_callback = NULL;
 
 /* -------------------------------------------------------------------------- */
 
@@ -44,9 +45,10 @@ hal_ic_hard_pwmic_irq_handler( InputCaptureSignal_t input, TIM_TypeDef *TIMx );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-hal_ic_hard_init( void )
+hal_ic_hard_init( HardICDataCallback callback )
 {
     memset( &ic_state, 0, sizeof( ic_state ) );
+    user_callback = callback;
 
     hal_setup_capture( HAL_IC_HARD_FAN_HALL );
     hal_setup_capture( HAL_IC_HARD_HLFB_SERVO_1 );
@@ -83,7 +85,7 @@ hal_setup_capture( uint8_t input )
 
             hal_gpio_init_alternate( _SERVO_1_HLFB, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 
-            NVIC_SetPriority( TIM8_CC_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 2 ) );
+            NVIC_SetPriority( TIM8_CC_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 0 ) );
             NVIC_EnableIRQ( TIM8_CC_IRQn );
 
             hal_ic_hard_configure_pwm_input( TIM8 );
@@ -96,7 +98,7 @@ hal_setup_capture( uint8_t input )
 
             hal_gpio_init_alternate( _SERVO_2_HLFB, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 
-            NVIC_SetPriority( TIM4_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 2 ) );
+            NVIC_SetPriority( TIM4_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 0 ) );
             NVIC_EnableIRQ( TIM4_IRQn );
 
             hal_ic_hard_configure_pwm_input( TIM4 );
@@ -108,7 +110,7 @@ hal_setup_capture( uint8_t input )
 
             hal_gpio_init_alternate( _SERVO_3_HLFB, LL_GPIO_AF_1, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 
-            NVIC_SetPriority( TIM1_CC_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 2 ) );
+            NVIC_SetPriority( TIM1_CC_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 0 ) );
             NVIC_EnableIRQ( TIM1_CC_IRQn );
 
             hal_ic_hard_configure_pwm_input( TIM1 );
@@ -120,7 +122,7 @@ hal_setup_capture( uint8_t input )
 
             hal_gpio_init_alternate( _SERVO_4_HLFB, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 
-            NVIC_SetPriority( TIM5_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 2 ) );
+            NVIC_SetPriority( TIM5_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 0 ) );
             NVIC_EnableIRQ( TIM5_IRQn );
 
             hal_ic_hard_configure_pwm_input( TIM5 );
@@ -132,7 +134,7 @@ hal_setup_capture( uint8_t input )
 
             hal_gpio_init_alternate( _FAN_TACHO, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 
-            NVIC_SetPriority( TIM1_BRK_TIM9_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 1 ) );
+            NVIC_SetPriority( TIM1_BRK_TIM9_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 9, 0 ) );
             NVIC_EnableIRQ( TIM1_BRK_TIM9_IRQn );
 
             // Timer Clock Configuration
@@ -263,7 +265,14 @@ hal_ic_hard_pwmic_irq_handler( InputCaptureSignal_t input, TIM_TypeDef *TIMx )
         if( ic_state[input].cnt_a != 0 )
         {
             ic_state[input].cnt_b   = LL_TIM_IC_GetCaptureCH2( TIMx );
+
+            // TODO: don't try to store the value locally
             ic_state[input].value = ( ic_state[input].cnt_b * 10000 ) / ( ic_state[input].cnt_a );
+
+            if( user_callback )
+            {
+                user_callback( HAL_IC_HARD_FAN_HALL, ic_state[input].value );
+            }
 
             // TODO do we care about timestamping this data changing?
             //ic_state[input].value_timestamp = hal_systick_get_ms();
@@ -272,6 +281,7 @@ hal_ic_hard_pwmic_irq_handler( InputCaptureSignal_t input, TIM_TypeDef *TIMx )
         }
         else
         {
+            // TODO do we fire callback on this 0 value?
             ic_state[input].value = 0;
         }
     }
@@ -344,8 +354,13 @@ void TIM1_BRK_TIM9_IRQHandler( void )
             }
 
             // Calculate the signal frequency
+            // TODO don't try to store the value locally
             ic_state[HAL_IC_HARD_FAN_HALL].value = ( FAN_TIM_CLOCK * FAN_IC_PRESCALE * 100 )
                                                  / ( cnt_delta * ( FAN_TIM_PRESCALE + 1 ) * FAN_IC_EDGES_PER_PERIOD );
+            if( user_callback )
+            {
+                user_callback( HAL_IC_HARD_FAN_HALL, ic_state[HAL_IC_HARD_FAN_HALL].value );
+            }
 
             ic_state[HAL_IC_HARD_FAN_HALL].first_edge_done = false;
         }
