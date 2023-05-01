@@ -1,4 +1,4 @@
-message("Processing application/guidance/CMakeList.txt")
+message("Processing application/guidance")
 
 add_library (
         guidance_lib

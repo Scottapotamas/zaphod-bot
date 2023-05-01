@@ -44,17 +44,15 @@ PRIVATE Buzzer_t *me = &buzzer;
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void buzzer_process( void );
-
-/* -------------------------------------------------------------------------- */
-
 PUBLIC void
 buzzer_init( void )
 {
     memset( &buzzer, 0, sizeof( buzzer ) );
-    xTaskCreate( buzzer_process, "buzzer", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL );
 
-    // TODO: Massively reduce buzzer priority
+    // Create a buzzer event request queue
+    me->xRequestQueue = xQueueCreate( 5, sizeof(BuzzerRequest_t) );
+    REQUIRE( me->xRequestQueue );
+    vQueueAddToRegistry( me->xRequestQueue, "beepReq");  // Debug view annotation
 }
 
 /* -------------------------------------------------------------------------- */
@@ -84,14 +82,9 @@ buzzer_mute( bool muted )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void
-buzzer_process( void )
+PUBLIC void
+buzzer_task( void *arg )
 {
-    // Create a buzzer event request queue
-    me->xRequestQueue = xQueueCreate( 5, sizeof(BuzzerRequest_t) );
-    REQUIRE( me->xRequestQueue );
-    vQueueAddToRegistry( me->xRequestQueue, "beepReq");  // Debug view annotation
-
     for(;;)
     {
         // Wait indefinitely for an inbound request

@@ -1,4 +1,4 @@
-message("Processing application/buzzer/CMakeList.txt")
+message("Processing drivers/buzzer")
 
 add_library (
         buzzer_lib

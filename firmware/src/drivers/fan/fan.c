@@ -66,7 +66,6 @@ PRIVATE FanCurve_t *fan_curve;
 /* -------------------------------------------------------------------------- */
 
 PRIVATE uint8_t fan_speed_at_temp( float temperature );
-PRIVATE void fan_process( void *arg );
 
 /* -------------------------------------------------------------------------- */
 
@@ -75,8 +74,6 @@ fan_init( void )
 {
     memset( &fan, 0, sizeof( fan ) );
     fan_curve = (FanCurve_t *)&default_curve;
-
-    xTaskCreate(fan_process, "fan", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL);
 
 }
 
@@ -138,8 +135,7 @@ fan_update_hall( uint16_t rpm )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void
-fan_process( void *arg )
+PUBLIC void fan_task( void *arg )
 {
     Fan_t *me = &fan;
 
@@ -272,7 +268,7 @@ fan_speed_at_temp( float temperature )
                                fan_curve[i].percentage,
                                fan_curve[i + 1].percentage );
 
-            return value;//fan_curve[i].percentage + ( ( ( temperature - fan_curve[i].temperature ) / ( fan_curve[i + 1].temperature - fan_curve[i].temperature ) ) * ( fan_curve[i + 1].percentage - fan_curve[i].percentage ) );
+            return value;
         }
     }
 

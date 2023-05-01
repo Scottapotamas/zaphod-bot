@@ -8,17 +8,19 @@ extern "C" {
 /* -------------------------------------------------------------------------- */
 
 //#include "configuration_types.h"
-#include "global.h"
+//#include "global.h"
 //#include "motion_types.h"
 #include "user_interface_types.h"
 
 /* -------------------------------------------------------------------------- */
 
-
-/* -------------------------------------------------------------------------- */
-
 PUBLIC void
 user_interface_init( void );
+
+PUBLIC void
+user_interface_task( void *arg );
+
+/* -------------------------------------------------------------------------- */
 
 PUBLIC bool
 user_interface_connection_ok( void );

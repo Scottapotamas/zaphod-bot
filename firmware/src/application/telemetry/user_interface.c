@@ -163,7 +163,10 @@ eui_interface_t communication_interface[] = {
 PUBLIC void
 user_interface_init( void )
 {
+    // We need to do a full reset of USART clocks/peripherals on boot, as the DMA setup seems
+    // to cling onto error flags across firmware flashing - making debugging hard
     hal_uart_global_deinit();
+
     // TODO init other serial ports for UI use?
     hal_uart_init( HAL_UART_PORT_MODULE, 500000 );
     hal_uart_init( HAL_UART_PORT_INTERNAL, 500000 );
@@ -201,20 +204,14 @@ user_interface_init( void )
 //    tracked_config = find_tracked_object( MSGID_POWER_CALIBRATION );
 //    tracked_config->ptr.data = configuration_get_power_calibration_ptr();
 
-    xTaskCreate(user_interface_handle_data,
-                 "telemetry",
-                 configMINIMAL_STACK_SIZE,
-                 NULL,
-                 tskIDLE_PRIORITY + 1,
-                 NULL
-                 );
+
 
 }
 
 #define PARSE_CHUNK_SIZE 32
 
-PRIVATE void
-user_interface_handle_data( void *arg )
+PUBLIC void
+user_interface_task( void *arg )
 {
     for(;;)
     {

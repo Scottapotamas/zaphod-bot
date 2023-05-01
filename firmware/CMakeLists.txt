@@ -37,12 +37,13 @@ add_executable(${PROJ_NAME})
 
 
 set(FREERTOS_CONFIG_H ${CMAKE_SOURCE_DIR}/src/)
-
 include_directories(src/common)
+
 add_subdirectory(src/application)
 add_subdirectory(src/drivers)
 add_subdirectory(src/hal)
 add_subdirectory(src/utility)
+
 add_subdirectory(modules/electricui-embedded)
 
 target_sources(
@@ -61,13 +62,9 @@ target_include_directories(
 
 target_link_libraries(
         ${PROJ_NAME}
-        PUBLIC
-        fan_lib
-        buzzer_lib
-        telemetry_lib
-        hal_gpio_lib
-        hal_system_lib
-        FreeRTOS::Timers
+        PRIVATE
+        app_startup_lib
+#        FreeRTOS::Timers
         FreeRTOS::Heap::4
         FreeRTOS::ARM_CM4F
         HAL::STM32::F4::LL_RCC

@@ -1,4 +1,4 @@
-message("Processing application/telemetry/CMakeList.txt")
+message("Processing application/telemetry")
 
 add_library (
         telemetry_lib

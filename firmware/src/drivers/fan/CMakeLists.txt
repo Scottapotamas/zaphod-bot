@@ -1,4 +1,4 @@
-message("Processing application/fan/CMakeList.txt")
+message("Processing drivers/fan")
 
 add_library (
         fan_lib

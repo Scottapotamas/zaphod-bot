@@ -14,7 +14,6 @@ target_include_directories (
 
 find_package(HAL COMPONENTS
         STM32F4
-#        LL_RCC
         LL_DMA
         LL_ADC
         REQUIRED
@@ -25,7 +24,6 @@ target_link_libraries(
         PRIVATE
         hal_gpio_lib
         CMSIS::STM32::F429xx
-#        HAL::STM32::F4::LL_RCC
         HAL::STM32::F4::LL_DMA
         HAL::STM32::F4::LL_ADC
 )

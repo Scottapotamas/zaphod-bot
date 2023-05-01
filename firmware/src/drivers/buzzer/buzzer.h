@@ -11,18 +11,17 @@ extern "C" {
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-buzzer_init( void );
+PUBLIC void buzzer_init( void );
+
+PUBLIC void buzzer_task( void *arg );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-buzzer_sound( uint8_t count, uint16_t frequency, uint16_t duration_ms );
+PUBLIC void buzzer_sound( uint8_t count, uint16_t frequency, uint16_t duration_ms );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-buzzer_mute( bool muted );
+PUBLIC void buzzer_mute( bool muted );
 
 /* -------------------------------------------------------------------------- */
 
