@@ -1,2 +1,3 @@
 add_subdirectory(averages)
 add_subdirectory(observer)
+add_subdirectory(stopwatch)
