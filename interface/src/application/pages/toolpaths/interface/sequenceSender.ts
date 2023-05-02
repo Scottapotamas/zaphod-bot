@@ -90,12 +90,17 @@ export class SequenceSender {
     await this.sendClear(this.cancellationToken)
   }
 
-  async ingest(toolpath: Toolpath, cancellationToken: CancellationToken) {
+  async ingest(toolpath: Toolpath, cancellationToken: CancellationToken, randomiseSendOrder = false) {
     this.cancellationToken = cancellationToken
     await this.clear()
 
     this.movementMoves = toolpath.movementMoves
     this.lightMoves = toolpath.lightMoves
+
+    if (randomiseSendOrder) {
+      shuffleInPlace(this.movementMoves)
+      shuffleInPlace(this.lightMoves)
+    }
 
     this.finalMovementTimestamp = this.movementMoves[
       this.movementMoves.length - 1
@@ -263,4 +268,22 @@ export class SequenceSender {
     //   `hardware update received ${motionDepth} (${this.movementMoves.length}), ${fadeDepth} (${this.lightMoves.length})`,
     // )
   }
+}
+
+function shuffleInPlace<T>(array: T[]) {
+  let currentIndex = array.length,  randomIndex;
+
+  // While there remain elements to shuffle.
+  while (currentIndex != 0) {
+
+    // Pick a remaining element.
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+
+  return array;
 }

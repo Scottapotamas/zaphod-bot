@@ -406,6 +406,7 @@ export function SendToolpath() {
       minFrameNumber: number,
       maxFrameNumber: number,
       cancellationToken: CancellationToken,
+      randomiseSendOrder: boolean = false
     ) => {
       getSequenceSender().clear()
 
@@ -457,7 +458,7 @@ export function SendToolpath() {
           }
 
           // TODO: Ask fourth axis to go to desired position
-          await getSequenceSender().ingest(toolpath, cancellationToken)
+          await getSequenceSender().ingest(toolpath, cancellationToken, randomiseSendOrder)
           await getSequenceSender().waitForInitialBatch()
 
           console.log(`Initial batch sent to Delta`)
@@ -555,6 +556,13 @@ export function SendToolpath() {
     return renderSequence(viewportFrame, viewportFrame, new CancellationToken())
   }, [setIsLoading, sendSync])
 
+  const handleOutOfOrderFrameRender = useCallback(() => {
+    const viewportFrame = getSetting(state => state.viewportFrame)
+    cancellationTokenRef.current?.cancel()
+
+    return renderSequence(viewportFrame, viewportFrame, new CancellationToken(), true)
+  }, [setIsLoading, sendSync])
+
   const handleClear = useCallback(() => {
     cancellationTokenRef.current?.cancel()
     getSequenceSender().clear()
@@ -562,6 +570,17 @@ export function SendToolpath() {
 
   return (
     <Composition templateCols="2fr 2fr 1fr" gap={5}>
+      <Button
+        onClick={handleOutOfOrderFrameRender}
+        loading={isLoading}
+        icon={IconNames.LAB_TEST}
+        intent={Intent.DANGER}
+        fill
+        minimal
+        outlined
+      >
+        <b>RENDER FRAME OOO</b>
+      </Button>
       <Button
         onClick={handleViewportFrameRender}
         loading={isLoading}
