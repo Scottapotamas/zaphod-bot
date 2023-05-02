@@ -232,26 +232,6 @@ hal_ic_hard_configure_pwm_input( TIM_TypeDef *TIMx )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC uint32_t
-hal_ic_hard_read( InputCaptureSignal_t input )
-{
-    return ic_state[input].value / 100;
-}
-
-PUBLIC float
-hal_ic_hard_read_f( InputCaptureSignal_t input )
-{
-    return (float)ic_state[input].value / 100.0f;
-}
-
-PUBLIC uint32_t
-hal_ic_hard_ms_since_value( InputCaptureSignal_t input )
-{
-
-    return 0; //hal_systick_get_ms() - ic_state[input].value_timestamp;
-}
-/* -------------------------------------------------------------------------- */
-
 PRIVATE void
 hal_ic_hard_pwmic_irq_handler( InputCaptureSignal_t input, TIM_TypeDef *TIMx )
 {
