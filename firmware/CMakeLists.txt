@@ -64,6 +64,7 @@ target_link_libraries(
         ${PROJ_NAME}
         PRIVATE
         app_startup_lib
+        hal_system_lib
 #        FreeRTOS::Timers
         FreeRTOS::Heap::4
         FreeRTOS::ARM_CM4F

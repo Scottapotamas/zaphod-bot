@@ -5,6 +5,7 @@
 #include "task.h"
 
 #include "hal_core.h"
+#include "hal_reset.h"
 #include "hal_gpio.h"
 
 #include "sensors.h"
@@ -20,13 +21,11 @@ void app_startup_init( void )
     hal_core_clock_configure();
     hal_gpio_configure_defaults();
 
-    // TODO: Init remaining system functionality
-    //  Reset cause check
-    //  Watchdog configuration
+    // TODO: Watchdog configuration
 
     // Check for the cause of the microcontroller booting (errors vs normal power up)
-    //    user_interface_set_reset_cause( hal_reset_cause_description( hal_reset_cause() ) );
-    //    user_interface_set_assert_cause( hal_reset_assert_description() );
+    user_interface_set_reset_cause( hal_reset_cause_description( hal_reset_cause() ) );
+    user_interface_set_assert_cause( hal_reset_assert_description() );
 
     sensors_init();
     fan_init();

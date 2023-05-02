@@ -5,7 +5,7 @@
 #include "task.h"
 
 #include "app_startup.h"
-
+#include "hal_reset.h"
 // TODO: move DWT related into a system/core HAL wrapper
 #include "stm32f4xx_ll_cortex.h"
 
@@ -65,7 +65,7 @@ void portAssertHandler( const char *file,
 
     // Forward directly to the 'in-memory cache' handler function
     va_start( args, fmt );
-    //    cache_assert_reason_in_ram( file, line, fmt, args );
+    hal_reset_assert_cache( file, line, fmt, args );
     va_end( args );
 
     // Wait for the watch dog to bite
