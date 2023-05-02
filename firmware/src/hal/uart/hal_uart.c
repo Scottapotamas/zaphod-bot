@@ -254,7 +254,7 @@ hal_uart_dma_init( HalUartPort_t port )
 {
     HalUart_t *h = &hal_uart[port];
 
-    /* USART2_TX Init */
+    /* TX Init */
     LL_DMA_SetChannelSelection( h->dma_peripheral, h->dma_stream_tx, h->dma_channel_tx );
     LL_DMA_SetDataTransferDirection( h->dma_peripheral, h->dma_stream_tx, LL_DMA_DIRECTION_MEMORY_TO_PERIPH );
     LL_DMA_SetStreamPriorityLevel( h->dma_peripheral, h->dma_stream_tx, LL_DMA_PRIORITY_LOW );
@@ -270,7 +270,7 @@ hal_uart_dma_init( HalUartPort_t port )
 
     hal_uart_dma_irq_setup( h->dma_peripheral, h->dma_stream_tx, 5, 1 );
 
-    /* USART2_RX Init */
+    /* RX Init */
     LL_DMA_SetChannelSelection( h->dma_peripheral, h->dma_stream_rx, h->dma_channel_rx );
     LL_DMA_SetDataTransferDirection( h->dma_peripheral, h->dma_stream_rx, LL_DMA_DIRECTION_PERIPH_TO_MEMORY );
     LL_DMA_SetStreamPriorityLevel( h->dma_peripheral, h->dma_stream_rx, LL_DMA_PRIORITY_LOW );

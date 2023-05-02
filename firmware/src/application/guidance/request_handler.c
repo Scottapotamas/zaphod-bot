@@ -1,10 +1,23 @@
+/* -------------------------------------------------------------------------- */
+
 #include "request_handler.h"
 #include "qassert.h"
 #include <string.h>
 
+/* -------------------------------------------------------------------------- */
+
 DEFINE_THIS_FILE;
 
 #define MAX_POOL_SIZE 10
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void request_handler_insert_movement( RequestHandler_t *rh, const Movement_t *movement );
+PRIVATE int32_t request_handler_find_free_pool_slot( void );
+PRIVATE int32_t request_handler_find_sorted_candidate( void );
+PRIVATE bool request_handler_emit_next_movement( RequestHandler_t *rh );
+
+/* -------------------------------------------------------------------------- */
 
 typedef struct {
     Movement_t movement;
@@ -14,16 +27,14 @@ typedef struct {
 typedef struct
 {
     MovementPoolSlot_t slots[MAX_POOL_SIZE];
+    uint32_t expected_sync_offset;
 } MovementPool_t;
 
 PRIVATE MovementPool_t pool = { 0 };
 
+/* -------------------------------------------------------------------------- */
 
-PRIVATE void request_handler_insert_movement(RequestHandler_t *rh, const Movement_t *movement);
-PRIVATE int32_t request_handler_find_free_pool_slot( void );
-PRIVATE bool request_handler_emit_next_movement( RequestHandler_t *rh );
-
-PUBLIC void request_handler_init(RequestHandler_t *rh)
+PUBLIC void request_handler_init( RequestHandler_t *rh )
 {
     // Create and initialize input and output FreeRTOS queues
     rh->input_queue = xQueueCreate( MAX_QUEUE_SIZE, sizeof(Movement_t) );
@@ -34,6 +45,8 @@ PUBLIC void request_handler_init(RequestHandler_t *rh)
     vQueueAddToRegistry( rh->output_queue, "rqHout");
 
 }
+
+/* -------------------------------------------------------------------------- */
 
 PUBLIC void request_handler_task( void *arg  )
 {
@@ -70,7 +83,9 @@ PUBLIC void request_handler_task( void *arg  )
     }
 }
 
-PUBLIC void request_handler_add_movement(RequestHandler_t *rh, const Movement_t *movement)
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void request_handler_add_movement( RequestHandler_t *rh, const Movement_t *movement )
 {
     REQUIRE( rh );
     REQUIRE( movement );
@@ -79,7 +94,26 @@ PUBLIC void request_handler_add_movement(RequestHandler_t *rh, const Movement_t 
     REQUIRE( result == pdPASS );
 }
 
-PRIVATE void request_handler_insert_movement(RequestHandler_t *rh, const Movement_t *movement)
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void request_handler_clear( RequestHandler_t *rh )
+{
+    REQUIRE( rh );
+
+    // TODO: Does this need to be behind a mutex for safety?
+
+    // Empty the input/output queues
+    xQueueReset( rh->input_queue );
+    xQueueReset( rh->input_queue );
+
+    // Wipe the pool
+    memset( &pool, 0, sizeof(MovementPool_t));
+
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void request_handler_insert_movement( RequestHandler_t *rh, const Movement_t *movement )
 {
     REQUIRE( rh );
     REQUIRE( movement );
@@ -90,6 +124,8 @@ PRIVATE void request_handler_insert_movement(RequestHandler_t *rh, const Movemen
     memcpy( &pool.slots[slot_index].movement, movement, sizeof(Movement_t) );
     pool.slots[slot_index].is_used = true;
 }
+
+/* -------------------------------------------------------------------------- */
 
 PRIVATE int32_t request_handler_find_free_pool_slot( void )
 {
@@ -104,14 +140,15 @@ PRIVATE int32_t request_handler_find_free_pool_slot( void )
     return -1;
 }
 
-PRIVATE bool request_handler_emit_next_movement( RequestHandler_t *rh )
-{
-    REQUIRE( rh );
+/* -------------------------------------------------------------------------- */
 
+// Find the smallest sync_offset entry in the pool
+
+PRIVATE int32_t request_handler_find_sorted_candidate( void )
+{
     uint32_t min_sync_offset = UINT32_MAX;
     int32_t min_sync_offset_slot_index = -1;
 
-    // Find the smallest sync_offset entry in the pool
     for( uint32_t i = 0; i < MAX_POOL_SIZE; i++ )
     {
         if(    pool.slots[i].is_used
@@ -122,27 +159,47 @@ PRIVATE bool request_handler_emit_next_movement( RequestHandler_t *rh )
         }
     }
 
+    return min_sync_offset_slot_index;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE bool request_handler_emit_next_movement( RequestHandler_t *rh )
+{
+    REQUIRE( rh );
+
+    int32_t candidate_slot_index = request_handler_find_sorted_candidate();
+
     // Put the movement into the output queue
-    if( min_sync_offset_slot_index != -1 )
+    if( candidate_slot_index != -1 )
     {
-        Movement_t *movement = &pool.slots[min_sync_offset_slot_index].movement;
+        Movement_t *movement = &pool.slots[candidate_slot_index].movement;
 
-        // Allow short block here for the output queue to drain, should have room though...
-        BaseType_t result = xQueueSendToBack( rh->output_queue,
-                                              (void *)movement,
-                                              2     //portMAX_DELAY
-        );
+        // Is the move in-order?
+        if(    movement->sync_offset == pool.expected_sync_offset
+            || movement->sync_offset == 0 )   // first move will have an offset of zero
+        {
+            // Allowed to briefly block here for the output queue to drain, should have room though...
+            BaseType_t result = xQueueSendToBack( rh->output_queue,
+                                                  (void *)movement,
+                                                  2     //portMAX_DELAY
+            );
 
-        // As emit ran with the assumption that the queue had room,
-        // and we allow 2ms queue timeout, failure now means the queue is full/stuck?
-        // Realistically shouldn't occur someone else is adding to that queue?
-        ENSURE( result );
+            // As emit ran with the assumption that the queue had room,
+            // and we allow 2ms queue timeout, failure now means the queue is full/stuck?
+            // Realistically shouldn't occur someone else is adding to that queue?
+            ENSURE( result );
 
-        // Mark the pool entry
-        pool.slots[min_sync_offset_slot_index].is_used = false;
+            // Update the pool and slot metadata
+            pool.slots[candidate_slot_index].is_used = false;
+            pool.expected_sync_offset = movement->sync_offset + movement->duration;
 
-        return result;
+            return result;
+        }
+
     }
 
     return false;
 }
+
+/* -------------------------------------------------------------------------- */
