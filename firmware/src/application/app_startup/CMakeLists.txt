@@ -19,6 +19,7 @@ target_include_directories (
 
 target_link_libraries(app_startup_lib
         PRIVATE
+        guidance_lib
         fan_lib
         buzzer_lib
         telemetry_lib
