@@ -70,7 +70,7 @@ PUBLIC void hal_adc_init( ADCDataCallback callback )
 PRIVATE void hal_adc_configure_dma( void )
 {
     // Configure DMA channel for ADC
-    NVIC_SetPriority( DMA2_Stream0_IRQn, 7 ); /* DMA IRQ lower priority than ADC IRQ */
+    NVIC_SetPriority( DMA2_Stream0_IRQn, 10 ); /* DMA IRQ lower priority than ADC IRQ */
     NVIC_EnableIRQ( DMA2_Stream0_IRQn );
 
     LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_DMA2 );
@@ -110,7 +110,7 @@ PRIVATE void hal_adc_configure_dma( void )
 PRIVATE void hal_adc_configure( void )
 {
     // Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
-    NVIC_SetPriority( ADC_IRQn, 6 );    /* ADC IRQ needs greater priority than DMA IRQ */
+    NVIC_SetPriority( ADC_IRQn, 9 );    /* ADC IRQ needs greater priority than DMA IRQ */
     NVIC_EnableIRQ( ADC_IRQn );
 
     LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_ADC1 );

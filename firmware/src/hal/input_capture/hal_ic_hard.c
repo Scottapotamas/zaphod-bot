@@ -48,7 +48,10 @@ PUBLIC void
 hal_ic_hard_init( HardICDataCallback callback )
 {
     memset( &ic_state, 0, sizeof( ic_state ) );
-    user_callback = callback;
+    if( callback )
+    {
+        user_callback = callback;
+    }
 
     hal_setup_capture( HAL_IC_HARD_FAN_HALL );
     hal_setup_capture( HAL_IC_HARD_HLFB_SERVO_1 );
@@ -85,7 +88,7 @@ hal_setup_capture( uint8_t input )
 
             hal_gpio_init_alternate( _SERVO_1_HLFB, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 
-            NVIC_SetPriority( TIM8_CC_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 0 ) );
+            NVIC_SetPriority( TIM8_CC_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 7, 0 ) );
             NVIC_EnableIRQ( TIM8_CC_IRQn );
 
             hal_ic_hard_configure_pwm_input( TIM8 );
@@ -98,7 +101,7 @@ hal_setup_capture( uint8_t input )
 
             hal_gpio_init_alternate( _SERVO_2_HLFB, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 
-            NVIC_SetPriority( TIM4_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 0 ) );
+            NVIC_SetPriority( TIM4_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 7, 0 ) );
             NVIC_EnableIRQ( TIM4_IRQn );
 
             hal_ic_hard_configure_pwm_input( TIM4 );
@@ -110,7 +113,7 @@ hal_setup_capture( uint8_t input )
 
             hal_gpio_init_alternate( _SERVO_3_HLFB, LL_GPIO_AF_1, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 
-            NVIC_SetPriority( TIM1_CC_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 0 ) );
+            NVIC_SetPriority( TIM1_CC_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 7, 0 ) );
             NVIC_EnableIRQ( TIM1_CC_IRQn );
 
             hal_ic_hard_configure_pwm_input( TIM1 );
@@ -122,7 +125,7 @@ hal_setup_capture( uint8_t input )
 
             hal_gpio_init_alternate( _SERVO_4_HLFB, LL_GPIO_AF_2, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 
-            NVIC_SetPriority( TIM5_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 0 ) );
+            NVIC_SetPriority( TIM5_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 7, 0 ) );
             NVIC_EnableIRQ( TIM5_IRQn );
 
             hal_ic_hard_configure_pwm_input( TIM5 );
@@ -134,7 +137,7 @@ hal_setup_capture( uint8_t input )
 
             hal_gpio_init_alternate( _FAN_TACHO, LL_GPIO_AF_3, LL_GPIO_SPEED_FREQ_LOW, LL_GPIO_PULL_NO );
 
-            NVIC_SetPriority( TIM1_BRK_TIM9_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 9, 0 ) );
+            NVIC_SetPriority( TIM1_BRK_TIM9_IRQn, NVIC_EncodePriority( NVIC_GetPriorityGrouping(), 8, 0 ) );
             NVIC_EnableIRQ( TIM1_BRK_TIM9_IRQn );
 
             // Timer Clock Configuration

@@ -268,7 +268,7 @@ hal_uart_dma_init( HalUartPort_t port )
     LL_DMA_SetPeriphAddress( h->dma_peripheral, h->dma_stream_tx, (uint32_t)&h->usart->DR );
     LL_DMA_EnableIT_TC( h->dma_peripheral, h->dma_stream_tx ); /* Enable TX TC interrupt */
 
-    hal_uart_dma_irq_setup( h->dma_peripheral, h->dma_stream_tx, 5, 1 );
+    hal_uart_dma_irq_setup( h->dma_peripheral, h->dma_stream_tx, 6, 0 );
 
     /* RX Init */
     LL_DMA_SetChannelSelection( h->dma_peripheral, h->dma_stream_rx, h->dma_channel_rx );
@@ -289,7 +289,7 @@ hal_uart_dma_init( HalUartPort_t port )
     LL_DMA_EnableIT_HT( h->dma_peripheral, h->dma_stream_rx );
     LL_DMA_EnableIT_TC( h->dma_peripheral, h->dma_stream_rx );
 
-    hal_uart_dma_irq_setup( h->dma_peripheral, h->dma_stream_rx, 5, 0 );
+    hal_uart_dma_irq_setup( h->dma_peripheral, h->dma_stream_rx, 6, 0 );
 }
 
 /* -------------------------------------------------------------------------- */
