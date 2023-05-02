@@ -15,6 +15,14 @@
 
 /* -------------------------------------------------------------------------- */
 
+const uint8_t priority_lowest = tskIDLE_PRIORITY + 1;
+const uint8_t priority_low = priority_lowest + 1;
+const uint8_t priority_normal = priority_low + 1;
+const uint8_t priority_high = priority_normal + 1;
+const uint8_t priority_highest = priority_high + 1;
+
+/* -------------------------------------------------------------------------- */
+
 void app_startup_init( void )
 {
     hal_core_init();
@@ -45,16 +53,15 @@ void app_startup_init( void )
 
 void app_startup_tasks( void )
 {
-    // TODO: Fix task priorities
-    xTaskCreate( sensors_task, "sensors", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL );
-    xTaskCreate( buzzer_task, "buzzer", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL );
-    xTaskCreate( fan_task, "fan", configMINIMAL_STACK_SIZE, NULL, tskIDLE_PRIORITY + 1, NULL );
+    xTaskCreate( sensors_task, "sensors", configMINIMAL_STACK_SIZE, NULL, priority_low, NULL );
+    xTaskCreate( buzzer_task, "buzzer", configMINIMAL_STACK_SIZE, NULL, priority_lowest, NULL );
+    xTaskCreate( fan_task, "fan", configMINIMAL_STACK_SIZE, NULL, priority_lowest, NULL );
 
     xTaskCreate( user_interface_task,
                  "telemetry",
                  4000,
                  NULL,
-                 tskIDLE_PRIORITY + 1,
+                 priority_low,
                  NULL
     );
 
