@@ -24,7 +24,11 @@ servo_init( ClearpathServoInstance_t servo );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC Observer * servo_get_observer( void );
+PUBLIC void* servo_get_state_context_for( ClearpathServoInstance_t servo );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC Observer * servo_get_observer( ClearpathServoInstance_t servo );
 
 /* -------------------------------------------------------------------------- */
 
@@ -94,8 +98,7 @@ servo_get_servo_did_error( ClearpathServoInstance_t servo );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-servo_process( ClearpathServoInstance_t servo );
+PUBLIC void servo_task( void* arg );
 
 /* -------------------------------------------------------------------------- */
 

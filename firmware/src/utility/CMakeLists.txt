@@ -1,3 +1,4 @@
 add_subdirectory(averages)
+add_subdirectory(cartesian_operations)
 add_subdirectory(observer)
 add_subdirectory(stopwatch)

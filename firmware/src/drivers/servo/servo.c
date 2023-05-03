@@ -1,18 +1,21 @@
 /* -------------------------------------------------------------------------- */
 
-#include <string.h>
 #include <float.h>
+#include <string.h>
 
 #include "global.h"
 #include "qassert.h"
-#include "simple_state_machine.h"
 #include "signals.h"
+#include "simple_state_machine.h"
 
 #include "servo.h"
 #include "observer.h"
 #include "hal_gpio.h"
 
 #include "stopwatch.h"
+
+#include "FreeRTOS.h"
+#include "task.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -34,6 +37,37 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 // Clearpath input high = clockwise rotation. Alias against pin state
 #define SERVO_DIR_CCW (true)
 #define SERVO_DIR_CW (false)
+
+#define SERVO_HOMING_ENDSTOP_TRANSIT_TORQUE     (20U)     // shutdown if servo exceeds this limit during the move towards the endstop
+#define SERVO_HOMING_ENDSTOP_RAMP_MIN           (15U)     // lower limit % of torque expected to trigger homing endstop behaviour
+#define SERVO_HOMING_ENDSTOP_RAMP_MAX           (25U)     // upper limit % of torque expected to home
+#define SERVO_HOMING_FOLDBACK_CHECK_START_MS    (200U)    // ms after peak to start checking foldback level
+#define SERVO_HOMING_FOLDBACK_CHECK_END_MS      (500U)    // ms after peak to check foldback is still ok
+#define SERVO_HOMING_FOLDBACK_TORQUE_MIN        (4U)      // % torque min expected during foldback
+#define SERVO_HOMING_FOLDBACK_TORQUE_MAX        (6U)      // % torque max expected during foldback
+#define SERVO_HOMING_SIMILARITY_PERCENT         (1U)      // % torque error allowed during stabilisation period
+#define SERVO_HOMING_SIMILARITY_MS              (200U)    // time the torque needs to be stable before considering homing move complete
+#define SERVO_HOMING_COMPLETE_MAX_MS            (500U)
+#define SERVO_HOMING_MAX_MS                     (9000U)
+
+#define SERVO_HOMING_CALIBRATION_SAMPLES  (10U)
+#define SERVO_HOMING_CALIBRATION_MS       (SERVO_HOMING_CALIBRATION_SAMPLES * 22U)  // 45hz -> 22ms per sample
+#define SERVO_HOMING_CALIBRATION_TORQUE   (10U)                                     // maximum torque we expect to see during torque calibration
+
+#define SERVO_RECOVERY_DWELL_MS (50U)
+#define SERVO_RECOVERY_RETRIES  (7U)
+
+// Clearpath will filter pulses shorter than 1us
+// ULN2303 NPN driver has rise time of ~5ns, fall of ~10nsec
+#define SERVO_PULSE_DURATION_US (10U)
+
+// Fault handling
+#define SERVO_FAULT_LINGER_MS (500U)
+
+// ms since last HLFB input captures before declaring the servo missing
+// As HLFB is 45Hz = 22ms, timeout is set to allow two missed cycles
+#define SERVO_MISSING_HLFB_MS (50U)
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -198,6 +232,19 @@ servo_init( ClearpathServoInstance_t servo )
 
     // Buffer commanded steps per tick for 50 ticks (50ms) to back velocity estimate
 //    average_short_init( &clearpath[servo].step_statistics, SPEED_ESTIMATOR_SPAN );
+}
+
+
+PUBLIC void* servo_get_state_context_for( ClearpathServoInstance_t servo )
+{
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+    return (void*)&clearpath[servo];
+}
+
+PUBLIC Observer* servo_get_observer( ClearpathServoInstance_t servo )
+{
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+    return &clearpath[servo].sensor_observer;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -437,13 +484,22 @@ servo_get_connected_estimate( ClearpathServoInstance_t servo )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-servo_task( void* arg )
+PUBLIC void servo_task( void* arg )
 {
-    // what is arg actually passing in? The pointer or the index?
-    ClearpathServoInstance_t servo = _CLEARPATH_1;
+    ClearpathServoInstance_t servo = _NUMBER_CLEARPATH_SERVOS;
 
-    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+    Servo_t *me = arg;
+    ENSURE( me );
+
+    if( me == &clearpath[_CLEARPATH_1])
+    {
+        servo = _CLEARPATH_1;
+    }
+    else
+    {
+        // TODO write something less stupid above this
+        ASSERT(0);
+    }
 
     // Early exit if not configured
     if( !ServoConfig[servo].installed )
@@ -451,7 +507,8 @@ servo_task( void* arg )
         return;
     }
 
-    Servo_t *me = &clearpath[servo];
+    for(;;)
+    {
 
     // TODO: we don't actually care about current? so consider adding power (watts) outputs to the sensor subject?
     // TODO: fix assumption of 75V supply voltage to servos, see above note.
@@ -519,7 +576,7 @@ servo_task( void* arg )
             stopwatch_deadline_start( &me->timer, SERVO_HOMING_CALIBRATION_MS );
             STATE_TRANSITION_TEST
 
-            if( !timer_ms_is_expired( &me->timer ) )
+            if( !stopwatch_deadline_elapsed( &me->timer ) )
             {
                 // The trim value is a super simple FIR of the incoming values
                 clearpath[servo].ic_feedback_trim = ( 0.1f * clearpath[servo].hlfb ) + ( clearpath[servo].ic_feedback_trim * 0.9f );
@@ -642,7 +699,7 @@ servo_task( void* arg )
 
         case SERVO_STATE_HOMING_SUCCESS:
             STATE_ENTRY_ACTION
-            stopwatch_start(( &me->timer );
+            stopwatch_start( &me->timer );
             me->homing_feedback = 0.0f;
             STATE_TRANSITION_TEST
             // Servo successfully found home, and is likely moving to the start-offset point
@@ -709,9 +766,13 @@ servo_task( void* arg )
                 {
                     hal_gpio_toggle_pin( ServoHardwareMap[servo].pin_step );
                     // TODO work out how to delay for a short period of time?
+                    // TODO: remove shoddy hack using freeRTOS timing
+                    vTaskDelay( 1 );
 //                    hal_delay_us( SERVO_PULSE_DURATION_US );
                     hal_gpio_toggle_pin( ServoHardwareMap[servo].pin_step );
+                    vTaskDelay( 1 );
 //                    hal_delay_us( SERVO_PULSE_DURATION_US );
+
                     me->angle_current_steps = me->angle_current_steps + ( step_direction * -1 );
                 }
 
@@ -758,6 +819,7 @@ servo_task( void* arg )
 //    user_interface_motor_feedback( servo, servo_feedback );
 //    user_interface_motor_power( servo, servo_power );
 //    user_interface_motor_speed( servo, servo_get_degrees_per_second(servo) );
+    }
 }
 
 /* -------------------------------------------------------------------------- */

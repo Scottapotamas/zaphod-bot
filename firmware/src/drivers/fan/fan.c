@@ -37,7 +37,7 @@ typedef enum {
 typedef struct
 {
     FAN_SENSOR_TYPE type;
-    uint16_t value;
+    float value;
 } FanInput_t;
 
 typedef struct
