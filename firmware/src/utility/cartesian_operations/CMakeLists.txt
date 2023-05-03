@@ -2,11 +2,11 @@ message("Processing utility/cartesian_operations")
 
 add_library (
         utility_cartesian_lib
-        cartesian_helpers.c
-        cartesian_helpers.h
-        cartesian_interpolator.c
-        cartesian_interpolator.h
         movement_types.h
+        cartesian_helpers.h
+        cartesian_helpers.c
+        cartesian_interpolator.h
+        cartesian_interpolator.c
 )
 
 target_include_directories (

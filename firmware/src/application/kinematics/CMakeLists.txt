@@ -22,6 +22,8 @@ target_include_directories (
 target_link_libraries(
         kinematics_lib
         PRIVATE
+        utility_cartesian_lib
         FreeRTOS::ARM_CM4F
         STM32::F4
+        m # math library
         )

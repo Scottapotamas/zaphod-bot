@@ -10,6 +10,7 @@
 
 #include "effector.h"
 #include "kinematics.h"
+#include "cartesian_helpers.h"
 
 #include "FreeRTOS.h"
 #include "semphr.h"
@@ -18,6 +19,9 @@
 /* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
+
+// TODO move this into a centralised defines file
+#define EFFECTOR_SPEED_LIMIT (750U)    // mm/second
 
 /* -------------------------------------------------------------------------- */
 

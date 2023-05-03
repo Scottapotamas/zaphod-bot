@@ -1,13 +1,17 @@
 /* -------------------------------------------------------------------------- */
 
+#include <math.h>
+#include <stdlib.h> // needed for using abs()
+
 #include "global.h"
 #include "kinematics.h"
 
-#include <math.h>
+/* -------------------------------------------------------------------------- */
 
-//#include "app_times.h"
-//#include "configuration.h"
-//#include "user_interface.h"
+#define KINEMATICS_Z_MAX_MM (200U)
+#define KINEMATICS_Z_MIN_MM (0U)
+#define KINEMATICS_RADIUS_MAX_MM (225U)
+#define KINEMATICS_Z_OFFSET_MM (190U)
 
 /* -------------------------------------------------------------------------- */
 
@@ -84,7 +88,7 @@ kinematics_init( void )
 /*
  * Clamps the position within the allowable cylindrical shaped workspace
  *
- * We assume (because duh) that the cylinder is centered at x = 0, y = 0,
+ * We assume that the cylinder is centered at x = 0, y = 0,
  * pointing 'up' -> height following the vertical axis (z).
  *
  * The check+clamp is performed as a chain of 'most common' conditions to exit early.
@@ -223,7 +227,7 @@ kinematics_angle_to_point( JointAngles_t input, CartesianPoint_t *output )
 
     if( d < 0.0f )
     {
-        return SOLUTION_ERROR;
+        return KINEMATICS_SOLVE_ERROR;
     }
 
     output->z = -(float)0.5f * ( b + sqrtf( d ) ) / a;
@@ -232,7 +236,7 @@ kinematics_angle_to_point( JointAngles_t input, CartesianPoint_t *output )
 
     //todo correct the FK returned co-ordinates to undo the translations made in the IK stage
 
-    return SOLUTION_VALID;
+    return KINEMATICS_SOLVE_OK;
 }
 
 /* -------------------------------------------------------------------------- */
