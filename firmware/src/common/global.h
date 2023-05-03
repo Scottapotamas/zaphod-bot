@@ -100,7 +100,8 @@
     /*!
      * Returns boolean state if the input values A and B are within DEADBAND of eachother.
      */
-    #define IS_IN_DEADBAND( A, B, DEADBAND ) ( abs( (A) - (B) ) <= (DEADBAND) )
+//    #define IS_IN_DEADBAND( A, B, DEADBAND ) ( abs( (A) - (B) ) <= (DEADBAND) )
+    #define IS_IN_DEADBAND(A, B, DEADBAND) ((A) >= (B) ? ((A) - (B)) <= (DEADBAND) : ((B) - (A)) <= (DEADBAND))
 #endif
 
 /** Convert various units into microns */

@@ -1,17 +1,15 @@
-/* ----- System Includes ---------------------------------------------------- */
-#define _USE_MATH_DEFINES
-#include <math.h>
+/* -------------------------------------------------------------------------- */
 
-/* ----- Local Includes ----------------------------------------------------- */
 #include "global.h"
 #include "kinematics.h"
 
-#include "app_times.h"
-#include "configuration.h"
-#include "motion_types.h"
-#include "user_interface.h"
+#include <math.h>
 
-/* ----- Defines ------------------------------------------------------------ */
+//#include "app_times.h"
+//#include "configuration.h"
+//#include "user_interface.h"
+
+/* -------------------------------------------------------------------------- */
 
 // position offset between kinematics space and cartesian user-space
 CartesianPoint_t offset_position = {
@@ -51,15 +49,13 @@ float deg_to_rad;
 // Cache common calculations
 float t;
 
-/* ----- Private Variables -------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
-PRIVATE KinematicsSolution_t
-delta_angle_plane_calc( float x0, float y0, float z0, float *theta );
+PRIVATE KinematicsSolution_t delta_angle_plane_calc( float x0, float y0, float z0, float *theta );
 
-PRIVATE void
-kinematics_clamp_volume( CartesianPoint_t *point );
+PRIVATE void kinematics_clamp_volume( CartesianPoint_t *point );
 
-/* ----- Public Functions --------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 PUBLIC void
 kinematics_init( void )
@@ -77,9 +73,10 @@ kinematics_init( void )
     deg_to_rad = M_PI / 180.0f;
     t          = ( f - e ) * tan30 / 2;
 
-    user_interface_set_kinematics_mechanism_info( f, rf, re, e );
-    user_interface_set_kinematics_limits( radius, z_min, z_max );
-    user_interface_set_kinematics_flips( flip_x, flip_y, flip_z );
+    // TODO extract/report kinematics info to UI?
+//    user_interface_set_kinematics_mechanism_info( f, rf, re, e );
+//    user_interface_set_kinematics_limits( radius, z_min, z_max );
+//    user_interface_set_kinematics_flips( flip_x, flip_y, flip_z );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -267,4 +264,4 @@ delta_angle_plane_calc( float x0, float y0, float z0, float *theta )
     return KINEMATICS_SOLVE_OK;
 }
 
-/* ----- End ---------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
