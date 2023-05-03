@@ -35,7 +35,7 @@ PRIVATE void sensors_callback_input_capture( InputCaptureSignal_t flag, uint32_t
 typedef struct
 {
     SENSOR_EVENT_FLAG type;
-    uint16_t value;
+    uint32_t value;
 } HalInput_t;
 
 typedef float (*sensor_conversion_fn)(uint32_t adc);

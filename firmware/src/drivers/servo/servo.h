@@ -55,13 +55,7 @@ servo_change_configuration( ClearpathServoInstance_t servo,
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-servo_start( ClearpathServoInstance_t servo );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-servo_stop( ClearpathServoInstance_t servo );
+PUBLIC void servo_enable( ClearpathServoInstance_t servo, bool enabled );
 
 /* -------------------------------------------------------------------------- */
 

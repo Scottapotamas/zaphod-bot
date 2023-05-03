@@ -254,7 +254,7 @@ hal_ic_hard_pwmic_irq_handler( InputCaptureSignal_t input, TIM_TypeDef *TIMx )
 
             if( user_callback )
             {
-                user_callback( HAL_IC_HARD_FAN_HALL, ic_state[input].value );
+                user_callback( input, ic_state[input].value );
             }
 
             // TODO do we care about timestamping this data changing?

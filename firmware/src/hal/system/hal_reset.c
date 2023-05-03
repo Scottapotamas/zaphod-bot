@@ -98,7 +98,6 @@ hal_reset_cause_description( HalPowerResetCause_t cause )
 PUBLIC void
 hal_reset_software( void )
 {
-    // TODO: allow some time for serial buffers to flush etc?
     NVIC_SystemReset();
 }
 

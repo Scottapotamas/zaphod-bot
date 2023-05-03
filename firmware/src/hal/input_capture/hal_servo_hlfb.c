@@ -14,7 +14,7 @@ PUBLIC float hal_servo_hlfb( uint32_t raw_counts )
     float percentage = (raw_counts / 100.0f ) * 2.05f - 100.0f;
     percentage = CLAMP( percentage, -100.0f, 100.0f );
 
-    return 0;
+    return percentage;
 }
 
 /* -------------------------------------------------------------------------- */
