@@ -219,7 +219,6 @@ PUBLIC void fan_task( void *arg )
                     me->speed = 0;
                     hal_pwm_set_percentage_f( _PWM_TIM_FAN, me->speed );
                 STATE_TRANSITION_TEST
-                    // TODO: Check if repeated stalls are occuring?
                     vTaskDelay( pdMS_TO_TICKS(FAN_STALL_WAIT_TIME_MS) );
                     STATE_NEXT( FAN_STATE_START );
                 STATE_EXIT_ACTION

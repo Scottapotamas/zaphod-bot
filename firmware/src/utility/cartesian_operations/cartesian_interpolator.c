@@ -89,7 +89,7 @@ cartesian_point_on_catmull_spline( CartesianPoint_t *p, size_t points, float pos
     if( pos_weight <= 0.0f + FLT_EPSILON )
     {
         memcpy( output, &p[_CATMULL_START], sizeof( CartesianPoint_t ) );
-        return SOLUTION_VALID;    // todo add a 'end of range' flag?
+        return SOLUTION_VALID;
     }
 
     if( pos_weight >= 1.0f - FLT_EPSILON )

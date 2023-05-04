@@ -17,9 +17,9 @@ target_include_directories (
         common
 )
 
-# TODO: work out how to ensure the compile/link step uses hard-float for this unit without specifying the STM32::F4 package?
 target_link_libraries(
         utility_cartesian_lib
         PRIVATE
         STM32::F4
+        m  # math library
 )

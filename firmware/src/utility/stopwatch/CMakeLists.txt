@@ -18,6 +18,5 @@ target_link_libraries(
         utility_stopwatch_lib
         PRIVATE
         FreeRTOS::ARM_CM4F
-        # TODO: work out how to compile/link with hard-float without specifying the STM32::F4 package?
         STM32::F4
 )
