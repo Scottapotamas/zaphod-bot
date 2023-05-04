@@ -27,6 +27,7 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 #define HAL_UART_TX_STREAM_SIZE 1024
 
 #define HAL_UART_RX_DMA_BUFFER_SIZE 256
+#define HAL_UART_TX_DMA_BUFFER_SIZE 32
 
 /* -------------------------------------------------------------------------- */
 
@@ -50,6 +51,7 @@ typedef struct
     volatile uint8_t dma_rx_buffer[HAL_UART_RX_DMA_BUFFER_SIZE];
     uint32_t         dma_rx_pos;
 
+    volatile uint8_t dma_tx_buffer[HAL_UART_TX_DMA_BUFFER_SIZE];
 } HalUart_t;
 
 /* -------------------------------------------------------------------------- */
@@ -499,24 +501,21 @@ hal_uart_start_tx( HalUart_t *h )
     {
         // Accept up to 32 bytes of data
         // StreamBuffer -> buffer for DMA -> UART TX
-        uint8_t txData[ 32 ];
-        size_t xReceivedBytes;
+        size_t bytes_ready_to_send;
         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
-        xReceivedBytes = xStreamBufferReceiveFromISR(h->xTxStreamBuffer,
-                                                      &txData,
-                                                      32,
+        bytes_ready_to_send = xStreamBufferReceiveFromISR(h->xTxStreamBuffer,
+                                                      &h->dma_tx_buffer,
+                                                      HAL_UART_TX_DMA_BUFFER_SIZE,
                                                       &xHigherPriorityTaskWoken
                                                       );
 //        taskYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
         // Configure DMA with the data
-        if( xReceivedBytes )
+        if( bytes_ready_to_send )
         {
-            void *ptr = &txData;
-
-            LL_DMA_SetDataLength( h->dma_peripheral, h->dma_stream_tx, xReceivedBytes );
-            LL_DMA_SetMemoryAddress( h->dma_peripheral, h->dma_stream_tx, (uint32_t)ptr );
+            LL_DMA_SetDataLength( h->dma_peripheral, h->dma_stream_tx, bytes_ready_to_send );
+            LL_DMA_SetMemoryAddress( h->dma_peripheral, h->dma_stream_tx, (uint32_t)&h->dma_tx_buffer );
 
             hal_uart_clear_dma_tx_flags( h->dma_peripheral, h->dma_stream_tx );
 

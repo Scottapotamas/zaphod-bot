@@ -91,7 +91,6 @@ uint32_t camera_shutter_duration_ms = 0;
 uint8_t demo_mode_configuration = 0;
 
 eui_message_t ui_variables[] = {
-    /*
     // Higher level system setup information
     EUI_CHAR_ARRAY_RO( MSGID_RESET_CAUSE, reset_cause ),
     EUI_CHAR_ARRAY_RO( MSGID_ASSERT_CAUSE, assert_cause ),
@@ -100,7 +99,7 @@ eui_message_t ui_variables[] = {
 
     EUI_CUSTOM( MSGID_SYSTEM, system_stats ),
     EUI_CUSTOM( MSGID_SUPERVISOR, supervisor_states ),
-    EUI_CUSTOM( MSGID_FAN, fan_stats ),
+//    EUI_CUSTOM( MSGID_FAN, fan_stats ),
     EUI_CUSTOM_RO( MSGID_MOTION, motion_global ),
     EUI_CUSTOM_RO( MSGID_SERVO, motion_servo ),
 
@@ -126,9 +125,8 @@ eui_message_t ui_variables[] = {
     EUI_FUNC( MSGID_ARM, start_mech_cb ),
     EUI_FUNC( MSGID_DISARM, stop_mech_cb ),
     EUI_FUNC( MSGID_HOME, home_mech_cb ),
-    */
-    EUI_CUSTOM( MSGID_POSITION_EXPANSION, external_servo_angle_target),
 
+    EUI_CUSTOM( MSGID_POSITION_EXPANSION, external_servo_angle_target),
     EUI_UINT32( MSGID_CAPTURE, camera_shutter_duration_ms ),
 
 //    EUI_UINT8( MSGID_DEMO_CONFIGURATION, demo_mode_configuration ),
@@ -170,11 +168,11 @@ user_interface_init( void )
     // to cling onto error flags across firmware flashing - making debugging hard
     hal_uart_global_deinit();
 
-    // TODO init other serial ports for UI use?
     hal_uart_init( HAL_UART_PORT_MODULE, 500000 );
     hal_uart_init( HAL_UART_PORT_INTERNAL, 500000 );
     hal_uart_init( HAL_UART_PORT_EXTERNAL, 500000 );
 
+    // Electric UI Setup
     eui_setup_tracked( ui_variables, EUI_ARR_ELEM(ui_variables) );
     eui_setup_interfaces( communication_interface, EUI_ARR_ELEM(communication_interface) );
     eui_setup_identifier( (char *)HAL_UUID, 12 );    // header byte is 96-bit, therefore 12-bytes
@@ -190,8 +188,7 @@ user_interface_init( void )
 
     // TODO: telemetry task needs to subscribe to the rest of the sensor values
 
-
-    // set build info to hardcoded values
+    // Set build info to hardcoded values
     memset( &fw_info.build_branch, 0, sizeof( fw_info.build_branch ) );
     memset( &fw_info.build_info, 0, sizeof( fw_info.build_info ) );
     memset( &fw_info.build_date, 0, sizeof( fw_info.build_date ) );
@@ -223,30 +220,37 @@ user_interface_init( void )
 
 #define PARSE_CHUNK_SIZE 32
 
+uint8_t buffer[PARSE_CHUNK_SIZE] = { 0 };
+uint32_t bytes_available = 0;
+
 PUBLIC void
 user_interface_task( void *arg )
 {
+
     for(;;)
     {
-        uint8_t buffer[PARSE_CHUNK_SIZE];
-        uint32_t bytes_available = 0;
-
         // Read data from the UART into the buffer
-//        bytes_available = hal_uart_read( HAL_UART_PORT_MODULE, buffer, PARSE_CHUNK_SIZE);
-//        // Iterate over the received bytes and pass them to the parser
-//        for (uint32_t i = 0; i < bytes_available; i++) {
-//            eui_parse(buffer[i], &communication_interface[LINK_MODULE]);
-//        }
-//
-//        bytes_available = hal_uart_read( HAL_UART_PORT_INTERNAL, buffer, PARSE_CHUNK_SIZE);
-//        for (uint32_t i = 0; i < bytes_available; i++) {
-//            eui_parse(buffer[i], &communication_interface[LINK_INTERNAL]);
-//        }
+        // Iterate over the received bytes and pass them to the eUI parser
 
-        bytes_available = hal_uart_read( HAL_UART_PORT_EXTERNAL, buffer, PARSE_CHUNK_SIZE);
-        for (uint32_t i = 0; i < bytes_available; i++) {
-            eui_parse(buffer[i], &communication_interface[LINK_EXTERNAL]);
+        bytes_available = hal_uart_read( HAL_UART_PORT_MODULE, buffer, PARSE_CHUNK_SIZE);
+        for( uint32_t i = 0; i < bytes_available; i++ )
+        {
+            eui_parse( buffer[i], &communication_interface[LINK_MODULE] );
         }
+
+        bytes_available = hal_uart_read( HAL_UART_PORT_INTERNAL, buffer, PARSE_CHUNK_SIZE);
+        for( uint32_t i = 0; i < bytes_available; i++ )
+        {
+            eui_parse( buffer[i], &communication_interface[LINK_INTERNAL] );
+        }
+
+        bytes_available = hal_uart_read( LINK_EXTERNAL, buffer, PARSE_CHUNK_SIZE);
+        for( uint32_t i = 0; i < bytes_available; i++ )
+        {
+            eui_parse( buffer[i], &communication_interface[LINK_EXTERNAL] );
+        }
+
+        vTaskDelay(1);
     }
 }
 
