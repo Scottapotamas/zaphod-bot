@@ -72,7 +72,7 @@ void subject_notify(Subject *subject, ObserverEvent_t event, EventData data)
     {
         Observer *observer = subject->observers[i];
 
-        if( observer && (observer->subscribed_events & (1 << event)) )
+        if( observer && (observer->subscribed_events & ((uint64_t)1 << event)) )
         {
             observer->callback(event, data, observer->context);
         }

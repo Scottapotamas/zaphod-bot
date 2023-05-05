@@ -34,7 +34,7 @@ typedef struct
 {
     EventCallbackFn callback;
     void *context;
-    uint32_t subscribed_events;  // supports up to 32 unique events, one per bit
+    uint64_t subscribed_events;  // supports up to 32 unique events, one per bit
 } Observer;
 
 /* -------------------------------------------------------------------------- */

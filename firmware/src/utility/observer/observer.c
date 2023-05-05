@@ -28,7 +28,7 @@ void observer_subscribe( Observer *observer, ObserverEvent_t event)
     REQUIRE( observer );
     REQUIRE( event < OBSERVER_MAX_EVENT_COUNT );
 
-    observer->subscribed_events |= (1 << event); // Set the event bit
+    observer->subscribed_events |= ((uint64_t)1 << event); // Set the event bit
 }
 
 /* -------------------------------------------------------------------------- */
@@ -38,7 +38,7 @@ void observer_unsubscribe( Observer *observer, ObserverEvent_t event)
     REQUIRE( observer );
     REQUIRE( event < OBSERVER_MAX_EVENT_COUNT );
 
-    observer->subscribed_events &= ~(1 << event); // Unset the event bit
+    observer->subscribed_events &= ~((uint64_t)1 << event); // Unset the event bit
 }
 
 /* -------------------------------------------------------------------------- */
