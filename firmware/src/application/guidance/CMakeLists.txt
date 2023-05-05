@@ -4,6 +4,8 @@ add_library (
         guidance_lib
         request_handler.h
         request_handler.c
+        path_interpolator.h
+        path_interpolator.c
 )
 
 target_include_directories (
@@ -22,6 +24,7 @@ target_link_libraries(
         guidance_lib
         PRIVATE
         utility_cartesian_lib
+        utility_stopwatch_lib
         FreeRTOS::ARM_CM4F
         STM32::F4
 )

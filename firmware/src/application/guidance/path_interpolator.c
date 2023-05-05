@@ -1,35 +1,27 @@
-/* ----- System Includes ---------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #include <float.h>
 #include <string.h>
-
-/* ----- Local Includes ----------------------------------------------------- */
 
 #include "path_interpolator.h"
 
 #include "cartesian_interpolator.h"
 #include "cartesian_helpers.h"
 
-#include "app_events.h"
-#include "app_signals.h"
-#include "event_subscribe.h"
 #include "global.h"
 
-#include "effector.h"
-#include "motion_types.h"
-#include "user_interface.h"
-#include "configuration.h"
-#include "app_times.h"
-#include "timer_ms.h"
+#include "movement_types.h"
+#include "stopwatch.h"
 #include "qassert.h"
 
-/* ----- Defines ------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
+/* -------------------------------------------------------------------------- */
+
 typedef struct
 {
-
     Movement_t  move_a;          // Slot A movement storage
     Movement_t  move_b;          // Slot B movement storage
     Movement_t *current_move;    // Points to move_a or move_b
@@ -40,12 +32,15 @@ typedef struct
     uint32_t movement_started;         // timestamp the start point
     uint32_t movement_est_complete;    // timestamp the predicted end point
     float    progress_percent;         // calculated progress
-
+    PositionRequestFn output_cb;     // target positions are emitted as arguments against this callback
 } MotionPlanner_t;
 
-/* ----- Private Variables -------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 PRIVATE MotionPlanner_t planner[NUMBER_PATH_INTERPOLATORS] = { 0 };
+
+PRIVATE void path_interpolator_set_next( PathInterpolatorInstance_t interpolator,
+                                         Movement_t *movement_to_process );
 
 PRIVATE void path_interpolator_calculate_percentage( PathInterpolatorInstance_t interpolator, uint16_t move_duration );
 
@@ -56,7 +51,7 @@ PRIVATE void path_interpolator_execute_move( Movement_t *move, float percentage 
 PRIVATE void path_interpolator_notify_pathing_started( uint32_t move_id );
 PRIVATE void path_interpolator_notify_pathing_complete( uint32_t move_id );
 
-/* ----- Public Functions --------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 PUBLIC void
 path_interpolator_init( PathInterpolatorInstance_t interpolator )
@@ -65,6 +60,15 @@ path_interpolator_init( PathInterpolatorInstance_t interpolator )
     MotionPlanner_t *me = &planner[interpolator];
 
     memset( me, 0, sizeof( MotionPlanner_t ) );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+path_interpolator_update_output_callback( PositionRequestFn callback )
+{
+    MotionPlanner_t *me = &planner[PATH_INTERPOLATOR_DELTA];
+    me->output_cb = callback;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -83,8 +87,22 @@ path_interpolator_set_epoch_reference( PathInterpolatorInstance_t interpolator, 
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-path_interpolator_set_next( PathInterpolatorInstance_t interpolator, Movement_t *movement_to_process )
+// TODO: there's an implication that the path interpolator maintains it's own queue
+//          if so, we need to be able to report occupancy, clear it etc from a higher level?
+
+PUBLIC void path_interpolator_add_request( Movement_t *movement_to_process )
+{
+    path_interpolator_set_next( PATH_INTERPOLATOR_DELTA, movement_to_process );
+}
+
+// TODO: refactor/rethink how expansion motors work
+//PUBLIC void path_interpolator_request_expansion( Movement_t *movement_to_process )
+//{
+//    path_interpolator_set_next( PATH_INTERPOLATOR_EXPANSION, movement_to_process );
+//}
+
+PRIVATE void path_interpolator_set_next( PathInterpolatorInstance_t interpolator,
+                                         Movement_t *movement_to_process )
 {
     REQUIRE( interpolator < NUMBER_PATH_INTERPOLATORS );
     REQUIRE( movement_to_process->metadata.num_pts );
@@ -153,7 +171,7 @@ path_interpolator_calculate_percentage( PathInterpolatorInstance_t interpolator,
 
     // calculate current target completion based on time elapsed
     // time remaining is the allotted duration - time used (start to now), divide by the duration to get 0.0->1.0 progress
-    uint32_t time_used = timer_ms_stopwatch_lap( &me->movement_started );
+    uint32_t time_used = stopwatch_lap( &me->movement_started );
 
     if( move_duration )
     {
@@ -210,11 +228,6 @@ path_interpolator_process_delta( void )
     path_interpolator_process( PATH_INTERPOLATOR_DELTA );
 }
 
-PUBLIC void
-path_interpolator_process_expansion( void )
-{
-    path_interpolator_process( PATH_INTERPOLATOR_EXPANSION );
-}
 
 /* -------------------------------------------------------------------------- */
 
@@ -238,14 +251,19 @@ path_interpolator_process( PathInterpolatorInstance_t interpolator )
 
         // TODO: Loop behaviour
             // Calculate the time since the 'epoch' event
-            uint32_t time_since_epoch_ms = timer_ms_stopwatch_lap( &me->epoch_timestamp );
+            uint32_t time_since_epoch_ms = stopwatch_lap( &me->epoch_timestamp );
 
             // Start the move once the move sync offset time matches the epoch + elapsed time
-            if( time_since_epoch_ms >= me->current_move->sync_offset && !timer_ms_is_running( &me->movement_started ) )
+            // TODO deadline_pending syntax does the right thing, but is misleading as we're not running a deadline.
+            //      refactor for clarity
+            if( time_since_epoch_ms >= me->current_move->sync_offset && !stopwatch_deadline_pending( &me->movement_started ) )
             {
                 // Start the move
-                timer_ms_stopwatch_start( &me->movement_started );
-                timer_ms_start( &me->movement_est_complete, me->current_move->duration );
+                stopwatch_start( &me->movement_started );
+
+                // TODO: this isn't used and can probably be removed?
+                // stopwatch_deadline_start( &me->movement_est_complete, me->current_move->duration );
+
                 me->progress_percent = 0;
 
                 path_interpolator_notify_pathing_started( me->current_move->sync_offset );
@@ -254,7 +272,8 @@ path_interpolator_process( PathInterpolatorInstance_t interpolator )
 
                 mm_per_second_t speed = cartesian_move_speed( me->current_move );
 
-                if( speed > configuration_get_effector_speed_limit() )
+                // TODO how will this be handled now?
+                if( speed > 300U ) //configuration_get_effector_speed_limit() )
                 {
 //                    EmergencyStopEvent *estop_evt = EVENT_NEW( EmergencyStopEvent, MOTION_EMERGENCY );
 //                    if( estop_evt )
@@ -414,8 +433,11 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
             break;
     }
 
-    // TODO: work out how to extract the effector solution from expansion solution
-//    effector_request_target( &target );
+    // Provide our solved position to the user's callback
+    if( planner[PATH_INTERPOLATOR_DELTA].output_cb )
+    {
+        planner[PATH_INTERPOLATOR_DELTA].output_cb( &target );
+    }
 
     // Update the config/UI data based on this move
 //    user_interface_set_movement_data( move->sync_offset, move->metadata.type, (uint8_t)( percentage * 100 ) );

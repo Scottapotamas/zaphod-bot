@@ -16,7 +16,11 @@ target_include_directories (
 )
 
 
-target_link_libraries(overwatch_lib
+target_link_libraries(
+        overwatch_lib
         PRIVATE
-
+        guidance_lib
+        kinematics_lib
+        FreeRTOS::ARM_CM4F
+        CMSIS::STM32::F429xx
         )

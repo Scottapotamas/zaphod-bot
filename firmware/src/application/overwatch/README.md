@@ -17,10 +17,7 @@ There are 4 main states that describe the delta-robot:
 - ARMED
 - DISARMING
 
-but there's actually two states we care about, and two transition states.
-
-So we'll just integrate the logic for ARMING into the startup part of the ARMED state and handle DISARMING when transitioning to DISARMED.
-
+but there's actually two states we can request, and two transition states.
 What happens when we're in either of the main states?
 
 - When DISARMED, it only needs to wait for the arming signal.
@@ -34,8 +31,11 @@ Several user-selectable modes of operation are available while armed:
 - DEMO - generates long-running movement sequences that 'look cool',
 - EVENT - user provided movement sequences
 
-In the same manner as the top level state machine, attempting to enter any of the operation sub-modes requires a transition process:
-
+In the same manner as the top level state machine, attempting to enter any of the operation sub-modes requires a transition process.
+Start by storing the 'requested mode', run transition state:
+- 
 - Cleanup any queues/subscriptions/timers/etc,
 - Home the end effector,
 - Manage the new queue connections/subscriptions needed for the new mode,
+
+Then transition into the mode that was asked for originally.

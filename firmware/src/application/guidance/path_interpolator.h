@@ -1,14 +1,13 @@
 #ifndef PATH_INTERPOLATOR_H
 #define PATH_INTERPOLATOR_H
 
-/* ----- Local Includes ----------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #include "global.h"
 #include "movement_types.h"
 
-/* ----- Defines ------------------------------------------------------------ */
+/* -------------------------------------------------------------------------- */
 
-/* ----- Types ------------------------------------------------------------- */
 
 typedef enum
 {
@@ -17,7 +16,10 @@ typedef enum
     NUMBER_PATH_INTERPOLATORS
 } PathInterpolatorInstance_t;
 
-/* ----- Public Functions --------------------------------------------------- */
+//! The callback function which path_interpolator will call with a request position
+typedef void (*PositionRequestFn)(CartesianPoint_t *position);
+
+/* -------------------------------------------------------------------------- */
 
 PUBLIC void
 path_interpolator_init( PathInterpolatorInstance_t interpolator );
@@ -25,11 +27,12 @@ path_interpolator_init( PathInterpolatorInstance_t interpolator );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_process_delta( void );
+path_interpolator_update_output_callback( PositionRequestFn callback );
+
+/* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_process_expansion( void );
-
+path_interpolator_process_delta( void );
 
 /* -------------------------------------------------------------------------- */
 
@@ -44,9 +47,7 @@ path_interpolator_set_epoch_reference( PathInterpolatorInstance_t interpolator,
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-path_interpolator_set_next( PathInterpolatorInstance_t interpolator,
-                            Movement_t *movement_to_process );
+PUBLIC void path_interpolator_add_request( Movement_t *movement_to_process );
 
 /* -------------------------------------------------------------------------- */
 
