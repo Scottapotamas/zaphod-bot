@@ -12,6 +12,7 @@
 #include "fan.h"
 #include "buzzer.h"
 #include "user_interface.h"
+#include "overwatch.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -40,6 +41,9 @@ void app_startup_init( void )
     buzzer_init();
     user_interface_init();
 
+    effector_init();
+
+    overwatch_init();
     sensors_add_observer( fan_get_observer() );
     sensors_add_observer( user_interface_get_sensor_observer() );
 
@@ -69,6 +73,14 @@ void app_startup_tasks( void )
     //   Guidance
     //   Kinematics handling
     //   RGB LED control
+
+    xTaskCreate( overwatch_task,
+                 "overwatch",
+                 configMINIMAL_STACK_SIZE,
+                 NULL,
+                 priority_normal,
+                 NULL
+    );
 
 }
 
