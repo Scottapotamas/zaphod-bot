@@ -21,20 +21,10 @@ typedef struct
     char build_name[12];
 } BuildInfo_t;
 
-typedef enum
-{
-    CONTROL_NONE = 0,
-    CONTROL_MANUAL,
-    CONTROL_EVENT,
-    CONTROL_TRACK,
-    CONTROL_DEMO,
-    CONTROL_CHANGING,
-} ControlModes_t;
-
 typedef struct
 {
     bool obsolete;          // TODO remove this from the codecs - sensors are always enabled
-    bool module_enable;     // add-in card powered
+    bool obsolete2;     // add-in card powered
 
     // microcontroller info
     uint8_t cpu_load;     // percentage

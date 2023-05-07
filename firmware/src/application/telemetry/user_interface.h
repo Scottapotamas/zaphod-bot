@@ -7,11 +7,10 @@ extern "C" {
 
 /* -------------------------------------------------------------------------- */
 
-//#include "configuration_types.h"
-//#include "global.h"
-//#include "motion_types.h"
 #include "user_interface_types.h"
+
 #include "observer.h"
+#include "subject.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -24,6 +23,10 @@ user_interface_task( void *arg );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC Observer * user_interface_get_sensor_observer( void );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC Subject * user_interface_get_request_subject( void );
 
 /* -------------------------------------------------------------------------- */
 
@@ -57,10 +60,6 @@ PUBLIC void
 user_interface_update_task_statistics( void );
 
 /* -------------------------------------------------------------------------- */
-
-
-PUBLIC void
-user_interface_set_module_enable( bool enable );
 
 
 /* -------------------------------------------------------------------------- */

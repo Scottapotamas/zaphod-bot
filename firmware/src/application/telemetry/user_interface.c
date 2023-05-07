@@ -56,7 +56,6 @@ PRIVATE void movement_generate_event( void );
 PRIVATE void lighting_generate_event( void );
 PRIVATE void sync_begin_queues( void );
 PRIVATE void trigger_camera_capture( void );
-PRIVATE void request_demo_configuration( void );
 
 /* ----- Defines ----------------------------------------------------------- */
 
@@ -72,6 +71,7 @@ MotionData_t   motion_global;
 FanData_t      fan_stats;
 
 uint8_t mode_request = 0;
+uint8_t demo_mode_request = 0;
 
 MotorData_t motion_servo[4];
 int32_t     external_servo_angle_target;
@@ -88,7 +88,6 @@ QueueDepths_t queue_data;
 
 uint32_t camera_shutter_duration_ms = 0;
 
-uint8_t demo_mode_configuration = 0;
 
 eui_message_t ui_variables[] = {
     // Higher level system setup information
@@ -158,6 +157,7 @@ eui_interface_t communication_interface[] = {
 };
 
 PRIVATE Observer sensor_observer = { 0 };
+PRIVATE Subject event_subject = { 0 };
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -176,6 +176,9 @@ user_interface_init( void )
     eui_setup_tracked( ui_variables, EUI_ARR_ELEM(ui_variables) );
     eui_setup_interfaces( communication_interface, EUI_ARR_ELEM(communication_interface) );
     eui_setup_identifier( (char *)HAL_UUID, 12 );    // header byte is 96-bit, therefore 12-bytes
+
+    // Setup the UI request subject
+    subject_init(&event_subject);
 
     // Subscribe to the sensor events
     observer_init( &sensor_observer, user_interface_sensors_callback, NULL );
@@ -259,6 +262,10 @@ PUBLIC Observer * user_interface_get_sensor_observer( void )
     return &sensor_observer;
 }
 
+PUBLIC Subject * user_interface_get_request_subject( void )
+{
+    return &event_subject;
+}
 
 PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData data, void *context)
 {
@@ -373,37 +380,14 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
             // See if the inbound packet name matches our intended variable
             if( strcmp( (char *)name_rx, MSGID_MODE_REQUEST ) == 0 )
             {
-                // Fire an event to the supervisor to change mode
-                switch( mode_request )
-                {
-                    case CONTROL_NONE:
-                        // TODO allow UI to request a no-mode setting?
-                        break;
-                    case CONTROL_MANUAL:
-//                        eventPublish( EVENT_NEW( StateEvent, MODE_REQUEST_MANUAL ) );
-                        break;
-                    case CONTROL_EVENT:
-//                        eventPublish( EVENT_NEW( StateEvent, MODE_REQUEST_EVENT ) );
-                        break;
-                    case CONTROL_DEMO:
-//                        eventPublish( EVENT_NEW( StateEvent, MODE_REQUEST_DEMO ) );
-                        break;
-                    case CONTROL_TRACK:
-//                        eventPublish( EVENT_NEW( StateEvent, MODE_REQUEST_TRACK ) );
-                        break;
+                EventData modeValue = { .uint32Value = mode_request };
+                subject_notify( &event_subject, FLAG_MODE_REQUEST, modeValue );
+            }
 
-                    default: {
-                        // Punish an incorrect attempt at mode changes with E-STOP
-//                        EmergencyStopEvent *estop_evt = EVENT_NEW( EmergencyStopEvent, MOTION_EMERGENCY );
-//
-//                        if( estop_evt )
-//                        {
-//                            estop_evt->cause = EMERGENCY_REQUEST_DENIED;
-//                            eventPublish( (StateEvent *)estop_evt );
-//                        }
-                    }
-                        break;
-                }
+            if( strcmp( (char *)name_rx, MSGID_DEMO_CONFIGURATION ) == 0 && has_payload )
+            {
+                EventData modeValue = { .uint32Value = demo_mode_request };
+                subject_notify( &event_subject, FLAG_MODE_REQUEST, modeValue );
             }
 
             if( strcmp( (char *)name_rx, MSGID_QUEUE_ADD_MOVE ) == 0 && has_payload )
@@ -434,10 +418,7 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
                 rgb_manual_led_event();
             }
 
-            if( strcmp( (char *)name_rx, MSGID_DEMO_CONFIGURATION ) == 0 && has_payload )
-            {
-                request_demo_configuration();
-            }
+
 
             if( strcmp( (char *)name_rx, MSGID_CAPTURE ) == 0 && has_payload )
             {
@@ -532,11 +513,6 @@ user_interface_set_cpu_clock( uint32_t clock )
 }
 
 /* -------------------------------------------------------------------------- */
-
-void user_interface_set_module_enable( bool enabled )
-{
-    system_stats.module_enable = enabled;
-}
 
 /* -------------------------------------------------------------------------- */
 
@@ -734,34 +710,34 @@ rgb_manual_led_event()
 
 PRIVATE void start_mech_cb( void )
 {
-//    eventPublish( EVENT_NEW( StateEvent, REQUEST_ARM ) );
+    EventData temp = { 0 };
+    subject_notify( &event_subject, FLAG_ARM, temp );
 }
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void stop_mech_cb( void )
 {
-//    eventPublish( EVENT_NEW( StateEvent, REQUEST_DISARM ) );
+    EventData temp = { 0 };
+    subject_notify( &event_subject, FLAG_DISARM, temp );
 }
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void emergency_stop_cb( void )
 {
-//    EmergencyStopEvent *estop_evt = EVENT_NEW( EmergencyStopEvent, MOTION_EMERGENCY );
-//
-//    if( estop_evt )
-//    {
-//        estop_evt->cause = EMERGENCY_USER;
-//        eventPublish( (StateEvent *)estop_evt );
-//    }
+    EventData temp = { 0 };
+    subject_notify( &event_subject, FLAG_ESTOP, temp );
+
+    // TODO add the concept of 'e-stop sources'
 }
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void home_mech_cb( void )
 {
-//    eventPublish( EVENT_NEW( StateEvent, REQUEST_REHOME ) );
+    EventData temp = { 0 };
+    subject_notify( &event_subject, FLAG_REHOME, temp );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -859,16 +835,6 @@ user_interface_push_position( void )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void
-request_demo_configuration( void )
-{
-//    DemoModeConfigurationEvent *request = EVENT_NEW( DemoModeConfigurationEvent, DEMO_MODE_CONFIGURATION );
-//
-//    if( request )
-//    {
-//        memcpy( &request->program_index, &demo_mode_configuration, sizeof( demo_mode_configuration ) );
-//        eventPublish( (StateEvent *)request );
-//    }
-}
+
 
 /* ----- End ---------------------------------------------------------------- */

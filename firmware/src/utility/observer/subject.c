@@ -1,7 +1,13 @@
+/* -------------------------------------------------------------------------- */
+
 #include "subject.h"
 #include "qassert.h"
 
+/* -------------------------------------------------------------------------- */
+
 DEFINE_THIS_FILE;
+
+/* -------------------------------------------------------------------------- */
 
 void subject_init( Subject *subject )
 {
@@ -15,6 +21,8 @@ void subject_init( Subject *subject )
     subject->mutex = xSemaphoreCreateMutex();
     ENSURE( subject->mutex );
 }
+
+/* -------------------------------------------------------------------------- */
 
 bool subject_add_observer( Subject *subject, Observer *observer )
 {
@@ -39,6 +47,8 @@ bool subject_add_observer( Subject *subject, Observer *observer )
     return result;
 }
 
+/* -------------------------------------------------------------------------- */
+
 bool subject_remove_observer( Subject *subject, Observer *observer )
 {
     REQUIRE( subject );
@@ -61,6 +71,8 @@ bool subject_remove_observer( Subject *subject, Observer *observer )
     return result;
 }
 
+/* -------------------------------------------------------------------------- */
+
 void subject_notify(Subject *subject, ObserverEvent_t event, EventData data)
 {
     REQUIRE( subject );
@@ -81,3 +93,4 @@ void subject_notify(Subject *subject, ObserverEvent_t event, EventData data)
     xSemaphoreGive(subject->mutex);
 }
 
+/* -------------------------------------------------------------------------- */

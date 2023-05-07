@@ -23,6 +23,5 @@ target_link_libraries(
         hal_pwm_lib
         utility_observer_lib
         FreeRTOS::ARM_CM4F
-        # TODO: work out how to compile/link with hard-float without specifying the STM32::F4 package?
         STM32::F4
 )

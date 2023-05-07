@@ -21,6 +21,7 @@ target_link_libraries(
         PRIVATE
         guidance_lib
         kinematics_lib
+        utility_observer_lib
         FreeRTOS::ARM_CM4F
         CMSIS::STM32::F429xx
         )
