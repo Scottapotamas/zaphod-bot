@@ -52,7 +52,6 @@ PRIVATE void tracked_position_event( void );
 PRIVATE void tracked_external_servo_request( void );
 
 PRIVATE void rgb_manual_led_event( void );
-PRIVATE void movement_generate_event( void );
 PRIVATE void lighting_generate_event( void );
 PRIVATE void sync_begin_queues( void );
 PRIVATE void trigger_camera_capture( void );
@@ -83,7 +82,7 @@ LedState_t rgb_led_drive;
 LedState_t rgb_manual_control;
 
 QueueDepths_t queue_data;
-//Movement_t    motion_inbound;
+Movement_t    motion_inbound;
 //Fade_t        light_fade_inbound;
 
 uint32_t camera_shutter_duration_ms = 0;
@@ -158,6 +157,8 @@ eui_interface_t communication_interface[] = {
 
 PRIVATE Observer sensor_observer = { 0 };
 PRIVATE Subject event_subject = { 0 };
+
+PRIVATE MovementRequestFn handle_requested_move;    // Pass UI Movement event requests to this callback for handling
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -266,6 +267,12 @@ PUBLIC Subject * user_interface_get_request_subject( void )
 {
     return &event_subject;
 }
+
+PUBLIC void user_interface_attach_motion_request_cb( MovementRequestFn callback )
+{
+    handle_requested_move = callback;
+}
+
 
 PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData data, void *context)
 {
@@ -392,7 +399,10 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
 
             if( strcmp( (char *)name_rx, MSGID_QUEUE_ADD_MOVE ) == 0 && has_payload )
             {
-                movement_generate_event();
+                if( handle_requested_move )
+                {
+                    handle_requested_move( &motion_inbound );
+                }
             }
 
             if( strcmp( (char *)name_rx, MSGID_QUEUE_ADD_FADE ) == 0 && has_payload )
@@ -742,17 +752,7 @@ PRIVATE void home_mech_cb( void )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void movement_generate_event( void )
-{
-//    MotionPlannerEvent *motion_request = EVENT_NEW( MotionPlannerEvent, MOTION_QUEUE_ADD );
-//
-//    if( motion_request )
-//    {
-//        memcpy( &motion_request->move, &motion_inbound, sizeof( motion_inbound ) );
-//        eventPublish( (StateEvent *)motion_request );
-//        memset( &motion_inbound, 0, sizeof( motion_inbound ) );
-//    }
-}
+
 
 PRIVATE void tracked_position_event( void )
 {

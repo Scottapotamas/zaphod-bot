@@ -27,11 +27,17 @@ PUBLIC void request_handler_init( RequestHandler_t *rh );
 
 /* -------------------------------------------------------------------------- */
 
+typedef void (*MovementRequestFn)(Movement_t *move);
+
+PUBLIC void request_handler_attach_output_callback( MovementRequestFn callback );
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC void request_handler_task( void *arg );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void request_handler_add_movement( RequestHandler_t *rh, const Movement_t *movement );
+PUBLIC void request_handler_add_movement( const Movement_t *movement );
 
 /* -------------------------------------------------------------------------- */
 

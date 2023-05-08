@@ -10,9 +10,12 @@
 #include "semphr.h"
 #include "timers.h"
 
-//#include "request_handler.h"
-//#include "path_interpolator.h"
-//#include "effector.h"
+#include "hal_gpio.h"
+
+#include "user_interface.h"
+#include "request_handler.h"
+#include "path_interpolator.h"
+#include "effector.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -94,6 +97,8 @@ PUBLIC void overwatch_init( void )
     observer_subscribe( &events, FLAG_DISARM );
     observer_subscribe( &events, FLAG_ESTOP );
     observer_subscribe( &events, FLAG_REHOME );
+
+    observer_subscribe( &events, FLAG_EFFECTOR_NEAR_HOME );
 
     observer_subscribe( &events, FLAG_MODE_REQUEST );
 
@@ -252,7 +257,7 @@ PRIVATE void overwatch_mode_ssm( void )
 {
     Modes_t *me = &submode_state;
 
-    // By checking for change requests outside of the state-machine,
+    // By checking for change requests outside the state-machine,
     // this check doesn't need to be repeated in every transition test.
     if( me->requested_mode != me->currentState )
     {
@@ -282,7 +287,7 @@ PRIVATE void overwatch_mode_ssm( void )
         case MODE_CHANGE:
             STATE_ENTRY_ACTION
             // Overwatch manual request generation -> Path interpolator -> Kinematics
-//            path_interpolator_update_output_callback( effector_request_target );
+            path_interpolator_update_output_callback( effector_request_target );
 
             // Ask the mechanism to go home
             // Movement_t homing_move = { 0 };
@@ -302,24 +307,23 @@ PRIVATE void overwatch_mode_ssm( void )
 
             STATE_EXIT_ACTION
 
-//            path_interpolator_update_output_callback( NULL );
+            path_interpolator_update_output_callback( NULL );
             STATE_END
             break;
 
         case MODE_MANUAL:
             STATE_ENTRY_ACTION
             // Telemetry requests -> Path Interpolator -> Kinematics
-//            telemetry_update_movement_request_callback( path_interpolator_add_request );
-//            path_interpolator_update_output_callback( effector_request_target );
-
+            user_interface_attach_motion_request_cb( path_interpolator_add_request );
+            path_interpolator_update_output_callback( effector_request_target );
             STATE_TRANSITION_TEST
 
             STATE_EXIT_ACTION
             // Cleanup interpolator
 
             // Break connections
-//            telemetry_update_movement_request_callback( NULL );
-//            path_interpolator_update_output_callback( NULL );
+            user_interface_attach_motion_request_cb( NULL );
+            path_interpolator_update_output_callback( NULL );
             STATE_END
             break;
 
@@ -357,23 +361,26 @@ PRIVATE void overwatch_mode_ssm( void )
 
         case MODE_EVENT:
             STATE_ENTRY_ACTION
+            hal_gpio_write_pin( _STATUS_2, true );
+
             // Inform the application tasks of their callbacks/queues etc
             // Telemetry requests -> Ordering queue -> Path Interpolator -> Kinematics
-//            telemetry_update_movement_request_callback( request_handler_add_movement );
-//            request_handler_update_output_queue_ref( path_interpolator_add_request );
-//            path_interpolator_update_output_callback( effector_request_target );
+            user_interface_attach_motion_request_cb( request_handler_add_movement );
+            request_handler_attach_output_callback( path_interpolator_add_request );
+            path_interpolator_update_output_callback( effector_request_target );
 
             STATE_TRANSITION_TEST
 
             STATE_EXIT_ACTION
-            // Clear queue
+            // Clear queues
+            hal_gpio_write_pin( _STATUS_2, false );
 
             // Cleanup interpolator state
 
             // Disconnect the subsystems
-//            telemetry_update_movement_request_callback( NULL );
-//            request_handler_update_output_queue_ref( NULL );
-//            path_interpolator_update_output_callback( NULL );
+            user_interface_attach_motion_request_cb( NULL );
+            request_handler_attach_output_callback( NULL );
+            path_interpolator_update_output_callback( NULL );
             STATE_END
             break;
 

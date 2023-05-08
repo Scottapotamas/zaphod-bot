@@ -14,6 +14,11 @@
 #include "user_interface.h"
 #include "overwatch.h"
 
+#include "effector.h"
+#include "servo.h"
+
+#include "subject.h"
+
 /* -------------------------------------------------------------------------- */
 
 const uint8_t priority_lowest = tskIDLE_PRIORITY + 1;
@@ -39,16 +44,34 @@ void app_startup_init( void )
     sensors_init();
     fan_init();
     buzzer_init();
+
     user_interface_init();
+    Subject *ui_request_subject = user_interface_get_request_subject();
 
     effector_init();
 
+    servo_init( _CLEARPATH_1 );
+    servo_init( _CLEARPATH_2 );
+    servo_init( _CLEARPATH_3 );
+
     overwatch_init();
+    Subject *overwatch_commands = overwatch_get_subject();
+
+    // Attach observers to subjects as needed
+    subject_add_observer( ui_request_subject, overwatch_get_observer() );
+
     sensors_add_observer( fan_get_observer() );
     sensors_add_observer( user_interface_get_sensor_observer() );
+    sensors_add_observer( servo_get_observer(_CLEARPATH_1) );
+    sensors_add_observer( servo_get_observer(_CLEARPATH_2) );
+    sensors_add_observer( servo_get_observer(_CLEARPATH_3) );
+
+    subject_add_observer( overwatch_commands, servo_get_observer(_CLEARPATH_1) );
+    subject_add_observer( overwatch_commands, servo_get_observer(_CLEARPATH_2) );
+    subject_add_observer( overwatch_commands, servo_get_observer(_CLEARPATH_3) );
+
 
     // TODO other setup
-    //   Setup servo instances
     //   Setup LED instances
     //   Setup guidance/kinematics instances
 }
@@ -69,10 +92,40 @@ void app_startup_tasks( void )
                  NULL
     );
 
+    xTaskCreate( effector_task,
+                 "effector",
+                 configMINIMAL_STACK_SIZE,
+                 NULL,
+                 priority_normal,
+                 NULL
+    );
+
     // TODO implement tasks for:
     //   Guidance
-    //   Kinematics handling
     //   RGB LED control
+    xTaskCreate( servo_task,
+                 "s1",
+                 configMINIMAL_STACK_SIZE,
+                 servo_get_state_context_for(_CLEARPATH_1),
+                 priority_normal,
+                 NULL
+                 );
+
+    xTaskCreate( servo_task,
+                 "s2",
+                 configMINIMAL_STACK_SIZE,
+                 servo_get_state_context_for(_CLEARPATH_2),
+                 priority_normal,
+                 NULL
+    );
+    xTaskCreate( servo_task,
+                 "s3",
+                 configMINIMAL_STACK_SIZE,
+                 servo_get_state_context_for(_CLEARPATH_3),
+                 priority_normal,
+                 NULL
+    );
+
 
     xTaskCreate( overwatch_task,
                  "overwatch",

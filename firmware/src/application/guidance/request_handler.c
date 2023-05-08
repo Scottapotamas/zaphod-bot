@@ -20,8 +20,8 @@ PRIVATE bool request_handler_emit_next_movement( RequestHandler_t *rh );
 /* -------------------------------------------------------------------------- */
 
 typedef struct {
-    Movement_t movement;
     bool is_used;
+    Movement_t movement;
 } MovementPoolSlot_t;
 
 typedef struct
@@ -31,6 +31,13 @@ typedef struct
 } MovementPool_t;
 
 PRIVATE MovementPool_t pool = { 0 };
+
+// TODO: where should this go? In application scope once the request handler is moved to a utility?
+RequestHandler_t movement_handler;
+MovementRequestFn send_to_output;
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void request_handler_add( RequestHandler_t *rh, const Movement_t *movement );
 
 /* -------------------------------------------------------------------------- */
 
@@ -44,6 +51,13 @@ PUBLIC void request_handler_init( RequestHandler_t *rh )
     vQueueAddToRegistry( rh->input_queue, "rqHin");
     vQueueAddToRegistry( rh->output_queue, "rqHout");
 
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void request_handler_attach_output_callback( MovementRequestFn callback )
+{
+    send_to_output = callback;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -85,12 +99,21 @@ PUBLIC void request_handler_task( void *arg  )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void request_handler_add_movement( RequestHandler_t *rh, const Movement_t *movement )
+
+PUBLIC void request_handler_add_movement( const Movement_t *movement )
+{
+        request_handler_add( &movement_handler, movement );
+}
+
+
+// TODO: make generic on size?
+//       - should check the item being added matches the size accepted by the rh
+PRIVATE void request_handler_add( RequestHandler_t *rh, const Movement_t *movement )
 {
     REQUIRE( rh );
     REQUIRE( movement );
 
-    BaseType_t result = xQueueSendToBack(rh->input_queue, (void *)movement, (TickType_t)0);
+    BaseType_t result = xQueueSendToBack( rh->input_queue, (void *)movement, (TickType_t)0 );
     REQUIRE( result == pdPASS );
 }
 
@@ -180,10 +203,16 @@ PRIVATE bool request_handler_emit_next_movement( RequestHandler_t *rh )
             || movement->sync_offset == 0 )   // first move will have an offset of zero
         {
             // Allowed to briefly block here for the output queue to drain, should have room though...
+            // TODO remove output queue from the output handler
             BaseType_t result = xQueueSendToBack( rh->output_queue,
                                                   (void *)movement,
                                                   2     //portMAX_DELAY
             );
+
+            if( send_to_output )
+            {
+                send_to_output( movement );
+            }
 
             // As emit ran with the assumption that the queue had room,
             // and we allow 2ms queue timeout, failure now means the queue is full/stuck?

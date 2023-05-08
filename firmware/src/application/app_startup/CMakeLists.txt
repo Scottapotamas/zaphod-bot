@@ -14,17 +14,19 @@ target_include_directories (
         ${FREERTOS_CONFIG_H}
 )
 
-#find_package(FreeRTOS COMPONENTS ARM_CM4F REQUIRED)
-#find_package(CMSIS COMPONENTS STM32F4 REQUIRED)
+find_package(FreeRTOS COMPONENTS ARM_CM4F REQUIRED)
 
 target_link_libraries(app_startup_lib
         PRIVATE
+        utility_cartesian_lib
         guidance_lib
+        kinematics_lib
         overwatch_lib
         fan_lib
         buzzer_lib
         telemetry_lib
         sensors_lib
+        servo_lib
         hal_system_lib
         hal_gpio_lib
         FreeRTOS::Timers

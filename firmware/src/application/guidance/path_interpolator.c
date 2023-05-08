@@ -101,6 +101,7 @@ PUBLIC void path_interpolator_add_request( Movement_t *movement_to_process )
 //    path_interpolator_set_next( PATH_INTERPOLATOR_EXPANSION, movement_to_process );
 //}
 
+// TODO use a queue here instead of A/B
 PRIVATE void path_interpolator_set_next( PathInterpolatorInstance_t interpolator,
                                          Movement_t *movement_to_process )
 {
