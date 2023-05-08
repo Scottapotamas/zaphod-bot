@@ -8,21 +8,13 @@
 
 /* -------------------------------------------------------------------------- */
 
-
-typedef enum
-{
-    PATH_INTERPOLATOR_DELTA = 0,
-    PATH_INTERPOLATOR_EXPANSION,
-    NUMBER_PATH_INTERPOLATORS
-} PathInterpolatorInstance_t;
-
 //! The callback function which path_interpolator will call with a request position
 typedef void (*PositionRequestFn)(CartesianPoint_t *position);
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_init( PathInterpolatorInstance_t interpolator );
+path_interpolator_init( void );
 
 /* -------------------------------------------------------------------------- */
 
@@ -32,18 +24,12 @@ path_interpolator_update_output_callback( PositionRequestFn callback );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_process_delta( void );
+path_interpolator_process( void );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_process( PathInterpolatorInstance_t interpolator );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-path_interpolator_set_epoch_reference( PathInterpolatorInstance_t interpolator,
-                                       uint32_t sync_timer );
+path_interpolator_set_epoch_reference( uint32_t sync_timer );
 
 /* -------------------------------------------------------------------------- */
 
@@ -51,28 +37,27 @@ PUBLIC void path_interpolator_add_request( Movement_t *movement_to_process );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC bool
-path_interpolator_is_ready_for_next( PathInterpolatorInstance_t interpolator );
+PUBLIC uint32_t path_interpolator_queue_ready( void );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC float
-path_interpolator_get_progress( PathInterpolatorInstance_t interpolator );
+path_interpolator_get_progress( void );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC bool
-path_interpolator_get_move_done( PathInterpolatorInstance_t interpolator );
+path_interpolator_get_move_done( void );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_start( PathInterpolatorInstance_t interpolator );
+path_interpolator_start( void );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_stop( PathInterpolatorInstance_t interpolator );
+path_interpolator_stop( void );
 
 /* -------------------------------------------------------------------------- */
 
