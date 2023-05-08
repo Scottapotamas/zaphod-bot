@@ -62,14 +62,18 @@ void app_startup_init( void )
 
     sensors_add_observer( fan_get_observer() );
     sensors_add_observer( user_interface_get_sensor_observer() );
-    sensors_add_observer( servo_get_observer(_CLEARPATH_1) );
-    sensors_add_observer( servo_get_observer(_CLEARPATH_2) );
-    sensors_add_observer( servo_get_observer(_CLEARPATH_3) );
 
-    subject_add_observer( overwatch_commands, servo_get_observer(_CLEARPATH_1) );
-    subject_add_observer( overwatch_commands, servo_get_observer(_CLEARPATH_2) );
-    subject_add_observer( overwatch_commands, servo_get_observer(_CLEARPATH_3) );
+    // All servos need inbound sensor data, commands, and output state updates
+    for( ClearpathServoInstance_t instance = 0; instance < _NUMBER_CLEARPATH_SERVOS; instance++ )
+    {
+        sensors_add_observer( servo_get_observer(instance) );
+        subject_add_observer( overwatch_commands, servo_get_observer(instance) );
 
+        // Overwatch, telemetry tasks want status updates from the servos
+        subject_add_observer( servo_get_subject( instance ), overwatch_get_observer() );
+        subject_add_observer( servo_get_subject( instance ), user_interface_get_sensor_observer() );
+
+    }
 
     // TODO other setup
     //   Setup LED instances

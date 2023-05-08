@@ -51,13 +51,14 @@ typedef struct
     bool requested_arming;
 } Overwatch_t;
 
-PRIVATE SemaphoreHandle_t xNewEffectorTargetSemaphore;
-PRIVATE TimerHandle_t xADCTriggerTimer;
+PRIVATE SemaphoreHandle_t xOverwatchNotifySemaphore;
+PRIVATE TimerHandle_t xOverwatchStimulusTimer;
 
 PRIVATE Overwatch_t supervisor_state = { 0 };
 
 PRIVATE Modes_t submode_state = { 0 };
 
+PRIVATE Subject commands = { 0 };
 PRIVATE Observer events = { 0 };
 
 /* -------------------------------------------------------------------------- */
@@ -76,8 +77,8 @@ PUBLIC void overwatch_init( void )
 {
 //    memset( &supervisor_state, 0, sizeof( Overwatch_t ) );
 
-    xNewEffectorTargetSemaphore = xSemaphoreCreateBinary();
-    ENSURE( xNewEffectorTargetSemaphore );
+    xOverwatchNotifySemaphore = xSemaphoreCreateBinary();
+    ENSURE( xOverwatchNotifySemaphore );
 
 
 
@@ -89,6 +90,9 @@ PUBLIC void overwatch_init( void )
     submode_state.previousState = -1;
     submode_state.currentState  = (MODE_UNKNOWN);
     submode_state.nextState     = (MODE_UNKNOWN);
+
+    // Setup command generation subject
+    subject_init( &commands );
 
     // Setup subscriptions to events
     observer_init( &events, overwatch_events_callback, NULL );
@@ -102,6 +106,16 @@ PUBLIC void overwatch_init( void )
 
     observer_subscribe( &events, FLAG_MODE_REQUEST );
 
+
+    observer_subscribe( &events, SERVO_STATE );
+
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC Subject * overwatch_get_subject( void )
+{
+    return &commands;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -119,25 +133,35 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData data, vo
     {
         case FLAG_ARM:
             supervisor_state.requested_arming = true;
-            xSemaphoreGive( xNewEffectorTargetSemaphore );
+            xSemaphoreGive( xOverwatchNotifySemaphore );
             break;
         case FLAG_DISARM:
             supervisor_state.requested_arming = false;
-            xSemaphoreGive( xNewEffectorTargetSemaphore );
+            xSemaphoreGive( xOverwatchNotifySemaphore );
             break;
         case FLAG_ESTOP:
             // TODO: a more severe ESTOP handling approach is needed
             supervisor_state.requested_arming = false;
-            xSemaphoreGive( xNewEffectorTargetSemaphore );
+            xSemaphoreGive( xOverwatchNotifySemaphore );
             break;
 
         case FLAG_REHOME:
             // This is basically a special-case of changing mode to the same target?
+
+            break;
+
+        case SERVO_STATE:
+            // Ok, but which one and what state?
+
+            break;
+
+        case FLAG_EFFECTOR_NEAR_HOME:
+            // TODO: handle this?
             break;
 
         case FLAG_MODE_REQUEST:
             submode_state.requested_mode = data.uint32Value;
-            xSemaphoreGive( xNewEffectorTargetSemaphore );
+            xSemaphoreGive( xOverwatchNotifySemaphore );
             break;
     }
 }
@@ -146,20 +170,20 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData data, vo
 // The task itself sets one-shot or repeating timers as needed.
 PRIVATE void overwatch_timer_callback( TimerHandle_t xTimer )
 {
-    xSemaphoreGive( xNewEffectorTargetSemaphore );
+    xSemaphoreGive( xOverwatchNotifySemaphore );
 }
 
 /*
-xADCTriggerTimer = xTimerCreate("overseer",
+xOverwatchStimulusTimer = xTimerCreate("overseer",
                                  pdMS_TO_TICKS(50),
                                  pdTRUE,
                                  0,
                                  sensors_trigger_adc_callback
 );
-REQUIRE( xADCTriggerTimer );
+REQUIRE( xOverwatchStimulusTimer );
 
-xTimerStart( xADCTriggerTimer, 0 );
-xTimerStop( xADCTriggerTimer, 0 );
+xTimerStart( xOverwatchStimulusTimer, 0 );
+xTimerStop( xOverwatchStimulusTimer, 0 );
 */
 
 PUBLIC void overwatch_task( void* arg )
@@ -170,7 +194,7 @@ PUBLIC void overwatch_task( void* arg )
     {
         // Wait for stimulus
         // TODO: set a maximum time here?
-        if( xSemaphoreTake( xNewEffectorTargetSemaphore, portMAX_DELAY) )
+        if( xSemaphoreTake( xOverwatchNotifySemaphore, portMAX_DELAY) )
         {
             // Run the state machine at least once per trigger, more if needed to handle transitions etc
             do {
@@ -210,6 +234,8 @@ PRIVATE void overwatch_state_ssm( void )
         case OVERWATCH_ARMING:
             STATE_ENTRY_ACTION
             // TODO: Enable all the motors
+            EventData temp = { 0 };
+            subject_notify( &commands, FLAG_SERVO_ENABLE, temp );
             STATE_TRANSITION_TEST
 
             // Are the motors/subsystems ready?
@@ -240,7 +266,9 @@ PRIVATE void overwatch_state_ssm( void )
 
         case OVERWATCH_DISARMING:
             STATE_ENTRY_ACTION
-            // TODO: Disarm all the motors
+            EventData temp = { 0 };
+            subject_notify( &commands, FLAG_SERVO_DISABLE, temp );
+
             STATE_TRANSITION_TEST
 
             // Are the motors/subsystems safe?
