@@ -159,6 +159,7 @@ xTimerStop( xADCTriggerTimer, 0 );
 
 PUBLIC void overwatch_task( void* arg )
 {
+    Overwatch_t *me = &supervisor_state;
 
     for(;;)
     {
@@ -166,10 +167,10 @@ PUBLIC void overwatch_task( void* arg )
         // TODO: set a maximum time here?
         if( xSemaphoreTake( xNewEffectorTargetSemaphore, portMAX_DELAY) )
         {
-            overwatch_state_ssm();
-
-            // TODO re-run the state-machine in a loop based on STATE_IS_TRANSITIONING bool return?
-            // Needed because otherwise it won't have the ability to setup/trigger anything?
+            // Run the state machine at least once per trigger, more if needed to handle transitions etc
+            do {
+                overwatch_state_ssm();
+            } while( STATE_IS_TRANSITIONING );
         }
 
 
@@ -222,7 +223,7 @@ PRIVATE void overwatch_state_ssm( void )
             // Run the sub-state machine which manages connections between tasks
             overwatch_mode_ssm();
 
-            if( me->requested_arming )
+            if( !me->requested_arming )
             {
                 STATE_NEXT( OVERWATCH_DISARMING );
             }
