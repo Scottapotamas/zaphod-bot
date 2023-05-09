@@ -67,7 +67,7 @@ PRIVATE Observer sensor_observer = { 0 };
 /* -------------------------------------------------------------------------- */
 
 PRIVATE uint8_t fan_speed_at_temp( float temperature );
-PRIVATE void fan_sensors_callback(ObserverEvent_t event, EventData data, void *context);
+PRIVATE void fan_sensors_callback(ObserverEvent_t event, EventData eData, void *context);
 
 /* -------------------------------------------------------------------------- */
 
@@ -95,7 +95,7 @@ fan_init( void )
 
 /* -------------------------------------------------------------------------- */
 
-void fan_sensors_callback(ObserverEvent_t event, EventData data, void *context)
+void fan_sensors_callback(ObserverEvent_t event, EventData eData, void *context)
 {
     Fan_t *me = &fan;
     FanInput_t new = { 0 };
@@ -104,13 +104,13 @@ void fan_sensors_callback(ObserverEvent_t event, EventData data, void *context)
     {
         case SENSOR_FAN_SPEED:
             new.type = FAN_SENSOR_SPEED;
-            new.value = data.floatValue;
+            new.value = eData.data.f32;
             xQueueSendToBack( me->xRequestQueue, (void *)&new, 0 );
         break;
 
         case SENSOR_TEMPERATURE_EXTERNAL:
             new.type = FAN_SENSOR_TEMPERATURE;
-            new.value = data.floatValue;
+            new.value = eData.data.f32;
             xQueueSendToBack( me->xRequestQueue, (void *)&new, 0 );
             break;
 

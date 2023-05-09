@@ -23,7 +23,7 @@ user_interface_task( void *arg );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC Observer * user_interface_get_sensor_observer( void );
+PUBLIC Observer * user_interface_get_observer( void );
 
 /* -------------------------------------------------------------------------- */
 
@@ -71,11 +71,6 @@ user_interface_update_task_statistics( void );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-user_interface_set_main_state( uint8_t state );
-
-PUBLIC void
-user_interface_set_control_mode( uint8_t mode );
 
 /* -------------------------------------------------------------------------- */
 

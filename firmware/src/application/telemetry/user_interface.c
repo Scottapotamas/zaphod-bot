@@ -25,7 +25,7 @@
 
 /* ----- Private Function Declaration --------------------------------------- */
 
-PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData data, void *context);
+PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData eData, void *context);
 
 
 PRIVATE void
@@ -155,7 +155,7 @@ eui_interface_t communication_interface[] = {
     [LINK_EXTERNAL] = EUI_INTERFACE_CB( &user_interface_tx_put_external, &user_interface_eui_callback_external ),
 };
 
-PRIVATE Observer sensor_observer = { 0 };
+PRIVATE Observer telemetry_observer = { 0 };
 PRIVATE Subject event_subject = { 0 };
 
 PRIVATE MovementRequestFn handle_requested_move;    // Pass UI Movement event requests to this callback for handling
@@ -182,15 +182,26 @@ user_interface_init( void )
     subject_init(&event_subject);
 
     // Subscribe to the sensor events
-    observer_init( &sensor_observer, user_interface_sensors_callback, NULL );
-    observer_subscribe( &sensor_observer, SENSOR_FAN_SPEED );
-    observer_subscribe( &sensor_observer, SENSOR_VOLTAGE_INPUT );
-    observer_subscribe( &sensor_observer, SENSOR_TEMPERATURE_PCB );
-    observer_subscribe( &sensor_observer, SENSOR_TEMPERATURE_REGULATOR );
-    observer_subscribe( &sensor_observer, SENSOR_TEMPERATURE_EXTERNAL );
-    observer_subscribe( &sensor_observer, SENSOR_TEMPERATURE_MICRO );
+    observer_init( &telemetry_observer, user_interface_sensors_callback, NULL );
 
-    // TODO: telemetry task needs to subscribe to the rest of the sensor values
+    observer_subscribe( &telemetry_observer, SENSOR_FAN_SPEED );
+    observer_subscribe( &telemetry_observer, SENSOR_VOLTAGE_INPUT );
+    observer_subscribe( &telemetry_observer, SENSOR_TEMPERATURE_PCB );
+    observer_subscribe( &telemetry_observer, SENSOR_TEMPERATURE_REGULATOR );
+    observer_subscribe( &telemetry_observer, SENSOR_TEMPERATURE_EXTERNAL );
+    observer_subscribe( &telemetry_observer, SENSOR_TEMPERATURE_MICRO );
+
+    observer_subscribe( &telemetry_observer, SENSOR_SERVO_CURRENT );
+    observer_subscribe( &telemetry_observer, SENSOR_SERVO_HLFB );
+    observer_subscribe( &telemetry_observer, SERVO_STATE );
+    observer_subscribe( &telemetry_observer, SERVO_POSITION );
+    observer_subscribe( &telemetry_observer, SERVO_SPEED );
+
+//    observer_subscribe( &telemetry_observer, SERVO_SPEED );
+
+    observer_subscribe( &telemetry_observer, OVERWATCH_STATE_UPDATE );
+    observer_subscribe( &telemetry_observer, OVERWATCH_MODE_UPDATE );
+
 
     // Set build info to hardcoded values
     memset( &fw_info.build_branch, 0, sizeof( fw_info.build_branch ) );
@@ -258,9 +269,9 @@ user_interface_task( void *arg )
     }
 }
 
-PUBLIC Observer * user_interface_get_sensor_observer( void )
+PUBLIC Observer * user_interface_get_observer( void )
 {
-    return &sensor_observer;
+    return &telemetry_observer;
 }
 
 PUBLIC Subject * user_interface_get_request_subject( void )
@@ -274,35 +285,72 @@ PUBLIC void user_interface_attach_motion_request_cb( MovementRequestFn callback 
 }
 
 
-PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData data, void *context)
+PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData eData, void *context)
 {
     switch( event )
     {
         case SENSOR_FAN_SPEED:
-            fan_stats.speed_rpm = data.floatValue;
+            fan_stats.speed_rpm = eData.data.f32;
             break;
 
         case SENSOR_VOLTAGE_INPUT:
-            system_stats.input_voltage = data.floatValue * 100;
+            system_stats.input_voltage = eData.data.f32 * 100;
             break;
 
         case SENSOR_TEMPERATURE_PCB:
-            system_stats.temp_pcb_ambient = data.floatValue * 100;
+            system_stats.temp_pcb_ambient = eData.data.f32 * 100;
             break;
 
         case SENSOR_TEMPERATURE_REGULATOR:
-            system_stats.temp_pcb_regulator = data.floatValue * 100;
+            system_stats.temp_pcb_regulator = eData.data.f32 * 100;
             break;
 
         case SENSOR_TEMPERATURE_EXTERNAL:
-            system_stats.temp_external_probe = data.floatValue * 100;
+            system_stats.temp_external_probe = eData.data.f32 * 100;
             break;
 
         case SENSOR_TEMPERATURE_MICRO:
-            system_stats.temp_cpu = data.floatValue * 100;
+            system_stats.temp_cpu = eData.data.f32 * 100;
             break;
 
         // TODO: telemetry task needs to handle all other sensor values
+
+        case SENSOR_SERVO_CURRENT:
+            motion_servo[eData.index].power = eData.data.f32;
+
+            break;
+
+        case SENSOR_SERVO_HLFB:
+            motion_servo[eData.index].feedback = eData.data.f32;
+            break;
+
+        case SERVO_STATE:
+            motion_servo[eData.index].state = eData.data.u32;
+
+            if( eData.index != 0 )
+            {
+                asm("NOP");
+            }
+
+            break;
+
+        case SERVO_POSITION:
+            motion_servo[eData.index].target_angle = eData.data.u32;
+            break;
+
+        case OVERWATCH_STATE_UPDATE:
+            supervisor_states.supervisor = eData.data.u32;
+//            eui_send_tracked( MSGID_SUPERVISOR );       // TODO: don't send now, do a debounced send somewhere more automatically?
+            break;
+
+        case OVERWATCH_MODE_UPDATE:
+            supervisor_states.control_mode = eData.data.u32;
+//            eui_send_tracked( MSGID_SUPERVISOR );       // TODO also consider for automatic debounced output
+            break;
+
+//            supervisor_states.motors     = motion_servo[0].enabled || motion_servo[1].enabled || motion_servo[2].enabled;
+
+
 
         default:
             // Why did we recieve a signal that we didn't subscribe to?
@@ -387,13 +435,13 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
             // See if the inbound packet name matches our intended variable
             if( strcmp( (char *)name_rx, MSGID_MODE_REQUEST ) == 0 )
             {
-                EventData modeValue = { .uint32Value = mode_request };
+                EventData modeValue = { .data.u32 = mode_request };
                 subject_notify( &event_subject, FLAG_MODE_REQUEST, modeValue );
             }
 
             if( strcmp( (char *)name_rx, MSGID_DEMO_CONFIGURATION ) == 0 && has_payload )
             {
-                EventData modeValue = { .uint32Value = demo_mode_request };
+                EventData modeValue = { .data.u32 = demo_mode_request };
                 subject_notify( &event_subject, FLAG_MODE_REQUEST, modeValue );
             }
 
@@ -525,21 +573,6 @@ user_interface_set_cpu_clock( uint32_t clock )
 /* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
-
-PUBLIC void
-user_interface_set_main_state( uint8_t state )
-{
-    supervisor_states.supervisor = state;
-    supervisor_states.motors     = motion_servo[0].enabled || motion_servo[1].enabled || motion_servo[2].enabled;
-    eui_send_tracked( MSGID_SUPERVISOR );
-}
-
-PUBLIC void
-user_interface_set_control_mode( uint8_t mode )
-{
-    supervisor_states.control_mode = mode;
-    eui_send_tracked( MSGID_SUPERVISOR );
-}
 
 /* -------------------------------------------------------------------------- */
 

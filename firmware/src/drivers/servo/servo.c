@@ -93,11 +93,6 @@ typedef struct
     HalGpioPortPin_t pin_direction;
     HalGpioPortPin_t pin_step;
     HalGpioPortPin_t pin_oc_fault;
-
-    // Subscribe to these event flags
-    SENSOR_EVENT_FLAG sensor_current;   // Current sense IC
-    SENSOR_EVENT_FLAG sensor_hlfb;      // HLFB (HighLevelFeedBack)
-
 } ServoHardware_t;
 
 typedef struct
@@ -121,6 +116,7 @@ typedef struct
     ServoHardware_t hardware;
     ServoConfiguration_t config;
 
+    ClearpathServoInstance_t identifier;
     bool       enabled;
 
     float      ic_feedback_trim;
@@ -130,7 +126,8 @@ typedef struct
     int32_t    angle_target_steps;
 
     SemaphoreHandle_t xServoUpdateSemaphore;
-    Observer sensor_observer;
+    Observer sensor_observer;   // subscribe to system events etc
+    Subject sensor_subject; // publish to rest of system - events, variables, etc
     float current;
     float hlfb;     // servo feedback includes the ic_feedback_trim value calculated during homing
 
@@ -145,7 +142,7 @@ PRIVATE void servo_load_configuration( ClearpathServoInstance_t servo );
 
 PRIVATE void servo_load_hardware( ClearpathServoInstance_t servo);
 
-PRIVATE void servo_sensors_callback( ObserverEvent_t event, EventData data, void *context );
+PRIVATE void servo_sensors_callback( ObserverEvent_t event, EventData eData, void *context );
 
 PRIVATE bool servo_get_connected_estimate( ClearpathServoInstance_t servo );
 
@@ -171,6 +168,8 @@ servo_init( ClearpathServoInstance_t servo )
     servo_load_configuration( servo );
     servo_load_hardware( servo );
 
+    me->identifier = servo;
+
     // Setup the 'task needs to run' semaphore
     me->xServoUpdateSemaphore = xSemaphoreCreateBinary();
     ENSURE( me->xServoUpdateSemaphore );
@@ -182,10 +181,16 @@ servo_init( ClearpathServoInstance_t servo )
     }
     ENSURE( me->xServoUpdateSemaphore );
 
+    // Setup outbound subject
+    subject_init( &me->sensor_subject );
+
     // Setup sensor event subscriptions
     observer_init( &me->sensor_observer, servo_sensors_callback, &clearpath[servo] );
-    observer_subscribe( &me->sensor_observer, me->hardware.sensor_current );
-    observer_subscribe( &me->sensor_observer, me->hardware.sensor_hlfb );
+    observer_subscribe( &me->sensor_observer, SENSOR_SERVO_CURRENT );
+    observer_subscribe( &me->sensor_observer, SENSOR_SERVO_HLFB );
+
+    observer_subscribe( &me->sensor_observer, OVERWATCH_SERVO_ENABLE );
+    observer_subscribe( &me->sensor_observer, OVERWATCH_SERVO_DISABLE );
 
     // Buffer commanded steps per tick for 50 ticks (50ms) to back velocity estimate
 //    average_short_init( &clearpath[servo].step_statistics, SPEED_ESTIMATOR_SPAN );
@@ -204,9 +209,16 @@ PUBLIC Observer* servo_get_observer( ClearpathServoInstance_t servo )
     return &clearpath[servo].sensor_observer;
 }
 
+PUBLIC Subject * servo_get_subject( ClearpathServoInstance_t servo )
+{
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+    return &clearpath[servo].sensor_subject;
+}
+
+
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void servo_sensors_callback(ObserverEvent_t event, EventData data, void *context)
+PRIVATE void servo_sensors_callback(ObserverEvent_t event, EventData eData, void *context)
 {
     // Gain access to effector data
     // TODO: how long should we wait for the mutex?
@@ -217,21 +229,25 @@ PRIVATE void servo_sensors_callback(ObserverEvent_t event, EventData data, void 
 
         switch( event )
         {
-            case SENSOR_SERVO_1_CURRENT:
-            case SENSOR_SERVO_2_CURRENT:
-            case SENSOR_SERVO_3_CURRENT:
-            case SENSOR_SERVO_4_CURRENT:
-                me->current = data.floatValue;
+            case SENSOR_SERVO_CURRENT:
+                me->current = eData.data.f32;
                 xSemaphoreGive( me->xServoUpdateSemaphore );
                 break;
 
-            case SENSOR_SERVO_1_HLFB:
-            case SENSOR_SERVO_2_HLFB:
-            case SENSOR_SERVO_3_HLFB:
-            case SENSOR_SERVO_4_HLFB:
-                me->hlfb = data.floatValue;
+            case SENSOR_SERVO_HLFB:
+                me->hlfb = eData.data.f32;
                 xSemaphoreGive( me->xServoUpdateSemaphore );
                 // - me->ic_feedback_trim;  // TODO: is 'correcting' the value here the right thing to do?
+                break;
+
+            case OVERWATCH_SERVO_ENABLE:
+                me->enabled = true;
+                xSemaphoreGive( me->xServoUpdateSemaphore );
+                break;
+
+            case OVERWATCH_SERVO_DISABLE:
+                me->enabled = false;
+                xSemaphoreGive( me->xServoUpdateSemaphore );
                 break;
 
             default:
@@ -893,8 +909,6 @@ PRIVATE void servo_load_hardware( ClearpathServoInstance_t servo)
              me->hardware.pin_enable     = _SERVO_1_ENABLE;
              me->hardware.pin_direction  = _SERVO_1_A;
              me->hardware.pin_step       = _SERVO_1_B;
-             me->hardware.sensor_current = SENSOR_SERVO_1_CURRENT;
-             me->hardware.sensor_hlfb    = SENSOR_SERVO_1_HLFB;
              me->hardware.pin_oc_fault   = _SERVO_1_CURRENT_FAULT;
             break;
 
@@ -902,8 +916,6 @@ PRIVATE void servo_load_hardware( ClearpathServoInstance_t servo)
             me->hardware.pin_enable     = _SERVO_2_ENABLE;
             me->hardware.pin_direction  = _SERVO_2_A;
             me->hardware.pin_step       = _SERVO_2_B;
-            me->hardware.sensor_current = SENSOR_SERVO_2_CURRENT;
-            me->hardware.sensor_hlfb    = SENSOR_SERVO_2_HLFB;
             me->hardware.pin_oc_fault   = _SERVO_2_CURRENT_FAULT;
             break;
 
@@ -911,8 +923,6 @@ PRIVATE void servo_load_hardware( ClearpathServoInstance_t servo)
             me->hardware.pin_enable     = _SERVO_3_ENABLE;
             me->hardware.pin_direction  = _SERVO_3_A;
             me->hardware.pin_step       = _SERVO_3_B;
-            me->hardware.sensor_current = SENSOR_SERVO_3_CURRENT;
-            me->hardware.sensor_hlfb    = SENSOR_SERVO_3_HLFB;
             me->hardware.pin_oc_fault   = _SERVO_3_CURRENT_FAULT;
             break;
 
@@ -920,8 +930,6 @@ PRIVATE void servo_load_hardware( ClearpathServoInstance_t servo)
             me->hardware.pin_enable     = _SERVO_4_ENABLE;
             me->hardware.pin_direction  = _SERVO_4_A;
             me->hardware.pin_step       = _SERVO_4_B;
-            me->hardware.sensor_current = SENSOR_SERVO_4_CURRENT;
-            me->hardware.sensor_hlfb    = SENSOR_SERVO_4_HLFB;
             me->hardware.pin_oc_fault   = _SERVO_4_CURRENT_FAULT;
             break;
 

@@ -50,29 +50,29 @@ void app_startup_init( void )
 
     effector_init();
 
-    servo_init( _CLEARPATH_1 );
-    servo_init( _CLEARPATH_2 );
-    servo_init( _CLEARPATH_3 );
-
     overwatch_init();
     Subject *overwatch_commands = overwatch_get_subject();
 
     // Attach observers to subjects as needed
     subject_add_observer( ui_request_subject, overwatch_get_observer() );
-
     sensors_add_observer( fan_get_observer() );
-    sensors_add_observer( user_interface_get_sensor_observer() );
 
-    // All servos need inbound sensor data, commands, and output state updates
-    for( ClearpathServoInstance_t instance = 0; instance < _NUMBER_CLEARPATH_SERVOS; instance++ )
+    // Telemetry task wants to know pretty much everything
+    sensors_add_observer( user_interface_get_observer() );
+    subject_add_observer( overwatch_commands, user_interface_get_observer() );
+
+    // Init all servos, setup inbound sensor data, commands, and output state updates
+    for( ClearpathServoInstance_t instance = _CLEARPATH_1; instance < _NUMBER_CLEARPATH_SERVOS; instance++ )
     {
+        servo_init( instance );
+
         sensors_add_observer( servo_get_observer(instance) );
-        subject_add_observer( overwatch_commands, servo_get_observer(instance) );
 
-        // Overwatch, telemetry tasks want status updates from the servos
+        // Add overwatch and telemetry tasks to servo output subjects
         subject_add_observer( servo_get_subject( instance ), overwatch_get_observer() );
-        subject_add_observer( servo_get_subject( instance ), user_interface_get_sensor_observer() );
+        subject_add_observer( servo_get_subject( instance ), user_interface_get_observer() );
 
+        subject_add_observer( overwatch_commands, servo_get_observer(instance) );
     }
 
     // TODO other setup

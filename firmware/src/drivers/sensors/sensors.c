@@ -32,9 +32,36 @@ PRIVATE void sensors_callback_input_capture( InputCaptureSignal_t flag, uint32_t
 
 /* -------------------------------------------------------------------------- */
 
+typedef enum {
+
+    // ADC backed events
+    // Don't re-order
+    ADC_SERVO_1_CURRENT = 0,
+    ADC_SERVO_2_CURRENT,
+    ADC_SERVO_3_CURRENT,
+    ADC_SERVO_4_CURRENT,
+
+    ADC_VOLTAGE_INPUT,
+    ADC_TEMPERATURE_PCB,
+    ADC_TEMPERATURE_REGULATOR,
+    ADC_TEMPERATURE_EXTERNAL,
+    ADC_TEMPERATURE_MICRO,
+    ADC_VOLTAGE_INTERNAL_REF,
+
+    // Input capture backed events
+    // Don't re-order
+    IC_SERVO_1_HLFB,
+    IC_SERVO_2_HLFB,
+    IC_SERVO_3_HLFB,
+    IC_SERVO_4_HLFB,
+    IC_FAN_SPEED,
+
+    HAL_NUM_FIELDS,  // Only marks end of enum range, shouldn't exceed 64 entries
+} HalInputType_t;
+
 typedef struct
 {
-    SENSOR_EVENT_FLAG type;
+    HalInputType_t type;
     uint32_t value;
 } HalInput_t;
 
@@ -46,7 +73,7 @@ typedef struct {
     sensor_conversion_fn converter;
 } FilteredData_t;
 
-FilteredData_t data[SENSOR_NUM_FIELDS] = { 0 };
+FilteredData_t data[HAL_NUM_FIELDS] = { 0 };
 
 QueueHandle_t xHalQueue;
 TimerHandle_t xADCTriggerTimer;
@@ -61,35 +88,35 @@ PUBLIC void sensors_init( void )
     subject_init(&subject);
 
     // Set up a queue to accept inbound readings from HAL
-    xHalQueue = xQueueCreate( 50, sizeof(HalInput_t) );
+    xHalQueue = xQueueCreate( 20, sizeof(HalInput_t) );
     REQUIRE( xHalQueue );
     vQueueAddToRegistry( xHalQueue, "sensors");  // Debug view annotation
 
     // Prepare our averaging structures
-    for( uint32_t i = 0; i < SENSOR_NUM_FIELDS; i++ )
+    for( uint32_t i = 0; i < HAL_NUM_FIELDS; i++ )
     {
         // TODO cleanup the timespan to run averaging on
-        average_short_init( &data[i].stats, 32 );
+        average_short_init( &data[i].stats, 8 );
     }
 
     // Provide ADC counts -> floating SI units converter functions for each signal
-    data[SENSOR_SERVO_1_CURRENT].converter = hal_current_A;
-    data[SENSOR_SERVO_2_CURRENT].converter = hal_current_A;
-    data[SENSOR_SERVO_4_CURRENT].converter = hal_current_A;
-    data[SENSOR_VOLTAGE_INPUT].converter = hal_current_A;
+    data[ADC_SERVO_1_CURRENT].converter = hal_current_A;
+    data[ADC_SERVO_2_CURRENT].converter = hal_current_A;
+    data[ADC_SERVO_4_CURRENT].converter = hal_current_A;
+    data[ADC_VOLTAGE_INPUT].converter = hal_current_A;
 
-    data[SENSOR_VOLTAGE_INPUT].converter = hal_voltage_V;
+    data[ADC_VOLTAGE_INPUT].converter = hal_voltage_V;
 
-    data[SENSOR_TEMPERATURE_PCB].converter = hal_temperature_pcb_degrees_C;
-    data[SENSOR_TEMPERATURE_REGULATOR].converter = hal_temperature_pcb_degrees_C;
-    data[SENSOR_TEMPERATURE_EXTERNAL].converter = hal_temperature_ext_degrees_C;
-    data[SENSOR_TEMPERATURE_MICRO].converter = hal_temperature_micro_degrees_C;
+    data[ADC_TEMPERATURE_PCB].converter = hal_temperature_pcb_degrees_C;
+    data[ADC_TEMPERATURE_REGULATOR].converter = hal_temperature_pcb_degrees_C;
+    data[ADC_TEMPERATURE_EXTERNAL].converter = hal_temperature_ext_degrees_C;
+    data[ADC_TEMPERATURE_MICRO].converter = hal_temperature_micro_degrees_C;
 
-    data[SENSOR_SERVO_1_HLFB].converter = hal_servo_hlfb;
-    data[SENSOR_SERVO_2_HLFB].converter = hal_servo_hlfb;
-    data[SENSOR_SERVO_3_HLFB].converter = hal_servo_hlfb;
-    data[SENSOR_SERVO_4_HLFB].converter = hal_servo_hlfb;
-    data[SENSOR_FAN_SPEED].converter = hal_fan_tacho_rpm;
+    data[IC_SERVO_1_HLFB].converter = hal_servo_hlfb;
+    data[IC_SERVO_2_HLFB].converter = hal_servo_hlfb;
+    data[IC_SERVO_3_HLFB].converter = hal_servo_hlfb;
+    data[IC_SERVO_4_HLFB].converter = hal_servo_hlfb;
+    data[IC_FAN_SPEED].converter = hal_fan_tacho_rpm;
 
 
     // Configure the hardware peripherals
@@ -119,25 +146,51 @@ PUBLIC void sensors_task( void *arg )
         HalInput_t new_data = { 0 };
         xQueueReceive( xHalQueue, &new_data, portMAX_DELAY );
 
-        REQUIRE( new_data.type < SENSOR_NUM_FIELDS );
+        REQUIRE( new_data.type < HAL_NUM_FIELDS );
 
         // Maintain stats on the data
         uint16_t average = average_short_update( &data[new_data.type].stats, new_data.value );
 
         // Prep notification structure, perform unit conversions
-        EventData event;
+        ObserverEvent_t topic;  // event flag to publish
+        EventData signal;       // event structure being sent
+
 
         if( data[new_data.type].converter )
         {
-            event.floatValue = data[new_data.type].converter(average);
+            signal.data.f32 = data[new_data.type].converter(average);
         }
         else
         {
-            event.uint32Value = average;
+            signal.data.u32 = average;
+        }
+
+        // Handle 'instanced' events
+        topic = new_data.type;
+        if( new_data.type > ADC_SERVO_4_CURRENT )
+        {
+            topic -= ADC_SERVO_4_CURRENT;
+        }
+
+        if( new_data.type > IC_SERVO_4_HLFB )
+        {
+            topic -= (IC_SERVO_4_HLFB - IC_SERVO_1_HLFB );
+        }
+
+        if( new_data.type >= ADC_SERVO_1_CURRENT && new_data.type <= ADC_SERVO_4_CURRENT )
+        {
+            topic = SENSOR_SERVO_CURRENT;
+            signal.index = new_data.type - ADC_SERVO_1_CURRENT;
+        }
+
+        if( new_data.type >= IC_SERVO_1_HLFB && new_data.type <= IC_SERVO_4_HLFB )
+        {
+            topic = SENSOR_SERVO_HLFB;
+            signal.index = new_data.type - IC_SERVO_1_HLFB;
         }
 
         // Notify upstream observers
-        subject_notify(&subject, new_data.type, event );
+        subject_notify(&subject, topic, signal );
 
     }
 
@@ -169,7 +222,7 @@ PRIVATE void sensors_trigger_adc_callback( TimerHandle_t xTimer )
 PRIVATE void sensors_callback_adc( HalAdcInput_t flag, uint16_t value )
 {
     HalInput_t new = { 0 };
-    new.type = (SENSOR_EVENT_FLAG)flag;
+    new.type = (HalInputType_t)flag;
     new.value = value;
 
     xQueueSendToBackFromISR( xHalQueue, (void *)&new, 0 );
@@ -181,7 +234,7 @@ PRIVATE void sensors_callback_adc( HalAdcInput_t flag, uint16_t value )
 PRIVATE void sensors_callback_input_capture( InputCaptureSignal_t flag, uint32_t value )
 {
     HalInput_t new = { 0 };
-    new.type = (SENSOR_EVENT_FLAG)flag + SENSOR_SERVO_1_HLFB;    // 'translate' ic enum values into the sensor enum range
+    new.type = (HalInputType_t)flag + IC_SERVO_1_HLFB;    // 'translate' ic enum values into the sensor enum range
     new.value = value;
     xQueueSendToBackFromISR( xHalQueue, (void *)&new, 0 );
 }

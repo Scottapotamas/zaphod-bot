@@ -63,7 +63,7 @@ PRIVATE Observer events = { 0 };
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData data, void *context);
+PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, void *context);
 
 PRIVATE void overwatch_timer_callback( TimerHandle_t xTimer );
 
@@ -127,7 +127,7 @@ PUBLIC Observer * overwatch_get_observer( void )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData data, void *context)
+PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, void *context)
 {
     switch( event )
     {
@@ -150,17 +150,32 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData data, vo
 
             break;
 
-        case SERVO_STATE:
-            // Ok, but which one and what state?
+        case SERVO_STATE:   // One of the servos changed state...
+            supervisor_state.servo_active[eData.index] = eData.data.u32;    // naive local storage of active/not active states per servo
 
+            if( eData.index > 0 )
+            {
+                asm("NOP");
+            }
+
+
+            xSemaphoreGive( xOverwatchNotifySemaphore );
             break;
 
         case FLAG_EFFECTOR_NEAR_HOME:
             // TODO: handle this?
             break;
 
-        case FLAG_MODE_REQUEST:
-            submode_state.requested_mode = data.uint32Value;
+        case FLAG_MODE_REQUEST:     // UI requested a mode change
+            submode_state.requested_mode = eData.data.u32;
+
+            // Handle the request immediately if we aren't running the mode state-machine
+            if( supervisor_state.currentState != OVERWATCH_ARMED )
+            {
+                submode_state.currentState = submode_state.requested_mode;
+                overwatch_publish_mode_state();
+            }
+
             xSemaphoreGive( xOverwatchNotifySemaphore );
             break;
     }

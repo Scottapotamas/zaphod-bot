@@ -178,22 +178,19 @@ export type MotionState = {
 }
 
 export enum SUPERVISOR_STATES {
-  NONE,
-  IDLE,
+  DISARMED,
   ARMING,
-  ERROR,
   ARMED,
   DISARMING,
-  NULL,
 }
 
 export enum CONTROL_MODES {
   NONE = 0,
+  CHANGING,
   MANUAL,
-  EVENT,
   TRACK,
   DEMO,
-  CHANGING,
+  EVENT,
 }
 
 export type SupervisorState = {

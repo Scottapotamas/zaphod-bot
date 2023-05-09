@@ -5,6 +5,7 @@
 
 #include "global.h"
 #include "observer.h"
+#include "subject.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -29,6 +30,8 @@ PUBLIC void* servo_get_state_context_for( ClearpathServoInstance_t servo );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC Observer * servo_get_observer( ClearpathServoInstance_t servo );
+
+PUBLIC Subject * servo_get_subject( ClearpathServoInstance_t servo );
 
 /* -------------------------------------------------------------------------- */
 
