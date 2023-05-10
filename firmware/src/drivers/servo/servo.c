@@ -46,7 +46,7 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 #define SERVO_HOMING_FOLDBACK_CHECK_END_MS      (500U)    // ms after peak to check foldback is still ok
 #define SERVO_HOMING_FOLDBACK_TORQUE_MIN        (4U)      // % torque min expected during foldback
 #define SERVO_HOMING_FOLDBACK_TORQUE_MAX        (6U)      // % torque max expected during foldback
-#define SERVO_HOMING_SIMILARITY_PERCENT         (1U)      // % torque error allowed during stabilisation period
+#define SERVO_HOMING_SIMILARITY_PERCENT         (2U)      // % torque error allowed during stabilisation period
 #define SERVO_HOMING_SIMILARITY_MS              (200U)    // time the torque needs to be stable before considering homing move complete
 #define SERVO_HOMING_COMPLETE_MAX_MS            (500U)
 #define SERVO_HOMING_MAX_MS                     (9000U)
@@ -214,7 +214,6 @@ PUBLIC Subject * servo_get_subject( ClearpathServoInstance_t servo )
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     return &clearpath[servo].sensor_subject;
 }
-
 
 /* -------------------------------------------------------------------------- */
 
@@ -677,7 +676,6 @@ PUBLIC void servo_task( void* arg )
                             if( servo_feedback > ( -1.0f * SERVO_HOMING_FOLDBACK_TORQUE_MIN )
                                 && servo_feedback < ( -1.0f * SERVO_HOMING_FOLDBACK_TORQUE_MAX ) )
                             {
-
                                 STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
                             }
 
@@ -800,6 +798,14 @@ PUBLIC void servo_task( void* arg )
 
                         STATE_END
                         break;
+                }
+
+                if( STATE_IS_TRANSITIONING )
+                {
+                    EventData state_update = { 0 };
+                    state_update.index = me->identifier;
+                    state_update.data.u32 = me->nextState;
+                    subject_notify( &me->sensor_subject, SERVO_STATE, state_update );
                 }
 
                 //    user_interface_motor_state( servo, me->currentState );

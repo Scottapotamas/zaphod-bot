@@ -39,7 +39,7 @@ typedef enum
     OVERWATCH_ARMING,
     OVERWATCH_ARMED,
     OVERWATCH_DISARMING,
-
+    // TODO ESTOP probably sits here as well?
 } OverwatchState_t;
 
 typedef struct
@@ -49,6 +49,10 @@ typedef struct
     OverwatchState_t nextState;
 
     bool requested_arming;
+
+    bool servo_active[4];   // keep track of servo active/disarmed
+    // TODO: this is actually disarmed/armed - there's no homing/error recovery consideration right now
+
 } Overwatch_t;
 
 PRIVATE SemaphoreHandle_t xOverwatchNotifySemaphore;
@@ -70,6 +74,10 @@ PRIVATE void overwatch_timer_callback( TimerHandle_t xTimer );
 PRIVATE void overwatch_state_ssm( void );
 
 PRIVATE void overwatch_mode_ssm( void );
+
+PRIVATE void overwatch_publish_main_state( void );
+
+PRIVATE void overwatch_publish_mode_state( void );
 
 /* -------------------------------------------------------------------------- */
 
@@ -97,17 +105,17 @@ PUBLIC void overwatch_init( void )
     // Setup subscriptions to events
     observer_init( &events, overwatch_events_callback, NULL );
 
+    // User requests
     observer_subscribe( &events, FLAG_ARM );
     observer_subscribe( &events, FLAG_DISARM );
     observer_subscribe( &events, FLAG_ESTOP );
     observer_subscribe( &events, FLAG_REHOME );
-
-    observer_subscribe( &events, FLAG_EFFECTOR_NEAR_HOME );
-
     observer_subscribe( &events, FLAG_MODE_REQUEST );
+    observer_subscribe( &events, FLAG_SYNC_EPOCH );
 
-
+    // Subsystem state updates
     observer_subscribe( &events, SERVO_STATE );
+    observer_subscribe( &events, FLAG_EFFECTOR_NEAR_HOME );
 
 }
 
@@ -151,14 +159,8 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, v
             break;
 
         case SERVO_STATE:   // One of the servos changed state...
-            supervisor_state.servo_active[eData.index] = eData.data.u32;    // naive local storage of active/not active states per servo
-
-            if( eData.index > 0 )
-            {
-                asm("NOP");
-            }
-
-
+            // TODO don't use hardcoded SERVO_STATE_ACTIVE value of 7 in state check
+            supervisor_state.servo_active[eData.index] = ( eData.data.u32 == 7);
             xSemaphoreGive( xOverwatchNotifySemaphore );
             break;
 
@@ -178,6 +180,10 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, v
 
             xSemaphoreGive( xOverwatchNotifySemaphore );
             break;
+
+        default:
+            ASSERT(false);
+            break;
     }
 }
 
@@ -185,21 +191,14 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, v
 // The task itself sets one-shot or repeating timers as needed.
 PRIVATE void overwatch_timer_callback( TimerHandle_t xTimer )
 {
+    Overwatch_t *me = &supervisor_state;
+
+    // TODO is there a better ESTOP option?
+    me->requested_arming = false;
+    STATE_NEXT( OVERWATCH_DISARMING);
+
     xSemaphoreGive( xOverwatchNotifySemaphore );
 }
-
-/*
-xOverwatchStimulusTimer = xTimerCreate("overseer",
-                                 pdMS_TO_TICKS(50),
-                                 pdTRUE,
-                                 0,
-                                 sensors_trigger_adc_callback
-);
-REQUIRE( xOverwatchStimulusTimer );
-
-xTimerStart( xOverwatchStimulusTimer, 0 );
-xTimerStop( xOverwatchStimulusTimer, 0 );
-*/
 
 PUBLIC void overwatch_task( void* arg )
 {
@@ -250,13 +249,30 @@ PRIVATE void overwatch_state_ssm( void )
             STATE_ENTRY_ACTION
             // TODO: Enable all the motors
             EventData temp = { 0 };
-            subject_notify( &commands, FLAG_SERVO_ENABLE, temp );
+            subject_notify( &commands, OVERWATCH_SERVO_ENABLE, temp );
+
+            // A pending eSTOP event acts as a timeout
+            xOverwatchStimulusTimer = xTimerCreate("overseer",
+                                                    pdMS_TO_TICKS(5000),
+                                                    pdFALSE,
+                                                    0,
+                                                    overwatch_timer_callback
+            );
+            REQUIRE( xOverwatchStimulusTimer );
+            xTimerStart( xOverwatchStimulusTimer, 0 );
+
             STATE_TRANSITION_TEST
 
             // Are the motors/subsystems ready?
-            STATE_NEXT( OVERWATCH_ARMED );
+            // TODO consider how to optionally handle the 4-th armed servo?
+            if( me->servo_active[0] && me->servo_active[1] && me->servo_active[2]  )
+            {
+                effector_set_home();
+                STATE_NEXT( OVERWATCH_ARMED );
+            }
 
             STATE_EXIT_ACTION
+            xTimerStop( xOverwatchStimulusTimer, 0 );
 
             STATE_END
             break;
@@ -276,24 +292,33 @@ PRIVATE void overwatch_state_ssm( void )
 
             STATE_EXIT_ACTION
             // TODO: Tell the sub-mode system to cleanup?
+            // Cleanup the mode management SM
             STATE_END
             break;
 
         case OVERWATCH_DISARMING:
             STATE_ENTRY_ACTION
             EventData temp = { 0 };
-            subject_notify( &commands, FLAG_SERVO_DISABLE, temp );
+            subject_notify( &commands, OVERWATCH_SERVO_DISABLE, temp );
 
             STATE_TRANSITION_TEST
-
             // Are the motors/subsystems safe?
-            STATE_NEXT( OVERWATCH_DISARMED );
-
+            // TODO consider how to optionally handle the 4-th armed servo?
+            if( !me->servo_active[0] && !me->servo_active[1] && !me->servo_active[2]  )
+            {
+                effector_set_home();
+                STATE_NEXT( OVERWATCH_DISARMED );
+            }
             STATE_EXIT_ACTION
 
             STATE_END
             break;
     }   // end state machine
+
+    if( !STATE_IS_TRANSITIONING )
+    {
+        overwatch_publish_main_state();
+    }
 }
 
 PRIVATE void overwatch_mode_ssm( void )
@@ -306,6 +331,9 @@ PRIVATE void overwatch_mode_ssm( void )
     {
         STATE_NEXT( MODE_CHANGE );
     }
+
+    do {
+
 
     // TODO: Control state edge cases to handle
     //       - When disarmed, changing requested state should let us startup straight into the one we wanted?
@@ -429,10 +457,28 @@ PRIVATE void overwatch_mode_ssm( void )
 
     }   // end state machine
 
+    } while( STATE_IS_TRANSITIONING );
 
-
+    if( !STATE_IS_TRANSITIONING )
+    {
+        overwatch_publish_mode_state();
+    }
 }
 
+/* -------------------------------------------------------------------------- */
 
+PRIVATE void overwatch_publish_main_state( void )
+{
+    EventData sm_current = { .data.u32 = supervisor_state.currentState };
+    subject_notify( &commands, OVERWATCH_STATE_UPDATE, sm_current );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void overwatch_publish_mode_state( void )
+{
+    EventData mode_current = { .data.u32 = submode_state.currentState };
+    subject_notify( &commands, OVERWATCH_MODE_UPDATE, mode_current );
+}
 
 /* -------------------------------------------------------------------------- */

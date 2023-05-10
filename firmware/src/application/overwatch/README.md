@@ -26,14 +26,15 @@ What happens when we're in either of the main states?
 # Operational States
 
 Several user-selectable modes of operation are available while armed:
+
 - MANUAL - one-off user jog commands and manual control of effector LED colour,
 - TRACK - end effector tries to chase a target position,
 - DEMO - generates long-running movement sequences that 'look cool',
 - EVENT - user provided movement sequences
 
 In the same manner as the top level state machine, attempting to enter any of the operation sub-modes requires a transition process.
-Start by storing the 'requested mode', run transition state:
-- 
+Start by storing the 'requested mode', run a transition state:
+
 - Cleanup any queues/subscriptions/timers/etc,
 - Home the end effector,
 - Manage the new queue connections/subscriptions needed for the new mode,
