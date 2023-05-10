@@ -116,7 +116,7 @@ eui_message_t ui_variables[] = {
     EUI_FUNC( MSGID_QUEUE_CLEAR, clear_all_queue ),
     EUI_FUNC( MSGID_QUEUE_SYNC, sync_begin_queues ),
 //    EUI_CUSTOM( MSGID_QUEUE_ADD_FADE, light_fade_inbound ),
-//    EUI_CUSTOM( MSGID_QUEUE_ADD_MOVE, motion_inbound ),
+    EUI_CUSTOM( MSGID_QUEUE_ADD_MOVE, motion_inbound ),
 
     // Event trigger callbacks
     EUI_FUNC( MSGID_EMERGENCY_STOP, emergency_stop_cb ),

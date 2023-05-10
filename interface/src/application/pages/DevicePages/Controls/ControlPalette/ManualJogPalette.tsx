@@ -37,8 +37,9 @@ const JogPalette = (props: JogPaletteProps) => {
                 intent={Intent.DANGER}
                 writer={state => {
                   state[MSGID.QUEUE_ADD_MOVE] = {
-                    type: 0,
-                    reference: 1,
+                    id: 0,
+                    type: MovementMoveType.POINT_TRANSIT,
+                    reference: MovementMoveReference.RELATIVE,
                     sync_offset: 0,
                     duration: props.time,
                     points: [[props.distance, 0, 0]],
@@ -55,8 +56,9 @@ const JogPalette = (props: JogPaletteProps) => {
                 intent={Intent.SUCCESS}
                 writer={state => {
                   state[MSGID.QUEUE_ADD_MOVE] = {
-                    type: 0,
-                    reference: 1,
+                    id: 0,
+                    type: MovementMoveType.POINT_TRANSIT,
+                    reference: MovementMoveReference.RELATIVE,
                     sync_offset: 0,
                     duration: props.time,
                     points: [[0, props.distance, 0]],
@@ -73,8 +75,9 @@ const JogPalette = (props: JogPaletteProps) => {
                 intent={Intent.DANGER}
                 writer={state => {
                   state[MSGID.QUEUE_ADD_MOVE] = {
-                    type: 0,
-                    reference: 1,
+                    id: 0,
+                    type: MovementMoveType.POINT_TRANSIT,
+                    reference: MovementMoveReference.RELATIVE,
                     sync_offset: 0,
                     duration: props.time,
                     points: [[-props.distance, 0, 0]],
@@ -91,8 +94,9 @@ const JogPalette = (props: JogPaletteProps) => {
                 intent={Intent.SUCCESS}
                 writer={state => {
                   state[MSGID.QUEUE_ADD_MOVE] = {
-                    type: 0,
-                    reference: 1,
+                    id: 0,
+                    type: MovementMoveType.POINT_TRANSIT,
+                    reference: MovementMoveReference.RELATIVE,
                     sync_offset: 0,
                     duration: props.time,
                     points: [[0, -props.distance, 0]],
@@ -110,8 +114,9 @@ const JogPalette = (props: JogPaletteProps) => {
                 intent={Intent.PRIMARY}
                 writer={state => {
                   state[MSGID.QUEUE_ADD_MOVE] = {
-                    type: 0,
-                    reference: 1,
+                    id: 0,
+                    type: MovementMoveType.POINT_TRANSIT,
+                    reference: MovementMoveReference.RELATIVE,
                     sync_offset: 0,
                     duration: props.time,
                     points: [[0, 0, props.distance]],
@@ -129,8 +134,9 @@ const JogPalette = (props: JogPaletteProps) => {
                 intent={Intent.PRIMARY}
                 writer={state => {
                   state[MSGID.QUEUE_ADD_MOVE] = {
-                    type: 0,
-                    reference: 1,
+                    id: 0,
+                    type: MovementMoveType.POINT_TRANSIT,
+                    reference: MovementMoveReference.RELATIVE,
                     sync_offset: 0,
                     duration: props.time,
                     points: [[0, 0, -props.distance]],

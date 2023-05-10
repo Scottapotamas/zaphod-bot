@@ -168,6 +168,10 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, v
             // TODO: handle this?
             break;
 
+        case FLAG_SYNC_EPOCH:
+            // TODO: handle this for manual, event and demo driven modes?
+            break;
+
         case FLAG_MODE_REQUEST:     // UI requested a mode change
             submode_state.requested_mode = eData.data.u32;
 

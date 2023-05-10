@@ -14,6 +14,7 @@
 #include "user_interface.h"
 #include "overwatch.h"
 
+#include "path_interpolator.h"
 #include "effector.h"
 #include "servo.h"
 
@@ -44,6 +45,8 @@ void app_startup_init( void )
     sensors_init();
     fan_init();
     buzzer_init();
+
+    path_interpolator_init();
 
     user_interface_init();
     Subject *ui_request_subject = user_interface_get_request_subject();
@@ -98,6 +101,14 @@ void app_startup_tasks( void )
 
     xTaskCreate( effector_task,
                  "effector",
+                 configMINIMAL_STACK_SIZE,
+                 NULL,
+                 priority_normal,
+                 NULL
+    );
+
+    xTaskCreate( path_interpolator_task,
+                 "pathing",
                  configMINIMAL_STACK_SIZE,
                  NULL,
                  priority_normal,

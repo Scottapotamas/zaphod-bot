@@ -176,14 +176,20 @@ path_interpolator_stop( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_task( void )
+path_interpolator_task( void* arg )
 {
     MotionPlanner_t *me = &planner;
 
     for(;;)
     {
-    // Fetch the next pending move off the queue
-    xQueueReceive( me->xRequestQueue, &me->current_move, portMAX_DELAY);
+        // Fetch the next pending move off the queue
+        BaseType_t result = xQueueReceive( me->xRequestQueue, &me->current_move, portMAX_DELAY);
+
+        if( result )
+        {
+            // Wait for a sync event
+
+
 
 
             // Calculate the time since the 'epoch' event
@@ -243,6 +249,9 @@ path_interpolator_task( void )
                     // Allow it to go back and pick another move off the queue
                 }
             }
+
+
+        }   // move from a queue
 
     }   // end infinite task loop
 }
