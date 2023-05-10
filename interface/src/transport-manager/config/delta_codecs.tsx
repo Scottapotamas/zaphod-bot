@@ -349,9 +349,9 @@ export class InboundMotionCodec extends Codec {
     let meta = reader.readUInt16LE()
 
     let move_identifier = ( meta & 0x01FF )   // 9 bits
-    let reference = ( meta & 0x0200 )         // 1 bit
-    let type = ( meta & 0x1C00 )              // 3 bits
-    let num_points = ( meta & 0xE000 )        // 3 bits
+    let reference = ( (meta >> 9) & 0x01 )    // 1 bit
+    let type = ( (meta >> 10) & 0x07 )        // 3 bits
+    let num_points = ( (meta >> 13) & 0x07 )        // 3 bits
 
     let duration = reader.readUInt16LE()
     let sync_offset = reader.readUInt32LE()
