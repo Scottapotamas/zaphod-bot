@@ -63,6 +63,7 @@ typedef struct
 {
     HalInputType_t type;
     uint32_t value;
+    uint32_t timestamp;
 } HalInput_t;
 
 typedef float (*sensor_conversion_fn)(uint32_t adc);
@@ -155,6 +156,7 @@ PUBLIC void sensors_task( void *arg )
         ObserverEvent_t topic;  // event flag to publish
         EventData signal;       // event structure being sent
 
+        signal.timestamp = new_data.timestamp;
 
         if( data[new_data.type].converter )
         {
@@ -224,7 +226,7 @@ PRIVATE void sensors_callback_adc( HalAdcInput_t flag, uint16_t value )
     HalInput_t new = { 0 };
     new.type = (HalInputType_t)flag;
     new.value = value;
-
+    new.timestamp = xTaskGetTickCount();
     xQueueSendToBackFromISR( xHalQueue, (void *)&new, 0 );
 }
 
@@ -236,6 +238,7 @@ PRIVATE void sensors_callback_input_capture( InputCaptureSignal_t flag, uint32_t
     HalInput_t new = { 0 };
     new.type = (HalInputType_t)flag + IC_SERVO_1_HLFB;    // 'translate' ic enum values into the sensor enum range
     new.value = value;
+    new.timestamp = xTaskGetTickCount();
     xQueueSendToBackFromISR( xHalQueue, (void *)&new, 0 );
 }
 

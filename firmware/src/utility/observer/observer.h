@@ -7,25 +7,27 @@
 
 /* -------------------------------------------------------------------------- */
 
-#define OBSERVER_MAX_EVENT_COUNT 32
+#define OBSERVER_MAX_EVENT_COUNT 64
 
 /* -------------------------------------------------------------------------- */
 
-//typedef enum
-//{
-//    SENSOR_EVENT_A = 0,
-//    SENSOR_EVENT_B,
-//
-//    MAX_EVENT_COUNT = OBSERVER_MAX_EVENT_COUNT // MUST NOT EXCEED 32 EVENTS
-//} EventFlag;
-
 typedef uint8_t ObserverEvent_t;
 
-typedef union
+typedef struct
 {
-    float floatValue;
-    uint32_t uint32Value;
-    // Add more data types here if needed
+    uint8_t type;       // describe the data being represented in the data union
+    uint8_t index;      // helps distinguish different instances firing this event
+    uint8_t spare;
+    uint8_t spare2;
+    uint32_t timestamp; // data timestamp TODO: should the timestamp be done at event level or data level?
+
+    // Payload data 4-bytes, ergonomic access for common use-cases via union
+    // TODO: consider a macro that grabs the right union based on the type value?
+    union {
+        float f32;
+        uint32_t u32;
+        int32_t i32;
+    } data;
 } EventData;
 
 typedef void (*EventCallbackFn)(ObserverEvent_t event, EventData data, void *context);
@@ -34,7 +36,7 @@ typedef struct
 {
     EventCallbackFn callback;
     void *context;
-    uint64_t subscribed_events;  // supports up to 32 unique events, one per bit
+    uint64_t subscribed_events;  // supports up to 64 unique events, one per bit
 } Observer;
 
 /* -------------------------------------------------------------------------- */
