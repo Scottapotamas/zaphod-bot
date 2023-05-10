@@ -321,7 +321,7 @@ PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData eD
             break;
 
         case SENSOR_SERVO_HLFB:
-            motion_servo[eData.index].feedback = eData.data.f32;
+            motion_servo[eData.index].feedback = eData.data.f32 * 10.0f;
             break;
 
         case SERVO_STATE:
