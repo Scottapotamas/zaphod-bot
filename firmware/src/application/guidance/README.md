@@ -10,7 +10,7 @@ This allows micron resolution positioning to +-2147 meters for reference, for co
 
 Movement requests can originate from several different sources:
 
-- supervisor task(s) may request the effector to move home,
+- supervisor task(s) may request the effector to move somewhere/home,
 - user-interface requested moves when the user manually jogs, or from a planned sequence of moves, 
 - generated moves as part of the demonstration mode(s).
 
@@ -22,11 +22,14 @@ Therefore, the move request pipeline:
 - Provides an inbound request queue,
 - Pending moves are then copied into a reasonably large pool,
 - In the background, or as needed, search the pool for the next move,
-- Load that movement request into the path interpolator module for execution 'very soon'
+- Pass that movement request to the path interpolator module for execution 'very soon'.
 
 This behaviour is implemented by `request_handler`.
 
 # Executing Motion Requests
+
+The path interpolator maintains a (small) inbound move queue and waits for movements to be added, 
+then it runs through a sequence of processes to execute the move.
 
 ## Pre-move processing
 
@@ -40,12 +43,11 @@ Before executing a move, there are a series of transforms and checks applied:
 
 For a given movement request, we need to calculate the desired effector position over the move's duration.
 
-- Two 'movement' slots are provided (tick-tock buffer),
 - Wait until the move is meant to start,
 - Calculate our 'current completion percentage' from the start timestamp and the current "elapsed" time,
 - Find the desired position that matches the percentage completion of the move (interpolate position by time percentage)
 - Send the desired position out for execution,
-- Cleanup and select the waiting movement in the other slot.
+- Cleanup and wait for a new movement.
 
 This functionality is provided by `path_interpolator`.
 

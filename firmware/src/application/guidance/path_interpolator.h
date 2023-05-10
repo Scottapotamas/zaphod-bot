@@ -24,7 +24,7 @@ path_interpolator_update_output_callback( PositionRequestFn callback );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_process( void );
+path_interpolator_task( void );
 
 /* -------------------------------------------------------------------------- */
 

@@ -29,7 +29,6 @@ typedef struct
 
     Movement_t current_move;    // Store the currently executing move
 
-    bool     enable;             // The planner is enabled
     uint32_t epoch_timestamp;    // Reference system time for move offset sequencing
 
     uint32_t movement_started;         // timestamp the start point
@@ -60,6 +59,7 @@ path_interpolator_init( void )
 
     me->xRequestQueue = xQueueCreate( 5, sizeof(Movement_t) );
     REQUIRE( me->xRequestQueue );
+    vQueueAddToRegistry( me->xRequestQueue, "pathMoves");  // Debug view annotation
 
 }
 
@@ -102,7 +102,7 @@ PUBLIC uint32_t path_interpolator_queue_ready( void )
 {
     MotionPlanner_t *me = &planner;
 
-    return uxQueueSpacesAvailable( me->xRequestQueue );;
+    return uxQueueSpacesAvailable( me->xRequestQueue );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -163,8 +163,6 @@ path_interpolator_stop( void )
 {
     MotionPlanner_t *me = &planner;
 
-    // Request that the state-machine return to "OFF"
-    me->enable = false;
 
     // Wipe out the moves currently loaded into the queue
     // TODO: cleanup
@@ -178,15 +176,16 @@ path_interpolator_stop( void )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-path_interpolator_process( void )
+path_interpolator_task( void )
 {
     MotionPlanner_t *me = &planner;
 
+    for(;;)
+    {
     // Fetch the next pending move off the queue
     xQueueReceive( me->xRequestQueue, &me->current_move, portMAX_DELAY);
 
 
-        // TODO: Loop behaviour
             // Calculate the time since the 'epoch' event
             uint32_t time_since_epoch_ms = stopwatch_lap( &me->epoch_timestamp );
 
@@ -245,6 +244,7 @@ path_interpolator_process( void )
                 }
             }
 
+    }   // end infinite task loop
 }
 
 /* -------------------------------------------------------------------------- */
