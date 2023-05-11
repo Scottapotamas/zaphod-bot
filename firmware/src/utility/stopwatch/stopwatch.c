@@ -61,6 +61,14 @@ stopwatch_lap( stopwatch_t *timer )
 
 /* -------------------------------------------------------------------------- */
 
+//! Return true when timer is running.
+PUBLIC bool
+stopwatch_running( stopwatch_t *timer )
+{
+    return ( *timer ) != 0;
+}
+/* -------------------------------------------------------------------------- */
+
 //! Stop the timer.
 PUBLIC void
 stopwatch_stop( stopwatch_t *timer )

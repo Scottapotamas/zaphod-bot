@@ -65,7 +65,6 @@ target_link_libraries(
         PRIVATE
         app_startup_lib
         hal_system_lib
-#        FreeRTOS::Timers
         FreeRTOS::Heap::4
         FreeRTOS::ARM_CM4F
         HAL::STM32::F4::LL_RCC

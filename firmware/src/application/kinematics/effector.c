@@ -7,6 +7,7 @@
 
 #include "global.h"
 #include "qassert.h"
+#include "signals.h"
 
 #include "effector.h"
 #include "kinematics.h"
@@ -31,6 +32,7 @@ PRIVATE CartesianPoint_t requested_position;   // position we should try to reac
 PRIVATE SemaphoreHandle_t xNewEffectorTargetSemaphore;
 PRIVATE SemaphoreHandle_t xEffectorMutex;
 
+PRIVATE Subject effector_subject;
 //PRIVATE AverageShort_t movement_statistics;
 
 /* -------------------------------------------------------------------------- */
@@ -48,7 +50,14 @@ effector_init( void )
     ENSURE( xNewEffectorTargetSemaphore );
     ENSURE( xEffectorMutex );
 
+    subject_init( &effector_subject );
+
 //    average_short_init( &movement_statistics, SPEED_ESTIMATOR_SPAN );
+}
+
+PUBLIC Subject * effector_get_subject( void )
+{
+    return &effector_subject;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -155,12 +164,11 @@ PUBLIC void effector_task( void* arg )
 
                 // Check the instantaneous (1ms) distance request won't exceed effector limits
                 // As microns/millisecond = millimeters/second, we can use take the mm/sec limit
-                if (proposed_distance_um > EFFECTOR_SPEED_LIMIT)
+                if( proposed_distance_um > EFFECTOR_SPEED_LIMIT )
                 {
-                    // fire warning to higher level systems
-                    // TODO: Violations shouldn't reach the effector kinematics, so E-STOP immediately
-                    //   motion requests from path planning shouldn't queue/plan over-speed moves!
-
+                    EventData alert = { 0 };
+                    alert.timestamp = xTaskGetTickCount();
+                    subject_notify( &effector_subject, FLAG_EFFECTOR_VIOLATION, alert );
                 }
                 else    // under the speed guard
                 {
@@ -178,6 +186,9 @@ PUBLIC void effector_task( void* arg )
                     //            servo_set_target_angle_limited( _CLEARPATH_2, angle_target.a2 );
                     //            servo_set_target_angle_limited( _CLEARPATH_3, angle_target.a3 );
 
+                    // TODO calculate effector velocity?
+
+                    // TODO update effector's current position and velocity information
                     memcpy( &effector_position, &requested_position, sizeof(CartesianPoint_t) );
                     memset( &requested_position, 0, sizeof(CartesianPoint_t));
                 }

@@ -106,12 +106,6 @@ user_interface_set_fan_state( uint8_t state );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-user_interface_set_position( int32_t x, int32_t y, int32_t z );
-
-PUBLIC void
-user_interface_set_effector_speed( uint32_t microns_per_second );
-
-PUBLIC void
 user_interface_set_movement_data( uint32_t sync_offset, uint8_t move_type, uint8_t progress );
 
 PUBLIC void
@@ -124,13 +118,6 @@ PUBLIC void
 user_interface_set_motion_queue_depth( uint8_t utilisation );
 
 /* -------------------------------------------------------------------------- */
-
-PUBLIC void
-user_interface_motor_enable( uint8_t servo, bool enable );
-
-
-PUBLIC void
-user_interface_motor_power( uint8_t servo, float watts );
 
 PUBLIC void
 user_interface_motor_speed( uint8_t servo, float degrees_per_second );

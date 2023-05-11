@@ -5,6 +5,7 @@
 
 #include "global.h"
 #include "movement_types.h"
+#include "subject.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -15,6 +16,10 @@ typedef void (*PositionRequestFn)(CartesianPoint_t *position);
 
 PUBLIC void
 path_interpolator_init( void );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC Subject * path_interpolator_get_subject( void );
 
 /* -------------------------------------------------------------------------- */
 
@@ -48,16 +53,6 @@ path_interpolator_get_progress( void );
 
 PUBLIC bool
 path_interpolator_get_move_done( void );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-path_interpolator_start( void );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-path_interpolator_stop( void );
 
 /* -------------------------------------------------------------------------- */
 

@@ -630,14 +630,6 @@ user_interface_set_fan_state( uint8_t state )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-user_interface_set_position( int32_t x, int32_t y, int32_t z )
-{
-//    current_position.x = x;
-//    current_position.y = y;
-//    current_position.z = z;
-}
-
-PUBLIC void
 user_interface_set_effector_speed( uint32_t microns_per_second )
 {
     motion_global.effector_speed = microns_per_second;
@@ -671,18 +663,6 @@ user_interface_set_motion_queue_depth( uint8_t utilisation )
 }
 
 /* -------------------------------------------------------------------------- */
-
-PUBLIC void
-user_interface_motor_enable( uint8_t servo, bool enable )
-{
-    motion_servo[servo].enabled = enable;
-}
-
-PUBLIC void
-user_interface_motor_power( uint8_t servo, float watts )
-{
-    motion_servo[servo].power = watts;
-}
 
 PUBLIC void
 user_interface_motor_speed( uint8_t servo, float degrees_per_second )

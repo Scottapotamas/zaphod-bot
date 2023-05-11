@@ -27,6 +27,7 @@ target_link_libraries(
         PRIVATE
         utility_cartesian_lib
         utility_stopwatch_lib
+        utility_observer_lib
         FreeRTOS::ARM_CM4F
         STM32::F4
 )
