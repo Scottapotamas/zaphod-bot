@@ -109,7 +109,7 @@ eui_message_t ui_variables[] = {
 
     // Current and target positions in cartesian space
     EUI_CUSTOM( MSGID_POSITION_TARGET, target_position ),
-    EUI_CUSTOM_RO( MSGID_POSITION_CURRENT, current_position ),
+    EUI_CUSTOM_RO( MSGID_POSITION_CURRENT, effector ),
 
     EUI_CUSTOM_RO( MSGID_LED, rgb_led_drive ),
     EUI_CUSTOM( MSGID_LED_MANUAL_REQUEST, rgb_manual_control ),
@@ -343,13 +343,13 @@ PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData eD
 
             // TODO: Remove this horrible hack
         case EFFECTOR_POSITION:
-            current_position.x = eData.s_triple[EVT_X];
-            current_position.y = eData.s_triple[EVT_Y];
-            current_position.z = eData.s_triple[EVT_Z];
+            effector.position.x = eData.s_triple[EVT_X];
+            effector.position.y = eData.s_triple[EVT_Y];
+            effector.position.z = eData.s_triple[EVT_Z];
             break;
 
         case EFFECTOR_SPEED:
-
+            effector.speed = eData.stamped.data.f32;
             break;
 
         case OVERWATCH_STATE_UPDATE:
@@ -632,36 +632,6 @@ user_interface_set_fan_state( uint8_t state )
 
 /* -------------------------------------------------------------------------- */
 
-
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-user_interface_set_effector_speed( uint32_t microns_per_second )
-{
-    motion_global.effector_speed = microns_per_second;
-}
-
-PUBLIC void
-user_interface_set_movement_data( uint32_t sync_offset, uint8_t move_type, uint8_t progress )
-{
-    motion_global.movement_identifier = sync_offset;
-    motion_global.profile_type        = move_type;
-    motion_global.move_progress       = progress;
-}
-
-PUBLIC void
-user_interface_set_pathing_status( uint8_t status )
-{
-    motion_global.pathing_state = status;
-}
-
-PUBLIC void
-user_interface_set_motion_state( uint8_t status )
-{
-    motion_global.motion_state = status;
-}
-
 PUBLIC void
 user_interface_set_motion_queue_depth( uint8_t utilisation )
 {
@@ -818,15 +788,6 @@ trigger_camera_capture( void )
 
 
 /* -------------------------------------------------------------------------- */
-
-PUBLIC void
-user_interface_push_position( void )
-{
-    eui_send_tracked( MSGID_POSITION_CURRENT );
-}
-
-/* -------------------------------------------------------------------------- */
-
 
 
 /* ----- End ---------------------------------------------------------------- */

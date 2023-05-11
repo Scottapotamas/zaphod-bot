@@ -238,7 +238,7 @@ function TargetPositionVisualiser() {
 
 function HardwareConnector() {
   useHardwareStateSubscription(
-    state => state[MSGID.POSITION_CURRENT],
+    state => state[MSGID.POSITION_CURRENT].position,
     cpos => {
       // On hardware position updates, change the visualiser's position if preview is disabled
       if (

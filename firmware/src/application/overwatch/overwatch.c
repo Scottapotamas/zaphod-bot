@@ -278,7 +278,6 @@ PRIVATE void overwatch_state_ssm( void )
             // TODO consider how to optionally handle the 4-th armed servo?
             if( me->servo_active[0] && me->servo_active[1] && me->servo_active[2]  )
             {
-                effector_set_home();
                 STATE_NEXT( OVERWATCH_ARMED );
             }
 
@@ -290,6 +289,8 @@ PRIVATE void overwatch_state_ssm( void )
 
         case OVERWATCH_ARMED:
             STATE_ENTRY_ACTION
+
+            effector_reset();
 
             STATE_TRANSITION_TEST
 
@@ -304,6 +305,8 @@ PRIVATE void overwatch_state_ssm( void )
             STATE_EXIT_ACTION
             // TODO: Tell the sub-mode system to cleanup?
             // Cleanup the mode management SM
+            effector_reset();
+
             STATE_END
             break;
 
@@ -317,7 +320,6 @@ PRIVATE void overwatch_state_ssm( void )
             // TODO consider how to optionally handle the 4-th armed servo?
             if( !me->servo_active[0] && !me->servo_active[1] && !me->servo_active[2]  )
             {
-                effector_set_home();
                 STATE_NEXT( OVERWATCH_DISARMED );
             }
             STATE_EXIT_ACTION

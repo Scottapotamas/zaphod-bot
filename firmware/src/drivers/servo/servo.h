@@ -20,8 +20,7 @@ typedef enum
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-servo_init( ClearpathServoInstance_t servo );
+PUBLIC void servo_init( ClearpathServoInstance_t servo );
 
 /* -------------------------------------------------------------------------- */
 
@@ -58,8 +57,6 @@ servo_change_configuration( ClearpathServoInstance_t servo,
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void servo_enable( ClearpathServoInstance_t servo, bool enabled );
-
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -81,17 +78,6 @@ servo_get_steps_per_second( ClearpathServoInstance_t servo );
 
 PUBLIC float
 servo_get_degrees_per_second( ClearpathServoInstance_t servo );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC bool
-servo_get_move_done( ClearpathServoInstance_t servo );
-
-PUBLIC bool
-servo_get_servo_ok( ClearpathServoInstance_t servo );
-
-PUBLIC bool
-servo_get_servo_did_error( ClearpathServoInstance_t servo );
 
 /* -------------------------------------------------------------------------- */
 

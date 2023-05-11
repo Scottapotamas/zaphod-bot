@@ -48,6 +48,8 @@ void app_startup_init( void )
     buzzer_init();
 
     path_interpolator_init();
+    Subject *pathing_events = path_interpolator_get_subject();
+
     point_follower_init();
 
     user_interface_init();
@@ -63,6 +65,7 @@ void app_startup_init( void )
 
     // Overwatch subscriptions
     subject_add_observer( ui_request_subject, overwatch_get_observer() );
+    subject_add_observer( pathing_events, overwatch_get_observer() );
     subject_add_observer( effector_data, overwatch_get_observer() );
 
     // Telemetry task wants to know pretty much everything

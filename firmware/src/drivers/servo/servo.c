@@ -329,25 +329,6 @@ servo_change_configuration( ClearpathServoInstance_t servo,
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-servo_enable( ClearpathServoInstance_t servo, bool enabled )
-{
-    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
-
-    // TODO: how long should we wait for the mutex?
-    if( xSemaphoreTake( xClearpathMutex, portMAX_DELAY) )
-    {
-        Servo_t *me = &clearpath[servo];
-        me->enabled = enabled;
-        xSemaphoreGive( me->xServoUpdateSemaphore );
-
-        xSemaphoreGive( xClearpathMutex );
-    }
-
-}
-
-/* -------------------------------------------------------------------------- */
-
 // Immediately disable all servo's enable pins
 //   Intended for ASSERT style 'disable the servos' end-of-the-world style use, not general disable
 PUBLIC void
@@ -435,39 +416,6 @@ servo_get_degrees_per_second( ClearpathServoInstance_t servo )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC bool
-servo_get_move_done( ClearpathServoInstance_t servo )
-{
-    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
-    Servo_t *me = &clearpath[servo];
-
-    return ( me->angle_current_steps == me->angle_target_steps );
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC bool
-servo_get_servo_ok( ClearpathServoInstance_t servo )
-{
-    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
-    Servo_t *me = &clearpath[servo];
-
-    return (    me->enabled
-             && me->currentState == SERVO_STATE_ACTIVE
-             && !me->has_high_load );
-}
-
-PUBLIC bool
-servo_get_servo_did_error( ClearpathServoInstance_t servo )
-{
-    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
-    Servo_t *me = &clearpath[servo];
-
-    return ( me->currentState == SERVO_STATE_ERROR_RECOVERY || me->previousState == SERVO_STATE_ERROR_RECOVERY || me->nextState == SERVO_STATE_ERROR_RECOVERY );
-}
-
-/* -------------------------------------------------------------------------- */
-
 // By checking that HLFB pulses were caught by the input capture recently,
 // can assume that a servo is connected or disconnected
 PRIVATE bool
@@ -501,7 +449,6 @@ PUBLIC void servo_task( void* arg )
             // TODO: how long should we wait for the mutex?
             if( xSemaphoreTake( xClearpathMutex, portMAX_DELAY) )
             {
-
                 float servo_feedback = me->hlfb - me->ic_feedback_trim;
 
                 // Check if the servo has provided HLFB signals as proxy for 'detection'

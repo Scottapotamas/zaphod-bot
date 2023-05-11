@@ -20,7 +20,7 @@ export const EffectorSpeedTag = (props: TagProps) => {
         icon={IconNames.PIVOT}
       >
         <div style={{ textAlign: 'right' }}>
-          <Printer accessor={state => state[MSGID.MOTION].effector_speed} precision={0} /> mm/s
+          <Printer accessor={state => state[MSGID.POSITION_CURRENT].speed} precision={0} /> mm/s
         </div>
       </Tag>
   )

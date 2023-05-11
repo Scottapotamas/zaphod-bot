@@ -6,6 +6,7 @@ import {
   KinematicsInfo,
   FirmwareBuildInfo,
   FanStatus,
+  EffectorData,
   QueueDepthInfo,
   ServoInfo,
   MotionState,
@@ -213,11 +214,46 @@ export class MotionDataCodec extends Codec {
   }
 }
 
-export class PositionCodec extends Codec {
+export class EffectorDataCodec extends Codec {
   filter(message: Message): boolean {
     return (
-      message.messageID === MSGID.POSITION_TARGET ||
       message.messageID === MSGID.POSITION_CURRENT
+    )
+  }
+
+  encode(payload: EffectorData): Buffer {
+    const packet = new SmartBuffer()
+
+    packet.writeInt32LE(payload.position.x * 1000)
+    packet.writeInt32LE(payload.position.y * 1000)
+    packet.writeInt32LE(payload.position.z * 1000)
+    packet.writeUInt32LE(payload.speed / 1000 )
+
+    return packet.toBuffer()
+  }
+
+  decode(payload: Buffer): EffectorData {
+    const reader = SmartBuffer.fromBuffer(payload)
+
+    let pos: CartesianPoint = {
+      x: reader.readInt32LE() / 1000,
+      y: reader.readInt32LE() / 1000,
+      z: reader.readInt32LE() / 1000,
+
+    }
+
+    return {
+      position: pos,
+      // Packet is microns/second, convert to mm/second
+      speed: reader.readInt32LE() * 1000
+    }
+  }
+}
+
+export class PositionTargetCodec extends Codec {
+  filter(message: Message): boolean {
+    return (
+      message.messageID === MSGID.POSITION_TARGET
     )
   }
 
@@ -667,7 +703,8 @@ export const customCodecs = [
   new QueueDepthCodec(),
   new MotorDataCodec(),
   new MotionDataCodec(),
-  new PositionCodec(),
+  new EffectorDataCodec(),
+  new PositionTargetCodec(),
   new ExpansionPositionCodec(),
   new SupervisorInfoCodec(),
   new InboundMotionCodec(),

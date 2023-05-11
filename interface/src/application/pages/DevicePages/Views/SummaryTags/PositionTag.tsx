@@ -21,7 +21,7 @@ export const PositionTag = (props: TagProps) => {
         icon={IconNames.DOUBLE_CARET_HORIZONTAL}
       >
         <div style={{ textAlign: 'right', fontWeight: 'bold' }}>
-          <Printer accessor={state => state[MSGID.POSITION_CURRENT].x} precision={2} /> mm
+          <Printer accessor={state => state[MSGID.POSITION_CURRENT].position.x} precision={2} /> mm
         </div>
       </Tag>
       <Tag
@@ -31,12 +31,12 @@ export const PositionTag = (props: TagProps) => {
         icon={IconNames.DOUBLE_CARET_VERTICAL}
       >
         <div style={{ textAlign: 'right', fontWeight: 'bold' }}>
-          <Printer accessor={state => state[MSGID.POSITION_CURRENT].y} precision={2} /> mm
+          <Printer accessor={state => state[MSGID.POSITION_CURRENT].position.y} precision={2} /> mm
         </div>
       </Tag>
       <Tag minimal fill large={props.isLarge} icon={IconNames.CARET_UP}>
         <div style={{ textAlign: 'right', fontWeight: 'bold' }}>
-          <Printer accessor={state => state[MSGID.POSITION_CURRENT].z} precision={2} /> mm
+          <Printer accessor={state => state[MSGID.POSITION_CURRENT].position.z} precision={2} /> mm
         </div>
       </Tag>
     </Composition>

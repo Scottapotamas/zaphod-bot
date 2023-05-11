@@ -68,7 +68,7 @@ declare global {
     [MSGID.SERVO]: [ServoInfo, ServoInfo, ServoInfo, ServoInfo]
 
     [MSGID.POSITION_TARGET]: CartesianPoint
-    [MSGID.POSITION_CURRENT]: CartesianPoint
+    [MSGID.POSITION_CURRENT]: EffectorData
     [MSGID.POSITION_EXPANSION]: number // float
 
     [MSGID.LED]: LedStatus
@@ -221,6 +221,11 @@ export type CartesianPoint = {
   x: number
   y: number
   z: number
+}
+
+export type EffectorData = {
+  position: CartesianPoint
+  speed: number
 }
 
 export type MovementMove = {
