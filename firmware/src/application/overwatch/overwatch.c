@@ -118,6 +118,8 @@ PUBLIC void overwatch_init( void )
     observer_subscribe( &events, SERVO_STATE );
     observer_subscribe( &events, EFFECTOR_NEAR_HOME );
 
+    observer_subscribe( &events, FLAG_EFFECTOR_VIOLATION );
+    observer_subscribe( &events, FLAG_PLANNER_VIOLATION );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -148,6 +150,10 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, v
             supervisor_state.requested_arming = false;
             xSemaphoreGive( xOverwatchNotifySemaphore );
             break;
+
+        // TODO: should effector/planner violations be handled differently from eSTOP?
+        case FLAG_EFFECTOR_VIOLATION:
+        case FLAG_PLANNER_VIOLATION:
         case FLAG_ESTOP:
             // TODO: a more severe ESTOP handling approach is needed
             supervisor_state.requested_arming = false;
@@ -165,7 +171,7 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, v
             xSemaphoreGive( xOverwatchNotifySemaphore );
             break;
 
-        case FLAG_EFFECTOR_NEAR_HOME:
+        case EFFECTOR_NEAR_HOME:
             // TODO: handle this?
             break;
 
