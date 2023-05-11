@@ -15,6 +15,7 @@
 #include "overwatch.h"
 
 #include "path_interpolator.h"
+#include "point_follower.h"
 #include "effector.h"
 #include "servo.h"
 
@@ -47,6 +48,7 @@ void app_startup_init( void )
     buzzer_init();
 
     path_interpolator_init();
+    point_follower_init();
 
     user_interface_init();
     Subject *ui_request_subject = user_interface_get_request_subject();
@@ -109,6 +111,14 @@ void app_startup_tasks( void )
 
     xTaskCreate( path_interpolator_task,
                  "pathing",
+                 configMINIMAL_STACK_SIZE,
+                 NULL,
+                 priority_normal,
+                 NULL
+    );
+
+    xTaskCreate( point_follower_task,
+                 "follower",
                  configMINIMAL_STACK_SIZE,
                  NULL,
                  priority_normal,

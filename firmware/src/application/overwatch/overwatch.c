@@ -15,6 +15,7 @@
 #include "user_interface.h"
 #include "request_handler.h"
 #include "path_interpolator.h"
+#include "point_follower.h"
 #include "effector.h"
 
 /* -------------------------------------------------------------------------- */
@@ -405,17 +406,16 @@ PRIVATE void overwatch_mode_ssm( void )
         case MODE_TRACK:
             STATE_ENTRY_ACTION
             // Telemetry request -> Point follower -> Kinematics
-//            telemetry_update_follow_request_callback( point_follower_request_position );
-//            point_follower_update_output_callback( effector_request_target );
+            user_interface_attach_position_request_cb( point_follower_set_target );
+            point_follower_update_output_callback( effector_request_target );
 
             STATE_TRANSITION_TEST
 
             STATE_EXIT_ACTION
 
-
             // Break connections
-//            telemetry_update_follow_request_callback( NULL );
-//            point_follower_update_output_callback( NULL );
+            user_interface_attach_position_request_cb( NULL );
+            point_follower_update_output_callback( NULL );
             STATE_END
             break;
 

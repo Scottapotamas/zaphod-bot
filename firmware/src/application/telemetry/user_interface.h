@@ -37,6 +37,12 @@ PUBLIC void user_interface_attach_motion_request_cb( MovementRequestFn callback 
 
 /* -------------------------------------------------------------------------- */
 
+typedef void (*PositionRequestFn)(CartesianPoint_t *request);
+
+PUBLIC void user_interface_attach_position_request_cb( PositionRequestFn callback );
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC bool
 user_interface_connection_ok( void );
 
@@ -106,9 +112,6 @@ PUBLIC void
 user_interface_set_effector_speed( uint32_t microns_per_second );
 
 PUBLIC void
-user_interface_reset_tracking_target();
-
-PUBLIC void
 user_interface_set_movement_data( uint32_t sync_offset, uint8_t move_type, uint8_t progress );
 
 PUBLIC void
@@ -125,11 +128,6 @@ user_interface_set_motion_queue_depth( uint8_t utilisation );
 PUBLIC void
 user_interface_motor_enable( uint8_t servo, bool enable );
 
-PUBLIC void
-user_interface_motor_state( uint8_t servo, uint8_t state );
-
-PUBLIC void
-user_interface_motor_feedback( uint8_t servo, float percentage );
 
 PUBLIC void
 user_interface_motor_power( uint8_t servo, float watts );

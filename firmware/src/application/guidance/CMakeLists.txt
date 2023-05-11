@@ -6,6 +6,8 @@ add_library (
         request_handler.c
         path_interpolator.h
         path_interpolator.c
+        point_follower.h
+        point_follower.c
 )
 
 target_include_directories (

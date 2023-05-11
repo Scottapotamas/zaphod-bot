@@ -47,7 +47,6 @@ PRIVATE void stop_mech_cb( void );
 PRIVATE void emergency_stop_cb( void );
 PRIVATE void home_mech_cb( void );
 PRIVATE void clear_all_queue( void );
-PRIVATE void tracked_position_event( void );
 
 PRIVATE void tracked_external_servo_request( void );
 
@@ -75,8 +74,8 @@ uint8_t demo_mode_request = 0;
 MotorData_t motion_servo[4];
 int32_t     external_servo_angle_target;
 
-//CartesianPoint_t current_position;    // global position of end effector in cartesian space
-//CartesianPoint_t target_position;
+CartesianPoint_t current_position;    // global position of end effector in cartesian space
+CartesianPoint_t target_position;
 
 LedState_t rgb_led_drive;
 LedState_t rgb_manual_control;
@@ -105,8 +104,8 @@ eui_message_t ui_variables[] = {
     EUI_UINT8( MSGID_MODE_REQUEST, mode_request ),
 
     // Current and target positions in cartesian space
-//    EUI_CUSTOM( MSGID_POSITION_TARGET, target_position ),
-//    EUI_CUSTOM_RO( MSGID_POSITION_CURRENT, current_position ),
+    EUI_CUSTOM( MSGID_POSITION_TARGET, target_position ),
+    EUI_CUSTOM_RO( MSGID_POSITION_CURRENT, current_position ),
 
     EUI_CUSTOM_RO( MSGID_LED, rgb_led_drive ),
     EUI_CUSTOM( MSGID_LED_MANUAL_REQUEST, rgb_manual_control ),
@@ -159,6 +158,7 @@ PRIVATE Observer telemetry_observer = { 0 };
 PRIVATE Subject event_subject = { 0 };
 
 PRIVATE MovementRequestFn handle_requested_move;    // Pass UI Movement event requests to this callback for handling
+PRIVATE PositionRequestFn handle_requested_position; // Pass cartesian position requests to this callback for handling
 
 /* ----- Public Functions --------------------------------------------------- */
 
@@ -282,6 +282,11 @@ PUBLIC Subject * user_interface_get_request_subject( void )
 PUBLIC void user_interface_attach_motion_request_cb( MovementRequestFn callback )
 {
     handle_requested_move = callback;
+}
+
+PUBLIC void user_interface_attach_position_request_cb( PositionRequestFn callback )
+{
+    handle_requested_position = callback;
 }
 
 
@@ -460,7 +465,10 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
 
             if( strcmp( (char *)name_rx, MSGID_POSITION_TARGET ) == 0 && has_payload )
             {
-                tracked_position_event();
+                if( handle_requested_position )
+                {
+                    handle_requested_position( &target_position );
+                }
             }
 
             if( strcmp( (char *)name_rx, MSGID_POSITION_EXPANSION ) == 0 && header.data_len )
@@ -636,16 +644,6 @@ user_interface_set_effector_speed( uint32_t microns_per_second )
 }
 
 PUBLIC void
-user_interface_reset_tracking_target()
-{
-//    target_position.x = 0;
-//    target_position.y = 0;
-//    target_position.z = 0;
-
-//    eui_send_tracked( MSGID_POSITION_TARGET );    // tell the UI that the value has changed
-}
-
-PUBLIC void
 user_interface_set_movement_data( uint32_t sync_offset, uint8_t move_type, uint8_t progress )
 {
     motion_global.movement_identifier = sync_offset;
@@ -678,18 +676,6 @@ PUBLIC void
 user_interface_motor_enable( uint8_t servo, bool enable )
 {
     motion_servo[servo].enabled = enable;
-}
-
-PUBLIC void
-user_interface_motor_state( uint8_t servo, uint8_t state )
-{
-    motion_servo[servo].state = state;
-}
-
-PUBLIC void
-user_interface_motor_feedback( uint8_t servo, float percentage )
-{
-    motion_servo[servo].feedback = percentage * 10;
 }
 
 PUBLIC void
@@ -784,20 +770,6 @@ PRIVATE void home_mech_cb( void )
 }
 
 /* -------------------------------------------------------------------------- */
-
-
-
-PRIVATE void tracked_position_event( void )
-{
-//    TrackedPositionRequestEvent *position_request = EVENT_NEW( TrackedPositionRequestEvent, TRACKED_TARGET_REQUEST );
-//
-//    if( position_request )
-//    {
-//        memcpy( &position_request->target, &target_position, sizeof( target_position ) );
-//        eventPublish( (StateEvent *)position_request );
-//        memset( &target_position, 0, sizeof( target_position ) );
-//    }
-}
 
 PRIVATE void tracked_external_servo_request( void )
 {
