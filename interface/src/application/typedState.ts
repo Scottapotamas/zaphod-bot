@@ -101,8 +101,6 @@ declare global {
 }
 
 export type SystemStatus = {
-  sensors_enable: number
-  module_enable: number
   cpu_load: number
   cpu_clock: number
   input_voltage: number

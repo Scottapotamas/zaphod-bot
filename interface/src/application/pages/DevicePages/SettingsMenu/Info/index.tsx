@@ -14,26 +14,6 @@ import { MessageDataSource } from '@electricui/core-timeseries'
 import { SectionHeading } from '../SectionHeading'
 import { SparkTag } from 'src/application/components/SparkTag'
 
-const SensorsActive = () => {
-  const sensorEnabledState =
-    useHardwareState<number>(state => state[MSGID.SYSTEM].sensors_enable) === 1
-  if (sensorEnabledState) {
-    return <div>ADC Enabled</div>
-  }
-
-  return <div>ADC Disabled</div>
-}
-
-const ModuleActive = () => {
-  const ExpansionModuleState =
-    useHardwareState<number>(state => state[MSGID.SYSTEM].module_enable) === 1
-  if (ExpansionModuleState) {
-    return <div>Add-in module Enabled</div>
-  }
-
-  return <div>Internal Comms Disabled</div>
-}
-
 const LastResetReason = () => {
   const last_reset_reason = useHardwareState(state => state[MSGID.RESET_CAUSE])
 
@@ -248,9 +228,6 @@ export const InfoBlock = () => {
 
       <Box>
         <SectionHeading text="Debug" />
-
-        <SensorsActive />
-        <ModuleActive />
 
         <br />
         <IntervalRequester

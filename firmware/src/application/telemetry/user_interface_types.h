@@ -24,9 +24,6 @@ typedef struct
 
 typedef struct
 {
-    bool obsolete;          // TODO remove this from the codecs - sensors are always enabled
-    bool obsolete2;     // add-in card powered
-
     // microcontroller info
     uint8_t cpu_load;     // percentage
     uint8_t cpu_clock;    // speed in Mhz
@@ -89,12 +86,12 @@ typedef struct
 
 typedef struct
 {
-    uint8_t obsolete;       // TODO remove
-    uint8_t state;          // enum state value
     int16_t feedback;       // in % * 10 of max torque
-    float   target_angle;   // in degrees
-    float   power;          // in watts
-    float   speed;          // in degrees per second
+    int16_t power;          // in watts * 10
+    int16_t target_angle;   // in degrees * 100
+    int16_t speed;          // in degrees per second * 10
+    uint8_t state;          // enum state value
+    uint8_t obsolete;       // TODO remove
 } MotorData_t;
 
 /* -------------------------------------------------------------------------- */

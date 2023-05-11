@@ -322,10 +322,8 @@ PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData eD
             system_stats.temp_cpu = eData.stamped.data.f32 * 100.0f;
             break;
 
-        // TODO: telemetry task needs to handle all other sensor values
-
         case SERVO_POWER:
-            motion_servo[eData.stamped.index].power = eData.stamped.data.f32;   // TODO: look into compacting eUI packet size
+            motion_servo[eData.stamped.index].power = eData.stamped.data.f32 * 10.0f;
             break;
 
         case SENSOR_SERVO_HLFB:
@@ -337,10 +335,13 @@ PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData eD
             break;
 
         case SERVO_POSITION:
-            motion_servo[eData.stamped.index].target_angle = eData.stamped.data.f32;
+            motion_servo[eData.stamped.index].target_angle = eData.stamped.data.f32 * 100.0f ;
             break;
 
-            // TODO: Remove this horrible hack
+        case SERVO_SPEED:
+            motion_servo[eData.stamped.index].speed = eData.stamped.data.f32 * 10.0f ;
+            break;
+
         case EFFECTOR_POSITION:
             effector.position.x = eData.s_triple[EVT_X];
             effector.position.y = eData.s_triple[EVT_Y];

@@ -46,8 +46,6 @@ export class SystemDataCodec extends Codec {
     const reader = SmartBuffer.fromBuffer(payload)
 
     return {
-      sensors_enable: reader.readUInt8(),
-      module_enable: reader.readUInt8(),
       cpu_load: reader.readUInt8(),
       cpu_clock: reader.readUInt8(),
 
@@ -172,14 +170,15 @@ export class MotorDataCodec extends Codec {
     const servoStats: ServoInfo[] = []
 
     while (reader.remaining() > 0) {
-      let obsolete = reader.readUInt8() // first byte no longer needed
       const motor: ServoInfo = {
-        state: reader.readUInt8(),
         feedback: reader.readInt16LE() / 10,
-        target_angle: reader.readFloatLE(),
-        power: reader.readFloatLE(),
-        speed: reader.readFloatLE(),
+        power: reader.readInt16LE() / 10,
+        speed: reader.readInt16LE() / 10,
+        target_angle: reader.readInt16LE() / 100,
+        state: reader.readUInt8(),
       }
+      let obsolete = reader.readUInt8() // no longer needed, kept for padding?
+
       servoStats.push(motor)
     }
 
