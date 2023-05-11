@@ -12,7 +12,6 @@ export enum MSGID {
   SYSTEM = 'sx',
   SUPERVISOR = 'ss',
   FAN = 'sf',
-  MOTION = 'sm',
   SERVO = 'sc',
 
   FAN_CURVE = 'curve',
@@ -64,7 +63,6 @@ declare global {
     [MSGID.FAN_CURVE]: never // commented out in firmware
 
     [MSGID.MODE_REQUEST]: CONTROL_MODES
-    [MSGID.MOTION]: MotionState
     [MSGID.SERVO]: [ServoInfo, ServoInfo, ServoInfo, ServoInfo]
 
     [MSGID.POSITION_TARGET]: CartesianPoint
@@ -160,21 +158,11 @@ export type QueueDepthInfo = {
 }
 
 export type ServoInfo = {
-  enabled: boolean
   state: number         //state machine enum value
   feedback: number      // percentage of max torque
   target_angle: number  //degrees
   power: number         // watts
   speed: number         // degrees per second
-}
-
-export type MotionState = {
-  pathing_state: number
-  motion_state: number
-  profile_type: number
-  move_progress: number
-  movement_identifier: number
-  effector_speed: number  // mm/second
 }
 
 export enum SUPERVISOR_STATES {

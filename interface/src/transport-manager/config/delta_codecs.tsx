@@ -9,7 +9,6 @@ import {
   EffectorData,
   QueueDepthInfo,
   ServoInfo,
-  MotionState,
   SUPERVISOR_STATES,
   CONTROL_MODES,
   SupervisorState,
@@ -173,8 +172,8 @@ export class MotorDataCodec extends Codec {
     const servoStats: ServoInfo[] = []
 
     while (reader.remaining() > 0) {
+      let obsolete = reader.readUInt8() // first byte no longer needed
       const motor: ServoInfo = {
-        enabled: reader.readUInt8() === 0x01 ? true : false,
         state: reader.readUInt8(),
         feedback: reader.readInt16LE() / 10,
         target_angle: reader.readFloatLE(),
@@ -185,32 +184,6 @@ export class MotorDataCodec extends Codec {
     }
 
     return servoStats
-  }
-}
-
-export class MotionDataCodec extends Codec {
-  filter(message: Message): boolean {
-    return message.messageID === MSGID.MOTION
-  }
-
-  encode(payload: MotionState): Buffer {
-    throw new Error('motion engine state info is read-only')
-  }
-
-  decode(payload: Buffer): MotionState {
-    const reader = SmartBuffer.fromBuffer(payload)
-
-    return {
-      pathing_state: reader.readUInt8(),
-      motion_state: reader.readUInt8(),
-      profile_type: reader.readUInt8(),
-      move_progress: reader.readUInt8(),
-
-      movement_identifier: reader.readUInt32LE(),
-
-      //microns per second is sent, convert to mm/second for UI use
-      effector_speed: reader.readUInt32LE() / 1000, 
-    }
   }
 }
 
@@ -702,7 +675,6 @@ export const customCodecs = [
   new FanCodec(),
   new QueueDepthCodec(),
   new MotorDataCodec(),
-  new MotionDataCodec(),
   new EffectorDataCodec(),
   new PositionTargetCodec(),
   new ExpansionPositionCodec(),

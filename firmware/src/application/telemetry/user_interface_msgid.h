@@ -11,7 +11,6 @@
 #define MSGID_KINEMATICS "kinematics"
 #define MSGID_SYSTEM     "sx"
 #define MSGID_SUPERVISOR "ss"
-#define MSGID_MOTION     "sm"
 #define MSGID_FAN        "sf"
 #define MSGID_SERVO      "sc"
 

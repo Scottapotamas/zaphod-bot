@@ -37,7 +37,7 @@ export const EventPalette = () => {
   return (
     <>
       <IntervalRequester
-        variables={[MSGID.MOTION, MSGID.QUEUE_INFO]}
+        variables={[MSGID.QUEUE_INFO]}
         interval={200}
       />
 

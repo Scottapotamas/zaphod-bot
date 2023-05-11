@@ -90,7 +90,9 @@ export const ArmControlTag = () => {
   const supervisor_state = useHardwareState(
     state => state[MSGID.SUPERVISOR].supervisor,
   )
-  const is_moving = useHardwareState(state => state[MSGID.MOTION].pathing_state)
+
+  // TODO: replace with an updated 'is moving' field?
+  let is_moving = 0//useHardwareState(state => state[MSGID.MOTION].pathing_state)
 
   let supervisor_text: string = 'null'
 

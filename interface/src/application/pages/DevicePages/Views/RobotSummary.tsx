@@ -22,7 +22,6 @@ import { EffectorSpeedTag } from './SummaryTags/EffectorSpeedTag'
 import { HomeButton } from '../Controls/HomeButton'
 import { ArmControlTag } from '../Controls/ArmButton'
 
-import { intentClass } from '@blueprintjs/core/lib/esm/common/classes'
 
 const layoutDescription = `
             State Home Position
@@ -36,7 +35,9 @@ export const RobotSummary = (props: RobotSummaryProps) => {
   const supervisor_state = useHardwareState(
     state => state[MSGID.SUPERVISOR].supervisor,
   )
-  const is_moving = useHardwareState(state => state[MSGID.MOTION].pathing_state)
+  
+  // TODO: update with a new 'is moving' field
+  let is_moving = 0 //useHardwareState(state => state[MSGID.MOTION].pathing_state)
 
   let supervisor_text: string = 'null'
 

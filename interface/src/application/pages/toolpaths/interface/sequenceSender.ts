@@ -180,6 +180,8 @@ export class SequenceSender {
     //   `hardware update received ${motionDepth} (${this.movementMoves.length}), ${fadeDepth} (${this.lightMoves.length})`,
     // )
   }
+
+  // TODO: remove/refactor this completion behaviour
   updateHardwareProgress(movementID: number, movementProgress: number) {
     if (!this.isRendering) return
 

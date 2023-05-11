@@ -332,12 +332,11 @@ export function SendToolpath() {
     [sendMessage],
   )
 
-  const queryMotionAndQueueDepth = useCallback(async () => {
+  const queryQueueDepth = useCallback(async () => {
     const cancellationToken = new CancellationToken()
 
     try {
       await query(MSGID.QUEUE_INFO, cancellationToken)
-      await query(MSGID.MOTION, cancellationToken)
     } catch (e) {
       if (cancellationToken.caused(e)) {
         // cancellationToken timed out
@@ -365,7 +364,7 @@ export function SendToolpath() {
         sendMovement,
         sendLightMove,
         sendClear,
-        queryMotionAndQueueDepth,
+        queryQueueDepth,
         updateOptimisticQueueDepth,
       )
     }
@@ -383,15 +382,9 @@ export function SendToolpath() {
     state => state[MSGID.QUEUE_INFO],
     (queue: QueueDepthInfo) => {
       getSequenceSender().updateHardwareQueues(queue.movements, queue.lighting)
-    },
-  )
-
-  useHardwareStateSubscription(
-    state => state[MSGID.MOTION],
-    moStat => {
-      if (moStat) {
-        getSequenceSender().updateHardwareProgress(moStat.movement_identifier, moStat.move_progress)
-      }
+      
+      // TODO: update HardwareProgress once the queue packet is reworked with additional fields
+      // getSequenceSender().updateHardwareProgress(moStat.movement_identifier, moStat.move_progress)
     },
   )
 

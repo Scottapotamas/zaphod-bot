@@ -69,7 +69,6 @@ BuildInfo_t      fw_info;
 
 SystemData_t   system_stats;
 SystemStates_t supervisor_states;
-MotionData_t   motion_global;
 FanData_t      fan_stats;
 
 uint8_t mode_request = 0;
@@ -78,7 +77,8 @@ uint8_t demo_mode_request = 0;
 MotorData_t motion_servo[4];
 int32_t     external_servo_angle_target;
 
-CartesianPoint_t current_position;    // global position of end effector in cartesian space
+EffectorData_t effector;
+
 CartesianPoint_t target_position;
 
 LedState_t rgb_led_drive;
@@ -101,7 +101,6 @@ eui_message_t ui_variables[] = {
     EUI_CUSTOM( MSGID_SYSTEM, system_stats ),
     EUI_CUSTOM( MSGID_SUPERVISOR, supervisor_states ),
 //    EUI_CUSTOM( MSGID_FAN, fan_stats ),
-    EUI_CUSTOM_RO( MSGID_MOTION, motion_global ),
     EUI_CUSTOM_RO( MSGID_SERVO, motion_servo ),
 
     // UI requests a change of operating mode

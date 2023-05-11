@@ -106,15 +106,6 @@ user_interface_set_fan_state( uint8_t state );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-user_interface_set_movement_data( uint32_t sync_offset, uint8_t move_type, uint8_t progress );
-
-PUBLIC void
-user_interface_set_pathing_status( uint8_t status );
-
-PUBLIC void
-user_interface_set_motion_state( uint8_t status );
-
-PUBLIC void
 user_interface_set_motion_queue_depth( uint8_t utilisation );
 
 /* -------------------------------------------------------------------------- */

@@ -8,6 +8,7 @@ extern "C" {
 /* -------------------------------------------------------------------------- */
 
 #include "global.h"
+#include "movement_types.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -76,18 +77,9 @@ typedef struct
 
 typedef struct
 {
-    // pathing engine state idle, running, etc
-    uint8_t pathing_state;
-    // motion handler information
-    uint8_t motion_state;
-    // information about the current move being executed
-    uint8_t  profile_type;
-    uint8_t  move_progress;
-    uint32_t movement_identifier;
-
-    // TODO: reconsider if this goes into this packet or not
-    uint32_t effector_speed;  // microns/second
-} MotionData_t;
+    CartesianPoint_t position;    // global position of end effector in cartesian space
+    uint32_t speed;               // microns/second
+} EffectorData_t;
 
 typedef struct
 {
@@ -97,7 +89,7 @@ typedef struct
 
 typedef struct
 {
-    uint8_t enabled;        // boolean
+    uint8_t obsolete;       // TODO remove
     uint8_t state;          // enum state value
     int16_t feedback;       // in % * 10 of max torque
     float   target_angle;   // in degrees
