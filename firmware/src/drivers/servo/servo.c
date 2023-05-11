@@ -230,12 +230,12 @@ PRIVATE void servo_sensors_callback(ObserverEvent_t event, EventData eData, void
         switch( event )
         {
             case SERVO_POWER:
-                me->power = eData.data.f32;
+                me->power = eData.stamped.data.f32;
                 xSemaphoreGive( me->xServoUpdateSemaphore );
                 break;
 
             case SENSOR_SERVO_HLFB:
-                me->hlfb = eData.data.f32;
+                me->hlfb = eData.stamped.data.f32;
                 xSemaphoreGive( me->xServoUpdateSemaphore );
                 // - me->ic_feedback_trim;  // TODO: is 'correcting' the value here the right thing to do?
                 break;
@@ -766,6 +766,15 @@ PUBLIC void servo_task( void* arg )
                                 me->angle_current_steps = me->angle_current_steps + ( step_direction * -1 );
                             }
 
+                            // TODO move this elsewhere?
+                            // TODO: extract position update notification into a separate function, simplify logic
+                            EventData state_update = { 0 };
+                            state_update.stamped.index = me->identifier;
+                            state_update.stamped.data.f32 = convert_steps_angle( me, me->angle_current_steps);
+                            state_update.stamped.timestamp = xTaskGetTickCount();
+                            // TODO: make sure any SERVO_POSITION subscribers expect a float
+                            subject_notify( &me->sensor_subject, SERVO_POSITION, state_update );
+
                             // Track movement requests over time for velocity estimate
                             //                average_short_update( &me->step_statistics, pulses_needed );
 
@@ -801,8 +810,8 @@ PUBLIC void servo_task( void* arg )
                 if( STATE_IS_TRANSITIONING )
                 {
                     EventData state_update = { 0 };
-                    state_update.index = me->identifier;
-                    state_update.data.u32 = me->nextState;
+                    state_update.stamped.index = me->identifier;
+                    state_update.stamped.data.u32 = me->nextState;
                     subject_notify( &me->sensor_subject, SERVO_STATE, state_update );
                 }
 

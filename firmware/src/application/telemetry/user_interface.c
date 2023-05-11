@@ -7,12 +7,14 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+
 #include <electricui.h>
 
 #include "hal_uuid.h"
 #include "hal_uart.h"
 #include "version.h"
 #include "signals.h"
+#include "qassert.h"
 
 //#include "configuration.h"
 //#include "timer_ms.h"
@@ -22,6 +24,8 @@
 //#include "app_signals.h"
 //#include "app_times.h"
 //#include "event_subscribe.h"
+
+DEFINE_THIS_FILE;
 
 /* ----- Private Function Declaration --------------------------------------- */
 
@@ -296,70 +300,73 @@ PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData eD
     switch( event )
     {
         case SENSOR_FAN_SPEED:
-            fan_stats.speed_rpm = eData.data.f32;
+            fan_stats.speed_rpm = eData.stamped.data.f32;
             break;
 
         case SENSOR_VOLTAGE_INPUT:
-            system_stats.input_voltage = eData.data.f32 * 100;
+            system_stats.input_voltage = eData.stamped.data.f32 * 100.0f;
             break;
 
         case SENSOR_TEMPERATURE_PCB:
-            system_stats.temp_pcb_ambient = eData.data.f32 * 100;
+            system_stats.temp_pcb_ambient = eData.stamped.data.f32 * 100.0f;
             break;
 
         case SENSOR_TEMPERATURE_REGULATOR:
-            system_stats.temp_pcb_regulator = eData.data.f32 * 100;
+            system_stats.temp_pcb_regulator = eData.stamped.data.f32 * 100.0f;
             break;
 
         case SENSOR_TEMPERATURE_EXTERNAL:
-            system_stats.temp_external_probe = eData.data.f32 * 100;
+            system_stats.temp_external_probe = eData.stamped.data.f32 * 100.0f;
             break;
 
         case SENSOR_TEMPERATURE_MICRO:
-            system_stats.temp_cpu = eData.data.f32 * 100;
+            system_stats.temp_cpu = eData.stamped.data.f32 * 100.0f;
             break;
 
         // TODO: telemetry task needs to handle all other sensor values
 
         case SERVO_POWER:
-            motion_servo[eData.index].power = eData.data.f32;
+            motion_servo[eData.stamped.index].power = eData.stamped.data.f32;   // TODO: look into compacting eUI packet size
             break;
 
         case SENSOR_SERVO_HLFB:
-            motion_servo[eData.index].feedback = eData.data.f32 * 10.0f;
+            motion_servo[eData.stamped.index].feedback = eData.stamped.data.f32 * 10.0f;
             break;
 
         case SERVO_STATE:
-            motion_servo[eData.index].state = eData.data.u32;
-
-            if( eData.index != 0 )
-            {
-                asm("NOP");
-            }
-
+            motion_servo[eData.stamped.index].state = eData.stamped.data.u32;
             break;
 
         case SERVO_POSITION:
-            motion_servo[eData.index].target_angle = eData.data.u32;
+            motion_servo[eData.stamped.index].target_angle = eData.stamped.data.f32;
+            break;
+
+            // TODO: Remove this horrible hack
+        case EFFECTOR_POSITION:
+            current_position.x = eData.s_triple[EVT_X];
+            current_position.y = eData.s_triple[EVT_Y];
+            current_position.z = eData.s_triple[EVT_Z];
+            break;
+
+        case EFFECTOR_SPEED:
+
             break;
 
         case OVERWATCH_STATE_UPDATE:
-            supervisor_states.supervisor = eData.data.u32;
+            supervisor_states.supervisor = eData.stamped.data.u32;
 //            eui_send_tracked( MSGID_SUPERVISOR );       // TODO: don't send now, do a debounced send somewhere more automatically?
             break;
 
         case OVERWATCH_MODE_UPDATE:
-            supervisor_states.control_mode = eData.data.u32;
+            supervisor_states.control_mode = eData.stamped.data.u32;
 //            eui_send_tracked( MSGID_SUPERVISOR );       // TODO also consider for automatic debounced output
             break;
 
 //            supervisor_states.motors     = motion_servo[0].enabled || motion_servo[1].enabled || motion_servo[2].enabled;
 
-
-
         default:
-            // Why did we recieve a signal that we didn't subscribe to?
-//            ASSERT(false);
+            // Why did we receive a signal that we didn't subscribe to?
+            ASSERT(false);
             break;
     }
 }
@@ -440,13 +447,13 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
             // See if the inbound packet name matches our intended variable
             if( strcmp( (char *)name_rx, MSGID_MODE_REQUEST ) == 0 )
             {
-                EventData modeValue = { .data.u32 = mode_request };
+                EventData modeValue = { .stamped.data.u32 = mode_request };
                 subject_notify( &event_subject, FLAG_MODE_REQUEST, modeValue );
             }
 
             if( strcmp( (char *)name_rx, MSGID_DEMO_CONFIGURATION ) == 0 && has_payload )
             {
-                EventData modeValue = { .data.u32 = demo_mode_request };
+                EventData modeValue = { .stamped.data.u32 = demo_mode_request };
                 subject_notify( &event_subject, FLAG_MODE_REQUEST, modeValue );
             }
 

@@ -167,7 +167,7 @@ path_interpolator_task( void *arg )
             {
                 // Overspeed
                 EventData alert = { 0 };
-                alert.timestamp = xTaskGetTickCount();
+                alert.stamped.timestamp = xTaskGetTickCount();
                 subject_notify( &pathing_subject, FLAG_PLANNER_VIOLATION, alert );
             }
 

@@ -167,7 +167,7 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, v
 
         case SERVO_STATE:   // One of the servos changed state...
             // TODO don't use hardcoded SERVO_STATE_ACTIVE value of 7 in state check
-            supervisor_state.servo_active[eData.index] = ( eData.data.u32 == 7);
+            supervisor_state.servo_active[eData.stamped.index] = ( eData.stamped.data.u32 == 7);
             xSemaphoreGive( xOverwatchNotifySemaphore );
             break;
 
@@ -180,7 +180,7 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, v
             break;
 
         case FLAG_MODE_REQUEST:     // UI requested a mode change
-            submode_state.requested_mode = eData.data.u32;
+            submode_state.requested_mode = eData.stamped.data.u32;
 
             // Handle the request immediately if we aren't running the mode state-machine
             if( supervisor_state.currentState != OVERWATCH_ARMED )
@@ -479,7 +479,8 @@ PRIVATE void overwatch_mode_ssm( void )
 
 PRIVATE void overwatch_publish_main_state( void )
 {
-    EventData sm_current = { .data.u32 = supervisor_state.currentState };
+    // TODO timestamp the event?
+    EventData sm_current = { .stamped.data.u32 = supervisor_state.currentState };
     subject_notify( &commands, OVERWATCH_STATE_UPDATE, sm_current );
 }
 
@@ -487,7 +488,8 @@ PRIVATE void overwatch_publish_main_state( void )
 
 PRIVATE void overwatch_publish_mode_state( void )
 {
-    EventData mode_current = { .data.u32 = submode_state.currentState };
+    // TODO timestamp the event?
+    EventData mode_current = { .stamped.data.u32 = submode_state.currentState };
     subject_notify( &commands, OVERWATCH_MODE_UPDATE, mode_current );
 }
 

@@ -167,7 +167,7 @@ PUBLIC void effector_task( void* arg )
                 if( proposed_distance_um > EFFECTOR_SPEED_LIMIT )
                 {
                     EventData alert = { 0 };
-                    alert.timestamp = xTaskGetTickCount();
+                    alert.stamped.timestamp = xTaskGetTickCount();
                     subject_notify( &effector_subject, FLAG_EFFECTOR_VIOLATION, alert );
                 }
                 else    // under the speed guard
@@ -189,6 +189,13 @@ PUBLIC void effector_task( void* arg )
                     // TODO calculate effector velocity?
 
                     // TODO update effector's current position and velocity information
+                    EventData pos_update = { 0 };
+                    pos_update.s_triple[EVT_X] = requested_position.x;
+                    pos_update.s_triple[EVT_Y] = requested_position.y;
+                    pos_update.s_triple[EVT_Z] = requested_position.z;
+
+                    subject_notify( &effector_subject, EFFECTOR_POSITION, pos_update );
+
                     memcpy( &effector_position, &requested_position, sizeof(CartesianPoint_t) );
                     memset( &requested_position, 0, sizeof(CartesianPoint_t));
                 }

@@ -156,15 +156,15 @@ PUBLIC void sensors_task( void *arg )
         ObserverEvent_t topic;  // event flag to publish
         EventData signal;       // event structure being sent
 
-        signal.timestamp = new_data.timestamp;
+        signal.stamped.timestamp = new_data.timestamp;
 
         if( data[new_data.type].converter )
         {
-            signal.data.f32 = data[new_data.type].converter(average);
+            signal.stamped.data.f32 = data[new_data.type].converter(average);
         }
         else
         {
-            signal.data.u32 = average;
+            signal.stamped.data.u32 = average;
         }
 
         // Handle 'instanced' events
@@ -182,13 +182,13 @@ PUBLIC void sensors_task( void *arg )
         if( new_data.type >= ADC_SERVO_1_CURRENT && new_data.type <= ADC_SERVO_4_CURRENT )
         {
             topic = SENSOR_SERVO_CURRENT;
-            signal.index = new_data.type - ADC_SERVO_1_CURRENT;
+            signal.stamped.index = new_data.type - ADC_SERVO_1_CURRENT;
         }
 
         if( new_data.type >= IC_SERVO_1_HLFB && new_data.type <= IC_SERVO_4_HLFB )
         {
             topic = SENSOR_SERVO_HLFB;
-            signal.index = new_data.type - IC_SERVO_1_HLFB;
+            signal.stamped.index = new_data.type - IC_SERVO_1_HLFB;
         }
 
         // Notify upstream observers of the new data
@@ -205,7 +205,7 @@ PUBLIC void sensors_task( void *arg )
             //  - index is set correctly for the servo we're referencing
 
             // Apply voltage calc to get power, publish it.
-            signal.data.f32 *= hv_voltage;
+            signal.stamped.data.f32 *= hv_voltage;
             subject_notify(&subject, SERVO_POWER, signal );
         }
 

@@ -4,6 +4,7 @@
 /* -------------------------------------------------------------------------- */
 
 #include "global.h"
+#include "signals.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -11,52 +12,68 @@
 
 /* -------------------------------------------------------------------------- */
 
-typedef uint8_t ObserverEvent_t;
+typedef SYSTEM_EVENT_FLAG ObserverEvent_t;
+
+// array
+// TODO: can this behaviour be formalised in a more correct/expressive manner?
+typedef enum
+{
+    // Triplets for position/angles, no timestamp.
+    EVT_X = 0,
+    EVT_Y = 1,
+    EVT_Z = 2,
+
+    EVT_A = 0,
+    EVT_B = 1,
+    EVT_C = 2,
+
+    EVT_DIM = 3,
+} EVENT_DATA_INDEX_REF;
 
 typedef struct
 {
-    uint8_t type;       // describe the data being represented in the data union
-    uint8_t index;      // helps distinguish different instances firing this event
-    uint8_t spare;
-    uint8_t spare2;
-    uint32_t timestamp; // data timestamp TODO: should the timestamp be done at event level or data level?
-
-    // Payload data 4-bytes, ergonomic access for common use-cases via union
-    // TODO: consider a macro that grabs the right union based on the type value?
-    union {
-        float f32;
+    uint32_t timestamp;
+    uint32_t index;
+    union
+    {
         uint32_t u32;
-        int32_t i32;
+        int32_t  i32;
+        float    f32;
     } data;
+} StampedData_t;
+
+typedef union
+{
+    StampedData_t stamped;
+    uint32_t      u_triple[EVT_DIM];
+    int32_t       s_triple[EVT_DIM];
+    float         f_triple[EVT_DIM];
 } EventData;
 
-typedef void (*EventCallbackFn)(ObserverEvent_t event, EventData data, void *context);
+typedef void ( *EventCallbackFn )( ObserverEvent_t event, EventData data, void *context );
 
 typedef struct
 {
     EventCallbackFn callback;
-    void *context;
-    uint64_t subscribed_events;  // supports up to 64 unique events, one per bit
+    void           *context;
+    uint64_t        subscribed_events;    // supports up to 64 unique events, one per bit
 } Observer;
 
 /* -------------------------------------------------------------------------- */
 
-void observer_init( Observer *observer,
+void observer_init( Observer       *observer,
                     EventCallbackFn callback,
-                    void *context
-                 );
+                    void           *context );
 
 /* -------------------------------------------------------------------------- */
 
-void observer_subscribe( Observer *observer,
-                         ObserverEvent_t event
-                         );
+void observer_subscribe( Observer       *observer,
+                         ObserverEvent_t event );
 
 /* -------------------------------------------------------------------------- */
 
-void observer_unsubscribe( Observer *observer,
-                           ObserverEvent_t event
-                           );
+void observer_unsubscribe( Observer       *observer,
+                           ObserverEvent_t event );
 
 /* -------------------------------------------------------------------------- */
 

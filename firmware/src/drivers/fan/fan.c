@@ -104,13 +104,13 @@ void fan_sensors_callback(ObserverEvent_t event, EventData eData, void *context)
     {
         case SENSOR_FAN_SPEED:
             new.type = FAN_SENSOR_SPEED;
-            new.value = eData.data.f32;
+            new.value = eData.stamped.data.f32;
             xQueueSendToBack( me->xRequestQueue, (void *)&new, 0 );
         break;
 
         case SENSOR_TEMPERATURE_EXTERNAL:
             new.type = FAN_SENSOR_TEMPERATURE;
-            new.value = eData.data.f32;
+            new.value = eData.stamped.data.f32;
             xQueueSendToBack( me->xRequestQueue, (void *)&new, 0 );
             break;
 
