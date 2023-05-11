@@ -54,17 +54,21 @@ void app_startup_init( void )
     Subject *ui_request_subject = user_interface_get_request_subject();
 
     effector_init();
+    Subject *effector_data = effector_get_subject();
 
     overwatch_init();
     Subject *overwatch_commands = overwatch_get_subject();
 
     // Attach observers to subjects as needed
+
+    // Overwatch subscriptions
     subject_add_observer( ui_request_subject, overwatch_get_observer() );
-    sensors_add_observer( fan_get_observer() );
+    subject_add_observer( effector_data, overwatch_get_observer() );
 
     // Telemetry task wants to know pretty much everything
     sensors_add_observer( user_interface_get_observer() );
     subject_add_observer( overwatch_commands, user_interface_get_observer() );
+    subject_add_observer( effector_data, user_interface_get_observer() );
 
     // Init all servos, setup inbound sensor data, commands, and output state updates
     for( ClearpathServoInstance_t instance = _CLEARPATH_1; instance < _NUMBER_CLEARPATH_SERVOS; instance++ )
@@ -79,6 +83,9 @@ void app_startup_init( void )
 
         subject_add_observer( overwatch_commands, servo_get_observer(instance) );
     }
+
+    // Misc
+    sensors_add_observer( fan_get_observer() );
 
     // TODO other setup
     //   Setup LED instances

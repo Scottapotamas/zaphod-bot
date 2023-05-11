@@ -116,7 +116,7 @@ PUBLIC void overwatch_init( void )
 
     // Subsystem state updates
     observer_subscribe( &events, SERVO_STATE );
-    observer_subscribe( &events, FLAG_EFFECTOR_NEAR_HOME );
+    observer_subscribe( &events, EFFECTOR_NEAR_HOME );
 
 }
 

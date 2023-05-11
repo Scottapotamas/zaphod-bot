@@ -119,17 +119,18 @@ typedef struct
     ClearpathServoInstance_t identifier;
     bool       enabled;
 
-    float      ic_feedback_trim;
-    float      homing_feedback;
+    float      ic_feedback_trim;    // calculated prior to arming
+    float      homing_feedback;     // calculated after homing
     stopwatch_t   timer;
+
     int32_t    angle_current_steps;
     int32_t    angle_target_steps;
 
     SemaphoreHandle_t xServoUpdateSemaphore;
     Observer sensor_observer;   // subscribe to system events etc
-    Subject sensor_subject; // publish to rest of system - events, variables, etc
-    float current;
-    float hlfb;     // servo feedback includes the ic_feedback_trim value calculated during homing
+    Subject sensor_subject;     // publish to rest of system - events, variables, etc
+    float power;                // power consumption in watts
+    float hlfb;                 // feedback value from servo
 
 //    AverageShort_t step_statistics;
     bool       presence_detected;
@@ -186,7 +187,7 @@ servo_init( ClearpathServoInstance_t servo )
 
     // Setup sensor event subscriptions
     observer_init( &me->sensor_observer, servo_sensors_callback, &clearpath[servo] );
-    observer_subscribe( &me->sensor_observer, SENSOR_SERVO_CURRENT );
+    observer_subscribe( &me->sensor_observer, SERVO_POWER );
     observer_subscribe( &me->sensor_observer, SENSOR_SERVO_HLFB );
 
     observer_subscribe( &me->sensor_observer, OVERWATCH_SERVO_ENABLE );
@@ -228,8 +229,8 @@ PRIVATE void servo_sensors_callback(ObserverEvent_t event, EventData eData, void
 
         switch( event )
         {
-            case SENSOR_SERVO_CURRENT:
-                me->current = eData.data.f32;
+            case SERVO_POWER:
+                me->power = eData.data.f32;
                 xSemaphoreGive( me->xServoUpdateSemaphore );
                 break;
 
@@ -501,9 +502,6 @@ PUBLIC void servo_task( void* arg )
             if( xSemaphoreTake( xClearpathMutex, portMAX_DELAY) )
             {
 
-                // TODO: we don't actually care about current? so consider adding power (watts) outputs to the sensor subject?
-                // TODO: fix assumption of 75V supply voltage to servos, see above note.
-                float servo_power    = me->current * 75.0f;
                 float servo_feedback = me->hlfb - me->ic_feedback_trim;
 
                 // Check if the servo has provided HLFB signals as proxy for 'detection'
@@ -782,7 +780,7 @@ PUBLIC void servo_task( void* arg )
                             if( stopwatch_deadline_elapsed( &me->timer ) )
                             {
                                 // Are the power or torque values high for a no-movement load?
-                                if( servo_power > SERVO_IDLE_POWER_ALERT_W
+                                if( me->power > SERVO_IDLE_POWER_ALERT_W
                                     || !IS_IN_DEADBAND( servo_feedback, 0, SERVO_IDLE_TORQUE_ALERT ) )
                                 {
                                     me->has_high_load = true;
@@ -808,10 +806,6 @@ PUBLIC void servo_task( void* arg )
                     subject_notify( &me->sensor_subject, SERVO_STATE, state_update );
                 }
 
-                //    user_interface_motor_state( servo, me->currentState );
-                //    user_interface_motor_enable( servo, me->enabled );
-                //    user_interface_motor_feedback( servo, servo_feedback );
-                //    user_interface_motor_power( servo, servo_power );
                 //    user_interface_motor_speed( servo, servo_get_degrees_per_second(servo) );
 
                 xSemaphoreGive( xClearpathMutex );

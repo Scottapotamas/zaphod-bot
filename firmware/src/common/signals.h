@@ -20,6 +20,7 @@ typedef enum _SYSTEM_EVENT_FLAG {
 
 
     // Servo info
+    SERVO_POWER,
     SERVO_POSITION,
     SERVO_SPEED,
     SERVO_STATE,
@@ -27,6 +28,7 @@ typedef enum _SYSTEM_EVENT_FLAG {
     // Effector info
     EFFECTOR_POSITION,
     EFFECTOR_SPEED,
+    EFFECTOR_NEAR_HOME,
 
     // Event flags
     FLAG_ARM,
@@ -36,7 +38,6 @@ typedef enum _SYSTEM_EVENT_FLAG {
 
     FLAG_MODE_REQUEST,
 
-    FLAG_EFFECTOR_NEAR_HOME,
 
     OVERWATCH_SERVO_ENABLE,
     OVERWATCH_SERVO_DISABLE,

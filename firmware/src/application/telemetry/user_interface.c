@@ -191,13 +191,14 @@ user_interface_init( void )
     observer_subscribe( &telemetry_observer, SENSOR_TEMPERATURE_EXTERNAL );
     observer_subscribe( &telemetry_observer, SENSOR_TEMPERATURE_MICRO );
 
-    observer_subscribe( &telemetry_observer, SENSOR_SERVO_CURRENT );
     observer_subscribe( &telemetry_observer, SENSOR_SERVO_HLFB );
+    observer_subscribe( &telemetry_observer, SERVO_POWER );
     observer_subscribe( &telemetry_observer, SERVO_STATE );
     observer_subscribe( &telemetry_observer, SERVO_POSITION );
     observer_subscribe( &telemetry_observer, SERVO_SPEED );
 
-//    observer_subscribe( &telemetry_observer, SERVO_SPEED );
+    observer_subscribe( &telemetry_observer, EFFECTOR_POSITION );
+    observer_subscribe( &telemetry_observer, EFFECTOR_SPEED );
 
     observer_subscribe( &telemetry_observer, OVERWATCH_STATE_UPDATE );
     observer_subscribe( &telemetry_observer, OVERWATCH_MODE_UPDATE );
@@ -320,9 +321,8 @@ PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData eD
 
         // TODO: telemetry task needs to handle all other sensor values
 
-        case SENSOR_SERVO_CURRENT:
+        case SERVO_POWER:
             motion_servo[eData.index].power = eData.data.f32;
-
             break;
 
         case SENSOR_SERVO_HLFB:

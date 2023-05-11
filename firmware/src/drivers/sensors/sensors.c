@@ -191,8 +191,23 @@ PUBLIC void sensors_task( void *arg )
             signal.index = new_data.type - IC_SERVO_1_HLFB;
         }
 
-        // Notify upstream observers
+        // Notify upstream observers of the new data
         subject_notify(&subject, topic, signal );
+
+        // Publish additional pre-transformed 'servo power' values
+        if( new_data.type <= ADC_SERVO_4_CURRENT )
+        {
+            float hv_voltage = data[ADC_VOLTAGE_INPUT].converter( average_short_get_average( &data[ADC_VOLTAGE_INPUT].stats ) );
+
+            // Assumptions:
+            //  - current reading already converted to amps,
+            //  - The current reading timestamp should be used
+            //  - index is set correctly for the servo we're referencing
+
+            // Apply voltage calc to get power, publish it.
+            signal.data.f32 *= hv_voltage;
+            subject_notify(&subject, SERVO_POWER, signal );
+        }
 
     }
 
