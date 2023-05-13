@@ -130,12 +130,12 @@ PUBLIC void request_handler_task( void *arg )
     for(;;)
     {
         Movement_t incoming_movement;
-        BaseType_t result = xQueueReceive(pool->input_queue,
+        BaseType_t req_needs_slot = xQueueReceive(pool->input_queue,
                                            (void *)&incoming_movement,
                                            5 // portMAX_DELAY
                                            );
 
-        if( result )
+        if( req_needs_slot )
         {
             request_handler_insert_movement( pool->instance, &incoming_movement);
         }

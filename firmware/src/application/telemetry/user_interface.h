@@ -9,6 +9,7 @@ extern "C" {
 
 #include "user_interface_types.h"
 #include "movement_types.h"
+#include "lighting_types.h"
 
 #include "observer.h"
 #include "subject.h"
@@ -34,6 +35,12 @@ PUBLIC Subject * user_interface_get_request_subject( void );
 typedef void (*MovementRequestFn)(Movement_t *move);
 
 PUBLIC void user_interface_attach_motion_request_cb( MovementRequestFn callback );
+
+/* -------------------------------------------------------------------------- */
+
+typedef void (*LightingRequestFn)(Fade_t *move);
+
+PUBLIC void user_interface_attach_lighting_request_cb( LightingRequestFn callback );
 
 /* -------------------------------------------------------------------------- */
 

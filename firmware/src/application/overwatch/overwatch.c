@@ -118,6 +118,7 @@ PUBLIC void overwatch_init( void )
     observer_subscribe( &events, FLAG_REHOME );
     observer_subscribe( &events, FLAG_MODE_REQUEST );
     observer_subscribe( &events, FLAG_SYNC_EPOCH );
+    observer_subscribe( &events, FLAG_REQUEST_QUEUE_CLEAR );
 
     // Subsystem state updates
     observer_subscribe( &events, SERVO_STATE );
@@ -189,6 +190,11 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, v
         case FLAG_SYNC_EPOCH:
             path_interpolator_set_epoch_reference( eData.stamped.data.u32 );
             // TODO: handle this for manual, event and demo driven modes?
+            break;
+
+        case FLAG_REQUEST_QUEUE_CLEAR:
+            request_handler_clear( REQUEST_HANDLER_MOVES );
+            request_handler_clear( REQUEST_HANDLER_FADES );
             break;
 
         case FLAG_MODE_REQUEST:     // UI requested a mode change

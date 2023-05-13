@@ -1,6 +1,6 @@
-#include <string.h>
+/* -------------------------------------------------------------------------- */
 
-/* ----- Local Includes ----------------------------------------------------- */
+#include <string.h>
 
 #include "user_interface.h"
 #include "user_interface_msgid.h"
@@ -16,24 +16,15 @@
 #include "signals.h"
 #include "qassert.h"
 
-//#include "configuration.h"
-//#include "timer_ms.h"
-//#include "app_task_ids.h"
-//#include "app_tasks.h"
-//#include "app_events.h"
-//#include "app_signals.h"
-//#include "app_times.h"
-//#include "event_subscribe.h"
+/* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE;
 
-/* ----- Private Function Declaration --------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData eData, void *context);
 
-
-PRIVATE void
-user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t message );
+PRIVATE void user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t message );
 
 PRIVATE void user_interface_tx_put_external( uint8_t *c, uint16_t length );
 PRIVATE void user_interface_eui_callback_external( uint8_t message );
@@ -44,7 +35,7 @@ PRIVATE void user_interface_eui_callback_internal( uint8_t message );
 PRIVATE void user_interface_tx_put_module( uint8_t *c, uint16_t length );
 PRIVATE void user_interface_eui_callback_module( uint8_t message );
 
-/* ----- Private Function Declaration --------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 PRIVATE void start_mech_cb( void );
 PRIVATE void stop_mech_cb( void );
@@ -55,11 +46,9 @@ PRIVATE void clear_all_queue( void );
 PRIVATE void tracked_external_servo_request( void );
 
 PRIVATE void rgb_manual_led_event( void );
-PRIVATE void lighting_generate_event( void );
 PRIVATE void sync_begin_queues( void );
-PRIVATE void trigger_camera_capture( void );
 
-/* ----- Defines ----------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 char reset_cause[20]  = "No Reset Cause";
 char assert_cause[32] = "No Assert";
@@ -70,36 +59,33 @@ BuildInfo_t      fw_info;
 SystemData_t   system_stats;
 SystemStates_t supervisor_states;
 FanData_t      fan_stats;
-
-uint8_t mode_request = 0;
-uint8_t demo_mode_request = 0;
+QueueDepths_t queue_data;
 
 MotorData_t motion_servo[4];
-int32_t     external_servo_angle_target;
-
 EffectorData_t effector;
 
-CartesianPoint_t target_position;
 
 LedState_t rgb_led_drive;
 LedState_t rgb_manual_control;
 
-QueueDepths_t queue_data;
+CartesianPoint_t target_position;
 Movement_t    motion_inbound;
-//Fade_t        light_fade_inbound;
-
+Fade_t        fade_inbound;
 uint32_t camera_shutter_duration_ms = 0;
+uint8_t mode_request = 0;
+uint8_t demo_mode_request = 0;
+int32_t     external_servo_angle_target = 0;
 
 
 eui_message_t ui_variables[] = {
     // Higher level system setup information
     EUI_CHAR_ARRAY_RO( MSGID_RESET_CAUSE, reset_cause ),
     EUI_CHAR_ARRAY_RO( MSGID_ASSERT_CAUSE, assert_cause ),
-    EUI_CUSTOM( MSGID_FIRMWARE_INFO, fw_info ),
+    EUI_CUSTOM_RO( MSGID_FIRMWARE_INFO, fw_info ),
     //    EUI_CUSTOM_RO( MSGID_KINEMATICS, mechanical_info ),
 
-    EUI_CUSTOM( MSGID_SYSTEM, system_stats ),
-    EUI_CUSTOM( MSGID_SUPERVISOR, supervisor_states ),
+    EUI_CUSTOM_RO( MSGID_SYSTEM, system_stats ),
+    EUI_CUSTOM_RO( MSGID_SUPERVISOR, supervisor_states ),
 //    EUI_CUSTOM( MSGID_FAN, fan_stats ),
     EUI_CUSTOM_RO( MSGID_SERVO, motion_servo ),
 
@@ -138,6 +124,8 @@ eui_message_t ui_variables[] = {
 //    { .id = MSGID_CONFIG, .type = TYPE_CUSTOM, .size = sizeof(UserConfig_t), {.data = 0} }
 };
 
+/* -------------------------------------------------------------------------- */
+
 #define HEARTBEAT_EXPECTED_MS 800	// Expect to see a heartbeat within this threshold
 
 // TODO update for FreeRTOS
@@ -161,9 +149,10 @@ PRIVATE Observer telemetry_observer = { 0 };
 PRIVATE Subject event_subject = { 0 };
 
 PRIVATE MovementRequestFn handle_requested_move;    // Pass UI Movement event requests to this callback for handling
+PRIVATE LightingRequestFn handle_requested_fade;    // Pass UI Movement event requests to this callback for handling
 PRIVATE PositionRequestFn handle_requested_position; // Pass cartesian position requests to this callback for handling
 
-/* ----- Public Functions --------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 PUBLIC void
 user_interface_init( void )
@@ -237,13 +226,15 @@ user_interface_init( void )
 
 }
 
-#define PARSE_CHUNK_SIZE 32
+/* -------------------------------------------------------------------------- */
+
+// TODO cleanup required here
+#define PARSE_CHUNK_SIZE 120
 
 uint8_t buffer[PARSE_CHUNK_SIZE] = { 0 };
 uint32_t bytes_available = 0;
 
-PUBLIC void
-user_interface_task( void *arg )
+PUBLIC void user_interface_task( void *arg )
 {
 
     for(;;)
@@ -273,6 +264,8 @@ user_interface_task( void *arg )
     }
 }
 
+/* -------------------------------------------------------------------------- */
+
 PUBLIC Observer * user_interface_get_observer( void )
 {
     return &telemetry_observer;
@@ -283,9 +276,16 @@ PUBLIC Subject * user_interface_get_request_subject( void )
     return &event_subject;
 }
 
+/* -------------------------------------------------------------------------- */
+
 PUBLIC void user_interface_attach_motion_request_cb( MovementRequestFn callback )
 {
     handle_requested_move = callback;
+}
+
+PUBLIC void user_interface_attach_lighting_request_cb( LightingRequestFn callback )
+{
+    handle_requested_fade = callback;
 }
 
 PUBLIC void user_interface_attach_position_request_cb( PositionRequestFn callback )
@@ -293,6 +293,7 @@ PUBLIC void user_interface_attach_position_request_cb( PositionRequestFn callbac
     handle_requested_position = callback;
 }
 
+/* -------------------------------------------------------------------------- */
 
 PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData eData, void *context)
 {
@@ -371,8 +372,9 @@ PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData eD
     }
 }
 
-PUBLIC bool
-user_interface_connection_ok( void )
+/* -------------------------------------------------------------------------- */
+
+PUBLIC bool user_interface_connection_ok( void )
 {
     // TODO update this for FreeRTOS
     // Check if the most recent heartbeats have timed out
@@ -388,42 +390,36 @@ user_interface_connection_ok( void )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void
-user_interface_tx_put_external( uint8_t *c, uint16_t length )
+PRIVATE void user_interface_tx_put_external( uint8_t *c, uint16_t length )
 {
     hal_uart_write( HAL_UART_PORT_EXTERNAL, c, length );
 }
 
-PRIVATE void
-user_interface_eui_callback_external( uint8_t message )
+PRIVATE void user_interface_eui_callback_external( uint8_t message )
 {
     user_interface_eui_callback( LINK_EXTERNAL, &communication_interface[LINK_EXTERNAL], message );
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void
-user_interface_tx_put_internal( uint8_t *c, uint16_t length )
+PRIVATE void user_interface_tx_put_internal( uint8_t *c, uint16_t length )
 {
     hal_uart_write( HAL_UART_PORT_INTERNAL, c, length );
 }
 
-PRIVATE void
-user_interface_eui_callback_internal( uint8_t message )
+PRIVATE void user_interface_eui_callback_internal( uint8_t message )
 {
     user_interface_eui_callback( LINK_INTERNAL, &communication_interface[LINK_INTERNAL], message );
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void
-user_interface_tx_put_module( uint8_t *c, uint16_t length )
+PRIVATE void user_interface_tx_put_module( uint8_t *c, uint16_t length )
 {
     hal_uart_write( HAL_UART_PORT_MODULE, c, length );
 }
 
-PRIVATE void
-user_interface_eui_callback_module( uint8_t message )
+PRIVATE void user_interface_eui_callback_module( uint8_t message )
 {
     user_interface_eui_callback( LINK_MODULE, &communication_interface[LINK_MODULE], message );
 }
@@ -477,7 +473,10 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
 
             if( strcmp( (char *)name_rx, MSGID_QUEUE_ADD_FADE ) == 0 && has_payload )
             {
-                lighting_generate_event();
+                if( handle_requested_fade )
+                {
+                    handle_requested_fade( &fade_inbound );
+                }
             }
 
             if( strcmp( (char *)name_rx, MSGID_POSITION_TARGET ) == 0 && has_payload )
@@ -501,11 +500,12 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
                 rgb_manual_led_event();
             }
 
-
-
             if( strcmp( (char *)name_rx, MSGID_CAPTURE ) == 0 && has_payload )
             {
-                trigger_camera_capture();
+                EventData capture_request = { 0 };
+                capture_request.stamped.timestamp = xTaskGetTickCount();
+                capture_request.stamped.data.u32 = camera_shutter_duration_ms;
+                subject_notify( &event_subject, FLAG_REQUEST_SHUTTER_RELEASE, capture_request );
             }
 
             if( strcmp( (char *)name_rx, MSGID_CONFIG ) == 0 && has_payload )
@@ -594,10 +594,6 @@ user_interface_set_cpu_clock( uint32_t clock )
 {
     system_stats.cpu_clock = clock / 1000000;    // convert to Mhz
 }
-
-/* -------------------------------------------------------------------------- */
-
-/* -------------------------------------------------------------------------- */
 
 /* -------------------------------------------------------------------------- */
 
@@ -738,52 +734,23 @@ PRIVATE void tracked_external_servo_request( void )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void lighting_generate_event( void )
-{
-//    LightingPlannerEvent *lighting_request = EVENT_NEW( LightingPlannerEvent, LED_QUEUE_ADD );
-//
-//    if( lighting_request )
-//    {
-//        memcpy( &lighting_request->animation, &light_fade_inbound, sizeof( light_fade_inbound ) );
-//        eventPublish( (StateEvent *)lighting_request );
-//        memset( &light_fade_inbound, 0, sizeof( light_fade_inbound ) );
-//    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-// Send an event to the supervisor requesting the start of the queues
-// Supervisor will generate the epoch for timing reference, and fire events to the motion
-// and LED planner tasks.
+// Send a request to the overseer/system via event
 
 PRIVATE void sync_begin_queues( void )
 {
-//    eventPublish( EVENT_NEW( StateEvent, QUEUE_SYNC_START ) );
+    EventData sync_request = { 0 };
+    sync_request.stamped.timestamp = xTaskGetTickCount();
+    sync_request.stamped.data.u32 = sync_request.stamped.timestamp;     // just assume it's requesting right now
+    // TODO: allow the UI to request a sync point into the future?
+    subject_notify( &event_subject, FLAG_SYNC_EPOCH, sync_request );
 }
 
 PRIVATE void clear_all_queue( void )
 {
-//    eventPublish( EVENT_NEW( StateEvent, MOTION_QUEUE_CLEAR ) );
-//    eventPublish( EVENT_NEW( StateEvent, LED_QUEUE_CLEAR ) );
+    EventData clear_request = { 0 };
+    clear_request.stamped.timestamp = xTaskGetTickCount();
+    clear_request.stamped.data.u32 = 0;
+    subject_notify( &event_subject, FLAG_REQUEST_QUEUE_CLEAR, clear_request );
 }
 
 /* -------------------------------------------------------------------------- */
-
-PRIVATE void
-trigger_camera_capture( void )
-{
-//    CameraShutterEvent *trigger = EVENT_NEW( CameraShutterEvent, CAMERA_CAPTURE );
-//
-//    if( trigger )
-//    {
-//        memcpy( &trigger->exposure_time, &camera_shutter_duration_ms, sizeof( camera_shutter_duration_ms ) );
-//        eventPublish( (StateEvent *)trigger );
-//        memset( &camera_shutter_duration_ms, 0, sizeof( camera_shutter_duration_ms ) );
-//    }
-}
-
-
-/* -------------------------------------------------------------------------- */
-
-
-/* ----- End ---------------------------------------------------------------- */
