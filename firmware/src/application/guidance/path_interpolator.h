@@ -51,6 +51,11 @@ path_interpolator_get_progress( void );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC void
+path_interpolator_update_effector_position( int32_t effector_x, int32_t effector_y, int32_t effector_z );
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC bool
 path_interpolator_get_move_done( void );
 

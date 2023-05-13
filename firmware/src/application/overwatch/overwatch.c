@@ -10,7 +10,7 @@
 #include "semphr.h"
 #include "timers.h"
 
-#include "hal_gpio.h"
+#include "buzzer.h"
 
 #include "user_interface.h"
 #include "request_handler.h"
@@ -31,6 +31,7 @@ typedef struct
     ControlModes_t nextState;
 
     ControlModes_t requested_mode;
+    bool effector_at_home;
 
 } Modes_t;
 
@@ -70,8 +71,6 @@ PRIVATE Observer events = { 0 };
 
 PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, void *context);
 
-PRIVATE void overwatch_timer_callback( TimerHandle_t xTimer );
-
 PRIVATE void overwatch_state_ssm( void );
 
 PRIVATE void overwatch_mode_ssm( void );
@@ -79,6 +78,12 @@ PRIVATE void overwatch_mode_ssm( void );
 PRIVATE void overwatch_publish_main_state( void );
 
 PRIVATE void overwatch_publish_mode_state( void );
+
+PRIVATE void overwatch_timer_callback( TimerHandle_t xTimer );
+
+PRIVATE void overwatch_estop_in( uint32_t timeout_ms );
+
+PRIVATE void overwatch_estop_revoke_promise( void );
 
 /* -------------------------------------------------------------------------- */
 
@@ -120,6 +125,10 @@ PUBLIC void overwatch_init( void )
 
     observer_subscribe( &events, FLAG_EFFECTOR_VIOLATION );
     observer_subscribe( &events, FLAG_PLANNER_VIOLATION );
+
+    // TODO the observer shouldn't be subscribing to position and pushing data downwards to pathing tasks
+    observer_subscribe( &events, EFFECTOR_POSITION );
+
 }
 
 /* -------------------------------------------------------------------------- */
@@ -172,10 +181,13 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, v
             break;
 
         case EFFECTOR_NEAR_HOME:
-            // TODO: handle this?
+            // TODO: handle this behaviour in a cleaner manner?
+            submode_state.effector_at_home = true;
+            xSemaphoreGive( xOverwatchNotifySemaphore );
             break;
 
         case FLAG_SYNC_EPOCH:
+            path_interpolator_set_epoch_reference( eData.stamped.data.u32 );
             // TODO: handle this for manual, event and demo driven modes?
             break;
 
@@ -185,30 +197,28 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, v
             // Handle the request immediately if we aren't running the mode state-machine
             if( supervisor_state.currentState != OVERWATCH_ARMED )
             {
-                submode_state.currentState = submode_state.requested_mode;
+                submode_state.nextState = submode_state.requested_mode;
                 overwatch_publish_mode_state();
             }
 
             xSemaphoreGive( xOverwatchNotifySemaphore );
             break;
 
+        case EFFECTOR_POSITION:
+
+            path_interpolator_update_effector_position( eData.s_triple[EVT_X],
+                                                        eData.s_triple[EVT_Y],
+                                                        eData.s_triple[EVT_Z] );
+
+            point_follower_update_effector_position( eData.s_triple[EVT_X],
+                                                     eData.s_triple[EVT_Y],
+                                                     eData.s_triple[EVT_Z] );
+            break;
+
         default:
             ASSERT(false);
             break;
     }
-}
-
-// Called by FreeRTOS timer task and used to stimulate the task.
-// The task itself sets one-shot or repeating timers as needed.
-PRIVATE void overwatch_timer_callback( TimerHandle_t xTimer )
-{
-    Overwatch_t *me = &supervisor_state;
-
-    // TODO is there a better ESTOP option?
-    me->requested_arming = false;
-    STATE_NEXT( OVERWATCH_DISARMING);
-
-    xSemaphoreGive( xOverwatchNotifySemaphore );
 }
 
 PUBLIC void overwatch_task( void* arg )
@@ -258,20 +268,12 @@ PRIVATE void overwatch_state_ssm( void )
 
         case OVERWATCH_ARMING:
             STATE_ENTRY_ACTION
-            // TODO: Enable all the motors
             EventData temp = { 0 };
+            temp.stamped.timestamp = xTaskGetTickCount();
             subject_notify( &commands, OVERWATCH_SERVO_ENABLE, temp );
 
             // A pending eSTOP event acts as a timeout
-            xOverwatchStimulusTimer = xTimerCreate("overseer",
-                                                    pdMS_TO_TICKS(5000),
-                                                    pdFALSE,
-                                                    0,
-                                                    overwatch_timer_callback
-            );
-            REQUIRE( xOverwatchStimulusTimer );
-            xTimerStart( xOverwatchStimulusTimer, 0 );
-
+            overwatch_estop_in( 5000 );
             STATE_TRANSITION_TEST
 
             // Are the motors/subsystems ready?
@@ -282,16 +284,15 @@ PRIVATE void overwatch_state_ssm( void )
             }
 
             STATE_EXIT_ACTION
-            xTimerStop( xOverwatchStimulusTimer, 0 );
-
+            overwatch_estop_revoke_promise();
             STATE_END
             break;
 
         case OVERWATCH_ARMED:
             STATE_ENTRY_ACTION
-
             effector_reset();
 
+            // Reset the entire mode management SM
             STATE_TRANSITION_TEST
 
             // Run the sub-state machine which manages connections between tasks
@@ -303,16 +304,23 @@ PRIVATE void overwatch_state_ssm( void )
             }
 
             STATE_EXIT_ACTION
-            // TODO: Tell the sub-mode system to cleanup?
-            // Cleanup the mode management SM
-            effector_reset();
 
+            // Force the mode SM into clean position if leaving while it was mid-transition
+            if( submode_state.currentState == MODE_CHANGE )
+            {
+                // TODO: This is a minor edge case that can be handled more cleanly with a refactor
+                submode_state.effector_at_home = true;
+                overwatch_mode_ssm();
+            }
+
+            effector_reset();
             STATE_END
             break;
 
         case OVERWATCH_DISARMING:
             STATE_ENTRY_ACTION
             EventData temp = { 0 };
+            temp.stamped.timestamp = xTaskGetTickCount();
             subject_notify( &commands, OVERWATCH_SERVO_DISABLE, temp );
 
             STATE_TRANSITION_TEST
@@ -350,7 +358,7 @@ PRIVATE void overwatch_mode_ssm( void )
 
     // TODO: Control state edge cases to handle
     //       - When disarmed, changing requested state should let us startup straight into the one we wanted?
-    //       - When disarmming at the higher level, we should transition into unknown/changing to break connections?
+    //       - When disarming at the higher level, we should transition into unknown/changing to break connections?
     //       - Can we use changing state behaviour for re-home events?
 
 
@@ -373,25 +381,40 @@ PRIVATE void overwatch_mode_ssm( void )
             // Overwatch manual request generation -> Path interpolator -> Kinematics
             path_interpolator_update_output_callback( effector_request_target );
 
-            // Ask the mechanism to go home
-            // Movement_t homing_move = { 0 };
-            // TODO: write a helper which generates nice homing movements
-            //path_interpolator_add_request( homing_move );
+            submode_state.effector_at_home = false; // TODO this kind of 'sharing event status' is messy
 
-            // buzzer_sound( BUZZER_MODE_CHANGE_NUM, BUZZER_MODE_CHANGE_TONE, BUZZER_MODE_CHANGE_DURATION );
+            // Ask the mechanism to go home
+             Movement_t homing_move = { 0 };
+             homing_move.metadata.type       = _POINT_TRANSIT;
+             homing_move.metadata.ref        = _POS_ABSOLUTE;
+             homing_move.metadata.num_pts    = 1;
+             homing_move.duration            = 800;
+             homing_move.sync_offset         = 0;
+
+             homing_move.points[0].x = 0;
+             homing_move.points[0].y = 0;
+             homing_move.points[0].z = 0;
+
+            // TODO: write a helper which generates nicer homing movements
+            path_interpolator_add_request( &homing_move );
+            path_interpolator_set_epoch_reference( xTaskGetTickCount() + 5 );
+
+            buzzer_sound( BUZZER_MODE_CHANGE_NUM, BUZZER_MODE_CHANGE_TONE, BUZZER_MODE_CHANGE_DURATION );
+
+            // If it doesn't get there in X time, fire an E-STOP?
+            overwatch_estop_in( 1200 );
 
             STATE_TRANSITION_TEST
             // When at home, transition into correct mode
-            // TODO: catch event notifying us of being at home?
-            //          or poll effector_is_near_home()
-
-            // If it doesn't get there in X time, fire an E-STOP?
-
-            STATE_NEXT( me->requested_mode );
+            if( submode_state.effector_at_home )
+            {
+                buzzer_sound( BUZZER_MODE_CHANGED_NUM, BUZZER_MODE_CHANGED_TONE, BUZZER_MODE_CHANGED_DURATION );
+                STATE_NEXT( me->requested_mode );
+            }
 
             STATE_EXIT_ACTION
-
             path_interpolator_update_output_callback( NULL );
+            overwatch_estop_revoke_promise();
             STATE_END
             break;
 
@@ -482,7 +505,9 @@ PRIVATE void overwatch_mode_ssm( void )
 PRIVATE void overwatch_publish_main_state( void )
 {
     // TODO timestamp the event?
-    EventData sm_current = { .stamped.data.u32 = supervisor_state.currentState };
+    EventData sm_current = { 0 };
+    sm_current.stamped.timestamp = xTaskGetTickCount();
+    sm_current.stamped.data.u32 = supervisor_state.currentState;
     subject_notify( &commands, OVERWATCH_STATE_UPDATE, sm_current );
 }
 
@@ -490,9 +515,44 @@ PRIVATE void overwatch_publish_main_state( void )
 
 PRIVATE void overwatch_publish_mode_state( void )
 {
-    // TODO timestamp the event?
-    EventData mode_current = { .stamped.data.u32 = submode_state.currentState };
-    subject_notify( &commands, OVERWATCH_MODE_UPDATE, mode_current );
+    // The next state is more accurate for notifications than the current state
+    //   when disarmed, the mode state-machine isn't run and stays where it is, but the next
+    //   state will be used as the transition when it activates, so show that to the user
+    EventData mode_next = { 0 };
+    mode_next.stamped.timestamp = xTaskGetTickCount();
+    mode_next.stamped.data.u32 = submode_state.nextState;
+    subject_notify( &commands, OVERWATCH_MODE_UPDATE, mode_next );
 }
+
+// Called by FreeRTOS timer task and used to stimulate the task.
+// The task itself sets one-shot or repeating timers as needed.
+PRIVATE void overwatch_timer_callback( TimerHandle_t xTimer )
+{
+    Overwatch_t *me = &supervisor_state;
+
+    // TODO is there a better ESTOP option?
+    me->requested_arming = false;
+    STATE_NEXT( OVERWATCH_DISARMING);
+
+    xSemaphoreGive( xOverwatchNotifySemaphore );
+}
+
+PRIVATE void overwatch_estop_in( uint32_t timeout_ms )
+{
+    xOverwatchStimulusTimer = xTimerCreate("overseer",
+                                            pdMS_TO_TICKS(timeout_ms),
+                                            pdFALSE,
+                                            0,
+                                            overwatch_timer_callback
+    );
+    REQUIRE( xOverwatchStimulusTimer );
+    xTimerStart( xOverwatchStimulusTimer, 0 );
+}
+
+PRIVATE void overwatch_estop_revoke_promise( void )
+{
+    xTimerStop( xOverwatchStimulusTimer, 0 );
+}
+
 
 /* -------------------------------------------------------------------------- */

@@ -19,9 +19,11 @@ target_include_directories (
 target_link_libraries(
         overwatch_lib
         PRIVATE
+        buzzer_lib
         guidance_lib
         kinematics_lib
         utility_observer_lib
+        utility_cartesian_lib
         telemetry_lib
         FreeRTOS::ARM_CM4F
         CMSIS::STM32::F429xx

@@ -37,6 +37,11 @@ typedef struct
     PositionRequestFn output_cb;    // target positions are emitted as arguments against this callback
 } MotionPlanner_t;
 
+// Externally updated position describing where the effector currently is.
+// This is used to transform 'relative' position moves into absolute space
+// TODO: This is a hack and violates how tasks/planners should share data.
+PRIVATE CartesianPoint_t effector_position = { 0 };
+
 PRIVATE MotionPlanner_t planner = { 0 };
 
 PRIVATE Subject pathing_subject;
@@ -115,6 +120,16 @@ PUBLIC uint32_t path_interpolator_queue_ready( void )
     MotionPlanner_t *me = &planner;
 
     return uxQueueSpacesAvailable( me->xRequestQueue );
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
+path_interpolator_update_effector_position( int32_t effector_x, int32_t effector_y, int32_t effector_z  )
+{
+    effector_position.x = effector_x;
+    effector_position.y = effector_y;
+    effector_position.z = effector_z;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -236,14 +251,12 @@ path_interpolator_task( void *arg )
 PRIVATE void
 path_interpolator_premove_transforms( Movement_t *move )
 {
-    // TODO: refactor requried once kinematics module can provide position info
-    CartesianPoint_t effector_position = { .x = 0, .y = 0, .z = 0 };    // effector_get_position();
-
     // apply current position to a relative movement
     if( (MotionReference_t)move->metadata.ref == _POS_RELATIVE )
     {
         for( uint32_t i = 0; i < move->metadata.num_pts; i++ )
         {
+            // TODO: needs attention after the externally provided effector position is cleaned up
             move->points[i].x += effector_position.x;
             move->points[i].y += effector_position.y;
             move->points[i].z += effector_position.z;

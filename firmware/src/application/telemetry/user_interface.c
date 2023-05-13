@@ -463,6 +463,16 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
                 {
                     handle_requested_move( &motion_inbound );
                 }
+
+                // TODO: the UI should fire the sync event just after the move request, rather than doing it internally?
+                if(mode_request == MODE_MANUAL )
+                {
+                    // Fire a sync event
+                    EventData sync = { 0 };
+                    sync.stamped.timestamp = xTaskGetTickCount();
+                    sync.stamped.data.u32 = sync.stamped.timestamp; // as the sync can be any timestamp value, allows us to set it into the future
+                    subject_notify( &event_subject, FLAG_SYNC_EPOCH, sync );
+                }
             }
 
             if( strcmp( (char *)name_rx, MSGID_QUEUE_ADD_FADE ) == 0 && has_payload )

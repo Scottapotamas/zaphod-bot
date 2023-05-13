@@ -34,4 +34,9 @@ point_follower_set_target( CartesianPoint_t *target );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC void
+point_follower_update_effector_position( int32_t effector_x, int32_t effector_y, int32_t effector_z );
+
+/* -------------------------------------------------------------------------- */
+
 #endif /* POINT_FOLLOWER_H */
