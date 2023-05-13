@@ -32,13 +32,13 @@ PUBLIC Subject * user_interface_get_request_subject( void );
 
 /* -------------------------------------------------------------------------- */
 
-typedef void (*MovementRequestFn)(Movement_t *move);
+typedef uint32_t (*MovementRequestFn)(Movement_t *move);
 
 PUBLIC void user_interface_attach_motion_request_cb( MovementRequestFn callback );
 
 /* -------------------------------------------------------------------------- */
 
-typedef void (*LightingRequestFn)(Fade_t *move);
+typedef uint32_t (*LightingRequestFn)(Fade_t *move);
 
 PUBLIC void user_interface_attach_lighting_request_cb( LightingRequestFn callback );
 

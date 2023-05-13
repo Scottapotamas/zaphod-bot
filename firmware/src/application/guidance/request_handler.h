@@ -34,8 +34,8 @@ typedef enum
     CALLBACK_FADE,
 } CallbackTypes;
 
-typedef void (*MovementRequestFn)(Movement_t *move);
-typedef void (*LightingRequestFn)(Fade_t *fade);
+typedef uint32_t (*MovementRequestFn)(Movement_t *move);
+typedef uint32_t (*LightingRequestFn)(Fade_t *fade);
 
 typedef struct {
     CallbackTypes type;
@@ -64,7 +64,7 @@ PUBLIC void request_handler_task( void *arg );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void request_handler_add_movement( Movement_t *movement );
+PUBLIC uint32_t request_handler_add_movement( Movement_t *movement );
 
 /* -------------------------------------------------------------------------- */
 

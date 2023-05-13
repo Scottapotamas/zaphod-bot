@@ -102,22 +102,14 @@ path_interpolator_set_epoch_reference( uint32_t sync_timer )
 
 /* -------------------------------------------------------------------------- */
 
-// TODO: there's an implication that the path interpolator maintains it's own queue
-//          if so, we need to be able to report occupancy, clear it etc from a higher level?
-
-PUBLIC void path_interpolator_add_request( Movement_t *movement_to_process )
+PUBLIC uint32_t path_interpolator_queue_request( Movement_t *movement_to_process )
 {
     MotionPlanner_t *me = &planner;
-    xQueueSendToBack( me->xRequestQueue, (void *)movement_to_process, (TickType_t)0 );
 
-    //    return uxQueueSpacesAvailable( me->xRequestQueue );
-}
-
-/* -------------------------------------------------------------------------- */
-// TODO: fold this behaviour into the add_request callback?
-PUBLIC uint32_t path_interpolator_queue_ready( void )
-{
-    MotionPlanner_t *me = &planner;
+    if( movement_to_process )
+    {
+        xQueueSendToBack( me->xRequestQueue, (void *)movement_to_process, (TickType_t)0 );
+    }
 
     return uxQueueSpacesAvailable( me->xRequestQueue );
 }

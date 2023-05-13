@@ -16,10 +16,13 @@ DEFINE_THIS_FILE;
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void request_handler_insert_movement( RequestHandlerInstance_t instance, const Movement_t *movement );
+PRIVATE void request_handler_insert_movement( RequestHandlerInstance_t instance, Movement_t *movement );
+
 PRIVATE int32_t request_handler_find_free_pool_slot( RequestHandlerInstance_t instance );
+
 PRIVATE int32_t request_handler_find_sorted_candidate( RequestHandlerInstance_t instance );
-PRIVATE bool request_handler_emit_next_movement( RequestHandlerInstance_t instance );
+
+PRIVATE void request_handler_emit_ordered_entries( RequestHandlerInstance_t instance );
 
 /* -------------------------------------------------------------------------- */
 
@@ -51,7 +54,7 @@ PRIVATE RequestPool_t pool[NUM_REQUEST_HANDLERS] = { 0 };
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void request_handler_add( RequestHandlerInstance_t handler, Movement_t *movement );
+PRIVATE uint32_t request_handler_add( RequestHandlerInstance_t handler, Movement_t *movement );
 
 /* -------------------------------------------------------------------------- */
 
@@ -141,31 +144,20 @@ PUBLIC void request_handler_task( void *arg )
         }
 
         // Keep the output queue populated with ordered movements
-//        while( uxQueueSpacesAvailable(pool->output_queue) > 0 )
-//        {
-//            // Emit the next movement if there's room in the output queue
-//            if (!request_handler_emit_next_movement( rh ))
-//            {
-//                // No moves output
-//                break;
-//            }
-//        }
-
+        request_handler_emit_ordered_entries( pool->instance );
     }
 }
 
 /* -------------------------------------------------------------------------- */
 
-
-PUBLIC void request_handler_add_movement( Movement_t *movement )
+PUBLIC uint32_t request_handler_add_movement( Movement_t *movement )
 {
-    request_handler_add( REQUEST_HANDLER_MOVES, movement );
+    return request_handler_add( REQUEST_HANDLER_MOVES, movement );
 }
-
 
 // TODO: make input arg generic on size?
 //       - should check the item being added matches the size accepted by the rh
-PRIVATE void request_handler_add( RequestHandlerInstance_t instance, Movement_t *movement )
+PRIVATE uint32_t request_handler_add( RequestHandlerInstance_t instance, Movement_t *movement )
 {
     REQUIRE( instance < NUM_REQUEST_HANDLERS );
     REQUIRE( movement );
@@ -173,6 +165,8 @@ PRIVATE void request_handler_add( RequestHandlerInstance_t instance, Movement_t 
 
     BaseType_t result = xQueueSendToBack( me->input_queue, (void *)movement, (TickType_t)0 );
     ENSURE( result == pdPASS );
+
+    return uxQueueSpacesAvailable( me->input_queue );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -197,7 +191,7 @@ PUBLIC void request_handler_clear( RequestHandlerInstance_t instance )
 // TODO: rework arguments to support any possible type
 //       - then check the type will fit in the queue
 //       - then copy it into the slot correctly
-PRIVATE void request_handler_insert_movement( RequestHandlerInstance_t instance, const Movement_t *movement )
+PRIVATE void request_handler_insert_movement( RequestHandlerInstance_t instance, Movement_t *movement )
 {
     REQUIRE( instance < NUM_REQUEST_HANDLERS );
     REQUIRE( movement );
@@ -258,38 +252,56 @@ PRIVATE int32_t request_handler_find_sorted_candidate( RequestHandlerInstance_t 
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE bool request_handler_emit_next_movement( RequestHandlerInstance_t instance )
+PRIVATE void request_handler_emit_ordered_entries( RequestHandlerInstance_t instance )
 {
     REQUIRE( instance < NUM_REQUEST_HANDLERS );
     RequestPool_t *me = &pool[instance];
 
-    int32_t candidate_slot_index = request_handler_find_sorted_candidate( instance );
-
-    // Put the movement into the output queue
-    if( candidate_slot_index != -1 )
+    // Is there room in the destination queue?
+    uint32_t queue_spaces = 0;
+    switch( me->output_cb.type )
     {
+        case CALLBACK_MOVEMENT:
+            queue_spaces = me->output_cb.fn.move( NULL );
+            break;
+
+        case CALLBACK_FADE:
+            queue_spaces = me->output_cb.fn.fade( NULL );
+            break;
+
+        case CALLBACK_INVALID:
+            return; // no callback, can't emit events
+    }
+
+    // Start filling the queue
+    while( queue_spaces > 1 )
+    {
+        int32_t candidate_slot_index = request_handler_find_sorted_candidate( instance );
+
+        if( candidate_slot_index == -1 )
+        {
+            break;
+        }
+
+        // Get the entry
         Movement_t *movement = &me->slots[candidate_slot_index].movement;
 
-        // Is the move in-order?
+        // Is it in-order?
         if(    movement->sync_offset == me->expected_sync_offset
             || movement->sync_offset == 0 )   // first move will have an offset of zero
         {
-            // Allowed to briefly block here for the output queue to drain, should have room though...
-            bool result = true;
-
-            // TODO get feedback or poll against the 'send to queue' callback?
-
+            // Dispatch the move via the output callback
             switch( me->output_cb.type )
             {
-                    //TODO: check if a simple 'not invalid' check is sufficent
-                    //      if it is, don't handle each type, just call the union with a void pointer?
+                //TODO: check if a simple 'not invalid' check is sufficient
+                //      if it is, don't handle each type, just call the union with a void pointer?
                 case CALLBACK_MOVEMENT:
-                    me->output_cb.fn.move( movement );
+                    queue_spaces = me->output_cb.fn.move( movement );
                     break;
 
                 case CALLBACK_FADE:
                     // TODO: need fade support throughout the rest of the handler first...
-                    me->output_cb.fn.fade( NULL );
+                    queue_spaces = me->output_cb.fn.fade( NULL );
                     break;
 
                 default:
@@ -297,21 +309,11 @@ PRIVATE bool request_handler_emit_next_movement( RequestHandlerInstance_t instan
                     break;
             }
 
-            // As emit ran with the assumption that the queue had room,
-            // and we allow 2ms queue timeout, failure now means the queue is full/stuck?
-            // Realistically shouldn't occur someone else is adding to that queue?
-            ENSURE( result );
-
             // Update the pool and slot metadata
             me->slots[candidate_slot_index].is_used = false;
             me->expected_sync_offset = movement->sync_offset + movement->duration;
-
-            return result;
         }
-
     }
-
-    return false;
 }
 
 /* -------------------------------------------------------------------------- */

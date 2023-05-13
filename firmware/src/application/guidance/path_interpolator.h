@@ -38,7 +38,7 @@ path_interpolator_set_epoch_reference( uint32_t sync_timer );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void path_interpolator_add_request( Movement_t *movement_to_process );
+PUBLIC uint32_t path_interpolator_queue_request( Movement_t *movement_to_process );
 
 /* -------------------------------------------------------------------------- */
 

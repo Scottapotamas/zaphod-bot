@@ -402,7 +402,7 @@ PRIVATE void overwatch_mode_ssm( void )
              homing_move.points[0].z = 0;
 
             // TODO: write a helper which generates nicer homing movements
-            path_interpolator_add_request( &homing_move );
+            path_interpolator_queue_request( &homing_move );
             path_interpolator_set_epoch_reference( xTaskGetTickCount() + 5 );
 
             buzzer_sound( BUZZER_MODE_CHANGE_NUM, BUZZER_MODE_CHANGE_TONE, BUZZER_MODE_CHANGE_DURATION );
@@ -427,7 +427,7 @@ PRIVATE void overwatch_mode_ssm( void )
         case MODE_MANUAL:
             STATE_ENTRY_ACTION
             // Telemetry requests -> Path Interpolator -> Kinematics
-            user_interface_attach_motion_request_cb( path_interpolator_add_request );
+            user_interface_attach_motion_request_cb( path_interpolator_queue_request );
             path_interpolator_update_output_callback( effector_request_target );
             STATE_TRANSITION_TEST
 
@@ -459,7 +459,7 @@ PRIVATE void overwatch_mode_ssm( void )
         case MODE_DEMO:
             STATE_ENTRY_ACTION
             // Demo generators -> Path interpolator -> Kinematics
-//            demonstration_update_movement_request_callback( path_interpolator_add_request );
+//            demonstration_update_movement_request_callback( path_interpolator_queue_request );
 //            path_interpolator_update_output_callback( effector_request_target );
 
             STATE_TRANSITION_TEST
@@ -481,7 +481,7 @@ PRIVATE void overwatch_mode_ssm( void )
 
             RequestableCallbackFn move_req_cb;
             move_req_cb.type = CALLBACK_MOVEMENT;
-            move_req_cb.fn.move = path_interpolator_add_request;
+            move_req_cb.fn.move = path_interpolator_queue_request;
             request_handler_attach_output_callback( REQUEST_HANDLER_MOVES, move_req_cb );
             path_interpolator_update_output_callback( effector_request_target );
 
