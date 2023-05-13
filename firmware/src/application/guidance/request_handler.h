@@ -18,7 +18,6 @@
 typedef struct MovementOrdering__
 {
     QueueHandle_t input_queue;
-    QueueHandle_t output_queue;
 } RequestHandler_t;
 
 /* -------------------------------------------------------------------------- */
@@ -37,7 +36,7 @@ PUBLIC void request_handler_task( void *arg );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void request_handler_add_movement( const Movement_t *movement );
+PUBLIC void request_handler_add_movement( Movement_t *movement );
 
 /* -------------------------------------------------------------------------- */
 

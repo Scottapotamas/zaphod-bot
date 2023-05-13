@@ -35,6 +35,7 @@ PRIVATE MovementPool_t pool = { 0 };
 // TODO: where should this go? In application scope once the request handler is moved to a utility?
 RequestHandler_t movement_handler;
 MovementRequestFn send_to_output;
+
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void request_handler_add( RequestHandler_t *rh, const Movement_t *movement );
@@ -45,11 +46,9 @@ PUBLIC void request_handler_init( RequestHandler_t *rh )
 {
     // Create and initialize input and output FreeRTOS queues
     rh->input_queue = xQueueCreate( MAX_QUEUE_SIZE, sizeof(Movement_t) );
-    rh->output_queue = xQueueCreate( MAX_QUEUE_SIZE, sizeof(Movement_t) );
 
     // Debug view annotations
     vQueueAddToRegistry( rh->input_queue, "rqHin");
-    vQueueAddToRegistry( rh->output_queue, "rqHout");
 
 }
 
@@ -68,7 +67,6 @@ PUBLIC void request_handler_task( void *arg  )
     //  i.e. equiv to RequestHandler_t *rh
     RequestHandler_t *rh = arg;
     REQUIRE( rh->input_queue );
-    REQUIRE( rh->output_queue );
 
     for(;;)
     {
@@ -84,15 +82,15 @@ PUBLIC void request_handler_task( void *arg  )
         }
 
         // Keep the output queue populated with ordered movements
-        while( uxQueueSpacesAvailable(rh->output_queue) > 0 )
-        {
-            // Emit the next movement if there's room in the output queue
-            if (!request_handler_emit_next_movement( rh ))
-            {
-                // No moves output
-                break;
-            }
-        }
+//        while( uxQueueSpacesAvailable(rh->output_queue) > 0 )
+//        {
+//            // Emit the next movement if there's room in the output queue
+//            if (!request_handler_emit_next_movement( rh ))
+//            {
+//                // No moves output
+//                break;
+//            }
+//        }
 
     }
 }
@@ -100,9 +98,9 @@ PUBLIC void request_handler_task( void *arg  )
 /* -------------------------------------------------------------------------- */
 
 
-PUBLIC void request_handler_add_movement( const Movement_t *movement )
+PUBLIC void request_handler_add_movement( Movement_t *movement )
 {
-        request_handler_add( &movement_handler, movement );
+    request_handler_add( &movement_handler, movement );
 }
 
 
@@ -126,7 +124,6 @@ PUBLIC void request_handler_clear( RequestHandler_t *rh )
     // TODO: Does this need to be behind a mutex for safety?
 
     // Empty the input/output queues
-    xQueueReset( rh->input_queue );
     xQueueReset( rh->input_queue );
 
     // Wipe the pool
@@ -203,12 +200,9 @@ PRIVATE bool request_handler_emit_next_movement( RequestHandler_t *rh )
             || movement->sync_offset == 0 )   // first move will have an offset of zero
         {
             // Allowed to briefly block here for the output queue to drain, should have room though...
-            // TODO remove output queue from the output handler
-            BaseType_t result = xQueueSendToBack( rh->output_queue,
-                                                  (void *)movement,
-                                                  2     //portMAX_DELAY
-            );
+            bool result = true;
 
+            // TODO get feedback or poll against the 'send to queue' callback?
             if( send_to_output )
             {
                 send_to_output( movement );
