@@ -18,7 +18,9 @@ find_package(FreeRTOS COMPONENTS ARM_CM4F REQUIRED)
 
 target_link_libraries(app_startup_lib
         PRIVATE
+        # TODO: cartesian and lighting libs should be public in their deps and not needed at this level?
         utility_cartesian_lib
+        utility_lighting_lib
         guidance_lib
         kinematics_lib
         overwatch_lib

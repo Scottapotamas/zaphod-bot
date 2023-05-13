@@ -1,9 +1,13 @@
-#ifndef LED_TYPES_H
-#define LED_TYPES_H
+#ifndef LIGHTING_TYPES_H
+#define LIGHTING_TYPES_H
 
 /* -------------------------------------------------------------------------- */
 
 #include "global.h"
+
+/* -------------------------------------------------------------------------- */
+
+#define COLOUR_SETPOINT_COUNT 2
 
 /* -------------------------------------------------------------------------- */
 
@@ -41,7 +45,6 @@ typedef enum
     _LINEAR_RAMP,
 } FadeAdjective_t;
 
-#define COLOUR_SETPOINT_COUNT 2
 
 typedef struct
 {
@@ -62,4 +65,4 @@ typedef struct
 
 /* -------------------------------------------------------------------------- */
 
-#endif /* LED_TYPES_H */
+#endif    // LIGHTING_TYPES_H

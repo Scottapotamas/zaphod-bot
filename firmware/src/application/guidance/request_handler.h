@@ -4,10 +4,10 @@
 /* -------------------------------------------------------------------------- */
 
 #include <stdint.h>
-#include "FreeRTOS.h"
-#include "queue.h"
+
 
 #include "movement_types.h"
+#include "lighting_types.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -15,23 +15,51 @@
 
 /* -------------------------------------------------------------------------- */
 
-typedef struct MovementOrdering__
+typedef enum
 {
-    QueueHandle_t input_queue;
-} RequestHandler_t;
+    REQUEST_HANDLER_MOVES = 0,
+    REQUEST_HANDLER_FADES = 1,
+    NUM_REQUEST_HANDLERS    // must be the last enum entry
+} RequestHandlerInstance_t;
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void request_handler_init( RequestHandler_t *rh );
+// Allow for a consistent API which allows for arbitrary callback function shapes being used
+// for output from the pool
 
-/* -------------------------------------------------------------------------- */
+typedef enum
+{
+    CALLBACK_INVALID = 0,
+    CALLBACK_MOVEMENT,
+    CALLBACK_FADE,
+} CallbackTypes;
 
 typedef void (*MovementRequestFn)(Movement_t *move);
+typedef void (*LightingRequestFn)(Fade_t *fade);
 
-PUBLIC void request_handler_attach_output_callback( MovementRequestFn callback );
+typedef struct {
+    CallbackTypes type;
+    union {
+        MovementRequestFn move;
+        LightingRequestFn fade;
+    } fn;
+} RequestableCallbackFn;
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC void request_handler_init( RequestHandlerInstance_t instance );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void* request_handler_get_context_for( RequestHandlerInstance_t instance );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void request_handler_attach_output_callback( RequestHandlerInstance_t instance, RequestableCallbackFn callback );
+
+/* -------------------------------------------------------------------------- */
+
+// Arg points to a variable RequestHandlerInstance_t with the enum value for this task
 PUBLIC void request_handler_task( void *arg );
 
 /* -------------------------------------------------------------------------- */
@@ -40,7 +68,7 @@ PUBLIC void request_handler_add_movement( Movement_t *movement );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void request_handler_clear( RequestHandler_t *rh );
+PUBLIC void request_handler_clear( RequestHandlerInstance_t handler );
 
 /* -------------------------------------------------------------------------- */
 

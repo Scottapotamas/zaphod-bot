@@ -24,6 +24,8 @@ target_link_libraries(
         kinematics_lib
         utility_observer_lib
         utility_cartesian_lib
+        utility_lighting_lib    # This is only needed because request handler needs it
+                                # TODO: once request handler is extracted, it's deps should be public?
         telemetry_lib
         FreeRTOS::ARM_CM4F
         CMSIS::STM32::F429xx

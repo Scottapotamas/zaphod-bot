@@ -14,6 +14,8 @@
 #include "user_interface.h"
 #include "overwatch.h"
 
+#include "request_handler.h"
+
 #include "path_interpolator.h"
 #include "point_follower.h"
 #include "effector.h"
@@ -57,6 +59,9 @@ void app_startup_init( void )
 
     effector_init();
     Subject *effector_data = effector_get_subject();
+
+    request_handler_init( REQUEST_HANDLER_MOVES );
+    request_handler_init( REQUEST_HANDLER_FADES );
 
     overwatch_init();
     Subject *overwatch_commands = overwatch_get_subject();
@@ -132,6 +137,22 @@ void app_startup_tasks( void )
                  configMINIMAL_STACK_SIZE,
                  NULL,
                  priority_normal,
+                 NULL
+    );
+
+    xTaskCreate( request_handler_task,
+                 "rqhMove",
+                 configMINIMAL_STACK_SIZE,
+                 request_handler_get_context_for(REQUEST_HANDLER_MOVES),
+                 priority_low,
+                 NULL
+    );
+
+    xTaskCreate( request_handler_task,
+                 "rqhFade",
+                 configMINIMAL_STACK_SIZE,
+                 request_handler_get_context_for(REQUEST_HANDLER_FADES),
+                 priority_low,
                  NULL
     );
 

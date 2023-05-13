@@ -26,6 +26,7 @@ target_link_libraries(
         guidance_lib
         PRIVATE
         utility_cartesian_lib
+        utility_lighting_lib    # TODO REMOVE THIS ONCE REQUEST HANDLER IS EXTRACTED
         utility_stopwatch_lib
         utility_observer_lib
         FreeRTOS::ARM_CM4F

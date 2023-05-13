@@ -1,8 +1,12 @@
 /* -------------------------------------------------------------------------- */
 
+#include <string.h>
+
 #include "request_handler.h"
 #include "qassert.h"
-#include <string.h>
+
+#include "FreeRTOS.h"
+#include "queue.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -12,12 +16,22 @@ DEFINE_THIS_FILE;
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void request_handler_insert_movement( RequestHandler_t *rh, const Movement_t *movement );
-PRIVATE int32_t request_handler_find_free_pool_slot( void );
-PRIVATE int32_t request_handler_find_sorted_candidate( void );
-PRIVATE bool request_handler_emit_next_movement( RequestHandler_t *rh );
+PRIVATE void request_handler_insert_movement( RequestHandlerInstance_t instance, const Movement_t *movement );
+PRIVATE int32_t request_handler_find_free_pool_slot( RequestHandlerInstance_t instance );
+PRIVATE int32_t request_handler_find_sorted_candidate( RequestHandlerInstance_t instance );
+PRIVATE bool request_handler_emit_next_movement( RequestHandlerInstance_t instance );
 
 /* -------------------------------------------------------------------------- */
+
+/*  TODO Request Handler Rework
+ *      - Pool is x bytes in size
+ *      - During init, work out how many slots fit in the pool
+ *      - When adding/searching the pool, do so against the 'dynamic' slot count
+ *      - Ability to add/emit entries with their generic size/type
+ *      - Decouple the request handler from the types and callback types entirely?
+ *      - Look into a more efficient storage data structure,
+ *      - Look into search performance optimisations
+ * */
 
 typedef struct {
     bool is_used;
@@ -28,61 +42,106 @@ typedef struct
 {
     MovementPoolSlot_t slots[MAX_POOL_SIZE];
     uint32_t expected_sync_offset;
-} MovementPool_t;
+    RequestHandlerInstance_t instance;
+    QueueHandle_t input_queue;
+    RequestableCallbackFn output_cb;
+} RequestPool_t;
 
-PRIVATE MovementPool_t pool = { 0 };
-
-// TODO: where should this go? In application scope once the request handler is moved to a utility?
-RequestHandler_t movement_handler;
-MovementRequestFn send_to_output;
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void request_handler_add( RequestHandler_t *rh, const Movement_t *movement );
+PRIVATE RequestPool_t pool[NUM_REQUEST_HANDLERS] = { 0 };
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void request_handler_init( RequestHandler_t *rh )
+PRIVATE void request_handler_add( RequestHandlerInstance_t handler, Movement_t *movement );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void request_handler_init( RequestHandlerInstance_t instance )
 {
-    // Create and initialize input and output FreeRTOS queues
-    rh->input_queue = xQueueCreate( MAX_QUEUE_SIZE, sizeof(Movement_t) );
+    REQUIRE( instance < NUM_REQUEST_HANDLERS );
+    RequestPool_t *me = &pool[instance];
+    memset( me, 0, sizeof( RequestPool_t ) );
 
-    // Debug view annotations
-    vQueueAddToRegistry( rh->input_queue, "rqHin");
+    me->instance = instance;    // TODO: resolve this hack to get around the task pvParameters arg being a pointer to the pool instead of the instance enum
 
+    // Create and initialize FreeRTOS queues for this instance
+    switch( instance )
+    {
+        case REQUEST_HANDLER_MOVES:
+            me->input_queue = xQueueCreate( MAX_QUEUE_SIZE, sizeof(Movement_t) );
+            vQueueAddToRegistry( me->input_queue, "rqhMove"); // Debug view annotations
+            break;
+        case REQUEST_HANDLER_FADES:
+            me->input_queue = xQueueCreate( MAX_QUEUE_SIZE, sizeof(Fade_t) );
+            vQueueAddToRegistry( me->input_queue, "rqhFade"); // Debug view annotations
+            break;
+        default:
+            ASSERT(false);
+            break;
+    }
 }
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void request_handler_attach_output_callback( MovementRequestFn callback )
+
+PUBLIC void* request_handler_get_context_for( RequestHandlerInstance_t instance )
 {
-    send_to_output = callback;
+    REQUIRE( instance < NUM_REQUEST_HANDLERS );
+    return (void*)&pool[instance];
 }
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void request_handler_task( void *arg  )
+PUBLIC void request_handler_attach_output_callback( RequestHandlerInstance_t instance, RequestableCallbackFn callback )
 {
-    // arg is a pointer to the request handler object from task creation
-    //  i.e. equiv to RequestHandler_t *rh
-    RequestHandler_t *rh = arg;
-    REQUIRE( rh->input_queue );
+    REQUIRE( instance < NUM_REQUEST_HANDLERS );
+
+    switch( callback.type )
+    {
+        case CALLBACK_INVALID:
+            // Reset it to an invalid/empty callback
+            memset( &pool[instance].output_cb, 0, sizeof(RequestableCallbackFn) );
+            break;
+
+        case CALLBACK_MOVEMENT:
+            // ensure that the callback has the right type for the pool
+            REQUIRE( instance == REQUEST_HANDLER_MOVES );
+            pool[instance].output_cb = callback;
+            break;
+
+        case CALLBACK_FADE:
+            REQUIRE( instance == REQUEST_HANDLER_FADES );
+            pool[instance].output_cb = callback;
+            break;
+
+        default:
+            ASSERT(false);
+            break;
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void request_handler_task( void *arg )
+{
+    REQUIRE( arg );
+    RequestPool_t *pool = arg;
+    ENSURE( pool );
 
     for(;;)
     {
         Movement_t incoming_movement;
-        BaseType_t result = xQueueReceive(rh->input_queue,
+        BaseType_t result = xQueueReceive(pool->input_queue,
                                            (void *)&incoming_movement,
                                            5 // portMAX_DELAY
                                            );
 
         if( result )
         {
-            request_handler_insert_movement(rh, &incoming_movement);
+            request_handler_insert_movement( pool->instance, &incoming_movement);
         }
 
         // Keep the output queue populated with ordered movements
-//        while( uxQueueSpacesAvailable(rh->output_queue) > 0 )
+//        while( uxQueueSpacesAvailable(pool->output_queue) > 0 )
 //        {
 //            // Emit the next movement if there's room in the output queue
 //            if (!request_handler_emit_next_movement( rh ))
@@ -100,58 +159,69 @@ PUBLIC void request_handler_task( void *arg  )
 
 PUBLIC void request_handler_add_movement( Movement_t *movement )
 {
-    request_handler_add( &movement_handler, movement );
+    request_handler_add( REQUEST_HANDLER_MOVES, movement );
 }
 
 
-// TODO: make generic on size?
+// TODO: make input arg generic on size?
 //       - should check the item being added matches the size accepted by the rh
-PRIVATE void request_handler_add( RequestHandler_t *rh, const Movement_t *movement )
+PRIVATE void request_handler_add( RequestHandlerInstance_t instance, Movement_t *movement )
 {
-    REQUIRE( rh );
+    REQUIRE( instance < NUM_REQUEST_HANDLERS );
     REQUIRE( movement );
+    RequestPool_t *me = &pool[instance];
 
-    BaseType_t result = xQueueSendToBack( rh->input_queue, (void *)movement, (TickType_t)0 );
-    REQUIRE( result == pdPASS );
+    BaseType_t result = xQueueSendToBack( me->input_queue, (void *)movement, (TickType_t)0 );
+    ENSURE( result == pdPASS );
 }
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void request_handler_clear( RequestHandler_t *rh )
+PUBLIC void request_handler_clear( RequestHandlerInstance_t instance )
 {
-    REQUIRE( rh );
+    REQUIRE( instance < NUM_REQUEST_HANDLERS );
+    RequestPool_t *me = &pool[instance];
 
     // TODO: Does this need to be behind a mutex for safety?
 
     // Empty the input/output queues
-    xQueueReset( rh->input_queue );
+    xQueueReset( me->input_queue );
 
-    // Wipe the pool
-    memset( &pool, 0, sizeof(MovementPool_t));
-
+    // Wipe the pool storage
+    memset( &me->slots, 0, sizeof(me->slots));
+    me->expected_sync_offset = 0;
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void request_handler_insert_movement( RequestHandler_t *rh, const Movement_t *movement )
+// TODO: rework arguments to support any possible type
+//       - then check the type will fit in the queue
+//       - then copy it into the slot correctly
+PRIVATE void request_handler_insert_movement( RequestHandlerInstance_t instance, const Movement_t *movement )
 {
-    REQUIRE( rh );
+    REQUIRE( instance < NUM_REQUEST_HANDLERS );
     REQUIRE( movement );
+    RequestPool_t *me = &pool[instance];
 
-    uint32_t slot_index = request_handler_find_free_pool_slot();
-    REQUIRE( slot_index >= 0 );
+    uint32_t slot_index = request_handler_find_free_pool_slot( instance );
+    ENSURE( slot_index >= 0 );
 
-    memcpy( &pool.slots[slot_index].movement, movement, sizeof(Movement_t) );
-    pool.slots[slot_index].is_used = true;
+
+    memcpy( &me->slots[slot_index].movement, movement, sizeof(Movement_t) );
+    me->slots[slot_index].is_used = true;
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE int32_t request_handler_find_free_pool_slot( void )
+PRIVATE int32_t request_handler_find_free_pool_slot( RequestHandlerInstance_t instance )
 {
+    REQUIRE( instance < NUM_REQUEST_HANDLERS );
+    RequestPool_t *me = &pool[instance];
+
+    // TODO: when the pool has 'dynamic' slot counts, use that number instead of MAX_POOL_SIZE
     for( uint32_t i = 0; i < MAX_POOL_SIZE; i++ )
     {
-        if( !pool.slots[i].is_used)
+        if( !me->slots[i].is_used)
         {
             return (int32_t)i;
         }
@@ -164,17 +234,21 @@ PRIVATE int32_t request_handler_find_free_pool_slot( void )
 
 // Find the smallest sync_offset entry in the pool
 
-PRIVATE int32_t request_handler_find_sorted_candidate( void )
+PRIVATE int32_t request_handler_find_sorted_candidate( RequestHandlerInstance_t instance )
 {
+    REQUIRE( instance < NUM_REQUEST_HANDLERS );
+    RequestPool_t *me = &pool[instance];
+
     uint32_t min_sync_offset = UINT32_MAX;
     int32_t min_sync_offset_slot_index = -1;
 
+    // TODO: when the pool has 'dynamic' slot counts, use that number instead of MAX_POOL_SIZE
     for( uint32_t i = 0; i < MAX_POOL_SIZE; i++ )
     {
-        if(    pool.slots[i].is_used
-            && pool.slots[i].movement.sync_offset < min_sync_offset)
+        if(    me->slots[i].is_used
+            && me->slots[i].movement.sync_offset < min_sync_offset)
         {
-            min_sync_offset = pool.slots[i].movement.sync_offset;
+            min_sync_offset = me->slots[i].movement.sync_offset;
             min_sync_offset_slot_index = (int32_t)i;
         }
     }
@@ -184,28 +258,43 @@ PRIVATE int32_t request_handler_find_sorted_candidate( void )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE bool request_handler_emit_next_movement( RequestHandler_t *rh )
+PRIVATE bool request_handler_emit_next_movement( RequestHandlerInstance_t instance )
 {
-    REQUIRE( rh );
+    REQUIRE( instance < NUM_REQUEST_HANDLERS );
+    RequestPool_t *me = &pool[instance];
 
-    int32_t candidate_slot_index = request_handler_find_sorted_candidate();
+    int32_t candidate_slot_index = request_handler_find_sorted_candidate( instance );
 
     // Put the movement into the output queue
     if( candidate_slot_index != -1 )
     {
-        Movement_t *movement = &pool.slots[candidate_slot_index].movement;
+        Movement_t *movement = &me->slots[candidate_slot_index].movement;
 
         // Is the move in-order?
-        if(    movement->sync_offset == pool.expected_sync_offset
+        if(    movement->sync_offset == me->expected_sync_offset
             || movement->sync_offset == 0 )   // first move will have an offset of zero
         {
             // Allowed to briefly block here for the output queue to drain, should have room though...
             bool result = true;
 
             // TODO get feedback or poll against the 'send to queue' callback?
-            if( send_to_output )
+
+            switch( me->output_cb.type )
             {
-                send_to_output( movement );
+                    //TODO: check if a simple 'not invalid' check is sufficent
+                    //      if it is, don't handle each type, just call the union with a void pointer?
+                case CALLBACK_MOVEMENT:
+                    me->output_cb.fn.move( movement );
+                    break;
+
+                case CALLBACK_FADE:
+                    // TODO: need fade support throughout the rest of the handler first...
+                    me->output_cb.fn.fade( NULL );
+                    break;
+
+                default:
+                    ASSERT(false);
+                    break;
             }
 
             // As emit ran with the assumption that the queue had room,
@@ -214,8 +303,8 @@ PRIVATE bool request_handler_emit_next_movement( RequestHandler_t *rh )
             ENSURE( result );
 
             // Update the pool and slot metadata
-            pool.slots[candidate_slot_index].is_used = false;
-            pool.expected_sync_offset = movement->sync_offset + movement->duration;
+            me->slots[candidate_slot_index].is_used = false;
+            me->expected_sync_offset = movement->sync_offset + movement->duration;
 
             return result;
         }
