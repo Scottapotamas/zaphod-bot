@@ -14,6 +14,9 @@ PUBLIC uint32_t
 cartesian_move_distance( Movement_t *movement );
 
 PUBLIC void
+cartesian_apply_rotation_offset( Movement_t *move, float offset_degrees );
+
+PUBLIC void
 cartesian_point_rotate_around_z( CartesianPoint_t *a, float degrees );
 
 PUBLIC float

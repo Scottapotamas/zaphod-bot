@@ -60,6 +60,19 @@ cartesian_find_point_on_line( CartesianPoint_t *a, CartesianPoint_t *b, Cartesia
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
+cartesian_apply_rotation_offset( Movement_t *move, float offset_degrees )
+{
+    REQUIRE( move->metadata.num_pts );
+
+    for( uint32_t i = 0; i < move->metadata.num_pts; i++ )
+    {
+        cartesian_point_rotate_around_z( &move->points[i], offset_degrees );
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void
 cartesian_point_rotate_around_z( CartesianPoint_t *a, float degrees )
 {
     REQUIRE( a );

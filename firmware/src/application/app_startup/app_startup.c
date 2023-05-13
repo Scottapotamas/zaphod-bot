@@ -49,6 +49,9 @@ void app_startup_init( void )
     fan_init();
     buzzer_init();
 
+    request_handler_init( REQUEST_HANDLER_MOVES );
+    request_handler_init( REQUEST_HANDLER_FADES );
+
     path_interpolator_init();
     Subject *pathing_events = path_interpolator_get_subject();
 
@@ -59,9 +62,6 @@ void app_startup_init( void )
 
     effector_init();
     Subject *effector_data = effector_get_subject();
-
-    request_handler_init( REQUEST_HANDLER_MOVES );
-    request_handler_init( REQUEST_HANDLER_FADES );
 
     overwatch_init();
     Subject *overwatch_commands = overwatch_get_subject();
@@ -95,9 +95,6 @@ void app_startup_init( void )
     // Misc
     sensors_add_observer( fan_get_observer() );
 
-    // TODO other setup
-    //   Setup LED instances
-    //   Setup guidance/kinematics instances
 }
 
 /* -------------------------------------------------------------------------- */
@@ -156,9 +153,6 @@ void app_startup_tasks( void )
                  NULL
     );
 
-    // TODO implement tasks for:
-    //   Guidance
-    //   RGB LED control
     xTaskCreate( servo_task,
                  "s1",
                  configMINIMAL_STACK_SIZE,

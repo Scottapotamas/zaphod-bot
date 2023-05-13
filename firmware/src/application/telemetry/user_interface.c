@@ -128,7 +128,6 @@ eui_message_t ui_variables[] = {
 
 #define HEARTBEAT_EXPECTED_MS 800	// Expect to see a heartbeat within this threshold
 
-// TODO update for FreeRTOS
 uint32_t last_heartbeat = 0;
 uint8_t heartbeat_ok_count = 0;		// Running count of successful heartbeat messages
 

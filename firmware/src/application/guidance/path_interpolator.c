@@ -163,9 +163,7 @@ path_interpolator_task( void *arg )
         // Prepare the movement for execution
         if( !me->move_ready )
         {
-            // TODO: move these to cartesian_utility_lib?
-
-            path_interpolator_apply_rotation_offset( &me->current_move );
+            cartesian_apply_rotation_offset( &me->current_move, 0.0f );  // TODO: configuration_get_z_rotation();
             path_interpolator_premove_transforms( &me->current_move );
 
             // Check the planned move won't violate any rules
@@ -199,11 +197,10 @@ path_interpolator_task( void *arg )
                 // If we're early, the task should have a nap
                 if( current_time < start_timestamp )
                 {
-                    uint32_t nap_duration = start_timestamp - current_time;    // todo: do we need to wake one tick early?
+                    uint32_t nap_duration = start_timestamp - current_time;
                     vTaskDelayUntil( &current_time, nap_duration );
 
                     current_time = xTaskGetTickCount(); // have to refresh the time after our nap.
-                    // TODO: consider refactoring the nap check with the intent of reducing nesting/refreshing time?
                 }
 
                 if( !stopwatch_running( &me->movement_started ) )
@@ -270,22 +267,6 @@ path_interpolator_premove_transforms( Movement_t *move )
         move->points[_LINE_START].x = effector_position.x;
         move->points[_LINE_START].y = effector_position.y;
         move->points[_LINE_START].z = effector_position.z;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void
-path_interpolator_apply_rotation_offset( Movement_t *move )
-{
-    REQUIRE( move->metadata.num_pts );
-
-    // TODO: refactor required
-    float offset_deg = 0.0f;    // configuration_get_z_rotation();
-
-    for( uint32_t i = 0; i < move->metadata.num_pts; i++ )
-    {
-        cartesian_point_rotate_around_z( &move->points[i], offset_deg );
     }
 }
 
