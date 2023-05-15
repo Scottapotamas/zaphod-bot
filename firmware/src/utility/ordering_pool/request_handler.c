@@ -53,6 +53,7 @@ typedef struct
 
     uint8_t entry_size;                     // size of a single entry
     uint8_t num_slots;                      // number of entries that fit in this pool
+    uint8_t num_slots_used;
     uint8_t *storage_ptr;                   // refer to the storage buffer backing the pool
     uint32_t storage_size;                  // size of the storage pool in bytes
     EntryMetadata_t slots[MAX_POOL_SIZE];   // sidecar information for each pool entries
@@ -243,6 +244,8 @@ PRIVATE void request_handler_insert_entry( RequestHandlerInstance_t instance, vo
 
     // Update the metadata for the entry
     me->slots[slot_index].is_used = true;
+    me->num_slots_used += 1;
+
     switch( instance )
     {
         case REQUEST_HANDLER_MOVES:
@@ -379,6 +382,7 @@ PRIVATE void request_handler_emit_ordered_entries( RequestHandlerInstance_t inst
 
             // Mark the slot as free for use
             me->slots[candidate_slot_index].is_used = false;
+            me->num_slots_used -= 1;
         }
     }
 }
