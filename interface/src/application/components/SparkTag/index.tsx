@@ -107,7 +107,7 @@ const Sparkline = (props: SparklineProps) => {
   )
 }
 
-interface SparklineProps {
+interface SparktagProps {
   title?: string
   color?: string
   datasource: Queryable
@@ -117,7 +117,7 @@ interface SparklineProps {
   max?: number
 }
 
-export const SparkTag = (props: SparklineProps) => {
+export const SparkTag = (props: SparktagProps) => {
   const color: string = props.color ? props.color : Colors.GRAY3
   const heading: string = props.title ? props.title : ' '
 

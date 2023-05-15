@@ -186,9 +186,7 @@ export class MotorDataCodec extends Codec {
 
 export class EffectorDataCodec extends Codec {
   filter(message: Message): boolean {
-    return (
-      message.messageID === MSGID.POSITION_CURRENT
-    )
+    return message.messageID === MSGID.POSITION_CURRENT
   }
 
   encode(payload: EffectorData): Buffer {
@@ -197,7 +195,7 @@ export class EffectorDataCodec extends Codec {
     packet.writeInt32LE(payload.position.x * 1000)
     packet.writeInt32LE(payload.position.y * 1000)
     packet.writeInt32LE(payload.position.z * 1000)
-    packet.writeUInt32LE(payload.speed / 1000 )
+    packet.writeUInt32LE(payload.speed / 1000)
 
     return packet.toBuffer()
   }
@@ -209,22 +207,19 @@ export class EffectorDataCodec extends Codec {
       x: reader.readInt32LE() / 1000,
       y: reader.readInt32LE() / 1000,
       z: reader.readInt32LE() / 1000,
-
     }
 
     return {
       position: pos,
       // Packet is microns/second, convert to mm/second
-      speed: reader.readInt32LE() * 1000
+      speed: reader.readInt32LE() * 1000,
     }
   }
 }
 
 export class PositionTargetCodec extends Codec {
   filter(message: Message): boolean {
-    return (
-      message.messageID === MSGID.POSITION_TARGET
-    )
+    return message.messageID === MSGID.POSITION_TARGET
   }
 
   encode(payload: CartesianPoint): Buffer {
@@ -250,9 +245,7 @@ export class PositionTargetCodec extends Codec {
 
 export class ExpansionPositionCodec extends Codec {
   filter(message: Message): boolean {
-    return (
-      message.messageID === MSGID.POSITION_EXPANSION
-    )
+    return message.messageID === MSGID.POSITION_EXPANSION
   }
 
   encode(payload: number): Buffer {
@@ -282,9 +275,12 @@ export class SupervisorInfoCodec extends Codec {
     const reader = SmartBuffer.fromBuffer(payload)
 
     return {
-      supervisor: SUPERVISOR_STATES[reader.readUInt8()] || SUPERVISOR_STATES[SUPERVISOR_STATES.DISARMED],
+      supervisor:
+        SUPERVISOR_STATES[reader.readUInt8()] ||
+        SUPERVISOR_STATES[SUPERVISOR_STATES.DISARMED],
       motors: reader.readUInt8(),
-      mode: CONTROL_MODES[reader.readUInt8()] || CONTROL_MODES[CONTROL_MODES.NONE],
+      mode:
+        CONTROL_MODES[reader.readUInt8()] || CONTROL_MODES[CONTROL_MODES.NONE],
       queue_utilisation_motion: reader.readUInt8(),
       queue_utilisation_lighting: reader.readUInt8(),
     }
@@ -300,7 +296,7 @@ export class InboundMotionCodec extends Codec {
     const packet = new SmartBuffer()
 
     // 2-byte metadata bitfield
-    let meta = 0x0000;
+    let meta = 0x0000
 
     meta |= (payload.id)                  // 9 bits
     meta |= (payload.reference << 9)      // 1 bit
@@ -412,7 +408,7 @@ export class InboundFadeCodec extends Codec {
     const reader = SmartBuffer.fromBuffer(payload)
 
     const points_decoded: Array<LightPoint> = []
-    let settings:LightSettingsField = {} as LightSettingsField
+    let settings: LightSettingsField = {} as LightSettingsField
 
     const movement: LightMove = {
       timestamp: reader.readUInt32LE(),
@@ -478,8 +474,8 @@ export class RGBSettingsCodec extends Codec {
   encode(payload: LedSettings) {
     const packet = new SmartBuffer()
 
-    let luma_value = (payload.correct_luma)? 1 : 0;
-    let wb_value = (payload.correct_whitebalance)? 1 : 0;
+    let luma_value = payload.correct_luma ? 1 : 0
+    let wb_value = payload.correct_whitebalance ? 1 : 0
 
     packet.writeUInt8(luma_value)
     packet.writeUInt8(wb_value)
@@ -526,9 +522,9 @@ export class PowerCalibrationCodec extends Codec {
   decode(payload: Buffer) {
     const reader = SmartBuffer.fromBuffer(payload)
 
-    let calibration:PowerCalibration = {
+    let calibration: PowerCalibration = {
       voltage: reader.readInt16LE(),
-      current_servo: []
+      current_servo: [],
     }
 
     calibration.current_servo[0] = reader.readInt16LE()
@@ -572,8 +568,8 @@ export class UserConfigCodec extends Codec {
     packet.writeUInt8(bitfield3)
     packet.writeUInt8(bitfield4)
 
-    packet.writeUInt8(payload.values.z_rotation/Z_ROTATION_SCALE_FACTOR)
-    packet.writeUInt8(payload.values.speed_limit/SPEED_LIMIT_SCALE_FACTOR)
+    packet.writeUInt8(payload.values.z_rotation / Z_ROTATION_SCALE_FACTOR)
+    packet.writeUInt8(payload.values.speed_limit / SPEED_LIMIT_SCALE_FACTOR)
     packet.writeUInt8(payload.values.volume_radius)
     packet.writeUInt8(payload.values.volume_z)
 
@@ -584,8 +580,6 @@ export class UserConfigCodec extends Codec {
 
     packet.writeInt16LE(payload.values.expansion_range_min)
     packet.writeInt16LE(payload.values.expansion_range_max)
-  
-    
 
     return packet.toBuffer()
   }
@@ -598,7 +592,7 @@ export class UserConfigCodec extends Codec {
     let b3 = reader.readUInt8() // reserved byte
     let b4 = reader.readUInt8() // reserved byte
 
-    let flags:UserConfigFlags = {
+    let flags: UserConfigFlags = {
       buzzer_mute: (b1 & 0x01) == 1,
       // reserved0: ((b1 >> 1) & 0x01) == 1,
       pendant_optional: ((b1 >> 2) & 0x01) == 1,
@@ -618,14 +612,14 @@ export class UserConfigCodec extends Codec {
       // byte 4 left reserved
     }
 
-    let fields:UserConfigFields = {
-      z_rotation: reader.readUInt8()*Z_ROTATION_SCALE_FACTOR,
-      speed_limit: reader.readUInt8()*SPEED_LIMIT_SCALE_FACTOR,
+    let fields: UserConfigFields = {
+      z_rotation: reader.readUInt8() * Z_ROTATION_SCALE_FACTOR,
+      speed_limit: reader.readUInt8() * SPEED_LIMIT_SCALE_FACTOR,
       volume_radius: reader.readUInt8(),
       volume_z: reader.readUInt8(),
       expansion_resolution: reader.readUInt8(),
       expansion_ratio: reader.readUInt8(),
-      expansion_speed_limit: reader.readUInt8()*SPEED_LIMIT_SCALE_FACTOR,
+      expansion_speed_limit: reader.readUInt8() * SPEED_LIMIT_SCALE_FACTOR,
       expansion_range_min: 0,
       expansion_range_max: 0,
     }
@@ -637,7 +631,7 @@ export class UserConfigCodec extends Codec {
 
     return {
       flags: flags,
-      values: fields
+      values: fields,
     }
   }
 }
