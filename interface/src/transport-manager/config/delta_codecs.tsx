@@ -20,7 +20,6 @@ import {
   LightSettingsField,
   LightMove,
   LightPoint,
-  LedStatus,
   LedSettings,
   PowerCalibration,
   BOUNDARY_VIOLATION_MODES,
@@ -443,21 +442,17 @@ export class InboundFadeCodec extends Codec {
   }
 }
 
-export class LEDCodec extends Codec<LedStatus> {
+export class HSICodec extends Codec<LightPoint> {
   filter(message: Message): boolean {
-    return (
-      message.messageID === MSGID.LED ||
-      message.messageID === MSGID.LED_MANUAL_REQUEST
-    )
+    return message.messageID === MSGID.LED_MANUAL_REQUEST
   }
 
-  encode(payload: LedStatus) {
+  encode(payload: LightPoint) {
     const packet = new SmartBuffer()
 
-    packet.writeUInt16LE(payload.red * 0xFFFF )
-    packet.writeUInt16LE(payload.green * 0xFFFF )
-    packet.writeUInt16LE(payload.blue * 0xFFFF )
-    packet.writeUInt8(payload.enable ? 1 : 0)
+    packet.writeFloatLE(payload[0])
+    packet.writeFloatLE(payload[1])
+    packet.writeFloatLE(payload[2])
 
     return packet.toBuffer()
   }
@@ -465,14 +460,13 @@ export class LEDCodec extends Codec<LedStatus> {
   decode(payload: Buffer) {
     const reader = SmartBuffer.fromBuffer(payload)
 
-    const settings: LedStatus = {
-      red: reader.readUInt16LE() / 0xFFFF,
-      green: reader.readUInt16LE() / 0xFFFF,
-      blue: reader.readUInt16LE() / 0xFFFF,
-      enable: reader.readUInt8() === 1 ? true : false,
-    }
+    const hsi: LightPoint = [
+      reader.readFloatLE(),
+      reader.readFloatLE(),
+      reader.readFloatLE(),
+    ]
 
-    return settings
+    return hsi
   }
 }
 
@@ -657,11 +651,11 @@ export const customCodecs = [
   new MotorDataCodec(),
   new EffectorDataCodec(),
   new PositionTargetCodec(),
+  new HSICodec(),
   new ExpansionPositionCodec(),
   new SupervisorInfoCodec(),
   new InboundMotionCodec(),
   new InboundFadeCodec(),
-  new LEDCodec(),
   new RGBSettingsCodec(),
   new PowerCalibrationCodec(),
   new UserConfigCodec(),

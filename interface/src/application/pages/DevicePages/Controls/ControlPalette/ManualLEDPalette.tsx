@@ -22,7 +22,7 @@ import {
   AlphaSlider,
 } from '@electricui/components-desktop'
 
-import { MSGID } from '../../../../typedState'
+import { LightPoint, MSGID } from '../../../../typedState'
 import { IconNames } from '@blueprintjs/icons'
 
 type SwatchProps = {
@@ -79,7 +79,7 @@ const ManualLEDPalette = () => {
         // intent={Intent.NONE}
         icon={IconNames.CROSS}
         writer={state => {
-          state[MSGID.LED_MANUAL_REQUEST].enable = false
+          state[MSGID.LED_MANUAL_REQUEST][2] = 0
         }}
       >
         OFF

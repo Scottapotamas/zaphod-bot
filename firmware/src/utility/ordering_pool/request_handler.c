@@ -31,8 +31,10 @@ PRIVATE void request_handler_emit_ordered_entries( RequestHandlerInstance_t inst
 
 /* -------------------------------------------------------------------------- */
 
-/*  TODO Request Handler Rework
- *      - Queue usage percentage information?
+/*  TODO Request Handler Refactor Notes
+ *      - State storage structure cleanup
+ *      - Remove the task from the sorting/pool implementations
+ *      - Separation of responsibilities
  *      - Look into a more efficient storage data structure,
  *      - Look into search performance optimisations
  * */

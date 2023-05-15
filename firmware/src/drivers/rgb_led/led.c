@@ -4,6 +4,7 @@
 #include <string.h>
 
 #include "led.h"
+#include "led_helpers.h"
 #include "qassert.h"
 
 #include "hal_gpio.h"
@@ -27,7 +28,7 @@ PRIVATE void led_event_callback( ObserverEvent_t event, EventData eData, void *c
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE GenericColour_t requested_setpoint = { 0 };
+PRIVATE HSIColour_t requested_setpoint = { 0 };
 PRIVATE GenericColour_t corrected_setpoint = { 0 };
 
 PRIVATE bool request_needs_processing = false;
@@ -140,9 +141,15 @@ PUBLIC void led_task( void* arg )
                 {
                     // Apply white-balance corrections
 
-                    corrected_setpoint.x = requested_setpoint.x;
-                    corrected_setpoint.y = requested_setpoint.y;
-                    corrected_setpoint.z = requested_setpoint.z;
+                    hsi_to_rgb( requested_setpoint.hue,
+                                requested_setpoint.saturation,
+                                requested_setpoint.intensity,
+                                &corrected_setpoint.x,
+                                &corrected_setpoint.y,
+                                &corrected_setpoint.z );
+
+                    bool is_dark = ( requested_setpoint.intensity >= 0.01 );
+                    hal_gpio_write_pin( _AUX_ANALOG_0, is_dark );
 
                     request_needs_processing = false;
                 }
@@ -159,6 +166,9 @@ PUBLIC void led_task( void* arg )
 
                 GenericColour_t output = { 0 };
 
+                // TODO: refactor to eliminate the copy?
+                memcpy( &output, &corrected_setpoint, sizeof(GenericColour_t) );
+
                 // Ensure values are still valid
                 // TODO: consider detecting/warning if clipping is detected?
                 output.x = CLAMP( output.x, 0.0f, 1.0f );
@@ -167,7 +177,6 @@ PUBLIC void led_task( void* arg )
 
                 // TODO: consider detecting situations where the driver can be disabled entirely
                 // Enable/disable the driver
-    //            hal_gpio_write_pin( _AUX_ANALOG_0, enable );
 
                 // PWM peripheral expects 0-100 percentage input, also invert the polarity of the duty cycle
                 output.x = ( output.x * -1.0f + 1.0f ) * 100.0f;

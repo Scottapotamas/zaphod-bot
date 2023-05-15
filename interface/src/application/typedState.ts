@@ -21,8 +21,7 @@ export enum MSGID {
   POSITION_CURRENT = 'pc',
   POSITION_EXPANSION = 'exp_ang',
 
-  LED = 'rgb',
-  LED_MANUAL_REQUEST = 'manual_led',
+  LED_MANUAL_REQUEST = 'hsi',
 
   QUEUE_SYNC = 'qs',
   QUEUE_CLEAR = 'qc',
@@ -68,8 +67,7 @@ declare global {
     [MSGID.POSITION_CURRENT]: EffectorData
     [MSGID.POSITION_EXPANSION]: number // float
 
-    [MSGID.LED]: LedStatus
-    [MSGID.LED_MANUAL_REQUEST]: LedStatus
+    [MSGID.LED_MANUAL_REQUEST]: LightPoint
 
     [MSGID.QUEUE_SYNC]: null // callback
     [MSGID.QUEUE_CLEAR]: null // callback
@@ -242,13 +240,6 @@ export type LightMove = {
   duration: number
   settings: LightSettingsField
   points: Array<LightPoint>
-}
-
-export type LedStatus = {
-  red: number
-  green: number
-  blue: number
-  enable: boolean
 }
 
 export type LedSettings = {

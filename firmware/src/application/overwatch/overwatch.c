@@ -192,7 +192,7 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, v
 
         case FLAG_SYNC_EPOCH:
             path_interpolator_set_epoch_reference( eData.stamped.data.u32 );
-            // TODO: handle this for manual, event and demo driven modes?
+            led_interpolator_set_epoch_reference( eData.stamped.data.u32 );
             break;
 
         case FLAG_REQUEST_QUEUE_CLEAR:

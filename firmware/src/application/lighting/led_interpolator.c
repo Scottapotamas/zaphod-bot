@@ -84,7 +84,6 @@ PUBLIC void led_interpolator_set_epoch_reference( uint32_t sync_timer )
 
 PUBLIC uint32_t led_interpolator_queue_request( Fade_t *fade_to_process )
 {
-    REQUIRE( fade_to_process );
     LEDPlanner_t *me = &planner;
 
     if( fade_to_process )
