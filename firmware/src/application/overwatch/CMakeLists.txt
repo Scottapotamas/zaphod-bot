@@ -20,7 +20,9 @@ target_link_libraries(
         overwatch_lib
         PRIVATE
         buzzer_lib
+        led_lib
         guidance_lib
+        lighting_lib
         kinematics_lib
         utility_observer_lib
         utility_cartesian_lib

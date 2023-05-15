@@ -20,10 +20,12 @@ target_link_libraries(app_startup_lib
         PRIVATE
         utility_ordering_pool_lib
         guidance_lib
+        lighting_lib
         kinematics_lib
         overwatch_lib
         fan_lib
         buzzer_lib
+        led_lib
         telemetry_lib
         sensors_lib
         servo_lib

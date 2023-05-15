@@ -21,8 +21,7 @@
 #define MSGID_POSITION_CURRENT   "pc"
 #define MSGID_POSITION_EXPANSION "exp_ang"
 
-#define MSGID_LED                "rgb"
-#define MSGID_LED_MANUAL_REQUEST "manual_led"
+#define MSGID_LED_MANUAL_REQUEST "hsi"
 
 #define MSGID_QUEUE_SYNC     "qs"
 #define MSGID_QUEUE_CLEAR    "qc"

@@ -5,6 +5,10 @@ add_library (
         lighting_types.h
         led_helpers.h
         led_helpers.c
+        led_interpolators.h
+        led_interpolators.c
+        noise.h
+        noise.c
 )
 
 target_include_directories (

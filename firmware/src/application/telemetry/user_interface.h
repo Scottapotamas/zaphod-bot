@@ -50,6 +50,12 @@ PUBLIC void user_interface_attach_position_request_cb( PositionRequestFn callbac
 
 /* -------------------------------------------------------------------------- */
 
+typedef void (*HSIRequestFn)(HSIColour_t *request);
+
+PUBLIC void user_interface_attach_colour_request_cb( HSIRequestFn callback );
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC bool
 user_interface_connection_ok( void );
 
@@ -81,12 +87,6 @@ user_interface_update_task_statistics( void );
 
 /* -------------------------------------------------------------------------- */
 
-
-/* -------------------------------------------------------------------------- */
-
-
-/* -------------------------------------------------------------------------- */
-
 PUBLIC void
 user_interface_set_kinematics_mechanism_info( float shoulder_radius, float bicep_len, float forearm_len, float effector_radius );
 
@@ -98,25 +98,8 @@ user_interface_set_kinematics_flips( int8_t x, int8_t y, int8_t z );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC uint8_t
-user_interface_get_fan_target( void );
-
-PUBLIC void
-user_interface_set_fan_percentage( uint8_t percent );
-
-PUBLIC void
-user_interface_set_fan_state( uint8_t state );
-
 //PUBLIC FanCurve_t *
 //user_interface_get_fan_curve_ptr( void );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-user_interface_set_led_status( uint8_t status );
-
-PUBLIC void
-user_interface_set_led_values( uint16_t red, uint16_t green, uint16_t blue );
 
 /* -------------------------------------------------------------------------- */
 

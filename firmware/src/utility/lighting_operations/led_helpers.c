@@ -89,3 +89,30 @@ hue_to_channel( float p, float q, float t )
 }
 
 /* -------------------------------------------------------------------------- */
+
+PUBLIC float
+led_luminance_correct( float input )
+{
+    float lightness = input * 100;
+
+    /* CIE 1931 Luminance Formula
+     * https://en.wikipedia.org/wiki/CIE_1931_color_space
+     *  Y = (L* / 902.3)           if L* ≤ 8
+     *  Y = ((L* + 16) / 116)^3    if L* > 8
+     */
+
+    float luminance;
+
+    if( lightness <= 8 )
+    {
+        luminance = ( lightness / 903.296f );
+    }
+    else
+    {
+        luminance = powf( ( ( lightness + 16 ) / 116 ), 3 );
+    }
+
+    return luminance;
+}
+
+/* -------------------------------------------------------------------------- */

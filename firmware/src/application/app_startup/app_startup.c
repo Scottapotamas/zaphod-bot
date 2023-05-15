@@ -21,6 +21,9 @@
 #include "effector.h"
 #include "servo.h"
 
+#include "led_interpolator.h"
+#include "led.h"
+
 #include "subject.h"
 
 /* -------------------------------------------------------------------------- */
@@ -48,6 +51,7 @@ void app_startup_init( void )
     sensors_init();
     fan_init();
     buzzer_init();
+    led_init();
 
     request_handler_init( REQUEST_HANDLER_MOVES );
     request_handler_init( REQUEST_HANDLER_FADES );
@@ -56,6 +60,8 @@ void app_startup_init( void )
     Subject *pathing_events = path_interpolator_get_subject();
 
     point_follower_init();
+
+    led_interpolator_init();
 
     user_interface_init();
     Subject *ui_request_subject = user_interface_get_request_subject();
@@ -72,6 +78,9 @@ void app_startup_init( void )
     subject_add_observer( ui_request_subject, overwatch_get_observer() );
     subject_add_observer( pathing_events, overwatch_get_observer() );
     subject_add_observer( effector_data, overwatch_get_observer() );
+
+    // LED task subscriptions
+    subject_add_observer( effector_data, led_get_observer() );
 
     // Telemetry task wants to know pretty much everything
     sensors_add_observer( user_interface_get_observer() );
@@ -137,6 +146,14 @@ void app_startup_tasks( void )
                  NULL
     );
 
+    xTaskCreate( led_interpolator_task,
+                 "lighting",
+                 configMINIMAL_STACK_SIZE,
+                 NULL,
+                 priority_normal,
+                 NULL
+    );
+
     xTaskCreate( request_handler_task,
                  "rqhMove",
                  configMINIMAL_STACK_SIZE,
@@ -149,6 +166,14 @@ void app_startup_tasks( void )
                  "rqhFade",
                  configMINIMAL_STACK_SIZE,
                  request_handler_get_context_for(REQUEST_HANDLER_FADES),
+                 priority_low,
+                 NULL
+    );
+
+    xTaskCreate( led_task,
+                 "led",
+                 configMINIMAL_STACK_SIZE,
+                 NULL,
                  priority_low,
                  NULL
     );
@@ -175,7 +200,6 @@ void app_startup_tasks( void )
                  priority_normal,
                  NULL
     );
-
 
     xTaskCreate( overwatch_task,
                  "overwatch",

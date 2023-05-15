@@ -12,4 +12,9 @@ hsi_to_rgb( float h, float s, float i, float *r, float *g, float *b );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC float
+led_luminance_correct( float input );
+
+/* -------------------------------------------------------------------------- */
+
 #endif /* LED_HELPERS_H */

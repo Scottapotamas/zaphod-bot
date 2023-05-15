@@ -42,11 +42,10 @@ PRIVATE void stop_mech_cb( void );
 PRIVATE void emergency_stop_cb( void );
 PRIVATE void home_mech_cb( void );
 PRIVATE void clear_all_queue( void );
+PRIVATE void sync_begin_queues( void );
 
 PRIVATE void tracked_external_servo_request( void );
 
-PRIVATE void rgb_manual_led_event( void );
-PRIVATE void sync_begin_queues( void );
 
 /* -------------------------------------------------------------------------- */
 
@@ -64,10 +63,9 @@ MotorData_t motion_servo[4];
 EffectorData_t effector;
 
 
-LedState_t rgb_led_drive;
-LedState_t rgb_manual_control;
-
+HSIColour_t led_manual_request;
 CartesianPoint_t target_position;
+
 Movement_t    motion_inbound;
 Fade_t        fade_inbound;
 uint32_t camera_shutter_duration_ms = 0;
@@ -95,8 +93,7 @@ eui_message_t ui_variables[] = {
     EUI_CUSTOM( MSGID_POSITION_TARGET, target_position ),
     EUI_CUSTOM_RO( MSGID_POSITION_CURRENT, effector ),
 
-    EUI_CUSTOM_RO( MSGID_LED, rgb_led_drive ),
-    EUI_CUSTOM( MSGID_LED_MANUAL_REQUEST, rgb_manual_control ),
+    EUI_CUSTOM( MSGID_LED_MANUAL_REQUEST, led_manual_request ),
 
     // Movement/Lighting Queue Handling
     EUI_FUNC( MSGID_QUEUE_CLEAR, clear_all_queue ),
@@ -146,8 +143,9 @@ PRIVATE Observer telemetry_observer = { 0 };
 PRIVATE Subject event_subject = { 0 };
 
 PRIVATE MovementRequestFn handle_requested_move;    // Pass UI Movement event requests to this callback for handling
-PRIVATE LightingRequestFn handle_requested_fade;    // Pass UI Movement event requests to this callback for handling
+PRIVATE LightingRequestFn handle_requested_fade;    // Pass UI Fade event requests to this callback for handling
 PRIVATE PositionRequestFn handle_requested_position; // Pass cartesian position requests to this callback for handling
+PRIVATE HSIRequestFn handle_requested_hsi;    // Pass HSI colour requests to this callback for handling
 
 /* -------------------------------------------------------------------------- */
 
@@ -291,6 +289,11 @@ PUBLIC void user_interface_attach_lighting_request_cb( LightingRequestFn callbac
 PUBLIC void user_interface_attach_position_request_cb( PositionRequestFn callback )
 {
     handle_requested_position = callback;
+}
+
+PUBLIC void user_interface_attach_colour_request_cb( HSIRequestFn callback )
+{
+    handle_requested_hsi = callback;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -506,7 +509,10 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
             if(    ( strcmp( (char *)name_rx, MSGID_LED_MANUAL_REQUEST ) == 0 && has_payload )
                 || ( strcmp( (char *)name_rx, MSGID_LED_CALIBRATION ) == 0 && has_payload ) )
             {
-                rgb_manual_led_event();
+                if( handle_requested_hsi )
+                {
+                    handle_requested_hsi( &led_manual_request );
+                }
             }
 
             if( strcmp( (char *)name_rx, MSGID_CAPTURE ) == 0 && has_payload )
@@ -632,52 +638,6 @@ user_interface_set_kinematics_flips( int8_t x, int8_t y, int8_t z )
 }
 
 /* -------------------------------------------------------------------------- */
-
-PUBLIC void
-user_interface_set_fan_percentage( uint8_t percent )
-{
-    fan_stats.setpoint_percentage = percent;
-}
-
-PUBLIC void
-user_interface_set_fan_state( uint8_t state )
-{
-    fan_stats.state = state;
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
-user_interface_set_led_status( uint8_t enabled )
-{
-    rgb_led_drive.enable = enabled;
-}
-
-PUBLIC void
-user_interface_set_led_values( uint16_t red, uint16_t green, uint16_t blue )
-{
-    rgb_led_drive.red   = red;
-    rgb_led_drive.green = green;
-    rgb_led_drive.blue  = blue;
-}
-
-PRIVATE void
-rgb_manual_led_event()
-{
-//    LightingManualEvent *colour_request = EVENT_NEW( LightingManualEvent, LED_MANUAL_SET );
-//
-//    if( colour_request )
-//    {
-//        colour_request->colour.red   = rgb_manual_control.red;
-//        colour_request->colour.green = rgb_manual_control.green;
-//        colour_request->colour.blue  = rgb_manual_control.blue;
-//        colour_request->enabled      = rgb_manual_control.enable;
-//
-//        eventPublish( (StateEvent *)colour_request );
-//    }
-}
-
-/* ----- Private Functions -------------------------------------------------- */
 
 PRIVATE void start_mech_cb( void )
 {

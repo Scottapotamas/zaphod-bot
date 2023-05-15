@@ -18,6 +18,9 @@
 #include "point_follower.h"
 #include "effector.h"
 
+#include "led.h"
+#include "led_interpolator.h"
+
 /* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE;
@@ -429,6 +432,9 @@ PRIVATE void overwatch_mode_ssm( void )
             // Telemetry requests -> Path Interpolator -> Kinematics
             user_interface_attach_motion_request_cb( path_interpolator_queue_request );
             path_interpolator_update_output_callback( effector_request_target );
+
+            // Telemetry requests -> LED driver
+            user_interface_attach_colour_request_cb( led_request_target );
             STATE_TRANSITION_TEST
 
             STATE_EXIT_ACTION
@@ -437,6 +443,7 @@ PRIVATE void overwatch_mode_ssm( void )
             // Break connections
             user_interface_attach_motion_request_cb( NULL );
             path_interpolator_update_output_callback( NULL );
+            user_interface_attach_colour_request_cb( NULL );
             STATE_END
             break;
 
@@ -478,25 +485,45 @@ PRIVATE void overwatch_mode_ssm( void )
             // Telemetry requests -> Ordering queue -> Path Interpolator -> Kinematics
             user_interface_attach_motion_request_cb( request_handler_add_movement );
 
-
             RequestableCallbackFn move_req_cb;
             move_req_cb.type = CALLBACK_MOVEMENT;
             move_req_cb.fn.move = path_interpolator_queue_request;
             request_handler_attach_output_callback( REQUEST_HANDLER_MOVES, move_req_cb );
+
             path_interpolator_update_output_callback( effector_request_target );
+
+            // Telemetry requests -> Ordering queue -> LED Interpolator -> Kinematics
+            user_interface_attach_lighting_request_cb( request_handler_add_fade );
+
+            RequestableCallbackFn fade_req_cb;
+            fade_req_cb.type = CALLBACK_FADE;
+            fade_req_cb.fn.fade = led_interpolator_queue_request;
+            request_handler_attach_output_callback( REQUEST_HANDLER_FADES, fade_req_cb );
+
+            led_interpolator_update_output_callback( led_request_target );
 
             STATE_TRANSITION_TEST
 
             STATE_EXIT_ACTION
             // Clear queues
+            request_handler_clear( REQUEST_HANDLER_MOVES );
+            request_handler_clear( REQUEST_HANDLER_FADES );
 
             // Cleanup interpolator state
 
+
+
             // Disconnect the subsystems
-            user_interface_attach_motion_request_cb( NULL );
             RequestableCallbackFn blank_cb = { 0 };
+
+            user_interface_attach_motion_request_cb( NULL );
             request_handler_attach_output_callback( REQUEST_HANDLER_MOVES, blank_cb );
             path_interpolator_update_output_callback( NULL );
+
+            user_interface_attach_lighting_request_cb( NULL );
+            request_handler_attach_output_callback( REQUEST_HANDLER_FADES, blank_cb );
+            led_interpolator_update_output_callback( NULL );
+
             STATE_END
             break;
 
