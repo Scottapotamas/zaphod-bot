@@ -50,8 +50,6 @@ PRIVATE Subject pathing_subject;
 
 PRIVATE void path_interpolator_premove_transforms( Movement_t *move );
 
-PRIVATE void path_interpolator_apply_rotation_offset( Movement_t *move );
-
 PRIVATE void path_interpolator_calculate_percentage( uint16_t move_duration );
 
 PRIVATE void path_interpolator_execute_move( Movement_t *move, float percentage );

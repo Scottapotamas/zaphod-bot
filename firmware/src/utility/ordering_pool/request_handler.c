@@ -12,7 +12,7 @@
 
 DEFINE_THIS_FILE;
 
-#define MAX_POOL_SIZE 10
+#define MAX_POOL_SIZE 40
 
 /* -------------------------------------------------------------------------- */
 
