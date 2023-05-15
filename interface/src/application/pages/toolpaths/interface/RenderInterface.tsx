@@ -272,7 +272,7 @@ export function SendToolpath() {
     try {
       await sendMessage(clearMessage, cancellationToken)
       await sendCapture(0) // cancel any currently running capture
-      await query(MSGID.QUEUE_INFO, cancellationToken)
+      await query(MSGID.SUPERVISOR, cancellationToken)
     } catch (e) {
       if (cancellationToken.caused(e)) {
         // cancellationToken timed out
@@ -383,7 +383,7 @@ export function SendToolpath() {
     (supervisorInfo: SupervisorState) => {
       getSequenceSender().updateHardwareQueues(supervisorInfo.queue_utilisation_motion, supervisorInfo.queue_utilisation_motion)
       
-      // TODO: update HardwareProgress once the info packet is reworked with additional fields
+      // TODO: update HardwareProgress once the queue packet is reworked with additional fields
       // getSequenceSender().updateHardwareProgress(moStat.movement_identifier, moStat.move_progress)
     },
   )

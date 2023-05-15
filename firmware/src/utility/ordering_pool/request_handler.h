@@ -5,13 +5,12 @@
 
 #include <stdint.h>
 
-
 #include "movement_types.h"
 #include "lighting_types.h"
 
 /* -------------------------------------------------------------------------- */
 
-#define MAX_QUEUE_SIZE 5
+#define REQUEST_HANDLER_INPUT_QUEUE_SIZE 5
 
 /* -------------------------------------------------------------------------- */
 
@@ -65,6 +64,10 @@ PUBLIC void request_handler_task( void *arg );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC uint32_t request_handler_add_movement( Movement_t *movement );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC uint32_t request_handler_add_fade( Fade_t *fade );
 
 /* -------------------------------------------------------------------------- */
 
