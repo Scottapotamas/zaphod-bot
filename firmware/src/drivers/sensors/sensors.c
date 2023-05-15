@@ -103,6 +103,7 @@ PUBLIC void sensors_init( void )
     // Provide ADC counts -> floating SI units converter functions for each signal
     data[ADC_SERVO_1_CURRENT].converter = hal_current_A;
     data[ADC_SERVO_2_CURRENT].converter = hal_current_A;
+    data[ADC_SERVO_3_CURRENT].converter = hal_current_A;
     data[ADC_SERVO_4_CURRENT].converter = hal_current_A;
     data[ADC_VOLTAGE_INPUT].converter = hal_current_A;
 
