@@ -24,7 +24,6 @@ export enum MSGID {
   LED = 'rgb',
   LED_MANUAL_REQUEST = 'manual_led',
 
-  QUEUE_INFO = 'qi',
   QUEUE_SYNC = 'qs',
   QUEUE_CLEAR = 'qc',
   QUEUE_ADD_MOVE = 'qm',
@@ -72,7 +71,6 @@ declare global {
     [MSGID.LED]: LedStatus
     [MSGID.LED_MANUAL_REQUEST]: LedStatus
 
-    [MSGID.QUEUE_INFO]: QueueDepthInfo
     [MSGID.QUEUE_SYNC]: null // callback
     [MSGID.QUEUE_CLEAR]: null // callback
     [MSGID.QUEUE_ADD_MOVE]: MovementMove
@@ -150,11 +148,6 @@ export type FanStatus = {
   state: number
 }
 
-export type QueueDepthInfo = {
-  movements: number
-  lighting: number
-}
-
 export type ServoInfo = {
   state: number         //state machine enum value
   feedback: number      // percentage of max torque
@@ -183,6 +176,8 @@ export type SupervisorState = {
   supervisor: string
   motors: number
   mode: string
+  queue_utilisation_motion: number
+  queue_utilisation_lighting: number
 }
 
 export enum MovementMoveType {

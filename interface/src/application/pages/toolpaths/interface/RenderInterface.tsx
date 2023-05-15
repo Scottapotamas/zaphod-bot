@@ -113,7 +113,7 @@ import { Material } from '../optimiser/materials/Base'
 import { GLOBAL_OVERRIDE_OBJECT_ID } from '../optimiser/movements'
 import { importMaterial } from '../optimiser/material'
 import { useDeviceID } from '@electricui/components-core'
-import { LightMove, MovementMove, MSGID, QueueDepthInfo } from 'src/application/typedState'
+import { LightMove, MovementMove, MSGID, SupervisorState } from 'src/application/typedState'
 import { getOrderedMovementsForFrame } from './ToolpathVisualisation'
 import { FRAME_STATE } from '../optimiser/main'
 import { isCamera } from '../optimiser/camera'
@@ -336,7 +336,7 @@ export function SendToolpath() {
     const cancellationToken = new CancellationToken()
 
     try {
-      await query(MSGID.QUEUE_INFO, cancellationToken)
+      await query(MSGID.SUPERVISOR, cancellationToken)
     } catch (e) {
       if (cancellationToken.caused(e)) {
         // cancellationToken timed out
@@ -379,11 +379,11 @@ export function SendToolpath() {
   }, [])
 
   useHardwareStateSubscription(
-    state => state[MSGID.QUEUE_INFO],
-    (queue: QueueDepthInfo) => {
-      getSequenceSender().updateHardwareQueues(queue.movements, queue.lighting)
+    state => state[MSGID.SUPERVISOR],
+    (supervisorInfo: SupervisorState) => {
+      getSequenceSender().updateHardwareQueues(supervisorInfo.queue_utilisation_motion, supervisorInfo.queue_utilisation_motion)
       
-      // TODO: update HardwareProgress once the queue packet is reworked with additional fields
+      // TODO: update HardwareProgress once the info packet is reworked with additional fields
       // getSequenceSender().updateHardwareProgress(moStat.movement_identifier, moStat.move_progress)
     },
   )

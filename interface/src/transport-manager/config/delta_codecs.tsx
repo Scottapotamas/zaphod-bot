@@ -7,7 +7,6 @@ import {
   FirmwareBuildInfo,
   FanStatus,
   EffectorData,
-  QueueDepthInfo,
   ServoInfo,
   SUPERVISOR_STATES,
   CONTROL_MODES,
@@ -287,25 +286,8 @@ export class SupervisorInfoCodec extends Codec {
       supervisor: SUPERVISOR_STATES[reader.readUInt8()] || SUPERVISOR_STATES[SUPERVISOR_STATES.DISARMED],
       motors: reader.readUInt8(),
       mode: CONTROL_MODES[reader.readUInt8()] || CONTROL_MODES[CONTROL_MODES.NONE],
-    }
-  }
-}
-
-export class QueueDepthCodec extends Codec {
-  filter(message: Message): boolean {
-    return message.messageID === MSGID.QUEUE_INFO
-  }
-
-  encode(payload: QueueDepthInfo): Buffer {
-    throw new Error('queue depth info is read-only')
-  }
-
-  decode(payload: Buffer): QueueDepthInfo {
-    const reader = SmartBuffer.fromBuffer(payload)
-
-    return {
-      movements: reader.readUInt8(),
-      lighting: reader.readUInt8(),
+      queue_utilisation_motion: reader.readUInt8(),
+      queue_utilisation_lighting: reader.readUInt8(),
     }
   }
 }
@@ -672,7 +654,6 @@ export const customCodecs = [
   new FirmwareInfoCodec(),
   new KinematicsInfoCodec(),
   new FanCodec(),
-  new QueueDepthCodec(),
   new MotorDataCodec(),
   new EffectorDataCodec(),
   new PositionTargetCodec(),

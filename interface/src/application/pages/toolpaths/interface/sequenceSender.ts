@@ -16,6 +16,8 @@ export class SequenceSender {
   private hardwareMovementQueueDepth = 0
   private hardwareLightMoveQueueDepth = 0
 
+  // TODO: refactor with the concept that the queue is expressed as usage percentage
+  //       rather than a specific element count
   private movementQueueWatermark = 70
   private lightMoveQueueWatermark = 70
 

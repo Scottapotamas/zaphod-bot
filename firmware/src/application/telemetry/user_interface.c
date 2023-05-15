@@ -59,7 +59,6 @@ BuildInfo_t      fw_info;
 SystemData_t   system_stats;
 SystemStates_t supervisor_states;
 FanData_t      fan_stats;
-QueueDepths_t queue_data;
 
 MotorData_t motion_servo[4];
 EffectorData_t effector;
@@ -100,7 +99,6 @@ eui_message_t ui_variables[] = {
     EUI_CUSTOM( MSGID_LED_MANUAL_REQUEST, rgb_manual_control ),
 
     // Movement/Lighting Queue Handling
-    EUI_CUSTOM_RO( MSGID_QUEUE_INFO, queue_data ),
     EUI_FUNC( MSGID_QUEUE_CLEAR, clear_all_queue ),
     EUI_FUNC( MSGID_QUEUE_SYNC, sync_begin_queues ),
 //    EUI_CUSTOM( MSGID_QUEUE_ADD_FADE, light_fade_inbound ),
@@ -193,6 +191,9 @@ user_interface_init( void )
 
     observer_subscribe( &telemetry_observer, OVERWATCH_STATE_UPDATE );
     observer_subscribe( &telemetry_observer, OVERWATCH_MODE_UPDATE );
+
+    observer_subscribe( &telemetry_observer, QUEUE_UTILISATION_MOVEMENT );
+    observer_subscribe( &telemetry_observer, QUEUE_UTILISATION_LIGHTING );
 
 
     // Set build info to hardcoded values
@@ -335,11 +336,11 @@ PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData eD
             break;
 
         case SERVO_POSITION:
-            motion_servo[eData.stamped.index].target_angle = eData.stamped.data.f32 * 100.0f ;
+            motion_servo[eData.stamped.index].target_angle = eData.stamped.data.f32 * 100.0f;
             break;
 
         case SERVO_SPEED:
-            motion_servo[eData.stamped.index].speed = eData.stamped.data.f32 * 10.0f ;
+            motion_servo[eData.stamped.index].speed = eData.stamped.data.f32 * 10.0f;
             break;
 
         case EFFECTOR_POSITION:
@@ -363,6 +364,15 @@ PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData eD
             break;
 
 //            supervisor_states.motors     = motion_servo[0].enabled || motion_servo[1].enabled || motion_servo[2].enabled;
+
+        // TODO also consider for automatic debounced output
+        case QUEUE_UTILISATION_MOVEMENT:
+            supervisor_states.queue_movements = eData.stamped.data.u32;
+            break;
+
+        case QUEUE_UTILISATION_LIGHTING:
+            supervisor_states.queue_lighting = eData.stamped.data.u32;
+            break;
 
         default:
             // Why did we receive a signal that we didn't subscribe to?
@@ -638,15 +648,6 @@ user_interface_set_fan_state( uint8_t state )
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-user_interface_set_motion_queue_depth( uint8_t utilisation )
-{
-    queue_data.movements = utilisation;
-    //    eui_send_tracked("queue");
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
 user_interface_set_led_status( uint8_t enabled )
 {
     rgb_led_drive.enable = enabled;
@@ -658,13 +659,6 @@ user_interface_set_led_values( uint16_t red, uint16_t green, uint16_t blue )
     rgb_led_drive.red   = red;
     rgb_led_drive.green = green;
     rgb_led_drive.blue  = blue;
-}
-
-PUBLIC void
-user_interface_set_led_queue_depth( uint8_t utilisation )
-{
-    queue_data.lighting = utilisation;
-    //    eui_send_tracked("queue");
 }
 
 PRIVATE void

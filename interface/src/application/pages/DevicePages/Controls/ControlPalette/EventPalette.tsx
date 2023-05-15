@@ -36,11 +36,6 @@ export const EventPalette = () => {
 
   return (
     <>
-      <IntervalRequester
-        variables={[MSGID.QUEUE_INFO]}
-        interval={200}
-      />
-
       <Composition gap={10}>
         <Collapse isOpen={settingsExpanded}>
           <Composition templateCols="1fr" gap={10}>

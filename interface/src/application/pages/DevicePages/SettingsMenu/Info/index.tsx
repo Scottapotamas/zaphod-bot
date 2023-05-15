@@ -123,8 +123,8 @@ const BuildInfoTable = () => {
 }
 
 const sysDS = new MessageDataSource(MSGID.SYSTEM)
+const supervisorDS = new MessageDataSource(MSGID.SUPERVISOR)
 const fanDS = new MessageDataSource(MSGID.FAN)
-const queueDS = new MessageDataSource(MSGID.QUEUE_INFO)
 
 export const InfoBlock = () => {
   const num_tasks: number | null = useHardwareState(
@@ -163,8 +163,8 @@ export const InfoBlock = () => {
             title="Move"
             color={Colors.BLUE4}
             drawValue
-            datasource={queueDS}
-            accessor={state => state.movements}
+            datasource={supervisorDS}
+            accessor={state => state.queue_utilisation_motion}
             min={0}
             max={150}
           />
@@ -172,8 +172,8 @@ export const InfoBlock = () => {
             title="Fade"
             color={Colors.GREEN4}
             drawValue
-            datasource={queueDS}
-            accessor={state => state.lighting}
+            datasource={supervisorDS}
+            accessor={state => state.queue_utilisation_lighting}
             min={0}
             max={250}
           />

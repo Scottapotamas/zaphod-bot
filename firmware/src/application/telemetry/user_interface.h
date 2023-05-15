@@ -113,20 +113,10 @@ user_interface_set_fan_state( uint8_t state );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
-user_interface_set_motion_queue_depth( uint8_t utilisation );
-
-/* -------------------------------------------------------------------------- */
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC void
 user_interface_set_led_status( uint8_t status );
 
 PUBLIC void
 user_interface_set_led_values( uint16_t red, uint16_t green, uint16_t blue );
-
-PUBLIC void
-user_interface_set_led_queue_depth( uint8_t utilisation );
 
 /* -------------------------------------------------------------------------- */
 

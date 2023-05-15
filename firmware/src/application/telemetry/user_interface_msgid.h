@@ -24,7 +24,6 @@
 #define MSGID_LED                "rgb"
 #define MSGID_LED_MANUAL_REQUEST "manual_led"
 
-#define MSGID_QUEUE_INFO     "qi"
 #define MSGID_QUEUE_SYNC     "qs"
 #define MSGID_QUEUE_CLEAR    "qc"
 #define MSGID_QUEUE_ADD_MOVE "qm"

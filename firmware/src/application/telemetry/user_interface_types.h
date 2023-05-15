@@ -41,6 +41,8 @@ typedef struct
     uint8_t supervisor;
     uint8_t motors;
     uint8_t control_mode;
+    uint8_t queue_movements;
+    uint8_t queue_lighting;
 } SystemStates_t;
 
 /* -------------------------------------------------------------------------- */
@@ -77,12 +79,6 @@ typedef struct
     CartesianPoint_t position;    // global position of end effector in cartesian space
     uint32_t speed;               // microns/second
 } EffectorData_t;
-
-typedef struct
-{
-    uint8_t movements;
-    uint8_t lighting;
-} QueueDepths_t;
 
 typedef struct
 {
