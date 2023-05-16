@@ -109,7 +109,10 @@ PUBLIC uint32_t path_interpolator_queue_request( Movement_t *movement_to_process
         xQueueSendToBack( me->xRequestQueue, (void *)movement_to_process, (TickType_t)0 );
     }
 
-    return uxQueueSpacesAvailable( me->xRequestQueue );
+    // Return queue usage percentage
+    uint32_t used = uxQueueMessagesWaiting( me->xRequestQueue );
+    uint32_t free = uxQueueSpacesAvailable( me->xRequestQueue );
+    return ( used * 100 / (used+free) );
 }
 
 /* -------------------------------------------------------------------------- */

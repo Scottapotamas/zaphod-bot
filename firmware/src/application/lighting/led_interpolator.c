@@ -91,7 +91,10 @@ PUBLIC uint32_t led_interpolator_queue_request( Fade_t *fade_to_process )
         xQueueSendToBack( me->xRequestQueue, (void *)fade_to_process, (TickType_t)0 );
     }
 
-    return uxQueueSpacesAvailable( me->xRequestQueue );
+    // Return queue usage percentage
+    uint32_t used = uxQueueMessagesWaiting( me->xRequestQueue );
+    uint32_t free = uxQueueSpacesAvailable( me->xRequestQueue );
+    return ( used * 100 / (used+free) );
 }
 
 /* -------------------------------------------------------------------------- */

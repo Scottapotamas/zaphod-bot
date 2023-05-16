@@ -202,7 +202,8 @@ PRIVATE uint32_t request_handler_add( RequestHandlerInstance_t instance, void *e
     BaseType_t result = xQueueSendToBack( me->input_queue, entry_ptr, (TickType_t)0 );
     ENSURE( result == pdPASS );
 
-    return uxQueueSpacesAvailable( me->input_queue );
+    // TODO should pool usage metrics include the input queue usage?
+    return ( me->num_slots_used * 100 / (me->num_slots) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -277,7 +278,7 @@ PRIVATE int32_t request_handler_find_free_pool_slot( RequestHandlerInstance_t in
 
     for( uint32_t i = 0; i < me->num_slots; i++ )
     {
-        if( !me->slots[i].is_used)
+        if( !me->slots[i].is_used )
         {
             return (int32_t)i;
         }

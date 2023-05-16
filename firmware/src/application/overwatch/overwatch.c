@@ -439,6 +439,8 @@ PRIVATE void overwatch_mode_ssm( void )
 
             STATE_EXIT_ACTION
             // Cleanup interpolator
+            //            path_interpolator_clear();
+            //            led_request_target( darkness )
 
             // Break connections
             user_interface_attach_motion_request_cb( NULL );
@@ -509,9 +511,8 @@ PRIVATE void overwatch_mode_ssm( void )
             request_handler_clear( REQUEST_HANDLER_MOVES );
             request_handler_clear( REQUEST_HANDLER_FADES );
 
-            // Cleanup interpolator state
-
-
+//            path_interpolator_clear();
+//            led_interpolator_clear();
 
             // Disconnect the subsystems
             RequestableCallbackFn blank_cb = { 0 };
