@@ -222,12 +222,22 @@ path_interpolator_task( void *arg )
 
                     stopwatch_stop( &me->movement_started );
                     me->progress_percent = 0;
-                    // Allow it to go back and pick another move off the queue
+                    // Allow it to go back and pick another move off the queue immediately
+                }
+                else
+                {
+                    // Wait for another tick before running through the execution loop again
+                    vTaskDelay( pdMS_TO_TICKS( 1 ) );
                 }
 
-            }    // epoch valid
+            }
+            else    // Waiting for a valid epoch
+            {
+                // TODO: consider blocking until epoch arrives?
+                vTaskDelay( pdMS_TO_TICKS( 1 ) );
+            }
 
-            vTaskDelay( pdMS_TO_TICKS( 1 ) );
+            // TODO: there's probably a refactor that can reduce the else branches which delay/yield without incurring a delay for next move handling
         }    // move execution
 
     }    // end infinite task loop

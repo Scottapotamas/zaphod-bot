@@ -168,18 +168,36 @@ PUBLIC void led_interpolator_task( void* arg )
                 {
                     // TODO: notify system that a fade has completed
 
+                    // Turn the led off if nothing is coming down the pipeline soon
+                    if( !uxQueueMessagesWaiting( me->xRequestQueue ) )
+                    {
+                        if( planner.output_cb )
+                        {
+                            HSIColour_t request_dark = { 0.0f, 0.0f, 0.0f };
+                            planner.output_cb( &request_dark );
+                        }
+                    }
+
                     // Clear out the current state
                     memset( &me->current_fade, 0, sizeof( Fade_t ) );
                     me->fade_ready = false;
 
                     stopwatch_stop( &me->animation_started );
                     me->progress_percent = 0;
-                    // Allow it to go back and pick another move off the queue
+                    // Allow it to go back and pick another fade off the queue
                 }
+                else
+                {
+                    vTaskDelay( pdMS_TO_TICKS( 1 ) );
+                }
+            }
+            else    // epoch isn't valid
+            {
+                vTaskDelay( pdMS_TO_TICKS( 1 ) );
+            }
+            // TODO: there's probably a refactor that can reduce the else branches which delay/yield without incurring a delay for next fade handling
+            //       see movement path interpolation for same pattern
 
-            }    // epoch valid
-
-            vTaskDelay( pdMS_TO_TICKS( 1 ) );
         }    // fade execution
 
     }    // end infinite task loop
