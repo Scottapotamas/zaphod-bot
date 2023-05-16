@@ -1,17 +1,11 @@
-/* ----- System Includes ---------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #include <string.h>
-
-/* ----- Local Includes ----------------------------------------------------- */
 
 #include "demonstration.h"
 #include "internal_sequence.h"
 #include "attractor_sequence.h"
 #include "random_points.h"
-
-#include "app_events.h"
-#include "app_signals.h"
-#include "event_subscribe.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -138,5 +132,3 @@ demonstration_enqueue_moves( uint8_t max_moves_emitted )
 }
 
 /* -------------------------------------------------------------------------- */
-
-/* ----- End ---------------------------------------------------------------- */

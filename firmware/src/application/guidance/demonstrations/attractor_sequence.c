@@ -1,14 +1,17 @@
-/* ----- System Includes ---------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
 
 #include <string.h>
 #include <math.h>
 
-/* ----- Local Includes ----------------------------------------------------- */
-
 #include "attractor_sequence.h"
 #include "attractor_types.h"
-#include "app_times.h"
 #include "qassert.h"
+
+/* -------------------------------------------------------------------------- */
+
+#define ATTRACTOR_DEFAULT_SPEED (100U)        // mm/second
+#define ATTRACTOR_MINIMUM_DURATION_MS (10U)   // milliseconds in the 'fastest' strange-attractor movements
+
 
 /* -------------------------------------------------------------------------- */
 
@@ -126,6 +129,3 @@ attractor_sequence_randomise_start( AttractorPosition_t *output )
 }
 
 /* -------------------------------------------------------------------------- */
-
-
-/* ----- End ---------------------------------------------------------------- */
