@@ -174,8 +174,8 @@ export type SupervisorState = {
   supervisor: string
   motors: number
   mode: string
-  queue_utilisation_motion: number
-  queue_utilisation_lighting: number
+  queue_utilisation_motion: number    // pressure percentage
+  queue_utilisation_lighting: number  // pressure percentage 
 }
 
 export enum MovementMoveType {

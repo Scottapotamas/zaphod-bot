@@ -166,7 +166,7 @@ export const InfoBlock = () => {
             datasource={supervisorDS}
             accessor={state => state.queue_utilisation_motion}
             min={0}
-            max={150}
+            max={100}
           />
           <SparkTag
             title="Fade"
@@ -175,7 +175,7 @@ export const InfoBlock = () => {
             datasource={supervisorDS}
             accessor={state => state.queue_utilisation_lighting}
             min={0}
-            max={250}
+            max={100}
           />
         </Composition>
       </Box>

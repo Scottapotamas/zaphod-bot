@@ -12,7 +12,7 @@
 
 DEFINE_THIS_FILE;
 
-#define MAX_POOL_SIZE 40
+#define MAX_POOL_SIZE 100
 
 #define POOL_STORAGE_BYTES_MOVEMENT ( MAX_POOL_SIZE * sizeof(Movement_t) )
 #define POOL_STORAGE_BYTES_FADES ( MAX_POOL_SIZE * sizeof(Fade_t) )
@@ -319,23 +319,23 @@ PRIVATE void request_handler_emit_ordered_entries( RequestHandlerInstance_t inst
     RequestPool_t *me = &pools[instance];
 
     // Is there room in the destination queue?
-    uint32_t queue_spaces = 0;
+    uint32_t queue_pressure = 0;
     switch( me->output_cb.type )
     {
         case CALLBACK_MOVEMENT:
-            queue_spaces = me->output_cb.fn.move( NULL );
+            queue_pressure = me->output_cb.fn.move( NULL );
             break;
 
         case CALLBACK_FADE:
-            queue_spaces = me->output_cb.fn.fade( NULL );
+            queue_pressure = me->output_cb.fn.fade( NULL );
             break;
 
         case CALLBACK_INVALID:
             return; // no callback, can't emit events
     }
 
-    // Start filling the queue
-    while( queue_spaces > 1 )
+    // Fill the queue to a reasonable backpressure
+    while( queue_pressure < 90 )
     {
         int32_t candidate_slot_index = request_handler_find_sorted_candidate( instance );
 
@@ -363,7 +363,7 @@ PRIVATE void request_handler_emit_ordered_entries( RequestHandlerInstance_t inst
                     Movement_t *move = (Movement_t *)&me->storage_ptr[entry_offset];
                     me->expected_sync_offset = move->sync_offset + move->duration;
 
-                    queue_spaces = me->output_cb.fn.move( move );
+                    queue_pressure = me->output_cb.fn.move( move );
                 }
                     break;
 
@@ -372,7 +372,7 @@ PRIVATE void request_handler_emit_ordered_entries( RequestHandlerInstance_t inst
                     Fade_t *fade = (Fade_t *)&me->storage_ptr[entry_offset];
                     me->expected_sync_offset = fade->sync_offset + fade->duration;
 
-                    queue_spaces = me->output_cb.fn.fade( fade );
+                    queue_pressure = me->output_cb.fn.fade( fade );
                 }
                     break;
 
