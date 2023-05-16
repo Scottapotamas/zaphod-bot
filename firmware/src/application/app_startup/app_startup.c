@@ -86,6 +86,7 @@ void app_startup_init( void )
     sensors_add_observer( user_interface_get_observer() );
     subject_add_observer( overwatch_commands, user_interface_get_observer() );
     subject_add_observer( effector_data, user_interface_get_observer() );
+    subject_add_observer( pathing_events, user_interface_get_observer() );
 
     // Init all servos, setup inbound sensor data, commands, and output state updates
     for( ClearpathServoInstance_t instance = _CLEARPATH_1; instance < _NUMBER_CLEARPATH_SERVOS; instance++ )

@@ -193,6 +193,8 @@ user_interface_init( void )
     observer_subscribe( &telemetry_observer, QUEUE_UTILISATION_MOVEMENT );
     observer_subscribe( &telemetry_observer, QUEUE_UTILISATION_LIGHTING );
 
+    observer_subscribe( &telemetry_observer, FLAG_PLANNER_COMPLETED );
+
 
     // Set build info to hardcoded values
     memset( &fw_info.build_branch, 0, sizeof( fw_info.build_branch ) );
@@ -375,6 +377,10 @@ PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData eD
 
         case QUEUE_UTILISATION_LIGHTING:
             supervisor_states.queue_lighting = eData.stamped.data.u32;
+            break;
+
+        case FLAG_PLANNER_COMPLETED:
+            supervisor_states.movement_id_completed = eData.stamped.data.u32;
             break;
 
         default:

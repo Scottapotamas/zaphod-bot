@@ -38,6 +38,7 @@ typedef struct
 
 typedef struct
 {
+    uint32_t movement_id_completed;
     uint8_t supervisor;
     uint8_t motors;
     uint8_t control_mode;

@@ -275,6 +275,7 @@ export class SupervisorInfoCodec extends Codec {
     const reader = SmartBuffer.fromBuffer(payload)
 
     return {
+      movement_id_completed: reader.readUInt32LE(),
       supervisor:
         SUPERVISOR_STATES[reader.readUInt8()] ||
         SUPERVISOR_STATES[SUPERVISOR_STATES.DISARMED],

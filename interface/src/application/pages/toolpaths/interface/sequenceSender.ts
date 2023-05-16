@@ -18,8 +18,8 @@ export class SequenceSender {
 
   // TODO: refactor with the concept that the queue is expressed as usage percentage
   //       rather than a specific element count
-  private movementQueueWatermark = 70
-  private lightMoveQueueWatermark = 70
+  private movementQueueWatermark = 50
+  private lightMoveQueueWatermark = 50
 
   private movementMoves: MovementMove[] = []
   private lightMoves: LightMove[] = []
@@ -183,11 +183,10 @@ export class SequenceSender {
     // )
   }
 
-  // TODO: remove/refactor this completion behaviour
-  updateHardwareProgress(movementID: number, movementProgress: number) {
+  updateHardwareProgress(movementID: number) {
     if (!this.isRendering) return
 
-    if (movementID === this.finalMovementTimestamp && movementProgress > 99) {
+    if (movementID === this.finalMovementTimestamp) {
       this.isRendering = false
       this.completionDeferred.resolve()
     }

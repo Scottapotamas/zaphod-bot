@@ -382,9 +382,7 @@ export function SendToolpath() {
     state => state[MSGID.SUPERVISOR],
     (supervisorInfo: SupervisorState) => {
       getSequenceSender().updateHardwareQueues(supervisorInfo.queue_utilisation_motion, supervisorInfo.queue_utilisation_lighting)
-      
-      // TODO: update HardwareProgress once the queue packet is reworked with additional fields
-      // getSequenceSender().updateHardwareProgress(moStat.movement_identifier, moStat.move_progress)
+      getSequenceSender().updateHardwareProgress(supervisorInfo.movement_id_completed)
     },
   )
 

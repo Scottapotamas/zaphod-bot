@@ -176,6 +176,7 @@ export type SupervisorState = {
   mode: string
   queue_utilisation_motion: number    // pressure percentage
   queue_utilisation_lighting: number  // pressure percentage 
+  movement_id_completed: number       // sync offset value is used as the ID
 }
 
 export enum MovementMoveType {

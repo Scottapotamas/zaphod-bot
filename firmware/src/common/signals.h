@@ -55,6 +55,7 @@ typedef enum _SYSTEM_EVENT_FLAG {
     OVERWATCH_SERVO_ENABLE,
     OVERWATCH_SERVO_DISABLE,
 
+    FLAG_PLANNER_COMPLETED,
 
     SYSTEM_NUM_FIELDS,  // Only marks end of enum range, shouldn't exceed 64 entries
 } SYSTEM_EVENT_FLAG;

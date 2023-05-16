@@ -217,7 +217,11 @@ path_interpolator_task( void *arg )
                 // Move has completed, run cleanup
                 if( path_interpolator_get_move_done() )
                 {
-                    // TODO: notify system that a move has completed
+                    // Alert the system of a completed movement
+                    EventData alert = { 0 };
+                    alert.stamped.timestamp = xTaskGetTickCount();
+                    alert.stamped.data.u32 = me->current_move.sync_offset;
+                    subject_notify( &pathing_subject, FLAG_PLANNER_COMPLETED, alert );
 
                     // Clear out the current state
                     memset( &me->current_move, 0, sizeof( Movement_t ) );
