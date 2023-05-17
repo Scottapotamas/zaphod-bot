@@ -139,6 +139,7 @@ PUBLIC void path_interpolator_cleanup( void )
     me->move_ready = false;
 
     stopwatch_stop( &me->movement_started );
+    me->epoch_timestamp = 0;
     me->progress_percent = 0;
 
     // TODO: protect data with a mutex

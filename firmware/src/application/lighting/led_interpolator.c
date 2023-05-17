@@ -106,9 +106,9 @@ PUBLIC void led_interpolator_cleanup( void )
     memset( &me->current_fade, 0, sizeof( Fade_t ) );
     me->fade_ready = false;
 
+    me->epoch_timestamp = 0;
     stopwatch_stop( &me->animation_started );
     me->progress_percent = 0;
-
 }
 
 /* -------------------------------------------------------------------------- */
