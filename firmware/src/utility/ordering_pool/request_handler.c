@@ -235,7 +235,7 @@ PUBLIC void request_handler_clear( RequestHandlerInstance_t instance )
     // Wipe the pool storage
     memset( &me->slots, 0, sizeof(me->slots));
     memset( me->storage_ptr, 0, me->storage_size);
-
+    me->num_slots_used = 0;
     me->expected_sync_offset = 0;
 
     request_handler_notify_usage_metrics( instance );
