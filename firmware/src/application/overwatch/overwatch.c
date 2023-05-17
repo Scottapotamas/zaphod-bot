@@ -438,9 +438,12 @@ PRIVATE void overwatch_mode_ssm( void )
             STATE_TRANSITION_TEST
 
             STATE_EXIT_ACTION
-            // Cleanup interpolator
-            //            path_interpolator_clear();
-            //            led_request_target( darkness )
+            // Cleanup
+            path_interpolator_cleanup();
+            led_interpolator_cleanup();
+
+            HSIColour_t darkness = { .hue = 0.0f, .saturation = 0.0f, .intensity = 0.0f };
+            led_request_target( &darkness );
 
             // Break connections
             user_interface_attach_motion_request_cb( NULL );
@@ -482,8 +485,8 @@ PRIVATE void overwatch_mode_ssm( void )
 
         case MODE_EVENT:
             STATE_ENTRY_ACTION
-
             // Inform the application tasks of their callbacks/queues etc
+
             // Telemetry requests -> Ordering queue -> Path Interpolator -> Kinematics
             user_interface_attach_motion_request_cb( request_handler_add_movement );
 
@@ -507,12 +510,15 @@ PRIVATE void overwatch_mode_ssm( void )
             STATE_TRANSITION_TEST
 
             STATE_EXIT_ACTION
-            // Clear queues
+            // Cleanup
             request_handler_clear( REQUEST_HANDLER_MOVES );
             request_handler_clear( REQUEST_HANDLER_FADES );
 
-//            path_interpolator_clear();
-//            led_interpolator_clear();
+            path_interpolator_cleanup();
+            led_interpolator_cleanup();
+
+            HSIColour_t darkness = { .hue = 0.0f, .saturation = 0.0f, .intensity = 0.0f };
+            led_request_target( &darkness );
 
             // Disconnect the subsystems
             RequestableCallbackFn blank_cb = { 0 };

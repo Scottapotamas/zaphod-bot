@@ -475,8 +475,7 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
             {
                 if( handle_requested_move )
                 {
-                    uint32_t usage = handle_requested_move( &motion_inbound );
-                    supervisor_states.queue_movements = usage;
+                    handle_requested_move( &motion_inbound );
                 }
 
                 // TODO: the UI should fire the sync event just after the move request, rather than doing it internally?
@@ -494,8 +493,7 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
             {
                 if( handle_requested_fade )
                 {
-                    uint32_t usage = handle_requested_fade( &fade_inbound );
-                    supervisor_states.queue_lighting = usage;   // todo remove this hack
+                    handle_requested_fade( &fade_inbound );
                 }
             }
 

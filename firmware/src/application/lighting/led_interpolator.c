@@ -25,27 +25,25 @@ typedef struct
 {
     QueueHandle_t xRequestQueue;
 
-    Fade_t  current_fade;    // Store the currently executing fade
-    bool    fade_ready;      // has the currently loaded fade completed checks/transforms?
+    Fade_t  current_fade;        // Store the currently executing fade
+    bool    fade_ready;          // has the currently loaded fade completed checks/transforms?
 
     uint32_t epoch_timestamp;    // Reference system time for fade offset sequencing
-    uint32_t animation_started;         // timestamp the start
+    uint32_t animation_started;  // timestamp the start
+    float    progress_percent;   // calculated progress
 
-    float      progress_percent;          // calculated progress
-
-    HSIRequestFn output_cb;    // target colour is emitted as arguments against this callback
-
+    HSIRequestFn output_cb;      // target colour is emitted as arguments against this callback
 } LEDPlanner_t;
 
 PRIVATE LEDPlanner_t planner;
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void
-led_interpolator_calculate_percentage( uint16_t fade_duration );
+PRIVATE void led_interpolator_calculate_percentage( uint16_t fade_duration );
 
-PRIVATE void
-led_interpolator_execute_fade( Fade_t *fade, float percentage );
+PRIVATE void led_interpolator_execute_fade( Fade_t *fade, float percentage );
+
+PRIVATE bool led_interpolator_get_fade_done( void );
 
 /* -------------------------------------------------------------------------- */
 
@@ -99,12 +97,18 @@ PUBLIC uint32_t led_interpolator_queue_request( Fade_t *fade_to_process )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC bool
-led_interpolator_get_fade_done( void )
+PUBLIC void led_interpolator_cleanup( void )
 {
     LEDPlanner_t *me = &planner;
 
-    return ( me->progress_percent >= 1.0f - FLT_EPSILON );
+    xQueueReset( me->xRequestQueue );
+
+    memset( &me->current_fade, 0, sizeof( Fade_t ) );
+    me->fade_ready = false;
+
+    stopwatch_stop( &me->animation_started );
+    me->progress_percent = 0;
+
 }
 
 /* -------------------------------------------------------------------------- */
@@ -259,6 +263,15 @@ led_interpolator_execute_fade( Fade_t *fade, float percentage )
     {
         planner.output_cb( &fade_target );
     }
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE bool led_interpolator_get_fade_done( void )
+{
+    LEDPlanner_t *me = &planner;
+
+    return ( me->progress_percent >= 1.0f - FLT_EPSILON );
 }
 
 /* -------------------------------------------------------------------------- */

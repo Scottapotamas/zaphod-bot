@@ -54,6 +54,8 @@ PRIVATE void path_interpolator_calculate_percentage( uint16_t move_duration );
 
 PRIVATE void path_interpolator_execute_move( Movement_t *move, float percentage );
 
+PRIVATE bool path_interpolator_get_move_done( void );
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -127,22 +129,19 @@ path_interpolator_update_effector_position( int32_t effector_x, int32_t effector
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC float
-path_interpolator_get_progress( void )
+PUBLIC void path_interpolator_cleanup( void )
 {
     MotionPlanner_t *me = &planner;
 
-    return me->progress_percent;
-}
+    xQueueReset( me->xRequestQueue );
 
-/* -------------------------------------------------------------------------- */
+    memset( &me->current_move, 0, sizeof( Movement_t ) );
+    me->move_ready = false;
 
-PUBLIC bool
-path_interpolator_get_move_done( void )
-{
-    MotionPlanner_t *me = &planner;
+    stopwatch_stop( &me->movement_started );
+    me->progress_percent = 0;
 
-    return ( me->progress_percent >= 1.0f - FLT_EPSILON );
+    // TODO: protect data with a mutex
 }
 
 /* -------------------------------------------------------------------------- */
@@ -363,6 +362,15 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
     {
         planner.output_cb( &target );
     }
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE bool path_interpolator_get_move_done( void )
+{
+    MotionPlanner_t *me = &planner;
+
+    return ( me->progress_percent >= 1.0f - FLT_EPSILON );
 }
 
 /* -------------------------------------------------------------------------- */

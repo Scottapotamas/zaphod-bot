@@ -27,23 +27,11 @@ PUBLIC void path_interpolator_update_output_callback( PositionRequestFn callback
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void path_interpolator_task( void* arg );
-
-/* -------------------------------------------------------------------------- */
-
 PUBLIC void path_interpolator_set_epoch_reference( uint32_t sync_timer );
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC uint32_t path_interpolator_queue_request( Movement_t *movement_to_process );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC uint32_t path_interpolator_queue_ready( void );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC float path_interpolator_get_progress( void );
 
 /* -------------------------------------------------------------------------- */
 
@@ -53,7 +41,11 @@ PUBLIC void path_interpolator_update_effector_position( int32_t effector_x,
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC bool path_interpolator_get_move_done( void );
+PUBLIC void path_interpolator_cleanup( void );
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC void path_interpolator_task( void* arg );
 
 /* -------------------------------------------------------------------------- */
 

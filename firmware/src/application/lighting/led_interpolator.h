@@ -30,7 +30,7 @@ PUBLIC uint32_t led_interpolator_queue_request( Fade_t *fade_to_process );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC bool led_interpolator_get_fade_done( void );
+PUBLIC void led_interpolator_cleanup( void );
 
 /* -------------------------------------------------------------------------- */
 

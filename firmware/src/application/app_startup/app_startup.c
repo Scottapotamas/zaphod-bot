@@ -88,6 +88,9 @@ void app_startup_init( void )
     subject_add_observer( effector_data, user_interface_get_observer() );
     subject_add_observer( pathing_events, user_interface_get_observer() );
 
+    subject_add_observer( request_handler_get_subject_for(REQUEST_HANDLER_MOVES), user_interface_get_observer() );
+    subject_add_observer( request_handler_get_subject_for(REQUEST_HANDLER_FADES), user_interface_get_observer() );
+
     // Init all servos, setup inbound sensor data, commands, and output state updates
     for( ClearpathServoInstance_t instance = _CLEARPATH_1; instance < _NUMBER_CLEARPATH_SERVOS; instance++ )
     {
