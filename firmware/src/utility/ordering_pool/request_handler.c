@@ -8,6 +8,7 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 
+
 /* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE;
@@ -29,6 +30,8 @@ PRIVATE int32_t request_handler_find_sorted_candidate( RequestHandlerInstance_t 
 
 PRIVATE void request_handler_emit_ordered_entries( RequestHandlerInstance_t instance );
 
+PRIVATE void request_handler_notify_usage_metrics( RequestHandlerInstance_t instance );
+
 /* -------------------------------------------------------------------------- */
 
 /*  TODO Request Handler Refactor Notes
@@ -49,6 +52,9 @@ typedef struct
     RequestHandlerInstance_t instance;
     QueueHandle_t input_queue;          // input FreeRTOS queue
     RequestableCallbackFn output_cb;    // external function which handles the event
+
+    Subject event_subject;              // TODO: the request handler shouldn't be responsible for this
+
     uint32_t expected_sync_offset;      // timestamp for the next expected output event
 
     uint8_t entry_size;                     // size of a single entry
@@ -59,8 +65,8 @@ typedef struct
     EntryMetadata_t slots[MAX_POOL_SIZE];   // sidecar information for each pool entries
 } RequestPool_t;
 
-uint8_t movement_storage[POOL_STORAGE_BYTES_MOVEMENT] = { 0 };
-uint8_t fade_storage[POOL_STORAGE_BYTES_FADES] = { 0 };
+PRIVATE uint8_t movement_storage[POOL_STORAGE_BYTES_MOVEMENT] = { 0 };
+PRIVATE uint8_t fade_storage[POOL_STORAGE_BYTES_FADES] = { 0 };
 
 PRIVATE RequestPool_t pools[NUM_REQUEST_HANDLERS] = { 0 };
 
@@ -73,6 +79,8 @@ PUBLIC void request_handler_init( RequestHandlerInstance_t instance )
     memset( me, 0, sizeof( RequestPool_t ) );
 
     me->instance = instance;    // TODO: resolve this hack to get around the task pvParameters arg being a pointer to the pool instead of the instance enum
+
+    subject_init( &me->event_subject );
 
     // Create and initialize FreeRTOS queues for this instance
     switch( instance )
@@ -112,6 +120,12 @@ PUBLIC void* request_handler_get_context_for( RequestHandlerInstance_t instance 
 {
     REQUIRE( instance < NUM_REQUEST_HANDLERS );
     return (void*)&pools[instance];
+}
+
+PUBLIC Subject* request_handler_get_subject_for( RequestHandlerInstance_t instance )
+{
+    REQUIRE( instance < NUM_REQUEST_HANDLERS );
+    return &pools[instance].event_subject;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -223,6 +237,8 @@ PUBLIC void request_handler_clear( RequestHandlerInstance_t instance )
     memset( me->storage_ptr, 0, me->storage_size);
 
     me->expected_sync_offset = 0;
+
+    request_handler_notify_usage_metrics( instance );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -246,6 +262,7 @@ PRIVATE void request_handler_insert_entry( RequestHandlerInstance_t instance, vo
     // Update the metadata for the entry
     me->slots[slot_index].is_used = true;
     me->num_slots_used += 1;
+    request_handler_notify_usage_metrics( instance );
 
     switch( instance )
     {
@@ -384,8 +401,36 @@ PRIVATE void request_handler_emit_ordered_entries( RequestHandlerInstance_t inst
             // Mark the slot as free for use
             me->slots[candidate_slot_index].is_used = false;
             me->num_slots_used -= 1;
+
+            request_handler_notify_usage_metrics( instance );
         }
     }
+}
+
+PRIVATE void request_handler_notify_usage_metrics( RequestHandlerInstance_t instance )
+{
+    REQUIRE( instance < NUM_REQUEST_HANDLERS );
+    RequestPool_t *me = &pools[instance];
+
+    SYSTEM_EVENT_FLAG event = SYSTEM_NUM_FIELDS;
+    switch( instance )
+    {
+        case REQUEST_HANDLER_MOVES:
+            event = QUEUE_UTILISATION_MOVEMENT;
+            break;
+        case REQUEST_HANDLER_FADES:
+            event = QUEUE_UTILISATION_LIGHTING;
+            break;
+        default:
+            ASSERT(false);
+            break;
+    }
+
+    EventData queue_pressure = { 0 };
+    queue_pressure.stamped.timestamp = xTaskGetTickCount();
+    queue_pressure.stamped.data.u32 = ( me->num_slots_used * 100 / (me->num_slots) );
+    subject_notify( &me->event_subject, event, queue_pressure );
+
 }
 
 /* -------------------------------------------------------------------------- */

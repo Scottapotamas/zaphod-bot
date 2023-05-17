@@ -21,6 +21,7 @@ target_link_libraries(
         PUBLIC
         utility_cartesian_lib
         utility_lighting_lib
+        utility_observer_lib
         PRIVATE
         FreeRTOS::ARM_CM4F
         # TODO: work out how to compile/link with hard-float without specifying the STM32::F4 package?
