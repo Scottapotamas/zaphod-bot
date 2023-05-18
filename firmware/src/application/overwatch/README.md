@@ -17,11 +17,13 @@ There are 4 main states that describe the delta-robot:
 - ARMED
 - DISARMING
 
-but there's actually two states we can request, and two transition states.
+but there's actually two states we can request, two transition states, and an edge-case.
 What happens when we're in either of the main states?
 
 - When DISARMED, it only needs to wait for the arming signal.
 - When ARMED, run a sub-state-machine which handles the main operating modes
+
+The edge case is handling emergency stop events where we skip a graceful disarm process.
 
 # Operational States
 

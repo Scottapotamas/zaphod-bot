@@ -119,6 +119,27 @@ PUBLIC uint32_t path_interpolator_queue_request( Movement_t *movement_to_process
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC uint32_t path_interpolator_request_homing_move( void )
+{
+    MotionPlanner_t *me = &planner;
+
+    Movement_t homing_move = { 0 };
+    homing_move.metadata.type       = _POINT_TRANSIT;
+    homing_move.metadata.ref        = _POS_ABSOLUTE;
+    homing_move.metadata.num_pts    = 1;
+    homing_move.duration            = 800;
+    homing_move.sync_offset         = 0;
+
+    homing_move.points[0].x = 0;
+    homing_move.points[0].y = 0;
+    homing_move.points[0].z = 0;
+
+    path_interpolator_queue_request( &homing_move );
+    path_interpolator_set_epoch_reference( xTaskGetTickCount() );
+}
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC void
 path_interpolator_update_effector_position( int32_t effector_x, int32_t effector_y, int32_t effector_z  )
 {

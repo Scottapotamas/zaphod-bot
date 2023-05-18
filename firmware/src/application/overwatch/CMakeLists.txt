@@ -4,6 +4,8 @@ add_library (
         overwatch_lib
         overwatch.h
         overwatch.c
+        mode_mediator.h
+        mode_mediator.c
 )
 
 target_include_directories (

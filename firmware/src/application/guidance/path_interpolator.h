@@ -35,6 +35,10 @@ PUBLIC uint32_t path_interpolator_queue_request( Movement_t *movement_to_process
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC uint32_t path_interpolator_request_homing_move( void );
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC void path_interpolator_update_effector_position( int32_t effector_x,
                                                         int32_t effector_y,
                                                         int32_t effector_z );
