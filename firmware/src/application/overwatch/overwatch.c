@@ -226,6 +226,7 @@ PUBLIC void overwatch_task( void* arg )
                 {
                     case OVERWATCH_DISARMED:
                         STATE_ENTRY_ACTION
+                        mode_mediator_lockout( false );
 
                         STATE_TRANSITION_TEST
 
@@ -235,6 +236,7 @@ PUBLIC void overwatch_task( void* arg )
                         }
 
                         STATE_EXIT_ACTION
+                        mode_mediator_lockout( true );
 
                         STATE_END
                         break;
@@ -286,7 +288,7 @@ PUBLIC void overwatch_task( void* arg )
                         STATE_ENTRY_ACTION
                         me->requested_arming = false;
 
-                        // Ask the mechansim to go to home
+                        // Ask the mechansim to go home
                         mode_mediator_request_rehome();
 
                         STATE_TRANSITION_TEST
@@ -360,6 +362,8 @@ PRIVATE void overwatch_publish_mode_state( void )
     subject_notify( &commands, OVERWATCH_MODE_UPDATE, mode_next );
 }
 
+/* -------------------------------------------------------------------------- */
+
 // Called by FreeRTOS timer task and used to stimulate the task.
 // The task itself sets one-shot or repeating timers as needed.
 PRIVATE void overwatch_timer_callback( TimerHandle_t xTimer )
@@ -389,6 +393,5 @@ PRIVATE void overwatch_estop_revoke_promise( void )
 {
     xTimerStop( xOverwatchStimulusTimer, 0 );
 }
-
 
 /* -------------------------------------------------------------------------- */

@@ -61,6 +61,24 @@ PUBLIC void mode_mediator_request_mode( ControlModes_t request )
 
 /* -------------------------------------------------------------------------- */
 
+// TODO: rename/refactor this behaviour
+// Allows armed/disarmed states to 'lock out' path execution etc
+PUBLIC void mode_mediator_lockout( bool unlocked )
+{
+    Modes_t *me = &submode_state;
+
+    if( unlocked )
+    {
+        STATE_NEXT( MODE_CHANGE );
+    }
+    else
+    {
+        STATE_NEXT( MODE_UNKNOWN );
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC void mode_mediator_request_rehome( void )
 {
     Modes_t *me = &submode_state;
@@ -68,7 +86,7 @@ PUBLIC void mode_mediator_request_rehome( void )
     // Rehoming is the intent to reset the delta inside the active mode.
     // This is logically identical to the teardown-setup steps that changing mode requires
     // As the request mode won't have changed, it'll just go back once done
-    STATE_NEXT( MODE_CHANGE );
+    STATE_NEXT( MODE_REHOME );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -85,6 +103,12 @@ PUBLIC void mode_mediator_set_is_homed( bool effector_at_home )
 PUBLIC ControlModes_t mode_mediator_get_mode( void )
 {
     Modes_t *me = &submode_state;
+
+    if( me->currentState == MODE_UNKNOWN || me->currentState == MODE_REHOME )
+    {
+        return me->requested_mode;
+    }
+
     return me->nextState;
 }
 
@@ -114,6 +138,7 @@ PUBLIC void mode_mediator_task( void )
                 STATE_END
                 break;
 
+            case MODE_REHOME:
             case MODE_CHANGE:
                 STATE_ENTRY_ACTION
                 // Overwatch manual request generation -> Path interpolator -> Kinematics

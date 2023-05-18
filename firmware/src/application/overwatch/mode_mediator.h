@@ -16,6 +16,10 @@ PUBLIC void mode_mediator_request_mode( ControlModes_t request );
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC void mode_mediator_lockout( bool unlocked );
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC void mode_mediator_request_rehome( void );
 
 /* -------------------------------------------------------------------------- */

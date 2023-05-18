@@ -67,6 +67,7 @@ typedef enum
     MODE_TRACK,
     MODE_DEMO,
     MODE_EVENT,
+    MODE_REHOME,    // a special case of changing mode behaviour
 } ControlModes_t;
 
 
