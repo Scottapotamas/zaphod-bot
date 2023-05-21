@@ -192,6 +192,7 @@ servo_init( ClearpathServoInstance_t servo )
 
     observer_subscribe( &me->sensor_observer, OVERWATCH_SERVO_ENABLE );
     observer_subscribe( &me->sensor_observer, OVERWATCH_SERVO_DISABLE );
+    observer_subscribe( &me->sensor_observer, SERVO_TARGET_DEGREES );
 
     // Buffer commanded steps per tick for 50 ticks (50ms) to back velocity estimate
 //    average_short_init( &clearpath[servo].step_statistics, SPEED_ESTIMATOR_SPAN );
@@ -248,6 +249,15 @@ PRIVATE void servo_sensors_callback(ObserverEvent_t event, EventData eData, void
             case OVERWATCH_SERVO_DISABLE:
                 me->enabled = false;
                 xSemaphoreGive( me->xServoUpdateSemaphore );
+                break;
+
+            case SERVO_TARGET_DEGREES:
+                if( eData.stamped.index == me->identifier )
+                {
+                    // TODO the set_target_angle function also wants the mutex...
+                    servo_set_target_angle_limited( me->identifier, eData.stamped.data.f32 );
+                    xSemaphoreGive( me->xServoUpdateSemaphore );
+                }
                 break;
 
             default:
@@ -349,8 +359,8 @@ servo_set_target_angle_limited( ClearpathServoInstance_t servo, float angle_degr
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
 
     // TODO: how long should we wait for the mutex?
-    if( xSemaphoreTake( xClearpathMutex, portMAX_DELAY) )
-    {
+//    if( xSemaphoreTake( xClearpathMutex, portMAX_DELAY) )
+//    {
         Servo_t *me = &clearpath[servo];
 
         if( angle_degrees > me->config.angle_min && angle_degrees < me->config.angle_max )
@@ -358,8 +368,8 @@ servo_set_target_angle_limited( ClearpathServoInstance_t servo, float angle_degr
             me->angle_target_steps = convert_angle_steps( me, angle_degrees );
         }
 
-        xSemaphoreGive( xClearpathMutex );
-    }
+//        xSemaphoreGive( xClearpathMutex );
+//    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -664,7 +674,7 @@ PUBLIC void servo_task( void* arg )
                                 STATE_NEXT( SERVO_STATE_ACTIVE );
                             }
                         }
-                        else    // Position is substantially different from previous trend
+                        else    // Feedback is substantially different from previous trend
                         {
                             // Reset the similarity timer
                             stopwatch_start( &me->timer );

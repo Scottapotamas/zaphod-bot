@@ -148,7 +148,22 @@ PUBLIC void effector_task( void* arg )
                     // Calculate a motor angle solution for the cartesian position
                     kinematics_point_to_angle( requested_position, &angle_target );
 
-                    // TODO: Ask the motors to please move to the new target
+                    // Ask the motors to please move to the new target angles
+                    EventData servo_update = { 0 };
+                    servo_update.stamped.timestamp = xTaskGetTickCount();
+
+                    servo_update.stamped.index = 0;
+                    servo_update.stamped.data.f32 = angle_target.a1;
+                    subject_notify( &effector_subject, SERVO_TARGET_DEGREES, servo_update );
+
+                    servo_update.stamped.index = 1;
+                    servo_update.stamped.data.f32 = angle_target.a2;
+                    subject_notify( &effector_subject, SERVO_TARGET_DEGREES, servo_update );
+
+                    servo_update.stamped.index = 2;
+                    servo_update.stamped.data.f32 = angle_target.a3;
+                    subject_notify( &effector_subject, SERVO_TARGET_DEGREES, servo_update );
+
                     //            servo_set_target_angle_limited( _CLEARPATH_1, angle_target.a1 );
                     //            servo_set_target_angle_limited( _CLEARPATH_2, angle_target.a2 );
                     //            servo_set_target_angle_limited( _CLEARPATH_3, angle_target.a3 );
