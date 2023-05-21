@@ -231,14 +231,19 @@ PRIVATE void servo_sensors_callback(ObserverEvent_t event, EventData eData, void
         switch( event )
         {
             case SERVO_POWER:
-                me->power = eData.stamped.data.f32;
-                xSemaphoreGive( me->xServoUpdateSemaphore );
+                if( eData.stamped.index == me->identifier )
+                {
+                    me->power = eData.stamped.data.f32;
+                    xSemaphoreGive( me->xServoUpdateSemaphore );
+                }
                 break;
 
             case SENSOR_SERVO_HLFB:
-                me->hlfb = eData.stamped.data.f32;
-                xSemaphoreGive( me->xServoUpdateSemaphore );
-                // - me->ic_feedback_trim;  // TODO: is 'correcting' the value here the right thing to do?
+                if( eData.stamped.index == me->identifier )
+                {
+                    me->hlfb = eData.stamped.data.f32;
+                    xSemaphoreGive( me->xServoUpdateSemaphore );
+                }
                 break;
 
             case OVERWATCH_SERVO_ENABLE:
