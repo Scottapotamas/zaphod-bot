@@ -187,7 +187,7 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, v
                                                      eData.s_triple[EVT_Y],
                                                      eData.s_triple[EVT_Z] );
 
-            // Need to work out a 'not at home' flag
+            // Need to work out a 'not at home' event that's separate
             if( eData.s_triple[EVT_X] != 0 || eData.s_triple[EVT_Y] != 0 || eData.s_triple[EVT_Z] != 0 )
             {
                 me->effector_home = false;
@@ -226,7 +226,7 @@ PUBLIC void overwatch_task( void* arg )
                 {
                     case OVERWATCH_DISARMED:
                         STATE_ENTRY_ACTION
-                        mode_mediator_lockout( false );
+                        mode_mediator_armed( false );
 
                         STATE_TRANSITION_TEST
 
@@ -236,7 +236,7 @@ PUBLIC void overwatch_task( void* arg )
                         }
 
                         STATE_EXIT_ACTION
-                        mode_mediator_lockout( true );
+                        mode_mediator_armed( true );
 
                         STATE_END
                         break;
@@ -288,7 +288,7 @@ PUBLIC void overwatch_task( void* arg )
                         STATE_ENTRY_ACTION
                         me->requested_arming = false;
 
-                        // Ask the mechansim to go home
+                        // Ask the mechanism to go home
                         mode_mediator_request_rehome();
 
                         STATE_TRANSITION_TEST

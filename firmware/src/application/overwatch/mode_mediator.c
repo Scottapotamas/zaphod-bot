@@ -30,6 +30,7 @@ typedef struct
     ControlModes_t requested_mode;
     bool effector_at_home;
 
+    bool armed; // this shouldn't be needed?
 } Modes_t;
 
 PRIVATE Modes_t submode_state = { 0 };
@@ -53,7 +54,7 @@ PUBLIC void mode_mediator_request_mode( ControlModes_t request )
 
     // Checking for change requests outside the state-machine means
     // this check doesn't need to be repeated in every transition test.
-    if( request != me->currentState )
+    if( me->armed && request != me->currentState )
     {
         STATE_NEXT( MODE_CHANGE );
     }
@@ -63,11 +64,13 @@ PUBLIC void mode_mediator_request_mode( ControlModes_t request )
 
 // TODO: rename/refactor this behaviour
 // Allows armed/disarmed states to 'lock out' path execution etc
-PUBLIC void mode_mediator_lockout( bool unlocked )
+PUBLIC void mode_mediator_armed( bool armed )
 {
     Modes_t *me = &submode_state;
 
-    if( unlocked )
+    me->armed = armed;
+
+    if( armed )
     {
         STATE_NEXT( MODE_CHANGE );
     }
@@ -223,8 +226,6 @@ PUBLIC void mode_mediator_task( void )
 
             case MODE_EVENT:
                 STATE_ENTRY_ACTION
-                // Inform the application tasks of their callbacks/queues etc
-
                 // Telemetry requests -> Ordering queue -> Path Interpolator -> Kinematics
                 user_interface_attach_motion_request_cb( request_handler_add_movement );
 
