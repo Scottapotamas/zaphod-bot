@@ -17,28 +17,35 @@ There are 4 main states that describe the delta-robot:
 - ARMED
 - DISARMING
 
-but there's actually two states we can request, two transition states, and an edge-case.
+but there's only two states we can request, two transition states, and an edge-case.
 What happens when we're in either of the main states?
 
 - When DISARMED, it only needs to wait for the arming signal.
-- When ARMED, run a sub-state-machine which handles the main operating modes
+- When ARMED, wait for the disarm signal and monitor the system's health
 
 The edge case is handling emergency stop events where we skip a graceful disarm process.
 
 # Operational States
 
-Several user-selectable modes of operation are available while armed:
+Several user-selectable modes of operation are available for selection:
 
 - MANUAL - one-off user jog commands and manual control of effector LED colour,
 - TRACK - end effector tries to chase a target position,
 - DEMO - generates long-running movement sequences that 'look cool',
 - EVENT - user provided movement sequences
 
-In the same manner as the top level state machine, attempting to enter any of the operation sub-modes requires a transition process.
-Start by storing the 'requested mode', run a transition state:
+To keep behaviour of any given mode clean, the entry to these mode states are responsible for configuring any subsystems and connecting callback chains.
+When exiting a mode, the cleanup should leave the system in a 'null state', after which the new state's entry process will configure as needed.
 
-- Cleanup any queues/subscriptions/timers/etc,
+Just changing modes with the minimal setup isn't entirely desirable though, if we're armed then we really want to gracefully change state. 
+Start by storing the 'requested mode', run through transition state CHANGE_MODE:
+
+- Setup for a simple event driven mode,
 - Home the end effector,
-- Manage the new queue connections/subscriptions needed for the new mode,
+- Once homed, transition into the mode that was asked for originally.
 
-Then transition into the mode that was asked for originally.
+A user requesting to re-home the mechanism is just a special case of the change mode behaviour.
+
+## State telemetry 
+
+We 'hide' the underlying behaviour of the CHANGE_MODE transition state from the UI/telemetry
