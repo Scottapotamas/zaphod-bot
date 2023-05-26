@@ -372,7 +372,7 @@ PRIVATE void overwatch_timer_callback( TimerHandle_t xTimer )
 
     // TODO is there a better ESTOP option?
     me->requested_arming = false;
-    STATE_NEXT( OVERWATCH_DISARMING );
+    STATE_NEXT( OVERWATCH_EMERGENCY_STOP );
 
     xSemaphoreGive( xOverwatchNotifySemaphore );
 }
