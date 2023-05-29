@@ -171,8 +171,8 @@ export class MotorDataCodec extends Codec {
       const motor: ServoInfo = {
         feedback: reader.readInt16LE() / 10,
         power: reader.readInt16LE() / 10,
-        speed: reader.readInt16LE() / 10,
         target_angle: reader.readInt16LE() / 100,
+        speed: reader.readInt16LE() / 10,
         state: reader.readUInt8(),
       }
       let obsolete = reader.readUInt8() // no longer needed, kept for padding?
