@@ -355,7 +355,7 @@ PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData eD
             break;
 
         case EFFECTOR_SPEED:
-            effector.speed = eData.stamped.data.f32;
+            effector.speed = eData.stamped.data.u32;
             break;
 
         case OVERWATCH_STATE_UPDATE:

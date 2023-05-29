@@ -14,6 +14,7 @@
 #include "FreeRTOS.h"
 #include "semphr.h"
 #include "task.h"
+#include "timers.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -28,17 +29,22 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 PRIVATE CartesianPoint_t effector_position;    // position of the end effector
 PRIVATE CartesianPoint_t requested_position;   // position we should try to reach in this tick
-PRIVATE uint32_t last_request_timestamp;
+PRIVATE uint32_t position_update_timestamp;
 
 PRIVATE SemaphoreHandle_t xNewEffectorTargetSemaphore;
 PRIVATE SemaphoreHandle_t xEffectorMutex;
 
+PRIVATE TimerHandle_t xEffectorStatsTimer;
+
 PRIVATE Subject effector_subject;
-//PRIVATE AverageShort_t movement_statistics;
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE bool effector_is_near_home( CartesianPoint_t *position );
+
+PRIVATE void effector_publish_velocity( uint32_t distance_since_last );
+
+PRIVATE void effector_statistics_stale( TimerHandle_t xTimer );
 
 /* -------------------------------------------------------------------------- */
 
@@ -49,7 +55,7 @@ effector_init( void )
 
     memset( &effector_position, 0, sizeof(CartesianPoint_t) );
     memset( &requested_position, 0, sizeof(CartesianPoint_t) );
-    last_request_timestamp = 0;
+    position_update_timestamp = 0;
 
     xNewEffectorTargetSemaphore = xSemaphoreCreateBinary();
     xEffectorMutex = xSemaphoreCreateMutex();
@@ -59,7 +65,15 @@ effector_init( void )
 
     subject_init( &effector_subject );
 
-//    average_short_init( &movement_statistics, SPEED_ESTIMATOR_SPAN );
+    xEffectorStatsTimer = xTimerCreate("effectorStale",
+                                        pdMS_TO_TICKS(10),  // TODO this timeout should be set correctly
+                                        pdFALSE,
+                                        0,
+                                        effector_statistics_stale
+    );
+    REQUIRE( xEffectorStatsTimer );
+    xTimerStart( xEffectorStatsTimer, pdMS_TO_TICKS(10) );
+
 }
 
 /* -------------------------------------------------------------------------- */
@@ -105,8 +119,7 @@ effector_reset( void )
     {
         memset( &effector_position, 0, sizeof(CartesianPoint_t));
         memset( &requested_position, 0, sizeof(CartesianPoint_t));
-        last_request_timestamp = 0;
-        // TODO: reset movement stats here
+        position_update_timestamp = 0;
 
         xSemaphoreGive( xEffectorMutex );
         xSemaphoreGive( xNewEffectorTargetSemaphore );
@@ -139,9 +152,6 @@ PUBLIC void effector_task( void* arg )
                 }
                 else    // under the speed guard
                 {
-                    // Keep track of the distance change over time for speed stats
-                    //            average_short_update( &movement_statistics, (uint16_t)proposed_distance_um );
-
                     // target motor shaft angle in degrees
                     JointAngles_t angle_target = { 0.0f, 0.0f, 0.0f };
 
@@ -164,9 +174,6 @@ PUBLIC void effector_task( void* arg )
                     servo_update.stamped.data.f32 = angle_target.a3;
                     subject_notify( &effector_subject, SERVO_TARGET_DEGREES, servo_update );
 
-                    //            servo_set_target_angle_limited( _CLEARPATH_1, angle_target.a1 );
-                    //            servo_set_target_angle_limited( _CLEARPATH_2, angle_target.a2 );
-                    //            servo_set_target_angle_limited( _CLEARPATH_3, angle_target.a3 );
 
                     // The request is now 'the current position'
                     memcpy( &effector_position, &requested_position, sizeof(CartesianPoint_t) );
@@ -181,10 +188,7 @@ PUBLIC void effector_task( void* arg )
                     subject_notify( &effector_subject, EFFECTOR_POSITION, pos_update );
 
                     // and the velocity
-                    EventData vel_update = { 0 };
-                    vel_update.stamped.timestamp = xTaskGetTickCount();
-                    vel_update.stamped.data.f32 = 0.1f;
-                    subject_notify( &effector_subject, EFFECTOR_SPEED, vel_update );
+                    effector_publish_velocity( proposed_distance_um );
 
                     // Overseer tasks want to be notified when the effector is at the home position
                     if( effector_is_near_home( &effector_position ) )
@@ -210,12 +214,49 @@ PUBLIC void effector_task( void* arg )
 PRIVATE bool
 effector_is_near_home( CartesianPoint_t *position )
 {
-    bool x_homed = IS_IN_DEADBAND( position->x, 0, MM_TO_MICRONS( 0.1 ) );
-    bool y_homed = IS_IN_DEADBAND( position->y, 0, MM_TO_MICRONS( 0.1 ) );
-    bool z_homed = IS_IN_DEADBAND( position->z, 0, MM_TO_MICRONS( 0.1 ) );
+    // only 1 micron error is tolerated
+    bool x_homed = IS_IN_DEADBAND( position->x, 0, 1 );
+    bool y_homed = IS_IN_DEADBAND( position->y, 0, 1 );
+    bool z_homed = IS_IN_DEADBAND( position->z, 0, 1 );
 
     return ( x_homed && y_homed && z_homed );
 }
 
 /* -------------------------------------------------------------------------- */
 
+PRIVATE void effector_publish_velocity( uint32_t distance_since_last )
+{
+    // Difference between positions over time
+    uint32_t timestamp_now = xTaskGetTickCount();
+    uint32_t delta_time = timestamp_now - position_update_timestamp;
+
+    ENSURE( delta_time );   // TODO: do we need to handle sub millisecond moves?
+
+    // Publish the velocity value
+    EventData vel_update = { 0 };
+    vel_update.stamped.timestamp = timestamp_now;
+    vel_update.stamped.data.u32 = distance_since_last / delta_time;
+    subject_notify( &effector_subject, EFFECTOR_SPEED, vel_update );
+
+    // Refresh the stats stale timer
+    xTimerReset( xEffectorStatsTimer, pdMS_TO_TICKS(2) );
+
+    position_update_timestamp = timestamp_now;
+}
+
+/* -------------------------------------------------------------------------- */
+
+// Called when the effector task sits waiting for input events
+// We assume no update events within the timeout period mean the velocity should be zero
+PRIVATE void effector_statistics_stale( TimerHandle_t xTimer )
+{
+    if( xSemaphoreTake(xEffectorMutex, portMAX_DELAY) )
+    {
+        // Calculate and publish the velocity using a zero-distance update
+        effector_publish_velocity( 0 );
+
+        xSemaphoreGive(xEffectorMutex);
+    }
+}
+
+/* -------------------------------------------------------------------------- */

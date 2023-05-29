@@ -195,7 +195,7 @@ export class EffectorDataCodec extends Codec {
     packet.writeInt32LE(payload.position.x * 1000)
     packet.writeInt32LE(payload.position.y * 1000)
     packet.writeInt32LE(payload.position.z * 1000)
-    packet.writeUInt32LE(payload.speed / 1000)
+    packet.writeUInt32LE(payload.speed)
 
     return packet.toBuffer()
   }
@@ -212,7 +212,7 @@ export class EffectorDataCodec extends Codec {
     return {
       position: pos,
       // Packet is microns/second, convert to mm/second
-      speed: reader.readInt32LE() * 1000,
+      speed: reader.readInt32LE(),
     }
   }
 }
