@@ -17,6 +17,7 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include "semphr.h"
+#include "timers.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -125,6 +126,8 @@ typedef struct
 
     int32_t    angle_current_steps;
     int32_t    angle_target_steps;
+    TimerHandle_t servo_stats_timer;
+    uint32_t angle_update_timestamp;
 
     SemaphoreHandle_t xServoUpdateSemaphore;
     Observer sensor_observer;   // subscribe to system events etc
@@ -150,6 +153,12 @@ PRIVATE bool servo_get_connected_estimate( ClearpathServoInstance_t servo );
 PRIVATE int32_t convert_angle_steps( Servo_t *me, float angle );
 
 PRIVATE float convert_steps_angle( Servo_t *me, int32_t steps );
+
+PRIVATE void servo_publish_angle( ClearpathServoInstance_t servo );
+
+PRIVATE void servo_publish_velocity( ClearpathServoInstance_t servo, int32_t steps_since_last );
+
+PRIVATE void servo_statistics_stale( TimerHandle_t xTimer );
 
 /* -------------------------------------------------------------------------- */
 
@@ -194,8 +203,15 @@ servo_init( ClearpathServoInstance_t servo )
     observer_subscribe( &me->sensor_observer, OVERWATCH_SERVO_DISABLE );
     observer_subscribe( &me->sensor_observer, SERVO_TARGET_DEGREES );
 
-    // Buffer commanded steps per tick for 50 ticks (50ms) to back velocity estimate
-//    average_short_init( &clearpath[servo].step_statistics, SPEED_ESTIMATOR_SPAN );
+    // Used for servo statistics publishing
+    me->servo_stats_timer = xTimerCreate("servoStatsTimer",
+                                        pdMS_TO_TICKS(10),  // TODO this timeout should be set correctly
+                                        pdFALSE,
+                                        (void *)servo,
+                                        servo_statistics_stale
+    );
+    REQUIRE( me->servo_stats_timer );
+    xTimerStart( me->servo_stats_timer, pdMS_TO_TICKS(10) );
 }
 
 
@@ -728,25 +744,16 @@ PUBLIC void servo_task( void* arg )
                                 me->angle_current_steps = me->angle_current_steps + ( step_direction * -1 );
                             }
 
-                            // TODO move this elsewhere?
-                            // TODO: extract position update notification into a separate function, simplify logic
-                            EventData state_update = { 0 };
-                            state_update.stamped.index = me->identifier;
-                            state_update.stamped.data.f32 = convert_steps_angle( me, me->angle_current_steps);
-                            state_update.stamped.timestamp = xTaskGetTickCount();
-                            // TODO: make sure any SERVO_POSITION subscribers expect a float
-                            subject_notify( &me->sensor_subject, SERVO_POSITION, state_update );
+                            servo_publish_angle( me->identifier );
 
                             // Track movement requests over time for velocity estimate
-                            //                average_short_update( &me->step_statistics, pulses_needed );
+                            servo_publish_velocity( me->identifier, step_difference );
 
                             // Reset the 'no-motion' idle timer
                             stopwatch_deadline_start( &me->timer, SERVO_IDLE_SETTLE_MS );
                         }
                         else    // no movement needed
                         {
-                            //                average_short_update( &me->step_statistics, 0 );
-
                             // Has the servo been idle for longer than the settling period?
                             if( stopwatch_deadline_elapsed( &me->timer ) )
                             {
@@ -776,8 +783,6 @@ PUBLIC void servo_task( void* arg )
                     state_update.stamped.data.u32 = me->nextState;
                     subject_notify( &me->sensor_subject, SERVO_STATE, state_update );
                 }
-
-                //    user_interface_motor_speed( servo, servo_get_degrees_per_second(servo) );
 
                 xSemaphoreGive( xClearpathMutex );
             }
@@ -869,7 +874,7 @@ PRIVATE void servo_load_configuration( ClearpathServoInstance_t servo )
     }
 }
 
-PRIVATE void servo_load_hardware( ClearpathServoInstance_t servo)
+PRIVATE void servo_load_hardware( ClearpathServoInstance_t servo )
 {
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     Servo_t *me = &clearpath[servo];
@@ -909,4 +914,63 @@ PRIVATE void servo_load_hardware( ClearpathServoInstance_t servo)
     }
 }
 
-/* ----- End ---------------------------------------------------------------- */
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void servo_publish_angle( ClearpathServoInstance_t servo )
+{
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+    Servo_t *me = &clearpath[servo];
+
+    EventData angle_update = { 0 };
+    angle_update.stamped.index = me->identifier;
+    angle_update.stamped.data.f32 = convert_steps_angle( me, me->angle_current_steps);
+    angle_update.stamped.timestamp = xTaskGetTickCount();
+    subject_notify( &me->sensor_subject, SERVO_POSITION, angle_update );
+
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void servo_publish_velocity( ClearpathServoInstance_t servo, int32_t steps_since_last )
+{
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+    Servo_t *me = &clearpath[servo];
+
+    // Difference between positions over time
+    uint32_t timestamp_now = xTaskGetTickCount();
+    uint32_t delta_time = timestamp_now - me->angle_update_timestamp;
+
+    ENSURE( delta_time );   // TODO: do we need to handle sub millisecond moves?
+
+    // Publish the velocity value
+    EventData vel_update = { 0 };
+    vel_update.stamped.timestamp = timestamp_now;
+    vel_update.stamped.data.f32 = convert_steps_angle( me, steps_since_last ) / (float)delta_time * 1000.0f;
+    subject_notify( &me->sensor_subject, SERVO_SPEED, vel_update );
+
+    // Refresh the stats stale timer
+    xTimerReset( me->servo_stats_timer, pdMS_TO_TICKS(2) );
+
+    me->angle_update_timestamp = timestamp_now;
+}
+
+/* -------------------------------------------------------------------------- */
+
+// Called when the effector task sits waiting for input events
+// We assume no update events within the timeout period mean the velocity should be zero
+PRIVATE void servo_statistics_stale( TimerHandle_t xTimer )
+{
+    if( xSemaphoreTake(xClearpathMutex, portMAX_DELAY) )
+    {
+        // Calculate and publish the velocity using a zero-distance update
+        ClearpathServoInstance_t servo = (ClearpathServoInstance_t)pvTimerGetTimerID(xTimer);
+        REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+        Servo_t *me = &clearpath[servo];
+
+        servo_publish_velocity( me->identifier, 0 );
+
+        xSemaphoreGive(xClearpathMutex);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
