@@ -7,7 +7,7 @@
 
 // TODO: work out how to alias/copy the FanCurve_t from fan
 //       without making all of fan.h available downstream
-#include "fan.h"
+//#include "fan.h"
 
 /* ----- Defines ------------------------------------------------------------ */
 

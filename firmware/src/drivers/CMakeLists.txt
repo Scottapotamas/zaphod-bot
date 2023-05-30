@@ -1,4 +1,5 @@
 add_subdirectory(buzzer)
+add_subdirectory(configuration)
 add_subdirectory(fan)
 add_subdirectory(rgb_led)
 add_subdirectory(sensors)
