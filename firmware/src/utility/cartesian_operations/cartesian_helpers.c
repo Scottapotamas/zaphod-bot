@@ -29,7 +29,7 @@ cartesian_move_speed( Movement_t *movement )
     return cartesian_move_distance( movement ) / movement->duration;
 }
 
-// Input speed is in centimeters/second
+// Input speed is in millimeters/second
 // Distance in microns
 // Return the duration in milliseconds (round down)
 PUBLIC uint32_t
@@ -37,11 +37,28 @@ cartesian_duration_for_speed( CartesianPoint_t *a, CartesianPoint_t *b, mm_per_s
 {
     REQUIRE( a );
     REQUIRE( b );
+    REQUIRE( target_speed );
 
     uint32_t distance = cartesian_distance_between( a, b );    // in microns
 
     // 1 mm/second is 1 micron/millisecond
     return distance / target_speed;
+}
+
+
+// Input duration is in milliseconds
+// Distance in microns
+// Return the speed in mm/second (round down)
+PUBLIC uint32_t
+cartesian_speed_from_duration( CartesianPoint_t *a, CartesianPoint_t *b, uint32_t duration_ms )
+{
+    REQUIRE( a );
+    REQUIRE( b );
+    REQUIRE( duration_ms );
+
+    uint32_t distance = cartesian_distance_between( a, b );    // in microns
+
+    return distance / duration_ms;
 }
 
 // Input two points in 3D space (*a and *b), and 0.0f to 1.0f 'percentage' on the line to find

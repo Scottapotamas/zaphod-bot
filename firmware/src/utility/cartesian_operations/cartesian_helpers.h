@@ -31,5 +31,7 @@ cartesian_distance_between( CartesianPoint_t *a, CartesianPoint_t *b );
 PUBLIC uint32_t
 cartesian_duration_for_speed( CartesianPoint_t *a, CartesianPoint_t *b, mm_per_second_t target_speed );
 
+PUBLIC uint32_t
+cartesian_speed_from_duration( CartesianPoint_t *a, CartesianPoint_t *b, uint32_t duration_ms );
 
 #endif    // CARTESIAN_HELPERS_H
