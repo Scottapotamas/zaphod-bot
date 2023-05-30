@@ -46,7 +46,7 @@ export const RotationRateChart = () => {
       ))}
       <RealTimeDomain
         window={[10_000, 30_000]}
-        yMin={0}
+        yMinSoft={-50}
         yMaxSoft={50}
         delay={50}
       />
