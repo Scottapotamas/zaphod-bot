@@ -540,14 +540,15 @@ PUBLIC void servo_task( void* arg )
 
                     case SERVO_STATE_HOMING_CALIBRATE_TORQUE:
                         STATE_ENTRY_ACTION
-                        me->ic_feedback_trim = 0.0f;
+                        me->ic_feedback_trim = me->hlfb;
                         stopwatch_deadline_start( &me->timer, SERVO_HOMING_CALIBRATION_MS );
                         STATE_TRANSITION_TEST
 
                         if( !stopwatch_deadline_elapsed( &me->timer ) )
                         {
                             // The trim value is a super simple FIR of the incoming values
-                            me->ic_feedback_trim = ( 0.1f * me->hlfb ) + ( me->ic_feedback_trim * 0.9f );
+                            const float leaky_integrator_factor = 0.6f;
+                            me->ic_feedback_trim = (leaky_integrator_factor * me->ic_feedback_trim) + ( 1.0f - leaky_integrator_factor )*me->hlfb;
                         }
                         else
                         {
@@ -950,6 +951,7 @@ PRIVATE void servo_publish_velocity( ClearpathServoInstance_t servo, int32_t ste
 
     // Publish the velocity value
     EventData vel_update = { 0 };
+    vel_update.stamped.index = me->identifier;
     vel_update.stamped.timestamp = timestamp_now;
     vel_update.stamped.data.f32 = convert_steps_angle( me, steps_since_last ) / (float)delta_time * 1000.0f;
     subject_notify( &me->sensor_subject, SERVO_SPEED, vel_update );
