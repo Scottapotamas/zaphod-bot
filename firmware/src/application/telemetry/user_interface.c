@@ -7,6 +7,7 @@
 
 #include "FreeRTOS.h"
 #include "task.h"
+#include "timers.h"
 
 #include <electricui.h>
 
@@ -147,6 +148,10 @@ PRIVATE LightingRequestFn handle_requested_fade;    // Pass UI Fade event reques
 PRIVATE PositionRequestFn handle_requested_position; // Pass cartesian position requests to this callback for handling
 PRIVATE HSIRequestFn handle_requested_hsi;    // Pass HSI colour requests to this callback for handling
 
+PRIVATE TimerHandle_t xTelemetryTimer;
+
+PRIVATE void telemetry_timer_callback( TimerHandle_t xTimer );
+
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -155,6 +160,16 @@ user_interface_init( void )
     // We need to do a full reset of USART clocks/peripherals on boot, as the DMA setup seems
     // to cling onto error flags across firmware flashing - making debugging hard
     hal_uart_global_deinit();
+
+    // Setup a stimulus timer handle
+    xTelemetryTimer = xTimerCreate("telemetry",
+                                            pdMS_TO_TICKS(25),
+                                            pdTRUE,
+                                            0,
+                                    telemetry_timer_callback
+    );
+    REQUIRE( xTelemetryTimer );
+    xTimerStart( xTelemetryTimer, 5 );
 
     hal_uart_init( HAL_UART_PORT_MODULE, 500000 );
     hal_uart_init( HAL_UART_PORT_INTERNAL, 500000 );
@@ -262,6 +277,12 @@ PUBLIC void user_interface_task( void *arg )
 
         vTaskDelay(1);
     }
+}
+
+PRIVATE void telemetry_timer_callback( TimerHandle_t xTimer )
+{
+    eui_send_tracked(MSGID_POSITION_CURRENT );
+    eui_send_tracked(MSGID_SUPERVISOR );
 }
 
 /* -------------------------------------------------------------------------- */
