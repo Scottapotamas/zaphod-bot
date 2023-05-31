@@ -11,6 +11,7 @@
 #include "sensors.h"
 #include "fan.h"
 #include "buzzer.h"
+#include "shutter_release.h"
 #include "user_interface.h"
 #include "overwatch.h"
 
@@ -52,6 +53,7 @@ void app_startup_init( void )
     fan_init();
     buzzer_init();
     led_init();
+    shutter_init();
 
     request_handler_init( REQUEST_HANDLER_MOVES );
     request_handler_init( REQUEST_HANDLER_FADES );
@@ -78,6 +80,10 @@ void app_startup_init( void )
     subject_add_observer( ui_request_subject, overwatch_get_observer() );
     subject_add_observer( pathing_events, overwatch_get_observer() );
     subject_add_observer( effector_data, overwatch_get_observer() );
+
+    // Shutter release subscribes to overwatch and UI requests
+    subject_add_observer( ui_request_subject, shutter_get_observer() );
+    subject_add_observer( overwatch_commands, shutter_get_observer() );
 
     // LED task subscriptions
     subject_add_observer( effector_data, led_get_observer() );

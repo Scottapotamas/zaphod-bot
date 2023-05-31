@@ -29,6 +29,7 @@ target_link_libraries(app_startup_lib
         telemetry_lib
         sensors_lib
         servo_lib
+        shutter_release_lib
         hal_system_lib
         hal_gpio_lib
         FreeRTOS::Timers
