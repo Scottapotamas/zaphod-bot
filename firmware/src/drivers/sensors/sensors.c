@@ -94,10 +94,18 @@ PUBLIC void sensors_init( void )
     vQueueAddToRegistry( xHalQueue, "sensors");  // Debug view annotation
 
     // Prepare our averaging structures
-    for( uint32_t i = 0; i < HAL_NUM_FIELDS; i++ )
+    for( HalInputType_t i = 0; i < HAL_NUM_FIELDS; i++ )
     {
+        uint8_t span = 16;
+
+        if( i >= IC_SERVO_1_HLFB && i <= IC_SERVO_4_HLFB )
+        {
+            // HLFB values shouldn't be filtered like this
+            span = 1;
+        }
+
         // TODO cleanup the timespan to run averaging on
-        average_short_init( &data[i].stats, 8 );
+        average_short_init( &data[i].stats, span );
     }
 
     // Provide ADC counts -> floating SI units converter functions for each signal
