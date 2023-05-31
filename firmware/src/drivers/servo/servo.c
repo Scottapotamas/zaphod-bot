@@ -940,7 +940,13 @@ PRIVATE void servo_publish_velocity( ClearpathServoInstance_t servo, int32_t ste
     uint32_t timestamp_now = xTaskGetTickCount();
     uint32_t delta_time = timestamp_now - me->angle_update_timestamp;
 
-    ENSURE( delta_time );   // TODO: do we need to handle sub millisecond moves?
+    // TODO: how should we handle sub millisecond moves?
+    if( !delta_time )
+    {
+        // For now, assume a zero duration is one millisecond
+        delta_time += 1;
+//        ENSURE( delta_time );
+    }
 
     // Publish the velocity value
     EventData vel_update = { 0 };
