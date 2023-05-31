@@ -66,7 +66,7 @@ effector_init( void )
     subject_init( &effector_subject );
 
     xEffectorStatsTimer = xTimerCreate("effectorStale",
-                                        pdMS_TO_TICKS(10),  // TODO this timeout should be set correctly
+                                        pdMS_TO_TICKS(15),  // TODO this timeout should be set correctly
                                         pdFALSE,
                                         0,
                                         effector_statistics_stale
@@ -230,7 +230,12 @@ PRIVATE void effector_publish_velocity( uint32_t distance_since_last )
     uint32_t timestamp_now = xTaskGetTickCount();
     uint32_t delta_time = timestamp_now - position_update_timestamp;
 
-    ENSURE( delta_time );   // TODO: do we need to handle sub millisecond moves?
+    // TODO: how should sub millisecond moves be handled?
+    if( delta_time == 0 )
+    {
+        delta_time += 1;
+//        ENSURE( delta_time );
+    }
 
     // Publish the velocity value
     EventData vel_update = { 0 };

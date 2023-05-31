@@ -158,6 +158,9 @@ PRIVATE void servo_publish_velocity( ClearpathServoInstance_t servo, int32_t ste
 
 PRIVATE void servo_statistics_stale( TimerHandle_t xTimer );
 
+
+PRIVATE void servo_delay_us( uint32_t delay_us ) __attribute__( ( optimize( "-O0" ) ) );
+
 /* -------------------------------------------------------------------------- */
 
 PRIVATE Servo_t clearpath[_NUMBER_CLEARPATH_SERVOS];
@@ -730,15 +733,13 @@ PUBLIC void servo_task( void* arg )
 
                             for( uint32_t pulses = 0; pulses < pulses_needed; pulses++ )
                             {
-                                hal_gpio_toggle_pin( me->hardware.pin_step );
                                 // TODO work out how to delay for a short period of time?
-                                // TODO: remove shoddy hack using freeRTOS timing
-                                vTaskDelay( 1 );
-                                //                    hal_delay_us( SERVO_PULSE_DURATION_US );
-                                hal_gpio_toggle_pin( me->hardware.pin_step );
-                                vTaskDelay( 1 );
-                                //                    hal_delay_us( SERVO_PULSE_DURATION_US );
+                                // TODO: remove shoddy blocking timing hack
 
+                                hal_gpio_toggle_pin( me->hardware.pin_step );
+                                servo_delay_us( SERVO_PULSE_DURATION_US );
+                                hal_gpio_toggle_pin( me->hardware.pin_step );
+                                servo_delay_us( SERVO_PULSE_DURATION_US );
                                 me->angle_current_steps = me->angle_current_steps + ( step_direction * -1 );
                             }
 
@@ -788,9 +789,19 @@ PUBLIC void servo_task( void* arg )
     }  // end task loop
 }
 
-/* -------------------------------------------------------------------------- */
 
-// TODO when working out why angle_min is involved, rewrite this comment
+PRIVATE void servo_delay_us( uint32_t delay_us )
+{
+    uint32_t loop = delay_us * ( SystemCoreClock / 1000000 ) / 5;
+
+    /* Protect against this loop running when loop == 0 */
+    if( loop > 0 )
+    {
+        while( loop-- ) {};
+    }
+}
+
+/* -------------------------------------------------------------------------- */
 /*
  * The kinematics output is an angle between -85 and +90, where 0 deg is when
  * the elbow-shaft link is parallel to the frame plate. Full range not available due
