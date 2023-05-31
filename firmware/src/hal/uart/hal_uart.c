@@ -243,7 +243,7 @@ hal_uart_read( HalUartPort_t port, uint8_t *data, uint32_t maxlength )
                                 data,
                                 maxlength,
                                 // TODO work out a non-blocking way to do this and wake the parent?
-                                5   //portMAX_DELAY
+                                0   //portMAX_DELAY
                                 );
 
     return len;
@@ -546,47 +546,57 @@ hal_usart_irq_rx_handler( HalUart_t *h )
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
 
     // Has DMA given us new data?
-    if( current_pos != h->dma_rx_pos )
+    if( current_pos == h->dma_rx_pos )
     {
-        // Data hasn't hit the end yet
-        if( current_pos > h->dma_rx_pos )
-        {
-            xBytesSent = xStreamBufferSendFromISR( h->xRxStreamBuffer,
-                                                   (const uint8_t *)&h->dma_rx_buffer[h->dma_rx_pos],
-                                                   current_pos - h->dma_rx_pos,
-                                                   &xHigherPriorityTaskWoken );
-
-            // if the stream doesn't have sufficient capacity, this will fail
-            ASSERT( xBytesSent == (current_pos - h->dma_rx_pos) );
-
-        }
-        else    // circular buffer overflowed
-        {
-            // Read to the end of the buffer
-            xBytesSent = xStreamBufferSendFromISR( h->xRxStreamBuffer,
-                                                   (const uint8_t *)&h->dma_rx_buffer[h->dma_rx_pos],
-                                                   DIM( h->dma_rx_buffer ) - h->dma_rx_pos,
-                                                   &xHigherPriorityTaskWoken );
-            ASSERT( xBytesSent == (DIM( h->dma_rx_buffer ) - h->dma_rx_pos) );
-
-            // Read from the start of the buffer to the current head
-            if( current_pos > 0 )
-            {
-                xBytesSent = xStreamBufferSendFromISR( h->xRxStreamBuffer,
-                                                       (const uint8_t *)&h->dma_rx_buffer[0],
-                                                       current_pos,
-                                                       &xHigherPriorityTaskWoken );
-                ASSERT( xBytesSent == current_pos );
-            }
-        }
+        // No new data has arrived, but we've got the ISR?
+        return;
     }
-    // Remember the current head position
-    h->dma_rx_pos = current_pos;
 
-    // Check if we've reached the end of the buffer, move the head to the start
-    if( h->dma_rx_pos == HAL_UART_RX_DMA_BUFFER_SIZE )
+    // Data hasn't hit the end yet
+    if( current_pos > h->dma_rx_pos )
     {
-        h->dma_rx_pos = 0;
+        xBytesSent = xStreamBufferSendFromISR( h->xRxStreamBuffer,
+                                               (const uint8_t *)&h->dma_rx_buffer[h->dma_rx_pos],
+                                               current_pos - h->dma_rx_pos,
+                                               &xHigherPriorityTaskWoken );
+
+        // Update the 'previously handled head' index value
+        // Note: this can be less than the number of bytes we tried to send
+        h->dma_rx_pos += xBytesSent;
+
+        // For debugging
+        // if the stream doesn't have sufficient capacity, this will fail
+        // ASSERT( xBytesSent == (current_pos - h->dma_rx_pos) );
+    }
+    else    // data has flowed over the end of the circular buffer
+    {
+        // Read to the end of the buffer
+        xBytesSent = xStreamBufferSendFromISR( h->xRxStreamBuffer,
+                                               (const uint8_t *)&h->dma_rx_buffer[h->dma_rx_pos],
+                                               DIM( h->dma_rx_buffer ) - h->dma_rx_pos,
+                                               &xHigherPriorityTaskWoken );
+
+        h->dma_rx_pos += xBytesSent;
+        // ASSERT( xBytesSent == (DIM( h->dma_rx_buffer ) - h->dma_rx_pos) );
+
+        // Check if we've reached the end of the buffer, move the head to the start
+        if( h->dma_rx_pos == HAL_UART_RX_DMA_BUFFER_SIZE )
+        {
+            h->dma_rx_pos = 0;
+        }
+
+        // Read from the start of the buffer to the current head
+        if( current_pos > 0 )
+        {
+            xBytesSent = xStreamBufferSendFromISR( h->xRxStreamBuffer,
+                                                   (const uint8_t *)&h->dma_rx_buffer[0],
+                                                   current_pos,
+                                                   &xHigherPriorityTaskWoken );
+
+            h->dma_rx_pos = xBytesSent;
+
+            // ASSERT( xBytesSent == current_pos );
+        }
     }
 }
 
