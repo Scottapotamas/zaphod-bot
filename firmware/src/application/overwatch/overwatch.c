@@ -84,6 +84,15 @@ PUBLIC void overwatch_init( void )
     xOverwatchNotifySemaphore = xSemaphoreCreateBinary();
     ENSURE( xOverwatchNotifySemaphore );
 
+    // Setup a stimulus timer handle
+    xOverwatchStimulusTimer = xTimerCreate("overseer",
+                                            pdMS_TO_TICKS(100),
+                                            pdFALSE,
+                                            0,
+                                            overwatch_timer_callback
+    );
+    REQUIRE( xOverwatchStimulusTimer );
+
     mode_mediator_init();
 
     // Setup command generation subject
@@ -248,7 +257,7 @@ PUBLIC void overwatch_task( void* arg )
                         subject_notify( &commands, OVERWATCH_SERVO_ENABLE, temp );
 
                         // A pending eSTOP event acts as a timeout
-                        overwatch_estop_in( 5000 );
+                        overwatch_estop_in( 9000 );
                         STATE_TRANSITION_TEST
 
                         // Are the motors/subsystems ready?
@@ -291,6 +300,8 @@ PUBLIC void overwatch_task( void* arg )
                         // Ask the mechanism to go home
                         mode_mediator_request_rehome();
 
+                        // A pending eSTOP event acts as a timeout
+                        overwatch_estop_in( 2000 );
                         STATE_TRANSITION_TEST
                         // Are we home?
                         if( me->effector_home )
@@ -299,6 +310,7 @@ PUBLIC void overwatch_task( void* arg )
                         }
 
                         STATE_EXIT_ACTION
+                        overwatch_estop_revoke_promise();
 
                         STATE_END
                         break;
@@ -379,13 +391,8 @@ PRIVATE void overwatch_timer_callback( TimerHandle_t xTimer )
 
 PRIVATE void overwatch_estop_in( uint32_t timeout_ms )
 {
-    xOverwatchStimulusTimer = xTimerCreate("overseer",
-                                            pdMS_TO_TICKS(timeout_ms),
-                                            pdFALSE,
-                                            0,
-                                            overwatch_timer_callback
-    );
     REQUIRE( xOverwatchStimulusTimer );
+    xTimerChangePeriod( xOverwatchStimulusTimer, pdMS_TO_TICKS(timeout_ms), 1 );
     xTimerStart( xOverwatchStimulusTimer, 0 );
 }
 
