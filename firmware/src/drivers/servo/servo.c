@@ -27,8 +27,8 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 #define SERVO_ANGLE_PER_REV (360U)
 #define SERVO_MIN_ANGLE (45U)  // this is the negative angle limit
 #define SERVO_MAX_ANGLE (65U)  // arm is fully extended
-#define SERVO_IDLE_POWER_ALERT_W (40U)
-#define SERVO_IDLE_TORQUE_ALERT (30U)
+#define SERVO_IDLE_POWER_ALERT_W (30U)
+#define SERVO_IDLE_TORQUE_ALERT (20U)
 #define SERVO_IDLE_SETTLE_MS (50U)
 #define SERVO_HOME_OFFSET (25U)
 
@@ -673,7 +673,7 @@ PUBLIC void servo_task( void* arg )
                         // Servo successfully found home, and is likely moving to the start-offset point
                         // Wait for the servo to settle in torque domain
                         float feedback_error = ( servo_feedback - me->homing_feedback );
-                        me->homing_feedback  = ( 0.1f * servo_feedback ) + ( me->ic_feedback_trim * 0.9f );
+                        me->homing_feedback  = ( 0.1f * servo_feedback ) + ( me->homing_feedback * 0.9f );
 
                         // Current torque feedback is similar to previous running average
                         if( IS_IN_DEADBAND( feedback_error, 0.0f, SERVO_HOMING_SIMILARITY_PERCENT ) )
@@ -808,11 +808,8 @@ convert_angle_steps( Servo_t *me, float angle )
 
     float steps_per_servo_degree = (float)me->config.steps_per_revolution / SERVO_ANGLE_PER_REV;
     float output_ratio = me->config.ratio;
-
-    // TODO remove/work out why angle_min is involved here at all?
-    float servo_angle = ( angle + me->config.angle_min );
-
-    float converted_angle  = servo_angle * output_ratio * steps_per_servo_degree;
+    
+    float converted_angle  = angle * output_ratio * steps_per_servo_degree;
     return (int32_t)converted_angle;
 }
 
