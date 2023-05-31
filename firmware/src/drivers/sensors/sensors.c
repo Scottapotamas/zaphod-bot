@@ -251,7 +251,10 @@ PRIVATE void sensors_callback_adc( HalAdcInput_t flag, uint16_t value )
     new.type = (HalInputType_t)flag;
     new.value = value;
     new.timestamp = xTaskGetTickCount();
-    xQueueSendToBackFromISR( xHalQueue, (void *)&new, 0 );
+
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    xQueueSendToBackFromISR( xHalQueue, (void *)&new, &xHigherPriorityTaskWoken );
+    portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -263,7 +266,10 @@ PRIVATE void sensors_callback_input_capture( InputCaptureSignal_t flag, uint32_t
     new.type = (HalInputType_t)flag + IC_SERVO_1_HLFB;    // 'translate' ic enum values into the sensor enum range
     new.value = value;
     new.timestamp = xTaskGetTickCount();
-    xQueueSendToBackFromISR( xHalQueue, (void *)&new, 0 );
+
+    BaseType_t xHigherPriorityTaskWoken = pdFALSE;
+    xQueueSendToBackFromISR( xHalQueue, (void *)&new, &xHigherPriorityTaskWoken );
+    portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
 
 /* -------------------------------------------------------------------------- */

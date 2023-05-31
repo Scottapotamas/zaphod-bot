@@ -598,6 +598,8 @@ hal_usart_irq_rx_handler( HalUart_t *h )
             // ASSERT( xBytesSent == current_pos );
         }
     }
+
+    portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
 }
 
 /* -------------------------------------------------------------------------- */
