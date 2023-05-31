@@ -962,7 +962,10 @@ PRIVATE void servo_publish_velocity( ClearpathServoInstance_t servo, int32_t ste
     subject_notify( &me->sensor_subject, SERVO_SPEED, vel_update );
 
     // Refresh the stats stale timer
-    xTimerReset( me->servo_stats_timer, pdMS_TO_TICKS(2) );
+    if( steps_since_last )
+    {
+        xTimerReset( me->servo_stats_timer, pdMS_TO_TICKS(2) );
+    }
 
     me->angle_update_timestamp = timestamp_now;
 }

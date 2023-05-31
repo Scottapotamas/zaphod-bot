@@ -244,7 +244,10 @@ PRIVATE void effector_publish_velocity( uint32_t distance_since_last )
     subject_notify( &effector_subject, EFFECTOR_SPEED, vel_update );
 
     // Refresh the stats stale timer
-    xTimerReset( xEffectorStatsTimer, pdMS_TO_TICKS(2) );
+    if( distance_since_last )
+    {
+        xTimerReset( xEffectorStatsTimer, pdMS_TO_TICKS(2) );
+    }
 
     position_update_timestamp = timestamp_now;
 }
