@@ -288,6 +288,11 @@ PUBLIC void overwatch_task( void* arg )
                             STATE_NEXT( OVERWATCH_DISARMING );
                         }
 
+                        if( !me->servo_active[0] || !me->servo_active[1] || !me->servo_active[2] )
+                        {
+                            STATE_NEXT( OVERWATCH_EMERGENCY_STOP );
+                        }
+
                         STATE_EXIT_ACTION
 
                         STATE_END
@@ -331,6 +336,7 @@ PUBLIC void overwatch_task( void* arg )
                             STATE_NEXT( OVERWATCH_DISARMED );
                         }
                         STATE_EXIT_ACTION
+                        effector_reset();
 
                         STATE_END
                         break;

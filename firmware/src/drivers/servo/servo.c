@@ -135,9 +135,7 @@ typedef struct
     float power;                // power consumption in watts
     float hlfb;                 // feedback value from servo
 
-//    AverageShort_t step_statistics;
     bool       presence_detected;
-    bool       has_high_load;
 } Servo_t;
 
 /* -------------------------------------------------------------------------- */
@@ -691,7 +689,6 @@ PUBLIC void servo_task( void* arg )
 
                                 // Goal position needs to be the current position at init, or a large commanded move would occur
                                 me->angle_target_steps = me->angle_current_steps;
-                                me->has_high_load      = false;
 
                                 STATE_NEXT( SERVO_STATE_ACTIVE );
                             }
@@ -762,7 +759,7 @@ PUBLIC void servo_task( void* arg )
                                 if( me->power > SERVO_IDLE_POWER_ALERT_W
                                     || !IS_IN_DEADBAND( servo_feedback, 0, SERVO_IDLE_TORQUE_ALERT ) )
                                 {
-                                    me->has_high_load = true;
+                                    STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
                                 }
                             }
                         }

@@ -98,17 +98,17 @@ void app_startup_init( void )
     subject_add_observer( request_handler_get_subject_for(REQUEST_HANDLER_FADES), user_interface_get_observer() );
 
     // Init all servos, setup inbound sensor data, commands, and output state updates
-    for( ClearpathServoInstance_t instance = _CLEARPATH_1; instance < _NUMBER_CLEARPATH_SERVOS; instance++ )
+    for( ClearpathServoInstance_t instance = _CLEARPATH_1; instance < _CLEARPATH_4; instance++ )    // _NUMBER_CLEARPATH_SERVOS
     {
         servo_init( instance );
 
         sensors_add_observer( servo_get_observer(instance) );
+        subject_add_observer( overwatch_commands, servo_get_observer(instance) );
+        subject_add_observer( effector_data, servo_get_observer(instance) );
 
         // Add overwatch and telemetry tasks to servo output subjects
         subject_add_observer( servo_get_subject( instance ), overwatch_get_observer() );
         subject_add_observer( servo_get_subject( instance ), user_interface_get_observer() );
-
-        subject_add_observer( overwatch_commands, servo_get_observer(instance) );
     }
 
     // Misc
