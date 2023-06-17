@@ -9,7 +9,7 @@
 #include "simple_state_machine.h"
 
 #include "servo.h"
-#include "observer.h"
+#include "broker.h"
 #include "hal_gpio.h"
 
 #include "stopwatch.h"
@@ -129,9 +129,7 @@ typedef struct
     TimerHandle_t servo_stats_timer;
     uint32_t angle_update_timestamp;
 
-    SemaphoreHandle_t xServoUpdateSemaphore;
-    Observer sensor_observer;   // subscribe to system events etc
-    Subject sensor_subject;     // publish to rest of system - events, variables, etc
+    Subscriber *event_sub;      // subscribe to system events etc
     float power;                // power consumption in watts
     float hlfb;                 // feedback value from servo
 
@@ -144,7 +142,6 @@ PRIVATE void servo_load_configuration( ClearpathServoInstance_t servo );
 
 PRIVATE void servo_load_hardware( ClearpathServoInstance_t servo);
 
-PRIVATE void servo_sensors_callback( ObserverEvent_t event, EventData eData, void *context );
 
 PRIVATE bool servo_get_connected_estimate( ClearpathServoInstance_t servo );
 
@@ -181,28 +178,38 @@ servo_init( ClearpathServoInstance_t servo )
 
     me->identifier = servo;
 
-    // Setup the 'task needs to run' semaphore
-    me->xServoUpdateSemaphore = xSemaphoreCreateBinary();
-    ENSURE( me->xServoUpdateSemaphore );
-
     // There's only one, so the first servo to init can create it.
     if( !xClearpathMutex )
     {
         xClearpathMutex = xSemaphoreCreateMutex();
     }
-    ENSURE( me->xServoUpdateSemaphore );
-
-    // Setup outbound subject
-    subject_init( &me->sensor_subject );
+    ENSURE( xClearpathMutex );
 
     // Setup sensor event subscriptions
-    observer_init( &me->sensor_observer, servo_sensors_callback, &clearpath[servo] );
-    observer_subscribe( &me->sensor_observer, SERVO_POWER );
-    observer_subscribe( &me->sensor_observer, SENSOR_SERVO_HLFB );
+    // TODO: better way to handle naming?
+    switch( me->identifier )
+    {
+        case _CLEARPATH_1:
+            me->event_sub = broker_create_subscriber( "PScp1", 10 );
+            break;
+        case _CLEARPATH_2:
+            me->event_sub = broker_create_subscriber( "PScp2", 10 );
+            break;
+        case _CLEARPATH_3:
+            me->event_sub = broker_create_subscriber( "PScp3", 10 );
+            break;
+        case _CLEARPATH_4:
+            me->event_sub = broker_create_subscriber( "PScp4", 10 );
+            break;
+    }
+    ENSURE( me->event_sub );
 
-    observer_subscribe( &me->sensor_observer, OVERWATCH_SERVO_ENABLE );
-    observer_subscribe( &me->sensor_observer, OVERWATCH_SERVO_DISABLE );
-    observer_subscribe( &me->sensor_observer, SERVO_TARGET_DEGREES );
+    broker_add_event_subscription( me->event_sub, SERVO_POWER );
+    broker_add_event_subscription( me->event_sub, SENSOR_SERVO_HLFB );
+
+    broker_add_event_subscription( me->event_sub, OVERWATCH_SERVO_ENABLE );
+    broker_add_event_subscription( me->event_sub, OVERWATCH_SERVO_DISABLE );
+    broker_add_event_subscription( me->event_sub, SERVO_TARGET_DEGREES );
 
     // Used for servo statistics publishing
     me->servo_stats_timer = xTimerCreate("servoStatsTimer",
@@ -215,81 +222,12 @@ servo_init( ClearpathServoInstance_t servo )
     xTimerStart( me->servo_stats_timer, pdMS_TO_TICKS(10) );
 }
 
+/* -------------------------------------------------------------------------- */
 
 PUBLIC void* servo_get_state_context_for( ClearpathServoInstance_t servo )
 {
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     return (void*)&clearpath[servo];
-}
-
-PUBLIC Observer* servo_get_observer( ClearpathServoInstance_t servo )
-{
-    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
-    return &clearpath[servo].sensor_observer;
-}
-
-PUBLIC Subject * servo_get_subject( ClearpathServoInstance_t servo )
-{
-    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
-    return &clearpath[servo].sensor_subject;
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void servo_sensors_callback(ObserverEvent_t event, EventData eData, void *context)
-{
-    // Gain access to effector data
-    // TODO: how long should we wait for the mutex?
-    if( xSemaphoreTake( xClearpathMutex, portMAX_DELAY) )
-    {
-        Servo_t *me = context;
-        REQUIRE( me );
-
-        switch( event )
-        {
-            case SERVO_POWER:
-                if( eData.stamped.index == me->identifier )
-                {
-                    me->power = eData.stamped.data.f32;
-                    xSemaphoreGive( me->xServoUpdateSemaphore );
-                }
-                break;
-
-            case SENSOR_SERVO_HLFB:
-                if( eData.stamped.index == me->identifier )
-                {
-                    me->hlfb = eData.stamped.data.f32;
-                    xSemaphoreGive( me->xServoUpdateSemaphore );
-                }
-                break;
-
-            case OVERWATCH_SERVO_ENABLE:
-                me->enabled = true;
-                xSemaphoreGive( me->xServoUpdateSemaphore );
-                break;
-
-            case OVERWATCH_SERVO_DISABLE:
-                me->enabled = false;
-                xSemaphoreGive( me->xServoUpdateSemaphore );
-                break;
-
-            case SERVO_TARGET_DEGREES:
-                if( eData.stamped.index == me->identifier )
-                {
-                    // TODO the set_target_angle function also wants the mutex...
-                    servo_set_target_angle_limited( me->identifier, eData.stamped.data.f32 );
-                    xSemaphoreGive( me->xServoUpdateSemaphore );
-                }
-                break;
-
-            default:
-                // Why did we recieve a signal that we didn't subscribe to?
-                ASSERT(false);
-                break;
-        }
-        xSemaphoreGive( xClearpathMutex );
-    }
-
 }
 
 /* -------------------------------------------------------------------------- */
@@ -423,31 +361,6 @@ servo_get_current_angle( ClearpathServoInstance_t servo )
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC uint16_t
-servo_get_steps_per_second( ClearpathServoInstance_t servo )
-{
-    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
-    Servo_t *me = &clearpath[servo];
-
-    // TODO rework these stats entirely?
-    // The scalar sum of steps commanded for a span covering 50ms
-    uint16_t step_sum = 10; //average_short_get_sum( &me->step_statistics );
-
-    // Report as 'steps per second'
-    return step_sum * 20;
-}
-
-PUBLIC float
-servo_get_degrees_per_second( ClearpathServoInstance_t servo )
-{
-    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
-    Servo_t *me = &clearpath[servo];
-
-    return convert_steps_angle( me, servo_get_steps_per_second( servo ) );
-}
-
-/* -------------------------------------------------------------------------- */
-
 // By checking that HLFB pulses were caught by the input capture recently,
 // can assume that a servo is connected or disconnected
 PRIVATE bool
@@ -475,317 +388,356 @@ PUBLIC void servo_task( void* arg )
     for(;;)
     {
         // Wait for a command or new sensor data
-        // TODO: set a safety timeout if nothing arrives often enough
-        if( xSemaphoreTake( me->xServoUpdateSemaphore, portMAX_DELAY) )
+        PublishedEvent new_data = { 0 };
+        xQueueReceive( me->event_sub->queue, &new_data, portMAX_DELAY );
+
+        // TODO: how long should we wait for the mutex?
+        if( xSemaphoreTake( xClearpathMutex, portMAX_DELAY) )
         {
-            // TODO: how long should we wait for the mutex?
-            if( xSemaphoreTake( xClearpathMutex, portMAX_DELAY) )
+            switch( new_data.topic )
             {
-                float servo_feedback = me->hlfb - me->ic_feedback_trim;
+                case SERVO_POWER:
+                    if( new_data.data.stamped.index == me->identifier )
+                    {
+                        me->power = new_data.data.stamped.value.f32;
+                    }
+                    break;
 
-                // Check if the servo has provided HLFB signals as proxy for 'detection'
-                // TODO fix 'servo connected' detection once sensorSubject can send timestamps?
-                me->presence_detected = true;    // servo_get_connected_estimate( servo );
+                case SENSOR_SERVO_HLFB:
+                    if( new_data.data.stamped.index == me->identifier )
+                    {
+                        me->hlfb = new_data.data.stamped.value.f32;
+                    }
+                    break;
 
-                // Servo feedback loss in any active state should trigger immediate error handling behaviour
-                if( !me->presence_detected && me->enabled )
-                {
-                    //        user_interface_report_error( "Servo HLFB timeout" );
-                    STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-                }
+                case OVERWATCH_SERVO_ENABLE:
+                    me->enabled = true;
+                    break;
 
-                // If disabled (by supervisor etc) then immediately start disable process
-                if( ( !me->enabled )
-                    && ( me->currentState > SERVO_STATE_ERROR_RECOVERY ) )
-                {
-                    STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-                }
+                case OVERWATCH_SERVO_DISABLE:
+                    me->enabled = false;
+                    break;
 
-                switch( me->currentState )
-                {
-                    case SERVO_STATE_INACTIVE:
-                        STATE_ENTRY_ACTION
-                        hal_gpio_write_pin( me->hardware.pin_enable, false );
-                        hal_gpio_write_pin( me->hardware.pin_step, false );
-                        hal_gpio_write_pin( me->hardware.pin_direction, false );
-                        me->enabled = false;
-                        STATE_TRANSITION_TEST
-                        if( me->enabled && me->presence_detected )
+                case SERVO_TARGET_DEGREES:
+                    if( new_data.data.stamped.index == me->identifier )
+                    {
+                        // TODO the set_target_angle function also wants the mutex...
+                        servo_set_target_angle_limited( me->identifier, new_data.data.stamped.value.f32 );
+                    }
+                    break;
+
+                default:
+                    // Why did we recieve a signal that we didn't subscribe to?
+                    ASSERT(false);
+                    break;
+            }
+
+
+            float servo_feedback = me->hlfb - me->ic_feedback_trim;
+
+            // Check if the servo has provided HLFB signals as proxy for 'detection'
+            // TODO fix 'servo connected' detection once sensorSubject can send timestamps?
+            me->presence_detected = true;    // servo_get_connected_estimate( servo );
+
+            // Servo feedback loss in any active state should trigger immediate error handling behaviour
+            if( !me->presence_detected && me->enabled )
+            {
+                //        user_interface_report_error( "Servo HLFB timeout" );
+                STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+            }
+
+            // If disabled (by supervisor etc) then immediately start disable process
+            if( ( !me->enabled )
+                && ( me->currentState > SERVO_STATE_ERROR_RECOVERY ) )
+            {
+                STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+            }
+
+            switch( me->currentState )
+            {
+                case SERVO_STATE_INACTIVE:
+                    STATE_ENTRY_ACTION
+                    hal_gpio_write_pin( me->hardware.pin_enable, false );
+                    hal_gpio_write_pin( me->hardware.pin_step, false );
+                    hal_gpio_write_pin( me->hardware.pin_direction, false );
+                    me->enabled = false;
+                    STATE_TRANSITION_TEST
+                    if( me->enabled && me->presence_detected )
+                    {
+                        STATE_NEXT( SERVO_STATE_HOMING_CALIBRATE_TORQUE );
+                    }
+                    STATE_EXIT_ACTION
+
+                    STATE_END
+                    break;
+
+                case SERVO_STATE_ERROR_RECOVERY:
+                    STATE_ENTRY_ACTION
+                    hal_gpio_write_pin( me->hardware.pin_enable, false );
+                    hal_gpio_write_pin( me->hardware.pin_step, false );
+                    hal_gpio_write_pin( me->hardware.pin_direction, false );
+
+                    me->enabled = false;
+                    stopwatch_deadline_start( &me->timer, SERVO_FAULT_LINGER_MS );
+                    STATE_TRANSITION_TEST
+
+                    if( stopwatch_deadline_elapsed( &me->timer ) )
+                    {
+                        STATE_NEXT( SERVO_STATE_INACTIVE );
+                    }
+
+                    STATE_EXIT_ACTION
+
+                    STATE_END
+                    break;
+
+                case SERVO_STATE_HOMING_CALIBRATE_TORQUE:
+                    STATE_ENTRY_ACTION
+                    me->ic_feedback_trim = me->hlfb;
+                    stopwatch_deadline_start( &me->timer, SERVO_HOMING_CALIBRATION_MS );
+                    STATE_TRANSITION_TEST
+
+                    if( !stopwatch_deadline_elapsed( &me->timer ) )
+                    {
+                        // The trim value is a super simple FIR of the incoming values
+                        const float leaky_integrator_factor = 0.6f;
+                        me->ic_feedback_trim = (leaky_integrator_factor * me->ic_feedback_trim) + ( 1.0f - leaky_integrator_factor )*me->hlfb;
+                    }
+                    else
+                    {
+                        // Check that the corrected feedback value with our trim is pretty close to zero
+                        if( IS_IN_DEADBAND( servo_feedback, 0.0f, 0.5f ) )
                         {
-                            STATE_NEXT( SERVO_STATE_HOMING_CALIBRATE_TORQUE );
-                        }
-                        STATE_EXIT_ACTION
-
-                        STATE_END
-                        break;
-
-                    case SERVO_STATE_ERROR_RECOVERY:
-                        STATE_ENTRY_ACTION
-                        hal_gpio_write_pin( me->hardware.pin_enable, false );
-                        hal_gpio_write_pin( me->hardware.pin_step, false );
-                        hal_gpio_write_pin( me->hardware.pin_direction, false );
-
-                        me->enabled = false;
-                        stopwatch_deadline_start( &me->timer, SERVO_FAULT_LINGER_MS );
-                        STATE_TRANSITION_TEST
-
-                        if( stopwatch_deadline_elapsed( &me->timer ) )
-                        {
-                            STATE_NEXT( SERVO_STATE_INACTIVE );
-                        }
-
-                        STATE_EXIT_ACTION
-
-                        STATE_END
-                        break;
-
-                    case SERVO_STATE_HOMING_CALIBRATE_TORQUE:
-                        STATE_ENTRY_ACTION
-                        me->ic_feedback_trim = me->hlfb;
-                        stopwatch_deadline_start( &me->timer, SERVO_HOMING_CALIBRATION_MS );
-                        STATE_TRANSITION_TEST
-
-                        if( !stopwatch_deadline_elapsed( &me->timer ) )
-                        {
-                            // The trim value is a super simple FIR of the incoming values
-                            const float leaky_integrator_factor = 0.6f;
-                            me->ic_feedback_trim = (leaky_integrator_factor * me->ic_feedback_trim) + ( 1.0f - leaky_integrator_factor )*me->hlfb;
-                        }
-                        else
-                        {
-                            // Check that the corrected feedback value with our trim is pretty close to zero
-                            if( IS_IN_DEADBAND( servo_feedback, 0.0f, 0.5f ) )
+                            if( me->config.requires_homing )
                             {
-                                if( me->config.requires_homing )
-                                {
-                                    STATE_NEXT( SERVO_STATE_HOMING_FIND_ENDSTOP );
-                                }
-                                else
-                                {
-                                    // Just enable the servo then 'torque settle' validation
-                                    hal_gpio_write_pin( me->hardware.pin_enable, true );
-                                    STATE_NEXT( SERVO_STATE_HOMING_SUCCESS );
-                                }
+                                STATE_NEXT( SERVO_STATE_HOMING_FIND_ENDSTOP );
                             }
                             else
                             {
-                                // An average of the disabled motor's feedback somehow didn't offset an error
-                                STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-                            }
-                        }
-
-                        // Large uncalibrated torque values (+- from 0%) during calibration could be a hardware issue
-                        if( !IS_IN_DEADBAND( me->hlfb, 0.0f, SERVO_HOMING_CALIBRATION_TORQUE ) )
-                        {
-                            STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-                        }
-                        STATE_EXIT_ACTION
-
-                        STATE_END
-                        break;
-
-                    case SERVO_STATE_HOMING_FIND_ENDSTOP:
-                        STATE_ENTRY_ACTION
-                        // EN pin high starts the automatic homing process on the Clearpath servo.
-                        // Servo homing behaviour is defined with the Clearpath setup software, uses torque based end-stop sensing
-                        hal_gpio_write_pin( me->hardware.pin_enable, true );
-                        stopwatch_deadline_start( &me->timer, SERVO_HOMING_MAX_MS );
-
-                        STATE_TRANSITION_TEST
-                        // We expect the torque to be positive while the arm transits towards the endstop
-                        // When it goes under 0% HLFB, the torque has changed direction and we've likely just contacted the endstop
-                        if( servo_feedback < -1.0f )
-                        {
-                            // After this point, we'd expect the torque to increase (in -ve direction) until foldback kicks in
-                            STATE_NEXT( SERVO_STATE_HOMING_FOUND_ENDSTOP );
-                        }
-
-                        // Timeout after a very long time without seeing the current peak
-                        if( stopwatch_deadline_elapsed( &me->timer ) )
-                        {
-                            STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-                        }
-                        STATE_EXIT_ACTION
-
-                        STATE_END
-                        break;
-
-                    case SERVO_STATE_HOMING_FOUND_ENDSTOP:
-                        STATE_ENTRY_ACTION
-                        me->homing_feedback = servo_feedback;
-                        STATE_TRANSITION_TEST
-                            // We think the servo has found the endstop. Torque should be increasing until servo hits the homing threshold.
-                            // Once the servo reaches its thresholded homing torque, torque foldback kicks in
-                            if( servo_feedback < me->homing_feedback )
-                            {
-                                // increasing torque in -ve direction
-                                me->homing_feedback = servo_feedback;
-                            }
-                            else
-                            {
-                                // Found a local peak, check it's over the servo's expected threshold + some error padding
-                                if( servo_feedback < ( -1.0f * SERVO_HOMING_ENDSTOP_RAMP_MIN ) )
-                                {
-                                    STATE_NEXT( SERVO_STATE_HOMING_CHECK_FOLDBACK );
-                                }
-                            }
-                            float limit = ( -1.0f * SERVO_HOMING_ENDSTOP_RAMP_MAX );
-                            // Error if the homing force is higher than expected
-                            if( servo_feedback < limit )
-                            {
-                                STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-                            }
-                            STATE_EXIT_ACTION
-
-                            STATE_END
-                        break;
-
-                    case SERVO_STATE_HOMING_CHECK_FOLDBACK:
-                        STATE_ENTRY_ACTION
-                        stopwatch_start( &me->timer );
-
-                        STATE_TRANSITION_TEST
-                        // Check that the servo is loaded against the endstop in foldback mode
-                        // When we enter this state, foldback is likely still heading to setpoint
-                        // Check the value is reasonable for a continuous slice of time
-                        if( stopwatch_lap( &me->timer ) > SERVO_HOMING_FOLDBACK_CHECK_START_MS )
-                        {
-                            // Check if foldback holding torque value is outside the expected range...
-                            if( servo_feedback > ( -1.0f * SERVO_HOMING_FOLDBACK_TORQUE_MIN )
-                                && servo_feedback < ( -1.0f * SERVO_HOMING_FOLDBACK_TORQUE_MAX ) )
-                            {
-                                STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-                            }
-
-                            // If we made it this far while being in range, everything looks good
-                            if( stopwatch_lap( &me->timer ) < SERVO_HOMING_FOLDBACK_CHECK_END_MS )
-                            {
+                                // Just enable the servo then 'torque settle' validation
+                                hal_gpio_write_pin( me->hardware.pin_enable, true );
                                 STATE_NEXT( SERVO_STATE_HOMING_SUCCESS );
                             }
                         }
+                        else
+                        {
+                            // An average of the disabled motor's feedback somehow didn't offset an error
+                            STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+                        }
+                    }
+
+                    // Large uncalibrated torque values (+- from 0%) during calibration could be a hardware issue
+                    if( !IS_IN_DEADBAND( me->hlfb, 0.0f, SERVO_HOMING_CALIBRATION_TORQUE ) )
+                    {
+                        STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+                    }
+                    STATE_EXIT_ACTION
+
+                    STATE_END
+                    break;
+
+                case SERVO_STATE_HOMING_FIND_ENDSTOP:
+                    STATE_ENTRY_ACTION
+                    // EN pin high starts the automatic homing process on the Clearpath servo.
+                    // Servo homing behaviour is defined with the Clearpath setup software, uses torque based end-stop sensing
+                    hal_gpio_write_pin( me->hardware.pin_enable, true );
+                    stopwatch_deadline_start( &me->timer, SERVO_HOMING_MAX_MS );
+
+                    STATE_TRANSITION_TEST
+                    // We expect the torque to be positive while the arm transits towards the endstop
+                    // When it goes under 0% HLFB, the torque has changed direction and we've likely just contacted the endstop
+                    if( servo_feedback < -1.0f )
+                    {
+                        // After this point, we'd expect the torque to increase (in -ve direction) until foldback kicks in
+                        STATE_NEXT( SERVO_STATE_HOMING_FOUND_ENDSTOP );
+                    }
+
+                    // Timeout after a very long time without seeing the current peak
+                    if( stopwatch_deadline_elapsed( &me->timer ) )
+                    {
+                        STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+                    }
+                    STATE_EXIT_ACTION
+
+                    STATE_END
+                    break;
+
+                case SERVO_STATE_HOMING_FOUND_ENDSTOP:
+                    STATE_ENTRY_ACTION
+                    me->homing_feedback = servo_feedback;
+                    STATE_TRANSITION_TEST
+                        // We think the servo has found the endstop. Torque should be increasing until servo hits the homing threshold.
+                        // Once the servo reaches its thresholded homing torque, torque foldback kicks in
+                        if( servo_feedback < me->homing_feedback )
+                        {
+                            // increasing torque in -ve direction
+                            me->homing_feedback = servo_feedback;
+                        }
+                        else
+                        {
+                            // Found a local peak, check it's over the servo's expected threshold + some error padding
+                            if( servo_feedback < ( -1.0f * SERVO_HOMING_ENDSTOP_RAMP_MIN ) )
+                            {
+                                STATE_NEXT( SERVO_STATE_HOMING_CHECK_FOLDBACK );
+                            }
+                        }
+                        float limit = ( -1.0f * SERVO_HOMING_ENDSTOP_RAMP_MAX );
+                        // Error if the homing force is higher than expected
+                        if( servo_feedback < limit )
+                        {
+                            STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+                        }
                         STATE_EXIT_ACTION
 
                         STATE_END
-                        break;
+                    break;
 
-                    case SERVO_STATE_HOMING_SUCCESS:
-                        STATE_ENTRY_ACTION
+                case SERVO_STATE_HOMING_CHECK_FOLDBACK:
+                    STATE_ENTRY_ACTION
+                    stopwatch_start( &me->timer );
+
+                    STATE_TRANSITION_TEST
+                    // Check that the servo is loaded against the endstop in foldback mode
+                    // When we enter this state, foldback is likely still heading to setpoint
+                    // Check the value is reasonable for a continuous slice of time
+                    if( stopwatch_lap( &me->timer ) > SERVO_HOMING_FOLDBACK_CHECK_START_MS )
+                    {
+                        // Check if foldback holding torque value is outside the expected range...
+                        if( servo_feedback > ( -1.0f * SERVO_HOMING_FOLDBACK_TORQUE_MIN )
+                            && servo_feedback < ( -1.0f * SERVO_HOMING_FOLDBACK_TORQUE_MAX ) )
+                        {
+                            STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+                        }
+
+                        // If we made it this far while being in range, everything looks good
+                        if( stopwatch_lap( &me->timer ) < SERVO_HOMING_FOLDBACK_CHECK_END_MS )
+                        {
+                            STATE_NEXT( SERVO_STATE_HOMING_SUCCESS );
+                        }
+                    }
+                    STATE_EXIT_ACTION
+
+                    STATE_END
+                    break;
+
+                case SERVO_STATE_HOMING_SUCCESS:
+                    STATE_ENTRY_ACTION
+                    stopwatch_start( &me->timer );
+                    me->homing_feedback = 0.0f;
+                    STATE_TRANSITION_TEST
+                    // Servo successfully found home, and is likely moving to the start-offset point
+                    // Wait for the servo to settle in torque domain
+                    float feedback_error = ( servo_feedback - me->homing_feedback );
+                    me->homing_feedback  = ( 0.1f * servo_feedback ) + ( me->homing_feedback * 0.9f );
+
+                    // Current torque feedback is similar to previous running average
+                    if( IS_IN_DEADBAND( feedback_error, 0.0f, SERVO_HOMING_SIMILARITY_PERCENT ) )
+                    {
+                        // Check we've maintained this level for a minimum amount of time
+                        if( stopwatch_lap( &me->timer ) > SERVO_HOMING_SIMILARITY_MS )
+                        {
+                            // The servo's internal homing procedure can be configured to move to a position after homing
+                            // This angle is what this system would interpret that position as
+                            float home_angle        = me->config.angle_at_home;
+                            me->angle_current_steps = convert_angle_steps( me, home_angle );
+                            //                    user_interface_motor_target_angle( servo, home_angle );    // update UI with angles before a target is sent in
+
+                            // Goal position needs to be the current position at init, or a large commanded move would occur
+                            me->angle_target_steps = me->angle_current_steps;
+
+                            STATE_NEXT( SERVO_STATE_ACTIVE );
+                        }
+                    }
+                    else    // Feedback is substantially different from previous trend
+                    {
+                        // Reset the similarity timer
                         stopwatch_start( &me->timer );
-                        me->homing_feedback = 0.0f;
-                        STATE_TRANSITION_TEST
-                        // Servo successfully found home, and is likely moving to the start-offset point
-                        // Wait for the servo to settle in torque domain
-                        float feedback_error = ( servo_feedback - me->homing_feedback );
-                        me->homing_feedback  = ( 0.1f * servo_feedback ) + ( me->homing_feedback * 0.9f );
+                    }
 
-                        // Current torque feedback is similar to previous running average
-                        if( IS_IN_DEADBAND( feedback_error, 0.0f, SERVO_HOMING_SIMILARITY_PERCENT ) )
+                    // Motor is taking too long to complete the homing process
+                    if( stopwatch_lap( &me->timer ) > SERVO_HOMING_COMPLETE_MAX_MS )
+                    {
+                        STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+                    }
+                    STATE_EXIT_ACTION
+
+                    STATE_END
+                    break;
+
+                case SERVO_STATE_ACTIVE:
+                    STATE_ENTRY_ACTION
+
+                    STATE_TRANSITION_TEST
+                    int32_t step_difference = me->angle_current_steps - me->angle_target_steps;
+
+                    // Command rotation to move towards the target position
+                    if( step_difference != 0 )
+                    {
+                        // Command direction is calculated by finding the polarity of the target error
+                        // then XOR with the user's configuration to support 'flipping' direction
+                        bool   direction_ccw  = ( me->angle_current_steps > me->angle_target_steps ) ^ me->config.reverse_direction;
+                        int8_t step_direction = ( direction_ccw ) ? 1 : -1;
+
+                        hal_gpio_write_pin( me->hardware.pin_direction, direction_ccw );
+
+                        // Clamp the number of steps per process loop's 'millisecond tick'
+                        uint32_t pulses_needed = MIN( step_difference * step_direction, 8 );
+
+                        for( uint32_t pulses = 0; pulses < pulses_needed; pulses++ )
                         {
-                            // Check we've maintained this level for a minimum amount of time
-                            if( stopwatch_lap( &me->timer ) > SERVO_HOMING_SIMILARITY_MS )
+                            // TODO work out how to delay for a short period of time?
+                            // TODO: remove shoddy blocking timing hack
+
+                            hal_gpio_toggle_pin( me->hardware.pin_step );
+                            servo_delay_us( SERVO_PULSE_DURATION_US );
+                            hal_gpio_toggle_pin( me->hardware.pin_step );
+                            servo_delay_us( SERVO_PULSE_DURATION_US );
+                            me->angle_current_steps = me->angle_current_steps + ( step_direction * -1 );
+                        }
+
+                        servo_publish_angle( me->identifier );
+
+                        // Track movement requests over time for velocity estimate
+                        servo_publish_velocity( me->identifier, step_difference );
+
+                        // Reset the 'no-motion' idle timer
+                        stopwatch_deadline_start( &me->timer, SERVO_IDLE_SETTLE_MS );
+                    }
+                    else    // no movement needed
+                    {
+                        // Has the servo been idle for longer than the settling period?
+                        if( stopwatch_deadline_elapsed( &me->timer ) )
+                        {
+                            // Are the power or torque values high for a no-movement load?
+                            if( me->power > SERVO_IDLE_POWER_ALERT_W
+                                || !IS_IN_DEADBAND( servo_feedback, 0, SERVO_IDLE_TORQUE_ALERT ) )
                             {
-                                // The servo's internal homing procedure can be configured to move to a position after homing
-                                // This angle is what this system would interpret that position as
-                                float home_angle        = me->config.angle_at_home;
-                                me->angle_current_steps = convert_angle_steps( me, home_angle );
-                                //                    user_interface_motor_target_angle( servo, home_angle );    // update UI with angles before a target is sent in
-
-                                // Goal position needs to be the current position at init, or a large commanded move would occur
-                                me->angle_target_steps = me->angle_current_steps;
-
-                                STATE_NEXT( SERVO_STATE_ACTIVE );
+                                STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
                             }
                         }
-                        else    // Feedback is substantially different from previous trend
-                        {
-                            // Reset the similarity timer
-                            stopwatch_start( &me->timer );
-                        }
+                    }
 
-                        // Motor is taking too long to complete the homing process
-                        if( stopwatch_lap( &me->timer ) > SERVO_HOMING_COMPLETE_MAX_MS )
-                        {
-                            STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-                        }
-                        STATE_EXIT_ACTION
+                    if( hal_gpio_read_pin( me->hardware.pin_oc_fault ) == false )
+                    {
+                        STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
+                    }
+                    STATE_EXIT_ACTION
 
-                        STATE_END
-                        break;
-
-                    case SERVO_STATE_ACTIVE:
-                        STATE_ENTRY_ACTION
-
-                        STATE_TRANSITION_TEST
-                        int32_t step_difference = me->angle_current_steps - me->angle_target_steps;
-
-                        // Command rotation to move towards the target position
-                        if( step_difference != 0 )
-                        {
-                            // Command direction is calculated by finding the polarity of the target error
-                            // then XOR with the user's configuration to support 'flipping' direction
-                            bool   direction_ccw  = ( me->angle_current_steps > me->angle_target_steps ) ^ me->config.reverse_direction;
-                            int8_t step_direction = ( direction_ccw ) ? 1 : -1;
-
-                            hal_gpio_write_pin( me->hardware.pin_direction, direction_ccw );
-
-                            // Clamp the number of steps per process loop's 'millisecond tick'
-                            uint32_t pulses_needed = MIN( step_difference * step_direction, 8 );
-
-                            for( uint32_t pulses = 0; pulses < pulses_needed; pulses++ )
-                            {
-                                // TODO work out how to delay for a short period of time?
-                                // TODO: remove shoddy blocking timing hack
-
-                                hal_gpio_toggle_pin( me->hardware.pin_step );
-                                servo_delay_us( SERVO_PULSE_DURATION_US );
-                                hal_gpio_toggle_pin( me->hardware.pin_step );
-                                servo_delay_us( SERVO_PULSE_DURATION_US );
-                                me->angle_current_steps = me->angle_current_steps + ( step_direction * -1 );
-                            }
-
-                            servo_publish_angle( me->identifier );
-
-                            // Track movement requests over time for velocity estimate
-                            servo_publish_velocity( me->identifier, step_difference );
-
-                            // Reset the 'no-motion' idle timer
-                            stopwatch_deadline_start( &me->timer, SERVO_IDLE_SETTLE_MS );
-                        }
-                        else    // no movement needed
-                        {
-                            // Has the servo been idle for longer than the settling period?
-                            if( stopwatch_deadline_elapsed( &me->timer ) )
-                            {
-                                // Are the power or torque values high for a no-movement load?
-                                if( me->power > SERVO_IDLE_POWER_ALERT_W
-                                    || !IS_IN_DEADBAND( servo_feedback, 0, SERVO_IDLE_TORQUE_ALERT ) )
-                                {
-                                    STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-                                }
-                            }
-                        }
-
-                        if( hal_gpio_read_pin( me->hardware.pin_oc_fault ) == false )
-                        {
-                            STATE_NEXT( SERVO_STATE_ERROR_RECOVERY );
-                        }
-                        STATE_EXIT_ACTION
-
-                        STATE_END
-                        break;
-                }
-
-                if( STATE_IS_TRANSITIONING )
-                {
-                    EventData state_update = { 0 };
-                    state_update.stamped.index = me->identifier;
-                    state_update.stamped.data.u32 = me->nextState;
-                    subject_notify( &me->sensor_subject, SERVO_STATE, state_update );
-                }
-
-                xSemaphoreGive( xClearpathMutex );
+                    STATE_END
+                    break;
             }
-        } // end activation semaphore
+
+            if( STATE_IS_TRANSITIONING )
+            {
+                PublishedEvent state_update = { 0 };
+                state_update.topic = SERVO_STATE;
+                state_update.data.stamped.index = me->identifier;
+                state_update.data.stamped.value.u32 = me->nextState;
+                broker_publish( &state_update );
+            }
+
+            xSemaphoreGive( xClearpathMutex );
+        }
     }  // end task loop
 }
 
@@ -927,12 +879,12 @@ PRIVATE void servo_publish_angle( ClearpathServoInstance_t servo )
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     Servo_t *me = &clearpath[servo];
 
-    EventData angle_update = { 0 };
-    angle_update.stamped.index = me->identifier;
-    angle_update.stamped.data.f32 = convert_steps_angle( me, me->angle_current_steps);
-    angle_update.stamped.timestamp = xTaskGetTickCount();
-    subject_notify( &me->sensor_subject, SERVO_POSITION, angle_update );
-
+    PublishedEvent angle_update = { 0 };
+    angle_update.topic = SERVO_POSITION;
+    angle_update.data.stamped.index = me->identifier;
+    angle_update.data.stamped.value.f32 = convert_steps_angle( me, me->angle_current_steps);
+    angle_update.data.stamped.timestamp = xTaskGetTickCount();
+    broker_publish( &angle_update );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -955,11 +907,12 @@ PRIVATE void servo_publish_velocity( ClearpathServoInstance_t servo, int32_t ste
     }
 
     // Publish the velocity value
-    EventData vel_update = { 0 };
-    vel_update.stamped.index = me->identifier;
-    vel_update.stamped.timestamp = timestamp_now;
-    vel_update.stamped.data.f32 = convert_steps_angle( me, steps_since_last ) / (float)delta_time * 1000.0f;
-    subject_notify( &me->sensor_subject, SERVO_SPEED, vel_update );
+    PublishedEvent vel_update = { 0 };
+    vel_update.topic = SERVO_SPEED;
+    vel_update.data.stamped.index = me->identifier;
+    vel_update.data.stamped.timestamp = timestamp_now;
+    vel_update.data.stamped.value.f32 = convert_steps_angle( me, steps_since_last ) / (float)delta_time * 1000.0f;
+    broker_publish( &vel_update );
 
     // Refresh the stats stale timer
     if( steps_since_last )
