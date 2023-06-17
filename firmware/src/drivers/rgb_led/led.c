@@ -6,6 +6,7 @@
 #include "led.h"
 #include "led_helpers.h"
 #include "qassert.h"
+#include "broker.h"
 
 #include "hal_gpio.h"
 #include "hal_pwm.h"
@@ -24,10 +25,6 @@ DEFINE_THIS_FILE;
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void led_event_callback( ObserverEvent_t event, EventData eData, void *context );
-
-/* -------------------------------------------------------------------------- */
-
 PRIVATE HSIColour_t requested_setpoint = { 0 };
 PRIVATE GenericColour_t corrected_setpoint = { 0 };
 
@@ -40,7 +37,7 @@ float speed_luma_factor = 1.0f;
 float positional_noise_luma_factor = 1.0f;
 
 
-PRIVATE Observer led_observer;
+PRIVATE Subscriber *led_subscriber;
 
 PRIVATE SemaphoreHandle_t xNewSetpointSemaphore;
 PRIVATE SemaphoreHandle_t xLEDMutex;
@@ -60,42 +57,35 @@ PUBLIC void led_init( void )
     ENSURE( xLEDMutex );
 
     // Setup sensor event subscriptions
-    observer_init( &led_observer, led_event_callback, NULL );
+    led_subscriber = broker_create_subscriber( "PSled", 5 );
 
-    observer_subscribe( &led_observer, EFFECTOR_POSITION );
-    observer_subscribe( &led_observer, EFFECTOR_SPEED );
+//    broker_add_event_subscription( led_subscriber, EFFECTOR_POSITION );
+//    broker_add_event_subscription( led_subscriber, EFFECTOR_SPEED );
 
 }
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC Observer * led_get_observer( void )
-{
-    return &led_observer;
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void led_event_callback( ObserverEvent_t event, EventData eData, void *context )
-{
-    // TODO: is a mutex on the data needed to prevent races?
-    switch( event )
-    {
-        case EFFECTOR_POSITION:
-            // TODO: handle/update positional noise modifier
-            xSemaphoreGive( xNewSetpointSemaphore );
-            break;
-
-        case EFFECTOR_SPEED:
-            // TODO: handle speed-compensated brightness modifier
-            xSemaphoreGive( xNewSetpointSemaphore );
-            break;
-
-        default:
-            ASSERT( false );
-            break;
-    }
-}
+//PRIVATE void led_event_callback( ObserverEvent_t event, EventData eData, void *context )
+//{
+//    // TODO: is a mutex on the data needed to prevent races?
+//    switch( event )
+//    {
+//        case EFFECTOR_POSITION:
+//            // TODO: handle/update positional noise modifier
+//            xSemaphoreGive( xNewSetpointSemaphore );
+//            break;
+//
+//        case EFFECTOR_SPEED:
+//            // TODO: handle speed-compensated brightness modifier
+//            xSemaphoreGive( xNewSetpointSemaphore );
+//            break;
+//
+//        default:
+//            ASSERT( false );
+//            break;
+//    }
+//}
 
 /* -------------------------------------------------------------------------- */
 

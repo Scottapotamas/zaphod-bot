@@ -11,7 +11,10 @@
 #include "simple_state_machine.h"
 #include "qassert.h"
 #include "hal_pwm.h"
+
+#include "broker.h"
 #include "signals.h"
+
 /* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
@@ -28,24 +31,11 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 /* -------------------------------------------------------------------------- */
 
-typedef enum {
-    FAN_SENSOR_NONE = 0,
-    FAN_SENSOR_TEMPERATURE,
-    FAN_SENSOR_SPEED,
-} FAN_SENSOR_TYPE;
-
-typedef struct
-{
-    FAN_SENSOR_TYPE type;
-    float value;
-} FanInput_t;
-
 typedef struct
 {
     FanState_t previousState;
     FanState_t currentState;
     FanState_t nextState;
-    QueueHandle_t xRequestQueue;
     uint8_t    speed;            // as a percentage 0-100, what the fan should be at 'now'
 } Fan_t;
 
@@ -62,12 +52,11 @@ FanCurve_t user_curve[NUM_FAN_CURVE_POINTS] = { 0 };
 PRIVATE Fan_t fan;
 PRIVATE FanCurve_t *fan_curve;
 
-PRIVATE Observer sensor_observer = { 0 };
+PRIVATE Subscriber *sensor_sub = { 0 };
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE uint8_t fan_speed_at_temp( float temperature );
-PRIVATE void fan_sensors_callback(ObserverEvent_t event, EventData eData, void *context);
 
 /* -------------------------------------------------------------------------- */
 
@@ -79,52 +68,15 @@ fan_init( void )
 
     Fan_t *me = &fan;
 
-    // Setup an internal use queue
-    // TODO: remove as the observer events can be used with a wake (binary semph?)
-    me->xRequestQueue = xQueueCreate( 10, sizeof(FanInput_t) );
-    REQUIRE( me->xRequestQueue );
-    vQueueAddToRegistry( me->xRequestQueue, "fanInputs");  // Debug view annotation
-
     hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ );
 
     // Subscribe to the sensor events needed for fan control
-    observer_init( &sensor_observer, fan_sensors_callback, NULL );
-    observer_subscribe( &sensor_observer, SENSOR_FAN_SPEED );
-    observer_subscribe( &sensor_observer, SENSOR_TEMPERATURE_EXTERNAL );
-}
+    sensor_sub = broker_create_subscriber( "PSfan", 5 );
+    REQUIRE( sensor_sub );
 
-/* -------------------------------------------------------------------------- */
+    broker_add_event_subscription( sensor_sub, SENSOR_FAN_SPEED );
+    broker_add_event_subscription( sensor_sub, SENSOR_TEMPERATURE_EXTERNAL );
 
-void fan_sensors_callback(ObserverEvent_t event, EventData eData, void *context)
-{
-    Fan_t *me = &fan;
-    FanInput_t new = { 0 };
-
-    switch( event )
-    {
-        case SENSOR_FAN_SPEED:
-            new.type = FAN_SENSOR_SPEED;
-            new.value = eData.stamped.data.f32;
-            xQueueSendToBack( me->xRequestQueue, (void *)&new, 0 );
-        break;
-
-        case SENSOR_TEMPERATURE_EXTERNAL:
-            new.type = FAN_SENSOR_TEMPERATURE;
-            new.value = eData.stamped.data.f32;
-            xQueueSendToBack( me->xRequestQueue, (void *)&new, 0 );
-            break;
-
-        default:
-            // Why did we recieve a signal that we didn't subscribe to?
-            ASSERT(false);
-            break;
-    }
-}
-
-
-PUBLIC Observer * fan_get_observer( void )
-{
-    return &sensor_observer;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -169,30 +121,32 @@ PUBLIC void fan_task( void *arg )
     {
         // Block until new sensor data arrives
         // If nothing arrives for 500ms, run (and we'll assume something's gone wrong)
-        FanInput_t new_data = { 0 };
-        xQueueReceive( me->xRequestQueue, &new_data, pdMS_TO_TICKS(500) );
+        PublishedEvent new_data = { 0 };
+        bool got_event = xQueueReceive( sensor_sub->queue, &new_data, pdMS_TO_TICKS(500) );
 
-        switch( new_data.type )
+        if( got_event )
         {
-            case FAN_SENSOR_NONE:
-                // Should only hit this after a 'no sensor data' timeout...
-                // So go to full speed
-                me->speed = 100;
-                break;
+            switch( new_data.topic )
+            {
+                case SENSOR_TEMPERATURE_EXTERNAL:
+                    // Calculate target speed based on temperature curve
+                    me->speed = fan_speed_at_temp( new_data.data.stamped.value.f32 );
+                    break;
 
-            case FAN_SENSOR_TEMPERATURE:
-                // Calculate target speed based on temperature curve
-                me->speed = fan_speed_at_temp( new_data.value );
-                break;
-
-            case FAN_SENSOR_SPEED:
-                // Rotor stop detection
-                if(    me->currentState == FAN_STATE_ON
-                    && new_data.value < FAN_STALL_FAULT_RPM )
-                {
-                    STATE_NEXT( FAN_STATE_STALL );
-                }
-                break;
+                case SENSOR_FAN_SPEED:
+                    // Rotor stop detection
+                    if( me->currentState == FAN_STATE_ON
+                        && new_data.data.stamped.value.f32 < FAN_STALL_FAULT_RPM )
+                    {
+                        STATE_NEXT( FAN_STATE_STALL );
+                    }
+                    break;
+            }
+        }
+        else
+        {
+            // Haven't seen an event recently, fail to max speed setting
+            me->speed = 100;
         }
 
         // Manage the fan's startup/stop behaviour

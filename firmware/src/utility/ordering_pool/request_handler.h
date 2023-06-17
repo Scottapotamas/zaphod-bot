@@ -7,7 +7,6 @@
 
 #include "movement_types.h"
 #include "lighting_types.h"
-#include "subject.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -52,10 +51,6 @@ PUBLIC void request_handler_init( RequestHandlerInstance_t instance );
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void* request_handler_get_context_for( RequestHandlerInstance_t instance );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC Subject* request_handler_get_subject_for( RequestHandlerInstance_t instance );
 
 /* -------------------------------------------------------------------------- */
 

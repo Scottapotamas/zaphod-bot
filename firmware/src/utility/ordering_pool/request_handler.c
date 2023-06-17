@@ -4,10 +4,10 @@
 
 #include "request_handler.h"
 #include "qassert.h"
+#include "broker.h"
 
 #include "FreeRTOS.h"
 #include "queue.h"
-
 
 /* -------------------------------------------------------------------------- */
 
@@ -53,8 +53,6 @@ typedef struct
     QueueHandle_t input_queue;          // input FreeRTOS queue
     RequestableCallbackFn output_cb;    // external function which handles the event
 
-    Subject event_subject;              // TODO: the request handler shouldn't be responsible for this
-
     uint32_t expected_sync_offset;      // timestamp for the next expected output event
 
     uint8_t entry_size;                     // size of a single entry
@@ -79,8 +77,6 @@ PUBLIC void request_handler_init( RequestHandlerInstance_t instance )
     memset( me, 0, sizeof( RequestPool_t ) );
 
     me->instance = instance;    // TODO: resolve this hack to get around the task pvParameters arg being a pointer to the pool instead of the instance enum
-
-    subject_init( &me->event_subject );
 
     // Create and initialize FreeRTOS queues for this instance
     switch( instance )
@@ -115,17 +111,10 @@ PUBLIC void request_handler_init( RequestHandlerInstance_t instance )
 
 /* -------------------------------------------------------------------------- */
 
-
 PUBLIC void* request_handler_get_context_for( RequestHandlerInstance_t instance )
 {
     REQUIRE( instance < NUM_REQUEST_HANDLERS );
     return (void*)&pools[instance];
-}
-
-PUBLIC Subject* request_handler_get_subject_for( RequestHandlerInstance_t instance )
-{
-    REQUIRE( instance < NUM_REQUEST_HANDLERS );
-    return &pools[instance].event_subject;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -426,11 +415,11 @@ PRIVATE void request_handler_notify_usage_metrics( RequestHandlerInstance_t inst
             break;
     }
 
-    EventData queue_pressure = { 0 };
-    queue_pressure.stamped.timestamp = xTaskGetTickCount();
-    queue_pressure.stamped.data.u32 = ( me->num_slots_used * 100 / (me->num_slots) );
-    subject_notify( &me->event_subject, event, queue_pressure );
-
+    PublishedEvent queue_pressure = { 0 };
+    queue_pressure.topic = event;
+    queue_pressure.data.stamped.timestamp = xTaskGetTickCount();
+    queue_pressure.data.stamped.value.u32 = ( me->num_slots_used * 100 / (me->num_slots) );
+    broker_publish( &queue_pressure );
 }
 
 /* -------------------------------------------------------------------------- */

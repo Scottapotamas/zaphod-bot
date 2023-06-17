@@ -16,8 +16,7 @@
 
 #include "average_short.h"
 
-#include "subject.h"
-#include "observer.h"
+#include "broker.h"
 #include "signals.h"
 
 /* -------------------------------------------------------------------------- */
@@ -79,15 +78,11 @@ FilteredData_t data[HAL_NUM_FIELDS] = { 0 };
 QueueHandle_t xHalQueue;
 TimerHandle_t xADCTriggerTimer;
 
-Subject subject = { 0 };
 
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void sensors_init( void )
 {
-    // Create a subject
-    subject_init(&subject);
-
     // Set up a queue to accept inbound readings from HAL
     xHalQueue = xQueueCreate( 20, sizeof(HalInput_t) );
     REQUIRE( xHalQueue );
@@ -163,17 +158,17 @@ PUBLIC void sensors_task( void *arg )
 
         // Prep notification structure, perform unit conversions
         ObserverEvent_t topic;  // event flag to publish
-        EventData signal;       // event structure being sent
+        PublishedEvent signal;       // event structure being sent
 
-        signal.stamped.timestamp = new_data.timestamp;
+        signal.data.stamped.timestamp = new_data.timestamp;
 
         if( data[new_data.type].converter )
         {
-            signal.stamped.data.f32 = data[new_data.type].converter(average);
+            signal.data.stamped.value.f32 = data[new_data.type].converter(average);
         }
         else
         {
-            signal.stamped.data.u32 = average;
+            signal.data.stamped.value.u32 = average;
         }
 
         // Handle 'instanced' events
@@ -191,17 +186,18 @@ PUBLIC void sensors_task( void *arg )
         if( new_data.type >= ADC_SERVO_1_CURRENT && new_data.type <= ADC_SERVO_4_CURRENT )
         {
             topic = SENSOR_SERVO_CURRENT;
-            signal.stamped.index = new_data.type - ADC_SERVO_1_CURRENT;
+            signal.data.stamped.index = new_data.type - ADC_SERVO_1_CURRENT;
         }
 
         if( new_data.type >= IC_SERVO_1_HLFB && new_data.type <= IC_SERVO_4_HLFB )
         {
             topic = SENSOR_SERVO_HLFB;
-            signal.stamped.index = new_data.type - IC_SERVO_1_HLFB;
+            signal.data.stamped.index = new_data.type - IC_SERVO_1_HLFB;
         }
 
         // Notify upstream observers of the new data
-        subject_notify(&subject, topic, signal );
+        signal.topic = topic;
+        broker_publish( &signal );
 
         // Publish additional pre-transformed 'servo power' values
         if( new_data.type <= ADC_SERVO_4_CURRENT )
@@ -214,24 +210,12 @@ PUBLIC void sensors_task( void *arg )
             //  - index is set correctly for the servo we're referencing
 
             // Apply voltage calc to get power, publish it.
-            signal.stamped.data.f32 *= hv_voltage;
-            subject_notify(&subject, SERVO_POWER, signal );
+            signal.data.stamped.value.f32 *= hv_voltage;
+            signal.topic = SERVO_POWER;
+            broker_publish( &signal );
         }
 
     }
-
-    // Clean up
-    //    subject_remove_observer(&subject, &observer1);
-    //    subject_remove_observer(&subject, &observer2);
-}
-
-/* -------------------------------------------------------------------------- */
-
-// Ability for external modules to add Observers.
-// Observers are responsible for their own event subscriptions
-PUBLIC void sensors_add_observer( Observer *observer )
-{
-    subject_add_observer( &subject, observer );
 }
 
 /* -------------------------------------------------------------------------- */
