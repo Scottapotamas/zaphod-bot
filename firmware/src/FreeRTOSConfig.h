@@ -57,7 +57,7 @@ extern uint32_t SystemCoreClock;
 #define configUSE_16_BIT_TICKS          0
 #define configIDLE_SHOULD_YIELD         1
 #define configUSE_MUTEXES               1
-#define configQUEUE_REGISTRY_SIZE       8
+#define configQUEUE_REGISTRY_SIZE       24   // Number of entries in debug queue
 #define configRECORD_STACK_HIGH_ADDRESS 1    // Allow debugger to monitor stack usage
 #define configCHECK_FOR_STACK_OVERFLOW  2
 #define configUSE_RECURSIVE_MUTEXES     1
