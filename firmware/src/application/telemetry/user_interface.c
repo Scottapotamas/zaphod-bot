@@ -16,14 +16,13 @@
 #include "version.h"
 #include "signals.h"
 #include "qassert.h"
+#include "broker.h"
 
 /* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE;
 
 /* -------------------------------------------------------------------------- */
-
-PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData eData, void *context);
 
 PRIVATE void user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t message );
 
@@ -46,7 +45,6 @@ PRIVATE void clear_all_queue( void );
 PRIVATE void sync_begin_queues( void );
 
 PRIVATE void tracked_external_servo_request( void );
-
 
 /* -------------------------------------------------------------------------- */
 
@@ -140,8 +138,7 @@ eui_interface_t communication_interface[] = {
     [LINK_EXTERNAL] = EUI_INTERFACE_CB( &user_interface_tx_put_external, &user_interface_eui_callback_external ),
 };
 
-PRIVATE Observer telemetry_observer = { 0 };
-PRIVATE Subject event_subject = { 0 };
+PRIVATE Subscriber *event_sub;
 
 PRIVATE MovementRequestFn handle_requested_move;    // Pass UI Movement event requests to this callback for handling
 PRIVATE LightingRequestFn handle_requested_fade;    // Pass UI Fade event requests to this callback for handling
@@ -180,35 +177,32 @@ user_interface_init( void )
     eui_setup_interfaces( communication_interface, EUI_ARR_ELEM(communication_interface) );
     eui_setup_identifier( (char *)HAL_UUID, 12 );    // header byte is 96-bit, therefore 12-bytes
 
-    // Setup the UI request subject
-    subject_init(&event_subject);
+    // Setup the UI event subscriptions
+    event_sub = broker_create_subscriber( "PStelem", 40 );
 
-    // Subscribe to the sensor events
-    observer_init( &telemetry_observer, user_interface_sensors_callback, NULL );
+    broker_add_event_subscription( event_sub, SENSOR_FAN_SPEED );
+    broker_add_event_subscription( event_sub, SENSOR_VOLTAGE_INPUT );
+    broker_add_event_subscription( event_sub, SENSOR_TEMPERATURE_PCB );
+    broker_add_event_subscription( event_sub, SENSOR_TEMPERATURE_REGULATOR );
+    broker_add_event_subscription( event_sub, SENSOR_TEMPERATURE_EXTERNAL );
+    broker_add_event_subscription( event_sub, SENSOR_TEMPERATURE_MICRO );
 
-    observer_subscribe( &telemetry_observer, SENSOR_FAN_SPEED );
-    observer_subscribe( &telemetry_observer, SENSOR_VOLTAGE_INPUT );
-    observer_subscribe( &telemetry_observer, SENSOR_TEMPERATURE_PCB );
-    observer_subscribe( &telemetry_observer, SENSOR_TEMPERATURE_REGULATOR );
-    observer_subscribe( &telemetry_observer, SENSOR_TEMPERATURE_EXTERNAL );
-    observer_subscribe( &telemetry_observer, SENSOR_TEMPERATURE_MICRO );
+    broker_add_event_subscription( event_sub, SENSOR_SERVO_HLFB );
+    broker_add_event_subscription( event_sub, SERVO_POWER );
+    broker_add_event_subscription( event_sub, SERVO_STATE );
+    broker_add_event_subscription( event_sub, SERVO_POSITION );
+    broker_add_event_subscription( event_sub, SERVO_SPEED );
 
-    observer_subscribe( &telemetry_observer, SENSOR_SERVO_HLFB );
-    observer_subscribe( &telemetry_observer, SERVO_POWER );
-    observer_subscribe( &telemetry_observer, SERVO_STATE );
-    observer_subscribe( &telemetry_observer, SERVO_POSITION );
-    observer_subscribe( &telemetry_observer, SERVO_SPEED );
+    broker_add_event_subscription( event_sub, EFFECTOR_POSITION );
+    broker_add_event_subscription( event_sub, EFFECTOR_SPEED );
 
-    observer_subscribe( &telemetry_observer, EFFECTOR_POSITION );
-    observer_subscribe( &telemetry_observer, EFFECTOR_SPEED );
+    broker_add_event_subscription( event_sub, OVERWATCH_STATE_UPDATE );
+    broker_add_event_subscription( event_sub, OVERWATCH_MODE_UPDATE );
 
-    observer_subscribe( &telemetry_observer, OVERWATCH_STATE_UPDATE );
-    observer_subscribe( &telemetry_observer, OVERWATCH_MODE_UPDATE );
+    broker_add_event_subscription( event_sub, QUEUE_UTILISATION_MOVEMENT );
+    broker_add_event_subscription( event_sub, QUEUE_UTILISATION_LIGHTING );
 
-    observer_subscribe( &telemetry_observer, QUEUE_UTILISATION_MOVEMENT );
-    observer_subscribe( &telemetry_observer, QUEUE_UTILISATION_LIGHTING );
-
-    observer_subscribe( &telemetry_observer, FLAG_PLANNER_COMPLETED );
+    broker_add_event_subscription( event_sub, FLAG_PLANNER_COMPLETED );
 
 
     // Set build info to hardcoded values
@@ -254,6 +248,99 @@ PUBLIC void user_interface_task( void *arg )
 
     for(;;)
     {
+        PublishedEvent event = { 0 };
+        bool got_event = xQueueReceive( event_sub->queue, &event, 1 );
+
+        if( got_event )
+        {
+            switch( event.topic )
+            {
+                case SENSOR_FAN_SPEED:
+                    fan_stats.speed_rpm = event.data.stamped.value.f32;
+                    break;
+
+                case SENSOR_VOLTAGE_INPUT:
+                    system_stats.input_voltage = event.data.stamped.value.f32 * 100.0f;
+                    break;
+
+                case SENSOR_TEMPERATURE_PCB:
+                    system_stats.temp_pcb_ambient = event.data.stamped.value.f32 * 100.0f;
+                    break;
+
+                case SENSOR_TEMPERATURE_REGULATOR:
+                    system_stats.temp_pcb_regulator = event.data.stamped.value.f32 * 100.0f;
+                    break;
+
+                case SENSOR_TEMPERATURE_EXTERNAL:
+                    system_stats.temp_external_probe = event.data.stamped.value.f32 * 100.0f;
+                    break;
+
+                case SENSOR_TEMPERATURE_MICRO:
+                    system_stats.temp_cpu = event.data.stamped.value.f32 * 100.0f;
+                    break;
+
+                case SERVO_POWER:
+                    motion_servo[event.data.stamped.index].power = event.data.stamped.value.f32 * 10.0f;
+                    break;
+
+                case SENSOR_SERVO_HLFB:
+                    motion_servo[event.data.stamped.index].feedback = event.data.stamped.value.f32 * 10.0f;
+                    break;
+
+                case SERVO_STATE:
+                    motion_servo[event.data.stamped.index].state = event.data.stamped.value.u32;
+                    break;
+
+                case SERVO_POSITION:
+                    motion_servo[event.data.stamped.index].target_angle = event.data.stamped.value.f32 * 100.0f;
+                    break;
+
+                case SERVO_SPEED:
+                    motion_servo[event.data.stamped.index].speed = event.data.stamped.value.f32 * 10.0f;
+                    break;
+
+                case EFFECTOR_POSITION:
+                    effector.position.x = event.data.s_triple[EVT_X];
+                    effector.position.y = event.data.s_triple[EVT_Y];
+                    effector.position.z = event.data.s_triple[EVT_Z];
+                    break;
+
+                case EFFECTOR_SPEED:
+                    effector.speed = event.data.stamped.value.u32;
+                    break;
+
+                case OVERWATCH_STATE_UPDATE:
+                    supervisor_states.supervisor = event.data.stamped.value.u32;
+                    //            eui_send_tracked( MSGID_SUPERVISOR );       // TODO: don't send now, do a debounced send somewhere more automatically?
+                    break;
+
+                case OVERWATCH_MODE_UPDATE:
+                    supervisor_states.control_mode = event.data.stamped.value.u32;
+                    //            eui_send_tracked( MSGID_SUPERVISOR );       // TODO also consider for automatic debounced output
+                    break;
+
+                    //            supervisor_states.motors     = motion_servo[0].enabled || motion_servo[1].enabled || motion_servo[2].enabled;
+
+                // TODO also consider for automatic debounced output
+                case QUEUE_UTILISATION_MOVEMENT:
+                    supervisor_states.queue_movements = event.data.stamped.value.u32;
+                    break;
+
+                case QUEUE_UTILISATION_LIGHTING:
+                    supervisor_states.queue_lighting = event.data.stamped.value.u32;
+                    break;
+
+                case FLAG_PLANNER_COMPLETED:
+                    supervisor_states.movement_id_completed = event.data.stamped.value.u32;
+                    break;
+
+                default:
+                    // Why did we receive a signal that we didn't subscribe to?
+                    ASSERT(false);
+                    break;
+            }
+        }
+
         // Read data from the UART into the buffer
         // Iterate over the received bytes and pass them to the eUI parser
 
@@ -274,8 +361,6 @@ PUBLIC void user_interface_task( void *arg )
         {
             eui_parse( buffer[i], &communication_interface[LINK_EXTERNAL] );
         }
-
-        vTaskDelay(1);
     }
 }
 
@@ -283,18 +368,6 @@ PRIVATE void telemetry_timer_callback( TimerHandle_t xTimer )
 {
     eui_send_tracked(MSGID_POSITION_CURRENT );
     eui_send_tracked(MSGID_SUPERVISOR );
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC Observer * user_interface_get_observer( void )
-{
-    return &telemetry_observer;
-}
-
-PUBLIC Subject * user_interface_get_request_subject( void )
-{
-    return &event_subject;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -317,98 +390,6 @@ PUBLIC void user_interface_attach_position_request_cb( PositionRequestFn callbac
 PUBLIC void user_interface_attach_colour_request_cb( HSIRequestFn callback )
 {
     handle_requested_hsi = callback;
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void user_interface_sensors_callback(ObserverEvent_t event, EventData eData, void *context)
-{
-    switch( event )
-    {
-        case SENSOR_FAN_SPEED:
-            fan_stats.speed_rpm = eData.stamped.data.f32;
-            break;
-
-        case SENSOR_VOLTAGE_INPUT:
-            system_stats.input_voltage = eData.stamped.data.f32 * 100.0f;
-            break;
-
-        case SENSOR_TEMPERATURE_PCB:
-            system_stats.temp_pcb_ambient = eData.stamped.data.f32 * 100.0f;
-            break;
-
-        case SENSOR_TEMPERATURE_REGULATOR:
-            system_stats.temp_pcb_regulator = eData.stamped.data.f32 * 100.0f;
-            break;
-
-        case SENSOR_TEMPERATURE_EXTERNAL:
-            system_stats.temp_external_probe = eData.stamped.data.f32 * 100.0f;
-            break;
-
-        case SENSOR_TEMPERATURE_MICRO:
-            system_stats.temp_cpu = eData.stamped.data.f32 * 100.0f;
-            break;
-
-        case SERVO_POWER:
-            motion_servo[eData.stamped.index].power = eData.stamped.data.f32 * 10.0f;
-            break;
-
-        case SENSOR_SERVO_HLFB:
-            motion_servo[eData.stamped.index].feedback = eData.stamped.data.f32 * 10.0f;
-            break;
-
-        case SERVO_STATE:
-            motion_servo[eData.stamped.index].state = eData.stamped.data.u32;
-            break;
-
-        case SERVO_POSITION:
-            motion_servo[eData.stamped.index].target_angle = eData.stamped.data.f32 * 100.0f;
-            break;
-
-        case SERVO_SPEED:
-            motion_servo[eData.stamped.index].speed = eData.stamped.data.f32 * 10.0f;
-            break;
-
-        case EFFECTOR_POSITION:
-            effector.position.x = eData.s_triple[EVT_X];
-            effector.position.y = eData.s_triple[EVT_Y];
-            effector.position.z = eData.s_triple[EVT_Z];
-            break;
-
-        case EFFECTOR_SPEED:
-            effector.speed = eData.stamped.data.u32;
-            break;
-
-        case OVERWATCH_STATE_UPDATE:
-            supervisor_states.supervisor = eData.stamped.data.u32;
-//            eui_send_tracked( MSGID_SUPERVISOR );       // TODO: don't send now, do a debounced send somewhere more automatically?
-            break;
-
-        case OVERWATCH_MODE_UPDATE:
-            supervisor_states.control_mode = eData.stamped.data.u32;
-//            eui_send_tracked( MSGID_SUPERVISOR );       // TODO also consider for automatic debounced output
-            break;
-
-//            supervisor_states.motors     = motion_servo[0].enabled || motion_servo[1].enabled || motion_servo[2].enabled;
-
-        // TODO also consider for automatic debounced output
-        case QUEUE_UTILISATION_MOVEMENT:
-            supervisor_states.queue_movements = eData.stamped.data.u32;
-            break;
-
-        case QUEUE_UTILISATION_LIGHTING:
-            supervisor_states.queue_lighting = eData.stamped.data.u32;
-            break;
-
-        case FLAG_PLANNER_COMPLETED:
-            supervisor_states.movement_id_completed = eData.stamped.data.u32;
-            break;
-
-        default:
-            // Why did we receive a signal that we didn't subscribe to?
-            ASSERT(false);
-            break;
-    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -482,14 +463,19 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
             // See if the inbound packet name matches our intended variable
             if( strcmp( (char *)name_rx, MSGID_MODE_REQUEST ) == 0 )
             {
-                EventData modeValue = { .stamped.data.u32 = mode_request };
-                subject_notify( &event_subject, FLAG_MODE_REQUEST, modeValue );
+                PublishedEvent modeValue = { .topic = FLAG_MODE_REQUEST,
+                                             .data.stamped.value.u32 = mode_request
+                };
+                broker_publish( &modeValue );
             }
 
             if( strcmp( (char *)name_rx, MSGID_DEMO_CONFIGURATION ) == 0 && has_payload )
             {
-                EventData modeValue = { .stamped.data.u32 = demo_mode_request };
-                subject_notify( &event_subject, FLAG_MODE_REQUEST, modeValue );
+                // TODO: dedicated demo mode request topic is needed?
+                PublishedEvent modeValue = { .topic = FLAG_MODE_REQUEST,
+                                             .data.stamped.value.u32 = demo_mode_request
+                };
+                broker_publish( &modeValue );
             }
 
             if( strcmp( (char *)name_rx, MSGID_QUEUE_ADD_MOVE ) == 0 && has_payload )
@@ -503,10 +489,11 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
                 if(mode_request == MODE_MANUAL )
                 {
                     // Fire a sync event
-                    EventData sync = { 0 };
-                    sync.stamped.timestamp = xTaskGetTickCount();
-                    sync.stamped.data.u32 = sync.stamped.timestamp; // as the sync can be any timestamp value, allows us to set it into the future
-                    subject_notify( &event_subject, FLAG_SYNC_EPOCH, sync );
+                    PublishedEvent sync = { 0 };
+                    sync.topic = FLAG_SYNC_EPOCH;
+                    sync.data.stamped.timestamp = xTaskGetTickCount();
+                    sync.data.stamped.value.u32 = sync.data.stamped.timestamp; // as the sync can be any timestamp value including future, but set it for now
+                    broker_publish( &sync );
                 }
             }
 
@@ -544,10 +531,11 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
 
             if( strcmp( (char *)name_rx, MSGID_CAPTURE ) == 0 && has_payload )
             {
-                EventData capture_request = { 0 };
-                capture_request.stamped.timestamp = xTaskGetTickCount();
-                capture_request.stamped.data.u32 = camera_shutter_duration_ms;
-                subject_notify( &event_subject, FLAG_REQUEST_SHUTTER_RELEASE, capture_request );
+                PublishedEvent capture_request = { 0 };
+                capture_request.topic = FLAG_REQUEST_SHUTTER_RELEASE;
+                capture_request.data.stamped.timestamp = xTaskGetTickCount();
+                capture_request.data.stamped.value.u32 = camera_shutter_duration_ms;
+                broker_publish( &capture_request );
             }
 
             if( strcmp( (char *)name_rx, MSGID_CONFIG ) == 0 && has_payload )
@@ -668,24 +656,24 @@ user_interface_set_kinematics_flips( int8_t x, int8_t y, int8_t z )
 
 PRIVATE void start_mech_cb( void )
 {
-    EventData temp = { 0 };
-    subject_notify( &event_subject, FLAG_ARM, temp );
+    PublishedEvent temp = { .topic = FLAG_ARM };
+    broker_publish( &temp );
 }
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void stop_mech_cb( void )
 {
-    EventData temp = { 0 };
-    subject_notify( &event_subject, FLAG_DISARM, temp );
+    PublishedEvent temp = { .topic = FLAG_DISARM };
+    broker_publish( &temp );
 }
 
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void emergency_stop_cb( void )
 {
-    EventData temp = { 0 };
-    subject_notify( &event_subject, FLAG_ESTOP, temp );
+    PublishedEvent temp = { .topic = FLAG_ESTOP };
+    broker_publish( &temp );
 
     // TODO add the concept of 'e-stop sources'
 }
@@ -694,8 +682,8 @@ PRIVATE void emergency_stop_cb( void )
 
 PRIVATE void home_mech_cb( void )
 {
-    EventData temp = { 0 };
-    subject_notify( &event_subject, FLAG_REHOME, temp );
+    PublishedEvent temp = { .topic = FLAG_REHOME };
+    broker_publish( &temp );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -718,19 +706,22 @@ PRIVATE void tracked_external_servo_request( void )
 
 PRIVATE void sync_begin_queues( void )
 {
-    EventData sync_request = { 0 };
-    sync_request.stamped.timestamp = xTaskGetTickCount();
-    sync_request.stamped.data.u32 = sync_request.stamped.timestamp;     // just assume it's requesting right now
+    PublishedEvent sync_request = { 0 };
+    sync_request.topic = FLAG_SYNC_EPOCH;
+    sync_request.data.stamped.timestamp = xTaskGetTickCount();
+    sync_request.data.stamped.value.u32 = sync_request.data.stamped.timestamp;  // just assume it's requesting right now
+    broker_publish( &sync_request );
+
     // TODO: allow the UI to request a sync point into the future?
-    subject_notify( &event_subject, FLAG_SYNC_EPOCH, sync_request );
 }
 
 PRIVATE void clear_all_queue( void )
 {
-    EventData clear_request = { 0 };
-    clear_request.stamped.timestamp = xTaskGetTickCount();
-    clear_request.stamped.data.u32 = 0;
-    subject_notify( &event_subject, FLAG_REQUEST_QUEUE_CLEAR, clear_request );
+    PublishedEvent clear_request = { 0 };
+    clear_request.topic = FLAG_REQUEST_QUEUE_CLEAR;
+    clear_request.data.stamped.timestamp = xTaskGetTickCount();
+    clear_request.data.stamped.value.u32 = 0;
+    broker_publish( &clear_request );
 }
 
 /* -------------------------------------------------------------------------- */

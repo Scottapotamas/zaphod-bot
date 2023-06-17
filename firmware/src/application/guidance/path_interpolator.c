@@ -17,6 +17,8 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 
+#include "broker.h"
+
 /* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE;
@@ -44,8 +46,6 @@ PRIVATE CartesianPoint_t effector_position = { 0 };
 
 PRIVATE MotionPlanner_t planner = { 0 };
 
-PRIVATE Subject pathing_subject;
-
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void path_interpolator_premove_transforms( Movement_t *move );
@@ -68,14 +68,6 @@ path_interpolator_init( void )
     REQUIRE( me->xRequestQueue );
     vQueueAddToRegistry( me->xRequestQueue, "pathMoves" );    // Debug view annotation
 
-    subject_init( &pathing_subject );
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC Subject *path_interpolator_get_subject( void )
-{
-    return &pathing_subject;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -119,7 +111,7 @@ PUBLIC uint32_t path_interpolator_queue_request( Movement_t *movement_to_process
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC uint32_t path_interpolator_request_homing_move( void )
+PUBLIC void path_interpolator_request_homing_move( void )
 {
     MotionPlanner_t *me = &planner;
 
@@ -193,9 +185,10 @@ path_interpolator_task( void *arg )
             if( cartesian_move_speed( &me->current_move ) > 300U )
             {
                 // Overspeed
-                EventData alert = { 0 };
-                alert.stamped.timestamp = xTaskGetTickCount();
-                subject_notify( &pathing_subject, FLAG_PLANNER_VIOLATION, alert );
+                PublishedEvent alert = { 0 };
+                alert.topic = FLAG_PLANNER_VIOLATION;
+                alert.data.stamped.timestamp = xTaskGetTickCount();
+                broker_publish( &alert );
             }
 
             // TODO: add a check that the move doesn't exit the working volume?
@@ -239,10 +232,11 @@ path_interpolator_task( void *arg )
                 if( path_interpolator_get_move_done() )
                 {
                     // Alert the system of a completed movement
-                    EventData alert = { 0 };
-                    alert.stamped.timestamp = xTaskGetTickCount();
-                    alert.stamped.data.u32 = me->current_move.sync_offset;
-                    subject_notify( &pathing_subject, FLAG_PLANNER_COMPLETED, alert );
+                    PublishedEvent alert = { 0 };
+                    alert.topic = FLAG_PLANNER_COMPLETED;
+                    alert.data.stamped.timestamp = xTaskGetTickCount();
+                    alert.data.stamped.value.u32 = me->current_move.sync_offset;
+                    broker_publish( &alert );
 
                     // Clear out the current state
                     memset( &me->current_move, 0, sizeof( Movement_t ) );

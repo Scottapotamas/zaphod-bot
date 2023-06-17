@@ -6,6 +6,7 @@
 #include "global.h"
 #include "qassert.h"
 #include "signals.h"
+#include "broker.h"
 
 #include "effector.h"
 #include "kinematics.h"
@@ -36,7 +37,6 @@ PRIVATE SemaphoreHandle_t xEffectorMutex;
 
 PRIVATE TimerHandle_t xEffectorStatsTimer;
 
-PRIVATE Subject effector_subject;
 
 /* -------------------------------------------------------------------------- */
 
@@ -63,8 +63,6 @@ effector_init( void )
     ENSURE( xNewEffectorTargetSemaphore );
     ENSURE( xEffectorMutex );
 
-    subject_init( &effector_subject );
-
     xEffectorStatsTimer = xTimerCreate("effectorStale",
                                         pdMS_TO_TICKS(15),  // TODO this timeout should be set correctly
                                         pdFALSE,
@@ -74,13 +72,6 @@ effector_init( void )
     REQUIRE( xEffectorStatsTimer );
     xTimerStart( xEffectorStatsTimer, pdMS_TO_TICKS(10) );
 
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC Subject * effector_get_subject( void )
-{
-    return &effector_subject;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -146,9 +137,10 @@ PUBLIC void effector_task( void* arg )
                 // As microns/millisecond = millimeters/second, we can use take the mm/sec limit
                 if( proposed_distance_um > EFFECTOR_SPEED_LIMIT )
                 {
-                    EventData alert = { 0 };
-                    alert.stamped.timestamp = xTaskGetTickCount();
-                    subject_notify( &effector_subject, FLAG_EFFECTOR_VIOLATION, alert );
+                    PublishedEvent alert = { 0 };
+                    alert.topic = FLAG_EFFECTOR_VIOLATION;
+                    alert.data.stamped.timestamp = xTaskGetTickCount();
+                    broker_publish( &alert );
                 }
                 else    // under the speed guard
                 {
@@ -159,33 +151,33 @@ PUBLIC void effector_task( void* arg )
                     kinematics_point_to_angle( requested_position, &angle_target );
 
                     // Ask the motors to please move to the new target angles
-                    EventData servo_update = { 0 };
-                    servo_update.stamped.timestamp = xTaskGetTickCount();
+                    PublishedEvent servo_update = { 0 };
+                    servo_update.topic = SERVO_TARGET_DEGREES;
+                    servo_update.data.stamped.timestamp = xTaskGetTickCount();
 
-                    servo_update.stamped.index = 0;
-                    servo_update.stamped.data.f32 = angle_target.a1;
-                    subject_notify( &effector_subject, SERVO_TARGET_DEGREES, servo_update );
+                    // TODO: this should be a single event, not three with indexing?
+                    servo_update.data.stamped.index = 0;
+                    servo_update.data.stamped.value.f32 = angle_target.a1;
+                    broker_publish( &servo_update );
 
-                    servo_update.stamped.index = 1;
-                    servo_update.stamped.data.f32 = angle_target.a2;
-                    subject_notify( &effector_subject, SERVO_TARGET_DEGREES, servo_update );
+                    servo_update.data.stamped.index = 1;
+                    servo_update.data.stamped.value.f32 = angle_target.a2;
+                    broker_publish( &servo_update );
 
-                    servo_update.stamped.index = 2;
-                    servo_update.stamped.data.f32 = angle_target.a3;
-                    subject_notify( &effector_subject, SERVO_TARGET_DEGREES, servo_update );
-
+                    servo_update.data.stamped.index = 2;
+                    servo_update.data.stamped.value.f32 = angle_target.a3;
+                    broker_publish( &servo_update );
 
                     // The request is now 'the current position'
                     memcpy( &effector_position, &requested_position, sizeof(CartesianPoint_t) );
 
-                    // TODO calculate effector velocity?
-
                     // Notify the system of the effector position
-                    EventData pos_update = { 0 };
-                    pos_update.s_triple[EVT_X] = requested_position.x;
-                    pos_update.s_triple[EVT_Y] = requested_position.y;
-                    pos_update.s_triple[EVT_Z] = requested_position.z;
-                    subject_notify( &effector_subject, EFFECTOR_POSITION, pos_update );
+                    PublishedEvent pos_update = { 0 };
+                    pos_update.topic = EFFECTOR_POSITION;
+                    pos_update.data.s_triple[EVT_X] = requested_position.x;
+                    pos_update.data.s_triple[EVT_Y] = requested_position.y;
+                    pos_update.data.s_triple[EVT_Z] = requested_position.z;
+                    broker_publish( &pos_update );
 
                     // and the velocity
                     effector_publish_velocity( proposed_distance_um );
@@ -193,9 +185,10 @@ PUBLIC void effector_task( void* arg )
                     // Overseer tasks want to be notified when the effector is at the home position
                     if( effector_is_near_home( &effector_position ) )
                     {
-                        EventData home_update = { 0 };
-                        home_update.stamped.timestamp = xTaskGetTickCount();
-                        subject_notify( &effector_subject, EFFECTOR_NEAR_HOME, home_update );
+                        PublishedEvent home_update = { 0 };
+                        home_update.topic = EFFECTOR_NEAR_HOME;
+                        home_update.data.stamped.timestamp = xTaskGetTickCount();
+                        broker_publish( &home_update );
                     }
 
                     // Clear the request
@@ -238,10 +231,11 @@ PRIVATE void effector_publish_velocity( uint32_t distance_since_last )
     }
 
     // Publish the velocity value
-    EventData vel_update = { 0 };
-    vel_update.stamped.timestamp = timestamp_now;
-    vel_update.stamped.data.u32 = distance_since_last / delta_time;
-    subject_notify( &effector_subject, EFFECTOR_SPEED, vel_update );
+    PublishedEvent vel_update = { 0 };
+    vel_update.topic = EFFECTOR_SPEED;
+    vel_update.data.stamped.timestamp = timestamp_now;
+    vel_update.data.stamped.value.u32 = distance_since_last / delta_time;
+    broker_publish( &vel_update );
 
     // Refresh the stats stale timer
     if( distance_since_last )

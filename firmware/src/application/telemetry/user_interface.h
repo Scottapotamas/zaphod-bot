@@ -11,9 +11,6 @@ extern "C" {
 #include "movement_types.h"
 #include "lighting_types.h"
 
-#include "observer.h"
-#include "subject.h"
-
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -21,14 +18,6 @@ user_interface_init( void );
 
 PUBLIC void
 user_interface_task( void *arg );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC Observer * user_interface_get_observer( void );
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC Subject * user_interface_get_request_subject( void );
 
 /* -------------------------------------------------------------------------- */
 

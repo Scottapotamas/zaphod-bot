@@ -6,6 +6,7 @@
 #include "simple_state_machine.h"
 #include "signals.h"
 #include "qassert.h"
+#include "broker.h"
 
 #include "FreeRTOS.h"
 #include "task.h"
@@ -51,17 +52,15 @@ typedef struct
 
 } Overwatch_t;
 
-PRIVATE SemaphoreHandle_t xOverwatchNotifySemaphore;
 PRIVATE TimerHandle_t xOverwatchStimulusTimer;
 
 PRIVATE Overwatch_t supervisor_state = { 0 };
 
-PRIVATE Subject commands = { 0 };
-PRIVATE Observer events = { 0 };
+PRIVATE Subscriber *event_sub;
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, void *context);
+PRIVATE void overwatch_event_handler( void );
 
 PRIVATE void overwatch_publish_main_state( void );
 
@@ -81,9 +80,6 @@ PUBLIC void overwatch_init( void )
     Overwatch_t *me = &supervisor_state;
     STATE_INIT_INITIAL(OVERWATCH_DISARMED);
 
-    xOverwatchNotifySemaphore = xSemaphoreCreateBinary();
-    ENSURE( xOverwatchNotifySemaphore );
-
     // Setup a stimulus timer handle
     xOverwatchStimulusTimer = xTimerCreate("overseer",
                                             pdMS_TO_TICKS(100),
@@ -91,58 +87,44 @@ PUBLIC void overwatch_init( void )
                                             0,
                                             overwatch_timer_callback
     );
-    REQUIRE( xOverwatchStimulusTimer );
+    ENSURE( xOverwatchStimulusTimer );
 
     mode_mediator_init();
 
-    // Setup command generation subject
-    subject_init( &commands );
-
     // Setup subscriptions to events
-    observer_init( &events, overwatch_events_callback, NULL );
+    event_sub = broker_create_subscriber( "PSowatch", 10 );
+    ENSURE( event_sub );
 
     // User requests
-    observer_subscribe( &events, FLAG_ARM );
-    observer_subscribe( &events, FLAG_DISARM );
-    observer_subscribe( &events, FLAG_ESTOP );
-    observer_subscribe( &events, FLAG_REHOME );
-    observer_subscribe( &events, FLAG_MODE_REQUEST );
-    observer_subscribe( &events, FLAG_SYNC_EPOCH );
-    observer_subscribe( &events, FLAG_REQUEST_QUEUE_CLEAR );
+    broker_add_event_subscription( event_sub, FLAG_ARM );
+    broker_add_event_subscription( event_sub, FLAG_DISARM );
+    broker_add_event_subscription( event_sub, FLAG_ESTOP );
+    broker_add_event_subscription( event_sub, FLAG_REHOME );
+    broker_add_event_subscription( event_sub, FLAG_MODE_REQUEST );
+    broker_add_event_subscription( event_sub, FLAG_SYNC_EPOCH );
+    broker_add_event_subscription( event_sub, FLAG_REQUEST_QUEUE_CLEAR );
 
     // Subsystem state updates
-    observer_subscribe( &events, SERVO_STATE );
-    observer_subscribe( &events, EFFECTOR_NEAR_HOME );
+    broker_add_event_subscription( event_sub, SERVO_STATE );
+    broker_add_event_subscription( event_sub, EFFECTOR_NEAR_HOME );
 
-    observer_subscribe( &events, FLAG_EFFECTOR_VIOLATION );
-    observer_subscribe( &events, FLAG_PLANNER_VIOLATION );
+    broker_add_event_subscription( event_sub, FLAG_EFFECTOR_VIOLATION );
+    broker_add_event_subscription( event_sub, FLAG_PLANNER_VIOLATION );
 
-    // TODO the observer shouldn't be subscribing to position and pushing data downwards to pathing tasks
-    observer_subscribe( &events, EFFECTOR_POSITION );
-
+    // TODO overwatch shouldn't be subscribing to position and pushing data downwards to pathing tasks
+    broker_add_event_subscription( event_sub, EFFECTOR_POSITION );
 }
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC Subject * overwatch_get_subject( void )
-{
-    return &commands;
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC Observer * overwatch_get_observer( void )
-{
-    return &events;
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, void *context)
+PRIVATE void overwatch_event_handler( void )
 {
     Overwatch_t *me = &supervisor_state;
 
-    switch( event )
+    PublishedEvent event = { 0 };
+    xQueueReceive( event_sub->queue, &event, portMAX_DELAY );
+
+    switch( event.topic )
     {
         case FLAG_ARM:
             me->requested_arming = true;
@@ -165,13 +147,13 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, v
 
         case SERVO_STATE:   // A servo changed state...
             // TODO don't use hardcoded SERVO_STATE_ACTIVE value of 7 in state check
-            me->servo_active[eData.stamped.index] = ( eData.stamped.data.u32 == 7);
+            me->servo_active[event.data.stamped.index] = ( event.data.stamped.value.u32 == 7);
             break;
 
         case FLAG_SYNC_EPOCH:
             // TODO: these tasks should catch the epoch themselves
-            path_interpolator_set_epoch_reference( eData.stamped.data.u32 );
-            led_interpolator_set_epoch_reference( eData.stamped.data.u32 );
+            path_interpolator_set_epoch_reference( event.data.stamped.value.u32 );
+            led_interpolator_set_epoch_reference( event.data.stamped.value.u32 );
             break;
 
         case FLAG_REQUEST_QUEUE_CLEAR:
@@ -183,21 +165,21 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, v
             break;
 
         case FLAG_MODE_REQUEST:     // UI requested a mode change
-            mode_mediator_request_mode( eData.stamped.data.u32 );
+            mode_mediator_request_mode( event.data.stamped.value.u32 );
             break;
 
         case EFFECTOR_POSITION:
             // TODO: these tasks should catch position themselves?
-            path_interpolator_update_effector_position( eData.s_triple[EVT_X],
-                                                        eData.s_triple[EVT_Y],
-                                                        eData.s_triple[EVT_Z] );
+            path_interpolator_update_effector_position( event.data.s_triple[EVT_X],
+                                                        event.data.s_triple[EVT_Y],
+                                                        event.data.s_triple[EVT_Z] );
 
-            point_follower_update_effector_position( eData.s_triple[EVT_X],
-                                                     eData.s_triple[EVT_Y],
-                                                     eData.s_triple[EVT_Z] );
+            point_follower_update_effector_position( event.data.s_triple[EVT_X],
+                                                     event.data.s_triple[EVT_Y],
+                                                     event.data.s_triple[EVT_Z] );
 
             // Need to work out a 'not at home' event that's separate
-            if( eData.s_triple[EVT_X] != 0 || eData.s_triple[EVT_Y] != 0 || eData.s_triple[EVT_Z] != 0 )
+            if( event.data.s_triple[EVT_X] != 0 || event.data.s_triple[EVT_Y] != 0 || event.data.s_triple[EVT_Z] != 0 )
             {
                 me->effector_home = false;
                 mode_mediator_set_is_homed(false );
@@ -215,8 +197,6 @@ PRIVATE void overwatch_events_callback(ObserverEvent_t event, EventData eData, v
             break;
     }
 
-    // Wake the task up
-    xSemaphoreGive( xOverwatchNotifySemaphore );
 
 }
 
@@ -226,132 +206,131 @@ PUBLIC void overwatch_task( void* arg )
 
     for(;;)
     {
-        // Wait for stimulus
-        if( xSemaphoreTake( xOverwatchNotifySemaphore, portMAX_DELAY) )
-        {
-            // Run the state machine at least once per trigger, more if needed to handle transitions etc
-            do {
-                switch( me->currentState )
-                {
-                    case OVERWATCH_DISARMED:
-                        STATE_ENTRY_ACTION
-                        mode_mediator_armed( false );
+        // Block while waiting for stimulus event
+        overwatch_event_handler();
 
-                        STATE_TRANSITION_TEST
+        // Run the state machine at least once per trigger, more if needed to handle transitions etc
+        do {
+            switch( me->currentState )
+            {
+                case OVERWATCH_DISARMED:
+                    STATE_ENTRY_ACTION
+                    mode_mediator_armed( false );
 
-                        if( me->requested_arming )
-                        {
-                            STATE_NEXT( OVERWATCH_ARMING );
-                        }
+                    STATE_TRANSITION_TEST
 
-                        STATE_EXIT_ACTION
-                        mode_mediator_armed( true );
+                    if( me->requested_arming )
+                    {
+                        STATE_NEXT( OVERWATCH_ARMING );
+                    }
 
-                        STATE_END
-                        break;
+                    STATE_EXIT_ACTION
+                    mode_mediator_armed( true );
 
-                    case OVERWATCH_ARMING:
-                        STATE_ENTRY_ACTION
-                        EventData temp = { 0 };
-                        temp.stamped.timestamp = xTaskGetTickCount();
-                        subject_notify( &commands, OVERWATCH_SERVO_ENABLE, temp );
+                    STATE_END
+                    break;
 
-                        // A pending eSTOP event acts as a timeout
-                        overwatch_estop_in( 9000 );
-                        STATE_TRANSITION_TEST
+                case OVERWATCH_ARMING:
+                    STATE_ENTRY_ACTION
+                    PublishedEvent temp = { .topic = OVERWATCH_SERVO_ENABLE,
+                                            .data.stamped.timestamp = xTaskGetTickCount() };
+                    broker_publish( &temp );
 
-                        // Are the motors/subsystems ready?
-                        // TODO consider how to optionally handle the 4-th armed servo?
-                        if( me->servo_active[0] && me->servo_active[1] && me->servo_active[2]  )
-                        {
-                            STATE_NEXT( OVERWATCH_ARMED );
-                        }
+                    // A pending eSTOP event acts as a timeout
+                    overwatch_estop_in( 9000 );
+                    STATE_TRANSITION_TEST
 
-                        if( !me->requested_arming )
-                        {
-                            STATE_NEXT( OVERWATCH_DISARMING );
-                        }
+                    // Are the motors/subsystems ready?
+                    // TODO consider how to optionally handle the 4-th armed servo?
+                    if( me->servo_active[0] && me->servo_active[1] && me->servo_active[2]  )
+                    {
+                        STATE_NEXT( OVERWATCH_ARMED );
+                    }
 
-                        STATE_EXIT_ACTION
-                        overwatch_estop_revoke_promise();
-                        STATE_END
-                        break;
+                    if( !me->requested_arming )
+                    {
+                        STATE_NEXT( OVERWATCH_DISARMING );
+                    }
 
-                    case OVERWATCH_ARMED:
-                        STATE_ENTRY_ACTION
-                        effector_reset();
+                    STATE_EXIT_ACTION
+                    overwatch_estop_revoke_promise();
+                    STATE_END
+                    break;
 
-                        STATE_TRANSITION_TEST
+                case OVERWATCH_ARMED:
+                    STATE_ENTRY_ACTION
+                    effector_reset();
 
-                        if( !me->requested_arming )
-                        {
-                            STATE_NEXT( OVERWATCH_DISARMING );
-                        }
+                    STATE_TRANSITION_TEST
 
-                        if( !me->servo_active[0] || !me->servo_active[1] || !me->servo_active[2] )
-                        {
-                            STATE_NEXT( OVERWATCH_EMERGENCY_STOP );
-                        }
+                    if( !me->requested_arming )
+                    {
+                        STATE_NEXT( OVERWATCH_DISARMING );
+                    }
 
-                        STATE_EXIT_ACTION
+                    if( !me->servo_active[0] || !me->servo_active[1] || !me->servo_active[2] )
+                    {
+                        STATE_NEXT( OVERWATCH_EMERGENCY_STOP );
+                    }
 
-                        STATE_END
-                        break;
+                    STATE_EXIT_ACTION
 
-                    case OVERWATCH_DISARMING:
-                        STATE_ENTRY_ACTION
-                        me->requested_arming = false;
+                    STATE_END
+                    break;
 
-                        // Ask the mechanism to go home
-                        mode_mediator_request_rehome();
+                case OVERWATCH_DISARMING:
+                    STATE_ENTRY_ACTION
+                    me->requested_arming = false;
 
-                        // A pending eSTOP event acts as a timeout
-                        overwatch_estop_in( 2000 );
-                        STATE_TRANSITION_TEST
-                        // Are we home?
-                        if( me->effector_home )
-                        {
-                            STATE_NEXT( OVERWATCH_EMERGENCY_STOP );
-                        }
+                    // Ask the mechanism to go home
+                    mode_mediator_request_rehome();
 
-                        STATE_EXIT_ACTION
-                        overwatch_estop_revoke_promise();
+                    // A pending eSTOP event acts as a timeout
+                    overwatch_estop_in( 2000 );
+                    STATE_TRANSITION_TEST
+                    // Are we home?
+                    if( me->effector_home )
+                    {
+                        STATE_NEXT( OVERWATCH_EMERGENCY_STOP );
+                    }
 
-                        STATE_END
-                        break;
+                    STATE_EXIT_ACTION
+                    overwatch_estop_revoke_promise();
 
-                    case OVERWATCH_EMERGENCY_STOP:
-                        STATE_ENTRY_ACTION
-                        me->requested_arming = false;
+                    STATE_END
+                    break;
 
-                        EventData temp = { 0 };
-                        temp.stamped.timestamp = xTaskGetTickCount();
-                        subject_notify( &commands, OVERWATCH_SERVO_DISABLE, temp );
+                case OVERWATCH_EMERGENCY_STOP:
+                    STATE_ENTRY_ACTION
+                    me->requested_arming = false;
 
-                        STATE_TRANSITION_TEST
-                        // Are the motors/subsystems safe?
-                        // TODO consider how to handle the optional 4-th servo?
-                        if( !me->servo_active[0] && !me->servo_active[1] && !me->servo_active[2]  )
-                        {
-                            STATE_NEXT( OVERWATCH_DISARMED );
-                        }
-                        STATE_EXIT_ACTION
-                        effector_reset();
+                    PublishedEvent temp = { .topic = OVERWATCH_SERVO_DISABLE, .data.stamped.timestamp = xTaskGetTickCount() };
+                    broker_publish( &temp );
 
-                        STATE_END
-                        break;
+                    STATE_TRANSITION_TEST
+                    // Are the motors/subsystems safe?
+                    // TODO consider how to handle the optional 4-th servo?
+                    if( !me->servo_active[0] && !me->servo_active[1] && !me->servo_active[2]  )
+                    {
+                        STATE_NEXT( OVERWATCH_DISARMED );
+                    }
+                    STATE_EXIT_ACTION
+                    effector_reset();
 
-                }   // end state machine
+                    STATE_END
+                    break;
 
-            } while( STATE_IS_TRANSITIONING );
+            }   // end state machine
 
-            // Run the sub-state machine which manages connections between tasks
-            mode_mediator_task();
+        } while( STATE_IS_TRANSITIONING );
 
-            // State machine handling is done, update the UI
-            overwatch_publish_main_state();
-            overwatch_publish_mode_state();
-        }
+        // Run the sub-state machine which manages connections between tasks
+        mode_mediator_task();
+
+        // State machine handling is done, update the UI
+        overwatch_publish_main_state();
+        overwatch_publish_mode_state();
+
 
     }   // end task loop
 }
@@ -360,11 +339,11 @@ PUBLIC void overwatch_task( void* arg )
 
 PRIVATE void overwatch_publish_main_state( void )
 {
-    // TODO timestamp the event?
-    EventData sm_current = { 0 };
-    sm_current.stamped.timestamp = xTaskGetTickCount();
-    sm_current.stamped.data.u32 = supervisor_state.currentState;
-    subject_notify( &commands, OVERWATCH_STATE_UPDATE, sm_current );
+    PublishedEvent sm_current = { 0 };
+    sm_current.topic = OVERWATCH_STATE_UPDATE;
+    sm_current.data.stamped.timestamp = xTaskGetTickCount();
+    sm_current.data.stamped.value.u32 = supervisor_state.currentState;
+    broker_publish( &sm_current );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -374,10 +353,11 @@ PRIVATE void overwatch_publish_mode_state( void )
     // The next state is more accurate for notifications than the current state
     //   when disarmed, the mode state-machine isn't run and stays where it is, but the next
     //   state will be used as the transition when it activates, so show that to the user
-    EventData mode_next = { 0 };
-    mode_next.stamped.timestamp = xTaskGetTickCount();
-    mode_next.stamped.data.u32 = mode_mediator_get_mode();
-    subject_notify( &commands, OVERWATCH_MODE_UPDATE, mode_next );
+    PublishedEvent mode_next = { 0 };
+    mode_next.topic = OVERWATCH_MODE_UPDATE;
+    mode_next.data.stamped.timestamp = xTaskGetTickCount();
+    mode_next.data.stamped.value.u32 = mode_mediator_get_mode();
+    broker_publish( &mode_next );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -386,13 +366,8 @@ PRIVATE void overwatch_publish_mode_state( void )
 // The task itself sets one-shot or repeating timers as needed.
 PRIVATE void overwatch_timer_callback( TimerHandle_t xTimer )
 {
-    Overwatch_t *me = &supervisor_state;
-
-    // TODO is there a better ESTOP option?
-    me->requested_arming = false;
-    STATE_NEXT( OVERWATCH_EMERGENCY_STOP );
-
-    xSemaphoreGive( xOverwatchNotifySemaphore );
+    PublishedEvent temp = { .topic = FLAG_ESTOP };
+    broker_publish( &temp );
 }
 
 PRIVATE void overwatch_estop_in( uint32_t timeout_ms )

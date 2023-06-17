@@ -8,19 +8,19 @@
 
 #include "hal_gpio.h"
 
+#include "broker.h"
+
 /* -------------------------------------------------------------------------- */
 
 DEFINE_THIS_FILE;
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE Observer events = { 0 };
-
 PRIVATE TimerHandle_t xShutterReleaseTimer;
 
-/* -------------------------------------------------------------------------- */
+PRIVATE Subscriber *events_sub = { 0 };
 
-PRIVATE void system_events_callback( ObserverEvent_t event, EventData eData, void *context );
+/* -------------------------------------------------------------------------- */
 
 PRIVATE void shutter_release_active( bool on );
 
@@ -44,49 +44,43 @@ PUBLIC void shutter_init( void )
     REQUIRE( xShutterReleaseTimer );
 
     // Setup subscriptions to events
-    observer_init( &events, system_events_callback, NULL );
+    events_sub = broker_create_subscriber( "PSshutter", 3 );
+    REQUIRE( events_sub );
 
-    observer_subscribe( &events, FLAG_REQUEST_SHUTTER_RELEASE );
-    observer_subscribe( &events, FLAG_ESTOP );
-    observer_subscribe( &events, FLAG_REQUEST_QUEUE_CLEAR );
+    broker_add_event_subscription( events_sub, FLAG_REQUEST_SHUTTER_RELEASE );
+    broker_add_event_subscription( events_sub, FLAG_ESTOP );
+    broker_add_event_subscription( events_sub, FLAG_REQUEST_QUEUE_CLEAR );
 }
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC Observer * shutter_get_observer( void )
-{
-    return &events;
-}
-
-/* -------------------------------------------------------------------------- */
-
-PRIVATE void system_events_callback( ObserverEvent_t event,
-                                     EventData eData,
-                                     void *context )
-{
-    switch( event )
-    {
-        case FLAG_REQUEST_SHUTTER_RELEASE:
-            if( eData.stamped.data.u32 == 0 )
-            {
-                shutter_cancel_capture();
-            }
-            else
-            {
-                shutter_begin_capture( eData.stamped.data.u32 );
-            }
-            break;
-
-        case FLAG_REQUEST_QUEUE_CLEAR:
-        case FLAG_ESTOP:
-            shutter_cancel_capture();
-            break;
-
-        default:
-            ASSERT(false);
-            break;
-    }
-}
+//PRIVATE void system_events_callback( ObserverEvent_t event,
+//                                     EventData eData,
+//                                     void *context )
+//{
+//    switch( event )
+//    {
+//        case FLAG_REQUEST_SHUTTER_RELEASE:
+//            if( eData.stamped.data.u32 == 0 )
+//            {
+//                shutter_cancel_capture();
+//            }
+//            else
+//            {
+//                shutter_begin_capture( eData.stamped.data.u32 );
+//            }
+//            break;
+//
+//        case FLAG_REQUEST_QUEUE_CLEAR:
+//        case FLAG_ESTOP:
+//            shutter_cancel_capture();
+//            break;
+//
+//        default:
+//            ASSERT(false);
+//            break;
+//    }
+//}
 
 /* -------------------------------------------------------------------------- */
 
