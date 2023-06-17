@@ -2,10 +2,8 @@ message("Processing utility/observer")
 
 add_library (
         utility_observer_lib
-        observer.h
-        observer.c
-        subject.h
-        subject.c
+        broker.h
+        broker.c
 )
 
 target_include_directories (
