@@ -69,20 +69,21 @@ eui_interface_t sniff_interfaces[EUI_NUM_INTERFACES] = {
 
 typedef enum
 {
-    SUPERVISOR_NONE = 0,
-    SUPERVISOR_IDLE,
-    SUPERVISOR_ARMING,
-    SUPERVISOR_ERROR,
-    SUPERVISOR_ARMED,
-    SUPERVISOR_DISARMING,
-    SUPERVISOR_INVALID,
+    OVERWATCH_DISARMED,
+    OVERWATCH_ARMING,
+    OVERWATCH_ARMED,
+    OVERWATCH_DISARMING,
+    OVERWATCH_EMERGENCY_STOP,
 } SupervisorStates_t;
 
 typedef struct
 {
+    uint32_t movement_id_completed;
     uint8_t supervisor;
     uint8_t motors;
     uint8_t control_mode;
+    uint8_t queue_movements;
+    uint8_t queue_lighting;
 } SystemStates_t;
 
 SystemStates_t delta_supervisor_state;
@@ -199,29 +200,24 @@ void process_led( void )
   
   switch( delta_supervisor_state.supervisor )
   {    
-    case SUPERVISOR_NONE:
-    case SUPERVISOR_INVALID:
-      status_duty = 0;
-    break;
-
-    case SUPERVISOR_IDLE:
+    case OVERWATCH_DISARMED:
       // slow, dim heartbeat to show that it's alive
       status_duty = 20;
     break;
-    
-    case SUPERVISOR_ARMING:
-    case SUPERVISOR_DISARMING:
+
+    case OVERWATCH_ARMING:
+    case OVERWATCH_DISARMING:
       // Quicker, brighter heartbeat to make it obvious that things are happening
       status_duty = 1000;
     break;
 
-    case SUPERVISOR_ARMED:
+    case OVERWATCH_ARMED:
       // Continuously on at some brightness level?
       status_duty = 500;
     break;
 
-    case SUPERVISOR_ERROR:
-      // Short strobe/flashes to draw attention to fault?
+    case OVERWATCH_EMERGENCY_STOP:
+      // TODO Short strobe/flashes to draw attention to fault?
       status_duty = 250;
     break;
   }
