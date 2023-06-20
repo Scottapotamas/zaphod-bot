@@ -66,7 +66,7 @@ path_interpolator_init( void )
 
     me->xRequestQueue = xQueueCreate( 5, sizeof( Movement_t ) );
     REQUIRE( me->xRequestQueue );
-    vQueueAddToRegistry( me->xRequestQueue, "pathMoves" );    // Debug view annotation
+    vQueueAddToRegistry( me->xRequestQueue, "interpMove" );    // Debug view annotation
 
 }
 

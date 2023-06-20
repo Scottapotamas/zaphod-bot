@@ -54,7 +54,7 @@ PUBLIC void led_interpolator_init( void )
 
     me->xRequestQueue = xQueueCreate( 5, sizeof( Fade_t ) );
     REQUIRE( me->xRequestQueue );
-    vQueueAddToRegistry( me->xRequestQueue, "fadeMoves" );    // Debug view annotation
+    vQueueAddToRegistry( me->xRequestQueue, "interpFade" );    // Debug view annotation
 
 }
 

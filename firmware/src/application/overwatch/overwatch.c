@@ -88,7 +88,7 @@ PUBLIC void overwatch_init( void )
     mode_mediator_init();
 
     // Setup subscriptions to events
-    event_sub = broker_create_subscriber( "PSowatch", 10 );
+    event_sub = broker_create_subscriber( "psOWatch", 10 );
     ENSURE( event_sub );
 
     // User requests

@@ -57,7 +57,7 @@ PUBLIC void led_init( void )
     ENSURE( xLEDMutex );
 
     // Setup sensor event subscriptions
-    led_subscriber = broker_create_subscriber( "PSled", 5 );
+    led_subscriber = broker_create_subscriber( "psLed", 5 );
 
 //    broker_add_event_subscription( led_subscriber, EFFECTOR_POSITION );
 //    broker_add_event_subscription( led_subscriber, EFFECTOR_SPEED );

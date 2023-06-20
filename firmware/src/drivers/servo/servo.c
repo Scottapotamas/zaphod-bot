@@ -188,16 +188,16 @@ servo_init( ClearpathServoInstance_t servo )
     switch( me->identifier )
     {
         case _CLEARPATH_1:
-            me->event_sub = broker_create_subscriber( "PScp1", 10 );
+            me->event_sub = broker_create_subscriber( "psCP1", 10 );
             break;
         case _CLEARPATH_2:
-            me->event_sub = broker_create_subscriber( "PScp2", 10 );
+            me->event_sub = broker_create_subscriber( "psCP2", 10 );
             break;
         case _CLEARPATH_3:
-            me->event_sub = broker_create_subscriber( "PScp3", 10 );
+            me->event_sub = broker_create_subscriber( "psCP3", 10 );
             break;
         case _CLEARPATH_4:
-            me->event_sub = broker_create_subscriber( "PScp4", 10 );
+            me->event_sub = broker_create_subscriber( "psCP4", 10 );
             break;
     }
     ENSURE( me->event_sub );

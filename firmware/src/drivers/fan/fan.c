@@ -71,7 +71,7 @@ fan_init( void )
     hal_pwm_generation( _PWM_TIM_FAN, FAN_FREQUENCY_HZ );
 
     // Subscribe to the sensor events needed for fan control
-    sensor_sub = broker_create_subscriber( "PSfan", 5 );
+    sensor_sub = broker_create_subscriber( "psFan", 5 );
     REQUIRE( sensor_sub );
 
     broker_add_event_subscription( sensor_sub, SENSOR_FAN_SPEED );

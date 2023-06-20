@@ -44,7 +44,7 @@ PUBLIC void shutter_init( void )
     REQUIRE( xShutterReleaseTimer );
 
     // Setup subscriptions to events
-    events_sub = broker_create_subscriber( "PSshutter", 3 );
+    events_sub = broker_create_subscriber( "psShutter", 3 );
     REQUIRE( events_sub );
 
     broker_add_event_subscription( events_sub, FLAG_REQUEST_SHUTTER_RELEASE );

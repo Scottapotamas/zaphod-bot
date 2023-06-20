@@ -26,7 +26,7 @@ PUBLIC void broker_init( Broker *instance )
     // Setup the input queue
     pubsub_broker->queue = xQueueCreate( 30, sizeof(PublishedEvent) );
     ENSURE( pubsub_broker->queue );
-    vQueueAddToRegistry( pubsub_broker->queue, "BrokerRx");  // Debug view annotation
+    vQueueAddToRegistry( pubsub_broker->queue, "psBroker");  // Debug view annotation
 
     // Setup broker data protection mutex
     pubsub_broker->mutex = xSemaphoreCreateMutex();

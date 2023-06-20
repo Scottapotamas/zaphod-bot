@@ -100,7 +100,7 @@ void app_startup_tasks( void )
                  "effector",
                  configMINIMAL_STACK_SIZE,
                  NULL,
-                 priority_normal,
+                 priority_high,
                  NULL
     );
 
@@ -132,7 +132,7 @@ void app_startup_tasks( void )
                  "rqhMove",
                  configMINIMAL_STACK_SIZE,
                  request_handler_get_context_for(REQUEST_HANDLER_MOVES),
-                 priority_low,
+                 priority_normal,
                  NULL
     );
 
@@ -140,7 +140,7 @@ void app_startup_tasks( void )
                  "rqhFade",
                  configMINIMAL_STACK_SIZE,
                  request_handler_get_context_for(REQUEST_HANDLER_FADES),
-                 priority_low,
+                 priority_normal,
                  NULL
     );
 
@@ -148,7 +148,7 @@ void app_startup_tasks( void )
                  "led",
                  configMINIMAL_STACK_SIZE,
                  NULL,
-                 priority_low,
+                 priority_high,
                  NULL
     );
 
@@ -156,7 +156,7 @@ void app_startup_tasks( void )
                  "s1",
                  configMINIMAL_STACK_SIZE,
                  servo_get_state_context_for(_CLEARPATH_1),
-                 priority_normal,
+                 priority_high,
                  NULL
                  );
 
@@ -164,14 +164,14 @@ void app_startup_tasks( void )
                  "s2",
                  configMINIMAL_STACK_SIZE,
                  servo_get_state_context_for(_CLEARPATH_2),
-                 priority_normal,
+                 priority_high,
                  NULL
     );
     xTaskCreate( servo_task,
                  "s3",
                  configMINIMAL_STACK_SIZE,
                  servo_get_state_context_for(_CLEARPATH_3),
-                 priority_normal,
+                 priority_high,
                  NULL
     );
 
@@ -179,7 +179,7 @@ void app_startup_tasks( void )
                  "overwatch",
                  configMINIMAL_STACK_SIZE,
                  NULL,
-                 priority_normal,
+                 priority_highest,
                  NULL
     );
 

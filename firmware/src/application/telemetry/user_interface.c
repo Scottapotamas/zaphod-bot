@@ -178,7 +178,7 @@ user_interface_init( void )
     eui_setup_identifier( (char *)HAL_UUID, 12 );    // header byte is 96-bit, therefore 12-bytes
 
     // Setup the UI event subscriptions
-    event_sub = broker_create_subscriber( "PStelem", 40 );
+    event_sub = broker_create_subscriber( "psTelem", 40 );
 
     broker_add_event_subscription( event_sub, SENSOR_FAN_SPEED );
     broker_add_event_subscription( event_sub, SENSOR_VOLTAGE_INPUT );
