@@ -129,6 +129,7 @@ typedef struct
     TimerHandle_t servo_stats_timer;
     uint32_t angle_update_timestamp;
 
+    SemaphoreHandle_t mutex;
     Subscriber *event_sub;      // subscribe to system events etc
     float power;                // power consumption in watts
     float hlfb;                 // feedback value from servo
@@ -162,8 +163,6 @@ PRIVATE void servo_delay_us( uint32_t delay_us ) __attribute__( ( optimize( "-O0
 
 PRIVATE Servo_t clearpath[_NUMBER_CLEARPATH_SERVOS];
 
-PRIVATE SemaphoreHandle_t xClearpathMutex;
-
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -178,12 +177,11 @@ servo_init( ClearpathServoInstance_t servo )
 
     me->identifier = servo;
 
-    // There's only one, so the first servo to init can create it.
-    if( !xClearpathMutex )
+    if( !me->mutex )
     {
-        xClearpathMutex = xSemaphoreCreateMutex();
+        me->mutex = xSemaphoreCreateMutex();
     }
-    ENSURE( xClearpathMutex );
+    ENSURE( me->mutex );
 
     // Setup sensor event subscriptions
     // TODO: better way to handle naming?
@@ -272,12 +270,11 @@ servo_change_configuration( ClearpathServoInstance_t servo,
                             float angle_at_home )
 {
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+    Servo_t *me = &clearpath[servo];
 
     // TODO: how long should we wait for the mutex?
-    if( xSemaphoreTake( xClearpathMutex, portMAX_DELAY) )
+    if( xSemaphoreTake( me->mutex, portMAX_DELAY) )
     {
-        Servo_t *me = &clearpath[servo];
-
         ServoConfiguration_t *config = &me->config;
 
         // TODO: consider doing bounds/error checks on these values?
@@ -289,7 +286,7 @@ servo_change_configuration( ClearpathServoInstance_t servo,
         config->angle_min            = angle_min;
         config->angle_max            = angle_max;
         config->angle_at_home        = angle_at_home;
-        xSemaphoreGive( xClearpathMutex );
+        xSemaphoreGive( me->mutex );
 
         return true;
     }
@@ -391,8 +388,7 @@ PUBLIC void servo_task( void* arg )
         PublishedEvent new_data = { 0 };
         xQueueReceive( me->event_sub->queue, &new_data, portMAX_DELAY );
 
-        // TODO: how long should we wait for the mutex?
-        if( xSemaphoreTake( xClearpathMutex, portMAX_DELAY) )
+        if( xSemaphoreTake( me->mutex, pdMS_TO_TICKS(1) ) )
         {
             switch( new_data.topic )
             {
@@ -427,7 +423,7 @@ PUBLIC void servo_task( void* arg )
                     break;
 
                 default:
-                    // Why did we recieve a signal that we didn't subscribe to?
+                    // Why did we receive a signal that we didn't subscribe to?
                     ASSERT(false);
                     break;
             }
@@ -736,7 +732,11 @@ PUBLIC void servo_task( void* arg )
                 broker_publish( &state_update );
             }
 
-            xSemaphoreGive( xClearpathMutex );
+            xSemaphoreGive( me->mutex );
+        }
+        else // didn't get the mutex fast enough
+        {
+            ASSERT(false);
         }
     }  // end task loop
 }
@@ -929,16 +929,16 @@ PRIVATE void servo_publish_velocity( ClearpathServoInstance_t servo, int32_t ste
 // We assume no update events within the timeout period mean the velocity should be zero
 PRIVATE void servo_statistics_stale( TimerHandle_t xTimer )
 {
-    if( xSemaphoreTake(xClearpathMutex, portMAX_DELAY) )
+    ClearpathServoInstance_t servo = (ClearpathServoInstance_t)pvTimerGetTimerID(xTimer);
+    REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+    Servo_t *me = &clearpath[servo];
+
+    if( xSemaphoreTake(me->mutex, portMAX_DELAY) )
     {
         // Calculate and publish the velocity using a zero-distance update
-        ClearpathServoInstance_t servo = (ClearpathServoInstance_t)pvTimerGetTimerID(xTimer);
-        REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
-        Servo_t *me = &clearpath[servo];
-
         servo_publish_velocity( me->identifier, 0 );
 
-        xSemaphoreGive(xClearpathMutex);
+        xSemaphoreGive(me->mutex);
     }
 }
 
