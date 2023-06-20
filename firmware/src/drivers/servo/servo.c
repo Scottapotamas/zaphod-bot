@@ -143,6 +143,7 @@ PRIVATE void servo_load_configuration( ClearpathServoInstance_t servo );
 
 PRIVATE void servo_load_hardware( ClearpathServoInstance_t servo);
 
+PRIVATE void servo_set_target_angle_limited( ClearpathServoInstance_t servo, float angle_degrees );
 
 PRIVATE bool servo_get_connected_estimate( ClearpathServoInstance_t servo );
 
@@ -310,23 +311,16 @@ servo_disable_all_hard( void )
 /* -------------------------------------------------------------------------- */
 
 // Calculates and sets target position, constrains input to legal angles only
-PUBLIC void
+PRIVATE void
 servo_set_target_angle_limited( ClearpathServoInstance_t servo, float angle_degrees )
 {
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
+    Servo_t *me = &clearpath[servo];
 
-    // TODO: how long should we wait for the mutex?
-//    if( xSemaphoreTake( xClearpathMutex, portMAX_DELAY) )
-//    {
-        Servo_t *me = &clearpath[servo];
-
-        if( angle_degrees > me->config.angle_min && angle_degrees < me->config.angle_max )
-        {
-            me->angle_target_steps = convert_angle_steps( me, angle_degrees );
-        }
-
-//        xSemaphoreGive( xClearpathMutex );
-//    }
+    if( angle_degrees > me->config.angle_min && angle_degrees < me->config.angle_max )
+    {
+        me->angle_target_steps = convert_angle_steps( me, angle_degrees );
+    }
 }
 
 /* -------------------------------------------------------------------------- */
@@ -376,6 +370,9 @@ PUBLIC void servo_task( void* arg )
     Servo_t *me = arg;
     ENSURE( me );
 
+    PublishedEvent new_data = { 0 };
+    bool event_ready = false;
+
     // Early exit if not configured
     if( !me->config.installed )
     {
@@ -384,51 +381,55 @@ PUBLIC void servo_task( void* arg )
 
     for(;;)
     {
-        // Wait for a command or new sensor data
-        PublishedEvent new_data = { 0 };
-        xQueueReceive( me->event_sub->queue, &new_data, portMAX_DELAY );
+        // Block until a command or new sensor data arrives
+        event_ready = xQueueReceive( me->event_sub->queue, &new_data, portMAX_DELAY );
 
+        // Get access to the servo's data
         if( xSemaphoreTake( me->mutex, pdMS_TO_TICKS(1) ) )
         {
-            switch( new_data.topic )
+            // Handle pending events
+            while( event_ready )
             {
-                case SERVO_POWER:
-                    if( new_data.data.stamped.index == me->identifier )
-                    {
-                        me->power = new_data.data.stamped.value.f32;
-                    }
-                    break;
+                switch( new_data.topic )
+                {
+                    case SERVO_POWER:
+                        if( new_data.data.stamped.index == me->identifier )
+                        {
+                            me->power = new_data.data.stamped.value.f32;
+                        }
+                        break;
 
-                case SENSOR_SERVO_HLFB:
-                    if( new_data.data.stamped.index == me->identifier )
-                    {
-                        me->hlfb = new_data.data.stamped.value.f32;
-                    }
-                    break;
+                    case SENSOR_SERVO_HLFB:
+                        if( new_data.data.stamped.index == me->identifier )
+                        {
+                            me->hlfb = new_data.data.stamped.value.f32;
+                        }
+                        break;
 
-                case OVERWATCH_SERVO_ENABLE:
-                    me->enabled = true;
-                    break;
+                    case OVERWATCH_SERVO_ENABLE:
+                        me->enabled = true;
+                        break;
 
-                case OVERWATCH_SERVO_DISABLE:
-                    me->enabled = false;
-                    break;
+                    case OVERWATCH_SERVO_DISABLE:
+                        me->enabled = false;
+                        break;
 
-                case SERVO_TARGET_DEGREES:
-                    if( new_data.data.stamped.index == me->identifier )
-                    {
-                        // TODO the set_target_angle function also wants the mutex...
-                        servo_set_target_angle_limited( me->identifier, new_data.data.stamped.value.f32 );
-                    }
-                    break;
+                    case SERVO_TARGET_DEGREES:
+                            servo_set_target_angle_limited( me->identifier,
+                                                        new_data.data.f_triple[me->identifier] );
+                        break;
 
-                default:
-                    // Why did we receive a signal that we didn't subscribe to?
-                    ASSERT(false);
-                    break;
+                    default:
+                        // Why did we receive a signal that we didn't subscribe to?
+                        ASSERT(false);
+                        break;
+                }
+
+                // If more events are pending, process those as immediately
+                event_ready = xQueueReceive( me->event_sub->queue, &new_data, 0 );
             }
 
-
+            // TODO: tidy up servo calculations/working variables
             float servo_feedback = me->hlfb - me->ic_feedback_trim;
 
             // Check if the servo has provided HLFB signals as proxy for 'detection'
@@ -740,7 +741,6 @@ PUBLIC void servo_task( void* arg )
         }
     }  // end task loop
 }
-
 
 PRIVATE void servo_delay_us( uint32_t delay_us )
 {

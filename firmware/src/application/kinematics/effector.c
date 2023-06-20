@@ -153,19 +153,9 @@ PUBLIC void effector_task( void* arg )
                     // Ask the motors to please move to the new target angles
                     PublishedEvent servo_update = { 0 };
                     servo_update.topic = SERVO_TARGET_DEGREES;
-                    servo_update.data.stamped.timestamp = xTaskGetTickCount();
-
-                    // TODO: this should be a single event, not three with indexing?
-                    servo_update.data.stamped.index = 0;
-                    servo_update.data.stamped.value.f32 = angle_target.a1;
-                    broker_publish( &servo_update );
-
-                    servo_update.data.stamped.index = 1;
-                    servo_update.data.stamped.value.f32 = angle_target.a2;
-                    broker_publish( &servo_update );
-
-                    servo_update.data.stamped.index = 2;
-                    servo_update.data.stamped.value.f32 = angle_target.a3;
+                    servo_update.data.f_triple[EVT_A] = angle_target.a1;
+                    servo_update.data.f_triple[EVT_B] = angle_target.a2;
+                    servo_update.data.f_triple[EVT_C] = angle_target.a3;
                     broker_publish( &servo_update );
 
                     // The request is now 'the current position'

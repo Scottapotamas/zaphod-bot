@@ -242,16 +242,14 @@ user_interface_init( void )
 
 uint8_t buffer[PARSE_CHUNK_SIZE] = { 0 };
 uint32_t bytes_available = 0;
+PublishedEvent event = { 0 };
 
 PUBLIC void user_interface_task( void *arg )
 {
 
     for(;;)
     {
-        PublishedEvent event = { 0 };
-        bool got_event = xQueueReceive( event_sub->queue, &event, 1 );
-
-        if( got_event )
+        while( xQueueReceive( event_sub->queue, &event, 0 ) )
         {
             switch( event.topic )
             {
@@ -332,7 +330,7 @@ PUBLIC void user_interface_task( void *arg )
 
                 default:
                     // Why did we receive a signal that we didn't subscribe to?
-                    ASSERT(false);
+                    ASSERT( false );
                     break;
             }
         }
@@ -357,6 +355,8 @@ PUBLIC void user_interface_task( void *arg )
         {
             eui_parse( buffer[i], &communication_interface[LINK_EXTERNAL] );
         }
+
+        vTaskDelay(1);
     }
 }
 

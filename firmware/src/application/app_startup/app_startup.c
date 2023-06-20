@@ -65,9 +65,9 @@ void app_startup_init( void )
     path_interpolator_init();
     point_follower_init();
     led_interpolator_init();
+    effector_init();
 
     user_interface_init();
-    effector_init();
     overwatch_init();
 
     // Init all servos
@@ -84,9 +84,13 @@ void app_startup_tasks( void )
 {
     xTaskCreate( broker_task, "pubsub", configMINIMAL_STACK_SIZE, NULL, priority_normal, NULL );
 
-    xTaskCreate( sensors_task, "sensors", configMINIMAL_STACK_SIZE+200, NULL, priority_low, NULL );
-    xTaskCreate( buzzer_task, "buzzer", configMINIMAL_STACK_SIZE, NULL, priority_lowest, NULL );
-    xTaskCreate( fan_task, "fan", configMINIMAL_STACK_SIZE, NULL, priority_lowest, NULL );
+    xTaskCreate( overwatch_task,
+                 "overwatch",
+                 configMINIMAL_STACK_SIZE,
+                 NULL,
+                 priority_highest,
+                 NULL
+    );
 
     xTaskCreate( user_interface_task,
                  "telemetry",
@@ -175,13 +179,9 @@ void app_startup_tasks( void )
                  NULL
     );
 
-    xTaskCreate( overwatch_task,
-                 "overwatch",
-                 configMINIMAL_STACK_SIZE,
-                 NULL,
-                 priority_highest,
-                 NULL
-    );
+    xTaskCreate( sensors_task, "sensors", configMINIMAL_STACK_SIZE+200, NULL, priority_low, NULL );
+    xTaskCreate( buzzer_task, "buzzer", configMINIMAL_STACK_SIZE, NULL, priority_lowest, NULL );
+    xTaskCreate( fan_task, "fan", configMINIMAL_STACK_SIZE, NULL, priority_lowest, NULL );
 
 }
 

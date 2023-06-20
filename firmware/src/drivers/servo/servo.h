@@ -56,8 +56,6 @@ servo_disable_all_hard( void );
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-servo_set_target_angle_limited( ClearpathServoInstance_t servo, float angle_degrees );
 
 PUBLIC void
 servo_set_target_angle_raw( ClearpathServoInstance_t servo, float angle_degrees );
