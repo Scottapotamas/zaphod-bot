@@ -21,7 +21,6 @@ PRIVATE Broker *pubsub_broker = 0;
 
 PUBLIC void broker_init( Broker *instance )
 {
-    // TODO should the broker own this memory or the end-user?
     pubsub_broker = instance;
 
     // Setup the input queue
@@ -71,7 +70,6 @@ PUBLIC void broker_task( void *arg )
 
 /* -------------------------------------------------------------------------- */
 
-//TODO: work out if this function is even needed?
 PUBLIC Broker* broker_get_handle( void )
 {
     return pubsub_broker;

@@ -13,15 +13,11 @@
 #include "semphr.h"
 #include "timers.h"
 
-#include "buzzer.h"
-
 #include "request_handler.h"
 #include "path_interpolator.h"
 #include "point_follower.h"
-#include "effector.h"
-
-#include "led.h"
 #include "led_interpolator.h"
+#include "effector.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -196,8 +192,6 @@ PRIVATE void overwatch_event_handler( void )
             ASSERT(false);
             break;
     }
-
-
 }
 
 PUBLIC void overwatch_task( void* arg )

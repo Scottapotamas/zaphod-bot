@@ -205,7 +205,6 @@ PRIVATE uint32_t request_handler_add( RequestHandlerInstance_t instance, void *e
     BaseType_t result = xQueueSendToBack( me->input_queue, entry_ptr, (TickType_t)0 );
     ENSURE( result == pdPASS );
 
-    // TODO should pool usage metrics include the input queue usage?
     return ( me->num_slots_used * 100 / (me->num_slots) );
 }
 
@@ -361,8 +360,6 @@ PRIVATE void request_handler_emit_ordered_entries( RequestHandlerInstance_t inst
             // Dispatch the move via the output callback
             switch( me->output_cb.type )
             {
-                //TODO: check if a simple 'not invalid' check is sufficient
-                //      if it is, don't handle each type, just call the union with a void pointer?
                 case CALLBACK_MOVEMENT:
                 {
                     // Get the entry

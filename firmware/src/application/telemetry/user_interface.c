@@ -311,17 +311,13 @@ PUBLIC void user_interface_task( void *arg )
 
                 case OVERWATCH_STATE_UPDATE:
                     supervisor_states.supervisor = event.data.stamped.value.u32;
-                    //            eui_send_tracked( MSGID_SUPERVISOR );       // TODO: don't send now, do a debounced send somewhere more automatically?
                     break;
 
                 case OVERWATCH_MODE_UPDATE:
                     supervisor_states.control_mode = event.data.stamped.value.u32;
-                    //            eui_send_tracked( MSGID_SUPERVISOR );       // TODO also consider for automatic debounced output
                     break;
-
                     //            supervisor_states.motors     = motion_servo[0].enabled || motion_servo[1].enabled || motion_servo[2].enabled;
 
-                // TODO also consider for automatic debounced output
                 case QUEUE_UTILISATION_MOVEMENT:
                     supervisor_states.queue_movements = event.data.stamped.value.u32;
                     break;
@@ -471,8 +467,7 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
 
             if( strcmp( (char *)name_rx, MSGID_DEMO_CONFIGURATION ) == 0 && has_payload )
             {
-                // TODO: dedicated demo mode request topic is needed?
-                PublishedEvent modeValue = { .topic = FLAG_MODE_REQUEST,
+                PublishedEvent modeValue = { .topic = FLAG_DEMO_MODE_REQUEST,
                                              .data.stamped.value.u32 = demo_mode_request
                 };
                 broker_publish( &modeValue );
@@ -711,8 +706,6 @@ PRIVATE void sync_begin_queues( void )
     sync_request.data.stamped.timestamp = xTaskGetTickCount();
     sync_request.data.stamped.value.u32 = sync_request.data.stamped.timestamp;  // just assume it's requesting right now
     broker_publish( &sync_request );
-
-    // TODO: allow the UI to request a sync point into the future?
 }
 
 PRIVATE void clear_all_queue( void )
