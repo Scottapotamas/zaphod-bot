@@ -133,7 +133,7 @@ typedef struct
     Subscriber *event_sub;      // subscribe to system events etc
     float power;                // power consumption in watts
     float hlfb;                 // feedback value from servo
-
+    stopwatch_t hlfb_stopwatch; // timestamp of most recent hlfb update
     bool       presence_detected;
 } Servo_t;
 
@@ -367,9 +367,8 @@ PRIVATE bool
 servo_get_connected_estimate( ClearpathServoInstance_t servo )
 {
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
-
-    uint32_t ms_since_last = 10;    // hal_ic_hard_ms_since_value( ServoHardwareMap[servo].ic_feedback );
-    return ( ms_since_last < SERVO_MISSING_HLFB_MS );
+    Servo_t *me = &clearpath[servo];
+    return me->presence_detected;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -413,6 +412,12 @@ PUBLIC void servo_task( void* arg )
                     case SENSOR_SERVO_3_HLFB:
                     case SENSOR_SERVO_4_HLFB:
                         me->hlfb = new_data.data.stamped.value.f32;
+
+                        // Refresh the 'recent hlfb seen' stopwatch
+                        // Instead of using the normal stopwatch function which uses current time
+                        //     stopwatch_deadline_start( &me->hlfb_timestamp, SERVO_MISSING_HLFB_MS );
+                        // use the timestamp value attached to the HLFB reading
+                        me->hlfb_stopwatch = new_data.data.stamped.timestamp + SERVO_MISSING_HLFB_MS;
                         break;
 
                     case OVERWATCH_SERVO_ENABLE:
@@ -441,9 +446,8 @@ PUBLIC void servo_task( void* arg )
             // TODO: tidy up servo calculations/working variables
             float servo_feedback = me->hlfb - me->ic_feedback_trim;
 
-            // Check if the servo has provided HLFB signals as proxy for 'detection'
-            // TODO fix 'servo connected' detection once sensorSubject can send timestamps?
-            me->presence_detected = true;    // servo_get_connected_estimate( servo );
+            // Check if the servo has provided HLFB signals recently as proxy for 'detection'
+            me->presence_detected = !stopwatch_deadline_elapsed( &me->hlfb_stopwatch );
 
             // Servo feedback loss in any active state should trigger immediate error handling behaviour
             if( !me->presence_detected && me->enabled )
