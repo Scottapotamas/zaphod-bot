@@ -18,7 +18,7 @@ DEFINE_THIS_FILE;
 
 PRIVATE TimerHandle_t xShutterReleaseTimer;
 
-PRIVATE Subscriber *events_sub = { 0 };
+PRIVATE Subscriber *event_sub = { 0 };
 
 /* -------------------------------------------------------------------------- */
 
@@ -44,43 +44,50 @@ PUBLIC void shutter_init( void )
     REQUIRE( xShutterReleaseTimer );
 
     // Setup subscriptions to events
-    events_sub = broker_create_subscriber( "psShutter", 3 );
-    REQUIRE( events_sub );
+    event_sub = broker_create_subscriber( "psShutter", 3 );
+    REQUIRE( event_sub );
 
-    broker_add_event_subscription( events_sub, FLAG_REQUEST_SHUTTER_RELEASE );
-    broker_add_event_subscription( events_sub, FLAG_ESTOP );
-    broker_add_event_subscription( events_sub, FLAG_REQUEST_QUEUE_CLEAR );
+    broker_add_event_subscription( event_sub, FLAG_REQUEST_SHUTTER_RELEASE );
+    broker_add_event_subscription( event_sub, FLAG_ESTOP );
+    broker_add_event_subscription( event_sub, FLAG_REQUEST_QUEUE_CLEAR );
 }
 
 /* -------------------------------------------------------------------------- */
 
-//PRIVATE void system_events_callback( ObserverEvent_t event,
-//                                     EventData eData,
-//                                     void *context )
-//{
-//    switch( event )
-//    {
-//        case FLAG_REQUEST_SHUTTER_RELEASE:
-//            if( eData.stamped.data.u32 == 0 )
-//            {
-//                shutter_cancel_capture();
-//            }
-//            else
-//            {
-//                shutter_begin_capture( eData.stamped.data.u32 );
-//            }
-//            break;
-//
-//        case FLAG_REQUEST_QUEUE_CLEAR:
-//        case FLAG_ESTOP:
-//            shutter_cancel_capture();
-//            break;
-//
-//        default:
-//            ASSERT(false);
-//            break;
-//    }
-//}
+PUBLIC void shutter_task( void* arg )
+{
+    PublishedEvent event = { 0 };
+
+    for(;;)
+    {
+        // Block on relevant events
+        xQueueReceive( event_sub->queue, &event, portMAX_DELAY );
+
+        switch( event.topic )
+        {
+            case FLAG_REQUEST_SHUTTER_RELEASE:
+                if( event.data.stamped.value.u32 == 0 )
+                {
+                    shutter_cancel_capture();
+                }
+                else
+                {
+                    shutter_begin_capture( event.data.stamped.value.u32 );
+                }
+            break;
+
+            case FLAG_REQUEST_QUEUE_CLEAR:
+            case FLAG_ESTOP:
+                shutter_cancel_capture();
+                break;
+
+            default:
+                ASSERT(false);
+                break;
+        }
+
+    }
+}
 
 /* -------------------------------------------------------------------------- */
 

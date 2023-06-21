@@ -182,6 +182,7 @@ void app_startup_tasks( void )
     xTaskCreate( sensors_task, "sensors", configMINIMAL_STACK_SIZE+200, NULL, priority_low, NULL );
     xTaskCreate( buzzer_task, "buzzer", configMINIMAL_STACK_SIZE, NULL, priority_lowest, NULL );
     xTaskCreate( fan_task, "fan", configMINIMAL_STACK_SIZE, NULL, priority_lowest, NULL );
+    xTaskCreate( shutter_task, "shutterRel", configMINIMAL_STACK_SIZE, NULL, priority_lowest, NULL );
 
 }
 
