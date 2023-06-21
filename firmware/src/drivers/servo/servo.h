@@ -49,13 +49,10 @@ servo_change_configuration( ClearpathServoInstance_t servo,
 
 /* -------------------------------------------------------------------------- */
 
-/* -------------------------------------------------------------------------- */
-
 PUBLIC void
 servo_disable_all_hard( void );
 
 /* -------------------------------------------------------------------------- */
-
 
 PUBLIC void
 servo_set_target_angle_raw( ClearpathServoInstance_t servo, float angle_degrees );

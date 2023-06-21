@@ -185,30 +185,39 @@ servo_init( ClearpathServoInstance_t servo )
     ENSURE( me->mutex );
 
     // Setup sensor event subscriptions
-    // TODO: better way to handle naming?
     switch( me->identifier )
     {
         case _CLEARPATH_1:
             me->event_sub = broker_create_subscriber( "psCP1", 10 );
+            broker_add_event_subscription( me->event_sub, SERVO_1_POWER );
+            broker_add_event_subscription( me->event_sub, SENSOR_SERVO_1_HLFB );
+            broker_add_event_subscription( me->event_sub, SERVO_TARGET_DEGREES );
             break;
         case _CLEARPATH_2:
             me->event_sub = broker_create_subscriber( "psCP2", 10 );
+            broker_add_event_subscription( me->event_sub, SERVO_2_POWER );
+            broker_add_event_subscription( me->event_sub, SENSOR_SERVO_2_HLFB );
+            broker_add_event_subscription( me->event_sub, SERVO_TARGET_DEGREES );
             break;
         case _CLEARPATH_3:
             me->event_sub = broker_create_subscriber( "psCP3", 10 );
+            broker_add_event_subscription( me->event_sub, SERVO_3_POWER );
+            broker_add_event_subscription( me->event_sub, SENSOR_SERVO_3_HLFB );
+            broker_add_event_subscription( me->event_sub, SERVO_TARGET_DEGREES );
             break;
         case _CLEARPATH_4:
             me->event_sub = broker_create_subscriber( "psCP4", 10 );
+            broker_add_event_subscription( me->event_sub, SERVO_4_POWER );
+            broker_add_event_subscription( me->event_sub, SENSOR_SERVO_4_HLFB );
+
+            // TODO: expansion motor needs to subscribe to a target angle topic
             break;
     }
     ENSURE( me->event_sub );
 
-    broker_add_event_subscription( me->event_sub, SERVO_POWER );
-    broker_add_event_subscription( me->event_sub, SENSOR_SERVO_HLFB );
-
+    // Subscribe to 'unicast to servo' topics
     broker_add_event_subscription( me->event_sub, OVERWATCH_SERVO_ENABLE );
     broker_add_event_subscription( me->event_sub, OVERWATCH_SERVO_DISABLE );
-    broker_add_event_subscription( me->event_sub, SERVO_TARGET_DEGREES );
 
     // Used for servo statistics publishing
     me->servo_stats_timer = xTimerCreate("servoStatsTimer",
@@ -392,18 +401,18 @@ PUBLIC void servo_task( void* arg )
             {
                 switch( new_data.topic )
                 {
-                    case SERVO_POWER:
-                        if( new_data.data.stamped.index == me->identifier )
-                        {
-                            me->power = new_data.data.stamped.value.f32;
-                        }
+                    case SERVO_1_POWER:
+                    case SERVO_2_POWER:
+                    case SERVO_3_POWER:
+                    case SERVO_4_POWER:
+                        me->power = new_data.data.stamped.value.f32;
                         break;
 
-                    case SENSOR_SERVO_HLFB:
-                        if( new_data.data.stamped.index == me->identifier )
-                        {
-                            me->hlfb = new_data.data.stamped.value.f32;
-                        }
+                    case SENSOR_SERVO_1_HLFB:
+                    case SENSOR_SERVO_2_HLFB:
+                    case SENSOR_SERVO_3_HLFB:
+                    case SENSOR_SERVO_4_HLFB:
+                        me->hlfb = new_data.data.stamped.value.f32;
                         break;
 
                     case OVERWATCH_SERVO_ENABLE:
@@ -415,8 +424,8 @@ PUBLIC void servo_task( void* arg )
                         break;
 
                     case SERVO_TARGET_DEGREES:
-                            servo_set_target_angle_limited( me->identifier,
-                                                        new_data.data.f_triple[me->identifier] );
+                        servo_set_target_angle_limited( me->identifier,
+                                                    new_data.data.f_triple[me->identifier] );
                         break;
 
                     default:
@@ -727,8 +736,7 @@ PUBLIC void servo_task( void* arg )
             if( STATE_IS_TRANSITIONING )
             {
                 PublishedEvent state_update = { 0 };
-                state_update.topic = SERVO_STATE;
-                state_update.data.stamped.index = me->identifier;
+                state_update.topic = SERVO_1_STATE + me->identifier;
                 state_update.data.stamped.value.u32 = me->nextState;
                 broker_publish( &state_update );
             }
@@ -880,8 +888,7 @@ PRIVATE void servo_publish_angle( ClearpathServoInstance_t servo )
     Servo_t *me = &clearpath[servo];
 
     PublishedEvent angle_update = { 0 };
-    angle_update.topic = SERVO_POSITION;
-    angle_update.data.stamped.index = me->identifier;
+    angle_update.topic = SERVO_1_POSITION + me->identifier;
     angle_update.data.stamped.value.f32 = convert_steps_angle( me, me->angle_current_steps);
     angle_update.data.stamped.timestamp = xTaskGetTickCount();
     broker_publish( &angle_update );
@@ -908,8 +915,7 @@ PRIVATE void servo_publish_velocity( ClearpathServoInstance_t servo, int32_t ste
 
     // Publish the velocity value
     PublishedEvent vel_update = { 0 };
-    vel_update.topic = SERVO_SPEED;
-    vel_update.data.stamped.index = me->identifier;
+    vel_update.topic = SERVO_1_SPEED + me->identifier;
     vel_update.data.stamped.timestamp = timestamp_now;
     vel_update.data.stamped.value.f32 = convert_steps_angle( me, steps_since_last ) / (float)delta_time * 1000.0f;
     broker_publish( &vel_update );

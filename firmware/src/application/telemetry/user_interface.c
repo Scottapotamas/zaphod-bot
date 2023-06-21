@@ -187,11 +187,29 @@ user_interface_init( void )
     broker_add_event_subscription( event_sub, SENSOR_TEMPERATURE_EXTERNAL );
     broker_add_event_subscription( event_sub, SENSOR_TEMPERATURE_MICRO );
 
-    broker_add_event_subscription( event_sub, SENSOR_SERVO_HLFB );
-    broker_add_event_subscription( event_sub, SERVO_POWER );
-    broker_add_event_subscription( event_sub, SERVO_STATE );
-    broker_add_event_subscription( event_sub, SERVO_POSITION );
-    broker_add_event_subscription( event_sub, SERVO_SPEED );
+    broker_add_event_subscription( event_sub, SENSOR_SERVO_1_HLFB );
+    broker_add_event_subscription( event_sub, SERVO_1_POWER );
+    broker_add_event_subscription( event_sub, SERVO_1_STATE );
+    broker_add_event_subscription( event_sub, SERVO_1_POSITION );
+    broker_add_event_subscription( event_sub, SERVO_1_SPEED );
+
+    broker_add_event_subscription( event_sub, SENSOR_SERVO_2_HLFB );
+    broker_add_event_subscription( event_sub, SERVO_2_POWER );
+    broker_add_event_subscription( event_sub, SERVO_2_STATE );
+    broker_add_event_subscription( event_sub, SERVO_2_POSITION );
+    broker_add_event_subscription( event_sub, SERVO_2_SPEED );
+
+    broker_add_event_subscription( event_sub, SENSOR_SERVO_3_HLFB );
+    broker_add_event_subscription( event_sub, SERVO_3_POWER );
+    broker_add_event_subscription( event_sub, SERVO_3_STATE );
+    broker_add_event_subscription( event_sub, SERVO_3_POSITION );
+    broker_add_event_subscription( event_sub, SERVO_3_SPEED );
+
+    broker_add_event_subscription( event_sub, SENSOR_SERVO_4_HLFB );
+    broker_add_event_subscription( event_sub, SERVO_4_POWER );
+    broker_add_event_subscription( event_sub, SERVO_4_STATE );
+    broker_add_event_subscription( event_sub, SERVO_4_POSITION );
+    broker_add_event_subscription( event_sub, SERVO_4_SPEED );
 
     broker_add_event_subscription( event_sub, EFFECTOR_POSITION );
     broker_add_event_subscription( event_sub, EFFECTOR_SPEED );
@@ -277,24 +295,39 @@ PUBLIC void user_interface_task( void *arg )
                     system_stats.temp_cpu = event.data.stamped.value.f32 * 100.0f;
                     break;
 
-                case SERVO_POWER:
-                    motion_servo[event.data.stamped.index].power = event.data.stamped.value.f32 * 10.0f;
+                case SERVO_1_POWER:
+                case SERVO_2_POWER:
+                case SERVO_3_POWER:
+                case SERVO_4_POWER:
+                    motion_servo[event.topic - SERVO_1_POWER].power = event.data.stamped.value.f32 * 10.0f;
                     break;
 
-                case SENSOR_SERVO_HLFB:
-                    motion_servo[event.data.stamped.index].feedback = event.data.stamped.value.f32 * 10.0f;
+                case SENSOR_SERVO_1_HLFB:
+                case SENSOR_SERVO_2_HLFB:
+                case SENSOR_SERVO_3_HLFB:
+                case SENSOR_SERVO_4_HLFB:
+                    motion_servo[event.topic - SENSOR_SERVO_1_HLFB].feedback = event.data.stamped.value.f32 * 10.0f;
                     break;
 
-                case SERVO_STATE:
-                    motion_servo[event.data.stamped.index].state = event.data.stamped.value.u32;
+                case SERVO_1_STATE:
+                case SERVO_2_STATE:
+                case SERVO_3_STATE:
+                case SERVO_4_STATE:
+                    motion_servo[event.topic - SERVO_1_STATE].state = event.data.stamped.value.u32;
                     break;
 
-                case SERVO_POSITION:
-                    motion_servo[event.data.stamped.index].target_angle = event.data.stamped.value.f32 * 100.0f;
+                case SERVO_1_POSITION:
+                case SERVO_2_POSITION:
+                case SERVO_3_POSITION:
+                case SERVO_4_POSITION:
+                    motion_servo[event.topic - SERVO_1_POSITION].target_angle = event.data.stamped.value.f32 * 100.0f;
                     break;
 
-                case SERVO_SPEED:
-                    motion_servo[event.data.stamped.index].speed = event.data.stamped.value.f32 * 10.0f;
+                case SERVO_1_SPEED:
+                case SERVO_2_SPEED:
+                case SERVO_3_SPEED:
+                case SERVO_4_SPEED:
+                    motion_servo[event.topic - SERVO_1_SPEED].speed = event.data.stamped.value.f32 * 10.0f;
                     break;
 
                 case EFFECTOR_POSITION:

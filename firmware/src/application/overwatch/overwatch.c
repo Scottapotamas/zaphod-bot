@@ -101,7 +101,10 @@ PUBLIC void overwatch_init( void )
     broker_add_event_subscription( event_sub, FLAG_REQUEST_QUEUE_CLEAR );
 
     // Subsystem state updates
-    broker_add_event_subscription( event_sub, SERVO_STATE );
+    broker_add_event_subscription( event_sub, SERVO_1_STATE );
+    broker_add_event_subscription( event_sub, SERVO_2_STATE );
+    broker_add_event_subscription( event_sub, SERVO_3_STATE );
+    broker_add_event_subscription( event_sub, SERVO_4_STATE );
     broker_add_event_subscription( event_sub, EFFECTOR_NEAR_HOME );
 
     broker_add_event_subscription( event_sub, FLAG_EFFECTOR_VIOLATION );
@@ -141,9 +144,13 @@ PRIVATE void overwatch_event_handler( void )
             mode_mediator_request_rehome();
             break;
 
-        case SERVO_STATE:   // A servo changed state...
+        // A servo changed state..
+        case SERVO_1_STATE:
+        case SERVO_2_STATE:
+        case SERVO_3_STATE:
+        case SERVO_4_STATE:
             // TODO don't use hardcoded SERVO_STATE_ACTIVE value of 7 in state check
-            me->servo_active[event.data.stamped.index] = ( event.data.stamped.value.u32 == 7);
+            me->servo_active[event.topic - SERVO_1_STATE] = ( event.data.stamped.value.u32 == 7);
             break;
 
         case FLAG_SYNC_EPOCH:

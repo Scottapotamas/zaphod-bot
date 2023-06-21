@@ -123,7 +123,6 @@ PUBLIC void sensors_init( void )
     data[IC_SERVO_4_HLFB].converter = hal_servo_hlfb;
     data[IC_FAN_SPEED].converter = hal_fan_tacho_rpm;
 
-
     // Configure the hardware peripherals
     hal_adc_init( sensors_callback_adc );
     hal_ic_hard_init( sensors_callback_input_capture );
@@ -150,15 +149,13 @@ PUBLIC void sensors_task( void *arg )
         // Block on HAL ISR callbacks putting raw data into the queue
         HalInput_t new_data = { 0 };
         xQueueReceive( xHalQueue, &new_data, portMAX_DELAY );
-
         REQUIRE( new_data.type < HAL_NUM_FIELDS );
 
         // Maintain stats on the data
         uint16_t average = average_short_update( &data[new_data.type].stats, new_data.value );
 
         // Prep notification structure, perform unit conversions
-        ObserverEvent_t topic;  // event flag to publish
-        PublishedEvent signal;       // event structure being sent
+        PublishedEvent signal;
 
         signal.data.stamped.timestamp = new_data.timestamp;
 
@@ -171,32 +168,8 @@ PUBLIC void sensors_task( void *arg )
             signal.data.stamped.value.u32 = average;
         }
 
-        // Handle 'instanced' events
-        topic = new_data.type;
-        if( new_data.type > ADC_SERVO_4_CURRENT )
-        {
-            topic -= ADC_SERVO_4_CURRENT;
-        }
-
-        if( new_data.type > IC_SERVO_4_HLFB )
-        {
-            topic -= (IC_SERVO_4_HLFB - IC_SERVO_1_HLFB );
-        }
-
-        if( new_data.type >= ADC_SERVO_1_CURRENT && new_data.type <= ADC_SERVO_4_CURRENT )
-        {
-            topic = SENSOR_SERVO_CURRENT;
-            signal.data.stamped.index = new_data.type - ADC_SERVO_1_CURRENT;
-        }
-
-        if( new_data.type >= IC_SERVO_1_HLFB && new_data.type <= IC_SERVO_4_HLFB )
-        {
-            topic = SENSOR_SERVO_HLFB;
-            signal.data.stamped.index = new_data.type - IC_SERVO_1_HLFB;
-        }
-
         // Notify upstream observers of the new data
-        signal.topic = topic;
+        signal.topic = new_data.type;
         broker_publish( &signal );
 
         // Publish additional pre-transformed 'servo power' values
@@ -207,11 +180,11 @@ PUBLIC void sensors_task( void *arg )
             // Assumptions:
             //  - current reading already converted to amps,
             //  - The current reading timestamp should be used
-            //  - index is set correctly for the servo we're referencing
+            //  - Power topics are in same, sequential order as current
 
             // Apply voltage calc to get power, publish it.
             signal.data.stamped.value.f32 *= hv_voltage;
-            signal.topic = SERVO_POWER;
+            signal.topic = new_data.type + SERVO_1_POWER;
             broker_publish( &signal );
         }
 
