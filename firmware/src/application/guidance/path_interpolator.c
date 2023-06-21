@@ -116,15 +116,22 @@ PUBLIC void path_interpolator_request_homing_move( void )
     MotionPlanner_t *me = &planner;
 
     Movement_t homing_move = { 0 };
-    homing_move.metadata.type       = _POINT_TRANSIT;
+    homing_move.metadata.type       = _LINE;
     homing_move.metadata.ref        = _POS_ABSOLUTE;
-    homing_move.metadata.num_pts    = 1;
+    homing_move.metadata.num_pts    = 2;
     homing_move.duration            = 800;
     homing_move.sync_offset         = 0;
 
-    homing_move.points[0].x = 0;
-    homing_move.points[0].y = 0;
-    homing_move.points[0].z = 0;
+    homing_move.points[_LINE_START].x = effector_position.x;
+    homing_move.points[_LINE_START].y = effector_position.y;
+    homing_move.points[_LINE_START].z = effector_position.z;
+
+    homing_move.points[_LINE_END].x = 0;
+    homing_move.points[_LINE_END].y = 0;
+    homing_move.points[_LINE_END].z = 0;
+
+    // Convert the line move to smoothed bezier line (ramping velocity up/down)
+    cartesian_plan_smoothed_line( &homing_move, 0.005f, 0.005f );
 
     path_interpolator_queue_request( &homing_move );
     path_interpolator_set_epoch_reference( xTaskGetTickCount() );
