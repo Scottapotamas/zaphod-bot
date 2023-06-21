@@ -41,7 +41,6 @@ PUBLIC void mode_mediator_init( void )
 {
     Modes_t *me = &submode_state;
     STATE_INIT_INITIAL(MODE_UNKNOWN);
-
 }
 
 /* -------------------------------------------------------------------------- */
@@ -149,6 +148,8 @@ PUBLIC void mode_mediator_task( void )
 
                 buzzer_sound( BUZZER_MODE_CHANGE_NUM, BUZZER_MODE_CHANGE_TONE, BUZZER_MODE_CHANGE_DURATION );
 
+                // Ask the mechanism to go home
+                path_interpolator_request_homing_move();
                 STATE_TRANSITION_TEST
                 // When at home, transition into desired mode
                 if( submode_state.effector_at_home )
@@ -156,12 +157,6 @@ PUBLIC void mode_mediator_task( void )
                     buzzer_sound( BUZZER_MODE_CHANGED_NUM, BUZZER_MODE_CHANGED_TONE, BUZZER_MODE_CHANGED_DURATION );
                     STATE_NEXT( me->requested_mode );
                 }
-                else    // effector not at home
-                {
-                    // Ask the mechanism to go home
-                    path_interpolator_request_homing_move();
-                }
-
                 STATE_EXIT_ACTION
                 path_interpolator_cleanup();
                 path_interpolator_update_output_callback( NULL );

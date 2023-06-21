@@ -105,8 +105,8 @@ PUBLIC void overwatch_init( void )
     broker_add_event_subscription( event_sub, SERVO_2_STATE );
     broker_add_event_subscription( event_sub, SERVO_3_STATE );
     broker_add_event_subscription( event_sub, SERVO_4_STATE );
-    broker_add_event_subscription( event_sub, EFFECTOR_NEAR_HOME );
 
+    broker_add_event_subscription( event_sub, EFFECTOR_IS_HOME );
     broker_add_event_subscription( event_sub, FLAG_EFFECTOR_VIOLATION );
     broker_add_event_subscription( event_sub, FLAG_PLANNER_VIOLATION );
 
@@ -180,19 +180,11 @@ PRIVATE void overwatch_event_handler( void )
             point_follower_update_effector_position( event.data.s_triple[EVT_X],
                                                      event.data.s_triple[EVT_Y],
                                                      event.data.s_triple[EVT_Z] );
-
-            // Need to work out a 'not at home' event that's separate
-            if( event.data.s_triple[EVT_X] != 0 || event.data.s_triple[EVT_Y] != 0 || event.data.s_triple[EVT_Z] != 0 )
-            {
-                me->effector_home = false;
-                mode_mediator_set_is_homed(false );
-            }
             break;
 
-        case EFFECTOR_NEAR_HOME:
-            // TODO: handle this behaviour in a cleaner manner?
-            me->effector_home = true;
-            mode_mediator_set_is_homed(true);
+        case EFFECTOR_IS_HOME:
+            me->effector_home = event.data.stamped.value.u32;
+            mode_mediator_set_is_homed(event.data.stamped.value.u32 );
             break;
 
         default:

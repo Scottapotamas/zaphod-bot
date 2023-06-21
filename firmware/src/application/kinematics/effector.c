@@ -30,7 +30,9 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 PRIVATE CartesianPoint_t effector_position;    // position of the end effector
 PRIVATE CartesianPoint_t requested_position;   // position we should try to reach in this tick
+
 PRIVATE uint32_t position_update_timestamp;
+PRIVATE bool previously_at_home;
 
 PRIVATE SemaphoreHandle_t xNewEffectorTargetSemaphore;
 PRIVATE SemaphoreHandle_t xEffectorMutex;
@@ -40,7 +42,7 @@ PRIVATE TimerHandle_t xEffectorStatsTimer;
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE bool effector_is_near_home( CartesianPoint_t *position );
+PRIVATE bool effector_is_home( CartesianPoint_t *position );
 
 PRIVATE void effector_publish_velocity( uint32_t distance_since_last );
 
@@ -56,6 +58,7 @@ effector_init( void )
     memset( &effector_position, 0, sizeof(CartesianPoint_t) );
     memset( &requested_position, 0, sizeof(CartesianPoint_t) );
     position_update_timestamp = 0;
+    previously_at_home = false;
 
     xNewEffectorTargetSemaphore = xSemaphoreCreateBinary();
     xEffectorMutex = xSemaphoreCreateMutex();
@@ -111,6 +114,7 @@ effector_reset( void )
         memset( &effector_position, 0, sizeof(CartesianPoint_t));
         memset( &requested_position, 0, sizeof(CartesianPoint_t));
         position_update_timestamp = 0;
+        previously_at_home = false;
 
         xSemaphoreGive( xEffectorMutex );
         xSemaphoreGive( xNewEffectorTargetSemaphore );
@@ -142,9 +146,9 @@ PUBLIC void effector_task( void* arg )
                     alert.data.stamped.timestamp = xTaskGetTickCount();
                     broker_publish( &alert );
                 }
-                else    // under the speed guard
+                else    // within the speed guard
                 {
-                    // target motor shaft angle in degrees
+                    // Target motor shaft angle in degrees
                     JointAngles_t angle_target = { 0.0f, 0.0f, 0.0f };
 
                     // Calculate a motor angle solution for the cartesian position
@@ -158,9 +162,6 @@ PUBLIC void effector_task( void* arg )
                     servo_update.data.f_triple[EVT_C] = angle_target.a3;
                     broker_publish( &servo_update );
 
-                    // The request is now 'the current position'
-                    memcpy( &effector_position, &requested_position, sizeof(CartesianPoint_t) );
-
                     // Notify the system of the effector position
                     PublishedEvent pos_update = { 0 };
                     pos_update.topic = EFFECTOR_POSITION;
@@ -173,13 +174,21 @@ PUBLIC void effector_task( void* arg )
                     effector_publish_velocity( proposed_distance_um );
 
                     // Overseer tasks want to be notified when the effector is at the home position
-                    if( effector_is_near_home( &effector_position ) )
+                    bool currently_at_home = effector_is_home( &requested_position );
+
+                    // We only want to fire the event when reaching/leaving home
+                    if( previously_at_home ^ currently_at_home )
                     {
                         PublishedEvent home_update = { 0 };
-                        home_update.topic = EFFECTOR_NEAR_HOME;
+                        home_update.topic = EFFECTOR_IS_HOME;
                         home_update.data.stamped.timestamp = xTaskGetTickCount();
+                        home_update.data.stamped.value.u32 = currently_at_home;
                         broker_publish( &home_update );
                     }
+
+                    // The requested position we handled is now 'the current position'
+                    memcpy( &effector_position, &requested_position, sizeof(CartesianPoint_t) );
+                    previously_at_home = currently_at_home;
 
                     // Clear the request
                     memset( &requested_position, 0, sizeof(CartesianPoint_t));
@@ -194,13 +203,17 @@ PUBLIC void effector_task( void* arg )
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE bool
-effector_is_near_home( CartesianPoint_t *position )
+PRIVATE bool effector_is_home( CartesianPoint_t *position )
 {
     // only 1 micron error is tolerated
-    bool x_homed = IS_IN_DEADBAND( position->x, 0, 1 );
-    bool y_homed = IS_IN_DEADBAND( position->y, 0, 1 );
-    bool z_homed = IS_IN_DEADBAND( position->z, 0, 1 );
+//    bool x_homed = IS_IN_DEADBAND( position->x, 0, 1 );
+//    bool y_homed = IS_IN_DEADBAND( position->y, 0, 1 );
+//    bool z_homed = IS_IN_DEADBAND( position->z, 0, 1 );
+
+    // Position must be at 0, 0, 0
+    bool x_homed = ( !position->x );
+    bool y_homed = ( !position->y );
+    bool z_homed = ( !position->z );
 
     return ( x_homed && y_homed && z_homed );
 }

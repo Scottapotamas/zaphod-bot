@@ -46,7 +46,7 @@ typedef enum _SYSTEM_EVENT_FLAG {
     // Effector info
     EFFECTOR_POSITION,
     EFFECTOR_SPEED,
-    EFFECTOR_NEAR_HOME,
+    EFFECTOR_IS_HOME,
 
     // Event flags
     FLAG_ARM,
