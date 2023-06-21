@@ -90,8 +90,8 @@ fan_set_curve( FanCurve_t *curve, uint8_t num_points )
     }
     else
     {
-        // Copy the points into the user curve bank (with some basic range handling
-        for( uint8_t point = 0; point <= num_points; point++ )
+        // Copy the points into the user curve bank (with some basic range handling)
+        for( uint8_t point = 0; point < num_points; point++ )
         {
             user_curve[point].temperature = CLAMP(curve->temperature, 0, 100);
             user_curve[point].percentage = CLAMP(curve->percentage, 0, 100);
