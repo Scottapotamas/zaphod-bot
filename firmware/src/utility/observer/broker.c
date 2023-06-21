@@ -19,12 +19,12 @@ PRIVATE Broker *pubsub_broker = 0;
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void broker_init( Broker *instance )
+PUBLIC void broker_init( Broker *instance, uint32_t rx_queue_depth )
 {
     pubsub_broker = instance;
 
     // Setup the input queue
-    pubsub_broker->queue = xQueueCreate( 30, sizeof(PublishedEvent) );
+    pubsub_broker->queue = xQueueCreate( rx_queue_depth, sizeof(PublishedEvent) );
     ENSURE( pubsub_broker->queue );
     vQueueAddToRegistry( pubsub_broker->queue, "psBroker");  // Debug view annotation
 
@@ -116,8 +116,9 @@ PUBLIC bool broker_destroy_subscriber( Subscriber *subscriber )
         {
             // It exists in the pool, so wipe it out
             subscriber->subscribed_events = 0;
-            xQueueReset( subscriber->queue );
-            vQueueUnregisterQueue( subscriber->queue );
+
+            // Deletion also covers debug annotation removal
+            vQueueDelete( subscriber->queue );
 
             destroyed = true;
         }

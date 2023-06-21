@@ -71,7 +71,7 @@ typedef struct
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void broker_init( Broker *instance );
+PUBLIC void broker_init( Broker *instance, uint32_t rx_queue_depth );
 
 /* -------------------------------------------------------------------------- */
 

@@ -51,7 +51,7 @@ void app_startup_init( void )
     user_interface_set_reset_cause( hal_reset_cause_description( hal_reset_cause() ) );
     user_interface_set_assert_cause( hal_reset_assert_description() );
 
-    broker_init( &pubsub_broker );
+    broker_init( &pubsub_broker, 30 );
 
     sensors_init();
     fan_init();
