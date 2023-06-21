@@ -14,6 +14,7 @@
 
 #include "broker.h"
 #include "signals.h"
+#include "stopwatch.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -33,10 +34,11 @@ DEFINE_THIS_FILE; /* Used for ASSERT checks to define __FILE__ only once */
 
 typedef struct
 {
-    FanState_t previousState;
-    FanState_t currentState;
-    FanState_t nextState;
-    uint8_t    speed;            // as a percentage 0-100, what the fan should be at 'now'
+    FanState_t  previousState;
+    FanState_t  currentState;
+    FanState_t  nextState;
+    uint8_t     speed;            // as a percentage 0-100, what the fan should be at 'now'
+    stopwatch_t timer;            // Available for use inside a given state
 } Fan_t;
 
 FanCurve_t default_curve[NUM_FAN_CURVE_POINTS] = {
@@ -76,7 +78,6 @@ fan_init( void )
 
     broker_add_event_subscription( sensor_sub, SENSOR_FAN_SPEED );
     broker_add_event_subscription( sensor_sub, SENSOR_TEMPERATURE_EXTERNAL );
-
 }
 
 /* -------------------------------------------------------------------------- */
@@ -172,9 +173,12 @@ PUBLIC void fan_task( void *arg )
                     // Stop the fan because we think it's stalled
                     me->speed = 0;
                     hal_pwm_set_percentage_f( _PWM_TIM_FAN, me->speed );
+                    stopwatch_deadline_start( &me->timer, FAN_STALL_WAIT_TIME_MS );
                 STATE_TRANSITION_TEST
-                    vTaskDelay( pdMS_TO_TICKS(FAN_STALL_WAIT_TIME_MS) );
-                    STATE_NEXT( FAN_STATE_START );
+                    if( stopwatch_deadline_elapsed( &me->timer ) )
+                    {
+                        STATE_NEXT( FAN_STATE_START );
+                    }
                 STATE_EXIT_ACTION
                 STATE_END
                 break;
@@ -184,9 +188,12 @@ PUBLIC void fan_task( void *arg )
                     // Set to 100% for a short period
                     me->speed = 100;
                     hal_pwm_set_percentage_f( _PWM_TIM_FAN, me->speed );
+                    stopwatch_deadline_start( &me->timer, FAN_STARTUP_TIME_MS );
                 STATE_TRANSITION_TEST
-                    vTaskDelay( pdMS_TO_TICKS(FAN_STARTUP_TIME_MS) );
-                    STATE_NEXT( FAN_STATE_ON );
+                    if( stopwatch_deadline_elapsed( &me->timer ) )
+                    {
+                        STATE_NEXT( FAN_STATE_ON );
+                    }
                 STATE_EXIT_ACTION
                 STATE_END
                 break;
@@ -226,7 +233,7 @@ fan_speed_at_temp( float temperature )
     else if( (uint8_t)temperature > fan_curve[NUM_FAN_CURVE_POINTS - 1].temperature )
     {
         // Temperature exceeds max LUT value
-        return 100.0f;
+        return 100;
     }
 
     for( uint32_t i = 0; i < NUM_FAN_CURVE_POINTS - 1; i++ )
@@ -245,7 +252,7 @@ fan_speed_at_temp( float temperature )
         }
     }
 
-    return 97;    // Should have returned with a valid percentage by now, fail ON for safety.
+    return 100;    // Should have returned with a valid percentage by now, fail ON for safety.
 }
 
 /* -------------------------------------------------------------------------- */
