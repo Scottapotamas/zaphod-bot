@@ -22,6 +22,7 @@ target_link_libraries(
         PRIVATE
         hal_pwm_lib
         utility_observer_lib
+        utility_stopwatch_lib
         FreeRTOS::ARM_CM4F
         STM32::F4
 )

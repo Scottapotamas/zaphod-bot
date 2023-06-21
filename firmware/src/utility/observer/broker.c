@@ -1,7 +1,6 @@
 /* -------------------------------------------------------------------------- */
 
 #include "broker.h"
-
 #include "qassert.h"
 
 /* -------------------------------------------------------------------------- */
@@ -10,11 +9,25 @@ DEFINE_THIS_FILE;
 
 /* -------------------------------------------------------------------------- */
 
+/**
+ * @brief   Finds the first unused subscriber slot in the Broker's pool storage.
+ *          Uses a dumb linear search.
+ *          A subscriber slot is considered empty if the queue handle isn't setup.
+ * @returns Slot array index value, or SIZE_MAX if failed.
+ */
 PRIVATE size_t broker_find_empty_subscriber_slot( void );
+
+/**
+ * @brief   Finds the matching subscription entry in the broker's pool
+ *          Uses a dumb linear search.
+ * @param   Pointer to an existing Subscriber stored in the pool
+ * @returns Slot array index value, or SIZE_MAX if failed.
+ */
 PRIVATE size_t broker_find_subscriber_slot( Subscriber *slot_ptr );
 
 /* -------------------------------------------------------------------------- */
 
+/// Local pointer to the end-user's broker instance
 PRIVATE Broker *pubsub_broker = 0;
 
 /* -------------------------------------------------------------------------- */
@@ -34,13 +47,14 @@ PUBLIC void broker_init( Broker *instance, uint32_t rx_queue_depth )
 }
 
 /* -------------------------------------------------------------------------- */
-PublishedEvent inbound_event = { 0 };
 
 PUBLIC void broker_task( void *arg )
 {
     REQUIRE( pubsub_broker );
     REQUIRE( pubsub_broker->mutex );
     REQUIRE( pubsub_broker->queue );
+
+    PublishedEvent inbound_event = { 0 };
 
     for(;;)
     {
@@ -59,7 +73,7 @@ PUBLIC void broker_task( void *arg )
                 if( sub->queue && (sub->subscribed_events & ((uint64_t)1 << inbound_event.topic)) )
                 {
                     // Dispatch the event to the subscriber's queue
-                    xQueueSendToBack( sub->queue, &inbound_event, 0 );
+                    ENSURE( xQueueSendToBack( sub->queue, &inbound_event, 0 ) );
                 }
             }
 
@@ -134,7 +148,7 @@ PUBLIC bool broker_destroy_subscriber( Subscriber *subscriber )
 PUBLIC void broker_publish( PublishedEvent *evt )
 {
     // Add the event to the broker's input queue
-    xQueueSendToBack( pubsub_broker->queue, evt, 0 );
+    ENSURE( xQueueSendToBack( pubsub_broker->queue, evt, 0 ) );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -143,6 +157,7 @@ PUBLIC void broker_add_event_subscription( Subscriber *subscriber, ObserverEvent
 {
     REQUIRE( subscriber );
     REQUIRE( pubsub_broker );
+    REQUIRE( event < SYSTEM_NUM_FIELDS);
 
     if( xSemaphoreTake( pubsub_broker->mutex, portMAX_DELAY ) )
     {
@@ -195,8 +210,6 @@ PRIVATE size_t broker_find_empty_subscriber_slot( void )
 
 /* -------------------------------------------------------------------------- */
 
-/// Finds the subscription entry in the broker's pool from pointer reference
-/// Returns the slot index if it exists, otherwise max size_t
 PRIVATE size_t broker_find_subscriber_slot( Subscriber *slot_ptr )
 {
     REQUIRE( pubsub_broker );
