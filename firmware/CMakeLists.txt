@@ -65,6 +65,7 @@ target_link_libraries(
         PRIVATE
         app_startup_lib
         hal_system_lib
+        hal_watchdog_lib
         FreeRTOS::Heap::4
         FreeRTOS::ARM_CM4F
         HAL::STM32::F4::LL_RCC

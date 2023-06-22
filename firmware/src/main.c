@@ -6,6 +6,7 @@
 
 #include "app_startup.h"
 #include "hal_reset.h"
+#include "hal_watchdog.h"
 // TODO: move DWT related into a system/core HAL wrapper
 #include "stm32f4xx_ll_cortex.h"
 
@@ -33,6 +34,7 @@ void vApplicationIdleHook(void)
 {
     // A reasonable place to feed the watchdog if no other critical task makes sense
 
+    hal_watchdog_refresh();
 #ifndef configUSE_TICKLESS_IDLE
     // Put micro into lower power state.
     __WFI();

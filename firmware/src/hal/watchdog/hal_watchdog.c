@@ -3,7 +3,6 @@
 #include "hal_watchdog.h"
 #include "stm32f4xx_ll_iwdg.h"
 
-
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void

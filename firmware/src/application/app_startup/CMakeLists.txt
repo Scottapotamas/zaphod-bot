@@ -32,6 +32,7 @@ target_link_libraries(app_startup_lib
         shutter_release_lib
         hal_system_lib
         hal_gpio_lib
+        hal_watchdog_lib
         FreeRTOS::Timers
         FreeRTOS::Heap::4
         FreeRTOS::ARM_CM4F
