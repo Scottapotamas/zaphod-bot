@@ -35,7 +35,6 @@ ENDIF()
 
 add_executable(${PROJ_NAME})
 
-
 set(FREERTOS_CONFIG_H ${CMAKE_SOURCE_DIR}/src/)
 include_directories(src/common)
 
@@ -73,8 +72,11 @@ target_link_libraries(
         STM32::NoSys
 )
 
+# Add the --print-memory-usage flag for detailed memory usage stats
+target_link_options(${PROJ_NAME} PRIVATE -Wl,--print-memory-usage)
+
 stm32_add_linker_script(${PROJ_NAME} PRIVATE F429VETx.ld)
 
 stm32_generate_binary_file(${PROJ_NAME})
 stm32_generate_hex_file(${PROJ_NAME})
-stm32_print_size_of_target(${PROJ_NAME})
+#stm32_print_size_of_target(${PROJ_NAME})
