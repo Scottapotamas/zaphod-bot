@@ -12,6 +12,12 @@
 
 /* -------------------------------------------------------------------------- */
 
+// Provide the heap storage manually to control placement location
+// Enabled via configAPPLICATION_ALLOCATED_HEAP in FreeRTOSConfig.h
+uint8_t ucHeap[ configTOTAL_HEAP_SIZE ] __attribute__((section(".ccmram")));
+
+/* -------------------------------------------------------------------------- */
+
 int main(void)
 {
     app_startup_init();
