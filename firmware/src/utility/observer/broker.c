@@ -2,6 +2,7 @@
 
 #include "broker.h"
 #include "qassert.h"
+#include <string.h>
 
 /* -------------------------------------------------------------------------- */
 
@@ -35,6 +36,7 @@ PRIVATE Broker *pubsub_broker = 0;
 PUBLIC void broker_init( Broker *instance, uint32_t rx_queue_depth )
 {
     pubsub_broker = instance;
+    memset( instance, 0, sizeof(Broker) );  // zero it out
 
     // Setup the input queue
     pubsub_broker->queue = xQueueCreate( rx_queue_depth, sizeof(PublishedEvent) );

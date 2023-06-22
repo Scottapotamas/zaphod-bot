@@ -30,17 +30,18 @@
 
 /* -------------------------------------------------------------------------- */
 
-const uint8_t priority_lowest = tskIDLE_PRIORITY + 1;
-const uint8_t priority_low = priority_lowest + 1;
-const uint8_t priority_normal = priority_low + 1;
-const uint8_t priority_high = priority_normal + 1;
-const uint8_t priority_highest = priority_high + 1;
+PRIVATE const uint8_t priority_lowest = tskIDLE_PRIORITY + 1;
+PRIVATE const uint8_t priority_low = priority_lowest + 1;
+PRIVATE const uint8_t priority_normal = priority_low + 1;
+PRIVATE const uint8_t priority_high = priority_normal + 1;
+PRIVATE const uint8_t priority_highest = priority_high + 1;
 
-Broker pubsub_broker = { 0 };
+PRIVATE Broker pubsub_broker __attribute__((section(".ccmram")));
+//PRIVATE Broker pubsub_broker;
 
 /* -------------------------------------------------------------------------- */
 
-void app_startup_init( void )
+PUBLIC void app_startup_init( void )
 {
     hal_core_init();
     hal_core_clock_configure();
@@ -80,7 +81,7 @@ void app_startup_init( void )
 
 /* -------------------------------------------------------------------------- */
 
-void app_startup_tasks( void )
+PUBLIC void app_startup_tasks( void )
 {
     xTaskCreate( broker_task, "pubsub", configMINIMAL_STACK_SIZE, NULL, priority_normal, NULL );
 
