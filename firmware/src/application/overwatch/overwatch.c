@@ -255,7 +255,6 @@ PUBLIC void overwatch_task( void* arg )
                     effector_reset();
 
                     STATE_TRANSITION_TEST
-
                     if( !me->requested_arming )
                     {
                         STATE_NEXT( OVERWATCH_DISARMING );

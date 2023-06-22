@@ -45,6 +45,7 @@ PRIVATE void request_handler_notify_usage_metrics( RequestHandlerInstance_t inst
 typedef struct {
     uint32_t key;   // UUID or sortable index value
     bool is_used;   // marks slot usage in the pool
+    // TODO: there are 3 wasted bytes here
 } EntryMetadata_t;
 
 typedef struct
@@ -340,7 +341,7 @@ PRIVATE void request_handler_emit_ordered_entries( RequestHandlerInstance_t inst
     }
 
     // Fill the queue to a reasonable backpressure
-    while( queue_pressure < 90 )
+    while( queue_pressure < 90 && me->num_slots_used )
     {
         int32_t candidate_slot_index = request_handler_find_sorted_candidate( instance );
 

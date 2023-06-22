@@ -5,7 +5,7 @@
 #include "cartesian_types.h"
 #include "movement_types.h"
 
-#define SPEED_SAMPLE_RESOLUTION 15
+#define SPEED_SAMPLE_RESOLUTION 10
 
 PUBLIC mm_per_second_t
 cartesian_move_speed( Movement_t *movement );

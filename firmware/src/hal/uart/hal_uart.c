@@ -61,6 +61,9 @@ PRIVATE HalUart_t hal_uart[HAL_UART_NUM_PORTS];
 /* -------------------------------------------------------------------------- */
 
 PRIVATE void
+hal_uart_rtos_streambuffer_init( HalUartPort_t port );
+
+PRIVATE void
 hal_uart_dma_init( HalUartPort_t port );
 
 PRIVATE void
@@ -104,18 +107,13 @@ hal_uart_init( HalUartPort_t port, uint32_t baudrate )
             h->dma_stream_rx  = LL_DMA_STREAM_0;
             h->dma_channel_rx = LL_DMA_CHANNEL_4;
 
-            h->xRxStreamBuffer = xStreamBufferCreate( HAL_UART_RX_STREAM_SIZE, 1 );
-            REQUIRE(h->xRxStreamBuffer);
-
-            h->xTxStreamBuffer = xStreamBufferCreate( HAL_UART_TX_STREAM_SIZE, 1 );
-            REQUIRE(h->xTxStreamBuffer);
-
             LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_UART5 );
             LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_DMA1 );
 
             hal_gpio_init_alternate( _EXT_OUTPUT_0, LL_GPIO_AF_8, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
             hal_gpio_init_alternate( _EXT_INPUT_0, LL_GPIO_AF_8, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
 
+            hal_uart_rtos_streambuffer_init( HAL_UART_PORT_EXTERNAL );
             hal_uart_dma_init( HAL_UART_PORT_EXTERNAL );
             hal_uart_peripheral_init( h->usart, baudrate );
 
@@ -133,18 +131,13 @@ hal_uart_init( HalUartPort_t port, uint32_t baudrate )
             h->dma_stream_rx  = LL_DMA_STREAM_2;
             h->dma_channel_rx = LL_DMA_CHANNEL_4;
 
-            h->xRxStreamBuffer = xStreamBufferCreate(HAL_UART_RX_STREAM_SIZE, 1);
-            REQUIRE(h->xRxStreamBuffer);
-
-            h->xTxStreamBuffer = xStreamBufferCreate(HAL_UART_TX_STREAM_SIZE, 1);
-            REQUIRE(h->xTxStreamBuffer);
-
             LL_APB2_GRP1_EnableClock( LL_APB2_GRP1_PERIPH_USART1 );
             LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_DMA2 );
 
             hal_gpio_init_alternate( _AUX_UART_RX, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
             hal_gpio_init_alternate( _AUX_UART_TX, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_HIGH, LL_GPIO_PULL_NO );
 
+            hal_uart_rtos_streambuffer_init( HAL_UART_PORT_INTERNAL );
             hal_uart_dma_init( HAL_UART_PORT_INTERNAL );
             hal_uart_peripheral_init( h->usart, baudrate );
 
@@ -161,12 +154,6 @@ hal_uart_init( HalUartPort_t port, uint32_t baudrate )
             h->dma_stream_rx  = LL_DMA_STREAM_5;
             h->dma_channel_rx = LL_DMA_CHANNEL_4;
 
-            h->xRxStreamBuffer = xStreamBufferCreate(HAL_UART_RX_STREAM_SIZE, 1);
-            REQUIRE(h->xRxStreamBuffer);
-
-            h->xTxStreamBuffer = xStreamBufferCreate(HAL_UART_TX_STREAM_SIZE, 1);
-            REQUIRE(h->xTxStreamBuffer);
-
             LL_APB1_GRP1_EnableClock( LL_APB1_GRP1_PERIPH_USART2 );
             LL_AHB1_GRP1_EnableClock( LL_AHB1_GRP1_PERIPH_DMA1 );
 
@@ -175,6 +162,7 @@ hal_uart_init( HalUartPort_t port, uint32_t baudrate )
             //            hal_gpio_init_alternate( _CARD_UART_CTS, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
             //            hal_gpio_init_alternate( _CARD_UART_RTS, LL_GPIO_OUTPUT_PUSHPULL, LL_GPIO_AF_7, LL_GPIO_SPEED_FREQ_VERY_HIGH, LL_GPIO_PULL_NO );
 
+            hal_uart_rtos_streambuffer_init( HAL_UART_PORT_MODULE );
             hal_uart_dma_init( HAL_UART_PORT_MODULE );
             hal_uart_peripheral_init( h->usart, baudrate );
 
@@ -247,6 +235,20 @@ hal_uart_read( HalUartPort_t port, uint8_t *data, uint32_t maxlength )
                                 );
 
     return len;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE void
+hal_uart_rtos_streambuffer_init( HalUartPort_t port )
+{
+    HalUart_t *h = &hal_uart[port];
+
+    h->xRxStreamBuffer = xStreamBufferCreate( HAL_UART_RX_STREAM_SIZE, 8 );
+    REQUIRE(h->xRxStreamBuffer);
+
+    h->xTxStreamBuffer = xStreamBufferCreate( HAL_UART_TX_STREAM_SIZE, 16 );
+    REQUIRE(h->xTxStreamBuffer);
 }
 
 /* -------------------------------------------------------------------------- */
@@ -499,7 +501,7 @@ hal_uart_start_tx( HalUart_t *h )
     /* If transfer is not ongoing */
     if( !LL_DMA_IsEnabledStream( h->dma_peripheral, h->dma_stream_tx ) )
     {
-        // Accept up to 32 bytes of data
+        // Accept up to the max DMA buffer's capacity from the stream
         // StreamBuffer -> buffer for DMA -> UART TX
         size_t bytes_ready_to_send;
         BaseType_t xHigherPriorityTaskWoken = pdFALSE;
@@ -509,7 +511,7 @@ hal_uart_start_tx( HalUart_t *h )
                                                       HAL_UART_TX_DMA_BUFFER_SIZE,
                                                       &xHigherPriorityTaskWoken
                                                       );
-//        taskYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
 
         // Configure DMA with the data
         if( bytes_ready_to_send )
@@ -599,7 +601,7 @@ hal_usart_irq_rx_handler( HalUart_t *h )
         }
     }
 
-    portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
 /* -------------------------------------------------------------------------- */

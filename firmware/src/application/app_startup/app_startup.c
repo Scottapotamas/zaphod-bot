@@ -83,7 +83,12 @@ PUBLIC void app_startup_init( void )
 
 PUBLIC void app_startup_tasks( void )
 {
-    xTaskCreate( broker_task, "pubsub", configMINIMAL_STACK_SIZE, NULL, priority_normal, NULL );
+    xTaskCreate( broker_task,
+                 "pubsub",
+                 configMINIMAL_STACK_SIZE,
+                 NULL,
+                 priority_normal,
+                 NULL );
 
     xTaskCreate( overwatch_task,
                  "overwatch",
