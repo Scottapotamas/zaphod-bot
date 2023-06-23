@@ -206,7 +206,7 @@ export function SendToolpath() {
 
   const sendMovement = useCallback(
     async (move: MovementMove) => {
-      const cancellationToken = new CancellationToken()
+      const cancellationToken = new CancellationToken().deadline(100)
       const message = new Message(MSGID.QUEUE_ADD_MOVE, move)
       message.metadata.ack = true // explicitly request acks
 
@@ -215,10 +215,9 @@ export function SendToolpath() {
       } catch (e) {
         if (cancellationToken.caused(e)) {
           // cancellationToken timed out
-          return
+          throw new Error(`Timed out after 100ms`)
         } else {
-          console.error(e)
-          throw new Error(`Failed to send movement move at sync_offset #${move.sync_offset}`)
+          throw e
         }
       }
     },
@@ -227,7 +226,7 @@ export function SendToolpath() {
 
   const sendLightMove = useCallback(
     async (fade: LightMove) => {
-      const cancellationToken = new CancellationToken()
+      const cancellationToken = new CancellationToken().deadline(100)
       const message = new Message(MSGID.QUEUE_ADD_FADE, fade)
       message.metadata.ack = true // explicitly request acks
 
@@ -236,10 +235,9 @@ export function SendToolpath() {
       } catch (e) {
         if (cancellationToken.caused(e)) {
           // cancellationToken timed out
-          return
+          throw new Error(`Timed out after 100ms`)
         } else {
-          console.error(e)
-          throw new Error(`Failed to send light move at timestamp #${fade.timestamp}`)
+          throw e
         }
       }
     },
@@ -373,6 +371,8 @@ export function SendToolpath() {
 
   useEffect(() => {
     return () => {
+      cancellationTokenRef.current?.cancel()
+
       // clean up the sequence sender on unmount
       getSequenceSender().clear()
     }

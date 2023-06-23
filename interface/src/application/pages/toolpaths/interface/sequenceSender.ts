@@ -11,6 +11,8 @@ export type UpdateQueueInProgress = (
   lightQueueDepth: number,
 ) => void
 
+// TODO: Have the SequenceSender be aware of the connection acceptability and not retry if the connection isn't acceptable
+
 export class SequenceSender {
   // The estimated movement queue depth, updated optimistically
   private hardwareMovementQueueDepth = 0
@@ -132,7 +134,16 @@ export class SequenceSender {
           const shifted = this.lightMoves.shift()!
           this.notifyUIOfOptimisticQueues()
 
-          await this.sendLightMove(shifted)
+          // Try forever.
+          while (!this.cancellationToken.isCancelled()) {
+            try {
+              await this.sendLightMove(shifted)
+              break // out of the infinite loop
+            } catch (err) {
+              console.error(`Failed to send light fade at timestamp ${shifted.timestamp}, retrying, err:`, err)
+            }
+          }
+
           continue
         }
 
@@ -141,7 +152,16 @@ export class SequenceSender {
         const shifted = this.movementMoves.shift()!
         this.notifyUIOfOptimisticQueues()
 
-        await this.sendMovement(shifted)
+        // Try forever.
+        while (!this.cancellationToken.isCancelled()) {
+          try {
+            await this.sendMovement(shifted)
+            break // out of the infinite loop
+          } catch (err) {
+            console.error(`Failed to send light fade at timestamp ${shifted.sync_offset}, retrying, err:`, err)
+          }
+        }
+
         continue
       }
 
@@ -150,7 +170,15 @@ export class SequenceSender {
       const shifted = this.lightMoves.shift()!
       this.notifyUIOfOptimisticQueues()
 
-      await this.sendLightMove(shifted)
+      // Try forever.
+      while (!this.cancellationToken.isCancelled()) {
+        try {
+          await this.sendLightMove(shifted)
+          break // out of the infinite loop
+        } catch (err) {
+          console.error(`Failed to send light fade at timestamp ${shifted.timestamp}, retrying, err:`, err)
+        }
+      }
     }
 
     // we've sent either all the moves, or up to the watermark
