@@ -204,7 +204,7 @@ const layoutDescription = `
 `
 
 const ServoStats = (props: MotorData) => {
-  const expansion_enabled = useHardwareState(state => state[MSGID.USER_CONFIG].flags.expansion_enabled)
+  const expansion_enabled = useHardwareState(state => state[MSGID.USER_CONFIG]?.flags?.expansion_enabled)
 
   if( props.index == 3 && !expansion_enabled )
   {
