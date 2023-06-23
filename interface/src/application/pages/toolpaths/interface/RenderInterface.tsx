@@ -348,10 +348,10 @@ export function SendToolpath() {
 
   const updateOptimisticQueueDepth = useCallback(
     (movementDepth: number, lightQueueDepth: number) => {
-      changeState(state => {
-        state.movementQueueUI = movementDepth
-        state.lightQueueUI = lightQueueDepth
-      })
+      // changeState(state => {
+      //   state.movementQueueUI = movementDepth
+      //   state.lightQueueUI = lightQueueDepth
+      // })
     },
     [],
   )

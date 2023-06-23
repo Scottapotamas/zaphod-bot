@@ -132,7 +132,7 @@ export class SequenceSender {
         if (firstLightMove && firstLightMove.timestamp < movement.sync_offset) {
           this.hardwareLightMoveQueueDepth++
           const shifted = this.lightMoves.shift()!
-          this.notifyUIOfOptimisticQueues()
+
 
           // Try forever.
           while (!this.cancellationToken.isCancelled()) {
@@ -150,7 +150,7 @@ export class SequenceSender {
         // Shift the movement off the queue and send it now
         this.hardwareMovementQueueDepth++
         const shifted = this.movementMoves.shift()!
-        this.notifyUIOfOptimisticQueues()
+
 
         // Try forever.
         while (!this.cancellationToken.isCancelled()) {
@@ -168,7 +168,7 @@ export class SequenceSender {
       // Otherwise there are only light moves left, send the next one
       this.hardwareLightMoveQueueDepth++
       const shifted = this.lightMoves.shift()!
-      this.notifyUIOfOptimisticQueues()
+
 
       // Try forever.
       while (!this.cancellationToken.isCancelled()) {
@@ -181,6 +181,8 @@ export class SequenceSender {
       }
     }
 
+    // Tell the UI about our new queues
+    this.notifyUIOfOptimisticQueues()
     // we've sent either all the moves, or up to the watermark
     this.isFilling = false
   }
