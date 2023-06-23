@@ -16,22 +16,18 @@ export class SequenceSender {
   private hardwareMovementQueueDepth = 0
   private hardwareLightMoveQueueDepth = 0
 
-  // TODO: refactor with the concept that the queue is expressed as usage percentage
-  //       rather than a specific element count
+  // How far should we fill the buffers
   private movementQueueWatermark = 50
   private lightMoveQueueWatermark = 50
 
+  // The queues of movemenst we need to send
   private movementMoves: MovementMove[] = []
   private lightMoves: LightMove[] = []
 
-  private interval: NodeJS.Timeout | null = null
-
-  private isRendering = false
-  private finalMovementTimestamp = 0
-  private cancellationToken = new CancellationToken()
-
+  // When are we done
+  private finalMovementSyncOffset = 0
   private completionDeferred = new Deferred<void>()
-  private initialBatchDeferred = new Deferred<void>()
+  private cancellationToken = new CancellationToken()
 
   constructor(
     private sendMovement: SendMovement,
@@ -41,83 +37,70 @@ export class SequenceSender {
     private updateOptimisticQueueDepth: UpdateQueueInProgress,
   ) {
     this.clear = this.clear.bind(this)
-    this.tick = this.tick.bind(this)
     this.ingest = this.ingest.bind(this)
-    this.stopTimers = this.stopTimers.bind(this)
     this.notifyUIOfOptimisticQueues = this.notifyUIOfOptimisticQueues.bind(this)
-    this.updateHardwareQueues = this.updateHardwareQueues.bind(this)
-    this.updateHardwareProgress = this.updateHardwareProgress.bind(this)
-
+    this.updateHardwareQueuesAndProgress = this.updateHardwareQueuesAndProgress.bind(this)
     this.waitForFrameToComplete = this.waitForFrameToComplete.bind(this)
-    this.waitForInitialBatch = this.waitForInitialBatch.bind(this)
+    this.fill = this.fill.bind(this)
   }
 
-  stopTimers() {
-    if (this.interval) {
-      clearInterval(this.interval)
-      this.interval = null
-    }
-  }
-
-  startTimers() {
-    if (this.interval) {
-      clearInterval(this.interval)
-      this.interval = null
-    }
-
-    this.interval = setInterval(this.tick, 50)
-  }
-
-  async clear() {
+  public async clear() {
     // clear the queue, cancel anything we were sending out
     this.movementMoves = []
     this.lightMoves = []
-    this.isRendering = false
 
     this.completionDeferred = new Deferred<void>()
-    this.initialBatchDeferred = new Deferred<void>()
 
     this.notifyUIOfOptimisticQueues()
-    this.stopTimers()
     await this.sendClear()
   }
 
-  async ingest(toolpath: Toolpath, cancellationToken: CancellationToken) {
+  public async ingest(toolpath: Toolpath, cancellationToken: CancellationToken) {
     this.cancellationToken = cancellationToken
+
+    // wipe the delta
     await this.clear()
 
+    // Reset our filling
+    this.isFilling = false
+
+    // request queue depth
+    await this.requestQueueUpdates()
+
+    // setup our new queues
     this.movementMoves = toolpath.movementMoves
     this.lightMoves = toolpath.lightMoves
 
-    this.finalMovementTimestamp =
-      this.movementMoves[this.movementMoves.length - 1].sync_offset
+    this.finalMovementSyncOffset = this.movementMoves[this.movementMoves.length - 1].sync_offset
 
-    this.startTimers()
+    // run an iteration of the fill
+    return this.fill()
   }
 
-  notifyUIOfOptimisticQueues() {
+  public notifyUIOfOptimisticQueues() {
     this.updateOptimisticQueueDepth(
       this.movementMoves.length,
       this.lightMoves.length,
     )
   }
 
-  waitForFrameToComplete() {
+  public waitForFrameToComplete() {
     return this.completionDeferred.promise
   }
 
-  waitForInitialBatch() {
-    return this.initialBatchDeferred.promise
-  }
+  private isFilling = false
 
-  async tick() {
-    if (this.isRendering) {
-      // Request a queue update to start
-      await this.requestQueueUpdates()
+  private async fill() {
+    if (this.isFilling) {
+      // this instance is already filling
+      return
     }
+
+    this.isFilling = true
 
     // If both queues are empty, don't do anything in the tick
     if (this.movementMoves.length === 0 && this.lightMoves.length === 0) {
+      this.isFilling = false
       return
     }
 
@@ -127,12 +110,16 @@ export class SequenceSender {
       this.hardwareLightMoveQueueDepth < this.lightMoveQueueWatermark &&
       (this.movementMoves.length > 0 || this.lightMoves.length > 0)
     ) {
+
+      // make sure we haven't cancelled
       if (this.cancellationToken.isCancelled()) {
         this.completionDeferred.reject(this.cancellationToken.token)
-        this.initialBatchDeferred.reject(this.cancellationToken.token)
         this.clear()
+
+        this.isFilling = false
         return
       }
+
       // Peek the next movement and potentially the next light move
       const movement: MovementMove | undefined = this.movementMoves[0]
       const firstLightMove: LightMove | undefined = this.lightMoves[0]
@@ -155,7 +142,6 @@ export class SequenceSender {
         this.notifyUIOfOptimisticQueues()
 
         await this.sendMovement(shifted)
-        this.isRendering = true
         continue
       }
 
@@ -167,28 +153,31 @@ export class SequenceSender {
       await this.sendLightMove(shifted)
     }
 
-    // The initial batch has been sent
-    this.initialBatchDeferred.resolve()
-
-    // request a queue update when we're done
-    await this.requestQueueUpdates()
+    // we've sent either all the moves, or up to the watermark
+    this.isFilling = false
   }
 
-  updateHardwareQueues(motionDepth: number, fadeDepth: number) {
+  public updateHardwareQueuesAndProgress(motionDepth: number, fadeDepth: number, syncOffset: number) {
     this.hardwareMovementQueueDepth = motionDepth
     this.hardwareLightMoveQueueDepth = fadeDepth
+
+    // new hardware queues, 
 
     // console.log(
     //   `hardware update received ${motionDepth} (${this.movementMoves.length}), ${fadeDepth} (${this.lightMoves.length})`,
     // )
-  }
 
-  updateHardwareProgress(movementID: number) {
-    if (!this.isRendering) return
-
-    if (movementID === this.finalMovementTimestamp) {
-      this.isRendering = false
+    if (syncOffset === this.finalMovementSyncOffset) {
       this.completionDeferred.resolve()
+    } else if (!this.cancellationToken.isCancelled()) {
+      // potentially run the queue again, if we haven't cancelled
+      this.fill().catch(err => {
+        if (this.cancellationToken.caused(err)) {
+          // we have now cancelled
+        } else {
+          console.error(`Something went wrong trying to fill the queue after a hw update:`, err)
+        }
+      })
     }
 
     // console.log(

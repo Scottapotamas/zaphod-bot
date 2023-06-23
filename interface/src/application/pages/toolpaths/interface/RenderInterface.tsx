@@ -381,8 +381,7 @@ export function SendToolpath() {
   useHardwareStateSubscription(
     state => state[MSGID.SUPERVISOR],
     (supervisorInfo: SupervisorState) => {
-      getSequenceSender().updateHardwareQueues(supervisorInfo.queue_utilisation_motion, supervisorInfo.queue_utilisation_lighting)
-      getSequenceSender().updateHardwareProgress(supervisorInfo.movement_id_completed)
+      getSequenceSender().updateHardwareQueuesAndProgress(supervisorInfo.queue_utilisation_motion, supervisorInfo.queue_utilisation_lighting, supervisorInfo.movement_id_completed)
     },
   )
 
@@ -435,7 +434,6 @@ export function SendToolpath() {
 
           // TODO: Ask fourth axis to go to desired position
           await getSequenceSender().ingest(toolpath, cancellationToken)
-          await getSequenceSender().waitForInitialBatch()
 
           console.log(`Initial batch sent to Delta`)
 
