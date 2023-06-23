@@ -24,13 +24,19 @@ PRIVATE void request_handler_insert_entry( RequestHandlerInstance_t instance, vo
 
 PRIVATE uint32_t request_handler_add( RequestHandlerInstance_t handler, void *entry_ptr, uint32_t entry_size );
 
-PRIVATE int32_t request_handler_find_free_pool_slot( RequestHandlerInstance_t instance );
+PRIVATE bool request_handler_find_free_pool_slot( RequestHandlerInstance_t instance, uint32_t *slot );
 
-PRIVATE int32_t request_handler_find_sorted_candidate( RequestHandlerInstance_t instance );
+PRIVATE bool request_handler_clear_pool_slot( RequestHandlerInstance_t instance, uint32_t slot_index );
+
+PRIVATE bool request_handler_find_candidate( RequestHandlerInstance_t instance, uint32_t *slot );
 
 PRIVATE void request_handler_emit_ordered_entries( RequestHandlerInstance_t instance );
 
+PRIVATE uint32_t request_handler_poll_output_queue_usage( RequestHandlerInstance_t instance );
+
 PRIVATE void request_handler_notify_usage_metrics( RequestHandlerInstance_t instance );
+
+PRIVATE void request_handler_notify_missing_entry( RequestHandlerInstance_t instance, uint32_t key );
 
 /* -------------------------------------------------------------------------- */
 
@@ -200,7 +206,6 @@ PRIVATE uint32_t request_handler_add( RequestHandlerInstance_t instance, void *e
     REQUIRE( entry_size );
 
     RequestPool_t *me = &pools[instance];
-
     ENSURE( entry_size == me->entry_size );
 
     BaseType_t result = xQueueSendToBack( me->input_queue, entry_ptr, (TickType_t)0 );
@@ -239,20 +244,18 @@ PRIVATE void request_handler_insert_entry( RequestHandlerInstance_t instance, vo
     RequestPool_t *me = &pools[instance];
 
     // Find a slot in the pool for the entry
-    uint32_t slot_index = request_handler_find_free_pool_slot( instance );
-    ENSURE( slot_index >= 0 );
+    uint32_t slot_index = 0;
+    bool slot_available = request_handler_find_free_pool_slot( instance, &slot_index );
+    ENSURE( slot_available );
 
-    // Calculate the memory offset corresponding to this slot in the mempool then copy it over
+    // Calculate the memory offset corresponding to this slot in the mempool
     uint32_t entry_offset = slot_index * me->entry_size;
     ENSURE( entry_offset + me->entry_size <= me->storage_size );
 
+    // Copy it into the pool
     memcpy( &me->storage_ptr[entry_offset], entry_ptr, me->entry_size );
 
     // Update the metadata for the entry
-    me->slots[slot_index].is_used = true;
-    me->num_slots_used += 1;
-    request_handler_notify_usage_metrics( instance );
-
     switch( instance )
     {
         case REQUEST_HANDLER_MOVES:
@@ -270,15 +273,20 @@ PRIVATE void request_handler_insert_entry( RequestHandlerInstance_t instance, vo
         break;
 
         default:
-            ASSERT(false);
+            ASSERT_PRINTF(false, "Invalid pool instance");
         break;
     }
+
+    me->slots[slot_index].is_used = true;
+    me->num_slots_used += 1;
+    request_handler_notify_usage_metrics( instance );
 }
 
 /* -------------------------------------------------------------------------- */
 
-PRIVATE int32_t request_handler_find_free_pool_slot( RequestHandlerInstance_t instance )
+PRIVATE bool request_handler_find_free_pool_slot( RequestHandlerInstance_t instance, uint32_t *slot )
 {
+    REQUIRE( slot );
     REQUIRE( instance < NUM_REQUEST_HANDLERS );
     RequestPool_t *me = &pools[instance];
 
@@ -286,23 +294,46 @@ PRIVATE int32_t request_handler_find_free_pool_slot( RequestHandlerInstance_t in
     {
         if( !me->slots[i].is_used )
         {
-            return (int32_t)i;
+            *slot = i;
+            return true;
         }
     }
 
-    return -1;
+    return false;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PRIVATE bool request_handler_clear_pool_slot( RequestHandlerInstance_t instance, uint32_t slot_index )
+{
+    REQUIRE( instance < NUM_REQUEST_HANDLERS );
+    RequestPool_t *me = &pools[instance];
+
+    REQUIRE( slot_index <= me->num_slots );
+
+    // TODO: consider wiping the underlying memory in the pool?
+
+    // Mark the slot as free for use
+    me->slots[slot_index].is_used = false;
+    me->slots[slot_index].key     = 0;
+
+    me->num_slots_used -= 1;
+
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */
 
 // Find the smallest sync_offset entry in the pool
-PRIVATE int32_t request_handler_find_sorted_candidate( RequestHandlerInstance_t instance )
+// Returns true if an entry was found
+PRIVATE bool request_handler_find_candidate( RequestHandlerInstance_t instance, uint32_t *slot )
 {
+    REQUIRE( slot );
     REQUIRE( instance < NUM_REQUEST_HANDLERS );
     RequestPool_t *me = &pools[instance];
 
+    bool found_a_candidate = false;
     uint32_t min_sync_offset = UINT32_MAX;
-    int32_t min_sync_offset_slot_index = -1;
 
     for( uint32_t i = 0; i < me->num_slots; i++ )
     {
@@ -310,11 +341,12 @@ PRIVATE int32_t request_handler_find_sorted_candidate( RequestHandlerInstance_t 
             && me->slots[i].key < min_sync_offset)
         {
             min_sync_offset = me->slots[i].key;
-            min_sync_offset_slot_index = (int32_t)i;
+            *slot = i;
+            found_a_candidate = true;
         }
     }
 
-    return min_sync_offset_slot_index;
+    return found_a_candidate;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -325,74 +357,99 @@ PRIVATE void request_handler_emit_ordered_entries( RequestHandlerInstance_t inst
     RequestPool_t *me = &pools[instance];
 
     // Is there room in the destination queue?
-    uint32_t queue_pressure = 0;
-    switch( me->output_cb.type )
-    {
-        case CALLBACK_MOVEMENT:
-            queue_pressure = me->output_cb.fn.move( NULL );
-            break;
-
-        case CALLBACK_FADE:
-            queue_pressure = me->output_cb.fn.fade( NULL );
-            break;
-
-        case CALLBACK_INVALID:
-            return; // no callback, can't emit events
-    }
+    uint32_t queue_pressure = request_handler_poll_output_queue_usage( instance );
 
     // Fill the queue to a reasonable backpressure
     while( queue_pressure < 90 && me->num_slots_used )
     {
-        int32_t candidate_slot_index = request_handler_find_sorted_candidate( instance );
+        uint32_t candidate_slot_index = 0;
+        bool candidate_found = request_handler_find_candidate( instance, &candidate_slot_index );
 
-        if( candidate_slot_index == -1 )
+        if( !candidate_found )
         {
-            break;
+            return;
         }
 
+        // Determine if the entry is suitable to emit
+        // If the entry has a key (aka sync_offset) of 0, it's the first one to emit
         EntryMetadata_t *entry = &me->slots[candidate_slot_index];
+        bool candidate_valid = ( entry->key == me->expected_sync_offset || entry->key == 0 );
 
-        // Is it in-order?
-        if(    entry->key == me->expected_sync_offset
-            || entry->key == 0 )   // first move will have an offset of zero
+        if( !candidate_valid )
         {
-            uint32_t entry_offset = candidate_slot_index * me->entry_size;
-
-            // Dispatch the move via the output callback
-            switch( me->output_cb.type )
+            // Stale entries should be culled
+            if( entry->key < me->expected_sync_offset)
             {
-                case CALLBACK_MOVEMENT:
-                {
-                    // Get the entry
-                    Movement_t *move = (Movement_t *)&me->storage_ptr[entry_offset];
-                    me->expected_sync_offset = move->sync_offset + move->duration;
-
-                    queue_pressure = me->output_cb.fn.move( move );
-                }
-                    break;
-
-                case CALLBACK_FADE:
-                {
-                    Fade_t *fade = (Fade_t *)&me->storage_ptr[entry_offset];
-                    me->expected_sync_offset = fade->sync_offset + fade->duration;
-
-                    queue_pressure = me->output_cb.fn.fade( fade );
-                }
-                    break;
-
-                default:
-                    ASSERT(false);
-                    break;
+                request_handler_clear_pool_slot( instance, candidate_slot_index );
+            }
+            else
+            {
+                // TODO: see if anything can be done if it's missing?
+                request_handler_notify_missing_entry( instance, me->expected_sync_offset );
             }
 
-            // Mark the slot as free for use
-            me->slots[candidate_slot_index].is_used = false;
-            me->num_slots_used -= 1;
-
-            request_handler_notify_usage_metrics( instance );
+            return;
         }
+
+        // Dispatch the entry via the output callback
+        uint32_t entry_offset = candidate_slot_index * me->entry_size;
+        switch( me->output_cb.type )
+        {
+            case CALLBACK_MOVEMENT:
+            {
+                // Get the entry, pass it to the output handler function
+                Movement_t *move = (Movement_t *)&me->storage_ptr[entry_offset];
+                queue_pressure   = me->output_cb.fn.move( move );
+
+                // Update internal state with the next expected key value
+                me->expected_sync_offset = move->sync_offset + move->duration;
+            }
+            break;
+
+            case CALLBACK_FADE:
+            {
+                Fade_t *fade   = (Fade_t *)&me->storage_ptr[entry_offset];
+                queue_pressure = me->output_cb.fn.fade( fade );
+
+                me->expected_sync_offset = fade->sync_offset + fade->duration;
+            }
+            break;
+
+            default:
+                ASSERT_PRINTF(false, "Pool attempted emit to invalid callback");
+                break;
+        }
+
+        request_handler_clear_pool_slot( instance, candidate_slot_index );
+        request_handler_notify_usage_metrics( instance );
     }
 }
+
+/* -------------------------------------------------------------------------- */
+
+// Call the output handler function with a nullptr, it returns queue pressure
+PRIVATE uint32_t request_handler_poll_output_queue_usage( RequestHandlerInstance_t instance )
+{
+    REQUIRE( instance < NUM_REQUEST_HANDLERS );
+    RequestPool_t *me = &pools[instance];
+
+    // Handle the callback union options
+    switch( me->output_cb.type )
+    {
+        case CALLBACK_MOVEMENT:
+            return me->output_cb.fn.move( NULL );
+
+        case CALLBACK_FADE:
+            return me->output_cb.fn.fade( NULL );
+
+        case CALLBACK_INVALID:
+        default:
+            // no callback configured, can't poll it
+            return 100;   // TODO: is emitting 'full' a sane choice here?
+    }
+}
+
+/* -------------------------------------------------------------------------- */
 
 PRIVATE void request_handler_notify_usage_metrics( RequestHandlerInstance_t instance )
 {
@@ -418,6 +475,32 @@ PRIVATE void request_handler_notify_usage_metrics( RequestHandlerInstance_t inst
     queue_pressure.data.stamped.timestamp = xTaskGetTickCount();
     queue_pressure.data.stamped.value.u32 = ( me->num_slots_used * 100 / (me->num_slots) );
     broker_publish( &queue_pressure );
+}
+
+PRIVATE void request_handler_notify_missing_entry( RequestHandlerInstance_t instance, uint32_t key )
+{
+    REQUIRE( instance < NUM_REQUEST_HANDLERS );
+    RequestPool_t *me = &pools[instance];
+
+    SYSTEM_EVENT_FLAG event = SYSTEM_NUM_FIELDS;
+    switch( instance )
+    {
+        case REQUEST_HANDLER_MOVES:
+            event = FLAG_MOVE_MISSING;
+            break;
+        case REQUEST_HANDLER_FADES:
+            event = FLAG_FADE_MISSING;
+            break;
+        default:
+            ASSERT(false);
+            break;
+    }
+
+    PublishedEvent alert = { 0 };
+    alert.topic = event;
+    alert.data.stamped.timestamp = xTaskGetTickCount();
+    alert.data.stamped.value.u32 = key;
+    broker_publish( &alert );
 }
 
 /* -------------------------------------------------------------------------- */
