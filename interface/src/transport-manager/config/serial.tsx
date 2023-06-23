@@ -20,6 +20,7 @@ import {
   SerialPortUSBHintTransformer,
   SerialTransport,
   SerialTransportOptions,
+  SerialBandwidthMetadataReporter
 } from '@electricui/transport-node-serial'
 
 import { BinaryLargePacketHandlerPipeline } from '@electricui/protocol-binary-large-packet-handler'
@@ -94,6 +95,9 @@ const serialTransportFactory = new TransportFactory(
       // measurePipeline: true,
     })
 
+    // Measure bytes going in and out of the serial link per second
+    const serialBandwidthMetadataReporter = new SerialBandwidthMetadataReporter()
+
     connectionInterface.setTransport(transport)
     connectionInterface.setQueryManager(queryManager)
     connectionInterface.setDeliverabilityManager(deliverabilityManager)
@@ -108,6 +112,7 @@ const serialTransportFactory = new TransportFactory(
     connectionInterface.addMetadataReporters([
       connectionStaticMetadata,
       heartbeatMetadata,
+      serialBandwidthMetadataReporter,
     ])
 
     return connectionInterface.finalise()
