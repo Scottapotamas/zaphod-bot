@@ -1,4 +1,4 @@
-message("Processing hal/system/CMakeList.txt")
+message("Processing hal/system")
 
 add_library (
         hal_system_lib
@@ -6,6 +6,8 @@ add_library (
         hal_core.c
         hal_reset.h
         hal_reset.c
+        hal_debug.h
+        hal_debug.c
         hal_uuid.h
 )
 
