@@ -4,6 +4,12 @@ add_library (
         servo_lib
         servo.h
         servo.c
+
+        servo_types.h
+        servo_hardware.h
+        servo_hardware.c
+        servo_settings.h
+        servo_settings.c
 )
 
 target_include_directories (
