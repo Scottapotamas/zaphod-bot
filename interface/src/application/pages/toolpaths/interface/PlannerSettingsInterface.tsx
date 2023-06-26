@@ -78,7 +78,7 @@ function Checkbox(props: CheckboxProps) {
         usePortal={false} // Force the rendering of the tooltip to be inline so focus bubbling works correctly
         placement="right"
         popoverClassName="setting-tooltip" // Use width: max-content to make sure the text expands rather than contracts to a couple words of width
-        renderTarget={({ ref, ...tooltipProps }) => (
+        renderTarget={({ ref, isOpen, ...tooltipProps }) => (
           <div {...tooltipProps} ref={ref} className="planner-checkbox">
             {/* Attach to a div surrounding the NumericInput, since the NumericInput is complex and screws with the refs */}
             <BlueprintCheckbox
@@ -258,7 +258,7 @@ function NumericInput(props: NumericInputProps) {
           usePortal={false} // Force the rendering of the tooltip to be inline so focus bubbling works correctly
           placement="right"
           popoverClassName="setting-tooltip" // Use width: max-content to make sure the text expands rather than contracts to a couple words of width
-          renderTarget={({ ref, ...tooltipProps }) => (
+          renderTarget={({ ref, isOpen, ...tooltipProps }) => (
             <div {...tooltipProps} ref={ref}>
               {/* Attach to a div surrounding the NumericInput, since the NumericInput is complex and screws with the refs */}
               <BlueprintNumericInput
@@ -957,7 +957,7 @@ function TabTitle(props: { icon: IconName; title: string }) {
       intent={Intent.NONE}
       usePortal={true} // Force the rendering of the tooltip to be inline so focus bubbling works correctly
       placement="top"
-      renderTarget={({ ref, ...tooltipProps }) => (
+      renderTarget={({ ref, isOpen, ...tooltipProps }) => (
         <div {...tooltipProps} ref={ref} className="planner-checkbox">
           {/* Attach to a div surrounding the NumericInput, since the NumericInput is complex and screws with the refs */}
 
