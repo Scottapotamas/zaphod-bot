@@ -106,6 +106,8 @@ export class SequenceSender {
       return
     }
 
+    const attemptsPerMove = 10
+
     // While both queues are empty and there is at least one movement in the queue
     while (
       this.hardwareMovementQueueDepth < this.movementQueueWatermark &&
@@ -133,14 +135,15 @@ export class SequenceSender {
           this.hardwareLightMoveQueueDepth++
           const shifted = this.lightMoves.shift()!
 
+          let attempts = 0
 
-          // Try forever.
-          while (!this.cancellationToken.isCancelled()) {
+          // Try attemptsPerMove times
+          while (!this.cancellationToken.isCancelled() && attempts < attemptsPerMove) {
             try {
               await this.sendLightMove(shifted)
               break // out of the infinite loop
             } catch (err) {
-              console.error(`Failed to send light fade at timestamp ${shifted.timestamp}, retrying, err:`, err)
+              console.error(`Failed to send light fade at timestamp ${shifted.timestamp}, attempt ${attempts}/${attemptsPerMove}, err:`, err)
             }
           }
 
@@ -151,14 +154,16 @@ export class SequenceSender {
         this.hardwareMovementQueueDepth++
         const shifted = this.movementMoves.shift()!
 
+        let attempts = 0
 
-        // Try forever.
-        while (!this.cancellationToken.isCancelled()) {
+        // Try attemptsPerMove times
+        while (!this.cancellationToken.isCancelled() && attempts < attemptsPerMove) {
+          attempts++
           try {
             await this.sendMovement(shifted)
             break // out of the infinite loop
           } catch (err) {
-            console.error(`Failed to send light fade at timestamp ${shifted.sync_offset}, retrying, err:`, err)
+            console.error(`Failed to send light fade at timestamp ${shifted.sync_offset}, attempt ${attempts}/${attemptsPerMove}, err:`, err)
           }
         }
 
@@ -169,14 +174,15 @@ export class SequenceSender {
       this.hardwareLightMoveQueueDepth++
       const shifted = this.lightMoves.shift()!
 
+      let attempts = 0
 
-      // Try forever.
-      while (!this.cancellationToken.isCancelled()) {
+      // Try attemptsPerMove times
+      while (!this.cancellationToken.isCancelled() && attempts < attemptsPerMove) {
         try {
           await this.sendLightMove(shifted)
           break // out of the infinite loop
         } catch (err) {
-          console.error(`Failed to send light fade at timestamp ${shifted.timestamp}, retrying, err:`, err)
+          console.error(`Failed to send light fade at timestamp ${shifted.timestamp}, attempt ${attempts}/${attemptsPerMove}, err:`, err)
         }
       }
     }
