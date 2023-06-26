@@ -163,7 +163,7 @@ export class SequenceSender {
             await this.sendMovement(shifted)
             break // out of the infinite loop
           } catch (err) {
-            console.error(`Failed to send light fade at timestamp ${shifted.sync_offset}, attempt ${attempts}/${attemptsPerMove}, err:`, err)
+            console.error(`Failed to send movement at timestamp ${shifted.sync_offset}, attempt ${attempts}/${attemptsPerMove}, err:`, err)
           }
         }
 
