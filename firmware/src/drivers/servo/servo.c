@@ -89,8 +89,7 @@ PRIVATE Servo_t clearpath[_NUMBER_CLEARPATH_SERVOS];
 
 /* -------------------------------------------------------------------------- */
 
-PUBLIC void
-servo_init( ClearpathServoInstance_t servo )
+PUBLIC void servo_init( ClearpathServoInstance_t servo )
 {
     REQUIRE( servo < _NUMBER_CLEARPATH_SERVOS );
     Servo_t *me = &clearpath[servo];

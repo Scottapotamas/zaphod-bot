@@ -336,7 +336,6 @@ path_interpolator_execute_move( Movement_t *move, float percentage )
     REQUIRE( move->metadata.num_pts );
 
     CartesianPoint_t target = { 0, 0, 0 };    // target position in cartesian space
-                                              //    MotionSolution_t solve_ok = SOLUTION_ERROR;
 
     switch( move->metadata.type )
     {

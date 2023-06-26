@@ -61,7 +61,6 @@ FanData_t      fan_stats;
 MotorData_t motion_servo[4];
 EffectorData_t effector;
 
-
 HSIColour_t led_manual_request;
 CartesianPoint_t target_position;
 
@@ -71,7 +70,6 @@ uint32_t camera_shutter_duration_ms = 0;
 uint8_t mode_request = 0;
 uint8_t demo_mode_request = 0;
 int32_t     external_servo_angle_target = 0;
-
 
 eui_message_t ui_variables[] = {
     // Higher level system setup information
@@ -109,7 +107,7 @@ eui_message_t ui_variables[] = {
     EUI_CUSTOM( MSGID_POSITION_EXPANSION, external_servo_angle_target),
     EUI_UINT32( MSGID_CAPTURE, camera_shutter_duration_ms ),
 
-//    EUI_UINT8( MSGID_DEMO_CONFIGURATION, demo_mode_configuration ),
+    EUI_UINT8( MSGID_DEMO_CONFIGURATION, demo_mode_request ),
 
     // Configuration fields are stored in configuration.c, we access them directly via pointer manipulation
 //    { .id = MSGID_LED_CALIBRATION, .type = TYPE_CUSTOM, .size = sizeof(LedSettings_t), {.data = 0} },

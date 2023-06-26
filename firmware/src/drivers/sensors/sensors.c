@@ -211,7 +211,7 @@ PRIVATE void sensors_callback_adc( HalAdcInput_t flag, uint16_t value )
 
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     xQueueSendToBackFromISR( xHalQueue, (void *)&new, &xHigherPriorityTaskWoken );
-    portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -226,7 +226,7 @@ PRIVATE void sensors_callback_input_capture( InputCaptureSignal_t flag, uint32_t
 
     BaseType_t xHigherPriorityTaskWoken = pdFALSE;
     xQueueSendToBackFromISR( xHalQueue, (void *)&new, &xHigherPriorityTaskWoken );
-    portEND_SWITCHING_ISR( xHigherPriorityTaskWoken );
+    portYIELD_FROM_ISR( xHigherPriorityTaskWoken );
 }
 
 /* -------------------------------------------------------------------------- */

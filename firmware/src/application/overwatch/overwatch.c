@@ -110,6 +110,9 @@ PUBLIC void overwatch_init( void )
     broker_add_event_subscription( event_sub, FLAG_EFFECTOR_VIOLATION );
     broker_add_event_subscription( event_sub, FLAG_PLANNER_VIOLATION );
 
+    broker_add_event_subscription( event_sub, FLAG_MOVE_MISSING );
+    broker_add_event_subscription( event_sub, FLAG_FADE_MISSING );
+
     // TODO overwatch shouldn't be subscribing to position and pushing data downwards to pathing tasks
     broker_add_event_subscription( event_sub, EFFECTOR_POSITION );
 }
@@ -133,9 +136,15 @@ PRIVATE void overwatch_event_handler( void )
             me->requested_arming = false;
             break;
 
-        // TODO: should effector/planner violations be handled differently from eSTOP?
+        // TODO: Handle effector/planner violation alerts etc prior to ESTOP?
         case FLAG_EFFECTOR_VIOLATION:
         case FLAG_PLANNER_VIOLATION:
+        case FLAG_MOVE_MISSING:
+        case FLAG_FADE_MISSING:
+
+            STATE_NEXT(OVERWATCH_EMERGENCY_STOP);
+            break;
+
         case FLAG_ESTOP:
             STATE_NEXT(OVERWATCH_EMERGENCY_STOP);
             break;
