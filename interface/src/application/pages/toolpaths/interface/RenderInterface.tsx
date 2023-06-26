@@ -195,6 +195,8 @@ function CopyToolpathToClipboard() {
   )
 }
 
+const EXTRA_RETRIES = 10
+
 export function SendToolpath() {
   const sequenceSenderRef: React.MutableRefObject<SequenceSender | null> = useRef(null)
 
@@ -205,19 +207,20 @@ export function SendToolpath() {
   const query = useQuery()
 
   const sendMovement = useCallback(
-    async (move: MovementMove) => {
-      const cancellationToken = new CancellationToken().deadline(100)
-      const message = new Message(MSGID.QUEUE_ADD_MOVE, move)
-      message.metadata.ack = true // explicitly request acks
+    async (move: MovementMove, cancellationToken: CancellationToken) => {
+      let attempts = 0
+      while (!cancellationToken.isCancelled() && attempts < EXTRA_RETRIES) {
+        attempts++
 
-      try {
-        await sendMessage(message, cancellationToken)
-      } catch (e) {
-        if (cancellationToken.caused(e)) {
-          // cancellationToken timed out
-          throw new Error(`Timed out after 100ms`)
-        } else {
-          throw e
+        const shortCancellationToken = new CancellationToken(`send move short deadline`).deadline(100)
+        const message = new Message(MSGID.QUEUE_ADD_MOVE, move)
+        message.metadata.ack = true // explicitly request acks
+
+        try {
+          await sendMessage(message, shortCancellationToken)
+          break // Success
+        } catch (err) {
+          console.error(`Failed to send move at sync_offset ${move.sync_offset}, attempt ${attempts}/${EXTRA_RETRIES}, err:`, err)
         }
       }
     },
@@ -225,19 +228,20 @@ export function SendToolpath() {
   )
 
   const sendLightMove = useCallback(
-    async (fade: LightMove) => {
-      const cancellationToken = new CancellationToken().deadline(100)
-      const message = new Message(MSGID.QUEUE_ADD_FADE, fade)
-      message.metadata.ack = true // explicitly request acks
+    async (fade: LightMove, cancellationToken: CancellationToken) => {
+      let attempts = 0
+      while (!cancellationToken.isCancelled() && attempts < EXTRA_RETRIES) {
+        attempts++
 
-      try {
-        await sendMessage(message, cancellationToken)
-      } catch (e) {
-        if (cancellationToken.caused(e)) {
-          // cancellationToken timed out
-          throw new Error(`Timed out after 100ms`)
-        } else {
-          throw e
+        const shortCancellationToken = new CancellationToken(`send fade short deadline`).deadline(100)
+        const message = new Message(MSGID.QUEUE_ADD_FADE, fade)
+        message.metadata.ack = true // explicitly request acks
+
+        try {
+          await sendMessage(message, shortCancellationToken)
+          break // Success
+        } catch (err) {
+          console.error(`Failed to send light fade at timestamp ${fade.timestamp}, attempt ${attempts}/${EXTRA_RETRIES}, err:`, err)
         }
       }
     },
@@ -505,6 +509,7 @@ export function SendToolpath() {
           // noop
         } else {
           console.error(e)
+          console.log(`Stopping the render due to the above error`)
         }
       }
     },
@@ -666,7 +671,7 @@ export const RenderInterface = () => {
         {numFrames < 1 ? null : <Timeline key={numFrames} />}
       </FormGroup>
 
-      <div style={{paddingBottom: '0.5em'}}>
+      <div style={{ paddingBottom: '0.5em' }}>
         <CurrentFrameTime />
       </div>
 

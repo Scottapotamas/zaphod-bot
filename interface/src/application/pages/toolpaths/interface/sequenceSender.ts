@@ -2,8 +2,8 @@ import { CancellationToken, Deferred } from '@electricui/core'
 import { LightMove, MovementMove } from '../../../../application/typedState'
 import { Toolpath } from './../optimiser/toolpath'
 
-export type SendMovement = (movement: MovementMove) => Promise<void>
-export type SendLightMove = (lightMove: LightMove) => Promise<void>
+export type SendMovement = (movement: MovementMove, cancellationToken: CancellationToken) => Promise<void>
+export type SendLightMove = (lightMove: LightMove, cancellationToken: CancellationToken) => Promise<void>
 export type SendClear = () => Promise<void>
 export type RequestQueueUpdates = () => Promise<void>
 export type UpdateQueueInProgress = (
@@ -106,7 +106,8 @@ export class SequenceSender {
       return
     }
 
-    const attemptsPerMove = 10
+    let inQueue: Promise<void>[] = []
+    const CONCURRENT_SENDS = 10
 
     // While both queues are empty and there is at least one movement in the queue
     while (
@@ -124,6 +125,13 @@ export class SequenceSender {
         return
       }
 
+      // Once we've sent a few, wait for them
+      if (inQueue.length >= CONCURRENT_SENDS) {
+        await Promise.all(inQueue)
+        // Wipe the concurrent array
+        inQueue = []
+      }
+
       // Peek the next movement and potentially the next light move
       const movement: MovementMove | undefined = this.movementMoves[0]
       const firstLightMove: LightMove | undefined = this.lightMoves[0]
@@ -135,17 +143,7 @@ export class SequenceSender {
           this.hardwareLightMoveQueueDepth++
           const shifted = this.lightMoves.shift()!
 
-          let attempts = 0
-
-          // Try attemptsPerMove times
-          while (!this.cancellationToken.isCancelled() && attempts < attemptsPerMove) {
-            try {
-              await this.sendLightMove(shifted)
-              break // out of the infinite loop
-            } catch (err) {
-              console.error(`Failed to send light fade at timestamp ${shifted.timestamp}, attempt ${attempts}/${attemptsPerMove}, err:`, err)
-            }
-          }
+          inQueue.push(this.sendLightMove(shifted, this.cancellationToken))
 
           continue
         }
@@ -154,18 +152,7 @@ export class SequenceSender {
         this.hardwareMovementQueueDepth++
         const shifted = this.movementMoves.shift()!
 
-        let attempts = 0
-
-        // Try attemptsPerMove times
-        while (!this.cancellationToken.isCancelled() && attempts < attemptsPerMove) {
-          attempts++
-          try {
-            await this.sendMovement(shifted)
-            break // out of the infinite loop
-          } catch (err) {
-            console.error(`Failed to send movement at timestamp ${shifted.sync_offset}, attempt ${attempts}/${attemptsPerMove}, err:`, err)
-          }
-        }
+        inQueue.push(this.sendMovement(shifted, this.cancellationToken))
 
         continue
       }
@@ -174,21 +161,15 @@ export class SequenceSender {
       this.hardwareLightMoveQueueDepth++
       const shifted = this.lightMoves.shift()!
 
-      let attempts = 0
-
-      // Try attemptsPerMove times
-      while (!this.cancellationToken.isCancelled() && attempts < attemptsPerMove) {
-        try {
-          await this.sendLightMove(shifted)
-          break // out of the infinite loop
-        } catch (err) {
-          console.error(`Failed to send light fade at timestamp ${shifted.timestamp}, attempt ${attempts}/${attemptsPerMove}, err:`, err)
-        }
-      }
+      inQueue.push(this.sendLightMove(shifted, this.cancellationToken))
     }
 
-    // Tell the UI about our new queues
+    // Wait for any left 
+    await Promise.all(inQueue)
+
+    // Tell the UI about our new queue state
     this.notifyUIOfOptimisticQueues()
+
     // we've sent either all the moves, or up to the watermark
     this.isFilling = false
   }
