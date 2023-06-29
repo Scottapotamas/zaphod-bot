@@ -7,6 +7,7 @@
 #include "app_startup.h"
 #include "hal_reset.h"
 #include "hal_watchdog.h"
+
 // TODO: move DWT related into a system/core HAL wrapper
 #include "stm32f4xx_ll_cortex.h"
 
@@ -14,7 +15,9 @@
 
 // Provide the heap storage manually to control placement location
 // Enabled via configAPPLICATION_ALLOCATED_HEAP in FreeRTOSConfig.h
+#ifdef configAPPLICATION_ALLOCATED_HEAP
 uint8_t ucHeap[ configTOTAL_HEAP_SIZE ] __attribute__((section(".ccmram")));
+#endif
 
 /* -------------------------------------------------------------------------- */
 

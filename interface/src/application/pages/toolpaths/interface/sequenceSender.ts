@@ -178,12 +178,6 @@ export class SequenceSender {
     this.hardwareMovementQueueDepth = motionDepth
     this.hardwareLightMoveQueueDepth = fadeDepth
 
-    // new hardware queues, 
-
-    // console.log(
-    //   `hardware update received ${motionDepth} (${this.movementMoves.length}), ${fadeDepth} (${this.lightMoves.length})`,
-    // )
-
     if (syncOffset === this.finalMovementSyncOffset) {
       this.completionDeferred.resolve()
     } else if (!this.cancellationToken.isCancelled()) {
@@ -197,8 +191,5 @@ export class SequenceSender {
       })
     }
 
-    // console.log(
-    //   `hardware update received ${motionDepth} (${this.movementMoves.length}), ${fadeDepth} (${this.lightMoves.length})`,
-    // )
   }
 }

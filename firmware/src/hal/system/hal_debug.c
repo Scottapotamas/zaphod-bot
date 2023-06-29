@@ -35,4 +35,10 @@ PUBLIC void hal_debug_print( const char *fmt )
         ITM_SendChar(*fmt++);
     }
 }
+
+PUBLIC uint32_t hal_debug_get_dwt( void )
+{
+    return DWT->CYCCNT;
+}
+
 /* -------------------------------------------------------------------------- */
