@@ -10,6 +10,7 @@
 #include "timers.h"
 
 #include <electricui.h>
+#include <interval_send.h>
 
 #include "hal_uuid.h"
 #include "hal_uart.h"
@@ -17,6 +18,7 @@
 #include "signals.h"
 #include "qassert.h"
 #include "broker.h"
+#include "stopwatch.h"
 
 /* -------------------------------------------------------------------------- */
 
@@ -64,11 +66,11 @@ EffectorData_t effector;
 HSIColour_t led_manual_request;
 CartesianPoint_t target_position;
 
-Movement_t    motion_inbound;
-Fade_t        fade_inbound;
-uint32_t camera_shutter_duration_ms = 0;
-uint8_t mode_request = 0;
-uint8_t demo_mode_request = 0;
+Movement_t  motion_inbound;
+Fade_t      fade_inbound;
+uint32_t    camera_shutter_duration_ms = 0;
+uint8_t     mode_request = 0;
+uint8_t     demo_mode_request = 0;
 int32_t     external_servo_angle_target = 0;
 
 eui_message_t ui_variables[] = {
@@ -120,8 +122,10 @@ eui_message_t ui_variables[] = {
 
 #define HEARTBEAT_EXPECTED_MS 800	// Expect to see a heartbeat within this threshold
 
-uint32_t last_heartbeat = 0;
+stopwatch_t last_heartbeat = 0;
 uint8_t heartbeat_ok_count = 0;		// Running count of successful heartbeat messages
+
+interval_send_requested_t iv_send_pool[5] = { 0 };
 
 enum
 {
@@ -143,10 +147,6 @@ PRIVATE LightingRequestFn handle_requested_fade;    // Pass UI Fade event reques
 PRIVATE PositionRequestFn handle_requested_position; // Pass cartesian position requests to this callback for handling
 PRIVATE HSIRequestFn handle_requested_hsi;    // Pass HSI colour requests to this callback for handling
 
-PRIVATE TimerHandle_t xTelemetryTimer;
-
-PRIVATE void telemetry_timer_callback( TimerHandle_t xTimer );
-
 /* -------------------------------------------------------------------------- */
 
 PUBLIC void
@@ -156,16 +156,6 @@ user_interface_init( void )
     // to cling onto error flags across firmware flashing - making debugging hard
     hal_uart_global_deinit();
 
-    // Setup a stimulus timer handle
-    xTelemetryTimer = xTimerCreate("telemetry",
-                                            pdMS_TO_TICKS(25),
-                                            pdTRUE,
-                                            0,
-                                    telemetry_timer_callback
-    );
-    REQUIRE( xTelemetryTimer );
-    xTimerStart( xTelemetryTimer, 5 );
-
     hal_uart_init( HAL_UART_PORT_MODULE, 500000 );
     hal_uart_init( HAL_UART_PORT_INTERNAL, 500000 );
     hal_uart_init( HAL_UART_PORT_EXTERNAL, 500000 );
@@ -174,6 +164,13 @@ user_interface_init( void )
     eui_setup_tracked( ui_variables, EUI_ARR_ELEM(ui_variables) );
     eui_setup_interfaces( communication_interface, EUI_ARR_ELEM(communication_interface) );
     eui_setup_identifier( (char *)HAL_UUID, 12 );    // header byte is 96-bit, therefore 12-bytes
+
+    // Electric UI Interval Sender Setup
+    interval_send_init( &iv_send_pool, 5 );
+    interval_send_add_id( MSGID_POSITION_CURRENT, 35 );
+    interval_send_add_id( MSGID_SUPERVISOR, 40 );
+    interval_send_add_id( MSGID_SERVO, 80 );
+
 
     // Setup the UI event subscriptions
     event_sub = broker_create_subscriber( "psTelem", 40 );
@@ -381,20 +378,14 @@ PUBLIC void user_interface_task( void *arg )
             eui_parse( buffer[i], &communication_interface[LINK_INTERNAL] );
         }
 
-        bytes_available = hal_uart_read( LINK_EXTERNAL, buffer, PARSE_CHUNK_SIZE);
-        for( uint32_t i = 0; i < bytes_available; i++ )
+        interval_send_enable( user_interface_connection_ok() );
+        interval_send_tick( xTaskGetTickCount() );
         {
             eui_parse( buffer[i], &communication_interface[LINK_EXTERNAL] );
         }
 
         vTaskDelay(1);
     }
-}
-
-PRIVATE void telemetry_timer_callback( TimerHandle_t xTimer )
-{
-    eui_send_tracked(MSGID_POSITION_CURRENT );
-    eui_send_tracked(MSGID_SUPERVISOR );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -423,12 +414,11 @@ PUBLIC void user_interface_attach_colour_request_cb( HSIRequestFn callback )
 
 PUBLIC bool user_interface_connection_ok( void )
 {
-    // TODO update this for FreeRTOS
     // Check if the most recent heartbeats have timed out
-//    if( timer_ms_is_expired( &last_heartbeat ) )
-//    {
-//        heartbeat_ok_count = 0;
-//    }
+    if( stopwatch_deadline_elapsed( &last_heartbeat ) )
+    {
+        heartbeat_ok_count = 0;
+    }
 
     // Connection is considered OK if more than 3 heartbeats have arrived
     // within the threshold duration
@@ -576,13 +566,12 @@ user_interface_eui_callback( uint8_t link, eui_interface_t *interface, uint8_t m
 
             if( strcmp( (char*)name_rx, EUI_INTERNAL_HEARTBEAT ) == 0 )
             {
-                // TODO update heartbeat monitor for FreeRTOS
-//                if( !timer_ms_is_expired( &last_heartbeat ) )
-//                {
-//                    heartbeat_ok_count++;
-//                }
+                if( !stopwatch_deadline_elapsed( &last_heartbeat ) )
+                {
+                    heartbeat_ok_count = MIN( heartbeat_ok_count+1, UINT8_MAX);
+                }
 
-//                timer_ms_start( &last_heartbeat, HEARTBEAT_EXPECTED_MS );
+                stopwatch_deadline_start( &last_heartbeat, HEARTBEAT_EXPECTED_MS );
             }
             break;
         }

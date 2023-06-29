@@ -16,7 +16,6 @@ import {
 import { IconNames } from '@blueprintjs/icons'
 
 import {
-  IntervalRequester,
   useHardwareStateSubscription,
 } from '@electricui/components-core'
 
@@ -111,7 +110,6 @@ const SideBar = () => {
 const MainWindow = (props: RouteComponentProps) => {
   return (
     <React.Fragment>
-      <IntervalRequester interval={100} variables={[MSGID.SERVO]} />
       {/* 3D Model view and toolpath planning */}
       <div
         style={{

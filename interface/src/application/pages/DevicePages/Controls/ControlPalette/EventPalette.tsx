@@ -1,7 +1,6 @@
 import React, { useCallback, useState } from 'react'
 
 import {
-  IntervalRequester,
   useHardwareState,
 } from '@electricui/components-core'
 

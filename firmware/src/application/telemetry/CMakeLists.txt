@@ -27,7 +27,9 @@ target_link_libraries(
         utility_observer_lib
         utility_cartesian_lib
         utility_lighting_lib
+        utility_stopwatch_lib
         electricui
+        electricui-interval-sender
         FreeRTOS::ARM_CM4F
         # TODO: work out how to compile/link with hard-float without specifying the STM32::F4 package?
         STM32::F4
