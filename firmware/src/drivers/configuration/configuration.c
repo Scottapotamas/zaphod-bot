@@ -37,8 +37,6 @@ PUBLIC void configuration_init( void )
 
 PUBLIC void configuration_set_defaults( void )
 {
-    led_calibration.correct_gamma = false;
-    led_calibration.correct_wb    = true;
     led_calibration.balance_red   = 0xFFFFU * 0;
     led_calibration.balance_green = 0xFFFFU * 0.25f;
     led_calibration.balance_blue  = 0xFFFFU * 0.86f;
@@ -53,7 +51,6 @@ PUBLIC void configuration_set_defaults( void )
     user_configuration.values.speed_limit = EFFECTOR_SPEED_LIMIT / 10;
     user_configuration.values.volume_radius = KINEMATICS_RADIUS_MAX_MM;
     user_configuration.values.volume_z = KINEMATICS_Z_MAX_MM;
-
 }
 
 /* -------------------------------------------------------------------------- */
@@ -196,21 +193,6 @@ PUBLIC void configuration_get_led_whitebalance( uint16_t *red_offset, uint16_t *
     *red_offset   = led_calibration.balance_red;
     *green_offset = led_calibration.balance_green;
     *blue_offset  = led_calibration.balance_blue;
-}
-
-PUBLIC void configuration_get_led_bias( uint16_t *offset )
-{
-    *offset = led_calibration.balance_total;
-}
-
-PUBLIC bool configuration_get_led_luma_correction_enabled( void )
-{
-    return led_calibration.correct_gamma;
-}
-
-PUBLIC bool configuration_get_led_wb_correction_enabled( void )
-{
-    return led_calibration.correct_wb;
 }
 
 /* -------------------------------------------------------------------------- */

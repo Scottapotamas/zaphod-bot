@@ -63,12 +63,9 @@ typedef struct
 
 typedef struct
 {
-    bool     correct_gamma;
-    bool     correct_wb;
     uint16_t balance_red;
     uint16_t balance_green;
     uint16_t balance_blue;
-    uint16_t balance_total;
 } LedSettings_t;
 
 /* -------------------------------------------------------------------------- */

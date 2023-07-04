@@ -244,12 +244,9 @@ export type LightMove = {
 }
 
 export type LedSettings = {
-  correct_luma: boolean
-  correct_whitebalance: boolean
   offset_red: number
   offset_green: number
   offset_blue: number
-  offset_global: number
 }
 
 export type PowerCalibration = {

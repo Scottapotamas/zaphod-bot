@@ -35,32 +35,7 @@ import { SectionHeading } from './SectionHeading'
 export const LEDCalibrationBlock = () => {
   return (
     <Composition templateCols="1fr 1fr" gap={20}>
-      <Box>
-        <Checkbox
-          checked={true}
-          unchecked={false}
-          accessor={state => state[MSGID.LED_CALIBRATION].correct_luma}
-          writer={(state, value) => {
-            state[MSGID.LED_CALIBRATION].correct_luma = value
-          }}
-        >
-          Luminance Curve Correction
-        </Checkbox>
-        <Checkbox
-          checked={true}
-          unchecked={false}
-          accessor={state => state[MSGID.LED_CALIBRATION].correct_whitebalance}
-          writer={(state, value) => {
-            state[MSGID.LED_CALIBRATION].correct_whitebalance = value
-          }}
-        >
-          Whitebalance Correction
-        </Checkbox>
-      </Box>
-      <Box>
-        {/* Something goes here? */}
-      </Box>
-
+      
       <Box>
         <SectionHeading text="Whitebalance Offset" />
         <Composition gap={10}>

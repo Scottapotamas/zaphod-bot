@@ -54,12 +54,6 @@ PUBLIC LedSettings_t * configuration_get_led_calibration_ptr( void );
 
 PUBLIC void configuration_get_led_whitebalance( uint16_t *red_offset, uint16_t *green_offset, uint16_t *blue_offset );
 
-PUBLIC void configuration_get_led_bias( uint16_t *offset );
-
-PUBLIC bool configuration_get_led_luma_correction_enabled( void );
-
-PUBLIC bool configuration_get_led_wb_correction_enabled( void );
-
 /* -------------------------------------------------------------------------- */
 
 ///* Is the expansion servo functionality turned on (not actual servo status)

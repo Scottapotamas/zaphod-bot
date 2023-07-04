@@ -475,15 +475,9 @@ export class RGBSettingsCodec extends Codec {
   encode(payload: LedSettings) {
     const packet = new SmartBuffer()
 
-    let luma_value = payload.correct_luma ? 1 : 0
-    let wb_value = payload.correct_whitebalance ? 1 : 0
-
-    packet.writeUInt8(luma_value)
-    packet.writeUInt8(wb_value)
     packet.writeUInt16LE(payload.offset_red * 0xFFFF)
     packet.writeUInt16LE(payload.offset_green * 0xFFFF)
     packet.writeUInt16LE(payload.offset_blue * 0xFFFF)
-    packet.writeUInt16LE(payload.offset_global * 0xFFFF)
 
     return packet.toBuffer()
   }
@@ -492,12 +486,9 @@ export class RGBSettingsCodec extends Codec {
     const reader = SmartBuffer.fromBuffer(payload)
 
     return {
-      correct_luma: reader.readUInt8() === 0x01 ? true : false,
-      correct_whitebalance: reader.readUInt8() === 0x01 ? true : false,
       offset_red: reader.readUInt16LE() / 0xFFFF,
       offset_green: reader.readUInt16LE() / 0xFFFF,
       offset_blue: reader.readUInt16LE() / 0xFFFF,
-      offset_global: reader.readUInt16LE() / 0xFFFF,
     }
   }
 }
