@@ -25,8 +25,13 @@ DEFINE_THIS_FILE;
 
 /* -------------------------------------------------------------------------- */
 
+PRIVATE void led_whitebalance_correct( float *red, float *green, float *blue );
+
+/* -------------------------------------------------------------------------- */
+
 PRIVATE HSIColour_t requested_setpoint = { 0 };
 PRIVATE GenericColour_t corrected_setpoint = { 0 };
+PRIVATE RGBColour_t calibration_offsets = { 0 };
 
 PRIVATE bool request_needs_processing = false;
 
@@ -35,7 +40,6 @@ bool positional_luma_noise = false;
 
 float speed_luma_factor = 1.0f;
 float positional_noise_luma_factor = 1.0f;
-
 
 PRIVATE Subscriber *led_subscriber;
 
@@ -116,6 +120,22 @@ PUBLIC void led_request_target( HSIColour_t *colour )
 
 /* -------------------------------------------------------------------------- */
 
+PUBLIC void led_set_calibration_factors( uint16_t red, uint16_t green, uint16_t blue )
+{
+    calibration_offsets.red = red;
+    calibration_offsets.green = green;
+    calibration_offsets.blue = blue;
+}
+
+PUBLIC void led_set_calibration_factors_rgb( RGBColour_t *offsets )
+{
+    calibration_offsets.red = offsets->red;
+    calibration_offsets.green = offsets->green;
+    calibration_offsets.blue = offsets->blue;
+}
+
+/* -------------------------------------------------------------------------- */
+
 PUBLIC void led_task( void* arg )
 {
     for(;;)
@@ -129,14 +149,17 @@ PUBLIC void led_task( void* arg )
                 // only needs to be applied 'once' when the setpoint changes
                 if( request_needs_processing )
                 {
-                    // Apply white-balance corrections
-
                     hsi_to_rgb( requested_setpoint.hue,
                                 requested_setpoint.saturation,
                                 requested_setpoint.intensity,
                                 &corrected_setpoint.x,
                                 &corrected_setpoint.y,
                                 &corrected_setpoint.z );
+
+                    // Apply white-balance corrections
+                    led_whitebalance_correct( &corrected_setpoint.x,
+                                              &corrected_setpoint.y,
+                                              &corrected_setpoint.z )
 
                     bool is_dark = ( requested_setpoint.intensity >= 0.01 );
                     hal_gpio_write_pin( _AUX_ANALOG_0, is_dark );
@@ -150,9 +173,10 @@ PUBLIC void led_task( void* arg )
                 // Apply speed-based luma compensation
                 // TODO re-implement speed compensation
 
-
                 // Apply a luma linearisation
                 // TODO revisit gamma curves
+
+                // TODO: do white-balance corrections need to be done later in the pipeline?
 
                 GenericColour_t output = { 0 };
 
@@ -168,7 +192,8 @@ PUBLIC void led_task( void* arg )
                 // TODO: consider detecting situations where the driver can be disabled entirely
                 // Enable/disable the driver
 
-                // PWM peripheral expects 0-100 percentage input, also invert the polarity of the duty cycle
+                // PWM peripheral expects 0-100 percentage input,
+                // also invert the polarity of the duty cycle
                 output.x = ( output.x * -1.0f + 1.0f ) * 100.0f;
                 output.y = ( output.y * -1.0f + 1.0f ) * 100.0f;
                 output.z = ( output.z * -1.0f + 1.0f ) * 100.0f;
@@ -226,18 +251,15 @@ led_calculate_speed_luma_factor( uint32_t microns_second )
 
 /* -------------------------------------------------------------------------- */
 
-//PRIVATE void
-//led_whitebalance_correct( float *red, float *green, float *blue )
-//{
-//    // Whitebalance corrections can only reduce the strength of a LED
-//    // as correcting 'brighter' doesn't make sense if a given channel is at max
-//    uint16_t wb_r, wb_g, wb_b = 0;
-////    configuration_get_led_whitebalance( &wb_r, &wb_g, &wb_b );
-//
-//    // Apply offsets
-//    *red   = *red * ( 1.0f - ( (float)wb_r / 0xFFFFU ) );
-//    *green = *green * ( 1.0f - ( (float)wb_g / 0xFFFFU ) );
-//    *blue  = *blue * ( 1.0f - ( (float)wb_b / 0xFFFFU ) );
-//}
+PRIVATE void led_whitebalance_correct( float *red, float *green, float *blue )
+{
+    // Whitebalance corrections can only reduce the strength of a LED
+    // as correcting 'brighter' doesn't make sense if a given channel is at max
+
+    // Apply offsets as stored locally in calibration_offsets
+    *red   = *red * ( 1.0f - ( (float)calibration_offsets.red / 0xFFFFU ) );
+    *green = *green * ( 1.0f - ( (float)calibration_offsets.green / 0xFFFFU ) );
+    *blue  = *blue * ( 1.0f - ( (float)calibration_offsets.blue / 0xFFFFU ) );
+}
 
 /* -------------------------------------------------------------------------- */
