@@ -13,10 +13,11 @@
 #include "fan.h"
 #include "buzzer.h"
 #include "shutter_release.h"
+#include "configuration.h"
 #include "user_interface.h"
-#include "overwatch.h"
 
 #include "request_handler.h"
+#include "overwatch.h"
 
 #include "path_interpolator.h"
 #include "point_follower.h"
@@ -46,7 +47,7 @@ PUBLIC void app_startup_init( void )
     hal_core_init();
     hal_core_clock_configure();
     hal_gpio_configure_defaults();
-    hal_watchdog_init( 10 );
+//    hal_watchdog_init( 100 );
 
     // Check for the cause of the microcontroller booting (errors vs normal power up)
     user_interface_set_reset_cause( hal_reset_cause_description( hal_reset_cause() ) );
@@ -68,6 +69,7 @@ PUBLIC void app_startup_init( void )
     led_interpolator_init();
     effector_init();
 
+    configuration_init();
     user_interface_init();
     overwatch_init();
 
@@ -102,13 +104,13 @@ PUBLIC void app_startup_tasks( void )
                  "telemetry",
                  4000,
                  NULL,
-                 priority_low,
+                 priority_normal,
                  NULL
     );
 
     xTaskCreate( effector_task,
                  "effector",
-                 configMINIMAL_STACK_SIZE,
+                 configMINIMAL_STACK_SIZE + 300,
                  NULL,
                  priority_high,
                  NULL
@@ -116,7 +118,7 @@ PUBLIC void app_startup_tasks( void )
 
     xTaskCreate( path_interpolator_task,
                  "pathing",
-                 configMINIMAL_STACK_SIZE,
+                 configMINIMAL_STACK_SIZE + 300,
                  NULL,
                  priority_normal,
                  NULL
@@ -140,7 +142,7 @@ PUBLIC void app_startup_tasks( void )
 
     xTaskCreate( request_handler_task,
                  "rqhMove",
-                 configMINIMAL_STACK_SIZE,
+                 configMINIMAL_STACK_SIZE + 500,
                  request_handler_get_context_for(REQUEST_HANDLER_MOVES),
                  priority_normal,
                  NULL
@@ -148,7 +150,7 @@ PUBLIC void app_startup_tasks( void )
 
     xTaskCreate( request_handler_task,
                  "rqhFade",
-                 configMINIMAL_STACK_SIZE,
+                 configMINIMAL_STACK_SIZE + 500,
                  request_handler_get_context_for(REQUEST_HANDLER_FADES),
                  priority_normal,
                  NULL

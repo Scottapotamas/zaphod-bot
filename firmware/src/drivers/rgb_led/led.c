@@ -159,7 +159,7 @@ PUBLIC void led_task( void* arg )
                     // Apply white-balance corrections
                     led_whitebalance_correct( &corrected_setpoint.x,
                                               &corrected_setpoint.y,
-                                              &corrected_setpoint.z )
+                                              &corrected_setpoint.z );
 
                     bool is_dark = ( requested_setpoint.intensity >= 0.01 );
                     hal_gpio_write_pin( _AUX_ANALOG_0, is_dark );

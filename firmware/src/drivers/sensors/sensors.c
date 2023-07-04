@@ -55,7 +55,7 @@ typedef enum {
     IC_SERVO_4_HLFB,
     IC_FAN_SPEED,
 
-    HAL_NUM_FIELDS,  // Only marks end of enum range, shouldn't exceed 64 entries
+    HAL_NUM_FIELDS,  // Only marks end of enum range
 } HalInputType_t;
 
 typedef struct
@@ -69,15 +69,15 @@ typedef float (*sensor_conversion_fn)(uint32_t adc);
 
 typedef struct {
     uint32_t timestamp;
-    AverageShort_t stats;
     sensor_conversion_fn converter;
+    uint32_t calibration;
+    AverageShort_t stats;
 } FilteredData_t;
 
 FilteredData_t data[HAL_NUM_FIELDS] = { 0 };
 
 QueueHandle_t xHalQueue;
 TimerHandle_t xADCTriggerTimer;
-
 
 /* -------------------------------------------------------------------------- */
 
@@ -136,7 +136,7 @@ PUBLIC void sensors_init( void )
                                          sensors_trigger_adc_callback
                                          );
     REQUIRE( xADCTriggerTimer );
-    xTimerStart( xADCTriggerTimer, 0 );
+    xTimerStart( xADCTriggerTimer, 5 );
 }
 
 /* -------------------------------------------------------------------------- */

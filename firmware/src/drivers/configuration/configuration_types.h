@@ -11,6 +11,42 @@
 
 /* ----- Defines ------------------------------------------------------------ */
 
+typedef enum
+{
+    FIRST_SETTING = 0,  // Rename this as needed
+
+    BUZZER_MUTED,
+
+    KINEMATICS_SPEED_LIMIT,
+    KINEMATICS_Z_ROTATE,
+    KINEMATICS_VOLUME_RADIUS,
+    KINEMATICS_VOLUME_HEIGHT,
+
+    EXPANSION_ENABLED,
+    EXPANSION_TYPE,
+    EXPANSION_FEEDBACK,
+    EXPANSION_REQUIRES_HOMING,
+    EXPANSION_REVERSE,
+    EXPANSION_RESOLUTION,
+    EXPANSION_RATIO,
+    EXPANSION_SPEED_LIMIT,
+    EXPANSION_RANGE_MIN,
+    EXPANSION_RANGE_MAX,
+
+    CALIBRATION_VOLTAGE_OFFSET,
+    CALIBRATION_CURRENT_SERVO_1,
+    CALIBRATION_CURRENT_SERVO_2,
+    CALIBRATION_CURRENT_SERVO_3,
+    CALIBRATION_CURRENT_SERVO_4,
+
+    WHITEBALANCE_RED,
+    WHITEBALANCE_GREEN,
+    WHITEBALANCE_BLUE,
+
+    NUM_ENTRIES     // must be the last entry
+} ConfigurationEntry_t;
+
+
 typedef struct
 {
     unsigned buzzer_mute : 1;

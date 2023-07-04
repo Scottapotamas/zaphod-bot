@@ -26,6 +26,8 @@ target_link_libraries(
         utility_cartesian_lib
         utility_stopwatch_lib
         utility_observer_lib
+        status_led_lib
+        hal_system_lib
         FreeRTOS::ARM_CM4F
         STM32::F4
         m

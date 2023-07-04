@@ -4,8 +4,13 @@
 
 #include "configuration.h"
 #include "configuration_types.h"
+#include "qassert.h"
 
 //#include "hal_flashmem.h"
+
+/* -------------------------------------------------------------------------- */
+
+DEFINE_THIS_FILE;   // used for qassert.h
 
 /* -------------------------------------------------------------------------- */
 
@@ -14,13 +19,67 @@ LedSettings_t      led_calibration    = { 0 };
 UserConfig_t       user_configuration = { 0 };
 //FanCurve_t         fan_curve[NUM_FAN_CURVE_POINTS] = { 0 };
 
-/* -------------------------------------------------------------------------- */
+typedef enum
+{
+    KV_BOOL = 0,
+    KV_CHAR,
+    KV_INT8,
+    KV_UINT8,
+    KV_INT16,
+    KV_UINT16,
+    KV_INT32,
+    KV_UINT32,
+    KV_FLOAT,
+} ValueType_t;
 
-//TODO These need to go somewhere else?
-#define EFFECTOR_SPEED_LIMIT 0
-#define KINEMATICS_RADIUS_MAX_MM 0
-#define KINEMATICS_Z_MAX_MM 0
-#define EXPANSION_SPEED_LIMIT 0
+typedef struct
+{
+    ValueType_t type;
+    union
+    {
+        bool     bl;
+        char     ch;
+        uint8_t  u8;
+        int8_t   i8;
+        uint16_t u16;
+        int16_t  i16;
+        uint32_t u32;
+        int32_t  i32;
+        float    f32;
+    } data;
+} KeyValueEntry_t;
+
+const KeyValueEntry_t config_template[NUM_ENTRIES] = {
+    [BUZZER_MUTED] = { .type = KV_BOOL, .data.bl = false },
+
+    [KINEMATICS_SPEED_LIMIT]   = { .type = KV_UINT32, .data.u32 = 650U },
+    [KINEMATICS_Z_ROTATE]      = { .type = KV_FLOAT, .data.f32 = 0.0f },
+    [KINEMATICS_VOLUME_RADIUS] = { .type = KV_UINT32, .data.u32 = 0 },
+    [KINEMATICS_VOLUME_HEIGHT] = { .type = KV_UINT32, .data.u32 = 0 },
+
+    [EXPANSION_ENABLED]         = { .type = KV_BOOL, .data.bl = false },
+    [EXPANSION_TYPE]            = { .type = KV_UINT8, .data.u8 = 0 },
+    [EXPANSION_FEEDBACK]        = { .type = KV_BOOL, .data.bl = false },
+    [EXPANSION_REQUIRES_HOMING] = { .type = KV_BOOL, .data.bl = false },
+    [EXPANSION_REVERSE]         = { .type = KV_BOOL, .data.bl = false },
+    [EXPANSION_RESOLUTION]      = { .type = KV_BOOL, .data.bl = false },
+    [EXPANSION_RATIO]           = { .type = KV_FLOAT, .data.f32 = 0.0f },
+    [EXPANSION_SPEED_LIMIT]     = { .type = KV_UINT32, .data.u32 = 0 },
+    [EXPANSION_RANGE_MIN]       = { .type = KV_INT32, .data.i32 = 0 },
+    [EXPANSION_RANGE_MAX]       = { .type = KV_INT32, .data.i32 = 0 },
+
+    [CALIBRATION_VOLTAGE_OFFSET]  = { .type = KV_INT32, .data.i32 = -3650 },
+    [CALIBRATION_CURRENT_SERVO_1] = { .type = KV_INT32, .data.i32 = -25 },
+    [CALIBRATION_CURRENT_SERVO_2] = { .type = KV_INT32, .data.i32 = 45 },
+    [CALIBRATION_CURRENT_SERVO_3] = { .type = KV_INT32, .data.i32 = -205 },
+    [CALIBRATION_CURRENT_SERVO_4] = { .type = KV_INT32, .data.i32 = -195 },
+
+    [WHITEBALANCE_RED]   = { .type = KV_UINT16, .data.u16 = (uint16_t)( 0xFFFFU * 0 ) },
+    [WHITEBALANCE_GREEN] = { .type = KV_UINT16, .data.u16 = (uint16_t)( 0xFFFF * 0.25f ) },
+    [WHITEBALANCE_BLUE]  = { .type = KV_UINT16, .data.u16 = (uint16_t)( 0xFFFF * 0.86f ) },
+};
+
+KeyValueEntry_t config_store[NUM_ENTRIES];
 
 /* -------------------------------------------------------------------------- */
 
@@ -37,28 +96,10 @@ PUBLIC void configuration_init( void )
 
 PUBLIC void configuration_set_defaults( void )
 {
-    led_calibration.balance_red   = 0xFFFFU * 0;
-    led_calibration.balance_green = 0xFFFFU * 0.25f;
-    led_calibration.balance_blue  = 0xFFFFU * 0.86f;
-
-    power_trims.voltage = -3650;
-    power_trims.current_servo_1 = -25;
-    power_trims.current_servo_2 = 45;
-    power_trims.current_servo_3 = -205;
-    power_trims.current_servo_4 = -195;
-
-    user_configuration.values.z_rotation = 0;
-    user_configuration.values.speed_limit = EFFECTOR_SPEED_LIMIT / 10;
-    user_configuration.values.volume_radius = KINEMATICS_RADIUS_MAX_MM;
-    user_configuration.values.volume_z = KINEMATICS_Z_MAX_MM;
+    memcpy( config_store, config_template, sizeof(config_store) );
 }
 
 /* -------------------------------------------------------------------------- */
-
-#define PERSIST_ID_CAL_POWER 1
-#define PERSIST_ID_CAL_LED   2
-#define PERSIST_ID_FAN_CURVE 3
-#define PERSIST_ID_CONFIG 4
 
 PUBLIC void configuration_load( void )
 {
@@ -80,7 +121,6 @@ PUBLIC void configuration_save( void )
 //    hal_flashmem_store( PERSIST_ID_FAN_CURVE, &fan_curve, sizeof( fan_curve ) );
 //    hal_flashmem_store( PERSIST_ID_CONFIG, &user_configuration, sizeof( UserConfig_t ) );
 
-//    buzzer_sound( 2, 4000, 50 );
 }
 
 /* -------------------------------------------------------------------------- */
@@ -88,27 +128,84 @@ PUBLIC void configuration_save( void )
 PRIVATE void configuration_wipe( void )
 {
 //    hal_flashmem_wipe_and_prepare();
-//    buzzer_sound( 1, 1000, 100 );
+
 }
 
 /* -------------------------------------------------------------------------- */
 
-//PUBLIC FanCurve_t * configuration_get_fan_curve_ptr( void )
-//{
-//    return &fan_curve[0];
-//}
-
-//PUBLIC void configuration_notify_fan_curve( void )
-//{
-//    fan_set_curve( &fan_curve[0], DIM(fan_curve) );
-//}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC UserConfig_t * configuration_get_user_config_ptr( void )
+PUBLIC bool configuration_get_bool( ConfigurationEntry_t id )
 {
-    return &user_configuration;
+    REQUIRE( id < NUM_ENTRIES );
+    REQUIRE( config_store[id].type == KV_BOOL );
+
+    return config_store[id].data.bl;
 }
+
+PUBLIC void configuration_set_bool( ConfigurationEntry_t id, bool value )
+{
+    REQUIRE( id < NUM_ENTRIES );
+    REQUIRE( config_store[id].type == KV_BOOL );
+
+    config_store[id].data.bl = value;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC uint32_t configuration_get_uint32( ConfigurationEntry_t id )
+{
+    REQUIRE( id < NUM_ENTRIES );
+    REQUIRE( config_store[id].type == KV_BOOL );
+
+    return config_store[id].data.u32;
+}
+
+PUBLIC void configuration_set_uint32( ConfigurationEntry_t id, uint32_t value )
+{
+    REQUIRE( id < NUM_ENTRIES );
+    REQUIRE( config_store[id].type == KV_BOOL );
+
+    config_store[id].data.u32 = value;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC int32_t configuration_get_int32_t( ConfigurationEntry_t id )
+{
+    REQUIRE( id < NUM_ENTRIES );
+    REQUIRE( config_store[id].type == KV_BOOL );
+
+    return config_store[id].data.i32;
+}
+
+PUBLIC void configuration_set_int32_t( ConfigurationEntry_t id, int32_t value )
+{
+    REQUIRE( id < NUM_ENTRIES );
+    REQUIRE( config_store[id].type == KV_BOOL );
+
+    config_store[id].data.i32 = value;
+}
+
+/* -------------------------------------------------------------------------- */
+
+PUBLIC float configuration_get_float( ConfigurationEntry_t id )
+{
+    REQUIRE( id < NUM_ENTRIES );
+    REQUIRE( config_store[id].type == KV_BOOL );
+
+    return config_store[id].data.f32;
+}
+
+PUBLIC void configuration_set_float( ConfigurationEntry_t id, float value )
+{
+    REQUIRE( id < NUM_ENTRIES );
+    REQUIRE( config_store[id].type == KV_BOOL );
+
+    config_store[id].data.f32 = value;
+}
+
+/* -------------------------------------------------------------------------- */
+
+/* -------------------------------------------------------------------------- */
 
 PUBLIC void configuration_notify_config( void )
 {
@@ -129,124 +226,6 @@ PUBLIC void configuration_notify_config( void )
     // TODO: consider doing damage tracking to only set relevant members?
 
 
-}
-
-PUBLIC uint16_t configuration_get_effector_speed_limit( void )
-{
-    // Don't allow user values greater than the default
-    return MIN( user_configuration.values.speed_limit * 10, EFFECTOR_SPEED_LIMIT );
-}
-
-PUBLIC float configuration_get_z_rotation( void )
-{
-    return (float)user_configuration.values.z_rotation * 2.0f;
-}
-
-PUBLIC uint32_t configuration_get_volume_restriction_radius_mm( void )
-{
-    return MIN( user_configuration.values.volume_radius, KINEMATICS_RADIUS_MAX_MM );
-}
-
-PUBLIC uint32_t configuration_get_volume_restriction_height_mm( void )
-{
-    return MIN( user_configuration.values.volume_z, KINEMATICS_Z_MAX_MM );
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC PowerCalibration_t * configuration_get_power_calibration_ptr( void )
-{
-    return &power_trims;
-}
-
-PUBLIC int16_t configuration_get_voltage_trim_mV( void )
-{
-    return power_trims.voltage;
-}
-
-PUBLIC int16_t configuration_get_servo_trim_mA( uint8_t servo )
-{
-    switch( servo )
-    {
-        case 0:    // Servo 1
-            return power_trims.current_servo_1;
-        case 1:    // Servo 2
-            return power_trims.current_servo_2;
-        case 2:    // Servo 3
-            return power_trims.current_servo_3;
-        case 3:    // Servo 4
-            return power_trims.current_servo_4;
-        default:
-            return 0;
-    }
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC LedSettings_t * configuration_get_led_calibration_ptr( void )
-{
-    return &led_calibration;
-}
-
-PUBLIC void configuration_get_led_whitebalance( uint16_t *red_offset, uint16_t *green_offset, uint16_t *blue_offset )
-{
-    *red_offset   = led_calibration.balance_red;
-    *green_offset = led_calibration.balance_green;
-    *blue_offset  = led_calibration.balance_blue;
-}
-
-/* -------------------------------------------------------------------------- */
-
-PUBLIC bool configuration_get_expansion_enabled( void )
-{
-    return user_configuration.flags.expansion_enabled;
-}
-
-PUBLIC uint8_t configuration_get_expansion_motion_type( void )
-{
-    return user_configuration.flags.expansion_type;
-}
-
-PUBLIC uint8_t configuration_get_expansion_feedback_mode( void )
-{
-    return user_configuration.flags.expansion_feedback;
-}
-
-PUBLIC bool configuration_get_expansion_homing_required( void )
-{
-    return user_configuration.flags.expansion_requires_homing;
-}
-
-PUBLIC bool configuration_get_expansion_reversed( void )
-{
-    return user_configuration.flags.expansion_reverse;
-}
-
-PUBLIC uint16_t configuration_get_expansion_servo_resolution( void )
-{
-    return user_configuration.values.expansion_resolution;
-}
-
-PUBLIC float configuration_get_expansion_output_ratio( void )
-{
-    return user_configuration.values.expansion_ratio;
-}
-
-PUBLIC int32_t configuration_get_expansion_limit_min( void )
-{
-    // TODO: What precision/ is needed here?
-    return user_configuration.values.expansion_range_min;
-}
-
-PUBLIC int32_t configuration_get_expansion_limit_max( void )
-{
-    // TODO: What precision/ is needed here?
-    return user_configuration.values.expansion_range_max;
-}
-
-PUBLIC uint16_t configuration_get_expansion_speed_limit( void )
-{
-    return MIN( user_configuration.values.expansion_speed_limit * 10, EXPANSION_SPEED_LIMIT );
 }
 
 /* -------------------------------------------------------------------------- */
