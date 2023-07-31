@@ -205,11 +205,16 @@ function polySplineToMovementGroup(
   splineIndex: number,
   settings: Settings,
 ) {
-  const points = spline.points as GNodesPolyLinePoint[]
+  let points = spline.points as GNodesPolyLinePoint[]
 
   const orderedMovements = new MovementGroup()
   orderedMovements.interFrameID = `${objectID}-${splineIndex}`
   orderedMovements.frozen = true // We're sure that these are connected, so no need to optimise within a group
+
+  if (spline.cyclic && points.length > 0) {
+    points = points.slice()
+    points.push(points[0]) // add the first point to the end
+  }
 
   for (let index = 1; index < points.length; index++) {
     const prev = points[index - 1]
@@ -240,11 +245,16 @@ function bezierSplineToMovementGroup(
   splineIndex: number,
   settings: Settings,
 ) {
-  const points = spline.points as GNodesBezierPoint[]
+  let points = spline.points as GNodesBezierPoint[]
 
   const movementGroup = new MovementGroup()
   movementGroup.interFrameID = `${objectID}-${splineIndex}`
   movementGroup.frozen = true // We're sure that these are connected, so no need to optimise within a group
+
+  if (spline.cyclic && points.length > 0) {
+    points = points.slice()
+    points.push(points[0]) // add the first point to the end
+  }
 
   let i = 0
   for (const [leftPoint, rightPoint] of window(points, 2)) {
