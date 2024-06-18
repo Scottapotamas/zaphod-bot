@@ -485,7 +485,7 @@
       "gencad": "",
       "idf": "",
       "netlist": "",
-      "plot": "",
+      "plot": "outputs/manf-exports/",
       "pos_files": "",
       "specctra_dsn": "",
       "step": "",

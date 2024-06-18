@@ -1,0 +1,27 @@
+Drill report for esp32c6-internal-module.kicad_pcb
+Created on 2024-06-18T18:25:11+0930
+
+Copper Layer Stackup:
+    =============================================================
+    L1 :  F.Cu                      front
+    L2 :  B.Cu                      back
+
+
+Drill file 'esp32c6-internal-module-PTH.drl' contains
+    plated through holes:
+    =============================================================
+    T1  0.250mm  0.0098"  (2 holes)
+    T2  0.300mm  0.0118"  (47 holes)
+    T3  0.350mm  0.0138"  (14 holes)
+    T4  0.400mm  0.0157"  (16 holes)
+    T5  0.600mm  0.0236"  (4 holes)  (with 4 slots)
+    T6  1.016mm  0.0400"  (6 holes)
+
+    Total plated holes count 89
+
+
+Drill file 'esp32c6-internal-module-NPTH.drl' contains
+    unplated through holes:
+    =============================================================
+
+    Total unplated holes count 0
