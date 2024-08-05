@@ -1,4 +1,4 @@
-import { MovementJSON } from './import'
+import { MovementJSON, FrameMovementJSON } from './import'
 import { Progress } from './passes'
 import { SerialisedTour } from './movements'
 import type { Settings } from './settings'
@@ -60,13 +60,16 @@ export class ToolpathGenerator {
   private frameSubscriptions: Map<number, Deferred<void>> = new Map()
   private onCompleteDeferred = new Deferred<void>()
 
-  private movementJSON: Map<number, MovementJSON[]> = new Map()
+  private movementJSON: Map<number, FrameMovementJSON> = new Map()
 
   private pool: Pool<ModuleThread<typeof OptimisationWorker>>
 
   private onUpdate: (progress: FrameProgressUpdate) => void = () => {}
 
-  constructor(private settings: Settings, private numThreads = 4) {
+  constructor(
+    private settings: Settings,
+    private numThreads = 4,
+  ) {
     this.reset = this.reset.bind(this)
     this.ingest = this.ingest.bind(this)
     this.currentWorkQueue = this.currentWorkQueue.bind(this)
@@ -105,7 +108,7 @@ export class ToolpathGenerator {
 
   public ingest(
     movementJSONByFrame: {
-      [frame: number]: MovementJSON[]
+      [frame: number]: FrameMovementJSON
     },
     settings: Settings,
     updateProgress: (progress: FrameProgressUpdate) => void,
@@ -385,7 +388,7 @@ export class ToolpathGenerator {
     // Re-injest everything with new settings
 
     const movementJSON: {
-      [frameNumber: number]: MovementJSON[]
+      [frameNumber: number]: FrameMovementJSON
     } = {}
 
     for (const [frameNumber, json] of this.movementJSON) {

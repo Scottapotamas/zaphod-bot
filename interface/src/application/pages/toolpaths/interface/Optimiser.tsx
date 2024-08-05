@@ -230,9 +230,7 @@ export function Optimiser() {
         importFolder(folder).then(async imported => {
           // Reset the store when we import a new folder
 
-          const sceneTotalFrames = Object.keys(
-            imported.movementJSONByFrame,
-          ).length
+          const sceneTotalFrames = imported.sceneTotalFrames
           const sceneTree = renderablesToSceneTree(imported.allRenderables)
 
           setSetting(state => {

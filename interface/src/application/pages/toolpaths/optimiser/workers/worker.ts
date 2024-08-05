@@ -1,7 +1,7 @@
 import { Observable, Subject } from 'threads/observable'
 import { expose } from 'threads/worker'
 
-import { importJson, MovementJSON } from '../import'
+import { importJson, MovementJSON, FrameMovementJSON } from '../import'
 import { Movement, SerialisedTour } from '../movements'
 import { Continue, optimise, Progress } from '../passes'
 import { preprocess } from '../preprocess'
@@ -27,7 +27,7 @@ export const OptimisationWorker = {
   },
 
   async optimise(
-    sparseBagToImport: MovementJSON[],
+    sparseBagToImport: FrameMovementJSON,
     settings: Settings,
     partialUpdate: boolean,
     debugInfo: any,
@@ -48,9 +48,11 @@ export const OptimisationWorker = {
 
       const movements: Movement[] = []
 
+      const filepath = sparseBagToImport.filepath
+
       // Process the raw objects into movements
-      for (const json of sparseBagToImport) {
-        const imported = importJson(json)
+      for (const json of sparseBagToImport.movementJSON) {
+        const imported = importJson(filepath, json)
         for (const movement of await imported.toMovements(settings)) {
           movements.push(movement)
         }

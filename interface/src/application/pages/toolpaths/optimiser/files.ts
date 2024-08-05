@@ -1,7 +1,7 @@
 import fs from 'fs'
 import path from 'path'
 import { importJson, Renderable } from './import'
-import type { MovementJSON } from './import'
+import type { MovementJSON, FrameMovementJSON } from './import'
 import type { Toolpath } from './toolpath'
 import type { Settings } from './settings'
 import type { Movement } from './movements'
@@ -31,7 +31,7 @@ export async function importFolder(folderPath: string) {
     [frame: number]: Renderable[]
   } = {}
   const movementJSONByFrame: {
-    [frame: number]: MovementJSON[]
+    [frame: number]: FrameMovementJSON
   } = {}
 
   const allRenderables: Renderable[] = []
@@ -78,13 +78,16 @@ export async function importFolder(folderPath: string) {
     }
 
     if (!movementJSONByFrame[parsed.frame]) {
-      movementJSONByFrame[parsed.frame] = []
+      movementJSONByFrame[parsed.frame] = {
+        filepath: p,
+        movementJSON: [],
+      }
     }
 
     // Grab this frame's bag of renderables
 
     // Import the file
-    const renderable = importJson(parsed)
+    const renderable = importJson(p, parsed)
 
     // Import any frame data
     if (isEmpty(renderable)) {
@@ -96,12 +99,14 @@ export async function importFolder(folderPath: string) {
 
     // Add it to the frame's structure
     renderablesByFrame[parsed.frame].push(renderable)
-    movementJSONByFrame[parsed.frame].push(parsed)
+    movementJSONByFrame[parsed.frame].movementJSON.push(parsed)
 
     // Update frame counters
     minFrame = Math.min(minFrame, parsed.frame)
     maxFrame = Math.max(maxFrame, parsed.frame)
   }
+
+  const sceneTotalFrames = maxFrame - minFrame
 
   return {
     renderablesByFrame,
@@ -112,6 +117,8 @@ export async function importFolder(folderPath: string) {
     frameData,
     settingsToMerge,
     visualisationSettingsToMerge,
+
+    sceneTotalFrames,
   }
 }
 

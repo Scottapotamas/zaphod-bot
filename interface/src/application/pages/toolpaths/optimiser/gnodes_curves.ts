@@ -16,37 +16,45 @@ import {
   ConstantSpeedBezier,
 } from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
+import { CancellationToken } from '@electricui/async-utilities'
+import { resolve } from 'path'
 
 export type GNodesCurvesSpline =
   | {
       type: BlenderCurveType.CATMULL_ROM
       cyclic: boolean
       points: GNodesCatmullRomPoint[]
+      texture_file?: string
     }
   | {
       type: BlenderCurveType.POLY
       cyclic: boolean
       points: GNodesPolyLinePoint[]
+      texture_file?: string
     }
   | {
       type: BlenderCurveType.BEZIER
       cyclic: boolean
       points: GNodesBezierPoint[]
+      texture_file?: string
     }
   | {
       type: BlenderCurveType.NURBS
       cyclic: boolean
       points: GNodesNurbsPoint[]
+      texture_file?: string
     }
 
 export type GNodesCatmullRomPoint = {
   co: [number, number, number] // position
   color: [number, number, number, number] // Vertex color
+  uv?: [number, number] // UV texture coordinate
 }
 
 export type GNodesPolyLinePoint = {
   co: [number, number, number] // position
   color: [number, number, number, number] // Vertex color
+  uv?: [number, number] // UV texture coordinate
 }
 
 export type GNodesBezierPoint = {
@@ -57,11 +65,13 @@ export type GNodesBezierPoint = {
   handle_right: [number, number, number] // position
   handle_type_left: BlenderBezierHandleType
   handle_type_right: BlenderBezierHandleType
+  uv?: [number, number] // UV texture coordinate
 }
 
 export type GNodesNurbsPoint = {
   co: [number, number, number] // position
   color: [number, number, number, number] // Vertex color
+  uv?: [number, number] // UV texture coordinate
 }
 
 export enum BlenderCurveType {
@@ -93,7 +103,10 @@ export interface GNodesCurvesToMovementsSettings {
 export class GNodesCurves {
   readonly type = 'gnodes_vertices'
 
-  constructor(public name: string) {}
+  constructor(
+    private filepath: string,
+    public name: string,
+  ) {}
 
   private splines: GNodesCurvesSpline[] = []
 
@@ -141,6 +154,13 @@ export class GNodesCurves {
 
     let i = 0
     for (const spline of this.splines) {
+      // Load the texture file if it exists
+      if (spline.texture_file) {
+        console.log(`TODO: Loading texture file...`, this.filepath)
+        await new Promise((resolve, reject) => setTimeout(resolve, 25))
+        console.log(`TODO: ...Texture file loaded`)
+      }
+
       let orderedMovements: MovementGroup
       switch (spline.type) {
         case BlenderCurveType.POLY:
@@ -188,8 +208,8 @@ export interface GNodesCurvesJSON {
   splines: GNodesCurvesSpline[]
 }
 
-export function importGNodesCurves(json: GNodesCurvesJSON) {
-  const gnodesCurves = new GNodesCurves(json.name)
+export function importGNodesCurves(filepath: string, json: GNodesCurvesJSON) {
+  const gnodesCurves = new GNodesCurves(filepath, json.name)
 
   for (const spline of json.splines) {
     gnodesCurves.addSpline(spline)
