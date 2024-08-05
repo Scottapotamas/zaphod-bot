@@ -8,7 +8,13 @@ import { MATERIALS } from './materials/utilities'
 import { Point, Line, Movement, MovementGroup } from './movements'
 import { MILLISECONDS_IN_SECOND } from './movement_utilities'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
-import { TriggerAlignment, TriggerCall, TriggerCallDMX, TriggerType } from './triggers'
+import {
+  TriggerAlignment,
+  TriggerCall,
+  TriggerCallDMX,
+  TriggerType,
+} from './triggers'
+import { CancellationToken } from '@electricui/async-utilities'
 
 export interface EffectorToMovementSettings {
   // How long to wait at the effector's position before executing the movement.
@@ -66,7 +72,7 @@ export class Effector {
     return null
   }
 
-  public toMovements = (settings: Settings) => {
+  public toMovements = async (settings: Settings) => {
     const objectID = this.name
     const overrideKeys = [this.name, objectID]
 
@@ -80,13 +86,26 @@ export class Effector {
 
     const mat = importMaterial(this.material)
 
-    const settingsWithOverride = getToMovementSettings(settings, 'effector', overrideKeys)
+    const settingsWithOverride = getToMovementSettings(
+      settings,
+      'effector',
+      overrideKeys,
+    )
 
     // Depending on the 'center' value, calculate the start and the end
-    let start = new Vector3(this.position[0], this.position[1], this.position[2])
+    let start = new Vector3(
+      this.position[0],
+      this.position[1],
+      this.position[2],
+    )
     let end = new Vector3(this.position[0], this.position[1], this.position[2])
     const directionVector = new Vector3(0, 0, 1).applyQuaternion(
-      new Quaternion(this.quaternion[0], this.quaternion[1], this.quaternion[2], this.quaternion[3]),
+      new Quaternion(
+        this.quaternion[0],
+        this.quaternion[1],
+        this.quaternion[2],
+        this.quaternion[3],
+      ),
     )
 
     if (this.align === 'start') {
@@ -94,22 +113,34 @@ export class Effector {
       end = end.add(directionVector.clone().multiplyScalar(this.display_size))
     } else if (this.align === 'end') {
       // the position is the end, move 'size' amount in the negative direction for the end
-      start = start.add(directionVector.clone().multiplyScalar(-this.display_size))
+      start = start.add(
+        directionVector.clone().multiplyScalar(-this.display_size),
+      )
     } else if (this.align === 'center') {
       // the position is the center, move 1/2 'size' amount forward for start, 1/2 'size' amount backward for the end
-      start = start.add(directionVector.clone().multiplyScalar(this.display_size / 2))
-      end = end.add(directionVector.clone().multiplyScalar(-this.display_size / 2))
+      start = start.add(
+        directionVector.clone().multiplyScalar(this.display_size / 2),
+      )
+      end = end.add(
+        directionVector.clone().multiplyScalar(-this.display_size / 2),
+      )
     }
 
     const orderedMovements = new MovementGroup()
-    
+
     // Freeze internal movement ordering
     orderedMovements.frozen = true
 
     // Add the trigger
 
     if (settingsWithOverride.preWait && settingsWithOverride.preWait > 0) {
-      const startMovement = new Point(start, settingsWithOverride.preWait ?? 0, mat, objectID, overrideKeys)
+      const startMovement = new Point(
+        start,
+        settingsWithOverride.preWait ?? 0,
+        mat,
+        objectID,
+        overrideKeys,
+      )
       startMovement.interFrameID = `${this.name}-pre`
       orderedMovements.addMovement(startMovement)
     }
@@ -140,8 +171,13 @@ export class Effector {
 
     const distance = start.distanceTo(end)
 
-    if (this.duration_override && Number.isFinite(this.duration_override) && this.duration_override > 0) {
-      let proposedSpeed = distance / (this.duration_override / MILLISECONDS_IN_SECOND)
+    if (
+      this.duration_override &&
+      Number.isFinite(this.duration_override) &&
+      this.duration_override > 0
+    ) {
+      let proposedSpeed =
+        distance / (this.duration_override / MILLISECONDS_IN_SECOND)
 
       const OVERRIDE_SPEED_LIMIT = 500
 
@@ -158,7 +194,13 @@ export class Effector {
     }
 
     if (settingsWithOverride.postWait && settingsWithOverride.postWait > 0) {
-      const endMovement = new Point(end, settingsWithOverride.postWait ?? 0, mat, objectID, overrideKeys)
+      const endMovement = new Point(
+        end,
+        settingsWithOverride.postWait ?? 0,
+        mat,
+        objectID,
+        overrideKeys,
+      )
       endMovement.interFrameID = `${this.name}-post`
       orderedMovements.addMovement(endMovement)
     }

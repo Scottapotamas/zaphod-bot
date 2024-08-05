@@ -12,6 +12,7 @@ import {
   RGBA,
 } from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
+import { CancellationToken } from '@electricui/async-utilities'
 
 export interface GNodesMeshVertex {
   id: string
@@ -71,7 +72,7 @@ export class GNodesMesh {
     return null
   }
 
-  public toMovements = (settings: Settings) => {
+  public toMovements = async (settings: Settings) => {
     const movements: Movement[] = []
 
     const objectID = this.name
@@ -81,7 +82,11 @@ export class GNodesMesh {
       return movements
     }
 
-    const settingsWithOverride = getToMovementSettings(settings, 'gnodesMesh', overrideKeys)
+    const settingsWithOverride = getToMovementSettings(
+      settings,
+      'gnodesMesh',
+      overrideKeys,
+    )
 
     for (const edge of this.edges) {
       // A stroke needs at least two points to form a line
@@ -89,7 +94,11 @@ export class GNodesMesh {
         continue
       }
 
-      let lastPoint = new Vector3(edge.points[0].co[0], edge.points[0].co[1], edge.points[0].co[2])
+      let lastPoint = new Vector3(
+        edge.points[0].co[0],
+        edge.points[0].co[1],
+        edge.points[0].co[2],
+      )
 
       let previousPointBlendedColor = edge.points[0].color
 
@@ -102,11 +111,20 @@ export class GNodesMesh {
         const co = point.co
 
         let currentPoint = new Vector3(co[0], co[1], co[2])
-        const vertexMat = new ColorRampMaterial(previousPointBlendedColor, point.color)
+        const vertexMat = new ColorRampMaterial(
+          previousPointBlendedColor,
+          point.color,
+        )
         previousPointBlendedColor = point.color
 
         // Create a line from the lastPoint to the currentPoint
-        const line: Movement = new Line(lastPoint, currentPoint, vertexMat, objectID, overrideKeys)
+        const line: Movement = new Line(
+          lastPoint,
+          currentPoint,
+          vertexMat,
+          objectID,
+          overrideKeys,
+        )
 
         // This ID isn't guaranteed to be stable, but it'll probably be close at least some of the time
         line.interFrameID = point.id

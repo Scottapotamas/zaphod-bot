@@ -8,6 +8,7 @@ import { isSimpleColorMaterial } from './materials/Color'
 import { DelayMaterial } from './materials/DelayMaterial'
 import { Point, Line, Movement, MovementGroup } from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
+import { CancellationToken } from '@electricui/async-utilities'
 
 export interface LightToMovementsSettings {
   // How long to wait at the particle's position before going bright.
@@ -30,7 +31,11 @@ export interface LightToMovementsSettings {
 export class Light {
   readonly type = 'light'
 
-  constructor(public name: string, public material: MaterialJSON, public position: [number, number, number]) {}
+  constructor(
+    public name: string,
+    public material: MaterialJSON,
+    public position: [number, number, number],
+  ) {}
 
   public getObjectTree: () => TreeNodeInfo<NodeInfo> = () => {
     const node: TreeNodeInfo<NodeInfo> = {
@@ -53,7 +58,7 @@ export class Light {
     return null
   }
 
-  public toMovements = (settings: Settings) => {
+  public toMovements = async (settings: Settings) => {
     const movements: Movement[] = []
 
     const objectID = this.name
@@ -75,10 +80,18 @@ export class Light {
       return movements
     }
 
-    const settingsWithOverride = getToMovementSettings(settings, 'light', overrideKeys)
+    const settingsWithOverride = getToMovementSettings(
+      settings,
+      'light',
+      overrideKeys,
+    )
 
     // Convert the position to a Vector3
-    const position = new Vector3(this.position[0], this.position[1], this.position[2])
+    const position = new Vector3(
+      this.position[0],
+      this.position[1],
+      this.position[2],
+    )
 
     const duration =
       (settingsWithOverride.preWait ?? 0) +

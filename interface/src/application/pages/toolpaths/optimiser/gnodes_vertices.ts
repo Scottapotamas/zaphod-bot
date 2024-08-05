@@ -14,6 +14,7 @@ import {
   Point,
 } from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
+import { CancellationToken } from '@electricui/async-utilities'
 
 export interface GNodesVerticesVertex {
   id: string
@@ -71,7 +72,7 @@ export class GNodesVertices {
     return null
   }
 
-  public toMovements = (settings: Settings) => {
+  public toMovements = async (settings: Settings) => {
     const movements: Movement[] = []
 
     const objectID = this.name

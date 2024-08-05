@@ -136,7 +136,6 @@ export interface Store {
   selectedMinFrame: number
   selectedMaxFrame: number
   priorityFrame: number
-  currentlyOptimising: boolean
 
   // The currently viewed frame
   viewportFrame: number
@@ -278,7 +277,6 @@ export const initialState: Store = {
   },
 
   priorityFrame: 1,
-  currentlyOptimising: false,
   movementOrdering: {},
   allRenderables: [],
   renderablesByFrame: {},

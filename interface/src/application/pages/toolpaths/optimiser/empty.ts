@@ -3,6 +3,7 @@ import type { TreeNodeInfo } from '@blueprintjs/core'
 import type { Renderable } from './import'
 import type { Settings } from './settings'
 import { IconNames } from '@blueprintjs/icons'
+import { CancellationToken } from '@electricui/async-utilities'
 
 export interface EmptyToMovementsSettings {}
 
@@ -33,7 +34,7 @@ export class Empty {
     return null
   }
 
-  public toMovements = (settings: Settings) => {
+  public toMovements = async (settings: Settings) => {
     return []
   }
 }

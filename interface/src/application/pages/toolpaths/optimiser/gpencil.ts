@@ -19,6 +19,7 @@ import {
 import { getShouldSkip, getToMovementSettings } from './settings'
 import type { Settings } from './settings'
 import { InvisibleMaterialDefaultJSON } from './materials/Invisible'
+import { CancellationToken } from '@electricui/async-utilities'
 
 export class GPencilLayer {
   public strokes: GPencilStroke[] = []
@@ -124,7 +125,7 @@ export class GPencil {
     return null
   }
 
-  public toMovements = (settings: Settings) => {
+  public toMovements = async (settings: Settings) => {
     const movements: Movement[] = []
 
     for (const layer of this.layers) {
@@ -135,7 +136,11 @@ export class GPencil {
         continue
       }
 
-      const settingsWithOverride = getToMovementSettings(settings, 'gpencil', overrideKeys)
+      const settingsWithOverride = getToMovementSettings(
+        settings,
+        'gpencil',
+        overrideKeys,
+      )
 
       for (const stroke of layer.strokes) {
         // A stroke needs at least two points to form a line
@@ -143,11 +148,17 @@ export class GPencil {
           continue
         }
 
-        const simplified = simplify(stroke.points, settingsWithOverride.simplificationTolerance ?? 0)
+        const simplified = simplify(
+          stroke.points,
+          settingsWithOverride.simplificationTolerance ?? 0,
+        )
 
         const material = importMaterial(stroke.material)
 
-        if (settingsWithOverride.outputType === GPencilOutputType.CATMULL_CHAIN && simplified.length >= 4) {
+        if (
+          settingsWithOverride.outputType === GPencilOutputType.CATMULL_CHAIN &&
+          simplified.length >= 4
+        ) {
           const points = [
             simplified[0], // duplicate first
             ...simplified,
@@ -155,7 +166,14 @@ export class GPencil {
           ]
 
           const movement = new CatmullChain(
-            points.map(gPencilPoint => new Vector3(gPencilPoint.co[0], gPencilPoint.co[1], gPencilPoint.co[2])),
+            points.map(
+              gPencilPoint =>
+                new Vector3(
+                  gPencilPoint.co[0],
+                  gPencilPoint.co[1],
+                  gPencilPoint.co[2],
+                ),
+            ),
             material,
             objectID,
             overrideKeys,
@@ -166,7 +184,11 @@ export class GPencil {
           continue
         }
 
-        let lastPoint = new Vector3(simplified[0].co[0], simplified[0].co[1], simplified[0].co[2])
+        let lastPoint = new Vector3(
+          simplified[0].co[0],
+          simplified[0].co[1],
+          simplified[0].co[2],
+        )
 
         const orderedMovements = new MovementGroup()
 
@@ -198,17 +220,31 @@ export class GPencil {
             // Lerp the base color to the vertex colour based on the vertex color alpha. The vertex color alpha is multiplied by the strength
             const currentPointBlendedColor = lerpRGBA(
               (material as SimpleColorMaterial).color,
-              [point.vertexColor[0], point.vertexColor[1], point.vertexColor[2], point.vertexColor[3] * point.strength],
+              [
+                point.vertexColor[0],
+                point.vertexColor[1],
+                point.vertexColor[2],
+                point.vertexColor[3] * point.strength,
+              ],
               point.vertexColor[3], // Multiply the vertex by the strength to get a transparency effect
             )
 
-            vertexMat = new ColorRampMaterial(previousPointBlendedColor, currentPointBlendedColor)
+            vertexMat = new ColorRampMaterial(
+              previousPointBlendedColor,
+              currentPointBlendedColor,
+            )
 
             previousPointBlendedColor = currentPointBlendedColor
           }
 
           // Create a line from the lastPoint to the currentPoint
-          const line: Movement = new Line(lastPoint, currentPoint, vertexMat, objectID, overrideKeys)
+          const line: Movement = new Line(
+            lastPoint,
+            currentPoint,
+            vertexMat,
+            objectID,
+            overrideKeys,
+          )
 
           // This ID isn't guaranteed to be stable, but it'll probably be close at least some of the time
           line.interFrameID = point.id
@@ -258,7 +294,11 @@ export function importGPencil(json: GPencilJSON) {
     gPencil.addLayer(layer)
 
     for (const jStroke of jLayer.strokes) {
-      const stroke = new GPencilStroke(jStroke.id, jStroke.material, jStroke.useCyclic)
+      const stroke = new GPencilStroke(
+        jStroke.id,
+        jStroke.material,
+        jStroke.useCyclic,
+      )
       layer.addStroke(stroke)
 
       for (const jPoint of jStroke.points) {

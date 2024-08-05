@@ -8,6 +8,7 @@ import type { Movement } from './movements'
 import { isEmpty } from './empty'
 import { VisualisationSettings } from '../interface/state'
 import { preprocess } from './preprocess'
+import { CancellationToken } from '@electricui/async-utilities'
 
 async function* walkJSON(dir: string): AsyncGenerator<string> {
   for await (const d of await fs.promises.opendir(dir)) {
@@ -52,7 +53,9 @@ export async function importFolder(folderPath: string) {
   // Walk the folder to find json files
   for await (const p of walkJSON(folderPath)) {
     const contents = await fs.promises.readFile(p)
-    let parsed: MovementJSON | RootSettingsFile = JSON.parse(contents.toString())
+    let parsed: MovementJSON | RootSettingsFile = JSON.parse(
+      contents.toString(),
+    )
 
     // Handle the special case of the root settings file
     if (p === potentialRootSettingsFile && parsed.type === `root-settings`) {
@@ -112,12 +115,18 @@ export async function importFolder(folderPath: string) {
   }
 }
 
-export function renderablesToMovements(renderables: Renderable[], settings: Settings) {
+export async function renderablesToMovements(
+  renderables: Renderable[],
+  settings: Settings,
+  cancellationToken: CancellationToken,
+) {
   const movements: Movement[] = []
 
   for (const renderable of renderables) {
-    for (const movement of renderable.toMovements(settings)) {
+    for (const movement of await renderable.toMovements(settings)) {
       movements.push(movement)
+
+      cancellationToken.haltIfCancelled()
     }
   }
 

@@ -7,8 +7,15 @@ import { importMaterial, MaterialJSON } from './material'
 import { isSimpleColorMaterial, SimpleColorMaterial } from './materials/Color'
 import { Point, Line, Movement, MovementGroup } from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
+import { CancellationToken } from '@electricui/async-utilities'
 
-export function map(num: number, in_min: number, in_max: number, out_min: number, out_max: number) {
+export function map(
+  num: number,
+  in_min: number,
+  in_max: number,
+  out_min: number,
+  out_max: number,
+) {
   return ((num - in_min) * (out_max - out_min)) / (in_max - in_min) + out_min
 }
 
@@ -22,7 +29,10 @@ export interface Particle {
 }
 
 export class ParticleSystem {
-  constructor(public name: string, public material: MaterialJSON) {}
+  constructor(
+    public name: string,
+    public material: MaterialJSON,
+  ) {}
 
   public particles: Particle[] = []
 
@@ -102,7 +112,7 @@ export class Particles {
     return null
   }
 
-  public toMovements = (settings: Settings) => {
+  public toMovements = async (settings: Settings) => {
     const movements: Movement[] = []
 
     for (const system of this.systems) {
@@ -113,15 +123,26 @@ export class Particles {
         continue
       }
 
-      const settingsWithOverride = getToMovementSettings(settings, 'particles', overrideKeys)
+      const settingsWithOverride = getToMovementSettings(
+        settings,
+        'particles',
+        overrideKeys,
+      )
 
       for (const particle of system.particles) {
-        if (settings.objectSettings.particles.hideIfOccluded && particle.occluded) {
+        if (
+          settings.objectSettings.particles.hideIfOccluded &&
+          particle.occluded
+        ) {
           continue
         }
 
         // Convert the location to a Vector3
-        const location = new Vector3(particle.location[0], particle.location[1], particle.location[2])
+        const location = new Vector3(
+          particle.location[0],
+          particle.location[1],
+          particle.location[2],
+        )
 
         const duration =
           (settingsWithOverride.preWait ?? 0) +
@@ -132,7 +153,8 @@ export class Particles {
 
         if (isSimpleColorMaterial(mat)) {
           const fullBrightnessBy = settingsWithOverride.fullBrightnessBy ?? 0
-          const fullBrightnessTill = settingsWithOverride.fullBrightnessUntil ?? 1
+          const fullBrightnessTill =
+            settingsWithOverride.fullBrightnessUntil ?? 1
 
           let brightness = 1
 
@@ -153,7 +175,11 @@ export class Particles {
         point.interFrameID = particle.id
 
         if (settingsWithOverride.drawInVelocityOrientation) {
-          point.velocity.set(particle.velocity[0], particle.velocity[1], particle.velocity[2])
+          point.velocity.set(
+            particle.velocity[0],
+            particle.velocity[1],
+            particle.velocity[2],
+          )
         }
 
         movements.push(point)

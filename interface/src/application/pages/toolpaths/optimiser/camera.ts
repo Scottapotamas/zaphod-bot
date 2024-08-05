@@ -1,4 +1,12 @@
-import { Color, PerspectiveCamera, Vector3, Quaternion, Euler, MathUtils, Plane } from 'three'
+import {
+  Color,
+  PerspectiveCamera,
+  Vector3,
+  Quaternion,
+  Euler,
+  MathUtils,
+  Plane,
+} from 'three'
 import { NodeInfo, NodeTypes } from '../interface/RenderableTree'
 import { TreeNodeInfo } from '@blueprintjs/core'
 import { ObjectNameTree } from './files'
@@ -10,6 +18,7 @@ import { IconNames } from '@blueprintjs/icons'
 import { SimpleColorMaterial } from './materials/Color'
 import { DelayMaterial } from './materials/DelayMaterial'
 import { optimalFlippingForTour } from './passes'
+import { CancellationToken } from '@electricui/async-utilities'
 
 export interface CameraToMovementsSettings {
   // Whether to draw alignment helpers in real space
@@ -25,7 +34,9 @@ export interface CameraToMovementsSettings {
 }
 
 const conversionQuaternion = new Quaternion()
-conversionQuaternion.setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2).invert() // Invert the three -> blender transform
+conversionQuaternion
+  .setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2)
+  .invert() // Invert the three -> blender transform
 
 export class Camera {
   readonly type = 'camera'
@@ -84,7 +95,7 @@ export class Camera {
     return null
   }
 
-  public toMovements = (settings: Settings) => {
+  public toMovements = async (settings: Settings) => {
     const groups: {
       [height: number]: MovementGroup
     } = {}
@@ -111,7 +122,15 @@ export class Camera {
       const overrideKeys = [this.name, objectID]
 
       // Horizontal line
-      addMovement(new Line(new Vector3(0, 0, 100), new Vector3(100, 0, 100), grey, objectID, overrideKeys))
+      addMovement(
+        new Line(
+          new Vector3(0, 0, 100),
+          new Vector3(100, 0, 100),
+          grey,
+          objectID,
+          overrideKeys,
+        ),
+      )
 
       // Vertical lines
       for (let index = 0; index <= 10; index++) {
@@ -176,14 +195,24 @@ export class Camera {
       const center = new Vector3(0, 0, 100)
 
       // A line toward camera, from the center
-      const directionOfCamera = new Vector3(this.position[0], this.position[1], this.position[2])
+      const directionOfCamera = new Vector3(
+        this.position[0],
+        this.position[1],
+        this.position[2],
+      )
         .sub(center)
         .normalize()
 
       function align(index: number) {
-        const right = directionOfCamera.clone().cross(new Vector3(0, 0, 1)).normalize()
+        const right = directionOfCamera
+          .clone()
+          .cross(new Vector3(0, 0, 1))
+          .normalize()
 
-        const up = directionOfCamera.clone().cross(new Vector3(0, 1, 0)).normalize()
+        const up = directionOfCamera
+          .clone()
+          .cross(new Vector3(0, 1, 0))
+          .normalize()
 
         switch (index) {
           case 0:
@@ -470,7 +499,12 @@ export class Camera {
     // Do the blender -> threejs transform
     camera.position.set(this.position[0], this.position[2], -this.position[1])
 
-    camera.quaternion.set(this.quaternion[0], this.quaternion[1], this.quaternion[2], this.quaternion[3])
+    camera.quaternion.set(
+      this.quaternion[0],
+      this.quaternion[1],
+      this.quaternion[2],
+      this.quaternion[3],
+    )
 
     if (false) {
       const blenderCameraOrientation = new Quaternion(
@@ -483,9 +517,11 @@ export class Camera {
       const zVec = new Vector3(0, 0, 1)
       zVec.applyQuaternion(blenderCameraOrientation)
 
-      const toLook = new Vector3(this.position[0], this.position[2], -this.position[1]).add(
-        zVec.clone().multiplyScalar(-100),
-      )
+      const toLook = new Vector3(
+        this.position[0],
+        this.position[2],
+        -this.position[1],
+      ).add(zVec.clone().multiplyScalar(-100))
 
       camera.lookAt(toLook)
     }

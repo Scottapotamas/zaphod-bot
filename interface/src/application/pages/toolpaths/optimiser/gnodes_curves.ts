@@ -123,7 +123,7 @@ export class GNodesCurves {
     return null
   }
 
-  public toMovements = (settings: Settings) => {
+  public toMovements = async (settings: Settings) => {
     const movements: Movement[] = []
 
     const objectID = this.name

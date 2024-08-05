@@ -6,6 +6,7 @@ import { Movement, SerialisedTour } from '../movements'
 import { Continue, optimise, Progress } from '../passes'
 import { preprocess } from '../preprocess'
 import type { Settings } from '../settings'
+import { CancellationToken } from '@electricui/async-utilities'
 
 let progressUpdates = new Subject<Progress>()
 
@@ -50,7 +51,7 @@ export const OptimisationWorker = {
       // Process the raw objects into movements
       for (const json of sparseBagToImport) {
         const imported = importJson(json)
-        for (const movement of imported.toMovements(settings)) {
+        for (const movement of await imported.toMovements(settings)) {
           movements.push(movement)
         }
       }

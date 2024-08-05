@@ -92,6 +92,7 @@ export function toolpath(
 
       // Add the movement
       movementMoves.push({
+        id: 0, // TODO: What are we actually doing here
         ...move,
         sync_offset: movementTimestamp,
       })
@@ -238,6 +239,7 @@ export function toolpath(
 
       // Add a blank move to the beginning
       movementMoves.unshift({
+        id: 0, // TODO: What are we actually doing here
         sync_offset: 0,
         duration: delay,
         type: MovementMoveType.POINT_TRANSIT, // Despite being a point, draw a line
