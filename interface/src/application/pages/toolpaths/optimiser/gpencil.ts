@@ -76,6 +76,8 @@ export interface GPencilToMovementsSettings {
   simplificationTolerance?: number
 }
 
+const materialDefault = new SimpleColorMaterial([1, 1, 1, 1])
+
 export class GPencil {
   readonly type = 'gpencil'
 
@@ -125,7 +127,7 @@ export class GPencil {
     return null
   }
 
-  public toMovements = async (settings: Settings) => {
+  public toMovements = async (settings: Settings, buildMaterials: boolean) => {
     const movements: Movement[] = []
 
     for (const layer of this.layers) {
@@ -153,7 +155,9 @@ export class GPencil {
           settingsWithOverride.simplificationTolerance ?? 0,
         )
 
-        const material = importMaterial(stroke.material)
+        const material = buildMaterials
+          ? importMaterial(stroke.material)
+          : materialDefault
 
         if (
           settingsWithOverride.outputType === GPencilOutputType.CATMULL_CHAIN &&
@@ -192,7 +196,7 @@ export class GPencil {
 
         const orderedMovements = new MovementGroup()
 
-        let doVertexColoring = isSimpleColorMaterial(material)
+        let doVertexColoring = buildMaterials && isSimpleColorMaterial(material)
 
         let previousPointBlendedColor = doVertexColoring
           ? lerpRGBA(

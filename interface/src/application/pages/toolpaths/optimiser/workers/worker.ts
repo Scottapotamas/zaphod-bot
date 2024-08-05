@@ -53,7 +53,7 @@ export const OptimisationWorker = {
       // Process the raw objects into movements
       for (const json of sparseBagToImport.movementJSON) {
         const imported = importJson(filepath, json)
-        for (const movement of await imported.toMovements(settings)) {
+        for (const movement of await imported.toMovements(settings, false)) {
           movements.push(movement)
         }
       }

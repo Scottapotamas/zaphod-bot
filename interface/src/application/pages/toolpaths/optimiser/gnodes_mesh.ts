@@ -13,6 +13,7 @@ import {
 } from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
 import { CancellationToken } from '@electricui/async-utilities'
+import { SimpleColorMaterial } from './materials/Color'
 
 export interface GNodesMeshVertex {
   id: string
@@ -36,6 +37,8 @@ export interface GNodesMeshToMovementsSettings {
    */
   outputType?: GNodesMeshOutputType
 }
+
+const materialDefault = new SimpleColorMaterial([1, 1, 1, 1])
 
 export class GNodesMesh {
   readonly type = 'gnodes_mesh'
@@ -72,7 +75,7 @@ export class GNodesMesh {
     return null
   }
 
-  public toMovements = async (settings: Settings) => {
+  public toMovements = async (settings: Settings, buildMaterials: boolean) => {
     const movements: Movement[] = []
 
     const objectID = this.name
@@ -111,17 +114,15 @@ export class GNodesMesh {
         const co = point.co
 
         let currentPoint = new Vector3(co[0], co[1], co[2])
-        const vertexMat = new ColorRampMaterial(
-          previousPointBlendedColor,
-          point.color,
-        )
         previousPointBlendedColor = point.color
 
         // Create a line from the lastPoint to the currentPoint
         const line: Movement = new Line(
           lastPoint,
           currentPoint,
-          vertexMat,
+          buildMaterials
+            ? new ColorRampMaterial(previousPointBlendedColor, point.color)
+            : materialDefault,
           objectID,
           overrideKeys,
         )

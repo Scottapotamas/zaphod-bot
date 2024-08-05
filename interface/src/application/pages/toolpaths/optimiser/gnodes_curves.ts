@@ -136,7 +136,7 @@ export class GNodesCurves {
     return null
   }
 
-  public toMovements = async (settings: Settings) => {
+  public toMovements = async (settings: Settings, buildMaterials: boolean) => {
     const movements: Movement[] = []
 
     const objectID = this.name
@@ -155,7 +155,7 @@ export class GNodesCurves {
     let i = 0
     for (const spline of this.splines) {
       // Load the texture file if it exists
-      if (spline.texture_file) {
+      if (spline.texture_file && buildMaterials) {
         console.log(`TODO: Loading texture file...`, this.filepath)
         await new Promise((resolve, reject) => setTimeout(resolve, 25))
         console.log(`TODO: ...Texture file loaded`)
@@ -170,6 +170,7 @@ export class GNodesCurves {
             overrideKeys,
             i,
             settings,
+            buildMaterials,
           )
           break
         case BlenderCurveType.BEZIER:
@@ -179,6 +180,7 @@ export class GNodesCurves {
             overrideKeys,
             i,
             settings,
+            buildMaterials,
           )
           break
 
@@ -218,12 +220,15 @@ export function importGNodesCurves(filepath: string, json: GNodesCurvesJSON) {
   return gnodesCurves
 }
 
+const materialDefault = new SimpleColorMaterial([1, 1, 1, 1])
+
 function polySplineToMovementGroup(
   spline: GNodesCurvesSpline,
   objectID: string,
   overrideKeys: string[],
   splineIndex: number,
   settings: Settings,
+  buildMaterials: boolean,
 ) {
   let points = spline.points as GNodesPolyLinePoint[]
 
@@ -247,7 +252,9 @@ function polySplineToMovementGroup(
     const line: Movement = new Line(
       prevPos,
       currPos,
-      new ColorRampMaterial(prev.color, curr.color),
+      buildMaterials
+        ? new ColorRampMaterial(prev.color, curr.color)
+        : materialDefault,
       objectID,
       overrideKeys,
     )
@@ -264,6 +271,7 @@ function bezierSplineToMovementGroup(
   overrideKeys: string[],
   splineIndex: number,
   settings: Settings,
+  buildMaterials: boolean,
 ) {
   let points = spline.points as GNodesBezierPoint[]
 
@@ -288,7 +296,9 @@ function bezierSplineToMovementGroup(
       c1,
       c2,
       c3,
-      new ColorRampMaterial(leftPoint.color, rightPoint.color),
+      buildMaterials
+        ? new ColorRampMaterial(leftPoint.color, rightPoint.color)
+        : materialDefault,
       objectID,
     )
 

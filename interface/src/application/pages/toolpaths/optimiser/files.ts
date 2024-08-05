@@ -130,7 +130,7 @@ export async function renderablesToMovements(
   const movements: Movement[] = []
 
   for (const renderable of renderables) {
-    for (const movement of await renderable.toMovements(settings)) {
+    for (const movement of await renderable.toMovements(settings, true)) {
       movements.push(movement)
 
       cancellationToken.haltIfCancelled()

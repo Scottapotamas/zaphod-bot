@@ -39,6 +39,8 @@ export interface GNodesVerticesToMovementsSettings {
   // fullBrightnessUntil?: number // 0 - 1
 }
 
+const materialDefault = new SimpleColorMaterial([1, 1, 1, 1])
+
 export class GNodesVertices {
   readonly type = 'gnodes_vertices'
 
@@ -72,7 +74,7 @@ export class GNodesVertices {
     return null
   }
 
-  public toMovements = async (settings: Settings) => {
+  public toMovements = async (settings: Settings, buildMaterials: boolean) => {
     const movements: Movement[] = []
 
     const objectID = this.name
@@ -99,9 +101,13 @@ export class GNodesVertices {
         (settingsWithOverride.onDuration ?? 0) +
         (settingsWithOverride.postWait ?? 0)
 
-      const mat = new SimpleColorMaterial(p.color)
-
-      const point = new Point(location, duration, mat, objectID, overrideKeys)
+      const point = new Point(
+        location,
+        duration,
+        buildMaterials ? new SimpleColorMaterial(p.color) : materialDefault,
+        objectID,
+        overrideKeys,
+      )
 
       // This ID is guaranteed to be stable
       point.interFrameID = p.id

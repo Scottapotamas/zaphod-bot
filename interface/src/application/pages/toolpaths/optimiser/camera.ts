@@ -95,7 +95,7 @@ export class Camera {
     return null
   }
 
-  public toMovements = async (settings: Settings) => {
+  public toMovements = async (settings: Settings, buildMaterials: boolean) => {
     const groups: {
       [height: number]: MovementGroup
     } = {}

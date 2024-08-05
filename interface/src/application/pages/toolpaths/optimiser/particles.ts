@@ -112,7 +112,7 @@ export class Particles {
     return null
   }
 
-  public toMovements = async (settings: Settings) => {
+  public toMovements = async (settings: Settings, buildMaterials: boolean) => {
     const movements: Movement[] = []
 
     for (const system of this.systems) {

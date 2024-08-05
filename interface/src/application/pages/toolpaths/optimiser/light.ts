@@ -4,7 +4,7 @@ import { Color, Material, Vector3 } from 'three'
 import { NodeInfo, NodeTypes } from '../interface/RenderableTree'
 import { ObjectNameTree } from './files'
 import { importMaterial, MaterialJSON } from './material'
-import { isSimpleColorMaterial } from './materials/Color'
+import { SimpleColorMaterial, isSimpleColorMaterial } from './materials/Color'
 import { DelayMaterial } from './materials/DelayMaterial'
 import { Point, Line, Movement, MovementGroup } from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
@@ -27,6 +27,8 @@ export interface LightToMovementsSettings {
    */
   hideIfBlack?: boolean
 }
+
+const materialDefault = new SimpleColorMaterial([1, 1, 1, 1])
 
 export class Light {
   readonly type = 'light'
@@ -58,7 +60,7 @@ export class Light {
     return null
   }
 
-  public toMovements = async (settings: Settings) => {
+  public toMovements = async (settings: Settings, buildMaterials: boolean) => {
     const movements: Movement[] = []
 
     const objectID = this.name
@@ -68,7 +70,9 @@ export class Light {
       return movements
     }
 
+    // Since we skip black lights, the material affects the movements
     const mat = importMaterial(this.material)
+
     if (
       isSimpleColorMaterial(mat) &&
       settings.objectSettings.light.hideIfBlack &&
