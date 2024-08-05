@@ -5,6 +5,7 @@ import { setupProxyAndDebugInterface } from '@electricui/components-desktop-blue
 import { setupTransportWindow } from '@electricui/utility-electron'
 import {
   ElectronIPCRemoteQueryExecutor,
+  MultiPersistenceEngineMemory,
   QueryableMessageIDProvider,
 } from '@electricui/core-timeseries'
 
@@ -19,11 +20,9 @@ document.body.appendChild(root)
 const hotReloadHandler = setupProxyAndDebugInterface(root, deviceManager)
 setupTransportWindow()
 
-const remoteQueryExecutor = new ElectronIPCRemoteQueryExecutor()
-const queryableMessageIDProvider = new QueryableMessageIDProvider(
-  deviceManager,
-  remoteQueryExecutor,
-)
+const multiPersistenceEngine = new MultiPersistenceEngineMemory()
+const remoteQueryExecutor = new ElectronIPCRemoteQueryExecutor(multiPersistenceEngine)
+const queryableMessageIDProvider = new QueryableMessageIDProvider(deviceManager, multiPersistenceEngine)
 
 if (module.hot) {
   module.hot.accept('./config', () => hotReloadHandler(root, deviceManager))
