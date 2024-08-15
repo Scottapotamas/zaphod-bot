@@ -17,7 +17,10 @@ import {
 } from './movements'
 import { getShouldSkip, getToMovementSettings, Settings } from './settings'
 import { CancellationToken } from '@electricui/async-utilities'
-import { resolve } from 'path'
+import path, { resolve } from 'path'
+import { PNG } from 'pngjs'
+import { readFile } from 'fs/promises'
+import { TextureStripMaterial } from './materials/TextureStrip'
 
 export type GNodesCurvesSpline =
   | {
@@ -154,11 +157,14 @@ export class GNodesCurves {
 
     let i = 0
     for (const spline of this.splines) {
+      let textureReader: TextureReader | null = null
+
       // Load the texture file if it exists
       if (spline.texture_file && buildMaterials) {
-        console.log(`TODO: Loading texture file...`, this.filepath)
-        await new Promise((resolve, reject) => setTimeout(resolve, 25))
-        console.log(`TODO: ...Texture file loaded`)
+        textureReader = new TextureReader(
+          path.join(path.dirname(this.filepath), spline.texture_file),
+        )
+        await textureReader.initialize()
       }
 
       let orderedMovements: MovementGroup
@@ -169,6 +175,7 @@ export class GNodesCurves {
             objectID,
             overrideKeys,
             i,
+            textureReader,
             settings,
             buildMaterials,
           )
@@ -179,6 +186,7 @@ export class GNodesCurves {
             objectID,
             overrideKeys,
             i,
+            textureReader,
             settings,
             buildMaterials,
           )
@@ -227,6 +235,7 @@ function polySplineToMovementGroup(
   objectID: string,
   overrideKeys: string[],
   splineIndex: number,
+  textureReader: TextureReader | null,
   settings: Settings,
   buildMaterials: boolean,
 ) {
@@ -253,7 +262,7 @@ function polySplineToMovementGroup(
       prevPos,
       currPos,
       buildMaterials
-        ? new ColorRampMaterial(prev.color, curr.color)
+        ? buildMaterial(prev, curr, textureReader)
         : materialDefault,
       objectID,
       overrideKeys,
@@ -270,6 +279,7 @@ function bezierSplineToMovementGroup(
   objectID: string,
   overrideKeys: string[],
   splineIndex: number,
+  textureReader: TextureReader | null,
   settings: Settings,
   buildMaterials: boolean,
 ) {
@@ -297,7 +307,7 @@ function bezierSplineToMovementGroup(
       c2,
       c3,
       buildMaterials
-        ? new ColorRampMaterial(leftPoint.color, rightPoint.color)
+        ? buildMaterial(leftPoint, rightPoint, textureReader)
         : materialDefault,
       objectID,
     )
@@ -314,4 +324,109 @@ function* window<T>(inputArray: T[], size: number) {
   for (let index = 0; index + size <= inputArray.length; index++) {
     yield inputArray.slice(index, index + size)
   }
+}
+
+class TextureReader {
+  private imageData: Buffer | null = null
+  public width: number = 0
+  public height: number = 0
+
+  constructor(private filePath: string) {}
+
+  async initialize(): Promise<void> {
+    const fileData = await readFile(this.filePath)
+
+    const metadata = PNG.sync.read(fileData)
+
+    this.width = metadata.width
+    this.height = metadata.height
+
+    this.imageData = metadata.data
+  }
+
+  getPixelCoordinate(u: number, v: number): [x: number, y: number] {
+    // Clamp u and v to [0, 1], flip y
+    u = Math.max(0, Math.min(1, u))
+    v = 1 - Math.max(0, Math.min(1, v))
+
+    // Convert UV coordinates to pixel coordinates
+    const x = Math.floor(u * (this.width - 1))
+    const y = Math.floor(v * (this.height - 1))
+
+    return [x, y]
+  }
+
+  readPixel(x: number, y: number): [number, number, number, number] {
+    if (!this.imageData) {
+      throw new Error('Image data not initialized. Call initialize() first.')
+    }
+
+    // Calculate the index in the image data array
+    const index = (y * this.width + x) * 4
+
+    // Read RGBA values and normalize to [0, 1]
+    const r = this.imageData[index] / 255
+    const g = this.imageData[index + 1] / 255
+    const b = this.imageData[index + 2] / 255
+    const a = this.imageData[index + 3] / 255
+
+    return [r, g, b, a]
+  }
+
+  readStrip(x1: number, y1: number, x2: number, y2: number): RGBA[] {
+    if (!this.imageData) {
+      throw new Error('Image data not initialized. Call initialize() first.')
+    }
+
+    const startIndex = (y1 * this.width + x1) * 4
+    const endIndex = (y2 * this.width + x2) * 4
+    const strip: RGBA[] = []
+
+    // Iterate forward or backwards
+    if (endIndex >= startIndex) {
+      for (let index = startIndex; index <= endIndex; index += 4) {
+        const r = this.imageData[index] / 255
+        const g = this.imageData[index + 1] / 255
+        const b = this.imageData[index + 2] / 255
+        // TODO: No alpha channel for now
+        const a = 1 // this.imageData[index + 3] / 255
+        strip.push([r, g, b, a])
+      }
+    } else {
+      for (let index = endIndex; index <= startIndex; index += 4) {
+        const r = this.imageData[index] / 255
+        const g = this.imageData[index + 1] / 255
+        const b = this.imageData[index + 2] / 255
+        // TODO: No alpha channel for now
+        const a = 1 //  this.imageData[index + 3] / 255
+        strip.push([r, g, b, a])
+      }
+      // strip.reverse()
+    }
+
+    return strip
+  }
+}
+
+function buildMaterial(
+  prev: GNodesPolyLinePoint | GNodesBezierPoint,
+  curr: GNodesPolyLinePoint | GNodesBezierPoint,
+  textureReader: TextureReader | null,
+) {
+  // This method is only called if we're reading textures, in which case
+  // it will have been initialised.
+  const reader = textureReader!
+
+  if (prev.uv && curr.uv) {
+    // calculate texture pixel coordinates
+    const start = reader.getPixelCoordinate(prev.uv[0], prev.uv[1])
+    const end = reader.getPixelCoordinate(curr.uv[0], curr.uv[1])
+
+    const strip = reader.readStrip(start[0], start[1], end[0], end[1])
+
+    // Read a strip of texture information
+    return new TextureStripMaterial(strip)
+  }
+
+  return new ColorRampMaterial(prev.color, curr.color)
 }
