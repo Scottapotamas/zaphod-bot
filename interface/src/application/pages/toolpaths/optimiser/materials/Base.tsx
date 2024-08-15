@@ -10,7 +10,7 @@ import type {
   RGBA,
 } from './../movements'
 import { isTransition } from './../movement_utilities'
-import { annotateDrawOrder, rgbToHsi } from './utilities'
+import { rgbToHsi } from './utilities'
 
 /**
  * Materials are currently stateless over the movements they're a part of
@@ -99,14 +99,6 @@ export abstract class Material {
     spatialRenderFrom: number, // 0-1 spatial render up from this point
     spatialRenderTo: number, // 0-1 spatial render up to this point
   ) => {
-    // Annotate draw order
-    annotateDrawOrder(
-      movementIndex,
-      movement,
-      visualisationSettings,
-      addReactComponent,
-    )
-
     // Lines and points only need a single segment, everything else create up to 10.
     const numSegments =
       movement.type === MOVEMENT_TYPE.LINE ||

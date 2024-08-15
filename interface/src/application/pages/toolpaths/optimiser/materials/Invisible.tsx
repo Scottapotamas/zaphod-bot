@@ -1,16 +1,10 @@
-import { MathUtils, Vector3 } from 'three'
+import { Vector3 } from 'three'
 import type { Settings } from '../../optimiser/settings'
 import { PlannerLightMove, LightMoveType } from './../hardware'
-import type {
-  AddComponentCallback,
-  AddLineCallback,
-  Movement,
-  RGBA,
-} from './../movements'
-import { MOVEMENT_TYPE } from './../movement_types'
+import type { Movement, RGBA } from './../movements'
 import { Material } from './Base'
 import React from 'react'
-import { annotateDrawOrder, MATERIALS } from './utilities'
+import { MATERIALS } from './utilities'
 import type { VisualisationSettings } from '../../interface/state'
 import { Composition } from 'atomic-layout'
 

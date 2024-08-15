@@ -5,7 +5,7 @@ import { PlannerLightMove } from '../hardware'
 import { AddComponentCallback, AddLineCallback, Movement } from '../movements'
 import { Material } from './Base'
 
-import { annotateDrawOrder, MATERIALS } from './utilities'
+import { MATERIALS } from './utilities'
 import { MaterialJSON } from '../material'
 
 export interface MixMaterialJSON {
@@ -99,20 +99,12 @@ export class MixMaterial extends Material {
     spatialRenderFrom: number,
     spatialRenderTo: number,
   ) => {
-    // Annotate draw order
-    annotateDrawOrder(
-      movementIndex,
-      movement,
-      visualisationSettings,
-      addReactComponent,
-    )
-
     // Render the start material to the half way point
     this.start.generateThreeJSRepresentation(
       movementIndex,
       movement,
       settings,
-      Object.assign({}, visualisationSettings, { annotateDrawOrder: false }), // disable draw order annotation for the segments
+      visualisationSettings,
       cameraPosition,
       addColouredLine,
       addDottedLine,
@@ -128,7 +120,7 @@ export class MixMaterial extends Material {
       movementIndex,
       movement,
       settings,
-      Object.assign({}, visualisationSettings, { annotateDrawOrder: false }), // disable draw order annotation for the segments
+      visualisationSettings,
       cameraPosition,
       addColouredLine,
       addDottedLine,

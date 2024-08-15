@@ -4,8 +4,8 @@ import type { Settings } from '../settings'
 import { AddComponentCallback, AddLineCallback, Movement } from '../movements'
 import { Material } from './Base'
 
-import { annotateDrawOrder, MATERIALS } from './utilities'
-import { importMaterial, MaterialJSON } from '../material'
+import { MATERIALS } from './utilities'
+import { MaterialJSON } from '../material'
 
 export interface RemapMaterialJSON {
   type: MATERIALS.REMAP

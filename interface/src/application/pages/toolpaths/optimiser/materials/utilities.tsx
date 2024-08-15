@@ -30,6 +30,7 @@ export const enum MATERIALS {
   DEFAULT = 'default', // used for overrides to indicate no override
   COLOR = 'color',
   COLOR_RAMP = 'color_ramp',
+  TEXTURE_STRIP = 'texture_strip',
   VELOCITY = 'velocity',
   MIX = 'mix',
   INVISIBLE = 'invisible',
@@ -193,60 +194,57 @@ export function movementTypeToIntent(movement: Movement) {
 export function annotateDrawOrder(
   movementIndex: number,
   movement: Movement,
-  visualisationSettings: VisualisationSettings,
   addReactComponent: AddComponentCallback,
 ) {
-  if (visualisationSettings.annotateDrawOrder) {
-    const intent = movementTypeToIntent(movement)
-    const type = movementTypeToLetter(movement)
+  const intent = movementTypeToIntent(movement)
+  const type = movementTypeToLetter(movement)
 
-    let extra = ``
+  let extra = ``
 
-    // if (isBezier(movement)) {
-    //   const transition = movement as Bezier
+  // if (isBezier(movement)) {
+  //   const transition = movement as Bezier
 
-    //   try {
-    //     transition.entryVelocity.length()
-    //   } catch (e) {
-    //     debugger
-    //   }
+  //   try {
+  //     transition.entryVelocity.length()
+  //   } catch (e) {
+  //     debugger
+  //   }
 
-    //   extra = `in:${
-    //     Math.round(transition.entryVelocity.length() * 100) / 100
-    //   } (${Math.round(predictSpeedAtT(movement, 0) * 100) / 100}) out:${
-    //     Math.round(transition.exitVelocity.length() * 100) / 100
-    //   } (${Math.round(predictSpeedAtT(movement, 1) * 100) / 100}) max:${
-    //     Math.round(transition.maxSpeed * 100) / 100
-    //   } (${
-    //     Math.round(findHighestApproximateSpeedAndT(movement).maxSpeed * 100) /
-    //     100
-    //   }) priority: ${
-    //     transition.getEntrySpeedExact() ? 'entry' : 'exit'
-    //   } flipped: ${transition.isFlipped ? 'flipped' : 'normal'}`
-    // }
+  //   extra = `in:${
+  //     Math.round(transition.entryVelocity.length() * 100) / 100
+  //   } (${Math.round(predictSpeedAtT(movement, 0) * 100) / 100}) out:${
+  //     Math.round(transition.exitVelocity.length() * 100) / 100
+  //   } (${Math.round(predictSpeedAtT(movement, 1) * 100) / 100}) max:${
+  //     Math.round(transition.maxSpeed * 100) / 100
+  //   } (${
+  //     Math.round(findHighestApproximateSpeedAndT(movement).maxSpeed * 100) /
+  //     100
+  //   }) priority: ${
+  //     transition.getEntrySpeedExact() ? 'entry' : 'exit'
+  //   } flipped: ${transition.isFlipped ? 'flipped' : 'normal'}`
+  // }
 
-    // if (isConstantSpeedBezier(movement)) {
-    //   const transition = movement as ConstantSpeedBezier
-    //   extra = `in:${Math.round(transition.maxSpeed * 100) / 100} (${
-    //     Math.round(predictSpeedAtT(movement, 0) * 100) / 100
-    //   }) out:${Math.round(transition.maxSpeed * 100) / 100} (${
-    //     Math.round(predictSpeedAtT(movement, 1) * 100) / 100
-    //   }) max:${Math.round(transition.maxSpeed * 100) / 100} (${
-    //     Math.round(findHighestApproximateSpeedAndT(movement).maxSpeed * 100) /
-    //     100
-    //   }) flipped: ${transition.isFlipped ? 'flipped' : 'normal'}`
-    // }
+  // if (isConstantSpeedBezier(movement)) {
+  //   const transition = movement as ConstantSpeedBezier
+  //   extra = `in:${Math.round(transition.maxSpeed * 100) / 100} (${
+  //     Math.round(predictSpeedAtT(movement, 0) * 100) / 100
+  //   }) out:${Math.round(transition.maxSpeed * 100) / 100} (${
+  //     Math.round(predictSpeedAtT(movement, 1) * 100) / 100
+  //   }) max:${Math.round(transition.maxSpeed * 100) / 100} (${
+  //     Math.round(findHighestApproximateSpeedAndT(movement).maxSpeed * 100) /
+  //     100
+  //   }) flipped: ${transition.isFlipped ? 'flipped' : 'normal'}`
+  // }
 
-    addReactComponent(
-      generateHtmlTagFromAveragePosition(
-        movementIndex,
-        movement.objectID,
-        movement.getApproximateCentroid(),
-        intent,
-        `${type} #${movementIndex} (${movement.getDuration()}ms) ${extra}`,
-      ),
-    )
-  }
+  addReactComponent(
+    generateHtmlTagFromAveragePosition(
+      movementIndex,
+      movement.objectID,
+      movement.getApproximateCentroid(),
+      intent,
+      `${type} #${movementIndex} (${movement.getDuration()}ms) ${extra}`,
+    ),
+  )
 }
 
 // Map them from near is 4096, far is 0, with the canvas div having a zIndex set, DOM precedence means it'll always be on top

@@ -32,7 +32,7 @@ import { Material } from '../optimiser/materials/Base'
 import { DeltaAssembly } from './../../../components/RiggedModel'
 import { isCamera } from '../optimiser/camera'
 import { useDarkMode } from '@electricui/components-desktop'
-import { lerpRGBA } from '../optimiser/materials/utilities'
+import { annotateDrawOrder, lerpRGBA } from '../optimiser/materials/utilities'
 import { GroundPlane } from 'src/application/components/GroundPlane'
 import {
   useThickLineMaterial,
@@ -373,6 +373,11 @@ export function ToolpathMovements() {
             0,
             renderThisMovementUpTo,
           )
+
+          // Annotate draw order
+          if (visualisationSettings.annotateDrawOrder) {
+            annotateDrawOrder(index, movement, addReactComponent)
+          }
         }
 
         // Flush the commits
