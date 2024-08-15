@@ -367,7 +367,6 @@ export function ToolpathMovements() {
             cameraPosition,
             addColouredLine,
             addDottedLine,
-            addReactComponent,
             matStartT,
             matendT,
             0,

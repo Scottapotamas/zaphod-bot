@@ -76,7 +76,6 @@ export class RemapMaterial extends Material {
     cameraPosition: Vector3,
     addColouredLine: AddLineCallback,
     addDottedLine: AddLineCallback,
-    addReactComponent: AddComponentCallback,
     fromT: number,
     toT: number,
     spatialRenderFrom: number,
@@ -91,7 +90,6 @@ export class RemapMaterial extends Material {
       cameraPosition,
       addColouredLine,
       addDottedLine,
-      addReactComponent,
       MathUtils.clamp(
         MathUtils.mapLinear(fromT, 0, 1, this.remapFrom, this.remapTo),
         0,

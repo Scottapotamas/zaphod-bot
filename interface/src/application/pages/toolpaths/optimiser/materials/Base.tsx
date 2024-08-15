@@ -93,7 +93,6 @@ export abstract class Material {
     cameraPosition: Vector3,
     addColouredLine: AddLineCallback,
     addDottedLine: AddLineCallback,
-    addReactComponent: AddComponentCallback,
     fromT: number,
     toT: number,
     spatialRenderFrom: number, // 0-1 spatial render up from this point
