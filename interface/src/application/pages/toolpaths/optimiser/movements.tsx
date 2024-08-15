@@ -184,21 +184,21 @@ export function serialiseTour(movements: Movement[]): SerialisedTour {
 
   let index = 0
   for (let i = 0; i < movements.length; i++) {
-    if (isMovementGroup(movements[i])) {
-      ordering[movements[i].interFrameID] = {
-        order: index, // So we know where to insert the movement group in the list
-        flipped: movements[i].isFlipped,
-      }
+    ordering[movements[i].interFrameID] = {
+      order: index, // So we know where to insert the movement group in the list
+      flipped: movements[i].isFlipped,
     }
 
-    // Flatten movements
-    const flattened = movements[i].flatten()
+    if (isMovementGroup(movements[i])) {
+      // Flatten movements
+      const flattened = movements[i].flatten()
 
-    for (let j = 0; j < flattened.length; j++) {
-      const movement = flattened[j]
-      ordering[movement.interFrameID] = {
-        order: index++,
-        flipped: movement.isFlipped,
+      for (let j = 0; j < flattened.length; j++) {
+        const movement = flattened[j]
+        ordering[movement.interFrameID] = {
+          order: index++,
+          flipped: movement.isFlipped,
+        }
       }
     }
   }
