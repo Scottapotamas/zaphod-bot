@@ -15,13 +15,14 @@ import { Tooltip2 } from '@blueprintjs/popover2'
 
 import { Composition } from 'atomic-layout'
 
-import React, { useCallback, useState, useEffect, useRef, useMemo } from 'react'
+import React, { useCallback, useState, useEffect } from 'react'
 
 import {
   changeState,
   getSetting,
   incrementViewportFrameVersion,
   setSetting,
+  singleton,
   Store,
   useSetting,
   useStore,
@@ -30,15 +31,11 @@ import {
 import { RenderableTree } from './RenderableTree'
 import { MaterialEditorInterface } from './MaterialEditorInterface'
 
-import { isCamera } from '../optimiser/camera'
 import { StateSelector } from 'zustand'
 import { WritableDraft } from 'immer/dist/internal'
 
 import './styles.css'
 import { DMXControlTab } from './DMXControl'
-import { getOrderedMovementsForFrame } from './ToolpathVisualisation'
-import { sparseToDense } from '../optimiser/passes'
-import { Movement } from '../optimiser/movements'
 
 // TODO: How do we get the defaults from here?
 // Bool defaults are false, number defaults are 0
@@ -359,34 +356,24 @@ function PreviewTimelineControl() {
 }
 
 function StepThroughMovementsControl() {
-  const [movementIndex, set] = useState(0)
+  const [maxIndex, setMaxIndex] = useState(0)
 
-  const currentDenseMovements = useRef<Movement[]>([])
+  // Subscribe to frame changes for the number of movements
+  useEffect(() => {
+    const cb = () => setMaxIndex(singleton.getNumberOfMovements())
+    cb()
+    return singleton.subscribe(cb)
+  }, [setMaxIndex])
+
+  const [movementIndex, set] = useState(0)
 
   const updateSelectedMovementIndex = useCallback(movementIndex => {
     set(movementIndex)
 
     changeState(state => {
       state.treeStore.hoveredItems = [movementIndex]
-
-      // console.log(`selected movement #${movementIndex}:`, currentDenseMovements.current[movementIndex])
     })
   }, [])
-
-  // re-render on frame change, memoise the dense movements
-  const viewportFrame = useSetting(state => state.viewportFrame)
-
-  const orderedMovements = useMemo(() => {
-    const movements = getOrderedMovementsForFrame(viewportFrame)
-    currentDenseMovements.current = sparseToDense(
-      movements,
-      getSetting(state => state.settings),
-    )
-
-    return currentDenseMovements.current
-  }, [viewportFrame])
-
-  const maxIndex = Math.max(0, orderedMovements.length - 1)
 
   return (
     <div style={{ marginLeft: 10, marginRight: 10 }}>
@@ -403,9 +390,7 @@ function StepThroughMovementsControl() {
 
 function setThreeJSCamera() {
   const sceneCamera = getSetting(state => state.camera)
-  const renderablesForFrame = getSetting(state => state.renderablesByFrame[state.viewportFrame]) ?? []
-
-  const blenderCamera = renderablesForFrame.find(isCamera)
+  const blenderCamera = getSetting(state => state.perFrameCamera[state.viewportFrame])
 
   if (sceneCamera && blenderCamera) {
     blenderCamera.alignCamera(sceneCamera)
@@ -745,14 +730,25 @@ function LineTab() {
       {interlineOptimisationsEnabled ? (
         <>
           <NumericInput
+            label="Inter-line Transition Max Gap"
+            min={0.1}
+            max={10}
+            stepSize={0.1}
+            majorStepSize={1}
+            rightText="mm"
+            selector={state => state.settings.optimisation.interLineTransitionMaxGap}
+            writer={(state, value) => (state.settings.optimisation.interLineTransitionMaxGap = value)}
+            description="Below this gap, lines can be directly moved between"
+          />
+          <NumericInput
             label="Inter-line Transition Angle"
             min={0}
             max={360}
             stepSize={1}
             majorStepSize={36}
             rightText="°"
-            selector={state => state.settings.optimisation.interLineTransitionAngle}
-            writer={(state, value) => (state.settings.optimisation.interLineTransitionAngle = value)}
+            selector={state => state.settings.optimisation.interLineTransitionMaxGap}
+            writer={(state, value) => (state.settings.optimisation.interLineTransitionMaxGap = value)}
             description="Below this angle, lines can be smoothed with an inter-line bezier"
           />
           <NumericInput
