@@ -27,9 +27,8 @@ export interface RootSettingsFile {
 
 // Walk a folder path, extracting all renderables
 export async function importFolder(folderPath: string) {
-  const renderablesByFrame: {
-    [frame: number]: Renderable[]
-  } = {}
+  const renderablesByFrame: Map<number, Renderable[]> = new Map()
+
   const movementJSONByFrame: {
     [frame: number]: FrameMovementJSON
   } = {}
@@ -53,9 +52,7 @@ export async function importFolder(folderPath: string) {
   // Walk the folder to find json files
   for await (const p of walkJSON(folderPath)) {
     const contents = await fs.promises.readFile(p)
-    let parsed: MovementJSON | RootSettingsFile = JSON.parse(
-      contents.toString(),
-    )
+    let parsed: MovementJSON | RootSettingsFile = JSON.parse(contents.toString())
 
     // Handle the special case of the root settings file
     if (p === potentialRootSettingsFile && parsed.type === `root-settings`) {
@@ -73,8 +70,8 @@ export async function importFolder(folderPath: string) {
       continue
     }
 
-    if (!renderablesByFrame[parsed.frame]) {
-      renderablesByFrame[parsed.frame] = []
+    if (!renderablesByFrame.has(parsed.frame)) {
+      renderablesByFrame.set(parsed.frame, [])
     }
 
     if (!movementJSONByFrame[parsed.frame]) {
@@ -98,7 +95,7 @@ export async function importFolder(folderPath: string) {
     allRenderables.push(renderable)
 
     // Add it to the frame's structure
-    renderablesByFrame[parsed.frame].push(renderable)
+    renderablesByFrame.get(parsed.frame)!.push(renderable)
     movementJSONByFrame[parsed.frame].movementJSON.push(parsed)
 
     // Update frame counters
@@ -117,7 +114,6 @@ export async function importFolder(folderPath: string) {
     frameData,
     settingsToMerge,
     visualisationSettingsToMerge,
-
     sceneTotalFrames,
   }
 }

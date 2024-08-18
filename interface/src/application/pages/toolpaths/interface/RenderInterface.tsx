@@ -1,14 +1,11 @@
-import { FormGroup, Intent, MultiSlider, Slider, Button, ButtonProps, Colors } from '@blueprintjs/core'
+import { FormGroup, Intent, MultiSlider, Slider, Button, Colors } from '@blueprintjs/core'
 
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Composition, Box } from 'atomic-layout'
 
-import { sparseToDense } from '../optimiser/passes'
 import { toolpath } from '../optimiser/toolpath'
 
 import { SequenceSender } from './sequenceSender'
-
-import { PlannerLightMove, PlannerMovementMove } from './../optimiser/hardware'
 
 import {
   useDeviceIDByMetadata,
@@ -23,6 +20,7 @@ import {
   changeState,
   getSetting,
   incrementViewportFrameVersion,
+  singleton,
   useSetting,
   useStore,
   useViewportFrameDuration,
@@ -109,30 +107,22 @@ function Timeline() {
 }
 
 import { clipboard } from 'electron'
-import { Material } from '../optimiser/materials/Base'
-import { GLOBAL_OVERRIDE_OBJECT_ID } from '../optimiser/movements'
-import { importMaterial } from '../optimiser/material'
 import { useDeviceID } from '@electricui/components-core'
 import { LightMove, MovementMove, MSGID, SupervisorState } from 'src/application/typedState'
-import { getOrderedMovementsForFrame } from './ToolpathVisualisation'
 import { FRAME_STATE } from '../optimiser/main'
-import { isCamera } from '../optimiser/camera'
 import { Vector3 } from 'three'
 import { IconNames } from '@blueprintjs/icons'
 import { callTrigger } from '../optimiser/triggers'
 
-async function getToolpathForFrame(frameNumber: number) {
+async function getToolpathForFrame(frameNumber: number, cancellationToken: CancellationToken) {
   const persistentOptimiser = getSetting(state => state.persistentOptimiser)
   if (!persistentOptimiser) return null
 
   await persistentOptimiser.waitUntilFrameReady(frameNumber)
-  const orderedMovements = getOrderedMovementsForFrame(frameNumber)
   const settings = getSetting(state => state.settings)
   const visualisationSettings = getSetting(state => state.visualisationSettings)
 
-  const renderablesForFrame = getSetting(state => state.renderablesByFrame[state.viewportFrame]) ?? []
-
-  const blenderCamera = renderablesForFrame.find(isCamera)
+  const blenderCamera = getSetting(state => state.perFrameCamera[state.viewportFrame])
 
   const cameraPosition = new Vector3(
     blenderCamera?.position[0] ?? 0,
@@ -140,26 +130,7 @@ async function getToolpathForFrame(frameNumber: number) {
     blenderCamera?.position[2] ?? 0,
   )
 
-  const dense = sparseToDense(orderedMovements, settings)
-
-  const globalMaterialOverride = visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
-    ? importMaterial(visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID])
-    : null
-
-  dense.map(movement => {
-    // Find any material overrides
-    const movementMaterialOverride = visualisationSettings.objectMaterialOverrides[movement.objectID]
-
-    // Global overrides take least precidence
-    if (globalMaterialOverride) {
-      movement.material = globalMaterialOverride
-    }
-
-    // Specific movement overrides take highest precidence
-    if (movementMaterialOverride) {
-      movement.material = importMaterial(movementMaterialOverride)
-    }
-  })
+  const dense = await singleton.getDenseMovementsForFrame(frameNumber, settings, cancellationToken)
 
   return toolpath(dense, settings, visualisationSettings, cameraPosition)
 }
@@ -167,17 +138,32 @@ async function getToolpathForFrame(frameNumber: number) {
 function CopyToolpathToClipboard() {
   const [isLoading, setIsLoading] = useState(false)
 
+  const ctRef = useRef(new CancellationToken())
+
   const handleRender = useCallback(() => {
     setIsLoading(true)
 
     const viewportFrame = getSetting(state => state.viewportFrame)
 
-    getToolpathForFrame(viewportFrame).then(t => {
-      // Just copy it to the clipboard for now
-      clipboard.writeText(JSON.stringify(t))
+    ctRef.current.cancel()
+    ctRef.current = new CancellationToken()
 
-      setIsLoading(false)
-    })
+    const cT = ctRef.current
+
+    getToolpathForFrame(viewportFrame, cT)
+      .then(t => {
+        // Just copy it to the clipboard for now
+        clipboard.writeText(JSON.stringify(t))
+
+        setIsLoading(false)
+      })
+      .catch(err => {
+        if (cT.caused(err)) {
+          // no worries
+        } else {
+          console.error(`getToolpathForFrame errored with`, err)
+        }
+      })
   }, [])
 
   return (
@@ -220,7 +206,10 @@ export function SendToolpath() {
           await sendMessage(message, shortCancellationToken)
           break // Success
         } catch (err) {
-          console.error(`Failed to send move at sync_offset ${move.sync_offset}, attempt ${attempts}/${EXTRA_RETRIES}, err:`, err)
+          console.error(
+            `Failed to send move at sync_offset ${move.sync_offset}, attempt ${attempts}/${EXTRA_RETRIES}, err:`,
+            err,
+          )
         }
       }
     },
@@ -241,7 +230,10 @@ export function SendToolpath() {
           await sendMessage(message, shortCancellationToken)
           break // Success
         } catch (err) {
-          console.error(`Failed to send light fade at timestamp ${fade.timestamp}, attempt ${attempts}/${EXTRA_RETRIES}, err:`, err)
+          console.error(
+            `Failed to send light fade at timestamp ${fade.timestamp}, attempt ${attempts}/${EXTRA_RETRIES}, err:`,
+            err,
+          )
         }
       }
     },
@@ -350,15 +342,12 @@ export function SendToolpath() {
     }
   }, [sendMessage])
 
-  const updateOptimisticQueueDepth = useCallback(
-    (movementDepth: number, lightQueueDepth: number) => {
-      // changeState(state => {
-      //   state.movementQueueUI = movementDepth
-      //   state.lightQueueUI = lightQueueDepth
-      // })
-    },
-    [],
-  )
+  const updateOptimisticQueueDepth = useCallback((movementDepth: number, lightQueueDepth: number) => {
+    // changeState(state => {
+    //   state.movementQueueUI = movementDepth
+    //   state.lightQueueUI = lightQueueDepth
+    // })
+  }, [])
 
   function getSequenceSender() {
     if (!sequenceSenderRef.current) {
@@ -385,7 +374,11 @@ export function SendToolpath() {
   useHardwareStateSubscription(
     state => state[MSGID.SUPERVISOR],
     (supervisorInfo: SupervisorState) => {
-      getSequenceSender().updateHardwareQueuesAndProgress(supervisorInfo.queue_utilisation_motion, supervisorInfo.queue_utilisation_lighting, supervisorInfo.movement_id_completed)
+      getSequenceSender().updateHardwareQueuesAndProgress(
+        supervisorInfo.queue_utilisation_motion,
+        supervisorInfo.queue_utilisation_lighting,
+        supervisorInfo.movement_id_completed,
+      )
     },
   )
 
@@ -422,7 +415,7 @@ export function SendToolpath() {
           })
 
           // Process the toolpath into final form
-          const toolpath = await getToolpathForFrame(frameNumber)
+          const toolpath = await getToolpathForFrame(frameNumber, cancellationToken)
 
           if (!toolpath) {
             console.error(`Couldn't find toolpath for frame ${frameNumber}`)

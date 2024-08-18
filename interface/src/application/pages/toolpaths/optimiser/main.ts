@@ -1,4 +1,4 @@
-import { MovementJSON, FrameMovementJSON } from './import'
+import { FrameMovementJSON } from './import'
 import { Progress } from './passes'
 import { SerialisedTour } from './movements'
 import type { Settings } from './settings'

@@ -68,6 +68,11 @@ export interface OptimisationSettings {
   smoothInterlineTransitions: boolean
 
   /**
+   * The maximum gap to jump in millimeters
+   */
+  interLineTransitionMaxGap: number
+
+  /**
    * The angle in degrees below which lines will be taken in a single pass
    */
   interLineTransitionAngle: number

@@ -1,6 +1,6 @@
 import { Icon, IconName } from '@blueprintjs/core'
 import React from 'react'
-import { getSetting } from './state'
+import { getSetting, singleton } from './state'
 import { Button, MenuItem } from '@blueprintjs/core'
 import { ItemRenderer, Select } from '@blueprintjs/select'
 import { MATERIALS } from '../optimiser/materials/utilities'
@@ -178,22 +178,22 @@ export function MaterialEditor(props: MaterialEditorProps) {
         />
       )
       break
-      case MATERIALS.DURATION:
-        MaterialOverrideEditor = (
-          <DurationMaterialEditor
-            json={props.json as DurationMaterialJSON}
-            mutateJson={props.updateJson as JsonMutator<DurationMaterialJSON>}
-          />
-        )
-        break
-        case MATERIALS.FLIPPED:
-          MaterialOverrideEditor = (
-            <FlippedMaterialEditor
-              json={props.json as FlippedMaterialJSON}
-              mutateJson={props.updateJson as JsonMutator<FlippedMaterialJSON>}
-            />
-          )
-          break
+    case MATERIALS.DURATION:
+      MaterialOverrideEditor = (
+        <DurationMaterialEditor
+          json={props.json as DurationMaterialJSON}
+          mutateJson={props.updateJson as JsonMutator<DurationMaterialJSON>}
+        />
+      )
+      break
+    case MATERIALS.FLIPPED:
+      MaterialOverrideEditor = (
+        <FlippedMaterialEditor
+          json={props.json as FlippedMaterialJSON}
+          mutateJson={props.updateJson as JsonMutator<FlippedMaterialJSON>}
+        />
+      )
+      break
     // case MATERIALS.MIX:
     //   MaterialOverrideEditor = (
     //     <MixMaterialEditor objectID={objectID} json={json as MixMaterialJSON} />
@@ -262,15 +262,11 @@ export function MaterialEditor(props: MaterialEditorProps) {
 
 export function calculateInitialMaterialJSON(materialType: MATERIALS, objectID: string | null) {
   if (objectID) {
-    const renderableOriginalJSON = getSetting(state => {
-      const renderable = state.renderablesByFrame[state.viewportFrame].find(renderable =>
-        renderable.getOriginalMaterialJSON(objectID),
-      )
+    const renderable = singleton.getVisibleRenderableViaOriginalMaterialJSONWithObjectID(objectID)
 
-      if (renderable) return renderable.getOriginalMaterialJSON(objectID)
+    if (!renderable) return null
 
-      return null
-    })
+    const renderableOriginalJSON = renderable.getOriginalMaterialJSON(objectID)
 
     if (renderableOriginalJSON && renderableOriginalJSON.type === materialType) {
       return renderableOriginalJSON

@@ -204,7 +204,7 @@ export function sparseToDense(
       settings.optimisation.smoothInterlineTransitions &&
       isLine(previousMovement) &&
       isLine(movement) &&
-      previousMovement.getEnd().distanceTo(movement.getStart()) < 1 &&
+      previousMovement.getEnd().distanceTo(movement.getStart()) < settings.optimisation.interLineTransitionMaxGap &&
       previousMovement
         .getExpectedExitVelocity()
         .clone()
@@ -322,7 +322,7 @@ export function sparseToDense(
       settings.optimisation.smoothInterlineTransitions &&
       isConstantSpeedBezier(previousMovement) &&
       isLine(movement) &&
-      previousMovement.getEnd().distanceTo(movement.getStart()) < 1 &&
+      previousMovement.getEnd().distanceTo(movement.getStart()) < settings.optimisation.interLineTransitionMaxGap &&
       previousMovement
         .getExpectedExitVelocity()
         .clone()
@@ -589,7 +589,14 @@ export function getTotalDuration(denseMoves: DenseMovements) {
 
   for (let index = 0; index < denseMoves.length; index++) {
     const movement = denseMoves[index]
-    cost += movement.getDuration()
+
+    const dur = movement.getDuration()
+
+    if (!Number.isFinite(dur)) {
+      debugger
+    }
+
+    cost += dur
   }
 
   return cost
@@ -703,7 +710,6 @@ export function swap(array: any[], a: number, b: number) {
 
 export interface Progress {
   duration: number
-  text: string
   serialisedTour: SerialisedTour
   // Whether this is the final update of this run
   completed: boolean
@@ -1357,7 +1363,6 @@ export async function optimise(
     // Final status update
     await updateProgress({
       duration: getTotalDuration(currentDense),
-      text: `Optimised to ${Math.round(curentDuration * 100) / 100}ms`,
       serialisedTour: currentOptimisationLevel.best.tour,
       completed: true,
       minimaFound: false,
@@ -1396,11 +1401,6 @@ export async function optimise(
 
     const shouldContinue = await updateProgress({
       duration: currentDuration,
-      text: `${hash.toString(16)}: ${
-        Math.round(iteration.best.cost * 10) / 10
-      } (${Math.round(calculatedCost * 10) / 10}): ${
-        Math.round(currentDuration * 100) / 100
-      }ms`,
       serialisedTour: iteration.best.tour,
       completed: done,
       minimaFound: done,
@@ -1433,11 +1433,6 @@ export async function optimise(
   // final update
   await updateProgress({
     duration: currentDuration,
-    text: `${hash.toString(16)}: ${
-      Math.round(currentOptimisationLevel.best.cost * 10) / 10
-    } (${Math.round(calculatedCost * 10) / 10}): ${
-      Math.round(currentDuration * 100) / 100
-    }ms`,
     serialisedTour: currentOptimisationLevel.best.tour,
     completed: true,
     minimaFound:
@@ -1688,7 +1683,7 @@ function generateBezierTransition(
     const { maxSpeed: maxSpeedOfTransitionPart } =
       findHighestApproximateSpeedAndT(transition)
 
-    if (maxSpeedOfTransitionPart > maxSpeed) {
+    if (maxSpeedOfTransitionPart > maxSpeed && entryVelocity.length() > 0 && exitVelocity.length() > 0) {
       const constantSpeedTransitionEntry = new ConstantSpeedBezier(
         A,
         B,

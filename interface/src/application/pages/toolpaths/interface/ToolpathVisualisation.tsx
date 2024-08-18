@@ -12,33 +12,18 @@ import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 import { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 
 import { useFrame, useThree } from '@react-three/fiber'
-import {
-  Color,
-  PerspectiveCamera as PerspectiveCameraImpl,
-  MathUtils,
-  AdditiveBlending,
-} from 'three'
-import { changeState, getSetting, setSetting, useStore } from './state'
-import { sparseToDense } from '../optimiser/passes'
+import { PerspectiveCamera as PerspectiveCameraImpl, MathUtils, AdditiveBlending } from 'three'
+import { changeState, getSetting, setSetting, singleton, useStore } from './state'
 import { Vector3, PCFSoftShadowMap } from 'three'
-import {
-  deserialiseTour,
-  GLOBAL_OVERRIDE_OBJECT_ID,
-  Movement,
-  RGBA,
-} from '../optimiser/movements'
+import { GLOBAL_OVERRIDE_OBJECT_ID, RGBA } from '../optimiser/movements'
 import { getMaterialOverride, importMaterial } from '../optimiser/material'
 import { Material } from '../optimiser/materials/Base'
 import { DeltaAssembly } from './../../../components/RiggedModel'
-import { isCamera } from '../optimiser/camera'
 import { useDarkMode } from '@electricui/components-desktop'
-import { annotateDrawOrder, lerpRGBA } from '../optimiser/materials/utilities'
+import { annotateDrawOrder } from '../optimiser/materials/utilities'
 import { GroundPlane } from 'src/application/components/GroundPlane'
-import {
-  useThickLineMaterial,
-  LineSegmentDataStore,
-  LineSegments2,
-} from '@electricui/charts'
+import { useThickLineMaterial, LineSegmentDataStore, LineSegments2 } from '@electricui/charts'
+import { CancellationToken } from '@electricui/async-utilities'
 
 export function AxisLines() {
   return (
@@ -59,22 +44,8 @@ export function AxisLines() {
   )
 }
 
-function convertToThreeCoordinateSystem(
-  vector: [number, number, number],
-): [number, number, number] {
+function convertToThreeCoordinateSystem(vector: [number, number, number]): [number, number, number] {
   return [vector[0], vector[2], -vector[1]]
-}
-
-export function getOrderedMovementsForFrame(frameNumber: number): Movement[] {
-  const unorderedMovementsByFrame = getSetting(
-    state => state.unorderedMovementsByFrame,
-  )
-  const movementOrdering = getSetting(state => state.movementOrdering)
-
-  const movements = unorderedMovementsByFrame[frameNumber] ?? []
-  const ordering = movementOrdering[frameNumber] ?? {}
-
-  return deserialiseTour(movements.slice(), ordering)
 }
 
 /**
@@ -96,18 +67,10 @@ export function ToolpathMovements() {
 
   const [customComponents, setComponents] = useState<React.ReactNode[]>([])
 
-  const movementIndexToColouredLine: React.MutableRefObject<
-    Map<string | number, number[]>
-  > = useRef(new Map())
-  const movementIndexToDottedLine: React.MutableRefObject<
-    Map<string | number, number[]>
-  > = useRef(new Map())
-  const objectIDToColouredLine: React.MutableRefObject<
-    Map<string | number, number[]>
-  > = useRef(new Map())
-  const objectIDToDottedLine: React.MutableRefObject<
-    Map<string | number, number[]>
-  > = useRef(new Map())
+  const movementIndexToColouredLine: React.MutableRefObject<Map<string | number, number[]>> = useRef(new Map())
+  const movementIndexToDottedLine: React.MutableRefObject<Map<string | number, number[]>> = useRef(new Map())
+  const objectIDToColouredLine: React.MutableRefObject<Map<string | number, number[]>> = useRef(new Map())
+  const objectIDToDottedLine: React.MutableRefObject<Map<string | number, number[]>> = useRef(new Map())
 
   useEffect(() => {
     // Keep a vector around for doing distance calculations
@@ -223,182 +186,192 @@ export function ToolpathMovements() {
       reactComponents.length = 0
     }
 
+    let lastCancellationToken = new CancellationToken()
+
     const unsubscribe = useStore.subscribe(
       state => state.viewportFrameVersion,
       () => {
-        // On viewport frame change, or toolpath update, regenerate the ordering,
-        // and update the lines
+        lastCancellationToken.cancel()
+        lastCancellationToken = new CancellationToken()
 
-        const renderablesForFrame =
-          getSetting(state => state.renderablesByFrame[state.viewportFrame]) ??
-          []
+        const copy = lastCancellationToken
 
-        const blenderCamera = renderablesForFrame.find(isCamera)
-
-        const cameraPosition = new Vector3(
-          blenderCamera?.position[0] ?? 0,
-          blenderCamera?.position[1] ?? 0,
-          blenderCamera?.position[2] ?? 0,
-        )
-
-        if (lines.geometries.length === 0) return
-        if (transitions.geometries.length === 0) return
-
-        // Refresh the line geometries
-        lines.reset()
-        transitions.reset()
-
-        // Refresh the line mapping
-        movementIndexToColouredLine.current.clear()
-        movementIndexToDottedLine.current.clear()
-        objectIDToColouredLine.current.clear()
-        objectIDToDottedLine.current.clear()
-
-        // Refresh the react components list
-        reactComponents.length = 0
-
-        const orderedMovements = getOrderedMovementsForFrame(
-          getSetting(state => state.viewportFrame),
-        )
-        const settings = getSetting(state => state.settings)
-        const visualisationSettings = getSetting(
-          state => state.visualisationSettings,
-        )
-        const denseMovements = sparseToDense(orderedMovements, settings)
-
-        // Import the global material override if it exists
-        const globalMaterialOverride = visualisationSettings
-          .objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
-          ? importMaterial(
-              visualisationSettings.objectMaterialOverrides[
-                GLOBAL_OVERRIDE_OBJECT_ID
-              ],
-            )
-          : null
-
-        let durationCounter = 0
-
-        const frameDuration = getSetting(
-          state => state.estimatedDurationByFrame[state.viewportFrame],
-        )
-
-        for (let index = 0; index < denseMovements.length; index++) {
-          const movement = denseMovements[index]
-
-          // Don't show hidden objects
-          if (visualisationSettings.hiddenObjects[movement.objectID]) {
-            continue
-          }
-
-          const duration = movement.getDuration()
-
-          let renderThisMovementUpTo = 1
-
-          // If doing preview,
-          if (visualisationSettings.previewProgress) {
-            const thisMovementStart = durationCounter / frameDuration
-            const thisMovementEnd = (durationCounter + duration) / frameDuration
-
-            /**
-             *  Render up to |
-             *   [     ] [     ] [    ]
-             */
-            if (thisMovementEnd <= visualisationSettings.frameProgress) {
-              // render entire movement
-              // this is a noop, continue the flow as normal
-            } else if (
-              thisMovementStart < visualisationSettings.frameProgress &&
-              thisMovementEnd > visualisationSettings.frameProgress
-            ) {
-              // render this movement partially
-              renderThisMovementUpTo = MathUtils.mapLinear(
-                visualisationSettings.frameProgress,
-                thisMovementStart,
-                thisMovementEnd,
-                0,
-                1,
-              )
-
-              // Calculate the current position of the delta
-              const deltaPos = movement.samplePoint(renderThisMovementUpTo)
-
-              changeState(state => {
-                state.endEffector.x = deltaPos.x
-                state.endEffector.y = deltaPos.y
-                state.endEffector.z = deltaPos.z
-              })
+        singleton
+          .onViewportFrameVersionChange(
+            getSetting(state => state.viewportFrame),
+            getSetting(state => state.settings),
+            copy,
+          )
+          .catch(err => {
+            if (copy.caused(err)) {
+              // no worries
             } else {
-              // don't render this movement
-              continue
+              console.error(`Couldn't increment viewportFrameVersion, error:`, err)
             }
-          }
-
-          // Update the duration counter
-          durationCounter += duration
-
-          // Don't show zero duration moves
-          if (duration === 0) {
-            continue
-          }
-
-          let material: Material = movement.material
-
-          // Global overrides take least precidence
-          if (globalMaterialOverride) {
-            material = globalMaterialOverride
-          }
-
-          // Get the override if it has one
-          material = getMaterialOverride(
-            visualisationSettings,
-            material,
-            movement.overrideKeys,
-          )
-          // If the movement is flipped, reverse the ordering of the material so it stays consistent
-          const matStartT = movement.isFlipped ? 1 : 0
-          const matendT = movement.isFlipped ? 0 : 1
-
-          // Generate using the
-          material.generateThreeJSRepresentation(
-            index,
-            movement,
-            settings,
-            visualisationSettings,
-            cameraPosition,
-            addColouredLine,
-            addDottedLine,
-            matStartT,
-            matendT,
-            0,
-            renderThisMovementUpTo,
-          )
-
-          // Annotate draw order
-          if (visualisationSettings.annotateDrawOrder) {
-            annotateDrawOrder(index, movement, addReactComponent)
-          }
-        }
-
-        // Flush the commits
-        lines.commit()
-        transitions.commit()
-        flushReactComponents()
-
-        // console.log(`built ${lineCounter} lines`, lines.line.visible)
+          })
       },
     )
 
+    const unsubSingleton = singleton.subscribe(async () => {
+      // On viewport frame change, or toolpath update, regenerate the ordering,
+      // and update the lines
+      const blenderCamera = getSetting(state => state.perFrameCamera[state.viewportFrame])
+
+      const cameraPosition = new Vector3(
+        blenderCamera?.position[0] ?? 0,
+        blenderCamera?.position[1] ?? 0,
+        blenderCamera?.position[2] ?? 0,
+      )
+
+      if (lines.geometries.length === 0) return
+      if (transitions.geometries.length === 0) return
+
+      // Refresh the line geometries
+      lines.reset()
+      transitions.reset()
+
+      // Refresh the line mapping
+      movementIndexToColouredLine.current.clear()
+      movementIndexToDottedLine.current.clear()
+      objectIDToColouredLine.current.clear()
+      objectIDToDottedLine.current.clear()
+
+      // Refresh the react components list
+      reactComponents.length = 0
+
+      const settings = getSetting(state => state.settings)
+      const visualisationSettings = getSetting(state => state.visualisationSettings)
+      const denseMovements = singleton.getDenseMovementsThisFrame()
+
+      if (!denseMovements) {
+        // no movements yet for this frame, on progress update, this will be called again
+        return
+      }
+
+      const start = performance.now()
+
+      // Import the global material override if it exists
+      const globalMaterialOverride = visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
+        ? importMaterial(visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID])
+        : null
+
+      let durationCounter = 0
+
+      const frameDuration = getSetting(state => state.estimatedDurationByFrame[state.viewportFrame])
+
+      for (let index = 0; index < denseMovements.length; index++) {
+        const movement = denseMovements[index]
+
+        // Don't show hidden objects
+        if (visualisationSettings.hiddenObjects[movement.objectID]) {
+          continue
+        }
+
+        const duration = movement.getDuration()
+
+        let renderThisMovementUpTo = 1
+
+        // If doing preview,
+        if (visualisationSettings.previewProgress) {
+          const thisMovementStart = durationCounter / frameDuration
+          const thisMovementEnd = (durationCounter + duration) / frameDuration
+
+          /**
+           *  Render up to |
+           *   [     ] [     ] [    ]
+           */
+          if (thisMovementEnd <= visualisationSettings.frameProgress) {
+            // render entire movement
+            // this is a noop, continue the flow as normal
+          } else if (
+            thisMovementStart < visualisationSettings.frameProgress &&
+            thisMovementEnd > visualisationSettings.frameProgress
+          ) {
+            // render this movement partially
+            renderThisMovementUpTo = MathUtils.mapLinear(
+              visualisationSettings.frameProgress,
+              thisMovementStart,
+              thisMovementEnd,
+              0,
+              1,
+            )
+
+            // Calculate the current position of the delta
+            const deltaPos = movement.samplePoint(renderThisMovementUpTo)
+
+            changeState(state => {
+              state.endEffector.x = deltaPos.x
+              state.endEffector.y = deltaPos.y
+              state.endEffector.z = deltaPos.z
+            })
+          } else {
+            // don't render this movement
+            continue
+          }
+        }
+
+        // Update the duration counter
+        durationCounter += duration
+
+        // Don't show zero duration moves
+        if (duration === 0) {
+          continue
+        }
+
+        let material: Material = movement.material
+
+        // Global overrides take least precidence
+        if (globalMaterialOverride) {
+          material = globalMaterialOverride
+        }
+
+        // Get the override if it has one
+        material = getMaterialOverride(visualisationSettings, material, movement.overrideKeys)
+        // If the movement is flipped, reverse the ordering of the material so it stays consistent
+        const matStartT = movement.isFlipped ? 1 : 0
+        const matendT = movement.isFlipped ? 0 : 1
+
+        // Generate using the
+        material.generateThreeJSRepresentation(
+          index,
+          movement,
+          settings,
+          visualisationSettings,
+          cameraPosition,
+          addColouredLine,
+          addDottedLine,
+          matStartT,
+          matendT,
+          0,
+          renderThisMovementUpTo,
+        )
+
+        // Annotate draw order
+        if (visualisationSettings.annotateDrawOrder) {
+          annotateDrawOrder(index, movement, addReactComponent)
+        }
+      }
+
+      // Flush the commits
+      lines.commit()
+      transitions.commit()
+      flushReactComponents()
+
+      const end = performance.now()
+
+      // console.log(`took ${Math.round((end - start) * 10) / 10}ms to repaint`)
+    })
+
     return () => {
       unsubscribe()
+      unsubSingleton()
 
       lines?.unmount()
       transitions?.unmount()
     }
   }, [lines, transitions])
 
-  const { width: boundsWidth, height: boundsHeight } = useThree(
-    state => state.size,
-  )
+  const { width: boundsWidth, height: boundsHeight } = useThree(state => state.size)
 
   // Extract the materials
   const {
@@ -406,10 +379,12 @@ export function ToolpathMovements() {
     getLineMat: getLinesLineMat,
   } = useThickLineMaterial(boundsWidth, boundsHeight, 4, false)
 
-  const {
-    getPrePassMat: getTransitionPrePassMat,
-    getLineMat: getTransitionLineMat,
-  } = useThickLineMaterial(boundsWidth, boundsHeight, 4, true)
+  const { getPrePassMat: getTransitionPrePassMat, getLineMat: getTransitionLineMat } = useThickLineMaterial(
+    boundsWidth,
+    boundsHeight,
+    4,
+    true,
+  )
 
   // Set the actual line mats to be additive blend mode
   useEffect(() => {
@@ -561,10 +536,7 @@ extend({ LineSegments2 })
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      lineSegments2: ReactThreeFiber.Object3DNode<
-        LineSegments2,
-        typeof LineSegments2
-      >
+      lineSegments2: ReactThreeFiber.Object3DNode<LineSegments2, typeof LineSegments2>
     }
   }
 }
@@ -578,39 +550,26 @@ export const ToolpathVisualisation = () => {
     }
   }, [])
 
-  const setOrbitControlsRef = useCallback(
-    (orbitControls: OrbitControlsImpl) => {
-      if (orbitControls) {
-        setSetting(state => {
-          state.orbitControls = orbitControls as any
-        })
+  const setOrbitControlsRef = useCallback((orbitControls: OrbitControlsImpl) => {
+    if (orbitControls) {
+      setSetting(state => {
+        state.orbitControls = orbitControls as any
+      })
 
-        const cam = getSetting(state => state.camera)
-        // Set the camera
-        if (cam) {
-          orbitControls.object = cam
-        }
+      const cam = getSetting(state => state.camera)
+      // Set the camera
+      if (cam) {
+        orbitControls.object = cam
       }
-    },
-    [],
-  )
+    }
+  }, [])
 
   const backgroundCol = useDarkMode() ? '#191b1d' : '#f5f8fa'
 
   return (
-    <Canvas
-      linear
-      dpr={[1, 2]}
-      style={{ zIndex: 0 }}
-      shadows={{ enabled: true, type: PCFSoftShadowMap }}
-    >
+    <Canvas linear dpr={[1, 2]} style={{ zIndex: 0 }} shadows={{ enabled: true, type: PCFSoftShadowMap }}>
       <color attach="background" args={[backgroundCol]} />
-      <PerspectiveCamera
-        ref={setCameraRef}
-        makeDefault
-        position={[0, 150, 400]}
-        far={10000}
-      />
+      <PerspectiveCamera ref={setCameraRef} makeDefault position={[0, 150, 400]} far={10000} />
       <OrbitControls ref={setOrbitControlsRef} />
       <AxisLines />
 
@@ -651,11 +610,7 @@ export const ToolpathVisualisation = () => {
   )
 }
 
-function setHoverState(
-  store: LineSegmentDataStore,
-  index: number,
-  hovered: boolean,
-) {
+function setHoverState(store: LineSegmentDataStore, index: number, hovered: boolean) {
   // TODO: When they have multiple, this will need to be changed
   const geometry = store.geometries[0]
 

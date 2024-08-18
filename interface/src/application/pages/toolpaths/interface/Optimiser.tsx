@@ -12,28 +12,22 @@ import {
 } from '@electricui/components-desktop-charts'
 
 import { FrameProgressUpdate, ToolpathGenerator } from '../optimiser/main'
-import { importFolder, renderablesToMovements } from '../optimiser/files'
-import {
-  DataSource,
-  Event,
-  EventBatch,
-  PersistenceEnginePassthrough,
-} from '@electricui/timeseries'
+import { importFolder } from '../optimiser/files'
+import { DataSource, EventBatch, PersistenceEnginePassthrough } from '@electricui/timeseries'
 import { timing } from '@electricui/timing'
 
 import {
   getCurrentSettings,
   resetStore,
   setSetting,
-  getSetting,
   useSetting,
   useStore,
   incrementViewportFrameVersion,
   markClean,
   changeState,
+  singleton,
+  getSetting,
 } from './state'
-import { Movement } from '../optimiser/movements'
-import { Renderable } from '../optimiser/import'
 import { renderablesToSceneTree } from './RenderableTree'
 
 import os from 'os'
@@ -41,37 +35,7 @@ import os from 'os'
 import deepmerge from 'deepmerge'
 import { CancellationToken } from '@electricui/async-utilities'
 
-const overwriteMerge = (destinationArray: any[], sourceArray: any[]) =>
-  sourceArray
-
-async function recalculateMovementsPerFrame(
-  cancellationToken: CancellationToken,
-) {
-  const settings = getSetting(state => state.settings)
-  const renderablesByFrame = getSetting(state => state.renderablesByFrame)
-
-  const unorderedMovementsByFrame: {
-    [frameNumber: number]: Movement[]
-  } = {}
-
-  for (const fN of Object.keys(renderablesByFrame)) {
-    const frameNumber = Number(fN)
-
-    const renderables = renderablesByFrame[frameNumber]
-
-    const movements = await renderablesToMovements(
-      renderables,
-      settings,
-      cancellationToken,
-    )
-
-    unorderedMovementsByFrame[frameNumber] = movements
-  }
-
-  changeState(state => {
-    state.unorderedMovementsByFrame = unorderedMovementsByFrame
-  })
-}
+const overwriteMerge = (destinationArray: any[], sourceArray: any[]) => sourceArray
 
 export function Optimiser() {
   // Establish a mutable reference to the setTotalFrames state setter so we can do it asyncronously
@@ -86,17 +50,13 @@ export function Optimiser() {
    */
   function getPersistentOptimiser() {
     if (persistentOptimiser.current === null) {
-      persistentOptimiser.current = new ToolpathGenerator(
-        getCurrentSettings(),
-        Math.max(1, os.cpus().length - 1),
-      )
+      persistentOptimiser.current = new ToolpathGenerator(getCurrentSettings(), Math.max(1, os.cpus().length - 1))
     }
 
     return persistentOptimiser.current
   }
 
-  const pendingMovementRecalculationCancellationToken =
-    useRef<CancellationToken | null>(null)
+  const pendingMovementRecalculationCancellationToken = useRef<CancellationToken | null>(null)
 
   // Setup a subscriber to grab new settings
   useEffect(() => {
@@ -104,25 +64,6 @@ export function Optimiser() {
       state => state.settings,
       settings => {
         getPersistentOptimiser().updateSettings(settings)
-
-        if (pendingMovementRecalculationCancellationToken.current) {
-          pendingMovementRecalculationCancellationToken.current.cancel()
-        }
-
-        pendingMovementRecalculationCancellationToken.current =
-          new CancellationToken()
-
-        const cT = pendingMovementRecalculationCancellationToken.current
-
-        // Movements must be recalculated on settings update
-        recalculateMovementsPerFrame(cT).catch(err => {
-          if (cT.caused(err)) {
-            // no worries
-            return
-          }
-
-          console.error(`Caught error while recalculateMovementsPerFrame:`, err)
-        })
       },
     )
   }, [])
@@ -182,9 +123,7 @@ export function Optimiser() {
     const dataSource = new DataSource<{
       [frameNumber: string]: FrameProgressUpdate
     }>()
-    dataSource.setPersistenceEngineFactory(
-      () => new PersistenceEnginePassthrough(),
-    )
+    dataSource.setPersistenceEngineFactory(() => new PersistenceEnginePassthrough())
     return dataSource
   }, [])
 
@@ -195,9 +134,11 @@ export function Optimiser() {
   const onProgress = useCallback(
     (progress: FrameProgressUpdate) => {
       changeState(state => {
-        state.movementOrdering[progress.frameNumber] = progress.serialisedTour
+        singleton.onProgressUpdate(progress.frameNumber, progress.serialisedTour)
         state.estimatedDurationByFrame[progress.frameNumber] = progress.duration
         state.frameOptimisationState[progress.frameNumber] = progress.frameState
+
+        console.log(`progress update for frame ${progress.frameNumber}, state now ${progress.frameState}, duration: ${progress.duration}`)
 
         // Trigger an update if this frame update is for the viewport frame
 
@@ -240,8 +181,6 @@ export function Optimiser() {
             state.selectedMinFrame = imported.minFrame
             state.selectedMaxFrame = imported.maxFrame
             state.sceneTotalFrames = sceneTotalFrames
-            state.allRenderables = imported.allRenderables
-            state.renderablesByFrame = imported.renderablesByFrame
 
             state.treeStore.selectedItemID = null
             state.treeStore.tree = sceneTree
@@ -250,53 +189,23 @@ export function Optimiser() {
             console.log(`ingesting ${state.sceneTotalFrames} frames`)
 
             // Merge in the state from the settings file
-            state.settings = deepmerge(
-              state.settings,
-              imported.settingsToMerge,
-              { arrayMerge: overwriteMerge },
-            )
+            state.settings = deepmerge(state.settings, imported.settingsToMerge, { arrayMerge: overwriteMerge })
             state.visualisationSettings = deepmerge(
               state.visualisationSettings,
               imported.visualisationSettingsToMerge,
               { arrayMerge: overwriteMerge },
             )
-
-            incrementViewportFrameVersion(state)
           })
 
           // Mark all settings as clean
           markClean()
 
-          if (pendingMovementRecalculationCancellationToken.current) {
-            pendingMovementRecalculationCancellationToken.current.cancel()
-          }
-
-          pendingMovementRecalculationCancellationToken.current =
-            new CancellationToken()
-
-          const cT = pendingMovementRecalculationCancellationToken.current
-
-          // Wait for movements to be recalculated
-          await recalculateMovementsPerFrame(cT).catch(err => {
-            if (cT.caused(err)) {
-              // no worries
-              return
-            }
-
-            console.error(
-              `Caught error while recalculateMovementsPerFrame:`,
-              err,
-            )
-          })
+          singleton.onIngest(imported.renderablesByFrame, imported.minFrame)
 
           const optimiser = getPersistentOptimiser()
 
           // Start optimising the frames
-          optimiser.ingest(
-            imported.movementJSONByFrame,
-            getCurrentSettings(),
-            onProgress,
-          )
+          optimiser.ingest(imported.movementJSONByFrame, getCurrentSettings(), onProgress)
         })
       },
     )
@@ -305,9 +214,7 @@ export function Optimiser() {
   const folder = useSetting(state => state.folder)
 
   // Grab the camera override duration
-  const cameraOverrideDuration = useSetting(
-    state => state.cameraOverrideDuration,
-  )
+  const cameraOverrideDuration = useSetting(state => state.cameraOverrideDuration)
 
   if (folder === null) {
     return null
@@ -329,9 +236,7 @@ export function Optimiser() {
 
             return arr
           }}
-          colorAccessor={(event: {
-            [frameNumber: string]: FrameProgressUpdate
-          }) => {
+          colorAccessor={(event: { [frameNumber: string]: FrameProgressUpdate }) => {
             const arr: string[] = new Array(totalFrames)
 
             for (let index = 0; index < totalFrames; index++) {
@@ -375,12 +280,7 @@ export function Optimiser() {
         <HorizontalAxis labelPadding={10} />
 
         {cameraOverrideDuration > 0 ? (
-          <HorizontalLineAnnotation
-            y={cameraOverrideDuration}
-            color={Colors.RED5}
-            lineWidth={2}
-            affectBounds
-          />
+          <HorizontalLineAnnotation y={cameraOverrideDuration} color={Colors.RED5} lineWidth={2} affectBounds />
         ) : null}
       </ChartContainer>
     </>

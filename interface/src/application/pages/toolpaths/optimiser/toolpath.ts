@@ -39,19 +39,12 @@ export function toolpath(
   let movementTimestamp = 0
   let lightFadeTimestamp = 0
   // each movement should have a generateToolpath method
-  for (
-    let movementIndex = 0;
-    movementIndex < denseMovements.length;
-    movementIndex++
-  ) {
+  for (let movementIndex = 0; movementIndex < denseMovements.length; movementIndex++) {
     const movement = denseMovements[movementIndex]
 
     const moves = movement.generateToolpath()
 
-    const movementMovesTotalDuration = moves.reduce(
-      (acc, fade) => acc + fade.duration,
-      0,
-    )
+    const movementMovesTotalDuration = moves.reduce((acc, fade) => acc + fade.duration, 0)
 
     if (movement.getDuration() !== movementMovesTotalDuration) {
       console.warn(
@@ -112,9 +105,7 @@ export function toolpath(
       })
     }
 
-    const movementTriggersOnEnd = movementTriggers.filter(
-      trigger => trigger.align === (`end` as TriggerAlignment.END),
-    )
+    const movementTriggersOnEnd = movementTriggers.filter(trigger => trigger.align === (`end` as TriggerAlignment.END))
 
     for (const trigger of movementTriggersOnEnd) {
       triggers.push({
@@ -124,23 +115,19 @@ export function toolpath(
     }
 
     // Get the material override
-    const globalMaterialOverride = visualisationSettings
-      .objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
-      ? importMaterial(
-          visualisationSettings.objectMaterialOverrides[
-            GLOBAL_OVERRIDE_OBJECT_ID
-          ],
-        )
+    const globalMaterialOverride = visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID]
+      ? importMaterial(visualisationSettings.objectMaterialOverrides[GLOBAL_OVERRIDE_OBJECT_ID])
       : null
 
-    let material = globalMaterialOverride
-      ? globalMaterialOverride
-      : movement.material
-    material = getMaterialOverride(
-      visualisationSettings,
-      movement.material,
-      movement.overrideKeys,
-    )
+    // objectID material override
+
+    let material = movement.material
+
+    if (globalMaterialOverride) {
+      material = globalMaterialOverride
+    }
+
+    material = getMaterialOverride(visualisationSettings, movement.material, movement.overrideKeys)
 
     // If the movement is flipped, reverse the ordering of the material so it stays consistent
     const matStartT = movement.isFlipped ? 1 : 0
@@ -155,18 +142,11 @@ export function toolpath(
       matendT,
     )
 
-    const totalLightFadeDuration = movementLightFades.reduce(
-      (acc, fade) => acc + fade.duration,
-      0,
-    )
+    const totalLightFadeDuration = movementLightFades.reduce((acc, fade) => acc + fade.duration, 0)
 
     // Accumulate the light fades
 
-    for (
-      let lightMoveIndex = 0;
-      lightMoveIndex < movementLightFades.length;
-      lightMoveIndex++
-    ) {
+    for (let lightMoveIndex = 0; lightMoveIndex < movementLightFades.length; lightMoveIndex++) {
       const lightMove = movementLightFades[lightMoveIndex]
 
       if (lightMove.duration !== Math.floor(lightMove.duration)) {
@@ -178,9 +158,7 @@ export function toolpath(
         console.log(
           `zero duration light move dumped at time stamp ${movementTimestamp} as part of movement index ${movementIndex} (with duration ${movement.getDuration()}), material #${lightMoveIndex}/${
             movementLightFades.length - 1
-          } fade type ${
-            material.type
-          }, total duration of movement's light fades: ${totalLightFadeDuration} `,
+          } fade type ${material.type}, total duration of movement's light fades: ${totalLightFadeDuration} `,
         )
         continue
       }
@@ -282,9 +260,7 @@ export function toolpath(
   const postPostProcessLightFadeCount = lightFades.length
 
   if (postPostProcessLightFadeCount !== prePostProcessLightFadeCount) {
-    console.log(
-      `Reduced light fade count from ${prePostProcessLightFadeCount} to ${postPostProcessLightFadeCount}`,
-    )
+    console.log(`Reduced light fade count from ${prePostProcessLightFadeCount} to ${postPostProcessLightFadeCount}`)
   }
 
   const prePostProcessMovementMoveCount = movementMoves.length
@@ -320,9 +296,7 @@ export function toolpath(
   const postPostProcessMovementMoveCount = movementMoves.length
 
   if (postPostProcessMovementMoveCount !== prePostProcessMovementMoveCount) {
-    console.log(
-      `Reduced movement count from ${prePostProcessMovementMoveCount} to ${postPostProcessMovementMoveCount}`,
-    )
+    console.log(`Reduced movement count from ${prePostProcessMovementMoveCount} to ${postPostProcessMovementMoveCount}`)
   }
 
   return {
@@ -384,9 +358,7 @@ function movementMoveEndingPosition(move: MovementMove): MovementPoint {
     case MovementMoveType.BEZIER_QUADRATIC:
     case MovementMoveType.BEZIER_QUADRATIC_LINEARISED:
     default:
-      throw new Error(
-        `Unimplemented post processing for movement type ${move.type}`,
-      )
+      throw new Error(`Unimplemented post processing for movement type ${move.type}`)
   }
 }
 
@@ -407,9 +379,7 @@ function movementMoveStartingPosition(move: MovementMove): MovementPoint {
     case MovementMoveType.BEZIER_QUADRATIC:
     case MovementMoveType.BEZIER_QUADRATIC_LINEARISED:
     default:
-      throw new Error(
-        `Unimplemented post processing for movement type ${move.type}`,
-      )
+      throw new Error(`Unimplemented post processing for movement type ${move.type}`)
   }
 }
 

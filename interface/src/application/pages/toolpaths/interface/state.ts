@@ -1,8 +1,5 @@
 import create, { GetState, SetState, StateSelector } from 'zustand'
-import {
-  StoreApiWithSubscribeWithSelector,
-  subscribeWithSelector,
-} from 'zustand/middleware'
+import { StoreApiWithSubscribeWithSelector, subscribeWithSelector } from 'zustand/middleware'
 import produce from 'immer'
 import type { Settings } from '../optimiser/settings'
 
@@ -10,7 +7,7 @@ import { importMaterial, MaterialJSON } from '../optimiser/material'
 import type { Material } from '../optimiser/materials/Base'
 import { useCallback } from 'react'
 import type { Renderable } from '../optimiser/import'
-import type { Movement, SerialisedTour } from '../optimiser/movements'
+import { deserialiseTour, type Movement, type SerialisedTour } from '../optimiser/movements'
 import type { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 import type { PerspectiveCamera as PerspectiveCameraImpl } from 'three'
 import type { WritableDraft } from 'immer/dist/internal'
@@ -20,6 +17,11 @@ import type { FRAME_STATE, ToolpathGenerator } from './../optimiser/main'
 import type { GPencilOutputType } from '../optimiser/gpencil'
 import type { GNodesMeshOutputType } from '../optimiser/gnodes_mesh'
 import { GNodesCurvesOutputType } from '../optimiser/gnodes_curves'
+import { Camera } from '../optimiser/camera'
+import { DenseMovements } from '../optimiser/movement_utilities'
+import { sparseToDense } from '../optimiser/passes'
+import { CancellationToken, Deferred } from '@electricui/async-utilities'
+import { renderablesToMovements } from '../optimiser/files'
 
 export const defaultSettings: Settings = {
   objectSettings: {
@@ -76,6 +78,7 @@ export const defaultSettings: Settings = {
     transitionSize: 0.1, // 1 / 3,
     waitAtStartDuration: 3000,
     interLineTransitionAngle: 50, // degrees
+    interLineTransitionMaxGap: 2, // mm
     interLineTransitionShaveDistance: 2,
     interLineTransitionLessAngle: 2, // degrees
     smoothInterlineTransitions: true,
@@ -185,20 +188,11 @@ export interface Store {
     }
   }
 
-  // The SerialisedTour per frame, used to reconstruct movements on the UI side
-  movementOrdering: {
-    [frameNumber: number]: SerialisedTour
+  // The camera Renderable per frame, might not be defined
+  perFrameCamera: {
+    [frameNumber: number]: Camera | undefined
   }
-  // An array of all renderables through the entire scene stored here, for a list of object names, etc.
-  allRenderables: Renderable[]
-  // Renderables by frame are stored here
-  renderablesByFrame: {
-    [frame: number]: Renderable[]
-  }
-  // As the optimiser orders movements, the UI copy of the movements will be stored here
-  unorderedMovementsByFrame: {
-    [frameNumber: number]: Movement[]
-  }
+
   // The current estimated duration of each frame, in milliseconds
   estimatedDurationByFrame: {
     [frameNumber: number]: number
@@ -277,10 +271,7 @@ export const initialState: Store = {
   },
 
   priorityFrame: 1,
-  movementOrdering: {},
-  allRenderables: [],
-  renderablesByFrame: {},
-  unorderedMovementsByFrame: {},
+  perFrameCamera: {},
   estimatedDurationByFrame: {},
   frameOptimisationState: {},
 
@@ -294,12 +285,9 @@ export const initialState: Store = {
   cameraOverrideDuration: 0,
 }
 
-export const useStore = create<
-  Store,
-  SetState<Store>,
-  GetState<Store>,
-  StoreApiWithSubscribeWithSelector<Store>
->(subscribeWithSelector(() => initialState))
+export const useStore = create<Store, SetState<Store>, GetState<Store>, StoreApiWithSubscribeWithSelector<Store>>(
+  subscribeWithSelector(() => initialState),
+)
 
 export const resetStore = () => useStore.setState(initialState)
 
@@ -361,13 +349,181 @@ export function incrementViewportFrameVersion(state: WritableDraft<Store>) {
 }
 
 export function useViewportFrameDuration() {
-  return useSetting(
-    state => state.estimatedDurationByFrame[state.viewportFrame] ?? 0,
-  )
+  return useSetting(state => state.estimatedDurationByFrame[state.viewportFrame] ?? 0)
 }
 
 export function useViewportFrameState() {
-  return useSetting(
-    state => state.frameOptimisationState[state.viewportFrame] ?? 2,
-  ) // UNOPTIMISED = 2, avoiding circular dependency
+  return useSetting(state => state.frameOptimisationState[state.viewportFrame] ?? 2) // UNOPTIMISED = 2, avoiding circular dependency
 }
+
+/**
+ * Does this force you to
+ */
+class ExternalSingleton {
+  /** The current viewport frame number */
+  private viewportFrameNumber = 0
+
+  /** The latest serialisedTour per frame */
+  private serialisedMovementsCache: Map<number, SerialisedTour> = new Map()
+
+  /** The renderables per frame, injested once on import */
+  private renderablesByFrame: Map<number, Renderable[]> = new Map()
+
+  private progressUpdateWaitsPerFrame: Map<number, { deferred: Deferred<void>; cancellationToken: CancellationToken }> =
+    new Map()
+
+  private frameSubscriptions: Set<() => void> = new Set()
+
+  public onViewportFrameVersionChange = async (
+    frameNumber: number,
+    settings: Settings,
+    cancellationToken: CancellationToken,
+  ) => {
+    this.viewportFrameNumber = frameNumber
+    const start = performance.now()
+
+    // Recalculate dense movements for this frame
+    const movements = await this.getDenseMovementsForFrame(this.viewportFrameNumber, settings, cancellationToken)
+
+    const end = performance.now()
+
+    console.log(
+      `took ${Math.round((end - start) * 10) / 10}ms to process dense movements for frame ${this.viewportFrameNumber}`,
+    )
+
+    this.thisFrameCachedDenseMovements = movements
+
+    // Then notify everything of the changes
+    this.notify()
+  }
+
+  public onProgressUpdate = (frameNumber: number, serialisedTour: SerialisedTour) => {
+    this.serialisedMovementsCache.set(frameNumber, serialisedTour)
+
+    // don't async call notify, that will be handled by the
+    // incrementViewportFrameVersion call in the onProgress callback in the optimiser
+
+    const waits = this.progressUpdateWaitsPerFrame.get(frameNumber)
+    if (waits) {
+      waits.deferred.resolve()
+      this.progressUpdateWaitsPerFrame.delete(frameNumber)
+    }
+  }
+
+  public onIngest = (renderablesByFrame: Map<number, Renderable[]>, frameNumberToBegin: number) => {
+    this.viewportFrameNumber = frameNumberToBegin
+
+    // Wipe the cache
+    this.serialisedMovementsCache.clear()
+
+    // Store the renderables per frame
+    this.renderablesByFrame.clear()
+    this.renderablesByFrame = renderablesByFrame
+
+    // Reject every pending wait
+    this.progressUpdateWaitsPerFrame.forEach(({ deferred, cancellationToken }) => {
+      deferred.reject(cancellationToken.token)
+    })
+
+    this.progressUpdateWaitsPerFrame.clear()
+
+    // Trigger a render of 'nothing'
+    this.notify()
+  }
+
+  public getVisibleRenderableViaOriginalMaterialJSONWithObjectID = (objectID: string) => {
+    const renderables = this.renderablesByFrame.get(this.viewportFrameNumber)
+
+    if (!renderables) return null
+
+    const renderable = renderables.find(renderable => renderable.getOriginalMaterialJSON(objectID))
+
+    return renderable ?? null
+  }
+
+  private waitForFrameProgressUpdate = (frameNumber: number, cancellationToken: CancellationToken) => {
+    const waits = this.progressUpdateWaitsPerFrame.get(frameNumber)
+    if (waits) {
+      return waits.deferred.promise
+    }
+
+    const deferred = new Deferred<void>()
+    this.progressUpdateWaitsPerFrame.set(frameNumber, { deferred, cancellationToken })
+
+    return deferred.promise
+  }
+
+  public getDenseMovementsForFrame = async (
+    frameNumber: number,
+    settings: Settings,
+    cancellationToken: CancellationToken,
+  ): Promise<DenseMovements> => {
+    const renderables = this.renderablesByFrame.get(frameNumber)
+
+    if (!renderables) {
+      // TODO: Wait for renderables to arrive?
+      throw new Error(`No renderables for frame ${frameNumber}`)
+    }
+
+    let cachedOrder = this.serialisedMovementsCache.get(frameNumber)
+
+    if (!cachedOrder) {
+      console.log(`Couldn't find cached ordering for frame ${frameNumber}`)
+
+      await this.waitForFrameProgressUpdate(frameNumber, cancellationToken)
+      cancellationToken.haltIfCancelled()
+
+      cachedOrder = this.serialisedMovementsCache.get(frameNumber)!
+
+      if (!cachedOrder) {
+        throw new Error(`cachedOrder wasn't there after explicit wait`)
+      }
+    }
+
+    const sparseBag = await renderablesToMovements(renderables, settings, cancellationToken)
+
+    const deserialised = deserialiseTour(sparseBag, cachedOrder)
+
+    return sparseToDense(deserialised, settings)
+  }
+
+  private thisFrameCachedDenseMovements: DenseMovements | null = null
+
+  /**
+   * Synchronously get the dense movements this frame.
+   *
+   * Returns null if not ready.
+   */
+  public getDenseMovementsThisFrame = (): DenseMovements | null => {
+    if (!this.thisFrameCachedDenseMovements) {
+      return null
+    }
+
+    return this.thisFrameCachedDenseMovements
+  }
+
+  public getNumberOfMovements = () => {
+    if (this.thisFrameCachedDenseMovements) {
+      return this.thisFrameCachedDenseMovements.length
+    }
+
+    return 0
+  }
+
+  private notify = () => {
+    this.frameSubscriptions.forEach(cb => cb())
+  }
+
+  /**
+   * Subscribe to any changes, very coarse.
+   */
+  public subscribe(cb: () => void): () => void {
+    this.frameSubscriptions.add(cb)
+
+    return () => {
+      this.frameSubscriptions.delete(cb)
+    }
+  }
+}
+
+export const singleton = new ExternalSingleton()

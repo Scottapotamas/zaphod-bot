@@ -480,6 +480,10 @@ export class Line extends Movement {
   }
 
   public setMaxSpeed = (maxSpeed: number) => {
+    if (maxSpeed === 0) {
+      console.log(`ignored adjusted max speed to 0 on line`)
+      return
+    }
     this.maxSpeed = maxSpeed
   }
 
@@ -655,7 +659,10 @@ export class Point extends Movement {
     return 0
   }
 
-  public setMaxSpeed = (maxSpeed: number) => {
+  public setMaxSpeed = (maxSpeed: number) => {    if (maxSpeed === 0) {
+    console.log(`ignored adjusted max speed to 0 on point`)
+    return
+  }
     this.maxSpeed = maxSpeed
   }
 
@@ -916,6 +923,11 @@ export class Bezier extends Movement {
   }
 
   public setMaxSpeed = (maxSpeed: number) => {
+    if (maxSpeed === 0) {
+      console.log(`ignored adjusted max speed to 0 on bezier`)
+      return
+    }
+
     this.maxSpeed = maxSpeed
 
     // after this call this.maxSpeed will likely be different to what is set in maxSpeed
@@ -1091,13 +1103,28 @@ export class ConstantSpeedBezier extends Movement {
   }
 
   public setMaxSpeed = (maxSpeed: number) => {
+    if (maxSpeed === 0) {
+      console.log(`ignored adjusted max speed to 0 on constant speed bezier`)
+      return
+    }
     this.maxSpeed = maxSpeed
   }
 
   public getDuration = () => {
-    return Math.ceil(
+
+    const res = Math.ceil(
       (this.getLength() / this.maxSpeed) * MILLISECONDS_IN_SECOND,
     )
+
+    if (!Number.isFinite(res)) {
+      const length = this.getLength()
+      const speed = this.maxSpeed
+
+      console.log(`infinite bezier`, length, speed)
+      debugger
+    }
+
+    return res
   }
 
   public getStart = () => {
@@ -1328,6 +1355,11 @@ export class CatmullRom extends Movement {
   }
 
   public setMaxSpeed = (maxSpeed: number) => {
+    if (maxSpeed === 0) {
+      console.warn(`ignored adjusted max speed to 0 on catmull rom`)
+      return
+    }
+
     this.maxSpeed = maxSpeed
   }
 
@@ -1544,6 +1576,10 @@ export class ConstantSpeedCatmullRom extends Movement {
   }
 
   public setMaxSpeed = (maxSpeed: number) => {
+    if (maxSpeed === 0) {
+      console.log(`ignored adjusted max speed to 0 on catmull rom`)
+      return
+    }
     this.maxSpeed = maxSpeed
   }
 
@@ -1893,6 +1929,11 @@ export class CatmullChain extends Movement {
   }
 
   public setMaxSpeed = (maxSpeed: number) => {
+    if (maxSpeed === 0) {
+      console.log(`ignored adjusted max speed to 0 on catmull rom chain`)
+      return
+    }
+
     this.maxSpeed = maxSpeed
   }
 
