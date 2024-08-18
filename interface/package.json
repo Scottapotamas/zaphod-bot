@@ -98,6 +98,7 @@
     "@types/classnames": "^2.2.8",
     "@types/jest": "^26.0.15",
     "@types/js-quantities": "^1.6.2",
+    "@types/lodash.throttle": "^4.1.1",
     "@types/mocha": "^5.2.6",
     "@types/node": "20.10.5",
     "@types/reach__router": "^1.2.4",

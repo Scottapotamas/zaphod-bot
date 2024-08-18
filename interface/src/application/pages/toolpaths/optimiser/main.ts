@@ -16,7 +16,6 @@ export enum FRAME_STATE {
 
 export interface FrameProgressUpdate {
   frameNumber: number
-  text: string
   duration: number
   completed: boolean
   minimaFound: boolean
@@ -291,7 +290,6 @@ export class ToolpathGenerator {
         // Pass the updates up the chain
         this.onUpdate({
           frameNumber: frameNumber,
-          text: progress.text,
           duration: progress.duration,
           completed: progress.completed,
           minimaFound: progress.minimaFound,

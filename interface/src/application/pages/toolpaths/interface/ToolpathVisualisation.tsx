@@ -84,16 +84,21 @@ export function ToolpathMovements() {
       movementIndex: number,
       objectID?: string,
     ) => {
+      // Calculate line distances immediately assuming contiguity
+      const d1 = distScratchVector.distanceTo(start)
+      const d2 = start.distanceTo(end)
+      distScratchVector.set(end.x, end.y, end.z)
+
       // Do the Blender -> ThreeJS coordinate system transform inline
       const headIdx = lines.add(
         start.x,
         start.z,
         -start.y,
-        1, // Coloured lines aren't dashed, so we don't need to bother with the line distance calculation, just treat them all as '1'
+        d1,
         end.x,
         end.z,
         -end.y,
-        1,
+        d2,
         colorStart[0],
         colorStart[1],
         colorStart[2],
