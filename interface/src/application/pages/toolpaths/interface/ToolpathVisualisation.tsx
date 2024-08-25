@@ -186,9 +186,7 @@ export function ToolpathMovements() {
     }
 
     const flushReactComponents = () => {
-      // Make the copy here
-      setComponents(state => reactComponents.slice())
-      reactComponents.length = 0
+      setComponents(reactComponents.slice())
     }
 
     let lastCancellationToken = new CancellationToken()

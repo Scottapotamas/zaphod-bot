@@ -274,7 +274,14 @@ export class ToolpathGenerator {
         // Check if the update improves the cost, otherwise dump it and raise a warning
         const cachedCost = (this.frameCost.get(frameNumber) ?? Infinity)
         if (cachedCost < progress.currentCost) {
-          console.warn(`Update to frame ${frameNumber} was cost ${progress.currentCost} which is more than ${cachedCost}, why did this get propagated?`)
+          console.log(`Update to frame ${frameNumber} was cost ${progress.currentCost} which is more than ${cachedCost}, why did this get propagated?`)
+          return
+        }
+
+        const cachedDuration = (this.frameDuration.get(frameNumber) ?? Infinity)
+
+        if (cachedDuration < progress.duration ) {
+          console.log(`Update to frame ${frameNumber} was duration ${progress.duration} which is more than ${cachedDuration}, why did this get propagated? old cost was ${cachedCost}, new cost is ${progress.currentCost}`)
           return
         }
 
@@ -307,12 +314,10 @@ export class ToolpathGenerator {
 
       // Start the optimisation pass
       await worker.optimise(
+        frameNumber,
         this.movementJSON.get(frameNumber)!,
         this.settings,
         partialOptimisation, // if this is a partial update, stop after the first iteration
-        {
-          frameNumber,
-        },
       )
 
       this.setFrameState(frameNumber, partialOptimisation ? FRAME_STATE.OPTIMISED_PARTIALLY : FRAME_STATE.OPTIMISED_FULLY)

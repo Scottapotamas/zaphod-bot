@@ -27,10 +27,10 @@ export const OptimisationWorker = {
   },
 
   async optimise(
+    frameNumber: number,
     sparseBagToImport: FrameMovementJSON,
     settings: Settings,
     partialUpdate: boolean,
-    debugInfo: any,
   ) {
     try {
       const updateProgress = async (progress: Progress): Promise<Continue> => {
@@ -59,11 +59,11 @@ export const OptimisationWorker = {
 
       // Run the optimiser
       await optimise(
+        frameNumber,
         preprocess(movements, settings),
         partialUpdate,
         settings,
         updateProgress,
-        debugInfo,
       )
     } catch (e) {
       progressUpdates.error(e)

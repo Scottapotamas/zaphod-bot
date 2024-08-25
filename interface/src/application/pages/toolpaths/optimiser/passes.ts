@@ -718,17 +718,10 @@ export interface Progress {
 
 export type Continue = boolean
 
-function optimiseByCache(
-  sparseBag: Movement[],
-  serialisedTour: SerialisedTour,
-) {
-  return deserialiseTour(sparseBag, serialisedTour)
-}
-
-export function* optimiseNoop(
+export function optimiseNoop(
   sparseBag: Movement[],
   createHasher: (seed?: number) => XXHash<number>,
-): Generator<OptimiserResult> {
+): OptimiserResult {
   const start = performance.now()
 
   const best = {
@@ -737,23 +730,18 @@ export function* optimiseNoop(
     cost: sparseToCost(sparseBag),
   }
 
-  yield {
+  return {
     iterations: 0,
-    completed: false,
     time: performance.now() - start,
     best,
   }
-
-  return
 }
 
-// 84 minutes total
-
-export function* optimiseBySearch(
+export function optimiseBySearch(
   sparseBag: Movement[],
   createHasher: (seed?: number) => XXHash<number>,
   stopAfter: { current: number },
-): Generator<OptimiserResult> {
+): OptimiserResult {
   const start = performance.now()
 
   const best = {
@@ -763,13 +751,11 @@ export function* optimiseBySearch(
   }
 
   if (sparseBag.length < 2) {
-    yield {
+    return {
       iterations: 0,
-      completed: true,
       time: performance.now() - start,
       best,
     }
-    return
   }
 
   let totalIterations = 0
@@ -780,16 +766,6 @@ export function* optimiseBySearch(
 
     for (let tourIndex = 0; tourIndex < sparseBag.length; tourIndex++) {
       let previousMovement = sparseBag[tourIndex]
-
-      // Check if the time limit has been exceeded
-      if (performance.now() > stopAfter.current) {
-        yield {
-          iterations: tourIndex + 1,
-          completed: false,
-          time: performance.now() - start,
-          best,
-        }
-      }
 
       const toOrder = sparseBag.slice()
       toOrder.splice(tourIndex, 1) // remove our starting element from the list to order
@@ -859,13 +835,11 @@ export function* optimiseBySearch(
     }
   }
 
-  yield {
+  return {
     iterations: totalIterations,
-    completed: true,
     time: performance.now() - start,
     best,
   }
-  return
 }
 
 // Iterates over a tour and flips movements to reduce distance
@@ -912,7 +886,6 @@ export interface BestTour {
   cost: number
 }
 export interface OptimiserResult {
-  completed: boolean
   iterations: number
   time: number
   best: BestTour
@@ -949,7 +922,7 @@ export function* optimiseBruteForce(
 
     // Check if the time limit has been exceeded
     if (performance.now() > stopAfter.current) {
-      yield { iterations: tourIndex + 1, completed: false, time: time, best }
+      yield { iterations: tourIndex + 1, time: time, best }
     }
 
     tourIndex++
@@ -974,7 +947,6 @@ export function* optimiseBruteForce(
 
   yield {
     iterations: tourIndex + 1,
-    completed: true,
     time: performance.now() - start,
     best,
   }
@@ -1006,21 +978,21 @@ function d(
  * Cannot be called with a tour below 4 moves!
  */
 export function* optimise2Opt(
+  startingPoint: OptimiserResult,
   sparseBag: Movement[],
   createHasher: (seed?: number) => XXHash<number>,
   stopAfter: { current: number },
 ): Generator<OptimiserResult> {
-  const best = {
-    tour: serialiseTour(sparseBag),
-    hash: hashTour(sparseBag, createHasher),
-    cost: sparseToCost(sparseBag),
+  const best: BestTour = {
+    tour: startingPoint.best.tour,
+    hash: startingPoint.best.hash,
+    cost: startingPoint.best.cost,
   }
 
   // Need at least 4 items to do our 2opt
   if (sparseBag.length < 4) {
     yield {
       iterations: 0,
-      completed: true,
       time: 0,
       best,
     }
@@ -1057,9 +1029,7 @@ export function* optimise2Opt(
       .entries()
       .next().value
 
-    // Take a copy of the sparseBag so it doesn't get mutated underneath us
-    // The movements might still be flipped, TODO: is this affecting us?
-    let currentOrdering = deserialiseTour(sparseBag.slice(), serialised)
+    let currentOrdering = deserialiseTour(sparseBag, serialised)
 
     // Remove the candidate from the queue
     queue.delete(hash)
@@ -1089,7 +1059,6 @@ export function* optimise2Opt(
 
           yield {
             iterations: tourIndex + 1,
-            completed: false,
             time: time,
             best,
           }
@@ -1300,7 +1269,6 @@ export function* optimise2Opt(
 
   yield {
     iterations: tourIndex + 1,
-    completed: true,
     time: performance.now() - start,
     best,
   }
@@ -1315,126 +1283,96 @@ const OPTIMISATION_TIME = 250
  * Async so we can interrupt the event queue to check for pausing, otherwise it'll just run.
  */
 export async function optimise(
+  frameNumber: number,
   sparseBag: Movement[],
   partialUpdate: boolean,
   settings: Settings,
   updateProgress: (progress: Progress) => Promise<Continue>,
-  debugInfo: any, // only used for debug information, caught in the stack frame
 ) {
   const { create32: createHasher } = await xxhash()
 
   const startedOptimisation = performance.now()
 
-  const startingCost = sparseToCost(sparseBag)
-  let runningCost = startingCost
+  let runningOptimiserResult = optimiseNoop(
+      sparseBag,
+      createHasher,
+    )
 
-  // Immediately emit the naive tour as a partial update
-  let currentOptimisationLevel: OptimiserResult = optimiseNoop(
-    sparseBag,
-    createHasher,
-  ).next().value
+  // Calculate the initial duration
+  const currentDense = sparseToDense(
+    deserialiseTour(sparseBag, runningOptimiserResult.best.tour),
+    settings,
+  )
+  const currentDuration = getTotalDuration(currentDense)
   
+  // A fast path 'cost' is kept, but the duration is also compared.
+  let currentBestCostRef = { cost: runningOptimiserResult.best.cost, duration: currentDuration }
+
   // Partial updates just return the noop as fast as possible
   if (partialUpdate) {
-    const currentDense = sparseToDense(
-      deserialiseTour(sparseBag, currentOptimisationLevel.best.tour),
-      settings,
-    )
-    const currentDuration = getTotalDuration(currentDense)
-
-    // Final status update
+    // Initial status update
     await updateProgress({
-      duration: currentDuration,
-      serialisedTour: currentOptimisationLevel.best.tour,
-      timeSpent: currentOptimisationLevel.time,
-      currentCost: currentOptimisationLevel.best.cost,
+      duration: currentBestCostRef.duration,
+      serialisedTour: runningOptimiserResult.best.tour,
+      timeSpent: runningOptimiserResult.time,
+      currentCost: currentBestCostRef.cost,
     })
 
     return
   }
 
+  // Attempt an update of the current optimisation 
+  const processUpdate = () => potentiallyUpdate(frameNumber, sparseBag, settings,runningOptimiserResult, currentBestCostRef, updateProgress)
+  
   let iterations = 0
 
   const stopAfter = { current: performance.now() + OPTIMISATION_TIME }
 
   for (const iteration of smartOptimiser(
+    runningOptimiserResult,
     sparseBag,
     settings,
     createHasher,
     stopAfter,
   )) {
+    // Update the running result
+    runningOptimiserResult = iteration
     iterations += iteration.iterations
 
-    const deserialised = deserialiseTour(sparseBag, iteration.best.tour)
+    const shouldContinue = await processUpdate()
+    if (!shouldContinue) return
 
-    const currentDense = sparseToDense(deserialised, settings)
-    const currentDuration = getTotalDuration(currentDense)
+    // Only do a minute of processing, max
+    if (performance.now() - startedOptimisation > 60_000) return
 
-    // Finish within the time it takes to render the frame no matter what
-    const done =
-      iteration.completed ||
-      performance.now() - startedOptimisation > currentDuration
-
-    const calculatedCost = sparseToCost(deserialised)
-    const hash = hashTour(deserialised, createHasher)
-
-    const shouldContinue = await updateProgress({
-      duration: currentDuration,
-      serialisedTour: iteration.best.tour,
-      timeSpent: performance.now() - startedOptimisation,
-      currentCost: sparseToCost(sparseBag),
-    })
-
-    // Update the allowed time to iterate
+    // Otherwise, allow another OPTIMISATION_TIME of updates
     stopAfter.current = performance.now() + OPTIMISATION_TIME
-
-    currentOptimisationLevel = iteration
-
-    // If we've reached a minima, or should stop, or we've taken longer than the length of the tour to optimise, exit
-    if (done || !shouldContinue) {
-      return
-    }
   }
-
-  const deserialised = deserialiseTour(
-    sparseBag,
-    currentOptimisationLevel.best.tour,
-  )
-  const currentDense = sparseToDense(deserialised, settings)
-  const currentDuration = getTotalDuration(currentDense)
-
-  // final update
-  await updateProgress({
-    duration: currentDuration,
-    serialisedTour: currentOptimisationLevel.best.tour,
-    timeSpent: performance.now() - startedOptimisation,
-    currentCost: sparseToCost(sparseBag),
-  })
 }
 
 export function* smartOptimiser(
+  previousResult: OptimiserResult,
   sparseBag: Movement[],
   settings: Settings,
   createHasher: (seed?: number) => XXHash<number>,
   stopAfter: { current: number },
 ): Generator<OptimiserResult> {
-  // Todo have this be switchable
 
-  // Generate initial NN optimisation
+  let runningResult = previousResult
 
-  let initialOptimisation: OptimiserResult = optimiseNoop(
-    sparseBag,
-    createHasher,
-  ).next().value
-
+  // Generate the initial NN optimisation
   if (settings.optimisation.passes.nearestNeighbour) {
-    initialOptimisation = optimiseBySearch(
+    const searchOpt = optimiseBySearch(
       sparseBag,
       createHasher,
       stopAfter,
-    ).next().value
+    )
 
-    yield initialOptimisation
+    if (searchOpt.best.cost < runningResult.best.cost) {
+      runningResult = searchOpt
+    }
+
+    yield runningResult
   }
 
   // Optimise all MovementGroups as sub-tours
@@ -1443,52 +1381,62 @@ export function* smartOptimiser(
 
     // Only optimise non-frozen movement groups
     if (isMovementGroup(movement) && !movement.frozen) {
+      const subBag = movement.getMovements()
+
+      // Noop result
+      const initial = optimiseNoop(
+        subBag,
+        createHasher,
+      )
+
+      let runningCost = initial.best.cost
+
       for (const subRes of smartOptimiser(
-        movement.getMovements(),
+        initial,
+        subBag,
         settings,
         createHasher,
         stopAfter,
       )) {
-        if (subRes.completed) {
+        // If the sub-tour cost improves, apply the update to this tour 
+        // via the movement group hydration
+        if (subRes.best.cost < runningCost) {
           movement.hydrate(subRes.best.tour)
-        } else {
-          // During hierarchial optimisation, yield the original NN tour until we have a solve on a sub-tour
-          // Once a sub-tour is optimised, the MovementGroup will be hydrated and the overall Tour will update
-          yield initialOptimisation
         }
+
+        yield runningResult
       }
+
+      yield runningResult
     }
   }
 
   // Any subtour with under 10 elements, perform a brute force solve
   if (sparseBag.length < 10 && settings.optimisation.passes.bruteForceSmall) {
     for (const res of optimiseBruteForce(sparseBag, createHasher, stopAfter)) {
-      if (res.completed) {
-        yield res
-        return
+      if (res.best.cost < runningResult.best.cost) {
+        runningResult = res
       }
-      yield res
+  
+      yield runningResult
     }
   }
 
-  // Any tours more complicated than 10 moves utilise 2-opt, seeded with a nearest neighbour search
+  // Any tours more complicated than 10 moves utilise 2-opt, seeded with whatever we've done so far
   if (settings.optimisation.passes.twoOpt) {
     for (const res of optimise2Opt(
-      deserialiseTour(sparseBag, initialOptimisation.best.tour),
+      runningResult,
+      sparseBag,
       createHasher,
       stopAfter,
     )) {
-      if (res.completed) {
-        yield res
-        return
+      if (res.best.cost < runningResult.best.cost) {
+        runningResult = res
       }
-      yield res
+  
+      yield runningResult
     }
   }
-
-  // should be unreachable if we did any extra optimisations, otherwise just return the initial one
-  initialOptimisation.completed = true
-  yield initialOptimisation
 }
 
 function debuggerIfCostOut(currentOrdering: Movement[], cost: number) {
@@ -2168,17 +2116,18 @@ function subdivideBezierAndClampSpeed(
  *       expensive due to sparseToDense, deserialiseTour calls.
  */
 async function potentiallyUpdate(
+  frameNumber: number,
   sparseBag: Movement[],
   settings: Settings,
   optimiserResult: OptimiserResult,
-  currentBestCostRef: { current: number },
+  currentBestCostRef: { cost: number, duration: number },
   updateProgress: (progress: Progress) => Promise<Continue>,
 ) {
   // determine if this update is worse than the current 
   const cost = optimiserResult.best.cost
 
-  // Bail early if it's worse and continue processing.
-  if (cost > currentBestCostRef.current) return true
+  // Bail early if it's no better and continue processing.
+  if (cost >= currentBestCostRef.cost) return true
 
   const currentDense = sparseToDense(
     deserialiseTour(sparseBag, optimiserResult.best.tour),
@@ -2187,11 +2136,16 @@ async function potentiallyUpdate(
 
   const duration = getTotalDuration(currentDense)
 
+  // If the actual duration is worse, bail as well.
+  if (duration >= currentBestCostRef.duration) return true
+
   if (!Number.isFinite(duration)) {
-    console.warn(`This frame has an infinite duration?`)
+    console.warn(`Frame ${frameNumber} has an infinite duration?`)
     // Something went wrong, an infinite duration is not possible
     debugger
   }
+
+  console.log(`Updating ${frameNumber} from cost ${currentBestCostRef.cost} to cost ${cost}, duration ${currentBestCostRef.duration} to duration ${duration}`)
 
   // otherwise it's an explicit improvement, prepare the update
   const progress: Progress = {
@@ -2202,7 +2156,8 @@ async function potentiallyUpdate(
   }
 
   // update the best cost 
-  currentBestCostRef.current = optimiserResult.best.cost
+  currentBestCostRef.cost = optimiserResult.best.cost
+  currentBestCostRef.duration = duration
 
   // Propagate the update, return if processing should continue
   return updateProgress(progress)

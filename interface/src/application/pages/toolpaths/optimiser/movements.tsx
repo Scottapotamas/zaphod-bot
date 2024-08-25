@@ -210,7 +210,8 @@ export function deserialiseTour(
   sparseBag: Movement[],
   serialised: SerialisedTour,
 ) {
-  const movements = sparseBag.slice()
+  const movements = sparseBag
+  
   // Hydration sorts movement groups recursively
   for (let index = 0; index < movements.length; index++) {
     const movement = movements[index]
@@ -277,13 +278,13 @@ export class MovementGroup extends Movement {
 
   public hydrate = (serialised: SerialisedTour) => {
     // Hydrate children first
-    for (let index = 0; index < this.getMovements().length; index++) {
-      const movement = this.getMovements()[index]
+    for (let index = 0; index < this.movements.length; index++) {
+      const movement = this.movements[index]
       movement.hydrate(serialised)
     }
 
     // Sort these movements
-    this.getMovements().sort((a, b) => {
+    this.movements.sort((a, b) => {
       const aOrder = serialised[a.interFrameID]?.order ?? 0
       const bOrder = serialised[b.interFrameID]?.order ?? 0
       return aOrder - bOrder

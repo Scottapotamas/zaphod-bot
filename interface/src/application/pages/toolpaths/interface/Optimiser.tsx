@@ -70,9 +70,6 @@ export function Optimiser() {
         state.frameOptimisationState[frameNumber] = frameState
       })
 
-      if (frameNumber === 1)
-     { console.log(`frame state change ${frameNumber} state ${frameState} duration ${duration}`)
-}
       // Pull this data out to avoid copying anything expensive
       frameData[frameNumber] = {
         duration: duration,
