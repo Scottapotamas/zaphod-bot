@@ -1342,8 +1342,8 @@ export async function optimise(
     const shouldContinue = await processUpdate()
     if (!shouldContinue) return
 
-    // Only do a minute of processing, max
-    if (performance.now() - startedOptimisation > 60_000) return
+    // Only do like 15 seconds of processing per frame, it's unlikely to keep getting better
+    if (performance.now() - startedOptimisation > 15_000) return
 
     // Otherwise, allow another OPTIMISATION_TIME of updates
     stopAfter.current = performance.now() + OPTIMISATION_TIME

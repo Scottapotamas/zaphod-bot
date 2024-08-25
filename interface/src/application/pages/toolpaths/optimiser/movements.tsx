@@ -154,6 +154,7 @@ export abstract class Movement {
 
 export type XYZ = [x: number, y: number, z: number]
 export type RGB = [r: number, g: number, b: number]
+/** RGBA are 0-1 floats */
 export type RGBA = [r: number, g: number, b: number, a: number]
 
 export type AddLineCallback = (
@@ -211,7 +212,7 @@ export function deserialiseTour(
   serialised: SerialisedTour,
 ) {
   const movements = sparseBag
-  
+
   // Hydration sorts movement groups recursively
   for (let index = 0; index < movements.length; index++) {
     const movement = movements[index]
