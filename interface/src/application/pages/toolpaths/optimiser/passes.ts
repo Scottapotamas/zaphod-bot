@@ -713,8 +713,6 @@ export interface Progress {
   serialisedTour: SerialisedTour
   // Whether this is the final update of this run
   completed: boolean
-  // Whether a minima was found
-  minimaFound: boolean
   // How much wall time spent optimising
   timeSpent: number
   currentCost: number
@@ -778,8 +776,6 @@ export function* optimiseBySearch(
   }
 
   let totalIterations = 0
-
-  let worstCost = -Infinity
 
   // Start a search from every movement, flipped and not flipped
   for (let sFi = 0; sFi < 2; sFi++) {
@@ -860,8 +856,6 @@ export function* optimiseBySearch(
         best.tour = serialiseTour(nnOrdering)
         best.hash = hashTour(nnOrdering, createHasher)
         best.cost = sparseToCost(nnOrdering)
-      } else {
-        worstCost = cost
       }
 
       totalIterations++
@@ -1328,21 +1322,39 @@ export async function optimise(
   partialUpdate: boolean,
   settings: Settings,
   updateProgress: (progress: Progress) => Promise<Continue>,
-  debugInfo: any,
-  cache?: SerialisedTour,
+  debugInfo: any, // only used for debug information, caught in the stack frame
 ) {
   const { create32: createHasher } = await xxhash()
 
   const startedOptimisation = performance.now()
 
   const startingCost = sparseToCost(sparseBag)
+  let runningCost = startingCost
 
-  // Partial updates just run a beam search
+  // Immediately emit the naive tour
   let currentOptimisationLevel: OptimiserResult = optimiseNoop(
     sparseBag,
     createHasher,
   ).next().value
+  
+  {
+    const currentDense = sparseToDense(
+      deserialiseTour(sparseBag, currentOptimisationLevel.best.tour),
+      settings,
+    )
 
+    // Final status update
+    await updateProgress({
+      duration: getTotalDuration(currentDense),
+      serialisedTour: currentOptimisationLevel.best.tour,
+      completed: false,
+      timeSpent: performance.now() - startedOptimisation,
+      startingCost,
+      currentCost: startingCost,
+    })
+  }
+
+  // Partial updates just run a NN search
   if (partialUpdate) {
     const stopAfter = { current: startedOptimisation + OPTIMISATION_TIME }
 
@@ -1365,7 +1377,6 @@ export async function optimise(
       duration: getTotalDuration(currentDense),
       serialisedTour: currentOptimisationLevel.best.tour,
       completed: true,
-      minimaFound: false,
       timeSpent: performance.now() - startedOptimisation,
       startingCost,
       currentCost: sparseToCost(sparseBag),
@@ -1427,17 +1438,11 @@ export async function optimise(
   const currentDense = sparseToDense(deserialised, settings)
   const currentDuration = getTotalDuration(currentDense)
 
-  const calculatedCost = sparseToCost(deserialised)
-  const hash = hashTour(deserialised, createHasher)
-
   // final update
   await updateProgress({
     duration: currentDuration,
     serialisedTour: currentOptimisationLevel.best.tour,
     completed: true,
-    minimaFound:
-      currentOptimisationLevel.completed ||
-      performance.now() - startedOptimisation > currentDuration,
     timeSpent: performance.now() - startedOptimisation,
     startingCost,
     currentCost: sparseToCost(sparseBag),

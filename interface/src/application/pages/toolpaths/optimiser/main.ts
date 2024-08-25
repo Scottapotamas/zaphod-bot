@@ -18,7 +18,6 @@ export interface FrameProgressUpdate {
   frameNumber: number
   duration: number
   completed: boolean
-  minimaFound: boolean
   timeSpent: number
   startingCost: number
   currentCost: number
@@ -54,7 +53,7 @@ export class ToolpathGenerator {
    */
   private unfinishedFrames: number[] = []
   private frameState: Map<number, FRAME_STATE> = new Map()
-  private frameCache: Map<number, SerialisedTour> = new Map()
+  private frameCost: Map<number, FRAME_STATE> = new Map()
 
   private frameSubscriptions: Map<number, Deferred<void>> = new Map()
   private onCompleteDeferred = new Deferred<void>()
@@ -75,7 +74,6 @@ export class ToolpathGenerator {
     this.scheduleWork = this.scheduleWork.bind(this)
     this.setFrameState = this.setFrameState.bind(this)
     this.scheduleFrame = this.scheduleFrame.bind(this)
-    this.getClosestFrameCache = this.getClosestFrameCache.bind(this)
     this.setViewedFrame = this.setViewedFrame.bind(this)
     this.waitUntilFrameReady = this.waitUntilFrameReady.bind(this)
     this.onComplete = this.onComplete.bind(this)
@@ -99,7 +97,7 @@ export class ToolpathGenerator {
   reset() {
     this.unfinishedFrames = []
     this.frameState.clear()
-    this.frameCache.clear()
+    this.frameCost.clear()
     this.movementJSON.clear()
     this.frameSubscriptions.clear()
     this.onCompleteDeferred = new Deferred<void>()
@@ -124,6 +122,9 @@ export class ToolpathGenerator {
       const num = Number(frameNumber)
       // Set all frames to unoptimised
       this.frameState.set(num, FRAME_STATE.UNOPTIMISED)
+
+      // Set all frames to Infinite cost initially
+      this.frameCost.set(num, Infinity)
 
       // Store the movement JSON
       this.movementJSON.set(num, movementJSONByFrame[num])
@@ -269,16 +270,9 @@ export class ToolpathGenerator {
 
         updates++
 
-        // Update the frame cache
-        this.frameCache.set(frameNumber, progress.serialisedTour)
-
         // Update our status if this is the last progress update
         if (progress.completed) {
-          if (progress.minimaFound) {
-            this.setFrameState(frameNumber, FRAME_STATE.OPTIMISED_FULLY)
-          } else {
-            this.setFrameState(frameNumber, FRAME_STATE.OPTIMISED_PARTIALLY)
-          }
+          this.setFrameState(frameNumber, FRAME_STATE.OPTIMISED_FULLY)
 
           // Schedule the next batch of work
           this.scheduleWork()
@@ -287,12 +281,20 @@ export class ToolpathGenerator {
           await worker.finishEarly()
         }
 
+        // Check if the update improves the cost, otherwise dump it and raise a warning
+        const cachedCost = (this.frameCost.get(frameNumber) ?? Infinity)
+        if (cachedCost < progress.currentCost) {
+          console.warn(`Update to frame ${frameNumber} was cost ${progress.currentCost} which is more than ${cachedCost}, why did this get propagated?`)
+          return
+        }
+
+        this.frameCost.set(frameNumber, progress.currentCost)
+
         // Pass the updates up the chain
         this.onUpdate({
           frameNumber: frameNumber,
           duration: progress.duration,
           completed: progress.completed,
-          minimaFound: progress.minimaFound,
           timeSpent: progress.timeSpent,
           startingCost: progress.startingCost,
           currentCost: progress.currentCost,
@@ -323,30 +325,10 @@ export class ToolpathGenerator {
         {
           frameNumber,
         },
-        partialOptimisation
-          ? undefined
-          : this.getClosestFrameCache(frameNumber), // Only provide a cache for the full optimisation
       )
 
       sub.unsubscribe()
     })
-  }
-
-  /**
-   * Gets the closest frame cache to a given frame number
-   */
-  private getClosestFrameCache(frameNumber: number) {
-    let potentialNumber = frameNumber
-
-    while (potentialNumber >= 0) {
-      if (this.frameCache.has(potentialNumber)) {
-        return this.frameCache.get(potentialNumber)!
-      }
-
-      potentialNumber--
-    }
-
-    return undefined
   }
 
   public setViewedFrame(frameNumber: number) {

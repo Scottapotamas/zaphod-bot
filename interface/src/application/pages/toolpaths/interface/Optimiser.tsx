@@ -50,7 +50,7 @@ export function Optimiser() {
    */
   function getPersistentOptimiser() {
     if (persistentOptimiser.current === null) {
-      persistentOptimiser.current = new ToolpathGenerator(getCurrentSettings(), Math.max(1, os.cpus().length - 1))
+      persistentOptimiser.current = new ToolpathGenerator(getCurrentSettings(), Math.max(1, Math.round(os.cpus().length / 2) - 1))
     }
 
     return persistentOptimiser.current
@@ -138,7 +138,7 @@ export function Optimiser() {
         state.estimatedDurationByFrame[progress.frameNumber] = progress.duration
         state.frameOptimisationState[progress.frameNumber] = progress.frameState
 
-        console.log(`progress update for frame ${progress.frameNumber}, state now ${progress.frameState}, duration: ${progress.duration}`)
+        // console.log(`progress update for frame ${progress.frameNumber}, state now ${progress.frameState}, duration: ${progress.duration}`)
 
         // Trigger an update if this frame update is for the viewport frame
 

@@ -31,7 +31,6 @@ export const OptimisationWorker = {
     settings: Settings,
     partialUpdate: boolean,
     debugInfo: any,
-    cache?: SerialisedTour,
   ) {
     try {
       const updateProgress = async (progress: Progress): Promise<Continue> => {
@@ -65,7 +64,6 @@ export const OptimisationWorker = {
         settings,
         updateProgress,
         debugInfo,
-        cache,
       )
     } catch (e) {
       progressUpdates.error(e)
