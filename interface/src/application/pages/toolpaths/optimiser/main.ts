@@ -17,9 +17,7 @@ export enum FRAME_STATE {
 export interface FrameProgressUpdate {
   frameNumber: number
   duration: number
-  completed: boolean
   timeSpent: number
-  startingCost: number
   currentCost: number
   serialisedTour: SerialisedTour
 
@@ -52,6 +50,7 @@ export class ToolpathGenerator {
    * The list of frames that aren't finished
    */
   private unfinishedFrames: number[] = []
+  private frameDuration: Map<number, number> = new Map()
   private frameState: Map<number, FRAME_STATE> = new Map()
   private frameCost: Map<number, FRAME_STATE> = new Map()
 
@@ -62,11 +61,11 @@ export class ToolpathGenerator {
 
   private pool: Pool<ModuleThread<typeof OptimisationWorker>>
 
-  private onUpdate: (progress: FrameProgressUpdate) => void = () => {}
-
   constructor(
     private settings: Settings,
     private numThreads = 4,
+    private onUpdate: (progress: FrameProgressUpdate)=> void,
+    private onFrameStateChange: (frameNumber: number, duration: number, frameState: FRAME_STATE) => void
   ) {
     this.reset = this.reset.bind(this)
     this.ingest = this.ingest.bind(this)
@@ -96,6 +95,7 @@ export class ToolpathGenerator {
 
   reset() {
     this.unfinishedFrames = []
+    this.frameDuration.clear()
     this.frameState.clear()
     this.frameCost.clear()
     this.movementJSON.clear()
@@ -108,20 +108,16 @@ export class ToolpathGenerator {
       [frame: number]: FrameMovementJSON
     },
     settings: Settings,
-    updateProgress: (progress: FrameProgressUpdate) => void,
   ) {
     this.reset()
 
     // Update the settings
     this.settings = settings
 
-    // And the onProgress event notifier
-    this.onUpdate = updateProgress
-
     for (const frameNumber of Object.keys(movementJSONByFrame)) {
       const num = Number(frameNumber)
       // Set all frames to unoptimised
-      this.frameState.set(num, FRAME_STATE.UNOPTIMISED)
+      this.setFrameState(num, FRAME_STATE.UNOPTIMISED)
 
       // Set all frames to Infinite cost initially
       this.frameCost.set(num, Infinity)
@@ -228,6 +224,9 @@ export class ToolpathGenerator {
   setFrameState(frameNumber: number, state: FRAME_STATE) {
     this.frameState.set(frameNumber, state)
 
+    // Send an update 
+    this.onFrameStateChange(frameNumber, this.frameDuration.get(frameNumber) ?? 0, state)
+
     if (state === FRAME_STATE.OPTIMISED_FULLY) {
       // Remove the frame from the unfinished list if it's fully optimised
       this.unfinishedFrames = this.unfinishedFrames.filter(
@@ -250,11 +249,7 @@ export class ToolpathGenerator {
   }
 
   scheduleFrame(frameNumber: number, partialOptimisation: boolean) {
-    if (partialOptimisation) {
-      this.setFrameState(frameNumber, FRAME_STATE.OPTIMISING_PARTIALLY)
-    } else {
-      this.setFrameState(frameNumber, FRAME_STATE.OPTIMISING_FULLY)
-    }
+    this.setFrameState(frameNumber, partialOptimisation ? FRAME_STATE.OPTIMISING_PARTIALLY : FRAME_STATE.OPTIMISING_FULLY)
 
     const captureSettingsReference = this.settings
 
@@ -271,12 +266,7 @@ export class ToolpathGenerator {
         updates++
 
         // Update our status if this is the last progress update
-        if (progress.completed) {
-          this.setFrameState(frameNumber, FRAME_STATE.OPTIMISED_FULLY)
-
-          // Schedule the next batch of work
-          this.scheduleWork()
-        } else if (!this.currentWorkQueue().includes(frameNumber)) {
+        if (!this.currentWorkQueue().includes(frameNumber)) {
           // If the current work queue doesn't include this frame, stop early
           await worker.finishEarly()
         }
@@ -289,17 +279,15 @@ export class ToolpathGenerator {
         }
 
         this.frameCost.set(frameNumber, progress.currentCost)
+        this.frameDuration.set(frameNumber, progress.duration)
 
         // Pass the updates up the chain
         this.onUpdate({
           frameNumber: frameNumber,
           duration: progress.duration,
-          completed: progress.completed,
           timeSpent: progress.timeSpent,
-          startingCost: progress.startingCost,
           currentCost: progress.currentCost,
-          frameState:
-            this.frameState.get(frameNumber) ?? FRAME_STATE.UNOPTIMISED,
+          frameState: this.frameState.get(frameNumber) ?? FRAME_STATE.UNOPTIMISED,
           serialisedTour: progress.serialisedTour,
         })
       }
@@ -326,6 +314,11 @@ export class ToolpathGenerator {
           frameNumber,
         },
       )
+
+      this.setFrameState(frameNumber, partialOptimisation ? FRAME_STATE.OPTIMISED_PARTIALLY : FRAME_STATE.OPTIMISED_FULLY)
+
+      // Schedule the next batch of work
+      this.scheduleWork()
 
       sub.unsubscribe()
     })
@@ -375,7 +368,7 @@ export class ToolpathGenerator {
       movementJSON[frameNumber] = json
     }
 
-    this.ingest(movementJSON, settings, this.onUpdate)
+    this.ingest(movementJSON, settings)
   }
 
   teardown() {

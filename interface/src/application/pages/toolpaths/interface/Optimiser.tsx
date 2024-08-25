@@ -1,6 +1,6 @@
 import { Colors } from '@blueprintjs/core'
 
-import React, { useCallback, useEffect, useRef, useMemo } from 'react'
+import React, { useCallback, useEffect, useRef, useMemo, useState } from 'react'
 
 import {
   ChartContainer,
@@ -11,7 +11,7 @@ import {
   HorizontalLineAnnotation,
 } from '@electricui/components-desktop-charts'
 
-import { FrameProgressUpdate, ToolpathGenerator } from '../optimiser/main'
+import { FRAME_STATE, FrameProgressUpdate, ToolpathGenerator } from '../optimiser/main'
 import { importFolder } from '../optimiser/files'
 import { DataSource, EventBatch, PersistenceEnginePassthrough } from '@electricui/timeseries'
 import { timing } from '@electricui/timing'
@@ -43,18 +43,72 @@ export function Optimiser() {
   const selectedMinFrame = useStore(state => state.selectedMinFrame)
   const selectedMaxFrame = useStore(state => state.selectedMaxFrame)
 
-  const persistentOptimiser = useRef<ToolpathGenerator | null>(null)
+  // Lazily create a single instance of the frameTimeDataSource
+  const [frameTimeDataSource] = useState(() => {
+    const dataSource = new DataSource<{
+      [frameNumber: string]: MinimalFrameDurationUpdate
+    }>()
 
-  /**
-   * Lazily create and hold a persistent optimiser
-   */
-  function getPersistentOptimiser() {
-    if (persistentOptimiser.current === null) {
-      persistentOptimiser.current = new ToolpathGenerator(getCurrentSettings(), Math.max(1, Math.round(os.cpus().length / 2) - 1))
+    // Don't keep the data around
+    dataSource.setPersistenceEngineFactory(() => new PersistenceEnginePassthrough())
+
+    return dataSource
+  })
+
+
+  const [persistentOptimiser] = useState(() => {
+
+    // Re-use the same frameData object
+    const frameData: {
+      [frameNumber: string]: MinimalFrameDurationUpdate
+    } = {}
+
+    // Create the onFrameStateChange callback
+    const onFrameStateChange =  (frameNumber: number, duration: number, frameState: FRAME_STATE) => {
+      changeState(state => {
+        state.estimatedDurationByFrame[frameNumber] = duration
+        state.frameOptimisationState[frameNumber] = frameState
+      })
+
+      if (frameNumber === 1)
+     { console.log(`frame state change ${frameNumber} state ${frameState} duration ${duration}`)
+}
+      // Pull this data out to avoid copying anything expensive
+      frameData[frameNumber] = {
+        duration: duration,
+        frameState: frameState
+      }
+
+      // Publish a new frameData event with the same object
+      const batch = new EventBatch()
+      batch.push(timing.now(), frameData)
+      frameTimeDataSource.write(batch)
+
+      return
     }
 
-    return persistentOptimiser.current
-  }
+    // and the progress handler
+    const onProgress = (progress: FrameProgressUpdate)  => {
+      changeState(state => {
+        singleton.onProgressUpdate(progress.frameNumber, progress.serialisedTour)
+
+        // Progress updates also trigger frame state updates
+        onFrameStateChange(progress.frameNumber, progress.duration, progress.frameState)
+
+        if (state.viewportFrame === progress.frameNumber) {
+          incrementViewportFrameVersion(state)
+        }
+      })
+    }
+
+    return new ToolpathGenerator(
+      getCurrentSettings(), 
+      Math.max(1, Math.round(os.cpus().length / 2) - 1),
+      onProgress,
+      onFrameStateChange
+    )
+  })
+
 
   const pendingMovementRecalculationCancellationToken = useRef<CancellationToken | null>(null)
 
@@ -63,7 +117,7 @@ export function Optimiser() {
     return useStore.subscribe(
       state => state.settings,
       settings => {
-        getPersistentOptimiser().updateSettings(settings)
+        persistentOptimiser.updateSettings(settings)
       },
     )
   }, [])
@@ -73,7 +127,7 @@ export function Optimiser() {
     return useStore.subscribe(
       state => state.selectedMinFrame,
       frameNumber => {
-        getPersistentOptimiser().setFrameMinimum(frameNumber)
+        persistentOptimiser.setFrameMinimum(frameNumber)
       },
     )
   }, [])
@@ -81,7 +135,7 @@ export function Optimiser() {
     return useStore.subscribe(
       state => state.selectedMaxFrame,
       frameNumber => {
-        getPersistentOptimiser().setFrameMaximum(frameNumber)
+        persistentOptimiser.setFrameMaximum(frameNumber)
       },
     )
   }, [])
@@ -89,7 +143,7 @@ export function Optimiser() {
     return useStore.subscribe(
       state => state.priorityFrame,
       frameNumber => {
-        getPersistentOptimiser().setViewedFrame(frameNumber)
+        persistentOptimiser.setViewedFrame(frameNumber)
       },
     )
   }, [])
@@ -98,66 +152,20 @@ export function Optimiser() {
   useEffect(() => {
     // Update the reference to the currently used optimiser in the state
     changeState(state => {
-      state.persistentOptimiser = getPersistentOptimiser()
+      state.persistentOptimiser = persistentOptimiser
     })
 
     return () => {
       // Reset our state
       resetStore()
 
-      if (persistentOptimiser.current === null) {
-        return
-      }
-
       console.log('tearing down optimiser')
 
-      persistentOptimiser.current.teardown().then(() => {
+      persistentOptimiser.teardown().then(() => {
         console.log('teardown complete')
       })
-
-      persistentOptimiser.current = null
     }
   }, [])
-
-  const frameTimeDataSource = useMemo(() => {
-    const dataSource = new DataSource<{
-      [frameNumber: string]: FrameProgressUpdate
-    }>()
-    dataSource.setPersistenceEngineFactory(() => new PersistenceEnginePassthrough())
-    return dataSource
-  }, [])
-
-  const frameData = useRef<{
-    [frameNumber: string]: FrameProgressUpdate
-  }>({})
-
-  const onProgress = useCallback(
-    (progress: FrameProgressUpdate) => {
-      changeState(state => {
-        singleton.onProgressUpdate(progress.frameNumber, progress.serialisedTour)
-        state.estimatedDurationByFrame[progress.frameNumber] = progress.duration
-        state.frameOptimisationState[progress.frameNumber] = progress.frameState
-
-        // console.log(`progress update for frame ${progress.frameNumber}, state now ${progress.frameState}, duration: ${progress.duration}`)
-
-        // Trigger an update if this frame update is for the viewport frame
-
-        if (state.viewportFrame === progress.frameNumber) {
-          incrementViewportFrameVersion(state)
-        }
-      })
-
-      frameData.current[progress.frameNumber] = progress
-
-      // Publish a new frameData event
-      const batch = new EventBatch()
-      batch.push(timing.now(), frameData.current)
-      frameTimeDataSource.write(batch)
-
-      return
-    },
-    [frameTimeDataSource],
-  )
 
   // The main injestion
   useEffect(() => {
@@ -202,14 +210,14 @@ export function Optimiser() {
 
           singleton.onIngest(imported.renderablesByFrame, imported.minFrame)
 
-          const optimiser = getPersistentOptimiser()
+          const optimiser = persistentOptimiser
 
           // Start optimising the frames
-          optimiser.ingest(imported.movementJSONByFrame, getCurrentSettings(), onProgress)
+          optimiser.ingest(imported.movementJSONByFrame, getCurrentSettings())
         })
       },
     )
-  }, [onProgress])
+  }, [])
 
   const folder = useSetting(state => state.folder)
 
@@ -227,17 +235,19 @@ export function Optimiser() {
           dataSource={frameTimeDataSource}
           key={totalFrames}
           columns={totalFrames}
-          accessor={(event: { [frameNumber: string]: FrameProgressUpdate }) => {
-            const arr: number[] = new Array(totalFrames)
+          accessor={(event: { [frameNumber: string]: MinimalFrameDurationUpdate }) => {
+            const arr: number[] = []
 
             for (let index = 0; index < totalFrames; index++) {
-              arr[index] = event[index]?.duration ?? 0
+              // If the number is non-finite, just pass 0
+              const dur = event[index]?.duration ?? 0
+              arr[index] = Number.isFinite(event[index]?.duration) ? dur : 0
             }
 
             return arr
           }}
-          colorAccessor={(event: { [frameNumber: string]: FrameProgressUpdate }) => {
-            const arr: string[] = new Array(totalFrames)
+          colorAccessor={(event: { [frameNumber: string]: MinimalFrameDurationUpdate }) => {
+            const arr: string[] = []
 
             for (let index = 0; index < totalFrames; index++) {
               switch (event[index]?.frameState) {
@@ -273,11 +283,11 @@ export function Optimiser() {
 
         <VerticalAxis
           // label="Render time"
-          tickFormat={tick => `${Math.round((tick / 1000) * 100) / 100}s`}
-          labelPadding={20}
+          tickFormat={tick => msTickFormat(tick)}
+          labelPadding={55}
         />
 
-        <HorizontalAxis labelPadding={10} />
+        <HorizontalAxis labelPadding={10}/>
 
         {cameraOverrideDuration > 0 ? (
           <HorizontalLineAnnotation y={cameraOverrideDuration} color={Colors.RED5} lineWidth={2} affectBounds />
@@ -285,4 +295,21 @@ export function Optimiser() {
       </ChartContainer>
     </>
   )
+}
+
+function msTickFormat(milliseconds: number) {
+  const seconds = Math.floor(milliseconds / 1000);
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+
+  if (minutes === 0) {
+    return `${seconds}s`;
+  } else {
+    return `${minutes}m${remainingSeconds.toString().padStart(2, '0')}s`;
+  }
+}
+
+type MinimalFrameDurationUpdate = {
+  duration: number
+  frameState: FRAME_STATE
 }

@@ -711,12 +711,9 @@ export function swap(array: any[], a: number, b: number) {
 export interface Progress {
   duration: number
   serialisedTour: SerialisedTour
-  // Whether this is the final update of this run
-  completed: boolean
   // How much wall time spent optimising
   timeSpent: number
   currentCost: number
-  startingCost: number
 }
 
 export type Continue = boolean
@@ -1331,55 +1328,26 @@ export async function optimise(
   const startingCost = sparseToCost(sparseBag)
   let runningCost = startingCost
 
-  // Immediately emit the naive tour
+  // Immediately emit the naive tour as a partial update
   let currentOptimisationLevel: OptimiserResult = optimiseNoop(
     sparseBag,
     createHasher,
   ).next().value
   
-  {
-    const currentDense = sparseToDense(
-      deserialiseTour(sparseBag, currentOptimisationLevel.best.tour),
-      settings,
-    )
-
-    // Final status update
-    await updateProgress({
-      duration: getTotalDuration(currentDense),
-      serialisedTour: currentOptimisationLevel.best.tour,
-      completed: false,
-      timeSpent: performance.now() - startedOptimisation,
-      startingCost,
-      currentCost: startingCost,
-    })
-  }
-
-  // Partial updates just run a NN search
+  // Partial updates just return the noop as fast as possible
   if (partialUpdate) {
-    const stopAfter = { current: startedOptimisation + OPTIMISATION_TIME }
-
-    if (settings.optimisation.passes.nearestNeighbour) {
-      currentOptimisationLevel = optimiseBySearch(
-        sparseBag,
-        createHasher,
-        stopAfter,
-      ).next().value
-    }
-
     const currentDense = sparseToDense(
       deserialiseTour(sparseBag, currentOptimisationLevel.best.tour),
       settings,
     )
-    const curentDuration = getTotalDuration(currentDense)
+    const currentDuration = getTotalDuration(currentDense)
 
     // Final status update
     await updateProgress({
-      duration: getTotalDuration(currentDense),
+      duration: currentDuration,
       serialisedTour: currentOptimisationLevel.best.tour,
-      completed: true,
-      timeSpent: performance.now() - startedOptimisation,
-      startingCost,
-      currentCost: sparseToCost(sparseBag),
+      timeSpent: currentOptimisationLevel.time,
+      currentCost: currentOptimisationLevel.best.cost,
     })
 
     return
@@ -1413,10 +1381,7 @@ export async function optimise(
     const shouldContinue = await updateProgress({
       duration: currentDuration,
       serialisedTour: iteration.best.tour,
-      completed: done,
-      minimaFound: done,
       timeSpent: performance.now() - startedOptimisation,
-      startingCost,
       currentCost: sparseToCost(sparseBag),
     })
 
@@ -1442,9 +1407,7 @@ export async function optimise(
   await updateProgress({
     duration: currentDuration,
     serialisedTour: currentOptimisationLevel.best.tour,
-    completed: true,
     timeSpent: performance.now() - startedOptimisation,
-    startingCost,
     currentCost: sparseToCost(sparseBag),
   })
 }
@@ -2196,4 +2159,51 @@ function subdivideBezierAndClampSpeed(
     F: F,
     G: G,
   }
+}
+
+/**
+ * Determine if an update improves things, and propagate if so.
+ * 
+ * PERF: Cheap if cost is worse due to early bailout, otherwise
+ *       expensive due to sparseToDense, deserialiseTour calls.
+ */
+async function potentiallyUpdate(
+  sparseBag: Movement[],
+  settings: Settings,
+  optimiserResult: OptimiserResult,
+  currentBestCostRef: { current: number },
+  updateProgress: (progress: Progress) => Promise<Continue>,
+) {
+  // determine if this update is worse than the current 
+  const cost = optimiserResult.best.cost
+
+  // Bail early if it's worse and continue processing.
+  if (cost > currentBestCostRef.current) return true
+
+  const currentDense = sparseToDense(
+    deserialiseTour(sparseBag, optimiserResult.best.tour),
+    settings,
+  )
+
+  const duration = getTotalDuration(currentDense)
+
+  if (!Number.isFinite(duration)) {
+    console.warn(`This frame has an infinite duration?`)
+    // Something went wrong, an infinite duration is not possible
+    debugger
+  }
+
+  // otherwise it's an explicit improvement, prepare the update
+  const progress: Progress = {
+    duration,
+    serialisedTour: optimiserResult.best.tour,
+    timeSpent: optimiserResult.time,
+    currentCost: optimiserResult.best.cost,
+  }
+
+  // update the best cost 
+  currentBestCostRef.current = optimiserResult.best.cost
+
+  // Propagate the update, return if processing should continue
+  return updateProgress(progress)
 }
