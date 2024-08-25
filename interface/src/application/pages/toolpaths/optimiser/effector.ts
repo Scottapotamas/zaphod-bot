@@ -72,6 +72,10 @@ export class Effector {
     return null
   }
 
+  public matchesObjectID = (objectID: string) => {
+    return this.name === objectID
+  }
+
   public toMovements = async (settings: Settings, buildMaterials: boolean) => {
     const objectID = this.name
     const overrideKeys = [this.name, objectID]

@@ -95,6 +95,16 @@ export class Camera {
     return null
   }
 
+  public matchesObjectID = (objectID: string) => {
+    return [
+      `${this.name}-ruler`,
+      `${this.name}-calibration`,
+      `${this.name}-alignment`,
+      `${this.name}-color-lines`,
+      `${this.name}-moves-lines`
+    ].includes(objectID)
+  }
+
   public toMovements = async (settings: Settings, buildMaterials: boolean) => {
     const groups: {
       [height: number]: MovementGroup

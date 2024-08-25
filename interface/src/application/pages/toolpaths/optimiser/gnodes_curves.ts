@@ -139,6 +139,10 @@ export class GNodesCurves {
     return null
   }
 
+  public matchesObjectID = (objectID: string) => {
+    return this.name === objectID
+  }
+
   public toMovements = async (settings: Settings, buildMaterials: boolean) => {
     const movements: Movement[] = []
 
@@ -311,6 +315,7 @@ function bezierSplineToMovementGroup(
         : materialDefault,
       objectID,
     )
+    bezier.overrideKeys = overrideKeys
 
     bezier.interFrameID = `${objectID}-${splineIndex}-${i}`
     movementGroup.addMovement(bezier)

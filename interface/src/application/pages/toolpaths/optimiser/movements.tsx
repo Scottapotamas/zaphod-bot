@@ -766,7 +766,7 @@ export class Bezier extends Movement {
   public baseMaterial: Material
   public isTransition = false
 
-  public overrideKeys = []
+  public overrideKeys: string[] = []
 
   constructor(
     public c0: Vector3,
@@ -781,6 +781,7 @@ export class Bezier extends Movement {
   ) {
     super()
     this.baseMaterial = material
+    this.overrideKeys[0] = objectID
   }
 
   private curve: CubicBezierCurve3 | null = null
@@ -1007,7 +1008,7 @@ export class ConstantSpeedBezier extends Movement {
   public baseMaterial: Material
   public isTransition = false
 
-  public overrideKeys = []
+  public overrideKeys: string[] = []
 
   constructor(
     public c0: Vector3,
@@ -1019,6 +1020,7 @@ export class ConstantSpeedBezier extends Movement {
   ) {
     super()
     this.baseMaterial = material
+    this.overrideKeys[0] = objectID
   }
 
   private curve: CubicBezierCurve3 | null = null
@@ -1209,7 +1211,7 @@ function getCentroid(points: Vector3[]) {
 export class CatmullRom extends Movement {
   readonly type = MOVEMENT_TYPE.CATMULL_ROM
   maxSpeed: number = defaultSpeed
-  public overrideKeys = []
+  public overrideKeys: string[] = []
   public isTransition = false
 
   public baseMaterial: Material
@@ -1225,6 +1227,7 @@ export class CatmullRom extends Movement {
   ) {
     super()
     this.baseMaterial = material
+    this.overrideKeys[0] = objectID
   }
 
   private curvePoints: Vector3[] = []
@@ -1430,7 +1433,7 @@ export class CatmullRom extends Movement {
 export class ConstantSpeedCatmullRom extends Movement {
   readonly type = MOVEMENT_TYPE.CATMULL_ROM_CONSTANT_SPEED
   maxSpeed: number = defaultSpeed
-  public overrideKeys = []
+  public overrideKeys:string[] = []
   public isTransition = false
 
   public baseMaterial: Material
@@ -1446,6 +1449,7 @@ export class ConstantSpeedCatmullRom extends Movement {
   ) {
     super()
     this.baseMaterial = material
+    this.overrideKeys[0] = objectID
   }
 
   private curvePoints: Vector3[] = []

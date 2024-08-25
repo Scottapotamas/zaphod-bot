@@ -75,6 +75,10 @@ export class GNodesMesh {
     return null
   }
 
+  public matchesObjectID = (objectID: string) => {
+    return this.name === objectID
+  }
+
   public toMovements = async (settings: Settings, buildMaterials: boolean) => {
     const movements: Movement[] = []
 

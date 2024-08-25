@@ -112,6 +112,16 @@ export class Particles {
     return null
   }
 
+  public matchesObjectID = (objectID: string) => {
+    for (const system of this.systems) {
+      const systemID = `${this.name}-${system.name}`
+
+      if (systemID === objectID) return true
+    }
+
+    return false
+  }
+
   public toMovements = async (settings: Settings, buildMaterials: boolean) => {
     const movements: Movement[] = []
 

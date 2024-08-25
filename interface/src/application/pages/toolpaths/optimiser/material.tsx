@@ -164,8 +164,7 @@ export function getMaterialOverride(
   for (let index = 0; index < overrideKeys.length; index++) {
     const overrideKey = overrideKeys[index]
 
-    const movementMaterialOverride =
-      visualisationSettings.objectMaterialOverrides[overrideKey]
+    const movementMaterialOverride = visualisationSettings.objectMaterialOverrides[overrideKey]
 
     // Specific movement overrides take highest precidence
     if (movementMaterialOverride) {

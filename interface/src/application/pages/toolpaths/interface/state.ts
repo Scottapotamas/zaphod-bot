@@ -433,10 +433,12 @@ class ExternalSingleton {
 
   public getVisibleRenderableViaOriginalMaterialJSONWithObjectID = (objectID: string) => {
     const renderables = this.renderablesByFrame.get(this.viewportFrameNumber)
+    
+    if (!renderables) {
+      return null
+    }
 
-    if (!renderables) return null
-
-    const renderable = renderables.find(renderable => renderable.getOriginalMaterialJSON(objectID))
+    const renderable = renderables.find(renderable => renderable.matchesObjectID(objectID))
 
     return renderable ?? null
   }

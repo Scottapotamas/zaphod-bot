@@ -127,6 +127,16 @@ export class GPencil {
     return null
   }
 
+  public matchesObjectID = (objectID: string) => {
+    for (const layer of this.layers) {
+      const layerID = `${this.name}-${layer.info}`
+
+      if (layerID === objectID) return true
+    }
+
+    return false
+  }
+
   public toMovements = async (settings: Settings, buildMaterials: boolean) => {
     const movements: Movement[] = []
 

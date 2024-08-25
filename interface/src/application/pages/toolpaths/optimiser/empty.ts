@@ -34,6 +34,10 @@ export class Empty {
     return null
   }
 
+  public matchesObjectID = (objectID: string) => {
+    return false
+  }
+
   public toMovements = async (settings: Settings, buildMaterials: boolean) => {
     return []
   }

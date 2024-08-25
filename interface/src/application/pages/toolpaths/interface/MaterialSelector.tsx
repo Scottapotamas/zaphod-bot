@@ -264,7 +264,7 @@ export function calculateInitialMaterialJSON(materialType: MATERIALS, objectID: 
   if (objectID) {
     const renderable = singleton.getVisibleRenderableViaOriginalMaterialJSONWithObjectID(objectID)
 
-    if (!renderable) return null
+    if (!renderable) return getDefaultJSONForType(materialType)
 
     const renderableOriginalJSON = renderable.getOriginalMaterialJSON(objectID)
 

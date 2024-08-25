@@ -27,8 +27,7 @@ export function MaterialEditorInterface() {
 
   const selectedItemType = useStore(state =>
     state.treeStore.selectedItemID
-      ? findNodeWithID(state.treeStore.tree, state.treeStore.selectedItemID)
-          ?.nodeData?.type ?? null
+      ? (findNodeWithID(state.treeStore.tree, state.treeStore.selectedItemID)?.nodeData?.type ?? null)
       : null,
   )
 
@@ -37,10 +36,7 @@ export function MaterialEditorInterface() {
       return null
     }
 
-    const potentialOverride =
-      state.visualisationSettings.objectMaterialOverrides[
-        state.treeStore.selectedItemID
-      ]
+    const potentialOverride = state.visualisationSettings.objectMaterialOverrides[state.treeStore.selectedItemID]
 
     if (!potentialOverride) return null
 
@@ -52,20 +48,14 @@ export function MaterialEditorInterface() {
       if (!selectedItemID) return
 
       setSetting(state => {
-        const override = calculateInitialMaterialJSON(
-          option.materialType,
-          selectedItemID as string | null,
-        )
+        const override = calculateInitialMaterialJSON(option.materialType, selectedItemID as string | null)
 
-        if (!override) {
+        if (option.materialType === 'default' || override === null) {
           // Remove the key
-          delete state.visualisationSettings.objectMaterialOverrides[
-            selectedItemID
-          ]
+          delete state.visualisationSettings.objectMaterialOverrides[selectedItemID]
         } else {
           // Set the override to the default
-          state.visualisationSettings.objectMaterialOverrides[selectedItemID] =
-            override
+          state.visualisationSettings.objectMaterialOverrides[selectedItemID] = override
         }
 
         // Trigger an update
@@ -81,9 +71,7 @@ export function MaterialEditorInterface() {
       if (!selectedItemID) return
 
       setSetting(state => {
-        writer(
-          state.visualisationSettings.objectMaterialOverrides[selectedItemID],
-        )
+        writer(state.visualisationSettings.objectMaterialOverrides[selectedItemID])
 
         incrementViewportFrameVersion(state)
       })
@@ -100,10 +88,7 @@ export function MaterialEditorInterface() {
 
   return (
     <div style={materialEditorStyle}>
-      <MaterialSelector
-        selectedType={materialTypeOverride?.type ?? null}
-        onChange={pickMaterialOverride}
-      />
+      <MaterialSelector selectedType={materialTypeOverride?.type ?? null} onChange={pickMaterialOverride} />
       {materialTypeOverride ? <Spacer /> : null}
       <MaterialEditor json={materialTypeOverride} updateJson={updateJson} />
     </div>
