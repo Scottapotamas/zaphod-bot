@@ -380,16 +380,16 @@ class ExternalSingleton {
     cancellationToken: CancellationToken,
   ) => {
     this.viewportFrameNumber = frameNumber
-    const start = performance.now()
+    // const start = performance.now()
 
     // Recalculate dense movements for this frame
     const movements = await this.getDenseMovementsForFrame(this.viewportFrameNumber, settings, cancellationToken)
 
-    const end = performance.now()
+    // const end = performance.now()
 
-    console.log(
-      `took ${Math.round((end - start) * 10) / 10}ms to process dense movements for frame ${this.viewportFrameNumber}`,
-    )
+    // console.log(
+    //   `took ${Math.round((end - start) * 10) / 10}ms to process dense movements for frame ${this.viewportFrameNumber}`,
+    // )
 
     this.thisFrameCachedDenseMovements = movements
 

@@ -395,6 +395,8 @@ export function ToolpathMovements() {
     getLinesLineMat().uniformsNeedUpdate = true
     getLinesLineMat().needsUpdate = true
 
+    getTransitionPrePassMat().dashed = false
+    getTransitionLineMat().dashed = true
     getTransitionLineMat().blending = AdditiveBlending
     getTransitionLineMat().uniformsNeedUpdate = true
     getTransitionLineMat().needsUpdate = true
@@ -414,10 +416,10 @@ export function ToolpathMovements() {
     // prePassMat.dashed = false
     // prePassMat.needsUpdate = true
 
-    //
-    // transitionLineMat.uniforms.dashOffset.value -= delta * 2
-    // transitionLineMat.uniformsNeedUpdate = true
-    // transitionLineMat.needsUpdate = true
+    
+    transitionLineMat.uniforms.dashOffset.value -= delta * 2
+    transitionLineMat.uniformsNeedUpdate = true
+    transitionLineMat.needsUpdate = true
   })
 
   // On hovering change, update the lines

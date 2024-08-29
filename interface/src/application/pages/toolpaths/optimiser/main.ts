@@ -306,6 +306,7 @@ export class ToolpathGenerator {
         receiveUpdate,
         error => {
           console.error(`Error in worker`, error)
+          console.log(error, error.stack)
         },
         () => {
           console.log(`worker completed`)

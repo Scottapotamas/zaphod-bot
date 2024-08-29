@@ -21,6 +21,7 @@ import path, { resolve } from 'path'
 import { PNG } from 'pngjs'
 import { readFile } from 'fs/promises'
 import { TextureStripMaterial } from './materials/TextureStrip'
+import { existsSync } from 'fs'
 
 export type GNodesCurvesSpline =
   | {
@@ -165,10 +166,11 @@ export class GNodesCurves {
 
       // Load the texture file if it exists
       if (spline.texture_file && buildMaterials) {
-        textureReader = new TextureReader(
-          path.join(path.dirname(this.filepath), spline.texture_file),
-        )
-        await textureReader.initialize()
+        const p = path.join(path.dirname(this.filepath), spline.texture_file)
+        textureReader = new TextureReader(p)
+        if (!(await textureReader.initialize())) {
+          textureReader = null
+        }
       }
 
       let orderedMovements: MovementGroup
@@ -338,15 +340,22 @@ class TextureReader {
 
   constructor(private filePath: string) {}
 
-  async initialize(): Promise<void> {
-    const fileData = await readFile(this.filePath)
+  async initialize(): Promise<boolean> {
+    try {
+      const fileData = await readFile(this.filePath)
 
-    const metadata = PNG.sync.read(fileData)
+      const metadata = PNG.sync.read(fileData)
+  
+      this.width = metadata.width
+      this.height = metadata.height
+  
+      this.imageData = metadata.data
 
-    this.width = metadata.width
-    this.height = metadata.height
-
-    this.imageData = metadata.data
+      return true
+    } catch (err) {
+      console.error(`Failed to load texture at path ${this.filePath}`, err)
+      return false
+    }
   }
 
   getPixelCoordinate(u: number, v: number): [x: number, y: number] {
@@ -420,9 +429,9 @@ function buildMaterial(
 ) {
   // This method is only called if we're reading textures, in which case
   // it will have been initialised.
-  const reader = textureReader!
+  const reader = textureReader
 
-  if (prev.uv && curr.uv) {
+  if (prev.uv && curr.uv && reader) {
     // calculate texture pixel coordinates
     const start = reader.getPixelCoordinate(prev.uv[0], prev.uv[1])
     const end = reader.getPixelCoordinate(curr.uv[0], curr.uv[1])
