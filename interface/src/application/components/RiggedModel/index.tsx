@@ -59,15 +59,15 @@ function ForearmGeometry() {
 
       {/* <GLTF receiveShadow asset={DeltaForearmModel} position={[0, 0, -43]} rotation={[0, Math.PI, 0]} /> */}
       <mesh >
-        <sphereBufferGeometry attach="geometry" args={[8, 16, 16]} />
+        <sphereGeometry attach="geometry" args={[8, 16, 16]} />
         <meshStandardMaterial attach="material" roughness={0.6} />
       </mesh>
       <mesh position={[0, 0, 340]} >
-        <sphereBufferGeometry attach="geometry" args={[8, 16, 16]} />
+        <sphereGeometry attach="geometry" args={[8, 16, 16]} />
         <meshStandardMaterial attach="material" roughness={0.6} />
       </mesh>
       <mesh position={[0, 0, 340 / 2]} rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderBufferGeometry attach="geometry" args={[4, 4, 340, 32]} />
+        <cylinderGeometry attach="geometry" args={[4, 4, 340, 32]} />
         <meshStandardMaterial attach="material" roughness={0.6} />
       </mesh>
     </group>
@@ -225,7 +225,7 @@ function TargetPositionVisualiser() {
   return (
     <group ref={ref} >
       <mesh>
-        <sphereBufferGeometry attach="geometry" args={[3, 20, 20]} />
+        <sphereGeometry attach="geometry" args={[3, 20, 20]} />
         <meshStandardMaterial
           attach="material"
           color="orange"

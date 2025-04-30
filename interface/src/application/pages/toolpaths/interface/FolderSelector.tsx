@@ -114,12 +114,12 @@ export function FolderPathSelector() {
   return (
     <>
       <div style={{ width: '66%', display: 'inline-block' }}>
-        <div className="bp3-file-input bp3-fill .modifier" onClick={retrieveFilePath}>
+        <div className="bp5-file-input bp5-fill .modifier" onClick={retrieveFilePath}>
           <input type="file" />
           <span
             className={classnames({
-              'bp3-file-input-has-selection': selectedFolder !== '',
-              'bp3-file-upload-input': true,
+              'bp5-file-input-has-selection': selectedFolder !== '',
+              'bp5-file-upload-input': true,
             })}
           >
             {labelText}

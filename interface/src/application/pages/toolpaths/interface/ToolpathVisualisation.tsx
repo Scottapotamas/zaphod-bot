@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { useRef, useState, useCallback, useEffect } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 // import // Environment,
 // // OrbitControls,
@@ -11,33 +11,38 @@ import { OrbitControls, PerspectiveCamera } from '@react-three/drei'
 
 import { OrbitControls as OrbitControlsImpl } from 'three-stdlib'
 
+import { CancellationToken } from '@electricui/async-utilities'
+import { LineSegmentDataStore, LineSegments2, useLineSegmentDataStore, useThickLineMaterial } from '@electricui/charts'
+import { useDarkMode } from '@electricui/components-desktop'
 import { useFrame, useThree } from '@react-three/fiber'
-import { PerspectiveCamera as PerspectiveCameraImpl, MathUtils, AdditiveBlending } from 'three'
-import { changeState, getSetting, setSetting, singleton, useStore } from './state'
-import { Vector3, PCFSoftShadowMap } from 'three'
-import { GLOBAL_OVERRIDE_OBJECT_ID, RGBA } from '../optimiser/movements'
+import { GroundPlane } from 'src/application/components/GroundPlane'
+import {
+  AdditiveBlending,
+  MathUtils,
+  PCFSoftShadowMap,
+  PerspectiveCamera as PerspectiveCameraImpl,
+  Vector3,
+} from 'three'
 import { getMaterialOverride, importMaterial } from '../optimiser/material'
 import { Material } from '../optimiser/materials/Base'
-import { DeltaAssembly } from './../../../components/RiggedModel'
-import { useDarkMode } from '@electricui/components-desktop'
 import { annotateDrawOrder } from '../optimiser/materials/utilities'
-import { GroundPlane } from 'src/application/components/GroundPlane'
-import { useThickLineMaterial, LineSegmentDataStore, LineSegments2 } from '@electricui/charts'
-import { CancellationToken } from '@electricui/async-utilities'
+import { GLOBAL_OVERRIDE_OBJECT_ID, RGBA } from '../optimiser/movements'
+import { DeltaAssembly } from './../../../components/RiggedModel'
+import { changeState, getSetting, setSetting, singleton, useStore } from './state'
 
 export function AxisLines() {
   return (
     <group position={[0, 0, 0]} scale={[1, 1, 1]}>
       <mesh>
-        <boxBufferGeometry attach="geometry" args={[1, 100, 1]} />
+        <boxGeometry attach="geometry" args={[1, 100, 1]} />
         <meshStandardMaterial attach="material" color="blue" roughness={0.6} />
       </mesh>
       <mesh>
-        <boxBufferGeometry attach="geometry" args={[100, 1, 1]} />
+        <boxGeometry attach="geometry" args={[100, 1, 1]} />
         <meshStandardMaterial attach="material" color="red" roughness={0.6} />
       </mesh>
       <mesh>
-        <boxBufferGeometry attach="geometry" args={[1, 1, 100]} />
+        <boxGeometry attach="geometry" args={[1, 1, 100]} />
         <meshStandardMaterial attach="material" color="green" roughness={0.6} />
       </mesh>
     </group>
@@ -53,17 +58,18 @@ function convertToThreeCoordinateSystem(vector: [number, number, number]): [numb
  */
 export function ToolpathMovements() {
   // Allocate a 100k line segment block, which is about 4MB
-  const [lines] = useState(() => {
-    const store = new LineSegmentDataStore(100_000)
-    store.setBoundsRequired(false, false, false, false, false, false)
-    return store
-  })
+  const lines = useLineSegmentDataStore(100_000)
+
+  useEffect(() => {
+    lines.setBoundsRequired(false, false, false, false, false, false)
+  }, [lines])
+
   // Allocate a second 100k line segment block
-  const [transitions] = useState(() => {
-    const store = new LineSegmentDataStore(100_000)
-    store.setBoundsRequired(false, false, false, false, false, false)
-    return store
-  })
+  const transitions = useLineSegmentDataStore(100_000)
+
+  useEffect(() => {
+    transitions.setBoundsRequired(false, false, false, false, false, false)
+  }, [transitions])
 
   const [customComponents, setComponents] = useState<React.ReactNode[]>([])
 
@@ -125,7 +131,7 @@ export function ToolpathMovements() {
         objectIDToColouredLine.current.get(objectID)!.push(headIdx)
       }
 
-      // console.log(`${lineCounter} [${start.x},${start.y}${start.z}]->[${end.x},${end.y}${end.z}]`)
+      // console.log(`added [${start.x},${start.y}${start.z}]->[${end.x},${end.y}${end.z}]`)
     }
 
     const addDottedLine = (
@@ -416,7 +422,6 @@ export function ToolpathMovements() {
     // prePassMat.dashed = false
     // prePassMat.needsUpdate = true
 
-    
     transitionLineMat.uniforms.dashOffset.value -= delta * 2
     transitionLineMat.uniformsNeedUpdate = true
     transitionLineMat.needsUpdate = true

@@ -51,15 +51,15 @@ body {
   overflow-y: auto;
 }
 
-.device-header .bp3-button.bp3-minimal.bp3-active {
+.device-header .bp5-button.bp5-minimal.bp5-active {
   background: rgba(115, 134, 148, 0.1);
 }
 
 /* Dark mode */
-.bp3-dark {
+.bp5-dark {
   background: #191b1d;
 }
 
-.bp3-dark .device-header {
+.bp5-dark .device-header {
   background: #232b31;
 }

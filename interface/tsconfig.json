@@ -11,7 +11,7 @@
     "allowSyntheticDefaultImports": true,
     "experimentalDecorators": true,
     "newLine": "lf",
-    "jsx": "react",
+    "jsx": "react-jsx",
     "noEmitOnError": true,
     "baseUrl": ".",
     "paths": {

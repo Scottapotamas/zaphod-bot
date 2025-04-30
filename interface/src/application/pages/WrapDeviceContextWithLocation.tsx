@@ -9,7 +9,9 @@ import { DeviceID } from '@electricui/core'
 
 interface InjectDeviceIDFromLocation {
   deviceID?: DeviceID
+  children: React.ReactElement
 }
+
 interface PotentialErrorState {
   hasError: boolean
 }

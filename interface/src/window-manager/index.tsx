@@ -1,6 +1,5 @@
 import 'source-map-support/register'
 
-import { BrowserWindow, Menu, app, nativeTheme } from 'electron'
 import {
   Deferred,
   createdNewUIWindow,
@@ -12,9 +11,10 @@ import {
   setupElectricUIHandlers,
   setupSaveDialogInvoker,
 } from '@electricui/utility-electron'
+import { BrowserWindow, Menu, app, nativeTheme } from 'electron'
 
-import { format as formatUrl } from 'url'
 import { join as pathJoin } from 'path'
+import { format as formatUrl } from 'url'
 
 const isDevelopment = process.env.NODE_ENV === 'development'
 const allowDevTools = process.env.ALLOW_DEV_TOOLS === 'true' || isDevelopment
@@ -51,16 +51,11 @@ function createMainWindow() {
     titleBarStyle: 'hidden',
     show: false, // The window is shown once the transport manager is ready
     // Point at the application icon to use, on Windows use the .ico, other platforms use the png
-    icon: pathJoin(
-      __dirname,
-      process.platform === 'win32' ? '/build/icon.ico' : '/build/icon.png',
-    ),
+    icon: pathJoin(__dirname, process.platform === 'win32' ? '/build/icon.ico' : '/build/icon.png'),
   })
 
   if (isDevelopment) {
-    window.loadURL(
-      `http://localhost:${process.env.ELECTRICUI_BUILD_TOOLS_PORT}`,
-    )
+    window.loadURL(`http://localhost:${process.env.ELECTRICUI_BUILD_TOOLS_PORT}`)
   } else {
     window.loadURL(
       formatUrl({
@@ -127,7 +122,7 @@ app.on('ready', () => {
   const firstWindow = createMainWindow()
   mainWindows.push(firstWindow) // add a new window
 
-  const firstWindowReady = new Deferred()
+  const firstWindowReady = new Deferred<void>()
   firstWindow.once('ready-to-show', firstWindowReady.resolve)
 
   // Wait until the transport and the window is ready before showing the first window
@@ -245,12 +240,7 @@ const template = [
       // Fullscreen Toggle
       { role: 'togglefullscreen' },
       ...(isMac
-        ? [
-            { type: 'separator' },
-            { role: 'front' },
-            { type: 'separator' },
-            { role: 'window' },
-          ]
+        ? [{ type: 'separator' }, { role: 'front' }, { type: 'separator' }, { role: 'window' }]
         : [{ type: 'separator' }, { role: 'close' }]),
     ],
   },
@@ -292,7 +282,5 @@ const template = [
   },
 ]
 
-const menu = Menu.buildFromTemplate(
-  template as Electron.MenuItemConstructorOptions[],
-)
+const menu = Menu.buildFromTemplate(template as Electron.MenuItemConstructorOptions[])
 Menu.setApplicationMenu(menu)
